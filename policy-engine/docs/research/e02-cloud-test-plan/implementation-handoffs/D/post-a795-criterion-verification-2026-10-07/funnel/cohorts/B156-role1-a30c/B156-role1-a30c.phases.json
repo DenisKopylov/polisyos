@@ -1,0 +1,23 @@
+[
+  {
+    "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.004665129992645234,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.0022396369895432144,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.0001507400011178106,
+    "longrepr": null
+  }
+]

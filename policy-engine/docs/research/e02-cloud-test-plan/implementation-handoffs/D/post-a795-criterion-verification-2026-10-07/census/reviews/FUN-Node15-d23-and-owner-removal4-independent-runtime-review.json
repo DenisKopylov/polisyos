@@ -1,0 +1,463 @@
+{
+  "decision": "GO_LITERAL_NODE_FINANCIAL_CONSUMER_AND_OWNER_PORT_DISCRIMINATOR",
+  "reviewer": "/root/census_oct07",
+  "execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "scopes": [
+    {
+      "label": "node15-d23",
+      "command_path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.command.json",
+      "command_sha256": "9d732adb81ee9d48ba2c4553dbe269795e008c9755f5952ec68861a60ef73bf9",
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+      "cases": 15,
+      "PASS": 15,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "phases": 45,
+      "declared_inputs": 6323,
+      "available_inputs_match_candidate_Git": 6322,
+      "unavailable_inputs": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "captured_main_product_origin_rows": 1174,
+      "captured_main_unique_product_origin_paths": 1174,
+      "all_captured_product_origins_match_Git": true,
+      "lossless_deciding_artifacts": {
+        "ledgers": 15,
+        "cas": 324,
+        "node-observations": 15
+      },
+      "independent_readbacks": [
+        {
+          "fixture": "test_literal_node_configured_p0",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:f652346b83f54782a46bcf1eaf71d065",
+            "llm-producer:0b4fdae89089490cb93bd568d759c323"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:20cc4752caf288b1cee748e0a946ffb1efb45ca74979039b0e002c0d0fd9386a",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_configured_p1",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "0.0",
+          "returned_amount": "0.0",
+          "resource_event_ids": [
+            "llm-producer:ee0431ba2d2a46288af79b7768d77188",
+            "llm-producer:9760c771da4a4954aa26b28ba2b04588"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:3c3e3048c609c82bc557343487e3de3fc44daaff07c139fca3cc63cf46a9b7e9",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_configured_p2",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:6586de2264fe4a1393cc4a19324e3779",
+            "llm-producer:73d71733d99740b5bc19853fb3826073"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:04c576c4748266d0791abddcf0430d0b4a237db9f5b4bd0cc39566195a4b8f64",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_configured_p3",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "0.0",
+          "returned_amount": "0.0",
+          "resource_event_ids": [
+            "llm-producer:de17ede66760484e8eb56ca42864b6ad",
+            "llm-producer:499dea48ccb44e4683736142ca132c76"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:bf90734740ab36f07896ba80fe037e650d20b57c6fa7131fb55b208643355a3f",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_empty_has_no0",
+          "actual_calls": [],
+          "receipt_count": 0,
+          "persisted_amount": "0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:e10f3f384a3d464aa47d7dc80fc147f32d62fc4e7c51c3a2f9df3cc7e3156a68",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_empty_has_no1",
+          "actual_calls": [],
+          "receipt_count": 0,
+          "persisted_amount": "0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:226697ad370b50241a20c2a8ccd62ead7c3fc2f147c904cd20827ba346e0f0bb",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_final_aggreg0",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:228f9faaa1534078a2b80f5576f60777",
+            "llm-producer:05914b567f724b9481e99c58a846433a"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:3f3c372c0b5499d09065dc33522297c2fca5f43fda809006425165e90ffe78ab",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_final_aggreg1",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:8037d3cda325439d88c8647ab46615e0",
+            "llm-producer:c976ff511ee84d248b5121d21aacf118"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:d24c5689051a51b3525b4e0b32318955228db6c7533bacd37848af69e20cc039",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_unknown_cost0",
+          "actual_calls": [
+            "adversary"
+          ],
+          "receipt_count": 0,
+          "persisted_amount": "0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 1,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:a15689cb1c1dc81b696cd78e1349e665275ee23f258bbda4b4c03f249c800d21",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_unknown_cost1",
+          "actual_calls": [
+            "adversary"
+          ],
+          "receipt_count": 0,
+          "persisted_amount": "0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 1,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:caaddca71e8470b021b3bd0c31b5c879f204755c6caa613117fb4756d6535cdf",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_width_retain0",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:34183b942b0d43fcb8ebb9cdcca1b914",
+            "llm-producer:40d6b225821341d6bb6c5c1abe150005"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:dbe718bd1108c2183e2cad8506be87fe0a02f790a122e8ca552ba3a938dc756e",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_width_retain1",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:02729afc58484809b49050342dfc307b",
+            "llm-producer:83b75525cf204f66a7a254c45651afe8"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:a360919aa8a3141be2faf14276773683855b3adad7a8c00480013185aca24b72",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_width_retain2",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:ed56773a208d4f69800ad40993ecb611",
+            "llm-producer:1ccaddf5dd394e6ba183d699231e5082"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:3a1582a7c209752842d011995be47fb653daae162d6dc7ef3dcf2b99a01e0589",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_width_retain3",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:12b6af5dcd3449e48711612debac26ee",
+            "llm-producer:d00f51abdba44ac0bdac1dfdd1dd254f"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:b23eb91bfbb5185e31b6a915b42ae653eec36162c1d448915fcbeca6d0bb414f",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_width_retain4",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": "2.0",
+          "resource_event_ids": [
+            "llm-producer:950dd02a40a643cda5c28c128ba469a8",
+            "llm-producer:54fcfae46c0a4d96b5074b17ee427034"
+          ],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:ba5dd07bd904afc42a8a914c7fc12e0f73f597e71e4592ae76484ef5e9d6fc29",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        }
+      ]
+    },
+    {
+      "label": "node-owner-port-removal4-d23",
+      "command_path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.command.json",
+      "command_sha256": "60f485874a41e80425a74c140f52d5350453ef407fc99b16d101d49cc51f3a82",
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+      "cases": 4,
+      "PASS": 0,
+      "FAIL": 4,
+      "ERROR": 0,
+      "SKIP": 0,
+      "phases": 12,
+      "declared_inputs": 6323,
+      "available_inputs_match_candidate_Git": 6322,
+      "unavailable_inputs": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "captured_main_product_origin_rows": 1174,
+      "captured_main_unique_product_origin_paths": 1174,
+      "all_captured_product_origins_match_Git": true,
+      "lossless_deciding_artifacts": {
+        "ledgers": 4,
+        "cas": 96,
+        "node-observations": 4
+      },
+      "independent_readbacks": [
+        {
+          "fixture": "test_literal_node_configured_p0",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:3a489efad54c6af874785d6532f86699e89618fe3897f501feb537785b5c329b",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_configured_p1",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "0.0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:e0ad557a0c03b0dcc101c15f8b47740a9bbffd13b5024bb49b4455ebe5a06b67",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_configured_p2",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "2.0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:13c8dc5a8293364783003e7c1147a81f03630800f55a131af1342bb1d22ede1e",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        },
+        {
+          "fixture": "test_literal_node_configured_p3",
+          "actual_calls": [
+            "adversary",
+            "translator"
+          ],
+          "receipt_count": 2,
+          "persisted_amount": "0.0",
+          "returned_amount": null,
+          "resource_event_ids": [],
+          "pending_count": 0,
+          "fresh_state_ref": {
+            "artifact_id": "sha256:5e015b96617e7278bf9db0ac28e25d8e1bbafa22a26902565a507224d786b9e6",
+            "kind": "scientist.experiment_state",
+            "media_type": "application/json"
+          }
+        }
+      ]
+    }
+  ],
+  "supplemental_config_Git_bindings": [
+    {
+      "path": "policy-engine/pytest.ini",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "scope": "independent current candidate config identity; pytest.ini not separately in runner catalog"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "scope": "independent current candidate config identity; pytest.ini not separately in runner catalog"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664,
+      "scope": "independent current candidate config identity; pytest.ini not separately in runner catalog"
+    }
+  ],
+  "full_source_import_closure": "not_established; capture main product-src inventory only, not complete transient/parent-child/external module closure",
+  "chain": "Literal Node.execute with actual PolicyBudgetExecutionContext owner; actual existing L3/L4 workflow/funnel adapters; controlled observer adds real configured native Scenario/Translator calls using actual stage/run IDs; canonical Gateway/Decimal/B1.2 owner settlement; returned ExperimentState -> actual qualified CAS -> fresh state readback",
+  "P37": {
+    "actual_node_consumer": "consumer_asserted",
+    "fixture_cost_two_physical_events_oracle": "recomputed",
+    "candidate_inputs_origins_CAS_ledger_runtime_receipts": "independently_reconciled",
+    "scientific_estimation_permission_authority": "not_established"
+  },
+  "P38": "Owner-port removal retains native caller/actual debit and two receipts with zero reserved/pending, while canonical returned/freshCAS provider spend becomes None; all4 fail protected not-None assertion with no setup/error/skip",
+  "scope_boundary": "Controlled scientific/evidence/early-stage/promotion boundaries, backend observer added native paid call; not default scientific backend paid call/deployed/invoice/native draws/permit/refinement evidence",
+  "original_contributions": [
+    "B120 financial Node edge",
+    "B158 full/split financial state custody",
+    "B160 empty vs executed score/money zero",
+    "B162 CI-width distinct states and preserved available score/money",
+    "B165 final aggregate survives optional verdict"
+  ],
+  "held_unchanged": {
+    "B157": "producer_missing",
+    "B161": "not_established",
+    "B164": "not_established"
+  },
+  "tracker3": "Actual5b PASS remains5b; sole5b->d23 changed Node test not selected tracker. Preserve scoped source-qualified evidence, no new tracker3 run",
+  "initial18": "Actual5b13PASS5FAIL fixture-oracle outputs preserved; no productFAIL or P41 inheritance",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established",
+  "auxiliary": "Unique OS metrics port/cgroup samples are auxiliary; no metrics/kill attribution or imposed capacity guarantee",
+  "runtime_replayed_by_reviewer": false
+}

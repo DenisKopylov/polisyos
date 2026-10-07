@@ -1,0 +1,155 @@
+{
+  "source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "assessed_production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "assessed_scope": "actual execution on given frozen HEAD; product/test and new canonical Node test recorded separately, no prior run relabeled current",
+  "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "head_after": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_native_node_cohort.py",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "node-owner-port-removal4-d23",
+    "-p",
+    "remove_node_resource_owner",
+    "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-fixtures",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.junit.xml",
+    "-vv",
+    "-rA",
+    "-p",
+    "remove_node_resource_owner",
+    "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "POLISYOS_METRICS_PORT": "34623"
+  },
+  "exit": 1,
+  "wall_seconds": 11.07939624786377,
+  "phase_counts": {
+    "call:failed": 4,
+    "setup:passed": 4,
+    "teardown:passed": 4
+  },
+  "outputs": {
+    "node-owner-port-removal4-d23.stdout.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.stdout.txt",
+      "bytes": 8919,
+      "sha256": "381d73c9df368fbbba5f245ee29e09c6453830eea945a995999b755fe1f33b8d"
+    },
+    "node-owner-port-removal4-d23.stderr.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "node-owner-port-removal4-d23.junit.xml": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.junit.xml",
+      "bytes": 6696,
+      "sha256": "965156998200fa19df4684179f20b910d8ffdddb052241aede8e57468f20b2d5"
+    },
+    "node-owner-port-removal4-d23.phases.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.phases.json",
+      "bytes": 8688,
+      "sha256": "05bcb9e49fd3ded9621cb181f7ebb1ea0b4e41f1ab60a30157f41e1dc2c37b1c"
+    },
+    "node-owner-port-removal4-d23.inputs.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.inputs.json",
+      "bytes": 1202106,
+      "sha256": "d29baa7b8c8673709f431b5f42b922417f6172073724772cb2f22f5fa40e9f68"
+    },
+    "node-owner-port-removal4-d23.modules.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.modules.json",
+      "bytes": 415570,
+      "sha256": "b31a53312d44ef5b3a8e5978aa243caf0b05c3eb06f0d7425e065b0a9878656c"
+    },
+    "node-owner-port-removal4-d23.environment.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.environment.json",
+      "bytes": 10567,
+      "sha256": "bdb3e6d49656b14707825a3ceddf23cad9ebcd7b89c3b5186c778a1bdf44114b"
+    },
+    "node-owner-port-removal4-d23.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.cgroup-before.json",
+      "bytes": 506,
+      "sha256": "a3d688f5fa1746e5b7c66a5911a7c63c6b08213b62a0c14c8033d05eca41023d"
+    },
+    "node-owner-port-removal4-d23.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "4c465a9170b8c7237948f85fc079aa272e9e3594ff8418807539c3565da4a0ed"
+    },
+    "node-owner-port-removal4-d23.cgroup-during.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.cgroup-during.json",
+      "bytes": 4806,
+      "sha256": "bebc5f8bf486ebe98a93c3d2b0bcb66cd451895d40586cdeb13240258481bdb7"
+    },
+    "node-owner-port-removal4-d23.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.deciding-ledgers.json",
+      "bytes": 1946,
+      "sha256": "484eb543dd62378ad52a33f717878abc41e98d66921cb6c64397d751cd172b4b"
+    },
+    "node-owner-port-removal4-d23.deciding-cas.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.deciding-cas.json",
+      "bytes": 54431,
+      "sha256": "df41d5cf8df05ec0ff83799cfff3830fb2c62704265993dbabde17294937c512"
+    },
+    "node-owner-port-removal4-d23.deciding-node-observations.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.deciding-node-observations.json",
+      "bytes": 2068,
+      "sha256": "3a4bdbaea7764e76faced4680bbdf6c3f078eca8f14c17f84ed217fcc13dbbef"
+    }
+  },
+  "input_denominator": 6323,
+  "input_available": 6322,
+  "input_digest": "5b170a7689f60a89a57055a2107116fcc7e9797b4199c14d9fa48b14dbd54c02",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791397562.7903554,
+    "files": {
+      "memory.current": "15433433088\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "999\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791397573.8958044,
+    "files": {
+      "memory.current": "15958290432\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 4,
+  "deciding_cas_count": 96,
+  "deciding_node_observation_count": 4
+}

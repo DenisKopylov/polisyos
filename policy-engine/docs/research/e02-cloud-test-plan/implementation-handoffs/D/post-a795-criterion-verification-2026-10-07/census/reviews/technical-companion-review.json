@@ -1,0 +1,31 @@
+{
+  "schema": "D.cost-origin.public-inventory.compact-review.v1",
+  "fragment": {
+    "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "git_path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+    "sha256": "5d0ff9c1049f700d66ff8badea385892c998ee8f74e378a0e643da9a7dfb3ead",
+    "bytes": 1593,
+    "git_blob": "9226ed1527da6d66e02c62be3c5d13b9b97ac9d4"
+  },
+  "patch_path": "/dev/shm/e02-D-post-a795-88ghpj7t/census/public-inventory-review.patch",
+  "patch_sha256": "7bfe7389bbdecdc3fce8e9c144f8cc8a1ea964be15b57a578b90f61d13cafde5",
+  "basis": {
+    "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+    "sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+    "bytes": 11993,
+    "git_blob": "4d89247deaeacfde813f626f4385eaa00e726c98",
+    "json_pointer": "/consumer_and_compatibility"
+  },
+  "stable_exports": 42,
+  "independent_facade___all___lazy_map_inventory_G_review_equality": true,
+  "independent_facade_inventory_contract_exact_bytes_match_cbc": true,
+  "supported_change": "Explicit inventory review only. Existing internal classification, no public ABI/DTO/generated-client change or package acceptance. No OpenAPI/client regeneration implied.",
+  "source_ref_locator_correction_requested_to_G_owner": {
+    "json_pointer": "/consumer_and_compatibility/service_evidence/receipt",
+    "observed": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json@cbc46a0bc87761bc2267a0daa84da4899",
+    "correct_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "importance": "documentation_locator_only; use actual CBC receipt refs for deciding evidence"
+  },
+  "tracked_source_writes": false
+}

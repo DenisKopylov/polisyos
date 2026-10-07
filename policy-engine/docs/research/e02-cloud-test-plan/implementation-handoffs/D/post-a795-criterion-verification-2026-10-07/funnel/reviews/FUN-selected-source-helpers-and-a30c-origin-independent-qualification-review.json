@@ -1,0 +1,35 @@
+{
+  "schema": "D.E02.FUN-selected-origin-and-helper-a30c-independent-qualification.v1",
+  "reviewer": "census_oct07",
+  "decision": "GO_SELECTED_SOURCE_CALLER_ASSERTION_QUALIFICATION_ONLY",
+  "sidecar": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/final-a30c-selected-reached-source-qualification.json",
+    "sha256": "7ca7d31d3bedd1149392761bbd2bea93eef0dedb42b3f502a0ba4a70806a1d69"
+  },
+  "qualified_git_ref": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "implementation_source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "actual_executions_stay": [
+    "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2"
+  ],
+  "old17_actual_main_origin_rows_rehashed_to_currentGit": 1174,
+  "old17_unique_main_source_paths": 1174,
+  "six_selected_test_helper_conftest_blobs": [
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "policy-engine/tests/unit/remediation/test_fun_03.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "policy-engine/tests/conftest.py"
+  ],
+  "B156_changed_unit_file": "not selected or directly imported by these declared helpers; main product inventory cannot prove all transient/test-child import absence",
+  "B159": "Historical3b actual native reserve/release scheduling and fresh owner readback remains3b. Scalar ownership is not durable ticket-scoped reservation authority; no full current scheduler replay/import closure or broader law claim.",
+  "reading_rule": "Current new Node15/removal4 and new independent-role singleton are separate actual executions. Old17/full unit file scopes do not become currentPASS. Full catalog/whole transitive external/nonmodule/child closure remains not_established.",
+  "P37": "independently_reconciled selected exact source hashes; actual predicate consumer_asserted at old pin",
+  "P38": "Retained physical event/report markers cannot replace actual scheduling/readback or role callback; current singleton/removal independently measured",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established",
+  "no_replay": true
+}

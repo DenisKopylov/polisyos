@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.676" timestamp="2026-10-07T18:26:11.411055+00:00" hostname="565838a1e059"><testcase classname="tests.integration.scientist.methods.search.funnel.test_native_node_resource_consumer" name="test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-1.0]" time="0.233"><failure message="AssertionError: full native Node lost real owner settlement at returned projection&#10;assert None is not None">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2ab3bf56e0&gt;
+tmp_path = PosixPath('/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-fixtures/test_literal_node_configured_p0')
+cost = 1.0, split = False
+
+    @pytest.mark.parametrize("cost", [1.0, 0.0])
+    @pytest.mark.parametrize("split", [False, True])
+    def test_literal_node_configured_paid_or_zero_settlement_fresh_cas(
+        monkeypatch, tmp_path, cost, split
+    ):
+        projected, observations, snapshot, calls = execute(
+            monkeypatch, tmp_path, cost=cost, split=split
+        )
+        assert calls == ["adversary", "translator"]
+        expected = Decimal(str(cost)) * 2  # Independent physical-event denominator.
+        assert snapshot.state.spent["run"] == expected and len(snapshot.spend_receipts) == 2
+        assert snapshot.state.reserved["run"] == 0
+&gt;       assert projected["provider_spend_usd"] is not None, (
+            "full native Node lost real owner settlement at returned projection"
+        )
+E       AssertionError: full native Node lost real owner settlement at returned projection
+E       assert None is not None
+
+tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.methods.search.funnel.test_native_node_resource_consumer" name="test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-0.0]" time="0.074"><failure message="AssertionError: full native Node lost real owner settlement at returned projection&#10;assert None is not None">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2ab2cf02b0&gt;
+tmp_path = PosixPath('/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-fixtures/test_literal_node_configured_p1')
+cost = 0.0, split = False
+
+    @pytest.mark.parametrize("cost", [1.0, 0.0])
+    @pytest.mark.parametrize("split", [False, True])
+    def test_literal_node_configured_paid_or_zero_settlement_fresh_cas(
+        monkeypatch, tmp_path, cost, split
+    ):
+        projected, observations, snapshot, calls = execute(
+            monkeypatch, tmp_path, cost=cost, split=split
+        )
+        assert calls == ["adversary", "translator"]
+        expected = Decimal(str(cost)) * 2  # Independent physical-event denominator.
+        assert snapshot.state.spent["run"] == expected and len(snapshot.spend_receipts) == 2
+        assert snapshot.state.reserved["run"] == 0
+&gt;       assert projected["provider_spend_usd"] is not None, (
+            "full native Node lost real owner settlement at returned projection"
+        )
+E       AssertionError: full native Node lost real owner settlement at returned projection
+E       assert None is not None
+
+tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.methods.search.funnel.test_native_node_resource_consumer" name="test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-1.0]" time="0.076"><failure message="AssertionError: full native Node lost real owner settlement at returned projection&#10;assert None is not None">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2ab3a3f1d0&gt;
+tmp_path = PosixPath('/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-fixtures/test_literal_node_configured_p2')
+cost = 1.0, split = True
+
+    @pytest.mark.parametrize("cost", [1.0, 0.0])
+    @pytest.mark.parametrize("split", [False, True])
+    def test_literal_node_configured_paid_or_zero_settlement_fresh_cas(
+        monkeypatch, tmp_path, cost, split
+    ):
+        projected, observations, snapshot, calls = execute(
+            monkeypatch, tmp_path, cost=cost, split=split
+        )
+        assert calls == ["adversary", "translator"]
+        expected = Decimal(str(cost)) * 2  # Independent physical-event denominator.
+        assert snapshot.state.spent["run"] == expected and len(snapshot.spend_receipts) == 2
+        assert snapshot.state.reserved["run"] == 0
+&gt;       assert projected["provider_spend_usd"] is not None, (
+            "full native Node lost real owner settlement at returned projection"
+        )
+E       AssertionError: full native Node lost real owner settlement at returned projection
+E       assert None is not None
+
+tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.methods.search.funnel.test_native_node_resource_consumer" name="test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-0.0]" time="0.073"><failure message="AssertionError: full native Node lost real owner settlement at returned projection&#10;assert None is not None">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f2ab3a6e470&gt;
+tmp_path = PosixPath('/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-fixtures/test_literal_node_configured_p3')
+cost = 0.0, split = True
+
+    @pytest.mark.parametrize("cost", [1.0, 0.0])
+    @pytest.mark.parametrize("split", [False, True])
+    def test_literal_node_configured_paid_or_zero_settlement_fresh_cas(
+        monkeypatch, tmp_path, cost, split
+    ):
+        projected, observations, snapshot, calls = execute(
+            monkeypatch, tmp_path, cost=cost, split=split
+        )
+        assert calls == ["adversary", "translator"]
+        expected = Decimal(str(cost)) * 2  # Independent physical-event denominator.
+        assert snapshot.state.spent["run"] == expected and len(snapshot.spend_receipts) == 2
+        assert snapshot.state.reserved["run"] == 0
+&gt;       assert projected["provider_spend_usd"] is not None, (
+            "full native Node lost real owner settlement at returned projection"
+        )
+E       AssertionError: full native Node lost real owner settlement at returned projection
+E       assert None is not None
+
+tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py:209: AssertionError</failure></testcase></testsuite></testsuites>

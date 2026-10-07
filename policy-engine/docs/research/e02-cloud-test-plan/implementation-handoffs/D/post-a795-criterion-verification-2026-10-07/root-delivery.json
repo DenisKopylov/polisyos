@@ -1,0 +1,403 @@
+{
+  "schema": "D.E02.post-a795-root-delivery.v1",
+  "writer": "/root",
+  "source_freeze": {
+    "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+    "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9"
+  },
+  "original_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base": {
+    "commit": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+  },
+  "production_source": {
+    "commit": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4"
+  },
+  "receipt_parent_at_freeze": {
+    "commit": "a30c140eedc5c0514a93409d4b4040a715231d28",
+    "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350"
+  },
+  "new_local_source_test_commits": [
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "8e864f4ed0eeedf509d836381b20976c413f2443"
+  ],
+  "full_source_test_companion_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/root-context/source-footprint-and-freeze.json",
+    "bytes": 46007,
+    "sha256": "bc231b3e6900326e05ae604c24be0cb4389795c47154fdd680f83f0177c8f411"
+  },
+  "new_source_test_companion_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "new_production_python_paths": [],
+  "mandatory_companions": [
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml"
+  ],
+  "public_contract": "Candidate42 scientist exports versus G/main39: NativeSearchService, SearchServiceCheckpoint and SearchLoopRunner are additive ancestor exports. Own3b→a795→8e changes none of five audited surface paths. No HTTP/OpenAPI/client/DTO signature delta or regeneration for this own change. strategy_adapter.v2/bayesian_candidate_generator.v3 internal formats and required-history restore through stable public NativeSearchService are documented breaking persisted behavior; old/unsupported profiles refuse without automatic migration.",
+  "fresh_G_and_API_scope_clarification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/root-context/fresh-G-2abc-and-API-comparator-clarification.json",
+    "bytes": 33956,
+    "sha256": "ecc2f266b4bc02046ed6f528271b7dca84225ab21edf1601e4a252ef3aaede66"
+  },
+  "original_denominator": {
+    "bundles": 17,
+    "unique_finding_ids": 45,
+    "original_criterion_occurrences": 46,
+    "owner_packets": 16
+  },
+  "accounting": {
+    "criterion-overlay.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json",
+      "bytes": 327579,
+      "sha256": "9556cf0b0daa2a8cb4376ef96f691e0edb9ba1703764ad3b30714a4eec35c49d"
+    },
+    "summary.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/summary.json",
+      "bytes": 2524,
+      "sha256": "cb4847488114bb1d5fb6617a8bbe381430f9c565d30a67acad0453ba46831c7b"
+    },
+    "taskboard.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/taskboard.json",
+      "bytes": 19749,
+      "sha256": "7ef388f3fd341a6e3a7d2e680d77dd18ec3e0193f12b58e8b7adc5769aa7356c"
+    },
+    "binding-verification.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/binding-verification.json",
+      "bytes": 16548,
+      "sha256": "2d34fbcf062ef9c27591ff76d879765c75366b0fb4c7fed3d0f67779c31f1fee"
+    },
+    "owner-inputs-update.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/owner-inputs-update.json",
+      "bytes": 42703,
+      "sha256": "555882e23f1abbcddab9d04868de5747769905cd2427dafb806a13fcd4e8255b"
+    },
+    "source-bindings.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/source-bindings.json",
+      "bytes": 6438,
+      "sha256": "c9bbdba94ab6f97e8b0a33e89dcfe799b19c1d700353a601cc2badc6cbd14468"
+    },
+    "P37-P38.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/P37-P38.json",
+      "bytes": 46010,
+      "sha256": "e564bcac29f7294967db9885370e2976b69b86b1b74576ba2d076fbe1d1a8073"
+    }
+  },
+  "dispositions_unique": {
+    "closed_proposals_pending_G": 39,
+    "held": 5,
+    "limited": 1,
+    "open_owned_fixable_defect_established": 0
+  },
+  "formal_G_decision": {
+    "formal_closed": 0,
+    "G_accepted": 0,
+    "D_not_ancestor_of_observed_G": true
+  },
+  "separate_check_and_disposition_rule": "Each occurrence keeps disposition, capability, exact-source check outputs and formal decision separate; no aggregation of different pins or cohorts into whole-D PASS.",
+  "families": [
+    {
+      "family": "math8",
+      "occurrences": [
+        "B106@STR-01",
+        "B107@STR-01",
+        "B108@OPT-01",
+        "B109@OPT-01",
+        "B110@OPT-01",
+        "B111@OPT-01",
+        "B122@STP-01",
+        "B41@STP-01"
+      ],
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "separate_command_results": [
+        "quantity consumers 17 PASS; generic origin/admission receipt ERROR",
+        "fiscal wire/Decimal/objective 24 PASS; real issuer law not_established",
+        "stress report/blueprint/CAS 22 PASS",
+        "convergence/plateau 50 PASS"
+      ],
+      "source_qualification": "Named selected source/current consumer proof only; old 154 numerical and other old receipts keep their original pins. No whole import admission or combined PASS.",
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/math/root-independent-review.json",
+        "bytes": 31701,
+        "sha256": "fa11e631b5071b840f639952e0bb369dbbe437b826d9686d033833b4dd39e0b6"
+      }
+    },
+    {
+      "family": "GP7",
+      "occurrences": [
+        "B112@OPT-02",
+        "B113@OPT-02",
+        "B114@OPT-03",
+        "B115@OPT-03",
+        "B125@CTL-02",
+        "B126@CTL-02",
+        "B127@OPT-02"
+      ],
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "separate_command_results": [
+        "defining33 PASS",
+        "state/effective100 PASS",
+        "MO supported7 PASS",
+        "public effective4 PASS",
+        "public runner transfer3 PASS",
+        "public mixed direction2 PASS",
+        "MO corrupt/foreign atomic19 PASS",
+        "warm independent-replica dedup1 PASS",
+        "minimal compatibility3 PASS; native-only collection3 SKIP and numerical property UNRUN"
+      ],
+      "runtime_property": "Actual installed SingleTaskGP/GPyTorch fitting, fitted transforms/noise/state/CAS restoration and independent fixed-parameter mean/full-covariance arithmetic; direct strategy restore and public wrapper restore have distinct scopes.",
+      "source_qualification": "Selected d23/8e unchanged source; opaque NN/custom Service persistence refuses unsupported profiles. No cross-version/universal RNG claim.",
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/gp-state/reviews/GP-original-seven-current-CBC-independent-review.json",
+        "bytes": 8059,
+        "sha256": "d0c0a00ca4047879aff6c10a755c49bf7050060c62efb8ca0c4264aab6a55c14"
+      }
+    },
+    {
+      "family": "service11",
+      "occurrences": [
+        "B116@OPT-04",
+        "B117@OPT-04",
+        "B118@CTL-01",
+        "B119@CTL-01",
+        "B120@CTL-03",
+        "B121@CTL-03",
+        "B123@CTL-03",
+        "B124@CTL-02",
+        "LA-014@SRV-01",
+        "LA-015@CTL-01",
+        "LA-015@SRV-03"
+      ],
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "separate_command_results": [
+        "controller/native owner/legacy/typed publication25 PASS",
+        "Champion CAS/reread/crash/pointer/basis/local race/public runtime21 PASS"
+      ],
+      "original_B120_boundary": "Existing owner measured cost reaches admission/stopping/result without retry zeroing/cache double debit; original B_r19@198 lines3192-3205. Real deployment/vendor invoice truth is separate.",
+      "source_qualification": "a79531/22 and historical G680 budget-factory10 retained at actual pins, not replayed; selected financial17 blobs/direct async call edges qualify unchanged part of old cache/raw receipts, not complete import closure.",
+      "supplier_rule": "LA-015@CTL-01 supplier companion only; canonical closure owner SRV-03, one unique LA-015.",
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/service/independent-original-join-review.json",
+        "bytes": 4603,
+        "sha256": "7cda275a6e4562b45275e51effc659274002f19f54fc97d6b7a08353651e399c"
+      }
+    },
+    {
+      "family": "transfer10",
+      "occurrences": [
+        "B128@TRN-01",
+        "B129@TRN-02",
+        "B130@TRN-01",
+        "B131@TRN-01",
+        "B132@TRN-01",
+        "B133@TRN-02",
+        "B134@TRN-02",
+        "B135@TRN-03",
+        "B136@TRN-03",
+        "B137@TRN-03"
+      ],
+      "actual_execution_pins": [
+        "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61"
+      ],
+      "separate_command_results": [
+        "native HNSW generation/ref/intake28 PASS",
+        "quota/ref/reverse/controller39 PASS",
+        "lesson local/transferred/as-of/retention39 PASS",
+        "legacy history refusal6 PASS at5b",
+        "intake removal3 expected assertion FAIL and1 unaffected PASS",
+        "native finite removal1 expected assertion FAIL"
+      ],
+      "runtime_property": "Real immutable native-generation readers and exact CAS content admission. 1002 discovery records and two controlled persisted evaluations do not prove scientific independent execution or tenant authority.",
+      "held": [
+        "B131 actual authorized reuse refs",
+        "B137 actual authorized new grounds/time/evidence"
+      ],
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/transfer/reviews/TRN-original10-current-CBC-independent-runtime-review.json",
+        "bytes": 14893,
+        "sha256": "f8c96c75448f7fd23eb0f0b3e86b54cf50f0230d2596cb5ebd3d645071f38d85"
+      }
+    },
+    {
+      "family": "funnel10",
+      "occurrences": [
+        "B156@FUN-01",
+        "B157@FUN-02",
+        "B158@FUN-01",
+        "B159@FUN-01",
+        "B160@FUN-02",
+        "B161@FUN-03",
+        "B162@FUN-02",
+        "B163@FUN-03",
+        "B164@FUN-03",
+        "B165@FUN-02"
+      ],
+      "actual_execution_pins": [
+        "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+        "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+        "a30c140eedc5c0514a93409d4b4040a715231d28"
+      ],
+      "separate_command_results": [
+        "initial5b new Node15 plus tracker3:13 PASS/5 fixture assertion FAIL; preserved",
+        "corrected d23 literal Node15 PASS",
+        "d23 owner-port removal4 expected assertion FAIL",
+        "existing tracker3 PASS subset of initial5b run",
+        "B156 a30c singleton1 PASS and role-removal1 expected callback assertion FAIL",
+        "initial8e singleton preflight ERROR/UNRUN0 phases; untracked receipt inputs"
+      ],
+      "runtime_property": "Literal RunPolicyBlueprintRuntimeNode execution delegates canonical native engine/workflow, with controlled paid workers using real Gateway/enforcer/B ledger and returned state→CAS/fresh reader. Independent-control unit witness covers real callback/cache/history, not Node/debit/CAS.",
+      "source_qualification": "Current selected source/helper/main origins verified; native worker injection does not appoint production scientific resource authority. Old projection17 remains exact old scope.",
+      "held": [
+        "B157 native executed draws producer_missing",
+        "B161 authorized same-scope refinement not_established",
+        "B164 issuer/current verifier/write owner not_established"
+      ],
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-Node15-d23-and-owner-removal4-independent-runtime-review.json",
+        "bytes": 17678,
+        "sha256": "fe23ece8acbef92686732fbb5972f1940890c86645e30e771ccca903f8dc20ac"
+      },
+      "moderate_transport_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-final497-moderate-lossless-transport-and-core-independent-review.json",
+        "bytes": 4228,
+        "sha256": "7dff998b23f0b77851ae84cdac1c2ca186f1820c84a5a36f4de3c2fc75170ed5"
+      }
+    }
+  ],
+  "portable_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/math/output-manifest.json",
+      "bytes": 2220,
+      "sha256": "aeca3dd12fa15adaf8c226645cabf36a22ffd821d15db7503512c61467699b0d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/math/final-d23-addendum/output-manifest.json",
+      "bytes": 1143,
+      "sha256": "de20c7cd1e1e3fa8fc2a4dcf48709cfd082689554a0c987b00b57d74a59fd732"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/gp-state/final-output-manifest.json",
+      "bytes": 24056,
+      "sha256": "e2fda27ce9cf951fceeac54b0b35da16eb6edd9646711e689d0b6c92e99f8672"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/gp-state/addenda/d23-selected-carry/final-output-manifest.json",
+      "bytes": 2083,
+      "sha256": "b07f89b4436597a58697dcf700662d42bf2779f8936843c4394d67eb416125a7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/service/manifest.json",
+      "bytes": 111898,
+      "sha256": "365ac7e37dba319748aff34cd8ae0af7736d2c482da3154552f6619b7484c8e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/transfer/output-manifest.json",
+      "bytes": 10674,
+      "sha256": "4f353dfe16791626781370b780c0d4e45c13d5389ea58fb10f4383de1c86321b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/manifest.json",
+      "bytes": 258230,
+      "sha256": "0c8342b33ceb780f5648493a5bf99d6d8f5444dc8706778eb09b28d24503eaf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/portable-manifest.json",
+      "bytes": 10752,
+      "sha256": "b4c08b4973fad4d8a0814f60684a940abdd50e17b8133af326bbde5ec992f742"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/FUN-transport-availability-manifest.json",
+      "bytes": 1495,
+      "sha256": "7c5f44c162b2822365785fd11032e8ae8485c0a1e2721906782959261e6a5b8c"
+    }
+  ],
+  "aggregate_independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/final-original46-sealed19-independent-metadata-review.json",
+    "bytes": 3800,
+    "sha256": "246511bb25782d0febfe32f0a1c0142461fb00689ad4a822014ae9b9c11b5db3"
+  },
+  "FUN_transport_pending_override": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/FUN-moderate-output-availability-update.json",
+    "bytes": 3130,
+    "sha256": "e78b4753d3304f3c2b0b5c86ab59b2c11271312d89de6dd7d3e16cad399a2f6e"
+  },
+  "override_boundary": "Only sealed19 pending FUN moderate transport fields are superseded by locally sealed lossless497-member packet. Sealed19 bytes unchanged. Actual remote publication remains not_established.",
+  "large_raw_outputs": "Full catalogs/import origins stay ignored external with exact path/hash/count; moderate complete commands, streams, JUnit, phases, native receipts/CAS and observer outputs are transported. No tracked source dump or whole raw cloud-availability claim.",
+  "held_minimum_inputs": {
+    "B131": "Owner-approved actual source/target tenant,split,subject refs and numeric reuse basis/adapter decision.",
+    "B137": "Old/new evidence,actual new grounds/occurrence time,purpose authorization and subject/rule scope.",
+    "B157": "Executed native draw/work artifact and same-run effective L3-reduced/L4-full configuration/run-evaluation lineage.",
+    "B161": "Prior/later estimates on same subject/value/input/rule/time,authorized refinement relation and independent risk components.",
+    "B164": "Appointed actual typed purpose/subject-bound issuer,current verifier,serialized revoke/commit write owner,prepared payload; valid-positive and revoked-zero controls."
+  },
+  "B108_limited": "Real fiscal producer unit/sign/alias law not_established. Decimal/float64/technical objective receipts prove only their bounded numeric mechanism.",
+  "capability_labels": {
+    "B157": "producer_missing",
+    "B131": "not_established",
+    "B137": "not_established",
+    "B161": "not_established",
+    "B164": "not_established",
+    "B108_actual_issuer_profile": "not_established",
+    "shared_global_replay": "verification_missing"
+  },
+  "adjacent_owner_inputs": "All16 minimum packet objects retained, with canonical owners and required refs. A optional frontier serving, E mutable-cardinality/distribution-law and B API/history/deployment decisions are not added original D acceptance gates.",
+  "P37_P38": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/P37-P38.json",
+    "bytes": 46010,
+    "sha256": "e564bcac29f7294967db9885370e2976b69b86b1b74576ba2d076fbe1d1a8073"
+  },
+  "pattern_pass": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/root-context/pattern-pass.json",
+    "bytes": 4615,
+    "sha256": "31d6ecb7daeb78dd3cb9d15634bb47002f97f0bad0459e0bd8ac7e1bf2125455"
+  },
+  "P41": {
+    "not_established_occurrences": 46,
+    "no_inherited_red_waiver": true
+  },
+  "global_remaining": {
+    "owner": "G",
+    "gate": "UNRUN",
+    "historical_signal9": "unknown cause, incomplete output and zero testcase phases; no established OOM or product FAIL",
+    "action": "One frozen integrated shared replay/global companions; only exact original-criterion required minimal local read-only production refs. Production data never transferred."
+  },
+  "backend_limitations": "Real extras GP/vector scopes executed; minimal native-only collection3 SKIP/numerical UNRUN. Static _SPEC diagnostic measures single unambiguous direct binding, not runtime declared reads/B04 closure.",
+  "publication": {
+    "topic": "codex/e02-D-oct07-continuation",
+    "PR": "https://github.com/DenisKopylov/polisyos/pull/68",
+    "observed_remote_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "previous_locally_available_G_head": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "fresh_connector_G_head": "2abc17f46a033a7879663486ff9946a95786601f",
+    "fresh_connector_G_tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+    "fresh_G_locally_fetched_or_merged": false,
+    "local_final_receipt_ref": "Containing ordinary receipt commit; exact SHA/tree are recorded by final Git readback and PR metadata, avoiding a self-reference cycle.",
+    "status": "pending normal Git credentials; local commits are not remote available",
+    "auth_observation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/root-context/root-remote-read-and-publication-auth.json",
+      "bytes": 6178,
+      "sha256": "cce06823ca08cd4f5f93c6b508e615dd45e9cf3a8c3fd3352a0d07ad593d434d"
+    },
+    "history": "Existing topic append-only. No reset/rebase/cherry-pick/force-push/G or main writes."
+  },
+  "cleanup": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/root-context/cleanup-candidates.json",
+    "bytes": 2928,
+    "sha256": "131c3aef1ce98d2726b2f6545e00ccc87c14f3ea64d3fd5a6e77c662bc57a1dd"
+  },
+  "final_independent_metadata_review_expected": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/final-root-delivery-independent-review.json",
+  "publication_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/publication-manifest.json",
+    "exclusions": [
+      "publication-manifest.json",
+      "census/reviews/final-root-delivery-independent-review.json"
+    ],
+    "rule": "The manifest hashes all other family/accounting/root bytes. Independent review is added separately and bound by final Git readback; no self-hash cycle."
+  }
+}

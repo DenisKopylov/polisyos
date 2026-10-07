@@ -1,0 +1,109 @@
+{
+  "scope": "Actual bounded literal Node test observer/context/projection rows; producer addition controlled, not default backend or authority witness",
+  "files": [
+    {
+      "fixture_path": "test_literal_node_configured_p0/node-consumer-observations.json",
+      "bytes": 16546,
+      "sha256": "181b6bef35ca10f89e514aefb6e9f7b38b41707d31b8da0fec13177951892f67",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/23f54f0830e766293cab.json.gz",
+      "gzip_bytes": 2310,
+      "gzip_sha256": "3d8303d3405033fc0c2e188f6bdc7b7ae8673746429426fec4f0519cca6ab41d"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p1/node-consumer-observations.json",
+      "bytes": 16548,
+      "sha256": "f2a8c2117251cee81786ceb3fe5f1c95d5d67cb55e038922b694337152e549be",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/9f8158ee46f61d4fb494.json.gz",
+      "gzip_bytes": 2299,
+      "gzip_sha256": "c3f77a7c53130f4d44dcdc09bc46e693bc43cdd881d0d936b05d9abfabff5ec6"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p2/node-consumer-observations.json",
+      "bytes": 16548,
+      "sha256": "cfdcc42ceccc45c392a7788868c99675586deb920c6394bbec772c49b4ad89c5",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/a5ea75f326bdf6ef7283.json.gz",
+      "gzip_bytes": 2307,
+      "gzip_sha256": "73325153120d7db0aa312ef86492b80321a24426b03a847c9cd99b41f97c5b32"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p3/node-consumer-observations.json",
+      "bytes": 16548,
+      "sha256": "3ab5b68ee7f4011e759abdbc6853976bcf47cd820498c4533e38b3fe77136290",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/cb56877468a822ec1082.json.gz",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "ed0228c865569625742beaae1c536a5bb304ff18cbb7264a5cb0d03cf21446de"
+    },
+    {
+      "fixture_path": "test_literal_node_empty_has_no0/node-consumer-observations.json",
+      "bytes": 897,
+      "sha256": "a3911550ebb8fccb62725a7aea8e89200755cb258dfccb57a06f22687b740577",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/f239403c58565a97e7f8.json.gz",
+      "gzip_bytes": 511,
+      "gzip_sha256": "20914fa14fdf7011e9fe34b7853d1cf838d95205de5e927a6dc59c5026fe2704"
+    },
+    {
+      "fixture_path": "test_literal_node_empty_has_no1/node-consumer-observations.json",
+      "bytes": 897,
+      "sha256": "5911c75a7e7ecc72a18e59f29dd72dc0ae7617571639ab55e5f31359986fc004",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/4d93f89394055a3c73d2.json.gz",
+      "gzip_bytes": 512,
+      "gzip_sha256": "530104bda998d9ba09200ca94add1c2efd91d6a53b6754556eff542b5db569fd"
+    },
+    {
+      "fixture_path": "test_literal_node_final_aggreg0/node-consumer-observations.json",
+      "bytes": 16507,
+      "sha256": "9f1cc3eb5498bb0007ce88c79c87f3f98599e35abe853455fda7e46d5f2587e4",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/a40e8b5929a7998aa7fe.json.gz",
+      "gzip_bytes": 2314,
+      "gzip_sha256": "9f2db4742d0ce9b6d1a14f0ec31db6019a51d3235d720d3b67fa4cf0d81700bd"
+    },
+    {
+      "fixture_path": "test_literal_node_final_aggreg1/node-consumer-observations.json",
+      "bytes": 16544,
+      "sha256": "627968a1c43a865eb08516eaecddbb24120ba05e3f707f6cd3499f695a9a1f2a",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/c195c4b98a4246d07b5a.json.gz",
+      "gzip_bytes": 2306,
+      "gzip_sha256": "3a1f0e9696100745488f5efc296a38fdfcea44af56c345f37a1aeddd086a2a29"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain0/node-consumer-observations.json",
+      "bytes": 16548,
+      "sha256": "4ad9ea31df924f230cc1209f83418fc5ca00cf47f4b0649b63f006b1d41ac010",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/f24bc582161a0dfbd5b2.json.gz",
+      "gzip_bytes": 2307,
+      "gzip_sha256": "009bc03674e8ca818fad3c8862f1c57a6a4d015e911279bbab4f548f75a5f706"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain1/node-consumer-observations.json",
+      "bytes": 16548,
+      "sha256": "2a9c0845318525d7a5b470a8df6091b70b7a8a6ff2ba1f35e8e2f1889ea69397",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/cfa48085eac6519bc755.json.gz",
+      "gzip_bytes": 2309,
+      "gzip_sha256": "61dcbc724f87f21ccab2c8be61743705361c76796eeaf8220f901d0dbae99d2f"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain2/node-consumer-observations.json",
+      "bytes": 16548,
+      "sha256": "ffd5e1c1de84ca0102aaf7a2145aafc18d9b008b3ef8b7c85b4692227c9918d4",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/ddab534dfe6090ff2d77.json.gz",
+      "gzip_bytes": 2310,
+      "gzip_sha256": "d628aca49f54e360b7ea08e4fb10a46e2dd145a737fb255e7e8d73a33dddcc49"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain3/node-consumer-observations.json",
+      "bytes": 16547,
+      "sha256": "150235db41d45ff77e25ed671260c55c1b4e18916208ef9a703b70a944ee7a26",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/0dd035e09f2364d7e2b5.json.gz",
+      "gzip_bytes": 2311,
+      "gzip_sha256": "e39e4cdb2aae4a5a025657ff0c9cd364ea5d088e473b80f7d78a6a7254129e0e"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain4/node-consumer-observations.json",
+      "bytes": 16547,
+      "sha256": "1f9901ac27189069abc3f38c6f8cb8ef878a2c40b0c872b4f793edb48856458e",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-deciding-node-observations/efadc2e5d9af676ae676.json.gz",
+      "gzip_bytes": 2306,
+      "gzip_sha256": "7250785a43a8548c899f2786ab184301716655e4d44a62a47a20ba37ccb4db90"
+    }
+  ]
+}

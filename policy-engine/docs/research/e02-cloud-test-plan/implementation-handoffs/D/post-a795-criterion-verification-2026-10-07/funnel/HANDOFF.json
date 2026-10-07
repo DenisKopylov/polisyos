@@ -1,0 +1,115 @@
+{
+  "schema": "D.FUN.final-native-original-ten-handoff.v1",
+  "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/",
+  "assessment_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "latest_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "latest_execution_tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+  "implementation_sources": [
+    {
+      "implementation_commit": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "slice_base": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "changed_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+        "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py"
+      ]
+    },
+    {
+      "implementation_commit": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+      "slice_base": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "changed_paths": [
+        "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py"
+      ]
+    },
+    {
+      "implementation_commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+      "slice_base": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "changed_paths": [
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+      ]
+    }
+  ],
+  "original_occurrences": 10,
+  "normative_matrix": "original10-outcomes.json",
+  "proposal_counts": {
+    "closed": 7,
+    "held": 3,
+    "formal_closed": 0,
+    "accepted_in_G": 0
+  },
+  "current_mechanism": "Existing native Node/configured workflow→actual resource workers/Gateway B decoder→B1.2 durable owner settlement/pending fence→Funnel resource projection→returned ExperimentState→canonical JSON/CAS fresh reader; control role identity ordinary callback/history consumer tested separately.",
+  "physical_provider_boundary": "Only actual HTTP response bytes controlled; existing Gateway decoder/enforcer/middleware/FileBudgetLedger and resource workers execute. A wrapper adds existing paid native worker at actual real scientific workflow adapter call and delegates the original adapter; this is a controlled producer bridge, not proof default scientific backend itself constructs paid workers.",
+  "current_actual_checks": [
+    {
+      "source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "label": "node15-d23",
+      "result": "15PASS",
+      "scope": "literal whole Node financial/empty/width/final aggregate/tiny JSON pending and fresh canonical state/CAS consumer"
+    },
+    {
+      "source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "label": "node-owner-port-removal4-d23",
+      "result": "4FAIL expected protected money assertions",
+      "scope": "Node owner port removed; physical2calls/2receipts and true paid/zero canonical debit remain while output loses money"
+    },
+    {
+      "source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "label": "node15-tracker3-5b5",
+      "result": "3PASS tracker subset; complete cohort13PASS/5fixtureFAIL",
+      "scope": "actual Node restores compatible persisted paired corpus5→6 and marker-preserving snapshot removal; all other initial5b failures preserved"
+    },
+    {
+      "source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "label": "B156-role1-a30c",
+      "result": "1PASS",
+      "scope": "same effective input reuse, new version, actual independent control callback3 and immutable ordinary history"
+    },
+    {
+      "source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "label": "B156-role-removal1-a30c",
+      "result": "1FAIL expected callback-count assertion",
+      "scope": "drop only role from identity; third control callback is not run, actualcount2 vs3"
+    }
+  ],
+  "predicate_basis": "P37 consumer assertions plus independent Decimal physical charge×call count and exact owner receipt/event binding; canonical model JSON/CAS independent fresh reader; deterministic supplied callback/tracker controls. No unsupported scientific law or current authority derived.",
+  "proxy_divergence": "P38 Node owner removal retains actual paid calls/receipts and loses output money; role removal retains context markers/history and loses actualcontrol callback. Old3b estimated-origin removal retains estimate/event/pending metadata and yields exact fake reported0 in freshCAS.",
+  "historical_evidence": [
+    {
+      "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/",
+      "scope": "prior17 includes exact native full/split/prerequisite recheck plus new11 origin and pending4; not all literal Node execution. Same1174 captured product origins+selected blobs source-qualified a30c; no new17 replay."
+    },
+    {
+      "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_execution_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/a7-deciding/",
+      "scope": "separate cache18/raw32/owner HTTP30/defining9/affected138/state7 original scoped assertions; selected17financial/caller blobs and directasync branches qualified only; no current whole PASS/import closure."
+    }
+  ],
+  "environment": {
+    "profile": "existing supported minimal Python3.14.7/pytest9.0.2 actual native consumer; no Torch/GP numerical property or optional backend PASS",
+    "python": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "asset": "official existing tokenizer expected SHA223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "seeds_inputs": "existing canonical fixture configs and deterministic controlled scientific/evidence/permission boundaries; exact test blobs and per-command environment supplied. Actual JSON1/0/±1e-1000; callbackdataset-v1=1,v2=2,independentcontrol=3."
+  },
+  "complete_outputs": "Manifest includes original commands/stdout/stderr/JUnit/phases/env/resource observations, all complete actual fixture ledger/CAS/node-observation artifacts losslessly deduplicated. Large full input/origin inventories remain ignored path/hash/count and independent review references; future cloud availability not asserted.",
+  "held_owner_inputs": "context/held3-minimum-owner-inputs.json; B157 native work/sample producer, B161 authorized refinement law, B164 current owner-issued permit/verifier/serialized revoke-commit; appointment not_established, no wholeproduction dataset request.",
+  "limitations": [
+    "No new production code in this continuation: tracked changes are tests, existing README/fragment companions; all shared B decoder/ledger bytes retained",
+    "Literal whole Node consumer is bounded controlled native producer/evaluator/evidence/authority profile, not deployed/default-all scientific path or provider invoice truth",
+    "Physical truezero/reporting unknown/pending/estimatedonly mixed origins remain distinct",
+    "Main product origins only; transient/test-child and entire dynamic import closure not_established",
+    "StageA default cap2 permits no paidL3 event; ATE0 positivewidth normalization1; canonical JSON maps child Infinity→null; initial fixture errors preserved",
+    "Scalar reservation fixture proves bounded actual owner release/recheck, not durable ticket-scoped authorization",
+    "B157 native draw law/work positive, B161 refinement law positive, B164 validpermit/revokecommit positive remain UNRUN held",
+    "Formal findings/G integration acceptance and local production-dependent closeout remain G decisions"
+  ],
+  "P41": "not_established; no inherited-red waiver claimed",
+  "cleanup": "No deletion or Trash operation. Native Trash absent; exact repeatable candidates include own *-fixtures, lossless derived portability base and own ruff/hypothesis caches only after publication/readback/inactive-user check; retained deciding outputs, code, docs, inputs and active environments must be preserved."
+}

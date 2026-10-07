@@ -1,0 +1,13 @@
+{
+  "unix_time": 1791396495.360069,
+  "files": {
+    "memory.current": "15932514304\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+    "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+    "memory.peak": "17183465472\n",
+    "pids.current": "1011\n",
+    "pids.max": "max\n"
+  },
+  "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+}

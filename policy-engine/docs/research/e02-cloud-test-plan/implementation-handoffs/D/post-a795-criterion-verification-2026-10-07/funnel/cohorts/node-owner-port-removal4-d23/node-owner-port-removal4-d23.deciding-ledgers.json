@@ -1,0 +1,37 @@
+{
+  "scope": "Actual post-test canonical fixture state. Not a standalone scientific or authority verdict.",
+  "files": [
+    {
+      "fixture_path": "test_literal_node_configured_p0/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "bcd9289dd3e44c1d5ed05c35abdd2ce529bb23c3ffb728ee552ac627f955c57a",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-ledgers/6474dd6760757fc5.json.gz",
+      "gzip_bytes": 905,
+      "gzip_sha256": "90ab79975bfcabc844cc327b1b5e96db1d71017ff6f489ec933808354eb03830"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p1/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "023b59c6c7e5a8140864d9fcaaf043250789e3655748ef3c32e93101a348f257",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-ledgers/90a99a3ddb25ff62.json.gz",
+      "gzip_bytes": 902,
+      "gzip_sha256": "5b08b86451a97e410e5f91761a67292ba7d49cc3dab2a4be8175820cdea57b17"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p2/native-resources/budget.json",
+      "bytes": 5614,
+      "sha256": "9deeb2c4ccadf314b76adf20a495844f0a2375384667d086e933ee1be488924a",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-ledgers/dd1821c775849080.json.gz",
+      "gzip_bytes": 906,
+      "gzip_sha256": "43bfd0db14978ecfb52a53ac664face16122792b67267e3dc43093667909bcbf"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p3/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "c354a5655c2629681d05f5c0b7b0bbf565f3ffe20214703e92873e458cdf6918",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-ledgers/64b7ae3a9cd3c222.json.gz",
+      "gzip_bytes": 899,
+      "gzip_sha256": "c20da5c0befbb6afaf2b17389ec16f94da3ce5fd56b7dc49c1d29fc48e63f9d2"
+    }
+  ]
+}

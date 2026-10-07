@@ -1,0 +1,146 @@
+{
+  "schema": "D.E02.final46-accounting-publication-manifest.v1",
+  "author": "census_oct07",
+  "root": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864",
+  "count": 19,
+  "bytes": 539694,
+  "files": [
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/HANDOFF.json",
+      "relative_path": "HANDOFF.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/HANDOFF.json",
+      "bytes": 1855,
+      "sha256": "296abce7a4ec595ce4bc209dd60698ddaa6990b126a97858e5fbfe5cfe411123"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/P37-P38.json",
+      "relative_path": "P37-P38.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/P37-P38.json",
+      "bytes": 46010,
+      "sha256": "e564bcac29f7294967db9885370e2976b69b86b1b74576ba2d076fbe1d1a8073"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/README.md",
+      "relative_path": "README.md",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/README.md",
+      "bytes": 892,
+      "sha256": "965e8482c8df9c957fed8d5a580a048693822a4b637f3d82d76dfe35252e3cd6"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/binding-verification.json",
+      "relative_path": "binding-verification.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/binding-verification.json",
+      "bytes": 16548,
+      "sha256": "2d34fbcf062ef9c27591ff76d879765c75366b0fb4c7fed3d0f67779c31f1fee"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/final-catalog-pointer-binding-seal-check.json",
+      "relative_path": "census/final-catalog-pointer-binding-seal-check.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/final-catalog-pointer-binding-seal-check.json",
+      "bytes": 1873,
+      "sha256": "27a046c1a4da55403ccea17ba4d4cae6917e693fb0b92936cd85d9488e0cb32c"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/A7-financial-selected-call-edge-independent-carry-review.json",
+      "relative_path": "census/reviews/A7-financial-selected-call-edge-independent-carry-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/A7-financial-selected-call-edge-independent-carry-review.json",
+      "bytes": 2405,
+      "sha256": "473971e819d10f7322d555f873419e027825825183116279448b30dec6ca4b00"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/B156-control-final-v2-static-delta-review.json",
+      "relative_path": "census/reviews/B156-control-final-v2-static-delta-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/B156-control-final-v2-static-delta-review.json",
+      "bytes": 2277,
+      "sha256": "f60031f3bac3f996a51e366d6ef599a2e379212fa233e855e57df6aae623ba98"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/B156-current-a30c-callback-history-and-removal-independent-runtime-review.json",
+      "relative_path": "census/reviews/B156-current-a30c-callback-history-and-removal-independent-runtime-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/B156-current-a30c-callback-history-and-removal-independent-runtime-review.json",
+      "bytes": 12059,
+      "sha256": "0bf3bfc325f81c7d493037d2a6878894a25ad516810d4c1ef1cc0ce7dc32ad16"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/FUN-Node15-d23-and-owner-removal4-independent-runtime-review.json",
+      "relative_path": "census/reviews/FUN-Node15-d23-and-owner-removal4-independent-runtime-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-Node15-d23-and-owner-removal4-independent-runtime-review.json",
+      "bytes": 17678,
+      "sha256": "fe23ece8acbef92686732fbb5972f1940890c86645e30e771ccca903f8dc20ac"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/FUN-original10-core-normative-dispositions-and-handoff-independent-review.json",
+      "relative_path": "census/reviews/FUN-original10-core-normative-dispositions-and-handoff-independent-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-original10-core-normative-dispositions-and-handoff-independent-review.json",
+      "bytes": 4615,
+      "sha256": "8088c5087307cb927605ed724c33eefaa704a46951f3580ab598a8cfc9df3c17"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/FUN-selected-source-helpers-and-a30c-origin-independent-qualification-review.json",
+      "relative_path": "census/reviews/FUN-selected-source-helpers-and-a30c-origin-independent-qualification-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-selected-source-helpers-and-a30c-origin-independent-qualification-review.json",
+      "bytes": 2435,
+      "sha256": "5adcc3bfa912f137f7d55f230459441bb51c7fb978c853362e6247302d98bfcc"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/G-CBC-locator-correction-owner-handoff.json",
+      "relative_path": "census/reviews/G-CBC-locator-correction-owner-handoff.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/G-CBC-locator-correction-owner-handoff.json",
+      "bytes": 15280,
+      "sha256": "c6fc37f9bf83b19166bd94f63ea6e6c9657e6213535d66eada5b43dc0f305462"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/initial-CBC-original46-binding-verification.json",
+      "relative_path": "census/reviews/initial-CBC-original46-binding-verification.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/initial-CBC-original46-binding-verification.json",
+      "bytes": 14863,
+      "sha256": "dd115abed82207342a1fa746f2c7f760ad90aea921959f4e774da31fce08a401"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/census/reviews/technical-companion-review.json",
+      "relative_path": "census/reviews/technical-companion-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/technical-companion-review.json",
+      "bytes": 1911,
+      "sha256": "8fee066a98ba5e412be66e5b8bb104ad78350ede378251ac05a6eee8656b8a33"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/criterion-overlay.json",
+      "relative_path": "criterion-overlay.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json",
+      "bytes": 327579,
+      "sha256": "9556cf0b0daa2a8cb4376ef96f691e0edb9ba1703764ad3b30714a4eec35c49d"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/owner-inputs-update.json",
+      "relative_path": "owner-inputs-update.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/owner-inputs-update.json",
+      "bytes": 42703,
+      "sha256": "555882e23f1abbcddab9d04868de5747769905cd2427dafb806a13fcd4e8255b"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/source-bindings.json",
+      "relative_path": "source-bindings.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/source-bindings.json",
+      "bytes": 6438,
+      "sha256": "c9bbdba94ab6f97e8b0a33e89dcfe799b19c1d700353a601cc2badc6cbd14468"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/summary.json",
+      "relative_path": "summary.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/summary.json",
+      "bytes": 2524,
+      "sha256": "cb4847488114bb1d5fb6617a8bbe381430f9c565d30a67acad0453ba46831c7b"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/taskboard.json",
+      "relative_path": "taskboard.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/taskboard.json",
+      "bytes": 19749,
+      "sha256": "7ef388f3fd341a6e3a7d2e680d77dd18ec3e0193f12b58e8b7adc5769aa7356c"
+    }
+  ],
+  "self_excluded": true,
+  "author_does_not_review_own_accounting": "Transfer independent final metadata seal required",
+  "publication_ref": "not_established; root only commits and reads remote topic when capability available",
+  "no_checkout_source_index_Git_mutation_by_leaf": true
+}

@@ -1,0 +1,766 @@
+{
+  "schema": "D.FUN.original10-criteria-outcomes.v1",
+  "normative_original_bindings": true,
+  "canonical_planned_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/original10-outcomes.json",
+  "original_occurrences": 10,
+  "findings": [
+    {
+      "id": "B156@FUN-01",
+      "acceptance": {
+        "byte_offset": 948475,
+        "bytes": 611,
+        "sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1"
+      },
+      "text": "**Приёмка:** одинаковый эффективный запрос переиспользует результат; новая версия входа не получает старый score; новый независимый контроль действительно исполняется; история обычной попытки не изменяется. Приоритет высокий на stateful-маршруте, сложность средняя. Связь: B60–B61, B118, B127; здесь другой владелец и непосредственная связь Stage A/B.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "git_blob": "375aa627d4a7010166d8a5f759536e2c0a7d77da"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4105,
+          4116
+        ],
+        "byte_offset": 945137,
+        "bytes": 3951,
+        "sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Actual a30c existing FunnelOrchestrator submit/advance: same effective request reuses ticket/result; changed input version yields score2 rather than prior1; same input/model independent_control executes third real callback producing supplied score3; ordinary deepcopied stage_results/trace unchanged and remains cached.",
+      "criterion_predicate": "Samebasis control must cause third real stage callback and retain ordinary deepcopied result/trace; roleidentity removal must fail callback count.",
+      "residual": "Controlled deterministic stage callback proves execution/cache-purpose separation, not scientific or statistical independence of observations. Formal G adjudication pending; no own fixable residual observed in the original bounded criterion.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode",
+        "role": "Purpose identity removal retains all context markers but actual stage callback count2 vs3 fails protected assertion; original ordinary history/source unchanged."
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/32"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B156@FUN-01"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "B156-role1-a30c",
+        "B156-role-removal1-a30c"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    },
+    {
+      "id": "B157@FUN-02",
+      "acceptance": {
+        "byte_offset": 951621,
+        "bytes": 734,
+        "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+      },
+      "text": "**Приёмка:** сравнить прямую L4 с L3→L4 на одном исходном запросе; effective full-конфигурация и допустимые выходы должны совпасть, caller-context неизменен, L3 действительно остаётся более дешёвым. Не выключать L3 и не запускать всё в максимальной точности. Приоритет высокий на соответствующем пути; локальная правка с небольшим объёмом. Связь B59/B96 — общая причина aliasing, но здесь затронута достоверность названия fidelity.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4117,
+          4128
+        ],
+        "byte_offset": 949088,
+        "bytes": 3269,
+        "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+      },
+      "proposal": "held",
+      "required_owner_positive": {
+        "required_runtime_falsifier": "stage labels/sample_count unchanged while actual L3 reduction/L4 restoration removed; native physical draw/work oracle must detect",
+        "required_input_keys": [
+          "native_draw_producer"
+        ],
+        "prior_exact_criterion_pointer": "/findings/34",
+        "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+      },
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "held",
+      "finding_disposition": "held",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Actual Node workflow adapters forward effective config; controlled scientific backend performs no native physical draw/work artifact witness. Foundry20/80 receipt is distinct.",
+      "criterion_predicate": "Native directL4 vsL3→L4 actualwork artifacts/config/seed/caller scope, with marker-preserving reduction/removal falsifier.",
+      "residual": "producer_missing; real native cheaper-work/full restoration producer and appointment absent.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "not_established"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/33"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B157@FUN-02"
+      },
+      "closure_proposal": "held",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-d23"
+      ],
+      "historical_prior_accounting_disposition": "held"
+    },
+    {
+      "id": "B158@FUN-01",
+      "acceptance": {
+        "byte_offset": 954860,
+        "bytes": 696,
+        "sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f"
+      },
+      "text": "**Приёмка:** единый и раздельный вызовы на неизменных входах дают одинаковый набор разрешённых вычислений, расходы и причины остановки. На изменённых входах фиксируется необходимое различие. Опыт использует scheduler-фикстуру, не доказывает обход внешнего бюджета или полномочий. Приоритет высокий, сложность небольшая/средняя; связь B120: допуск расхода не зависит от формы обращения.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "git_blob": "375aa627d4a7010166d8a5f759536e2c0a7d77da"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4129,
+          4140
+        ],
+        "byte_offset": 952357,
+        "bytes": 3201,
+        "sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Current literal Node full/split paid/realzero cells use actual native workers, canonical settlement2events and fresh Node state/CAS; default stageA capL2 has no paid event and truthful partialNone. Historical native full/split controls retain their earlier source scope.",
+      "criterion_predicate": "Independent2physicalcalls×Decimal(cost), exact stage/event receipt binding/fresh owner; constructor-owner removal retains2receipts and loses money projection.",
+      "residual": "Bounded configured caller with controlled native worker addition inside actual adapter. No default scientific paid-call or whole deployed request universe claim.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/34"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B158@FUN-01"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-d23",
+        "node-owner-port-removal4-d23",
+        "origin17-final3b-qualified"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    },
+    {
+      "id": "B159@FUN-01",
+      "acceptance": {
+        "byte_offset": 958121,
+        "bytes": 765,
+        "sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36"
+      },
+      "text": "**Приёмка:** повтор без новых оснований не расходует ресурс; разрешённое изменение создаёт проверяемое продолжение; постоянный blocker не исчезает; lineage и расходы сохраняются. Приоритет высокий для итеративного исследования; сложность средняя. Это расширение способности продолжать работу, не ослабление критерия её допустимости. Связь B09/B12/B118: содержательное продолжение, получение нового основания и отдельный запуск.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "git_blob": "375aa627d4a7010166d8a5f759536e2c0a7d77da"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4141,
+          4152
+        ],
+        "byte_offset": 955558,
+        "bytes": 3330,
+        "sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Actual3b origin17 includes the existing native owned-capacity prerequisite selector: unchangedgrounds/same ticket performs no repeated funnel resource work, unrelated spend does not resume, actual owner release creates remaining-work successor with original lineage/cost; original tracker freeze/blocker controls stay bound to prior criterion receipts. All1174 captured3b product origins and defining integration test blobs match a30c. Current d23 actual Node tiny costs preserve pending owner obligation and prohibit downstream L4.",
+      "criterion_predicate": "Only supplied owned prerequisite change rechecks remaining work; constructorport negative/current pending hold distinguish trace/marker from money and resource readiness.",
+      "residual": "No replay of unchanged3b selector. Its canonical fixture uses actual scalar owner reserve/release; durable ticket-scoped reservation authorization is not established by that bounded fixture and is not claimed. Missing scientific/refinement authority is not substituted for the original scheduler continuation predicate.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/35"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B159@FUN-01"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "origin17-final3b-qualified",
+        "node15-d23"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    },
+    {
+      "id": "B160@FUN-02",
+      "acceptance": {
+        "byte_offset": 961198,
+        "bytes": 790,
+        "sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba"
+      },
+      "text": "**Приёмка:** обе пустые конфигурации возвращают неоценённость без положительного score; настоящий ноль от выполненного корректного метода сохраняется; маршруты с разрешённым малым числом стадий работают. Прямой исход в лабораторных адаптерах не доказывает признания публикации настоящим владельцем. Приоритет высокий для первого сквозного теста, локальный ремонт. Связь B108/B123 — другой источник ложного положительного результата.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4153,
+          4164
+        ],
+        "byte_offset": 958888,
+        "bytes": 3102,
+        "sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Literal Node empty/capped configurations have no positive numeric assessment/no events, whereas actual nonempty controlled computedzero and physical reportedzero remain present through returnedstate/freshCAS.",
+      "criterion_predicate": "Empty/capped no calls/receipts and not_evaluated; declared computedzero score kept, reported literalzero yields two actual zero receipts, not None.",
+      "residual": "Computed scientific backend values controlled; no native scientific estimand or data-dependent performance claim.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/36"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B160@FUN-02"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-d23"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    },
+    {
+      "id": "B161@FUN-03",
+      "acceptance": {
+        "byte_offset": 964619,
+        "bytes": 752,
+        "sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78"
+      },
+      "text": "**Приёмка:** разрешённое уточнение действительно меняет текущий результат; независимый высокий риск не затирается; другая популяция не замещает прежнюю неизвестность. Здесь доказано расхождение агрегата и последней стадии; конкретный downstream-отказ из-за него не воспроизведён. Приоритет по фактическому потребителю, сложность средняя. Связь S03/S08 и B137 — различие изменения знания и простого обращения к истории.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "git_blob": "da3dcdf3d98b94b0c390a3fb3a21640ca1004aa6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4165,
+          4176
+        ],
+        "byte_offset": 961990,
+        "bytes": 3383,
+        "sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a"
+      },
+      "proposal": "held",
+      "required_owner_positive": {
+        "required_runtime_falsifier": "lower foreign-population/time/input/rule estimate cannot supersede; owner-authorized same-scope refinement changes only intended component",
+        "required_input_keys": [
+          "same_scope_refinement"
+        ],
+        "prior_exact_criterion_pointer": "/findings/38",
+        "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+      },
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "held",
+      "finding_disposition": "held",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Existing tracker/correlation mode and independent-risk guards retained. No authorized same-subject/value/input/rule/time supersession law input.",
+      "criterion_predicate": "Owner prior/later estimate refs and authorized refinement relation; retain independent high/unknown components and reject wrong scope.",
+      "residual": "not_established; missing law/owner appointment, no min/last-write substitute.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "not_established"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/37"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B161@FUN-03"
+      },
+      "closure_proposal": "held",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-tracker3-5b5-tracker3-qualified"
+      ],
+      "historical_prior_accounting_disposition": "held"
+    },
+    {
+      "id": "B162@FUN-02",
+      "acceptance": {
+        "byte_offset": 967958,
+        "bytes": 612,
+        "sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075"
+      },
+      "text": "**Приёмка:** ошибочный, отсутствующий и действительный нулевой вход различимы; правильный конечный интервал сохраняет расчёт; остальные доступные результаты не теряются. Переход в настоящую публикацию не проверялся. Приоритет высокий на этом адаптере, локальный ремонт. Связь B105: здесь другой конкретный переход потери смысла uncertainty.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4177,
+          4188
+        ],
+        "byte_offset": 965373,
+        "bytes": 3199,
+        "sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Actual Node L4 retains missing/invalid/nan/truezero/positive CI-width states, objective0 and actual money2 through returnedstate/CAS. Declared ATE0 positivewidth uncertainty1 is honest existing profile, width0 remains measured0.",
+      "criterion_predicate": "Explicit five width cases; existing nonzero-effect calculation receipts keep original source scope, no profile or requirement substitution.",
+      "residual": "Scientific unrelated backend controlled; source-backed declared CI normalization only, not native sample/calibration law.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/38"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B162@FUN-02"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-d23"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    },
+    {
+      "id": "B163@FUN-03",
+      "acceptance": {
+        "byte_offset": 971083,
+        "bytes": 797,
+        "sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92"
+      },
+      "text": "**Приёмка:** оба публичных интерфейса согласованы; пустой и статистически плохой корпуса различимы; ограничения публикации не снимаются ради зелёного статуса; совместимая калибровка переиспользуется. Подключение node статически прочитано, полный runtime не запущен. Приоритет высокий на новом/восстановленном tracker; сложность небольшая/средняя. Связь B114/B137 — нужное прошлое не теряется и не становится новым доказательством без оснований.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "git_blob": "da3dcdf3d98b94b0c390a3fb3a21640ca1004aa6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4189,
+          4200
+        ],
+        "byte_offset": 968572,
+        "bytes": 3310,
+        "sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Actual5b literal Node fresh persisted suppliedreport resolves five canonical functions into real Funnel.submit/advance; initial five paired rows restored exactly and L4 appends sixth, routing/guards preserved; snapshot removal retains labels but cannot invent tracker. Current d23 paidNode uses controlled no-tracker profile separately.",
+      "criterion_predicate": "Two opposite observed corpus controls and marker-retaining snapshot removal; independent recorded input snapshot, fresh CAS and exact5→6row prefix/routing/zeroeffects.",
+      "residual": "Tracker3 execution stays5b; production/test helper unchanged after later test-only commits. Existing empty-vs-observed-zero/report-public-interface assertions retain their exact older scope.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/39"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B163@FUN-03"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-tracker3-5b5-tracker3-qualified",
+        "prior_original_criterion_receipts"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    },
+    {
+      "id": "B164@FUN-03",
+      "acceptance": {
+        "byte_offset": 974595,
+        "bytes": 813,
+        "sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e"
+      },
+      "text": "**Приёмка:** ограниченный режим не вызывает запрещённый producer; нормальный режим сохраняет работу; готовый результат доступен по своей политике; потеря разрешения перед commit обнаруживается владельцем. Реальная авторизация, запись в реестр и публикация не исполнялись, поэтому обход системных полномочий не заявлен. Приоритет высокий для callback-пути, локальный preflight плюс согласование владельца. Связь B78/B117 — иной участок границы решения и эффекта.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "git_blob": "da3dcdf3d98b94b0c390a3fb3a21640ca1004aa6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4201,
+          4212
+        ],
+        "byte_offset": 971882,
+        "bytes": 3528,
+        "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+      },
+      "proposal": "held",
+      "required_owner_positive": {
+        "required_runtime_falsifier": "bool=true retained preflight followed by real revoke-before-commit gives zero effects; actual current owner-issued permit gives one persisted effect",
+        "required_input_keys": [
+          "typed_write_permit"
+        ],
+        "prior_exact_criterion_pointer": "/findings/41",
+        "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+      },
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "held",
+      "finding_disposition": "held",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Current Node allowed native work and preparedresult/readback preserved while controlled guards yield no promotion write. No owner-issued current typed permit/verifier/revoke+commit actualpositive.",
+      "criterion_predicate": "Existing authoritative issuer/verifier/write owner input; valid exactone persisted effect plus revoke-after-preflight zeroeffects at same serialized boundary.",
+      "residual": "not_established current authority appointment; historical bridge_missing packet preserved as old label. No boolean/callback fixture appoints authority.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "not_established"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/40"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B164@FUN-03"
+      },
+      "closure_proposal": "held",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-d23",
+        "node15-tracker3-5b5-tracker3-qualified"
+      ],
+      "historical_prior_accounting_disposition": "held"
+    },
+    {
+      "id": "B165@FUN-02",
+      "acceptance": {
+        "byte_offset": 977869,
+        "bytes": 783,
+        "sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e"
+      },
+      "text": "**Приёмка:** наличие или отсутствие промежуточного необязательного verdict не меняет сводное состояние при одном исходе. Реальный score сохранён, полномочия не повышены, consumers не выбирают случайно удобное поле. Интеграция всех потребителей Stage B не запускалась. Приоритет высокий перед внешним представлением результата; сложность небольшая/средняя. Связь B123/B160: здесь потеря именно агрегированного решения после выполненной стадии.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4213,
+          4224
+        ],
+        "byte_offset": 975410,
+        "bytes": 3244,
+        "sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established/no inherited-red waiver",
+      "engineering_proposal": "closed_proposal",
+      "finding_disposition": "closed_proposal",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "current_consumer_scope": "Literal Node optional intermediate L2 APPROVE present/absent yields same stage4promising and finaldefer_to_human with actualpaid2; fresh Node result/CAS retains finalaggregate and guards.",
+      "criterion_predicate": "Same actual outcome with optional intermediateverdict toggled; consumers assert finalaction rather than convenient intermediate field.",
+      "residual": "Bounded controlled evaluator/evidence/authority boundary; no permission increase or validpermit positive claimed.",
+      "P37": {
+        "basis": "consumer_asserted plus recomputed physical event Decimal oracle for money; supplied deterministic/control inputs for cache/tracker/calibration, no scientific authority law invented",
+        "authority_input": "No additional authority appointed by tests"
+      },
+      "P38": {
+        "owner_port": "actual2calls/2receipts with lost returned financialprojection -> exactnotNoneFAIL",
+        "prior_estimated_origin": "Existing3b17 and removal11 helper/CAS receipts remain narrow; not relabeled fullNode"
+      },
+      "normative_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/41"
+      },
+      "G_action_ref": {
+        "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "id": "B165@FUN-02"
+      },
+      "closure_proposal": "closed",
+      "formal_status": "not_adjudicated",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json",
+      "evidence_refs": [
+        "node15-d23"
+      ],
+      "historical_prior_accounting_disposition": "open"
+    }
+  ],
+  "execution_sources": [
+    "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "a30c140eedc5c0514a93409d4b4040a715231d28"
+  ],
+  "assessed_production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "provisional_counts": {
+    "closed_proposal": 7,
+    "held": 3,
+    "open_runtime_pending": 0,
+    "formal_closed": 0,
+    "accepted_in_G": 0
+  },
+  "denominator_policy": "No overlap sums; each current or historical check retains command/source/consumer scope and finding disposition stays separate from test result.",
+  "scope_limits": [
+    "Worker call added inside real adapter by controlled observer; no default scientific backend paid-call/invoice truth proof",
+    "Native numerical draws/refinement law/current permit positives UNRUN",
+    "Main-process product module origins only; complete dynamic import closure not_established",
+    "Large full input/catalog/main-origin inventories remain ignored path/hash; complete portable deciding output and independent review do not assert future raw scratch availability"
+  ],
+  "final_qualification_ref": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "evidence_catalog": {
+    "node15-d23": {
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+      "result": "15PASS",
+      "scope": "actual literal Node configured bounded resource/output consumer",
+      "portable_command_relative": "cohorts/node15-d23/command.json",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json"
+    },
+    "node-owner-port-removal4-d23": {
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+      "result": "4FAIL expected protected assertion",
+      "scope": "actual native calls/debit retained while Node owner forwarding removed",
+      "portable_command_relative": "cohorts/node-owner-port-removal4-d23/command.json",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json"
+    },
+    "node15-tracker3-5b5-tracker3-qualified": {
+      "actual_execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "result": "3PASS subset of initial18",
+      "scope": "only three existing tracker cells; remaining initial18 includes five fixture-oracle failures",
+      "portable_command_relative": "cohorts/node15-tracker3-5b5/command.json",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json"
+    },
+    "B156-role1-a30c": {
+      "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+      "result": "1PASS",
+      "scope": "actual independent_control callback/history positive",
+      "portable_command_relative": "cohorts/B156-role1-a30c/command.json",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json"
+    },
+    "B156-role-removal1-a30c": {
+      "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+      "result": "1FAIL expected protected assertion",
+      "scope": "role-only cache identity removal",
+      "portable_command_relative": "cohorts/B156-role-removal1-a30c/command.json",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json"
+    },
+    "origin17-final3b-qualified": {
+      "actual_execution_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "git_ref_for_outputs": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/runtime/origin17-final3b/command.json",
+      "check": "17PASS separate unchanged prior execution; only relevant exact selectors used per criterion",
+      "actual_consumer": "Actual configured Funnel stages/worker/owner and pending/origin projection serializer; full literal Node execution belongs new d23 consumer, not this earlier cohort",
+      "source_qualification": "context/final-a30c-selected-reached-source-qualification.json"
+    },
+    "prior_original_criterion_receipts": {
+      "binding": "Each row normative_criterion_ref and original acceptance preserve complete prior receipt pointers; no old output copied or reattributed",
+      "scope": "Public tracker empty/observed-zero and freeze/blocker controls retain their exact earlier execution sources; join with new actual tracker3, not a universal current rerun."
+    }
+  },
+  "historical_failures": [
+    {
+      "source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "result": "13PASS/5fixture-oracleFAIL, all18setup/teardownPASS",
+      "receipt": "cohorts/node15-tracker3-5b5/command.json",
+      "classification": "wrong stageA cap/ATE0 width/canonical JSON expectations; no production FAIL attribution or P41 waiver"
+    },
+    {
+      "source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "result": "setup preflight ERROR/zero phases",
+      "receipt": "context/B156-first8e-preflight-ERROR-zero-phases.json",
+      "classification": "root receipt copy made checkout dirty before pytest; clean guard preserved"
+    }
+  ]
+}

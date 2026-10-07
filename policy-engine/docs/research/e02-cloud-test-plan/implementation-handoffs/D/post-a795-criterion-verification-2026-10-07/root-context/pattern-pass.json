@@ -1,0 +1,67 @@
+{
+  "schema": "e02.D.post-a795.pattern-pass.v1",
+  "reviewer": "/root",
+  "failure_register_full_read": {
+    "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+    "before_design": true,
+    "again_before_closeout": true,
+    "complete": true
+  },
+  "P01_P02": {
+    "check": "Actual Bowner→native worker→durableledger/freshreader→controller and literalNode projection; strategy/publicservice→CAS/freshrestore; exactCAS→transferbridge→actualGP; stressreport→blueprint/CAS paths. No helper/import-only acceptance.",
+    "scope": "Controlled declared workflows and source-qualified selected assertions; actual default scientific backend paid-call creation and all served deployments not asserted"
+  },
+  "P05_P09_P10": {
+    "check": "Missing/malformed-present/nonfinite/typedunavailable refuse without syntheticzero, partial/empty/unknown statuses separate; ownerlaw/permit/draw/refinement positives not manufactured.",
+    "missing_authority": "B131/B137/B157/B161/B164 held; B108 fiscal issuer law limited"
+  },
+  "P14": {
+    "check": "Independent all-pairs/Fraction-boxunion and Decimal threshold arithmetic, independent NumPy saved fullcovariance; source custody independent reviews, not model.posterior ofsame model as oracle.",
+    "limit": "Controlled law/quantity profiles, no unseen production or universal population inference"
+  },
+  "P27": {
+    "check": "Existing SingleTaskGP/GPyTorch,HNSWgeneration, CAS, ChampionRegistry lock/pointer, Bcanonical1.2owner/middleware reused. New files are tests/receipts/companions; no parallel authority, parser, ledger, checkpoint registry or optimizer."
+  },
+  "P29_P32_P33": {
+    "check": "Actual backend execution, fresh persisted readback, fitted parameter/corpus/RNG/replay controls, removal/adversarial tests keep markers while observing changed effect or failclosed. New Node port removal retains calls/debits yet loses projection; B156 purpose removal causes actual callback2vs3 assertionFAIL, normal callback3 and ordinaryhistory unchanged; actuala30c/qualified8e.",
+    "static_boundary": "check_state_reads only unambiguous direct_SPEC ASTdiagnostic, not runtime state-read property or B04closure"
+  },
+  "P35": {
+    "check": "Full127/282TSVs,17canonicalcards,45uniquefindings/46originalbindingoccurrences including LA015CTLsupplier and SRVclosureowner. Full16ownerpackets joined; query30notdenominator.",
+    "disposition_counts_unique": {
+      "closed_proposals_awaiting_G": 39,
+      "held": 5,
+      "limited": 1,
+      "formal_closed": 0,
+      "G_accepted": 0
+    },
+    "occurrence_count": 46,
+    "executor": "/root/census_oct07; originalbindings independently reviewed by root and finalmetadata independentreview assigned /root/transfer_oct07"
+  },
+  "P37_P38": {
+    "check": "Five registered predicatebasis labels retained per row; actualquantity/memory/restoredstate/debit/freshCASread compared against proxy markers; institutionally supplied authority and customcallback do not become computational proof.",
+    "capture_boundary": "Quantity17 testcasePASS distinct from generic origin receiptERROR; named samebackend pseudoModuleType explanation independently reconciled without globally weakeningcapture."
+  },
+  "P40": {
+    "check": "Wholehistory/state owner relation and earlyresume admission widened once, unsupported opaque/custom formats explicitly refuse. Role/purpose-cache singleton and removal completed after8e testonlyfreeze, actuala30c documentation-onlyexecutionhead; adds missing originalverification, no unobserved newproduction defect. Sameclass counterfactuals remain bucketed with bounded falsifiers, not endlesshelperladder.",
+    "residual": "Actual authority/law inputs stay held/not_established; no syntheticpositive"
+  },
+  "P41": {
+    "state": "not_established",
+    "occurrences": 46,
+    "reason": "No inherited-red waiver; no exact slicebase replay with fullinputzerooverlap. Initial ownfixture5FAIL preserved as fixturefailures; noncanonical helperRuffprecheck not baseline/product provenance."
+  },
+  "global_gate": {
+    "check": "UNRUN",
+    "cause": "historicalsignal9/-9 beforetestcasephases; unknowncause, no productFAIL or establishedOOM",
+    "owner": "G frozen integration replay/local minimal criterion-required read-only productionchecks"
+  },
+  "cleanup": {
+    "performed": false,
+    "nativeTrash_required": true,
+    "permanent_deletion": false,
+    "unique_inputs_and_deciding_outputs_preserved": true
+  }
+}

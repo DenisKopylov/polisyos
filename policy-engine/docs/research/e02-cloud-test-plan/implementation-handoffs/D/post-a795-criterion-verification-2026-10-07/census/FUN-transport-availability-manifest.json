@@ -1,0 +1,22 @@
+{
+  "schema": "D.E02.append-only-metadata-publication-manifest.v1",
+  "root": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-FUN-transport-availability-addendum",
+  "files": [
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-FUN-transport-availability-addendum/census/FUN-moderate-output-availability-update.json",
+      "relative_path": "census/FUN-moderate-output-availability-update.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/FUN-moderate-output-availability-update.json",
+      "bytes": 3130,
+      "sha256": "e78b4753d3304f3c2b0b5c86ab59b2c11271312d89de6dd7d3e16cad399a2f6e"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-FUN-transport-availability-addendum/census/reviews/FUN-final497-moderate-lossless-transport-and-core-independent-review.json",
+      "relative_path": "census/reviews/FUN-final497-moderate-lossless-transport-and-core-independent-review.json",
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-final497-moderate-lossless-transport-and-core-independent-review.json",
+      "bytes": 4228,
+      "sha256": "7dff998b23f0b77851ae84cdac1c2ca186f1820c84a5a36f4de3c2fc75170ed5"
+    }
+  ],
+  "self_excluded": true,
+  "base_sealed19_immutable": true
+}

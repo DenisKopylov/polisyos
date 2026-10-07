@@ -1,0 +1,75 @@
+{
+  "schema": "D.FUN.final-a30c-selected-reached-source-qualification.v1",
+  "qualified_at_git_ref": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "qualified_tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+  "actual_executions_unchanged": [
+    "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2"
+  ],
+  "production_code_changed_paths_since3b": [],
+  "source_directory_doc_delta_since3b": [
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md"
+  ],
+  "source_tests_configs_changed_sinceCBC": [
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "selected_reached_test_and_helper_blobs": [
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "d23_sha256": "54348a0c810cd8e5646ab97cbcc83069b8e21c4d9f0f0d895c42f3015ad64128",
+      "a30c_sha256": "54348a0c810cd8e5646ab97cbcc83069b8e21c4d9f0f0d895c42f3015ad64128",
+      "same_blob": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "d23_sha256": "5fb8e1471b980a5bda16a473e57710875f73847dd160e703bca0c6e7ee4c2c1c",
+      "a30c_sha256": "5fb8e1471b980a5bda16a473e57710875f73847dd160e703bca0c6e7ee4c2c1c",
+      "same_blob": true
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "d23_sha256": "77b751f6286a38592df4d46685342aa1101b65130a82831c9e19f2ee4695b05e",
+      "a30c_sha256": "77b751f6286a38592df4d46685342aa1101b65130a82831c9e19f2ee4695b05e",
+      "same_blob": true
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py",
+      "d23_sha256": "82c5a5d0fe5e596f5415f1fa81b50d45b5ac0c6acbed83750373c282d21f885b",
+      "a30c_sha256": "82c5a5d0fe5e596f5415f1fa81b50d45b5ac0c6acbed83750373c282d21f885b",
+      "same_blob": true
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "d23_sha256": "4833da241c05d5121eb9bb25341545edfe6fa359845d0e91e6c8f9ad138457f7",
+      "a30c_sha256": "4833da241c05d5121eb9bb25341545edfe6fa359845d0e91e6c8f9ad138457f7",
+      "same_blob": true
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "d23_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "a30c_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "same_blob": true
+    }
+  ],
+  "old17_actual_product_origin_rows": 1174,
+  "old17_unique_product_paths": 1174,
+  "old17_main_product_origins_match_a30c": true,
+  "old17_raw_manifest": {
+    "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.modules.json",
+    "bytes": 415570,
+    "sha256": "4469ec404fc328e69701b9b494f5d7b28dee720bcda888c7b626cc794c21be87",
+    "not_copied_to_Git": true
+  },
+  "newNode15_helper_loading": "Static exact canonical Node test imports its supplied helper module from tests/unit/remediation/test_fun_03.py and tests/integration/scientist/methods/search/funnel/test_orchestrator.py. Neither helper nor selected conftest imports the unrelated unit/scientist/search/funnel/test_orchestrator.py changed by B156. Captured main product origins do not independently establish absence of all test-module imports.",
+  "scope": "Source/caller/assertion qualification only, execution pins remain3b/5b/d23. No whole current input catalog or full dynamic import closure identity claimed. Old original-unit-test full-file receipts cannot be carried byte-identically after the B156 change.",
+  "old17_criteria_selectors": {
+    "B158": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+    "B159": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work"
+  },
+  "B159_scope": "Actual owner reserve/release and native paid event/fresh readback scheduler fixture. Scalar reservation caller ownership does not prove durable ticket-scoped reservation authority; original bounded no-new-grounds/remaining-work/lineage criterion is separate.",
+  "P41": "not_established/no inherited-red attribution"
+}

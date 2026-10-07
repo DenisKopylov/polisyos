@@ -1,0 +1,55 @@
+{
+  "schema": "D.E02.append-only-FUN-moderate-output-availability-clarification.v1",
+  "author": "census_oct07",
+  "base_aggregate_manifest": {
+    "sha256": "b4c08b4973fad4d8a0814f60684a940abdd50e17b8133af326bbde5ec992f742",
+    "declared_members": 19,
+    "original_literal_bytes_unchanged": true
+  },
+  "supersedes_only": [
+    "criterion-overlay.json /FUN_moderate_transport",
+    "HANDOFF.json /FUN_moderate_transport",
+    "criterion-overlay.json /immutable_ref_catalog/funnel_manifest/transport_scope"
+  ],
+  "new_actual_local_transport_state": "Complete moderate output packet sealed and independently hash/lossless reviewed; original pending label historical. Local bytes available; final Git commit/remote readback not_established until root publication.",
+  "moderate_manifest": {
+    "expected_canonical_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/manifest.json",
+    "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/portable-final-a30c/manifest.json",
+    "sha256": "0c8342b33ceb780f5648493a5bf99d6d8f5444dc8706778eb09b28d24503eaf8",
+    "bytes": 258230,
+    "declared_members": 497,
+    "member_bytes": 943945,
+    "self_excluded": true,
+    "publication_git_ref": "not_established"
+  },
+  "lossless_content_index": {
+    "expected_canonical_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/deciding-content-index.json",
+    "sha256": "366ff2cdcd10a3a48781173d4128e1a9b1bc044822d22934be3eb6e6ee95ce53",
+    "bytes": 139649,
+    "unique_contents": 409,
+    "all882_original_cohort_fixture_records_resolve": true,
+    "decoding": "Original complete fixture ledger/CAS/observer manifests name raw sha256; index maps to gzip portable bytes; decode and verify uncompressed sha256/length. Raw huge input/origin inventories remain ignored bounded hashes."
+  },
+  "review": {
+    "expected_canonical_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/census/reviews/FUN-final497-moderate-lossless-transport-and-core-independent-review.json",
+    "sha256": "7dff998b23f0b77851ae84cdac1c2ca186f1820c84a5a36f4de3c2fc75170ed5",
+    "reviewer": "census_oct07",
+    "verdict": "GO_ALL497_DECLARED_BYTES_AND_LOSSLESS_ORIGINAL_IDENTITIES"
+  },
+  "core_normative_refs_unchanged": {
+    "original10_matrix_sha256": "c2f734080c1feda26e4d68ff84aa6bc9600288f66b28f236c2e68062bef883f4",
+    "HANDOFF_sha256": "802f46d87df7f6bc471d9b7c50394f9501e11cc51ee354745e8c94e4479b35f4"
+  },
+  "no_new_execution_or_source_or_disposition_change": true,
+  "counts": {
+    "unique_findings": 45,
+    "occurrences": 46,
+    "closed_proposals": 39,
+    "held": 5,
+    "limited": 1,
+    "formal_closed": 0,
+    "G_accepted": 0,
+    "P41_not_established": 46
+  },
+  "authority": "Held B157 producer_missing/B161not_established/B164not_established remain UNRUN. B108real issuer profile limitation unchanged. No full dynamic import/scientific/durable ticket authority/invoice claim."
+}

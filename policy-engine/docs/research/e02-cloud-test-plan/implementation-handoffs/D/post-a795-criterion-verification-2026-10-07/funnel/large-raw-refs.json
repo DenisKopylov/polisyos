@@ -1,0 +1,95 @@
+{
+  "schema": "D.FUN.large-execution-raw-refs.v1",
+  "files": [
+    {
+      "actual_execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "name": "node15-tracker3-5b5.inputs.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.inputs.json",
+      "bytes": 1202106,
+      "sha256": "ef3ae852769d7c384a9e4c2646bff9437ff464a0afc8f94d2af46eb639307df8",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "name": "node15-tracker3-5b5.modules.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.modules.json",
+      "bytes": 415570,
+      "sha256": "f87f344d58d67591d6aff5fbbc8967204d2bc0ac549c999ec1c4f7db1afa1d6d",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "name": "node15-d23.inputs.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.inputs.json",
+      "bytes": 1202106,
+      "sha256": "d29baa7b8c8673709f431b5f42b922417f6172073724772cb2f22f5fa40e9f68",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "name": "node15-d23.modules.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.modules.json",
+      "bytes": 415570,
+      "sha256": "cd00e2840e7fb3a591d8370e0b8d905146b8d42b9126e04d35c42f9ee4905dbd",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "name": "node-owner-port-removal4-d23.inputs.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.inputs.json",
+      "bytes": 1202106,
+      "sha256": "d29baa7b8c8673709f431b5f42b922417f6172073724772cb2f22f5fa40e9f68",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "name": "node-owner-port-removal4-d23.modules.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23.modules.json",
+      "bytes": 415570,
+      "sha256": "b31a53312d44ef5b3a8e5978aa243caf0b05c3eb06f0d7425e065b0a9878656c",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "name": "B156-role1-a30c.inputs.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.inputs.json",
+      "bytes": 1202106,
+      "sha256": "1fe30b2d4b57399421ce02e064861e647e2a6b063be28d47e010e7ac99693904",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "name": "B156-role1-a30c.modules.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.modules.json",
+      "bytes": 148976,
+      "sha256": "680ac38f12996923efb52f24b1ed006cfd3ca9739d0c985ddf8598f60e0040d7",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "name": "B156-role-removal1-a30c.inputs.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.inputs.json",
+      "bytes": 1202106,
+      "sha256": "1fe30b2d4b57399421ce02e064861e647e2a6b063be28d47e010e7ac99693904",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    },
+    {
+      "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "name": "B156-role-removal1-a30c.modules.json",
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.modules.json",
+      "bytes": 148976,
+      "sha256": "146fa808f3a7b4088f6bc635f0af3ed4109471c237fee4d1089bbcc31a5089cf",
+      "availability": "execution scratch only; not part of committed portable package",
+      "role": "complete actual input census/main-product origin inventory independently reviewed; future raw availability and complete dynamic import closure not asserted"
+    }
+  ]
+}

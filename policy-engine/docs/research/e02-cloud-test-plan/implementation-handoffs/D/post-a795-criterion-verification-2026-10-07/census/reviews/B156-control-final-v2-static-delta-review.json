@@ -1,0 +1,40 @@
+{
+  "decision": "GO_BOUNDED_B156_FINAL_V2_AND_ROLE_REMOVAL_CAPTURE",
+  "reviewer": "census_oct07",
+  "source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "inputs": [
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-independent-control-d23-v2.patch",
+      "sha256": "913759448d6a87e89910235551fce76ca7c6bb159d2577c1cd0c92d14a245678",
+      "bytes": 2213
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/remove_funnel_evaluation_role.py",
+      "sha256": "ee877aa9971bf5e7bd4982f698ba2605449f827947a2ec6ff7d1b4fc68f69aa9",
+      "bytes": 445
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_funnel_identity_cohort.py",
+      "sha256": "71c4e8b6e66fda8efdb48a2706e202b31a0a837b9ccb1f0149a77953b512ec3f",
+      "bytes": 11107
+    }
+  ],
+  "prior_review": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/census/B156-control-and-role-removal-independent-static-review.json",
+    "sha256": "a7149762a89c1373e70be02ae09e90adb0e50a27fc74c1a22173c98ac3f259cc"
+  },
+  "delta": "V2 asserts actual third callback before different-ticket identity. Same-basis independent role executes distinct score3; original ordinary score1 and deep-copied result/history/trace remain equal; ordinary resubmit retains cache and callback count3. No production edits.",
+  "negative": "Plugin removes only evaluation_role from actual context identity, retains supplied marker and callback/history; expected actual callback count2 versus required3.",
+  "capture": "Exact reused bounded stream/phase/origin/input capture with truthful deterministic Funnel submit/advance role profile; no Node/physical debit/CAS/scientific authority inferred. Generic assessed_scope wording about Node is incidental inherited metadata and must not establish a Node assertion.",
+  "runtime": "UNRUN until root commits frozen test candidate and executes selected positive/removal",
+  "P37": [
+    "consumer_asserted",
+    "recomputed",
+    "independently_reconciled"
+  ],
+  "P38": "Role remains in supplied context but cache projection omits it; callback/history discriminator detects false reuse.",
+  "formal_closed": false,
+  "G_accepted": false,
+  "P41": "not_established",
+  "unrelated_source_edits": "none; no F841 baseline attribution or waiver"
+}

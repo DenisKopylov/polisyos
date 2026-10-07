@@ -1,0 +1,151 @@
+{
+  "source": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "assessed_production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "assessed_scope": "actual execution on given frozen HEAD; product/test and new canonical Node test recorded separately, no prior run relabeled current",
+  "tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "head_after": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_native_node_cohort.py",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "node15-d23",
+    "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-fixtures",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "POLISYOS_METRICS_PORT": "53565"
+  },
+  "exit": 0,
+  "wall_seconds": 11.832874059677124,
+  "phase_counts": {
+    "call:passed": 15,
+    "setup:passed": 15,
+    "teardown:passed": 15
+  },
+  "outputs": {
+    "node15-d23.stdout.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.stdout.txt",
+      "bytes": 7855,
+      "sha256": "671f06ac3458145b7b7adf3619cab586c16a3a1d929188143ce4b0b9b1a46f98"
+    },
+    "node15-d23.stderr.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "node15-d23.junit.xml": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.junit.xml",
+      "bytes": 3340,
+      "sha256": "d0f507cd06f6829eccd1f409987e29e2d14aca7cedcf240058ec7e6c62f68994"
+    },
+    "node15-d23.phases.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.phases.json",
+      "bytes": 13425,
+      "sha256": "79a5dac518e5e922171e7e2eea52aa38160c20759873115710b0299f24e57d27"
+    },
+    "node15-d23.inputs.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.inputs.json",
+      "bytes": 1202106,
+      "sha256": "d29baa7b8c8673709f431b5f42b922417f6172073724772cb2f22f5fa40e9f68"
+    },
+    "node15-d23.modules.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.modules.json",
+      "bytes": 415570,
+      "sha256": "cd00e2840e7fb3a591d8370e0b8d905146b8d42b9126e04d35c42f9ee4905dbd"
+    },
+    "node15-d23.environment.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.environment.json",
+      "bytes": 10567,
+      "sha256": "efa686bb21cdeaa7c09b45e49d7b878ba5f3d626b524719c1a4cb51812cc72ef"
+    },
+    "node15-d23.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.cgroup-before.json",
+      "bytes": 506,
+      "sha256": "34aff74ae88243ba7e9c0ab8acd7f1b98f8b8ffd4853c39af2cd5bcfaed2d6e3"
+    },
+    "node15-d23.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "5c962f6e62643c9d67c11e6f3d1851b2c35699a2868e8ce6a140b9ba958f1e01"
+    },
+    "node15-d23.cgroup-during.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.cgroup-during.json",
+      "bytes": 5340,
+      "sha256": "a34d1ceb57475098d5478f6b9d0f922d801adbaec8b32eda72b42544475340a4"
+    },
+    "node15-d23.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.deciding-ledgers.json",
+      "bytes": 6679,
+      "sha256": "46bfeffad37ad686c5312c5457bc7a30f78199b1b37556cd5910fde23ee6646f"
+    },
+    "node15-d23.deciding-cas.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.deciding-cas.json",
+      "bytes": 177132,
+      "sha256": "3fb96e16851e67922bb48e3602aa8768f7ffdb03d02bbf77de337b9fdf264ae3"
+    },
+    "node15-d23.deciding-node-observations.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23.deciding-node-observations.json",
+      "bytes": 7006,
+      "sha256": "bff68a224527e1346a5aaa3ad891b2ecab53a7c2841c1655ae2768e6b800f9d9"
+    }
+  },
+  "input_denominator": 6323,
+  "input_available": 6322,
+  "input_digest": "5b170a7689f60a89a57055a2107116fcc7e9797b4199c14d9fa48b14dbd54c02",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791397514.7643385,
+    "files": {
+      "memory.current": "15413239808\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "999\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791397526.6811862,
+    "files": {
+      "memory.current": "15944454144\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 15,
+  "deciding_cas_count": 324,
+  "deciding_node_observation_count": 15
+}

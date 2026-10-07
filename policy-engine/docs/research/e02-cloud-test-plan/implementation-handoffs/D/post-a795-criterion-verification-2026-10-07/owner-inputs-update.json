@@ -1,0 +1,890 @@
+{
+  "schema": "D.E02.original16-scoped-owner-input-update.v1",
+  "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "original_packet_count": 16,
+  "catalog_file": "criterion-overlay.json",
+  "packets": [
+    {
+      "key": "tenant_split_transfer",
+      "findings": [
+        "B131"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/0"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/0",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/0"
+      },
+      "relation": "required_original_positive",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual source and target tenant/split/subject refs",
+        "Specific allowed reuse/adapter decision from the real owner",
+        "Source/target data/model/evaluator/metric/unit/direction basis",
+        "Exact source physical parameter and evaluation refs",
+        "Permitted adapter/ref and bounded applicability, or explicit refusal"
+      ],
+      "consumer": "Real saved evaluation -> native warm-transfer target.",
+      "next_decision": "Obtain owner-approved source/target tenant/split/subject refs, metric/unit/direction/evaluator basis, physical parameters/evaluation refs, and permitted reuse/adapter or refusal. Then run exact mechanical CAS admission and positive/refusal. Do not synthesize rights.",
+      "held_or_limited_real_positive": "UNRUN",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/0"
+        }
+      }
+    },
+    {
+      "key": "authorized_revalidation",
+      "findings": [
+        "B137"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/1"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/1",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/1"
+      },
+      "relation": "required_original_positive",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Prior and newly produced exact evidence refs/version",
+        "Actual new grounds and occurrence time from producer",
+        "Owner authorization for this revalidation purpose",
+        "Subject/input/rule scope tying old and new version",
+        "Declared content/confidence/freshness basis"
+      ],
+      "consumer": "Cold/warm/restart and transfer reads of the same lesson.",
+      "next_decision": "Obtain old/new evidence, actual grounds and occurrence time, purpose authorization, subject/input/rule binding and freshness basis. Existing TTL/read guards are not this positive.",
+      "held_or_limited_real_positive": "UNRUN",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/1"
+        }
+      }
+    },
+    {
+      "key": "native_draw_producer",
+      "findings": [
+        "B157"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/2"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/2",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/2"
+      },
+      "relation": "required_original_positive",
+      "capability_state_label": "producer_missing",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Exact candidate/input/seed/config/basis refs",
+        "Actual executed sample/draw/work count and source result ref",
+        "L3 reduced effective request, actual cheaper work/cost evidence",
+        "L4 full effective request on both paths",
+        "Unmutated caller context and exact run/evaluation/attempt scope"
+      ],
+      "consumer": "Actual direct L4 vs L3->L4 FunnelOrchestrator on the same boundary.",
+      "next_decision": "Use real native draw producer to emit same-run L3 reduced and L4 full effective configs, actual executed draws/work/cost and candidate/input/seed provenance. Foundry20/80 receipt cannot substitute.",
+      "held_or_limited_real_positive": "UNRUN",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/2"
+        }
+      }
+    },
+    {
+      "key": "same_scope_refinement",
+      "findings": [
+        "B161"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/3"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/3",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/3"
+      },
+      "relation": "required_original_positive",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual prior and later estimate refs",
+        "Same subject/value/input/rule/time comparison basis",
+        "Owner supplied permitted refinement relation/conditions",
+        "Producer evidence for later value/interval",
+        "Independent risk components that remain unaffected"
+      ],
+      "consumer": "Legitimate later estimate changes current result without erasing independent0.8 or unknown risks.",
+      "next_decision": "Obtain owner-authorized same-subject/value/input/rule/time relation, prior/later estimate refs and producer evidence; keep independent risk components. Do not invent min/last-write law.",
+      "held_or_limited_real_positive": "UNRUN",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/3"
+        }
+      }
+    },
+    {
+      "key": "typed_write_permit",
+      "findings": [
+        "B164"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/4"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/4",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/4"
+      },
+      "relation": "required_original_positive",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual issued permit ref and purpose/subject/input binding",
+        "Existing current verifier/owner API and source",
+        "Serialized revoke-before-commit writer protocol",
+        "Real prepared payload/ref and permitted write target",
+        "Positive current permit plus revoked/lost-permission control"
+      ],
+      "consumer": "Actual Level6/native commit effect; prepared payload read remains separately allowed.",
+      "next_decision": "Bind actual issued permit to subject/purpose/input, call existing current verifier/owner API, serialize revoke-before-commit, then exercise valid write and revoked zero-effect control. Boolean marker is not positive authority.",
+      "held_or_limited_real_positive": "UNRUN",
+      "conditional_bridge_requirement_only": true,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "conditional_bridge_requirement": "bridge_missing only after actual typed issued permit/current verifier/write-owner refs exist"
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "findings": [
+        "B120"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/5"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/5",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/14"
+      },
+      "relation": "required_original_numeric_boundary",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "B LLM-01/LLM-02 B-W09 Gateway text decoder owner; D CTL-03 composed consumer",
+        "appointment_established": "CanonicalBownerexacte7/f011source, notDparallelparser",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Owner-selected lossless declared-cost numeric representation or explicit refusal",
+        "Exact corrected decoder/consumer source/tree",
+        "Current response-text fixture unchanged at qualified test ref",
+        "Fresh schema1.1 ledger and per-event receipt readback",
+        "Genuine0/0.0/1 and both-sign/all-five-field tiny numeric controls"
+      ],
+      "consumer": "Actual HTTP text -> Gateway -> core response -> enforcer -> B middleware -> fresh FileBudgetLedger.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_scoped_owner_API_and_qualified_financial_decoder_controls",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B120@CTL-03"
+            ]
+          }
+        ],
+        "scope": "Exact canonical B1.2 response-text Decimal decoder and financial settlement/readback profile; A7 raw32 execution retained; current literal Node tiny/zero controls separate.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      }
+    },
+    {
+      "key": "owned_multikey_durability",
+      "findings": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/6"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/6",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/15"
+      },
+      "relation": "actual_default_translator_two_key_durability_profile_dependency",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 B-W05 ledger/middleware owner, B-W09 enforcer; D native caller attribution",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual caller multi-key/owned reservation profile and purpose",
+        "Physical event ID/digest/amount/provider and exact distinct accounting scopes",
+        "Owner chosen atomic settlement/release/reconciliation contract",
+        "Unknown ACK replay using same event/digest/reservation",
+        "Exact crash/reopen fault boundary and compatible schema/reader"
+      ],
+      "consumer": "Actual native translator/adversary full/split scope and fresh-process ledger reopen.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_scoped_local_two_key_owner_protocol",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B120@CTL-03",
+              "B158@FUN-01",
+              "B159@FUN-01"
+            ]
+          }
+        ],
+        "scope": "Canonical B1.2 pending/retry/ack local profile and configured translator/adversary two keys. No universal distributed all-key/crash model.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      }
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "findings": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/7"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/7",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/11"
+      },
+      "relation": "additional_read_contract_only",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 configured middleware owner pending G confirmation; D CTL-03/SRV consumers",
+        "appointment_established": "Actual canonicalB BudgetMiddleware.snapshot/pre_check/receipt ports and D configuredcurrentconsumer bridge available; no newly appointed scientific authority",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Owner-approved public method/signature and source",
+        "One canonical immutable view/revision/receipt ref",
+        "Supported durable and explicitly memory-only profiles",
+        "Exact restore/schema compatibility/refusal contract"
+      ],
+      "consumer": "Same-owner CostBudgetStopping/native service result projection/fresh read.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_scoped_public_read_contract",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B118@CTL-01",
+              "B120@CTL-03",
+              "B121@CTL-03"
+            ]
+          }
+        ],
+        "scope": "Actual appointed B public snapshot/receipt revision consumed by controller/stopping/result. Memory vs durable proof remains named in family.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      }
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "findings": [
+        "B109"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/8"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/8",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/7"
+      },
+      "relation": "separate_G_ordinary_workflow_task",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual caller source/owner appointment and ordinary request terminus",
+        "Metric/split/direction/unit/definition-version assessed result refs",
+        "Eligible/feasible/unknown complete requested denominator",
+        "Producer source/input/evaluator admission basis",
+        "Existing registry/report CAS refs and normal bridge source"
+      ],
+      "consumer": "Default evaluation -> registry update -> persisted fresh reader -> ranked frontier report.",
+      "next_decision": "Do not block original B109 math/comparator. Appoint and test only if claiming the ordinary A frontier provider/denominator/bridge.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/8"
+        }
+      }
+    },
+    {
+      "key": "served_hierarchical_context",
+      "findings": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/9"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/9",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/8"
+      },
+      "relation": "separate_G_served_factory_scope",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "A-W01/CYC-01 actual workflow owner and evaluator owner; G to confirm the actual served caller; D native API/bridge consumers",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual supported caller source and owner-approved mapping",
+        "Admitted concrete candidate/request and source refs",
+        "Existing eval-safety execution context/current verifier and world-model/provenance basis",
+        "Configured exact checkpoint owner/ref exposure",
+        "Known new/resumed/stopped/empty/evaluator-failure and rollback subjects"
+      ],
+      "consumer": "Real served hierarchical node with fresh public resume/readback and evaluated-subject/cost/history parity.",
+      "next_decision": "Current native service/factory/history proofs are bounded; an appointed deployed caller/world-model context is not established. Treat as adjacent serving input, not a fabricated original criterion.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/9"
+        }
+      }
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "findings": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/10"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/10",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/10"
+      },
+      "relation": "additional_actual_factory_profile",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "A actual node/evaluator caller owner; B existing resource owner; D blueprint node owner",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual caller source/appointment and runnable request",
+        "Same configured B middleware owner instance and existing key scope",
+        "Existing admitted evaluation context/verifier/world-model refs",
+        "Actual stage producer output for the cost/work being claimed",
+        "Exact fresh output/report refs and pending ACK attribution if used"
+      ],
+      "consumer": "Actual RunPolicyBlueprintRuntimeNode -> existing backend/L5 and true producer -> node outcome JSON/CAS.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_literal_Node_and_local_configured_worker_consumer",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B158@FUN-01",
+              "B160@FUN-02",
+              "B165@FUN-02"
+            ]
+          }
+        ],
+        "scope": "Current literal Node15 actual paid/zero/pending L3/L4 worker and fresh CAS; controlled early science and intentionally added native caller explicitly bounded.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      }
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "findings": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/11"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/11",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/12"
+      },
+      "relation": "additional_actual_persisted_owner_profile",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01 canonical ledger owner and CAS-01 qualified ref owner; D consumes compatible profile",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Exact appointed canonical persisted profile/reader source",
+        "Any actually supported prior history/artifact refs needing compatibility",
+        "Owner migration/refusal decision and existing release companion",
+        "Actual qualified CAS source/manifest lineage",
+        "Normal reader round-trip/explicit refusal evidence"
+      ],
+      "consumer": "Actual fresh configured ledger/checkpoint/history reader for supported owner profile.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_declared_B1_2_history_and_matching_reader_profile",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B120@CTL-03",
+              "LA-014@SRV-01",
+              "LA-015@CTL-01",
+              "LA-015@SRV-03"
+            ]
+          }
+        ],
+        "scope": "Existing owner wire1.2 persisted history and matching ordinary fresh reader; no migration by marker-upgrade.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      }
+    },
+    {
+      "key": "B_public_API_surface",
+      "findings": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/12"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/12",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/13"
+      },
+      "relation": "separate_quality_API_gate",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "B DUR-01/LLM-01/LLM-02 API owners plus G public inventory/contract owner",
+        "appointment_established": "ExactcanonicalBf011supportedownercontractsandstructuredoperatorcompanions",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Owner intended classification for exact APIs/callback types",
+        "Actual canonical contract/inventory update refs",
+        "Matching generated inventory/docs/release refs",
+        "Supported signature/compatibility/operator recipe"
+      ],
+      "consumer": "Actual exported public facade/import/caller; D releases preserve owner classifications.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_G42_stable_export_inventory_review_and_named_API_consumers",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B118@CTL-01",
+              "B120@CTL-03",
+              "B121@CTL-03",
+              "LA-014@SRV-01",
+              "LA-015@CTL-01",
+              "LA-015@SRV-03"
+            ]
+          }
+        ],
+        "scope": "G42 facade/inventory exact byte review, optional Runner port compatibility companions, specific public snapshot methods current consumers. Global generated/operator compatibility quality gate remains separate UNRUN.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      },
+      "separate_quality_capability": "verification_missing"
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "findings": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/13"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/13",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/9"
+      },
+      "relation": "E_DOE01_dependency_profile",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "E DOE-01 E-W06 canonical SensitivityPlan/sampling owner; D actual E->stress consumer",
+        "appointment_established": "not_established",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual mutable/immutable public-plan contract and source",
+        "Current method/parameter/n_trajectories/cap/allow_large_run values at consumed boundary",
+        "Oversize refusal before backend array/materialization",
+        "Declared round count and original physical direction/threshold",
+        "Exact affected E producer tests and ordinary D consumer profile refs"
+      ],
+      "consumer": "Public direct sampling and actual D SensitivityBridge/AdaptiveSampler -> truthful report fraction.",
+      "next_decision": "E must prove cap is consumed before backend materialization. Do not block D’s exact original scenarios or assert an E sampler law.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/13"
+        }
+      }
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "findings": [
+        "B108"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/14"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/14",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/5"
+      },
+      "relation": "separate_scientific_issuer_claim",
+      "capability_state_label": "not_established",
+      "current_authority_appointment": {
+        "requested_canonical_owner": "Actual fiscal unit/sign/source-law declaring owner to be confirmed by A/G",
+        "appointment_established": false,
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Actual producer/result and source refs",
+        "Owner-declared sign/unit/alias equivalence/profile",
+        "Measurement and applicable time/context basis",
+        "Real conflict/missing policy for that producer"
+      ],
+      "consumer": "Actual user/evaluator fiscal input; finite alias/unit boundary controls remain separately verified.",
+      "next_decision": "Get actual producer owner statement of unit/sign/alias equivalence and missing/conflict policy; keep current typed decoder numeric controls separate. No assumed legal rule.",
+      "held_or_limited_real_positive": "UNRUN",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "owner_positive_or_neighbor_profile_not_established",
+        "minimum_input_ref": {
+          "catalog": "D_owners",
+          "pointer": "/packets/14"
+        }
+      }
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "findings": [
+        "B110",
+        "B111"
+      ],
+      "packet_ref": {
+        "catalog": "D_owners",
+        "pointer": "/packets/15"
+      },
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/15",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "G_plan_ref": {
+        "catalog": "G_actions",
+        "pointer": "/owner_packets/6"
+      },
+      "relation": "required_original_same_class_control",
+      "capability_state_label": null,
+      "current_authority_appointment": {
+        "requested_canonical_owner": "D-W01 search_owner producer/consumer plus numerical_oracle independent controls",
+        "appointment_established": "Dcanonicalmathmechanism authors and independentGP review bound actualsource.",
+        "no_new_owner_apppointed": true
+      },
+      "minimum_actual_input": [
+        "Exact source/test/tree and ordinary consumer source",
+        "All axes/policies/values/reference transformed together plus stale/unpaired refusal",
+        "Independent rational positive tiny-volume vs genuine empty-zero expected",
+        "Finite-input derived reference arithmetic refusal",
+        "Complete immutable positive and source-removal/old-source outputs"
+      ],
+      "consumer": "Actual promoter/persisted registry/is_dominated/physical quantity and optimizer reference consumer.",
+      "next_decision": "No missing ordinary bridge/producer inferred in declared supported profile. Obtain only actual deployed/issuer/profile refs if extending that profile; shared quality/adjudication remains separate.",
+      "held_or_limited_real_positive": "not_applicable_to_available_bounded_mechanism",
+      "conditional_bridge_requirement_only": false,
+      "no_synthetic_authority_or_dataset_request": true,
+      "original_packet_body_preserved_by_reference": true,
+      "complete_deployed_authority_context": "not_established",
+      "formal_acceptance": false,
+      "minimum_actual_input_is_not_whole_dataset_request": true,
+      "current_bounded_availability": {
+        "state": "available_same_class_quantity_and_coordinate_controls",
+        "family_row_refs": [
+          {
+            "file": "criterion-overlay.json",
+            "ids": [
+              "B110@OPT-01",
+              "B111@OPT-01"
+            ]
+          }
+        ],
+        "scope": "Actual current CBC quantity/Pareto controls plus separately source-qualified 3b native primary controls and current Champion; rational-underflow classification separate from true-zero.",
+        "selected_assertion_verified": "bounded current/qualified family evidence; no whole import closure",
+        "complete_current_import_closure": "not_established"
+      }
+    }
+  ],
+  "authority_reading_rule": "Existing typed owner APIs and verified bounded consumers are available in named profiles. Unappointed issuer/scientific/tenant/revalidation inputs remain not_established; no synthetic authority. Adjacent optional owner capabilities are not added as original finding gates.",
+  "B164_primary": "not_established",
+  "B164_conditional_bridge": "bridge_missing only after real issuer chain supplied",
+  "formal_closed": 0,
+  "accepted_in_G": false
+}

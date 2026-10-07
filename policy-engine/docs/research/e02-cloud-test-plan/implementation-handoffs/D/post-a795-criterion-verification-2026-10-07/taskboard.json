@@ -1,0 +1,576 @@
+{
+  "schema": "D.E02.current46-remaining-taskboard.v1",
+  "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "rows": [
+    {
+      "id": "B106@STR-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/0"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B107@STR-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/1"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B108@OPT-01",
+      "proposal": "limited",
+      "capability": "not_established",
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/2"
+      },
+      "required_action": "Actual fiscal producer/unit/sign/alias/applicable context if issuer law asserted",
+      "owner_packet_keys": [
+        "owner_declared_fiscal_profile"
+      ],
+      "formal_closed": false
+    },
+    {
+      "id": "B109@OPT-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/3"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B110@OPT-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/4"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B111@OPT-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/5"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B112@OPT-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/0"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B113@OPT-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/1"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B114@OPT-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/2"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B115@OPT-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/3"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B116@OPT-04",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/0"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B117@OPT-04",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/1"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B118@CTL-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/2"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B119@CTL-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/3"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B120@CTL-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/4"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B121@CTL-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/5"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B122@STP-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/6"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B123@CTL-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/6"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B124@CTL-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/7"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B125@CTL-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/4"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B126@CTL-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/5"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B127@OPT-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "gp_rows",
+        "pointer": "/rows/6"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B128@TRN-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/0"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B129@TRN-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/1"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B130@TRN-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/2"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B131@TRN-01",
+      "proposal": "held",
+      "capability": "not_established",
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/3"
+      },
+      "required_action": "Supply minimal actual original owner positive and run exact frozen consumer/refusal",
+      "owner_packet_keys": [
+        "tenant_split_transfer"
+      ],
+      "formal_closed": false
+    },
+    {
+      "id": "B132@TRN-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/4"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B133@TRN-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/5"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B134@TRN-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/6"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B135@TRN-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/7"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B136@TRN-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/8"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B137@TRN-03",
+      "proposal": "held",
+      "capability": "not_established",
+      "current_family_assertion": {
+        "catalog": "transfer_rows",
+        "pointer": "/rows/9"
+      },
+      "required_action": "Supply minimal actual original owner positive and run exact frozen consumer/refusal",
+      "owner_packet_keys": [
+        "authorized_revalidation"
+      ],
+      "formal_closed": false
+    },
+    {
+      "id": "B156@FUN-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/0"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B157@FUN-02",
+      "proposal": "held",
+      "capability": "producer_missing",
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/1"
+      },
+      "required_action": "Supply minimal actual original owner positive and run exact frozen consumer/refusal",
+      "owner_packet_keys": [
+        "native_draw_producer"
+      ],
+      "formal_closed": false
+    },
+    {
+      "id": "B158@FUN-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/2"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B159@FUN-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/3"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B160@FUN-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/4"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B161@FUN-03",
+      "proposal": "held",
+      "capability": "not_established",
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/5"
+      },
+      "required_action": "Supply minimal actual original owner positive and run exact frozen consumer/refusal",
+      "owner_packet_keys": [
+        "same_scope_refinement"
+      ],
+      "formal_closed": false
+    },
+    {
+      "id": "B162@FUN-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/6"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B163@FUN-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/7"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B164@FUN-03",
+      "proposal": "held",
+      "capability": "not_established",
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/8"
+      },
+      "required_action": "Supply minimal actual original owner positive and run exact frozen consumer/refusal",
+      "owner_packet_keys": [
+        "typed_write_permit"
+      ],
+      "formal_closed": false
+    },
+    {
+      "id": "B165@FUN-02",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "funnel_rows",
+        "pointer": "/findings/9"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "B41@STP-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "math_final_rows",
+        "pointer": "/rows/7"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/8"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/9"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "proposal": "closed",
+      "capability": null,
+      "current_family_assertion": {
+        "catalog": "service_rows",
+        "pointer": "/rows/10"
+      },
+      "required_action": "No new ordinary mechanism work from this bounded verification; G adjudicates original criterion and integration acceptance",
+      "owner_packet_keys": [],
+      "formal_closed": false
+    }
+  ],
+  "global_remaining": [
+    "Complete mandatory quality diagnostic with actual complete deciding output only when changed capacity/dependency justifies run",
+    "Publish exact declared receipt files with normal authorized topic capability; main remains untouched",
+    "G alone adjudicates integration/source/criterion acceptance"
+  ],
+  "optional_neighbor_owner_packets": "owner-inputs-update.json exact16 preserved; not imposed as new original criterion gates"
+}

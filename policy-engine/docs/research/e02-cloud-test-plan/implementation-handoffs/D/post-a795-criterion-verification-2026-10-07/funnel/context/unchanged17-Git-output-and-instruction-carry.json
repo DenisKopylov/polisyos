@@ -1,0 +1,178 @@
+{
+  "old_actual_execution": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "assessed_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "current_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "immutable_prior_output_files_validated": 143,
+  "same_all_prior_output_members": true,
+  "full_original_TSV_join": [
+    {
+      "finding_id": "B156",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-01",
+      "source_bundle_ids": "FUN-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B157",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-02",
+      "source_bundle_ids": "FUN-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B158",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-01",
+      "source_bundle_ids": "FUN-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B159",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-01",
+      "source_bundle_ids": "FUN-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B160",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-02",
+      "source_bundle_ids": "FUN-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B161",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-03",
+      "source_bundle_ids": "FUN-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B162",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-02",
+      "source_bundle_ids": "FUN-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B163",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-03",
+      "source_bundle_ids": "FUN-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B164",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-03",
+      "source_bundle_ids": "FUN-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B165",
+      "unit": "D",
+      "docx_analytical_package": "P27",
+      "source_closure_owner": "FUN-02",
+      "source_bundle_ids": "FUN-02",
+      "source_status": "partial"
+    }
+  ],
+  "instructions_read_context": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "bytes": 22656,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "bytes": 10553,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "bytes": 20260,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+      "bytes": 8565,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/README.md",
+      "sha256": "ab45ac1dc98969df9149e56e7afd19843c777854a7bff4bacb4bcc2e37f1933e",
+      "bytes": 41135,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+      "bytes": 61268,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/README.md",
+      "sha256": "d23afa2c31cada1a42be2c3e66ecdaa7b57cb436a7a133f288c36edd361f5fbe",
+      "bytes": 16778,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "sha256": "06841343da151a210d00462b58b99985f9366a0330801586be7be2e9137551c2",
+      "bytes": 111848,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "sha256": "405f3cc611fa4c9f70216876d6e3f92f266a9735abce5f239b168ccbb809a16e",
+      "bytes": 146766,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "bytes": 46944,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+      "sha256": "a3fb633cbf2cd767538c76d90a5070ba678d67a23a4370eef4c0ed3909d955ef",
+      "bytes": 34412,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0",
+      "bytes": 52438,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+      "sha256": "d71d4aa68d1cb754139030367514b3662fa4c9acde54d55af66311213a3c32a1",
+      "bytes": 20783,
+      "same_previously_fully_read_3b_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/delivery-evidence.md",
+      "sha256": "376e150c2e983357c055a2a153f071feec3147646f29db4db881c41720b5e644",
+      "bytes": 24333,
+      "same_previously_fully_read_3b_bytes": true
+    }
+  ],
+  "no_new17_execution": true,
+  "import_closure_rule": "new current runtime scopes required for reached Node path; only unchanged old17 assertion/import bytes are carried, current whole catalog includes receipt docs",
+  "P41": "not_established"
+}

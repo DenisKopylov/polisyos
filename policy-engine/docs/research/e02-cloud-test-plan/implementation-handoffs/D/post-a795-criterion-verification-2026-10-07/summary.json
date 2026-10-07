@@ -1,0 +1,68 @@
+{
+  "schema": "D.E02.current46-accounting-summary.v1",
+  "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "unique_proposals": {
+    "closed": 39,
+    "limited": 1,
+    "held": 5
+  },
+  "occurrence_proposals": {
+    "closed": 40,
+    "limited": 1,
+    "held": 5
+  },
+  "formally_closed": 0,
+  "G_accepted": 0,
+  "P41_not_established": 46,
+  "required_owner_positive_UNRUN": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "limited": [
+    "B108 actual real fiscal issuer/unit/sign/alias/profile not_established; bounded numeric controls separately checked"
+  ],
+  "owned_fixable_mechanism_open": 0,
+  "pending_family_transport_or_B156_actual": [],
+  "execution_counts": "Per exact command/scope/family pointers only; overlapping scopes and historical pins are never summed as whole D PASS.",
+  "quantity17_capture": "Actual CBC17 numerical assertions PASS; generic origin/admission ERROR preserved and independent bounded namespace/computational reconciliation disclosed. No receipt ADMITTED relabel.",
+  "optional_backend": "GP minimal3 supported fallback PASS; three native-only modules SKIP/protected property UNRUN. No numerical PASS from collection or absence.",
+  "quality_diagnostic": {
+    "check": "production_invocation diagnostic",
+    "result": "UNRUN",
+    "receipt_admission": "ERROR",
+    "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "slice_base": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+    "process": "signal9; incomplete deciding output",
+    "shared_memory_events": "oom300→301;oom_kill57→58 same interval; no PID attribution established",
+    "capability": "verification_missing",
+    "whole_global_quality_gate": "UNRUN; no inherited-red/P41 waiver",
+    "prior_canonical_locator": [
+      {
+        "catalog": "production_quality_command",
+        "pointer": ""
+      },
+      {
+        "catalog": "production_quality_receipt",
+        "pointer": ""
+      },
+      {
+        "catalog": "production_quality_stdout",
+        "pointer": ""
+      },
+      {
+        "catalog": "production_quality_stderr",
+        "pointer": ""
+      },
+      {
+        "catalog": "production_quality_review",
+        "pointer": ""
+      }
+    ]
+  },
+  "publication": "pending root append-only commit and remote readback; normal Git credentials currently blocked independently of runtime checks",
+  "cleanup": "No cleanup performed by this accounting leaf; native Trash only per current user authorization."
+}

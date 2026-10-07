@@ -1,0 +1,46 @@
+{
+  "decision": "GO_TEST_FIXTURE_ORACLE_CORRECTION_ONLY",
+  "reviewer": "/root/census_oct07",
+  "patch": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/native-node15-fixture-oracle-corrections-5b-formatted.patch",
+  "sha256": "c000a3b24b21bd812e26422973f44ef8e285b23cbe0048cecf0c4bb521b2d124",
+  "base": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "initial_runtime": {
+    "actual_cases": 18,
+    "PASS": 13,
+    "FAIL": 5,
+    "ERROR": 0,
+    "SKIP": 0,
+    "source_stable": true,
+    "command_path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.command.json",
+    "classification": "Five author test-oracle failures retained; no product FAIL inferred"
+  },
+  "corrected_predicates": [
+    {
+      "trigger": "Default actual Node uses Orchestrator stage_a_max_level2",
+      "oracle": "Before L3/L4 no actual paid worker calls, no receipts/spent, no resource event IDs, provider_spend None; capture actual partial fresh snapshot and call list rather than assumed first paid amount",
+      "basis": "independently_reconciled"
+    },
+    {
+      "trigger": "Declared controlled ATE0 with positive CI width0.4",
+      "oracle": "Existing relative CI rule clamps to1, genuine width0 remains0; expected0.1 copied from another nonzero-ATE fixture was wrong",
+      "basis": "recomputed"
+    },
+    {
+      "trigger": "Canonical ExperimentState JSON serializes unavailable stage Infinity sentinel as null",
+      "oracle": "Fresh state must equal declared canonical returned JSON, while unknown provider amount/pending guards remain explicit; generic json.dumps(rawdict) Infinity was not canonical",
+      "basis": "consumer_asserted"
+    }
+  ],
+  "retained_protected_assertions": [
+    "Two physical native workers and independent two×cost amount",
+    "Fresh canonical spend receipts and stage-to-event binding",
+    "Missing provider amount remains None",
+    "Unknown tiny cost retains real owner obligation and prevents false debit0",
+    "Empty/capped distinction and zero-width0 preserved",
+    "Promotion/native scientific authority guards remain controlled and separately not_established"
+  ],
+  "limitations": "Serialized view equality is custody assertion, not independent scientific estimand. No native sample/refinement/permit authority or default backend paid-call claim.",
+  "runtime_after_correction": "UNRUN until root committed frozen source and affected replay",
+  "production_paths_changed": 0,
+  "apply_check_exit": 0
+}

@@ -1,0 +1,30 @@
+{
+  "decision": "GO_FINAL_RUNBOUND_CANONICAL_TEST_AND_BOUNDED_CAPTURE",
+  "supersedes": "a7b4ec9 four-path GO is historical prior draft; this sidecar supplies current test hash/run attribution",
+  "reviewer": "/root/census_oct07",
+  "actual_canonical_test": {
+    "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+    "bytes": 11418,
+    "AST_semantics": "Exact reviewed runbound draft excluding imports/module docstring; only model_copy run_id assignment on translator input and formatter layout"
+  },
+  "run_binding": "Both real native worker calls receive harness ExperimentState run_id and actual stage evaluation_id; no fixture run-1 attributed to Node",
+  "receipt_scope": "Canonical spend receipt binds producer event ID/digest/key/amount; it has no standalone run_id field. Existing event-to-stage receipt prefixes asserted; no invented receipt schema authority.",
+  "runtime": "UNRUN until committed frozen candidate",
+  "capture": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_native_node_cohort.py",
+    "sha256": "447a78388373283adf9af865d121fe8d66793812a09f41678c190f9fae35dfa7",
+    "decision": "GO bounded Node-only capture",
+    "delegation": "Actual pytest.main and existing test/helper product methods; phase hook records without changing methods. Actual before/after input/file/module hashes, immutable source, tokenizer asset, lossless ledger/CAS/node-observation deciding artifacts and full streams/JUnit. Shared cgroup event deltas explicitly unattributed.",
+    "auxiliary": "OS-selected loopback port is auxiliary instrumentation; close-before-use race possible, no telemetry property or capacity cap asserted",
+    "boundaries": [
+      "Main reached product-src module inventory only; not complete parent/child/external import closure",
+      "Capture records file hashes; independent reviewer must match actual candidate Git bytes",
+      "Available tracked input denominator explicit; absence not silently converted PASS",
+      "Frozen source roles and actual execution SHA distinct; no previous result relabeling"
+    ]
+  },
+  "production_source_changed": false,
+  "test_denominator": 15,
+  "negative_control": "2e6053 Node constructor-owner-only control retains physical native calls and real ledger; planned4 assertion failures, not run yet"
+}

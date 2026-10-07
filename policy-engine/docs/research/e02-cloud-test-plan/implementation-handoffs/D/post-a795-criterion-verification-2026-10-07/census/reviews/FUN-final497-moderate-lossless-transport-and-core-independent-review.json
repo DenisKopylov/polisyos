@@ -1,0 +1,77 @@
+{
+  "schema": "D.E02.FUN-final-moderate-complete-output-transport-independent-review.v1",
+  "reviewer": "census_oct07",
+  "author": "funnel_oct07",
+  "decision": "GO_ALL497_DECLARED_BYTES_AND_LOSSLESS_ORIGINAL_IDENTITIES",
+  "manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/portable-final-a30c/manifest.json",
+    "sha256": "0c8342b33ceb780f5648493a5bf99d6d8f5444dc8706778eb09b28d24503eaf8",
+    "bytes": 258230
+  },
+  "rows": 497,
+  "original_identity_compared_rows": 492,
+  "new_derived_metadata_rows": [
+    "context/B156-canonical-quality-classification.json",
+    "deciding-content-index.json",
+    "large-raw-refs.json",
+    "summary.json",
+    "README.md"
+  ],
+  "stored_member_bytes": 943945,
+  "all_original_absolute_paths_lossless_byte_equal": true,
+  "original_already_gzip_members": 409,
+  "uncompressed_original_bytes": 3085546,
+  "JSON_members_parsed": 476,
+  "core_Handoff_matrix_byte_identity": true,
+  "core_refs": [
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/HANDOFF.json",
+      "sha256": "802f46d87df7f6bc471d9b7c50394f9501e11cc51ee354745e8c94e4479b35f4",
+      "bytes": 8628
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/original10-outcomes.json",
+      "sha256": "c2f734080c1feda26e4d68ff84aa6bc9600288f66b28f236c2e68062bef883f4",
+      "bytes": 48770
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/deciding-content-index.json",
+      "sha256": "366ff2cdcd10a3a48781173d4128e1a9b1bc044822d22934be3eb6e6ee95ce53",
+      "bytes": 139649
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/summary.json",
+      "sha256": "80096ffc4c377c2e29b0c1f9acf558872328874be74341f13fbba8b969b95629",
+      "bytes": 1084
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/large-raw-refs.json",
+      "sha256": "72ef539dd2874362054c9b4a9c1ac10c3823f8c942bfc655e4ea5e070aeb8578",
+      "bytes": 6044
+    }
+  ],
+  "runtime_reading_rule": "Actual15/removal4 d23, tracker3 subset initial5b13P5fixtureF, B156actuala30c1PASS/removal1FAIL. Full five-cohort streams/phases/JUnit/commands retained independently reviewed earlier. No sum or new execution.",
+  "deciding_content_index409_all_resolved_and_hashed": true,
+  "all_original_cohort_artifact_manifest_records_resolved": {
+    "node15-tracker3-5b5": 424,
+    "node15-d23": 354,
+    "node-owner-port-removal4-d23": 104,
+    "B156-role1-a30c": 0,
+    "B156-role-removal1-a30c": 0
+  },
+  "actual_record_counts": {
+    "node15-tracker3-5b5": 424,
+    "node15-d23": 354,
+    "node-owner-port-removal4-d23": 104,
+    "B156-role1-a30c": 0,
+    "B156-role-removal1-a30c": 0
+  },
+  "physical_artifact_readback_review": "Actual Node ledger/CAS/observer material fe23 independent runtime review; B156 zero ledger/CAS and local callback/history0bf3 review; input/origin catalogs external bounded hash refs, no full cloud rawavailability assertion.",
+  "source_qualification_review": "5adcc old1174mainsource/helper exact currenta30c;473971 A7 directasync selected caller; no complete import/system/durableticket authority or deployedrights claim.",
+  "aggregate_pending_transport_field_superseded": "Original sealed19-file aggregate b4c08 remains unchanged; this actual complete moderate manifest plus declared canonicalbyte paths supersedes its FUTURE/PENDING moderate transport label only. Actual final Git commit/remote readback still not_established.",
+  "reviewer_capture_note": "Initial original-path comparison assumed rawbytes but captured deciding artifacts were alreadygzip; decoded both immutable original and newportablegzip and verified all497. No artifact/outcome/source changed.",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established",
+  "no_replay": true
+}

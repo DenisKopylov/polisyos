@@ -1,0 +1,176 @@
+{
+  "schema": "D.E02.exact-current-selected-assertion-binding.v1",
+  "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "CBC_receipt": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "merged_G": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "latest_read_G": "9806442ddb47d624a2940bac75d9d6248e934c48",
+  "latest_read_G_tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+  "G_product_delta_from_merged": [],
+  "D_ancestor_of_latest_G": false,
+  "incremental_d23_to_candidate_complete_paths": [
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "incremental_production_paths": [],
+  "full_CBC_to_implementation_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+      "base": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_blob": "9226ed1527da6d66e02c62be3c5d13b9b97ac9d4",
+        "sha256": "5d0ff9c1049f700d66ff8badea385892c998ee8f74e378a0e643da9a7dfb3ead",
+        "bytes": 1593
+      },
+      "candidate": {
+        "git_ref": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "0d0b07f2f92b6e6dea5cd00c5bcd18bac355be41",
+        "sha256": "e4dba676f1a8f01066cab78c712a12ca6cdf69190c6215a9f7d55be8d704d77d",
+        "bytes": 1981
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "base": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_blob": "abf96b1374caf7c4c603ffe0c902ec4cf069c1fa",
+        "sha256": "505df09dc7539a8514cf2bc9945c0d43e602102e11733e6559991cb877d50136",
+        "bytes": 5385
+      },
+      "candidate": {
+        "git_ref": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "364839f63b3e38b8838961d116493c9ba7599d9d",
+        "sha256": "bf767d1e72cd7beea9d2273c5d8f9084bf85ab4b7f652d119e44487a34278649",
+        "bytes": 6392
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "base": null,
+      "candidate": {
+        "git_ref": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "078dad20593e3e3616fbbcc3b41d6c099b3b1f6d",
+        "sha256": "54348a0c810cd8e5646ab97cbcc83069b8e21c4d9f0f0d895c42f3015ad64128",
+        "bytes": 12359
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+      "base": null,
+      "candidate": {
+        "git_ref": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "a32b78b591ef68bf52ed0f6a9435f9a002247387",
+        "sha256": "35bd9c7c4361ef55ae36c8e3c0f270c081b55061e78e14e79ddf5c2e658108ab",
+        "bytes": 4889
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "base": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_blob": "faf42563f125eb535716e3c09317794df60ab118",
+        "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2",
+        "bytes": 26876
+      },
+      "candidate": {
+        "git_ref": "8e864f4ed0eeedf509d836381b20976c413f2443",
+        "git_blob": "6f317fe8f501dc3b08bbb8ec63ffc3f9ee2ba69b",
+        "sha256": "2b7de860a5ddfa1be54e2462d64ebb7c674a664b34d87b6fd73cf2ce43033267",
+        "bytes": 28058
+      }
+    }
+  ],
+  "root_complete_source_and_receipt_append_sets": {
+    "catalog": "root_source_footprint",
+    "pointer": ""
+  },
+  "predecessor_original_main198_617_merged73_full_footprint": {
+    "catalog": "predecessor_full_footprint",
+    "pointer": ""
+  },
+  "new_production_python_paths": [],
+  "profile_catalog_changed_explicitly": true,
+  "qualification": "Exact family selected runtime producer/test/config/reached-source qualifier via d23 plus explicit changed final B156 selector. Does not establish unchanged whole catalog, nonmodule file read/syscall coverage, transient modules or unobserved child imports.",
+  "per_family_refs": {
+    "math": [
+      {
+        "catalog": "math_d23_carry",
+        "pointer": ""
+      },
+      {
+        "catalog": "math_root_review",
+        "pointer": ""
+      }
+    ],
+    "gp-state": [
+      {
+        "catalog": "gp_d23_carry",
+        "pointer": ""
+      },
+      {
+        "catalog": "gp_d23_acceptance",
+        "pointer": ""
+      },
+      {
+        "catalog": "gp_independent_acceptance",
+        "pointer": ""
+      }
+    ],
+    "service": [
+      {
+        "catalog": "service_d23_carry",
+        "pointer": ""
+      },
+      {
+        "catalog": "service_d23_review",
+        "pointer": ""
+      },
+      {
+        "catalog": "service_receipt",
+        "pointer": ""
+      }
+    ],
+    "transfer": [
+      {
+        "catalog": "transfer_d23_carry",
+        "pointer": ""
+      },
+      {
+        "catalog": "transfer_independent_acceptance",
+        "pointer": ""
+      }
+    ],
+    "funnel": [
+      {
+        "catalog": "funnel_handoff",
+        "pointer": ""
+      },
+      {
+        "catalog": "funnel_manifest",
+        "pointer": ""
+      },
+      {
+        "catalog": "funnel_final_carry",
+        "pointer": ""
+      }
+    ]
+  },
+  "actual_execution_pins": [
+    "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "a30c140eedc5c0514a93409d4b4040a715231d28"
+  ],
+  "final_B156_execution": {
+    "source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+    "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+    "implementation_source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+    "assertion_result": "PASS singleton; role removal actual assertion FAIL",
+    "no_impl8e_execution_relabel": true
+  },
+  "historical_selected_financial_scope": "A7 cache18/raw32 actual direct asyncio native caller branch; unchanged17 financial files; does not establish current whole import closure or new current cache18/raw32 PASS.",
+  "credential_publication_capability": "blocked normal fetch/push credentials reported by root; connector READ confirms G980/D CBC/main198. No runtime verdict inferred.",
+  "known_receipt_docs_head": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "new_final_aggregate_publication_git_ref": "not_established"
+}

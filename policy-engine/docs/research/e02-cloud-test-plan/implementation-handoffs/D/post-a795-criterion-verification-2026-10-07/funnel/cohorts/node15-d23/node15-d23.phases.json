@@ -1,0 +1,317 @@
+[
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-1.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.005073070002254099,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-1.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.22146298602456227,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-1.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00021545198978856206,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-0.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0006556799926329404,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-0.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.0848581159953028,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-0.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00023060900275595486,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-1.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005954579974059016,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-1.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07649467399460264,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-1.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00015518898726440966,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-0.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005619660078082234,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-0.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07558369799517095,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-0.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.0001436469901818782,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[stages]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.00048394998884759843,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[stages]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.020384069008287042,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[stages]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.0001323660253547132,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[cap]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005086470046080649,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[cap]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.020818165998207405,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[cap]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00013328800559975207,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[None-ci_width_missing-1.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0006487370119430125,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[None-ci_width_missing-1.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07816435102722608,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[None-ci_width_missing-1.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00016447601956315339,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[broken-ci_width_invalid-1.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0006220670184120536,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[broken-ci_width_invalid-1.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07536585300113074,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[broken-ci_width_invalid-1.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00014477898366749287,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[nan-ci_width_invalid-1.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0006269470031838864,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[nan-ci_width_invalid-1.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07571300899144262,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[nan-ci_width_invalid-1.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00016536799375899136,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.0-full_fidelity_bootstrap-0.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0006707480060867965,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.0-full_fidelity_bootstrap-0.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07715225699939765,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.0-full_fidelity_bootstrap-0.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00017715900321491063,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.4-full_fidelity_bootstrap-1.0]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0006921280000824481,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.4-full_fidelity_bootstrap-1.0]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07673541101394221,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.4-full_fidelity_bootstrap-1.0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00015862600412219763,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[False]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005673459963873029,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[False]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.07558464002795517,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[False]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.0001424049842171371,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[True]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005356369947548956,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[True]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.0747009760234505,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[True]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00014045200077816844,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[1e-1000]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005250469839666039,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[1e-1000]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.03895628600730561,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[1e-1000]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.0001334790140390396,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[-1e-1000]",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.0005239549791440368,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[-1e-1000]",
+    "when": "call",
+    "outcome": "passed",
+    "duration": 0.03921481702127494,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[-1e-1000]",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.000255616003414616,
+    "longrepr": null
+  }
+]

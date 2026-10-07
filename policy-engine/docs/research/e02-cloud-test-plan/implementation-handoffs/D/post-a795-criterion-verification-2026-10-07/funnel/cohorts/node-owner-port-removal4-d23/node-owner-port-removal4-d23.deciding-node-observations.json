@@ -1,0 +1,37 @@
+{
+  "scope": "Actual bounded literal Node test observer/context/projection rows; producer addition controlled, not default backend or authority witness",
+  "files": [
+    {
+      "fixture_path": "test_literal_node_configured_p0/node-consumer-observations.json",
+      "bytes": 15388,
+      "sha256": "740be5f97250d177935cc44c5d22181b831ff24ee025e1cfd02a1c1d9b84c9ff",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-node-observations/23f54f0830e766293cab.json.gz",
+      "gzip_bytes": 2071,
+      "gzip_sha256": "8d1a6befd13337fd197ed9203c205ce9b1c53604006e7d14f59c38726f79f6b7"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p1/node-consumer-observations.json",
+      "bytes": 15386,
+      "sha256": "65274e8aad49f68e0733a134863285266d60fa933028a477b042e8b7cf386130",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-node-observations/9f8158ee46f61d4fb494.json.gz",
+      "gzip_bytes": 2072,
+      "gzip_sha256": "54059782be61e0a20ec98c04685e9103e52f7eedf0d91a7da1d0050208fe457a"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p2/node-consumer-observations.json",
+      "bytes": 15386,
+      "sha256": "aac38974f1acbfe43f02e5550ad65647fc6fb9cce393a7d3b1cc4163cd08ea68",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-node-observations/a5ea75f326bdf6ef7283.json.gz",
+      "gzip_bytes": 2072,
+      "gzip_sha256": "fd963ee798c396fa57f3fb242182fa6969e672c543ab49e869b67e56e0e4e1fb"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p3/node-consumer-observations.json",
+      "bytes": 15394,
+      "sha256": "1857808423cc707abea35ecad97d2c13500d15e3ae52b9245ab7692e6e61506f",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node-owner-port-removal4-d23-deciding-node-observations/cb56877468a822ec1082.json.gz",
+      "gzip_bytes": 2077,
+      "gzip_sha256": "2a0bd029ef5f859d42fbe919f2bcad82182c6be408ef2fce9670bec1b0f4ea2a"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "module": "polisyos.core",
+    "name": "artifacts",
+    "curated": true,
+    "runtime_resolution": "present",
+    "definition_module": "polisyos.core.artifacts"
+  },
+  {
+    "module": "polisyos.core",
+    "name": "canon",
+    "curated": true,
+    "runtime_resolution": "present",
+    "definition_module": "polisyos.core.canon"
+  },
+  {
+    "module": "polisyos.core",
+    "name": "registry",
+    "curated": true,
+    "runtime_resolution": "present",
+    "definition_module": "polisyos.core.registry"
+  },
+  {
+    "module": "polisyos.ir.analytics",
+    "name": "PosteriorSamplesCarrier",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.ir.analytics' has no attribute 'PosteriorSamplesCarrier'"
+  },
+  {
+    "module": "polisyos.ir.analytics",
+    "name": "ParametricFitCarrier",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.ir.analytics' has no attribute 'ParametricFitCarrier'"
+  },
+  {
+    "module": "polisyos.ir.analytics",
+    "name": "load_uncertainty_envelope",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.ir.analytics' has no attribute 'load_uncertainty_envelope'"
+  },
+  {
+    "module": "polisyos.ir.analytics",
+    "name": "persist_uncertainty_envelope",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.ir.analytics' has no attribute 'persist_uncertainty_envelope'"
+  },
+  {
+    "module": "polisyos.ir.analytics",
+    "name": "load_forecasting_uncertainty_bundle",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.ir.analytics' has no attribute 'load_forecasting_uncertainty_bundle'"
+  },
+  {
+    "module": "polisyos.ir.analytics",
+    "name": "persist_forecasting_uncertainty_bundle",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.ir.analytics' has no attribute 'persist_forecasting_uncertainty_bundle'"
+  },
+  {
+    "module": "polisyos.foundry.execute",
+    "name": "get_state_path",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.foundry.execute' has no attribute 'get_state_path'"
+  },
+  {
+    "module": "polisyos.foundry.execute",
+    "name": "load_state_snapshot",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.foundry.execute' has no attribute 'load_state_snapshot'"
+  },
+  {
+    "module": "polisyos.foundry.execute",
+    "name": "put_state_snapshot",
+    "curated": false,
+    "runtime_resolution": "absent",
+    "error": "module 'polisyos.foundry.execute' has no attribute 'put_state_snapshot'"
+  }
+]

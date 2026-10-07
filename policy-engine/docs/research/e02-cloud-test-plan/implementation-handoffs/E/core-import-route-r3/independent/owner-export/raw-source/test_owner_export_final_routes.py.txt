@@ -1,0 +1,113 @@
+"""Independent behavioral witnesses for the unapplied canonical-owner export packet."""
+from __future__ import annotations
+import importlib
+import json
+from pathlib import Path
+import pytest
+
+ALIASES = [
+ ('polisyos.ir.analytics','PosteriorSamplesCarrier','polisyos.ir.analytics.uncertainty'),
+ ('polisyos.ir.analytics','ParametricFitCarrier','polisyos.ir.analytics.uncertainty'),
+ ('polisyos.ir.analytics','load_uncertainty_envelope','polisyos.ir.analytics.uncertainty'),
+ ('polisyos.ir.analytics','persist_uncertainty_envelope','polisyos.ir.analytics.uncertainty'),
+ ('polisyos.ir.analytics','load_forecasting_uncertainty_bundle','polisyos.ir.analytics.forecasting_uncertainty'),
+ ('polisyos.ir.analytics','persist_forecasting_uncertainty_bundle','polisyos.ir.analytics.forecasting_uncertainty'),
+ ('polisyos.foundry.execute','get_state_path','polisyos.foundry.execute.executor'),
+ ('polisyos.foundry.execute','load_state_snapshot','polisyos.foundry.execute.executor'),
+ ('polisyos.foundry.execute','put_state_snapshot','polisyos.foundry.execute.executor'),
+]
+
+@pytest.mark.parametrize('facade,name,definition', ALIASES)
+def test_typed_exports_are_existing_definition_objects(facade,name,definition):
+    public=importlib.import_module(facade);original=importlib.import_module(definition)
+    assert name in public.__all__
+    assert getattr(public,name) is getattr(original,name)
+    # Identity preserves schema/class validation and callable signatures.
+
+
+def test_old_exports_and_callable_execute_contract_are_preserved():
+    import polisyos.ir.analytics as analytics
+    execute=importlib.import_module('polisyos.foundry.execute')
+    api=importlib.import_module('polisyos.foundry.execute.api')
+    names=json.loads((Path(__file__).parent/'old-analytics-exports.json').read_text())
+    assert set(names) < set(analytics.__all__)
+    assert set(analytics.__all__)-set(names)=={n for f,n,d in ALIASES if f=='polisyos.ir.analytics'}
+    assert execute.execute is api.execute
+    assert execute.resolve_execution_posture is api.resolve_execution_posture
+    assert execute.ResolvedExecutionPosture is api.ResolvedExecutionPosture
+    assert callable(execute)
+
+
+def test_actual_forecast_reader_uses_owner_IR_export(tmp_path,monkeypatch):
+    import polisyos.ir.analytics as analytics
+    from polisyos.core import artifacts
+    from polisyos.calibration import load_forecast_candidate_receipt
+    from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+    from tests.unit.scientist.methods.backtesting.test_forecast_owner import _configured
+    store=artifacts.FileSystemCAS(tmp_path/'cas')
+    request,profile=_configured(store,[31.,32.,33.,34.])
+    result=ForecastOwner(store,empirical_profile_ref=profile).run(request)
+    original=analytics.load_forecasting_uncertainty_bundle
+    seen=[]
+    def deny(*a,**kw):
+        seen.append((a,kw))
+        raise RuntimeError('actual IR public loader route removed')
+    monkeypatch.setattr(analytics,'load_forecasting_uncertainty_bundle',deny)
+    assert 'load_forecasting_uncertainty_bundle' in analytics.__all__
+    with pytest.raises(RuntimeError,match='actual IR public loader route removed'):
+        load_forecast_candidate_receipt(artifacts.FileSystemCAS(store.root),result.candidate_receipt_ref)
+    assert len(seen)==1
+    assert original is importlib.import_module('polisyos.ir.analytics.forecasting_uncertainty').load_forecasting_uncertainty_bundle
+
+
+def test_removing_actual_alias_keeps_marker_and_blocks_native_import(monkeypatch):
+    import polisyos.ir.analytics as analytics
+    import polisyos.ir.api as api
+    import polisyos.foundry.uncertainty.sampling_admission as admission
+    name='PosteriorSamplesCarrier'
+    assert name in analytics.__all__
+    monkeypatch.delitem(api.ANALYTICS_FACADE_EXPORTS,name)
+    monkeypatch.delattr(analytics,name)
+    # Marker survives; the actual common MC inlet cannot import the promised type.
+    assert name in analytics.__all__
+    with pytest.raises(ImportError,match=name):
+        importlib.reload(admission)
+    # Restore during this test to leave later genuine consumer selectors usable.
+    monkeypatch.undo()
+    importlib.reload(admission)
+
+
+def test_removing_foundry_alias_keeps_marker_and_blocks_native_import(monkeypatch):
+    execute=importlib.import_module('polisyos.foundry.execute')
+    replay=importlib.import_module('polisyos.scientist.methods.backtesting.native_replay')
+    name='put_state_snapshot'
+    assert name in execute.__all__
+    monkeypatch.delitem(execute._LAZY_IMPORTS,name)
+    monkeypatch.delattr(execute,name)
+    assert name in execute.__all__
+    with pytest.raises(ImportError,match=name):
+        importlib.reload(replay)
+    monkeypatch.undo()
+    importlib.reload(replay)
+
+
+def test_native_welfare_serializer_bindings_use_actual_facade_objects():
+    import polisyos.ir.analytics as analytics
+    from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as node
+    for name in ['ParametricFitCarrier','PosteriorSamplesCarrier','load_uncertainty_envelope','persist_uncertainty_envelope']:
+        assert getattr(node,name) is getattr(analytics,name)
+
+
+def test_removing_serializer_alias_keeps_marker_blocks_welfare_import(monkeypatch):
+    import polisyos.ir.analytics as analytics
+    import polisyos.ir.api as api
+    from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as node
+    name='load_uncertainty_envelope'
+    assert name in analytics.__all__
+    monkeypatch.delitem(api.ANALYTICS_FACADE_EXPORTS,name)
+    monkeypatch.delattr(analytics,name)
+    assert name in analytics.__all__
+    with pytest.raises(ImportError,match=name):
+        importlib.reload(node)
+    monkeypatch.undo()
+    importlib.reload(node)

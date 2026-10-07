@@ -1,0 +1,14 @@
+{
+  "review": {
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/independent-ir-review-700.json",
+    "bytes": 73767,
+    "sha256": "6bf238d1837987f116e9b04493c442d5345438536c2b5fa36c0b4861b03fd742"
+  },
+  "disposition": "GO",
+  "source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "new_exports": 15,
+  "actual_IR_callers": 15,
+  "product_cross_root_rows": 16,
+  "test_cross_root_rows": 22,
+  "selected_deep_import_violations": 0
+}

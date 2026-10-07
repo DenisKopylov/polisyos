@@ -1,0 +1,100 @@
+"""Independent public IR protocol transport controls on an immutable source."""
+from __future__ import annotations
+import argparse
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+from unittest.mock import patch
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--repo', required=True, type=Path)
+    ap.add_argument('--candidate', required=True)
+    ap.add_argument('--base', required=True)
+    ap.add_argument('--output', required=True, type=Path)
+    args = ap.parse_args()
+    args.output.mkdir(parents=True, exist_ok=False)
+    def git(*argv: str) -> bytes:
+        return subprocess.run(['git', *argv], cwd=args.repo, check=True, capture_output=True).stdout
+    paths = git('diff', '--name-only', args.base, args.candidate).decode().splitlines()
+    bindings = []
+    for path in paths:
+        target = args.repo / path
+        if target.is_file():
+            blob = git('show', args.candidate + ':' + path)
+            require(blob == target.read_bytes(), 'source not immutable:' + path)
+            bindings.append({'path':path,'sha256':hashlib.sha256(blob).hexdigest(),'bytes':len(blob)})
+    from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+    from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
+    from polisyos.core.canon import CanonSpec
+    from polisyos.ir.artifacts import ArtifactStore
+    from polisyos.ir.analytics import load_posterior_summary_envelope, posterior_nominal_mean
+    from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope, UncertaintyEnvelope, UncertaintySource
+    from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec, from_canonical_bytes, to_canonical_bytes
+    cas = FileSystemCAS(args.output/'canonical-adapter-cas')
+    adapter = CoreToIRArtifactStoreAdapter(cas)
+    require(isinstance(adapter, ArtifactStore) and not hasattr(adapter,'verify'), 'actual canonical IR protocol transport changed')
+    env = summarize_bayesian_calibration_posterior({'x':[0]*99+[100]}).parameter_envelopes['x']
+    ref = persist_uncertainty_envelope(cas, env)
+    loaded = load_posterior_summary_envelope(CoreToIRArtifactStoreAdapter(FileSystemCAS(args.output/'canonical-adapter-cas')),ref)
+    require(posterior_nominal_mean(loaded,parameter_name='x') == 1, 'actual canonical adapter healthy mean')
+    logs=[{'property':'actual canonical IR protocol adapter fresh public reader','outcome':'PASS','has_verify':False,'protocol':True,'artifact_id':str(ref.artifact_id),'mean':1,'gate_eligible':loaded.gate_eligible}]
+    # The exact previous source red is separate from the new candidate property.
+    oldpath='policy-engine/src/polisyos/ir/analytics/posterior_summary.py'
+    prior=git('show','c87f532e6ce6ab2507d937c10eb6eff8153c1699:'+oldpath)
+    source=args.output/'exact-c87-posterior_summary.py';source.write_bytes(prior)
+    spec=importlib.util.spec_from_file_location('polisyos.ir.analytics.exact_c87_transport',source)
+    require(spec is not None and spec.loader is not None,'old source available')
+    old=importlib.util.module_from_spec(spec);sys.modules[spec.name]=old;spec.loader.exec_module(old)
+    try:
+        old.load_posterior_summary_envelope(adapter,ref)
+    except AttributeError as error:
+        require("verify" in str(error),'exact old red differs')
+        logs.append({'property':'exact c87 native canonical adapter falsifier','outcome':'EXPECTED_FAIL','exception':type(error).__name__,'reason':str(error),'source_sha256':hashlib.sha256(prior).hexdigest()})
+    else:
+        raise ValueError('exact c87 source does not expose transport counterexample')
+    class IRProtocolSpy:
+        def __init__(self, data: bytes): self.data=data;self.reads=0;self.manifests=0
+        def get_bytes(self, artifact_id): self.reads+=1;return self.data
+        def get_manifest(self, artifact_id): self.manifests+=1;return adapter.get_manifest(artifact_id)
+        def put_json(self, obj, opts, canon_spec=None): return adapter.put_json(obj,opts,canon_spec)
+        def iter_artifact_ids(self): return adapter.iter_artifact_ids()
+    raw=from_canonical_bytes(cas.get_bytes(ref.artifact_id))
+    raw['point_estimate']=100
+    corrupted=to_canonical_bytes(raw,IRCanonSpec(forbid_floats=False))
+    spy=IRProtocolSpy(corrupted)
+    try: load_posterior_summary_envelope(spy,ref)
+    except ValueError as error:
+        require('CAS' in str(error) or 'hash' in str(error) or 'content' in str(error),'content integrity refusal not identified')
+        require(spy.reads==1,'loader did not bind single raw read')
+        logs.append({'property':'actual public protocol supplied bytes disagree with content reference','outcome':'REFUSED','reads':spy.reads,'manifests':spy.manifests,'reason':str(error)})
+    else: raise ValueError('corrupt content reference accepted')
+    # CAS-valid wrong typed artifact cannot use the profile as transport authority.
+    wrong_payload=env.model_dump(mode='json');wrong_payload['metadata']['transport_test_identity']='actual_wrong_kind'
+    wrong=cas.put_json(wrong_payload,PutOptions(kind='foundry.metrics',media_type='application/json',schema=SchemaInfo(name='ir.uncertainty_envelope',version='1.1')),canon_spec=CanonSpec(forbid_floats=False))
+    require(wrong.artifact_id != ref.artifact_id and adapter.get_manifest(wrong.artifact_id).kind=='foundry.metrics','wrong-kind fixture not actually distinct')
+    wrongref=ref.model_copy(update={'artifact_id':wrong.artifact_id})
+    try: load_posterior_summary_envelope(adapter,wrongref)
+    except ValueError as error:logs.append({'property':'integrity-valid wrong CAS kind','outcome':'REFUSED','reason':str(error),'artifact_id':str(wrong.artifact_id)})
+    else:raise ValueError('wrong artifact kind accepted')
+    legacy=UncertaintyEnvelope(point_estimate=.5,confidence_interval=(0,1),source=UncertaintySource.CALIBRATION)
+    legacyref=persist_uncertainty_envelope(cas,legacy)
+    require(load_posterior_summary_envelope(adapter,legacyref)==legacy,'legacy canonical adapter reader changed')
+    logs.append({'property':'legacy unprofiled canonical adapter public reader','outcome':'PASS','artifact_id':str(legacyref.artifact_id)})
+    for binding in bindings:
+        require(hashlib.sha256((args.repo/binding['path']).read_bytes()).hexdigest()==binding['sha256'],'source changed during control:'+binding['path'])
+    result={'candidate':args.candidate,'tree':git('rev-parse',args.candidate+'^{tree}').decode().strip(),'base':args.base,'cases':logs,'complete_footprint':bindings,'source_writes':False,'new_environment':False,'broad_wave':False}
+    (args.output/'transport-controls.json').write_text(json.dumps(result,indent=2,default=str)+'\n')
+    print(json.dumps(result,indent=2,default=str))
+
+if __name__=='__main__':main()

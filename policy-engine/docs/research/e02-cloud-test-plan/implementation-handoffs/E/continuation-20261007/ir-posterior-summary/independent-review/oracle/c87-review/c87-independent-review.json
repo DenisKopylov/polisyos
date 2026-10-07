@@ -1,0 +1,602 @@
+{
+  "schema": "policyos.e02.independent_ir_source_review.v1",
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "ratification_decision_commit": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "review_disposition": "NO-GO pending two bounded input/store corrections; mathematical28case native corpus PASS with exact source unchanged",
+  "footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml": {
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    "policy-engine/src/polisyos/foundry/calibration/report.py": {
+      "sha256": "96f1faeebd490ca28ee562e4b33e09fd5160832b76cb2d49b04276ceaf79df6c",
+      "bytes": 16254
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "sha256": "931e36225e64b5fd07cbddcc2697e36262170f8da56dbd9c17a0f3f2d3c117f0",
+      "bytes": 16684
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "sha256": "7121736076b4f2cb4bc47d908ba617867bb2cd4582af467b5f45ffb69960f01f",
+      "bytes": 7346
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "sha256": "fd7242dce6aa8d78e9b7736999284ee01a078a002f2938e61a2903d7d187b65b",
+      "bytes": 16412
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "sha256": "43ea26727ee86c218fe3e101d0ede453ed2e9545b6f9f39a78ed1c934f4b5ca9",
+      "bytes": 49160
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "sha256": "bddb15f403e47e8caef8b4d1e698ae4d6cf65d1269619486e165a925f9037559",
+      "bytes": 20801
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "sha256": "0c699925060ce1fc102cd9e3c3062a33d785bf0920732b1b0a780e3527c8d270",
+      "bytes": 193039
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "sha256": "9bf97d4271cffd657408bfa0cd257442bf439ff939da5ce6f2530f34867b053f",
+      "bytes": 9658
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "sha256": "34a032bdca44f56af35d6d1f3d2c24a9fdb4957aae8cdc594f80ce5ec67061e9",
+      "bytes": 11344
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": {
+      "sha256": "6e773e5e08c998d5348d08867d1a5bb4118fd7c228735562b908fcf5e092ff8e",
+      "bytes": 15574
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "sha256": "f48552736cbbbaac37afb42206437a506d3d39db50d7a8bb304243ed80beaf52",
+      "bytes": 14059
+    }
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "SALib": "1.5.2",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "runtime_cases": [
+    {
+      "id": "independent_atom_nativeCAS_actual_node",
+      "check_status": "PASS",
+      "detail": {
+        "mean": 1.0,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          0.0
+        ],
+        "sample_count": 100,
+        "ref": {
+          "artifact_id": "sha256:fecd9c18bd1e35eb22febfdeeb31c806cbf64bf95a403afd101d3c383a599ce7",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "actual_node_callback_count": 257,
+        "actual_nominal": {
+          "x": 1.0
+        },
+        "actual_centered_output_support": [
+          -1.0,
+          99.0
+        ],
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "weighted_zero_mass_inverseCDF",
+      "check_status": "PASS",
+      "detail": {
+        "fraction_mean": "3/2",
+        "actual_mean": 1.5,
+        "median": 2.0,
+        "interval": [
+          0.0,
+          2.0
+        ],
+        "exact_raw_carrier_retained": {
+          "carrier_type": "posterior_samples",
+          "samples": [
+            0.0,
+            999.0,
+            2.0
+          ],
+          "sample_axis": "draw",
+          "weights": [
+            0.25,
+            0.0,
+            0.75
+          ]
+        },
+        "ref": {
+          "artifact_id": "sha256:1610a1ea68837f6a87cb83ff56b368ff32fefef79b0077dd7fbdaf1bad8f922e",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "id": "same_summaries_different_laws_reopen",
+      "check_status": "PASS",
+      "detail": {
+        "same_independent_mean": "0",
+        "same_independent_population_variance": "3/5",
+        "same_interval": [
+          -1,
+          1
+        ],
+        "distinct_actual_refs": [
+          "sha256:1f6b80983bdc8c459b78f80a8f361954d60d060feb36a2a198c817288417285b",
+          "sha256:b72224e1ba1b65863e45cf86c01e292c0f50342449307c3c81e981099c723292"
+        ],
+        "fresh_P_zero": [
+          0.4,
+          0.7000000000000001
+        ]
+      }
+    },
+    {
+      "id": "native_paired_1",
+      "check_status": "PASS",
+      "detail": {
+        "independent_expected_variance": 0,
+        "actual_variance": 0.0,
+        "actual_callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              -1.0,
+              -1.0
+            ],
+            "count": 128
+          },
+          {
+            "row": [
+              1.0,
+              1.0
+            ],
+            "count": 128
+          }
+        ],
+        "nominal": [
+          {
+            "a": 0.0,
+            "b": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "native_paired_-1",
+      "check_status": "PASS",
+      "detail": {
+        "independent_expected_variance": 4,
+        "actual_variance": 4.0,
+        "actual_callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              -1.0,
+              1.0
+            ],
+            "count": 128
+          },
+          {
+            "row": [
+              1.0,
+              -1.0
+            ],
+            "count": 128
+          }
+        ],
+        "nominal": [
+          {
+            "a": 0.0,
+            "b": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "tiny_atom_[5e-11, 0.99999999995]",
+      "check_status": "PASS",
+      "detail": {
+        "values": [
+          0,
+          1
+        ],
+        "weights": [
+          5e-11,
+          0.99999999995
+        ],
+        "fresh_probabilities": [
+          5e-11,
+          0.99999999995
+        ],
+        "mean": 0.99999999995,
+        "median": 1.0,
+        "interval": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "tiny_atom_[0.99999999995, 5e-11]",
+      "check_status": "PASS",
+      "detail": {
+        "values": [
+          0,
+          1
+        ],
+        "weights": [
+          0.99999999995,
+          5e-11
+        ],
+        "fresh_probabilities": [
+          0.99999999995,
+          5e-11
+        ],
+        "mean": 5e-11,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "id": "tiny_atom_[0.5, 5e-11, 0.49999999995]",
+      "check_status": "PASS",
+      "detail": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "weights": [
+          0.5,
+          5e-11,
+          0.49999999995
+        ],
+        "fresh_probabilities": [
+          0.5,
+          5e-11,
+          0.49999999995
+        ],
+        "mean": 0.99999999995,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "producer_refusal_[0, 0]",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "ValueError",
+        "reason": "invalid empirical weight total"
+      }
+    },
+    {
+      "id": "producer_refusal_[1, -1]",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "ValueError",
+        "reason": "invalid empirical weights"
+      }
+    },
+    {
+      "id": "producer_refusal_[True, 1]",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "ValueError",
+        "reason": "posterior weights cannot be bool"
+      }
+    },
+    {
+      "id": "producer_refusal_[inf, 1]",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "ValueError",
+        "reason": "invalid empirical weights"
+      }
+    },
+    {
+      "id": "producer_refusal_[0.5, 1e-20, 0.5]",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "ValueError",
+        "reason": "positive empirical category collapses in the finite CDF"
+      }
+    },
+    {
+      "id": "producer_refusal_[1e-20, 0.5, 0.5]",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "ValueError",
+        "reason": "positive posterior category collapses in the finite CDF"
+      }
+    },
+    {
+      "id": "actual_node_before_callback_mean",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary named functionals do not reconcile",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_profile",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "1 validation error for PosteriorSummaryProfile\nprofile_id\n  Input should be 'urn:policyos:ir:bayesian-posterior-summary-profile:1' [type=literal_error, input_value='unknown', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_carrier",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary raw carrier is missing",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_rows",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary profile/carrier binding is invalid",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_digest",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary profile/carrier binding is invalid",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_rename",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary parameter/estimand/unit binding does not match",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_raw_bool",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary raw carrier requires finite real non-bool values",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_raw_string",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary raw carrier requires finite real non-bool values",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_inline_bool",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary raw carrier requires finite real non-bool values",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "actual_node_before_callback_inline_string",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "posterior summary raw carrier requires finite real non-bool values",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "context_content_and_expected_binding",
+      "check_status": "PASS",
+      "detail": {
+        "content_forgery_refused": "1 validation error for PosteriorSummaryProfile\n  Value error, posterior summary profile identity/probabilities are invalid [type=value_error, input_value={'binding': {'estimand_id...aw', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "expected_unit_mismatch_refused": "posterior summary parameter/estimand/unit binding does not match"
+      }
+    },
+    {
+      "id": "fresh_reader_sortedCDF_collapse",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "positive posterior category collapses in the finite CDF",
+        "rawCDF_healthy": true,
+        "sorted_positive_category_collapsed": true
+      }
+    },
+    {
+      "id": "effective_named_mean_property_removal",
+      "check_status": "PASS",
+      "detail": {
+        "control_effective": true,
+        "required_assertion_outcome": "FAIL",
+        "actual_output_support": [
+          0.0,
+          100.0
+        ],
+        "actual_callbacks": 257,
+        "profile_and_CAS_markers_retained": true
+      }
+    },
+    {
+      "id": "effective_raw_guard_property_removal",
+      "check_status": "PASS",
+      "detail": {
+        "control_effective": true,
+        "required_negative_assertion_outcome": "FAIL",
+        "actual_callbacks": 257,
+        "raw_bool_and_valid_profile_CAS_markers_retained": true
+      }
+    }
+  ],
+  "counts": {
+    "PASS": 28,
+    "outstanding_concrete_source_defects": 2
+  },
+  "source_defects": [
+    {
+      "id": "canonical_adapter_profile_load",
+      "actual": "Existing CoreToIRArtifactStoreAdapter(FileSystemCAS) produces and old-reader reopens valid profile. New public loader raises AttributeError adapter has no verify().",
+      "required": "Use admitted existing canonical CAS verification path or a clearly typed supported verification interface without editing/copying C store/codec."
+    },
+    {
+      "id": "consistent_fake_single_joint_digest",
+      "actual": "Profile joint_law_sha256 and both metadata joint declaration copies changed together to zeros; exact carrier hash unchanged. Actual fresh E node accepts and executes257callbacks.",
+      "required": "Recompute declared joint digest for single profile-bearing input law before evaluator callback; declarations agreeing is insufficient."
+    }
+  ],
+  "required_assertion_controls": [
+    {
+      "property": "named mean consumer route",
+      "removal": "Monkeypatch actual node named-mean intake to generic point, retaining valid profile+CAS artifacts. Real output support becomes[0,100], falsifying required[-1,99].",
+      "effective": true
+    },
+    {
+      "property": "raw finite-real inlet",
+      "removal": "Monkeypatch raw-profile admission off, retaining invalid bool carrier and valid original digest/metadata/CAS. Real node executes257callbacks, falsifying required callback0.",
+      "effective": true
+    }
+  ],
+  "source_unchanged_during_deciding_probe": true,
+  "reporter_delta": "First independent reporter counted two FAILs because it compared exception class name to ValueError (pydantic ValidationError subclasses ValueError), and expected context refusal after load although strict inlet refused earlier. Exact outputs retained; corrected two-case delta PASS, unchanged26 native cases reused. These were reporter assumptions, not product fixes.",
+  "limits": [
+    "Native synthetic mathematical/consumer fixture, not configured Bayesian fit/source-law or production authority.",
+    "Native fixture setup reused from committed author test, expectations and callback/removal assertions independently derived.",
+    "Separate canonical-adapter probe is an outstanding public store-route defect, not hidden by this family PASS.",
+    "No finding closure adjudication; B194/B197 fit/served law scope and C/F consumer ownership remain separate.",
+    "Author subsequently edits source; all claims here pin immutablec87 and exact14path hashes, not current worktree."
+  ],
+  "exact_commands": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-frc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent_oracles.py",
+      "output": "independent-oracles.stdout/stderr",
+      "exit_code": 1,
+      "basis": "Preserved first reporter execution; two bounded reporter assumptions corrected afterward.",
+      "historical_executed_script_copy": "independent_oracles-first.py (byte-identical preserved copy before reporter corrections)"
+    },
+    {
+      "command": "IR_REVIEW_ONLY=actual_node_before_callback_profile,context_content_and_expected_binding PYTHONPATH=/workspace/e02-E-frc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent_oracles.py",
+      "output": "independent-oracle-delta.stdout/stderr",
+      "exit_code": 0
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent_oracles-first.py",
+      "sha256": "cafe758b336efe009b93d3b5f81654835637821f49008ab157970f2f3579d19f",
+      "size_bytes": 13002
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent_oracles.py",
+      "sha256": "eff6093ea2b4884f178b9b65c31ddedec63edd2cce465303cee51af655538621",
+      "size_bytes": 13153
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-results.json",
+      "sha256": "d07824da179f4536320aa8b3d4fdf34f544dba3ffd6b4937d78442bc21adcf96",
+      "size_bytes": 19171
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracles.stdout",
+      "sha256": "d07824da179f4536320aa8b3d4fdf34f544dba3ffd6b4937d78442bc21adcf96",
+      "size_bytes": 19171
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracles.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-delta-results.json",
+      "sha256": "6cddcb741b4cdf24a0083372804d3dc40810a7c50b5f0329dc83066372010f9d",
+      "size_bytes": 4849
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-delta.stdout",
+      "sha256": "6cddcb741b4cdf24a0083372804d3dc40810a7c50b5f0329dc83066372010f9d",
+      "size_bytes": 4849
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-delta.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/canonical-adapter-probe.json",
+      "sha256": "341a0d4d3e8223f9bc816fa29214a74fc2348b0a8c2a5b56f15e77cb98b9cb85",
+      "size_bytes": 582
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/single-consistent-fake-joint-probe.json",
+      "sha256": "6b899c9ef7435ee8b35a85ede130bb239559eda74a35fd0d4a1f826669fa46bd",
+      "size_bytes": 730
+    }
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/atom-z6zecles",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-8ywxkoou",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/weighted-0e53wpds",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/same-summaries-kx0pmx30",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-4td95k7h",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-vy4yq51r",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/tiny-o6ri0xl7",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/tiny-ir209khs",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/tiny-u8dnpmka",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-xl5gmq19",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-fut_5i2m",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-gr6361ae",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-z7pqdlui",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-ab7_o0w2",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-hv47rk53",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-d8p1kpge",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-evxw1zra",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-0u6mfsf0",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-9aatujm2",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/context-luwv903v",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/sorted-collapse-moigyn63",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-rrb8e6wq",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-yaz3jv2k",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-yjliofui",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/context-c_jzbx8_"
+  ]
+}

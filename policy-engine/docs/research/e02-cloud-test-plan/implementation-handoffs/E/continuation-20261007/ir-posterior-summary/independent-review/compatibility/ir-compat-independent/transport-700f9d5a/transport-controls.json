@@ -1,0 +1,142 @@
+{
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "cases": [
+    {
+      "property": "actual canonical IR protocol adapter fresh public reader",
+      "outcome": "PASS",
+      "has_verify": false,
+      "protocol": true,
+      "artifact_id": "sha256:90aa4cc8a66eae220998cf8b5b0eb8b582e69ca88a1b649aafbb74cb161299d6",
+      "mean": 1,
+      "gate_eligible": false
+    },
+    {
+      "property": "exact c87 native canonical adapter falsifier",
+      "outcome": "EXPECTED_FAIL",
+      "exception": "AttributeError",
+      "reason": "'CoreToIRArtifactStoreAdapter' object has no attribute 'verify'",
+      "source_sha256": "fd7242dce6aa8d78e9b7736999284ee01a078a002f2938e61a2903d7d187b65b"
+    },
+    {
+      "property": "actual public protocol supplied bytes disagree with content reference",
+      "outcome": "REFUSED",
+      "reads": 1,
+      "manifests": 1,
+      "reason": "posterior summary CAS kind/schema/content is invalid"
+    },
+    {
+      "property": "integrity-valid wrong CAS kind",
+      "outcome": "REFUSED",
+      "reason": "posterior summary CAS kind/schema/content is invalid",
+      "artifact_id": "sha256:f46a5d093a837127ef31fec7fb10c1d2c6f031dcf2511ad035ebfd5db77a0a84"
+    },
+    {
+      "property": "signed-zero sample/weight canonicalization before hash and fresh public CAS read",
+      "outcome": "PASS",
+      "artifact_id": "sha256:c257bf16447119cf03a57eb35fc94035a8936f7c11906b4a3c1062843237e622",
+      "samples": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "weights": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "mean": 0.5
+    },
+    {
+      "property": "legacy unprofiled canonical adapter public reader",
+      "outcome": "PASS",
+      "artifact_id": "sha256:8e2690aa56fc560336491f00e9ccb49a807b1d145ac0584d643cd62ad42b0d47"
+    }
+  ],
+  "complete_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "bytes": 16300
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "bytes": 17116
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "bytes": 5742
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "bytes": 23932
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200",
+      "bytes": 7397
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "bytes": 9674
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a",
+      "bytes": 15782
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "bytes": 15822
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "bytes": 16962
+    }
+  ],
+  "source_writes": false,
+  "new_environment": false,
+  "broad_wave": false
+}

@@ -1,0 +1,30 @@
+from __future__ import annotations
+from collections import Counter
+from fractions import Fraction
+import hashlib,json,tempfile
+from pathlib import Path
+import numpy as np
+from polisyos.core import artifacts as core_artifacts
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+from polisyos.ir.analytics.uncertainty import (DistributionFamily,IntervalSemantics,NumericPolicySpec,NumericToleranceMode,PosteriorSamplesCarrier,UncertaintyEnvelope,UncertaintySource,_weighted_quantile,load_uncertainty_envelope,persist_uncertainty_envelope)
+OUT=Path('/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent')
+values=[0,999,2]; masses=[Fraction(1,4),Fraction(0),Fraction(3,4)]
+mean=sum(Fraction(x)*p for x,p in zip(values,masses)); variance=sum((Fraction(x)-mean)**2*p for x,p in zip(values,masses))
+def exact_quantile(q):
+ cumulative=Fraction(0)
+ for x,p in sorted(zip(values,masses)):
+  cumulative+=p
+  if p>0 and cumulative>=q:return Fraction(x)
+ raise AssertionError(q)
+expected={'mean':str(mean),'variance':str(variance),'median':str(exact_quantile(Fraction(1,2))),'q05':str(exact_quantile(Fraction(1,20))),'q95':str(exact_quantile(Fraction(19,20))),'zero_mass_probability':'0'}
+old=[_weighted_quantile(np.asarray(values),q,np.asarray([1,0,3])) for q in [.05,.5,.95]]
+assert old[1]!=float(exact_quantile(Fraction(1,2)))
+env=UncertaintyEnvelope(point_estimate=2,confidence_interval=(0,2),confidence_level=.9,distribution_family=DistributionFamily.BOOTSTRAP,source=UncertaintySource.CALIBRATION,interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,gate_eligible=False,numeric_policy=NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT),distribution_payload=PosteriorSamplesCarrier(samples=tuple(values),weights=(1,0,3)))
+root=Path(tempfile.mkdtemp(prefix='weighted-cas-',dir=OUT)); ref=persist_uncertainty_envelope(core_artifacts.FileSystemCAS(root),env); fresh=load_uncertainty_envelope(core_artifacts.FileSystemCAS(root),ref)
+calls=[]
+result=MonteCarloPropagator(PropagationConfig(mc_n_samples=256,mc_sampling_method='sobol',mc_qmc_scramble=False,compute_sensitivity=False)).propagate(lambda **p:calls.append(float(p['theta'])) or {'y':p['theta']},{'theta':float(mean)},{'theta':fresh},['y'])[0]
+counts=Counter(calls[1:]); draws=result.envelope.distribution_payload.samples
+assert len(calls)==257 and counts=={0.0:64,2.0:192}; assert np.mean(draws)==float(mean) and np.var(draws)==float(variance)
+record={'base_sha':'c4b2ccfb1f8716680f0b431ab4c5757dcc75343f','input_values':values,'input_weights':[1,0,3],'independent_fraction_oracle':expected,'legacy_generic_weighted_quantiles_q05_median_q95':old,'legacy_helper_is_not_approved_new_profile_convention':True,'actual_fresh_CAS_ref':ref.model_dump(mode='json'),'native_callback_count':len(calls),'native_sample_support_counts':dict(counts),'native_output_mean':float(np.mean(draws)),'native_output_variance':float(np.var(draws)),'gate_eligible':result.envelope.gate_eligible,'cleanup_candidates':[str(root)],'scope':'Existing law/sampler adequacy and independent functional convention; this fixture is not an admitted new posterior profile.'}
+(OUT/'weighted-convention-oracle.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))

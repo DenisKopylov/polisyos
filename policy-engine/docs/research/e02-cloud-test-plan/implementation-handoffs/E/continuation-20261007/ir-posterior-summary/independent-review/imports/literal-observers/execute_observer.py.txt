@@ -1,0 +1,42 @@
+"""Capture a bounded observer invocation without changing source or its outputs."""
+from __future__ import annotations
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import platform
+import subprocess
+import sys
+from pathlib import Path
+
+p = argparse.ArgumentParser()
+p.add_argument('--prefix', required=True)
+p.add_argument('--cwd', required=True)
+p.add_argument('command', nargs=argparse.REMAINDER)
+a = p.parse_args()
+command = a.command[1:] if a.command[:1] == ['--'] else a.command
+if not command:
+    raise ValueError('actual observer command required')
+prefix = Path(a.prefix)
+prefix.parent.mkdir(parents=True, exist_ok=True)
+started = datetime.datetime.now(datetime.UTC).isoformat()
+result = subprocess.run(command, cwd=a.cwd, capture_output=True, check=False)
+ended = datetime.datetime.now(datetime.UTC).isoformat()
+stdout = prefix.with_suffix('.stdout')
+stderr = prefix.with_suffix('.stderr')
+stdout.write_bytes(result.stdout)
+stderr.write_bytes(result.stderr)
+def identity(path):
+    value = Path(path).read_bytes()
+    return {'path': str(path), 'bytes': len(value), 'sha256': hashlib.sha256(value).hexdigest()}
+receipt = {'command': command, 'cwd': a.cwd, 'started_utc': started, 'ended_utc': ended,
+           'exit_code': result.returncode, 'stdout': identity(stdout), 'stderr': identity(stderr),
+           'literal_observer_source': [identity(v) for v in command if v.endswith('.py') and Path(v).is_file()],
+           'execution_environment': {'python': sys.version, 'platform': platform.platform(),
+                                     'effective_executable': command[0],
+                                     'task_imposed_worker_process_thread_or_CPU_cap': False},
+           'status': 'PASS' if result.returncode == 0 else 'ERROR'}
+prefix.with_suffix('.execution.json').write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps(receipt, indent=2))
+raise SystemExit(result.returncode)

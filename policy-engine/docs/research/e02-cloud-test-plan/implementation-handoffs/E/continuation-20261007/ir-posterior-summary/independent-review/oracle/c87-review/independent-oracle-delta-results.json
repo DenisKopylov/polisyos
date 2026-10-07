@@ -1,0 +1,105 @@
+{
+  "schema": "policyos.e02.independent_ir_candidate_oracles.v1",
+  "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml": {
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    "policy-engine/src/polisyos/foundry/calibration/report.py": {
+      "sha256": "96f1faeebd490ca28ee562e4b33e09fd5160832b76cb2d49b04276ceaf79df6c",
+      "bytes": 16254
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "sha256": "931e36225e64b5fd07cbddcc2697e36262170f8da56dbd9c17a0f3f2d3c117f0",
+      "bytes": 16684
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "sha256": "7121736076b4f2cb4bc47d908ba617867bb2cd4582af467b5f45ffb69960f01f",
+      "bytes": 7346
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "sha256": "fd7242dce6aa8d78e9b7736999284ee01a078a002f2938e61a2903d7d187b65b",
+      "bytes": 16412
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "sha256": "43ea26727ee86c218fe3e101d0ede453ed2e9545b6f9f39a78ed1c934f4b5ca9",
+      "bytes": 49160
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "sha256": "bddb15f403e47e8caef8b4d1e698ae4d6cf65d1269619486e165a925f9037559",
+      "bytes": 20801
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "sha256": "0c699925060ce1fc102cd9e3c3062a33d785bf0920732b1b0a780e3527c8d270",
+      "bytes": 193039
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "sha256": "9bf97d4271cffd657408bfa0cd257442bf439ff939da5ce6f2530f34867b053f",
+      "bytes": 9658
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "sha256": "34a032bdca44f56af35d6d1f3d2c24a9fdb4957aae8cdc594f80ce5ec67061e9",
+      "bytes": 11344
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": {
+      "sha256": "6e773e5e08c998d5348d08867d1a5bb4118fd7c228735562b908fcf5e092ff8e",
+      "bytes": 15574
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "sha256": "f48552736cbbbaac37afb42206437a506d3d39db50d7a8bb304243ed80beaf52",
+      "bytes": 14059
+    }
+  },
+  "source_unchanged": true,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "SALib": "1.5.2",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "cases": [
+    {
+      "id": "actual_node_before_callback_profile",
+      "check_status": "PASS",
+      "detail": {
+        "actual_exception": "1 validation error for PosteriorSummaryProfile\nprofile_id\n  Input should be 'urn:policyos:ir:bayesian-posterior-summary-profile:1' [type=literal_error, input_value='unknown', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error",
+        "actual_callback_count": 0,
+        "actual_builder_count": 0
+      }
+    },
+    {
+      "id": "context_content_and_expected_binding",
+      "check_status": "PASS",
+      "detail": {
+        "content_forgery_refused": "1 validation error for PosteriorSummaryProfile\n  Value error, posterior summary profile identity/probabilities are invalid [type=value_error, input_value={'binding': {'estimand_id...aw', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "expected_unit_mismatch_refused": "posterior summary parameter/estimand/unit binding does not match"
+      }
+    }
+  ],
+  "counts": {
+    "PASS": 2
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-yjliofui",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/context-c_jzbx8_"
+  ],
+  "limits": [
+    "Native synthetic mathematical/consumer fixture, not configured Bayesian fit/source-law or production authority.",
+    "Native fixture setup reused from committed author test, expectations and callback/removal assertions independently derived.",
+    "Separate canonical-adapter probe is an outstanding public store-route defect, not hidden by this family PASS."
+  ]
+}

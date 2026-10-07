@@ -22,6 +22,8 @@ store contract, schema metadata и helpers, через которые `analytics
 - **Profile-bound reads** — читатель требует полный поддерживаемый IR profile и декодирует с его
   persisted `max_depth`; manifests без `canon` и неподдерживаемые профили отклоняются до чтения
   bytes. Читаемость исторических artifacts без профиля пока не подтверждена и остаётся на hold.
+- **JSON-mode Mapping reads** — `separators` принимается как список ровно из двух строк только
+  при intake JSON-представления; все остальные поля и идентичность профиля остаются strict.
 - **Shared helpers** — analytics и observation bundles используют один и тот же `put_json_artifact()` / `get_json_artifact()` surface.
 
 ## Public API

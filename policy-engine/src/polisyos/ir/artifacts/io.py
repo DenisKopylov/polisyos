@@ -119,6 +119,13 @@ def _validated_ir_canon_info(value: Any) -> CanonInfo:
     """Return a strict, supported profile model from a persisted or supplied value."""
     if isinstance(value, Mapping):
         payload = dict(value)
+        separators = payload.get("separators")
+        if (
+            type(separators) is list
+            and len(separators) == 2
+            and all(type(separator) is str for separator in separators)
+        ):
+            payload["separators"] = tuple(separators)
     else:
         model_dump = getattr(value, "model_dump", None)
         if callable(model_dump):

@@ -9,6 +9,7 @@ from polisyos.core.artifacts.ir_adapter import (
     CoreToIRArtifactStoreAdapter,
     ensure_ir_artifact_store,
 )
+from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
 from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import SchemaInfo as CoreSchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -62,6 +63,23 @@ class MalformedProfileArtifactStore:
         del artifact_id
         self.byte_reads += 1
         return b'{"value":1}'
+
+
+class JsonMappingManifestArtifactStore:
+    """Expose a full JSON-mode manifest mapping while reading bytes from a real CAS."""
+
+    def __init__(self, store, manifest):
+        self.store = store
+        self.manifest = manifest
+        self.byte_reads = 0
+
+    def get_manifest(self, artifact_id):
+        del artifact_id
+        return self.manifest
+
+    def get_bytes(self, artifact_id):
+        self.byte_reads += 1
+        return self.store.get_bytes(artifact_id)
 
 
 _IR_INCOMPATIBLE_TAG_PAYLOADS = [
@@ -359,6 +377,95 @@ def test_ir_json_reader_uses_the_persisted_profile_depth(tmp_path) -> None:
     manifest = core_store.get_manifest(ref["artifact_id"])
     assert manifest.canon is not None and manifest.canon.max_depth == 129
     assert get_json_artifact(ir_store, ref["artifact_id"]) == payload
+
+
+def test_ir_json_reader_accepts_unmodified_json_mode_manifest_mapping(tmp_path) -> None:
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    payload = {"mapping_exact_probe": True, "value": 1729}
+
+    ref_payload = put_json_artifact(
+        core_store,
+        payload,
+        kind="test.ir-canon-json-mapping",
+        schema_name="test.ir-canon-json-mapping",
+        schema_version="1.0",
+    )
+    artifact_ref = CoreArtifactRef.model_validate(ref_payload)
+    manifest = core_store.get_manifest(artifact_ref.artifact_id)
+    original_json_manifest = manifest.model_dump(mode="json")
+    mapping_store = JsonMappingManifestArtifactStore(core_store, original_json_manifest)
+
+    assert isinstance(artifact_ref, CoreArtifactRef)
+    assert original_json_manifest["artifact_id"] == str(artifact_ref.artifact_id)
+    assert original_json_manifest["canon"]["separators"] == [",", ":"]
+    assert mapping_store.manifest == original_json_manifest
+    assert get_json_artifact(mapping_store, artifact_ref.artifact_id) == payload
+    assert mapping_store.manifest == original_json_manifest
+    assert mapping_store.byte_reads == 1
+
+
+@pytest.mark.parametrize(
+    "separators",
+    [
+        pytest.param([":"], id="one-item-list"),
+        pytest.param([",", ":", ";"], id="three-item-list"),
+        pytest.param([",", 1], id="non-string-item"),
+        pytest.param([True, ":"], id="bool-item"),
+    ],
+)
+def test_ir_json_reader_rejects_malformed_json_mapping_separators_before_bytes(separators):
+    canon = CoreCanonInfo().model_dump(mode="json")
+    canon["separators"] = separators
+    store = MalformedProfileArtifactStore(canon)
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(store, "sha256:" + "a" * 64)
+    assert store.byte_reads == 0
+
+
+@pytest.mark.parametrize(
+    "profile_updates",
+    [
+        pytest.param({"name": "polisyos.canon.future"}, id="unsupported-name"),
+        pytest.param({"version": "0.3.0"}, id="unsupported-version"),
+    ],
+)
+def test_ir_json_reader_rejects_unsupported_json_mapping_profiles_before_bytes(profile_updates):
+    canon = CoreCanonInfo().model_dump(mode="json")
+    canon.update(profile_updates)
+    store = MalformedProfileArtifactStore(canon)
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(store, "sha256:" + "a" * 64)
+    assert store.byte_reads == 0
+
+
+@pytest.mark.parametrize(
+    "profile_updates",
+    [
+        pytest.param({"forbid_floats": "false"}, id="wrong-parameter-type"),
+        pytest.param({"max_depth": "129"}, id="wrong-depth-type"),
+        pytest.param({"unexpected": "value"}, id="extra-field"),
+    ],
+)
+def test_ir_json_reader_keeps_other_json_mapping_profile_fields_strict_before_bytes(
+    profile_updates,
+):
+    canon = CoreCanonInfo().model_dump(mode="json")
+    canon.update(profile_updates)
+    store = MalformedProfileArtifactStore(canon)
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(store, "sha256:" + "a" * 64)
+    assert store.byte_reads == 0
+
+
+def test_ir_json_reader_rejects_profileless_json_mapping_before_bytes() -> None:
+    store = MalformedProfileArtifactStore(None)
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(store, "sha256:" + "a" * 64)
+    assert store.byte_reads == 0
 
 
 def test_ir_json_reader_obeys_a_too_low_persisted_profile_depth(tmp_path) -> None:

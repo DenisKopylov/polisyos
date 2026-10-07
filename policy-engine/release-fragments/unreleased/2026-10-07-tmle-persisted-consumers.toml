@@ -1,6 +1,6 @@
 id = "2026-10-07-tmle-persisted-consumers"
 title = "Verify persisted native TMLE through confidence and value consumers"
-type = "other"
+type = "added"
 component = "foundry-causal"
 owner = "team-polisyos"
 summary = "One registered native TMLE MethodJob binds report and envelope CAS lineage for fresh ConfidencePass and value projection readers, including sibling CAS failures and source relabeling controls."

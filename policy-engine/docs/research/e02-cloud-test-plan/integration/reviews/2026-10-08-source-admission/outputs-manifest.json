@@ -1,0 +1,54 @@
+{
+  "candidate": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "files": [
+    {
+      "path": "outputs/E/collection/stdout.txt",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/stdout.txt",
+      "sha256": "f060f5e08c3e5d5131acd75cc2c42259c8a0ad379612a45bb09b701a462247fe",
+      "bytes": 18425
+    },
+    {
+      "path": "outputs/E/collection/stderr.txt",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "outputs/E/collection/junit.xml",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/junit.xml",
+      "sha256": "e46d1bff81f600ef1b3b2ebb17d7ecca4af4e51294705159313dce4924be2b7d",
+      "bytes": 249
+    },
+    {
+      "path": "outputs/E/collection/receipt.json",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/receipt.json",
+      "sha256": "1962ae4dcb211c8028b287d981b1e8cabddd9fe5f277ed3f95c6abf8f2c70ba1",
+      "bytes": 29112
+    },
+    {
+      "path": "outputs/E/runtime/stdout.txt",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/stdout.txt",
+      "sha256": "2dd2622599a0ff937604a6aea5bc42089ec265642b8da65ddda4b85c08a64bbe",
+      "bytes": 240
+    },
+    {
+      "path": "outputs/E/runtime/stderr.txt",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "outputs/E/runtime/junit.xml",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/junit.xml",
+      "sha256": "fe15ea3cd25055dce1262123287816995731098cab96e64c888ba732a2109c4d",
+      "bytes": 28048
+    },
+    {
+      "path": "outputs/E/runtime/receipt.json",
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/receipt.json",
+      "sha256": "c2753a7e7575064ad31fd3e3ec0afc92ec717c22fc163bceaa978aeaccba721e",
+      "bytes": 73219
+    }
+  ],
+  "large_local_maps": "origin/source manifests and harness remain ignored with path@sha in E-native-receipt.json"
+}

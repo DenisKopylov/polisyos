@@ -1,0 +1,291 @@
+{
+  "accidental_duplicate_export": {
+    "du": "74M",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261007-2018/native-E",
+    "source_manifest_bytes": 768464,
+    "source_manifest_sha256": "bd0e1f4853c4cd4b42882e57a40d88e11f4bfcb913f25c587db644b68c1135fd",
+    "status": "accidental duplicate export; no test evidence; preserve for parent-directed Trash handling"
+  },
+  "candidate": {
+    "changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+      "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "policy-engine/src/polisyos/ir/analytics/README.md",
+      "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "comparator": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "parent": "e4b97c15196d8e276745f55a4367da83586511d9",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+  },
+  "environment": {
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "production_data_and_common_credentials_scrubbed": true,
+    "thread_limits": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "versions_read_only_preflight": {
+      "hypothesis": "6.151.2",
+      "loguru": "0.7.3",
+      "numpy": "2.3.5",
+      "opentelemetry-sdk": "1.39.1",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "pytest-asyncio": "1.3.0",
+      "pytest-benchmark": "5.2.3",
+      "python": "3.14.3",
+      "scipy": "1.16.3"
+    }
+  },
+  "git_checkout": {
+    "branch": "codex/e02-integration",
+    "head": "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "status": "clean; no tracked or untracked changes reported"
+  },
+  "resource_readback": {
+    "after": {
+      "active_pytest_or_ruff": "none observed",
+      "free_disk": "43 GiB (df -h, /dev/disk3s5)",
+      "memory_pressure_free_percent": 65
+    },
+    "before": {
+      "free_disk": "43 GiB (df -h, /dev/disk3s5)",
+      "memory_pressure_free_percent": 65,
+      "pytest_or_heavy_python_processes": "none observed; one idle Python process PID 39919 at 1.8 MiB RSS"
+    }
+  },
+  "results": {
+    "collection": {
+      "collected_nodeids": {
+        "count": 165,
+        "paths": [
+          "tests/unit/ir/test_posterior_summary.py",
+          "tests/unit/ir/test_uncertainty_posterior_composition.py",
+          "tests/unit/ir/test_uncertainty_profile_ingress.py"
+        ],
+        "sha256": "b0ce9dac747c9e3b366c8c0bf1f07bf0b9333bf49640b539fc5c22e6b4508844"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_collection_probe",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/junit.xml",
+        "--collect-only",
+        "-vv",
+        "tests/unit/ir/test_uncertainty_profile_ingress.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/ir/test_uncertainty_posterior_composition.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/candidate/policy-engine",
+      "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/junit.xml",
+        "present": true,
+        "sha256": "e46d1bff81f600ef1b3b2ebb17d7ecca4af4e51294705159313dce4924be2b7d",
+        "skipped": 0,
+        "tests": 0
+      },
+      "origin_audit": {
+        "errors": [],
+        "module_count": 774,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/origin-audit.json",
+        "removed_live_product_paths": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+        ],
+        "sha256": "7aeb18ce8d147824a55244f81ff390db8a954c721a8dedee74a6b4d628e8245c"
+      },
+      "peak_sampled_rss_kib": 548048,
+      "phase": "collect-only",
+      "production_data_and_common_credentials_scrubbed": true,
+      "python_version": "Python 3.14.3",
+      "receipt": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/receipt.json",
+        "sha256": "1962ae4dcb211c8028b287d981b1e8cabddd9fe5f277ed3f95c6abf8f2c70ba1"
+      },
+      "returncode": 0,
+      "source_integrity_after": {
+        "errors": [],
+        "extra_details": [],
+        "ok": true,
+        "tracked_count": 3487
+      },
+      "source_integrity_before": {
+        "errors": [],
+        "ok": true,
+        "tracked_count": 3487
+      },
+      "started_utc": "2026-10-07T20:39:13Z",
+      "status": "COLLECTION_VALID",
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/collection/stdout.txt",
+        "sha256": "f060f5e08c3e5d5131acd75cc2c42259c8a0ad379612a45bb09b701a462247fe"
+      },
+      "thread_limits": {
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "timed_out": false,
+      "timeout_seconds": 180,
+      "wall_seconds": 8.5
+    },
+    "runtime": {
+      "collected_nodeids": {
+        "count": 165,
+        "paths": [
+          "tests/unit/ir/test_posterior_summary.py",
+          "tests/unit/ir/test_uncertainty_posterior_composition.py",
+          "tests/unit/ir/test_uncertainty_profile_ingress.py"
+        ],
+        "sha256": "b0ce9dac747c9e3b366c8c0bf1f07bf0b9333bf49640b539fc5c22e6b4508844"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_collection_probe",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/junit.xml",
+        "-q",
+        "tests/unit/ir/test_uncertainty_profile_ingress.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/ir/test_uncertainty_posterior_composition.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/candidate/policy-engine",
+      "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/junit.xml",
+        "present": true,
+        "sha256": "fe15ea3cd25055dce1262123287816995731098cab96e64c888ba732a2109c4d",
+        "skipped": 0,
+        "tests": 165
+      },
+      "origin_audit": {
+        "errors": [],
+        "module_count": 854,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/origin-audit.json",
+        "removed_live_product_paths": [
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+        ],
+        "sha256": "3975236beb9b96110c79c33108325245f40ab4ca1893300aca068d0a7a1f6f5c"
+      },
+      "peak_sampled_rss_kib": 608624,
+      "phase": "runtime",
+      "production_data_and_common_credentials_scrubbed": true,
+      "python_version": "Python 3.14.3",
+      "receipt": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/receipt.json",
+        "sha256": "c2753a7e7575064ad31fd3e3ec0afc92ec717c22fc163bceaa978aeaccba721e"
+      },
+      "returncode": 0,
+      "source_integrity_after": {
+        "errors": [],
+        "extra_details": [
+          {
+            "bytes": 37,
+            "mode": 420,
+            "path": "policy-engine/_cache/pytest/.gitignore",
+            "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+          },
+          {
+            "bytes": 191,
+            "mode": 420,
+            "path": "policy-engine/_cache/pytest/CACHEDIR.TAG",
+            "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+          },
+          {
+            "bytes": 302,
+            "mode": 420,
+            "path": "policy-engine/_cache/pytest/README.md",
+            "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+          },
+          {
+            "bytes": 22014,
+            "mode": 420,
+            "path": "policy-engine/_cache/pytest/v/cache/nodeids",
+            "sha256": "030efe7f8df332cba6ca734fe120ba2556ff20b122b8a67980631c6270154bb4"
+          }
+        ],
+        "ok": true,
+        "tracked_count": 3487
+      },
+      "source_integrity_before": {
+        "errors": [],
+        "ok": true,
+        "tracked_count": 3487
+      },
+      "started_utc": "2026-10-07T20:39:22Z",
+      "status": "PASS",
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/stdout.txt",
+        "sha256": "2dd2622599a0ff937604a6aea5bc42089ec265642b8da65ddda4b85c08a64bbe"
+      },
+      "thread_limits": {
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "timed_out": false,
+      "timeout_seconds": 180,
+      "wall_seconds": 8.057
+    }
+  },
+  "scope_limit": "This is a candidate-bound focused unit wave. It is not a broad regression, backend/data-dependent replay, or closure of the parent E finding(s).",
+  "selectors": [
+    "tests/unit/ir/test_uncertainty_profile_ingress.py",
+    "tests/unit/ir/test_posterior_summary.py",
+    "tests/unit/ir/test_uncertainty_posterior_composition.py"
+  ],
+  "source_export": {
+    "forbidden_embedded_runtime_or_data": false,
+    "initial_integrity": "PASS: every selected Git blob and mode matched; no missing/extra paths in initial export",
+    "logical_bytes": 68698541,
+    "manifest_files": 3487,
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/source-manifest.json",
+    "manifest_sha256": "f4ea454b0fce6d1626b1312e57c78fe6d11e7c2f943a5360d9b3bfe68d4d4a18",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/candidate",
+    "source_files": 2917,
+    "tools_files": 540
+  },
+  "summary": {
+    "collected": 165,
+    "errors": 0,
+    "failed": 0,
+    "passed": 165,
+    "runtime_peak_sampled_rss_kib": 608624,
+    "runtime_wall_seconds": 8.057,
+    "skipped": 0,
+    "status": "PASS"
+  },
+  "task": "G local E Profile2 focused affected-unit wave"
+}

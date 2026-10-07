@@ -1,0 +1,1523 @@
+{
+  "base_comparator": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "candidate_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "candidate_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "collected_nodeids": {
+    "count": 165,
+    "nodeids": [
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-missing-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-missing-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-non_mapping-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-non_mapping-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-unsupported-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-unsupported-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-bad_version-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-bad_version-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-context-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-context-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-carrier-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-carrier-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-joint-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-joint-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-missing-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-missing-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-non_mapping-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-non_mapping-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-unsupported-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-unsupported-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-bad_version-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-bad_version-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-context-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-context-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-carrier-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-carrier-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-joint-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-joint-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-missing-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-missing-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-non_mapping-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-non_mapping-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-unsupported-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-unsupported-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-bad_version-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-bad_version-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-context-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-context-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-carrier-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-carrier-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-joint-legacy_cas]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-joint-model]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_required]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_id]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_version]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_required]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_id]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_version]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_literal_cas_replay_keeps_original_bytes",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-profile1-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-profile1-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-generic-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-generic-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-profile1-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-profile1-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-generic-True]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-generic-1.0]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_first]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_last]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_first]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_last]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_profile2_single_join_preserves_identity_and_content",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_non_profile2_joins_keep_generic_concatenation[generic]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_non_profile2_joins_keep_generic_concatenation[profile1]",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py::test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read",
+      "tests/unit/ir/test_posterior_summary.py::test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals",
+      "tests/unit/ir/test_posterior_summary.py::test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws0-kwargs0]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws1-kwargs1]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws2-kwargs2]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws3-kwargs3]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws4-kwargs4]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws5-kwargs5]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws6-kwargs6]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws7-kwargs7]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws8-kwargs8]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws9-kwargs9]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws10-kwargs10]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws11-kwargs11]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws12-kwargs12]",
+      "tests/unit/ir/test_posterior_summary.py::test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13]",
+      "tests/unit/ir/test_posterior_summary.py::test_integrity_valid_forged_profile_refuses_fresh_named_computation[mean]",
+      "tests/unit/ir/test_posterior_summary.py::test_integrity_valid_forged_profile_refuses_fresh_named_computation[profile]",
+      "tests/unit/ir/test_posterior_summary.py::test_integrity_valid_forged_profile_refuses_fresh_named_computation[carrier]",
+      "tests/unit/ir/test_posterior_summary.py::test_integrity_valid_forged_profile_refuses_fresh_named_computation[rows]",
+      "tests/unit/ir/test_posterior_summary.py::test_integrity_valid_forged_profile_refuses_fresh_named_computation[required]",
+      "tests/unit/ir/test_posterior_summary.py::test_integrity_valid_forged_profile_refuses_fresh_named_computation[context]",
+      "tests/unit/ir/test_posterior_summary.py::test_v11_unprofiled_inline_carrier_replay_is_unchanged",
+      "tests/unit/ir/test_posterior_summary.py::test_named_functional_markers_cannot_fall_back_when_profile_removed[False]",
+      "tests/unit/ir/test_posterior_summary.py::test_named_functional_markers_cannot_fall_back_when_profile_removed[true]",
+      "tests/unit/ir/test_posterior_summary.py::test_named_functional_markers_cannot_fall_back_when_profile_removed[None]",
+      "tests/unit/ir/test_posterior_summary.py::test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator",
+      "tests/unit/ir/test_posterior_summary.py::test_new_profile_signed_zero_uses_existing_canonical_cas_representation[None]",
+      "tests/unit/ir/test_posterior_summary.py::test_new_profile_signed_zero_uses_existing_canonical_cas_representation[weights1]",
+      "tests/unit/ir/test_posterior_summary.py::test_scoped_facade_resolves_actual_profile_and_reader",
+      "tests/unit/ir/test_posterior_summary.py::test_identical_summaries_do_not_merge_different_persisted_atom_laws",
+      "tests/unit/ir/test_posterior_summary.py::test_whole_row_reordering_preserves_functionals_changes_exact_identity",
+      "tests/unit/ir/test_posterior_summary.py::test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists",
+      "tests/unit/ir/test_posterior_summary.py::test_public_functionals_refuse_non_real_or_bool_axes[samples-True]",
+      "tests/unit/ir/test_posterior_summary.py::test_public_functionals_refuse_non_real_or_bool_axes[samples-bad1]",
+      "tests/unit/ir/test_posterior_summary.py::test_public_functionals_refuse_non_real_or_bool_axes[samples-1.0]",
+      "tests/unit/ir/test_posterior_summary.py::test_public_functionals_refuse_non_real_or_bool_axes[probabilities-True]",
+      "tests/unit/ir/test_posterior_summary.py::test_public_functionals_refuse_non_real_or_bool_axes[probabilities-bad1]",
+      "tests/unit/ir/test_posterior_summary.py::test_public_functionals_refuse_non_real_or_bool_axes[probabilities-1.0]",
+      "tests/unit/ir/test_posterior_summary.py::test_single_profile_consistently_forged_joint_digest_is_recomputed",
+      "tests/unit/ir/test_posterior_summary.py::test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow",
+      "tests/unit/ir/test_posterior_summary.py::test_profile_raw_cas_types_refuse_before_legacy_coercion[True]",
+      "tests/unit/ir/test_posterior_summary.py::test_profile_raw_cas_types_refuse_before_legacy_coercion[1.0]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples0]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples1]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_push_reissues_content_and_clears_arbitrary_map_binding",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_asymmetric_push_keeps_mean_outside_equal_tail_interval",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_scalar_joint_source_refuses_before_any_map_callback",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_corrupt_declared_carrier_refuses_before_any_map_callback",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[push-missing]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[push-unknown]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[push-required_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[push-id_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[push-version_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-missing]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-unknown]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-required_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-id_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-version_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-missing]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-unknown]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-required_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-id_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-version_only]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_unprofiled_invalid_map_keeps_legacy_callback_coercion_order",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[push]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[pull]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[True]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[invalid1]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[1]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[1j]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[nan]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[inf]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_invalid_transformed_draw_refuses_whole_profile_publication[-inf]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_law_losing_compression_clears_complete_profile_declaration[interval]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_law_losing_compression_clears_complete_profile_declaration[moments]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_particles_compression_preserves_exact_axis_and_profile",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_complete_joint_particles_compression_preserves_fresh_group",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_zero_spread_moment_projection_is_finite_non_gating",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_pullback_retained_ratio_mean_is_finite_constraint_only",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_pullback_selected_zero_mass_refuses_instead_of_inventing_uniform_law",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_joint_digest_admits_real_carrier_before_payload_access[None]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_joint_digest_admits_real_carrier_before_payload_access[payload1]",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_joint_digest_missing_coordinate_is_typed_refusal",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_profile1_composition_keeps_legacy_functionals_and_metadata",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_nonfinite_moment_projection_refuses_without_clipping",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py::test_unprofiled_particle_push_retains_legacy_mean_and_interpolation"
+    ],
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/collected-nodeids.json",
+    "paths": [
+      "tests/unit/ir/test_posterior_summary.py",
+      "tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "sha256": "b0ce9dac747c9e3b366c8c0bf1f07bf0b9333bf49640b539fc5c22e6b4508844"
+  },
+  "collection_gate_valid": null,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_collection_probe",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/junit.xml",
+    "-q",
+    "tests/unit/ir/test_uncertainty_profile_ingress.py",
+    "tests/unit/ir/test_posterior_summary.py",
+    "tests/unit/ir/test_uncertainty_posterior_composition.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/candidate/policy-engine",
+  "environment_keys_present": [
+    "BROWSER_USE_ACCESS_VERIFYING_IDENTITY",
+    "CODEX_APP_TOOLS_PIPE_PATH",
+    "CODEX_CI",
+    "CODEX_CLI_PATH",
+    "CODEX_INTERNAL_ORIGINATOR_OVERRIDE",
+    "CODEX_MCP_NODE_PATH",
+    "CODEX_PERMISSION_PROFILE",
+    "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE",
+    "CODEX_SESSION_ID",
+    "CODEX_SHELL",
+    "CODEX_TASK_WORKSPACE_VERIFYING_IDENTITY",
+    "CODEX_TECTONIC_PATH",
+    "CODEX_THREAD_ID",
+    "CODEX_VERSION",
+    "COLORTERM",
+    "COMMAND_MODE",
+    "DISABLE_AUTO_UPDATE",
+    "E02_CANDIDATE_ROOT",
+    "E02_COLLECTION_NODEIDS_PATH",
+    "E02_GROOT",
+    "E02_ORIGIN_AUDIT_PATH",
+    "E02_SOURCE_MANIFEST",
+    "FPATH",
+    "GH_PAGER",
+    "GIT_PAGER",
+    "HOME",
+    "HOMEBREW_CELLAR",
+    "HOMEBREW_PREFIX",
+    "HOMEBREW_REPOSITORY",
+    "INFOPATH",
+    "JAX_PLATFORMS",
+    "JAX_PLATFORM_NAME",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "LOGNAME",
+    "LOG_FORMAT",
+    "MKL_NUM_THREADS",
+    "MallocNanoZone",
+    "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S",
+    "NO_COLOR",
+    "NUMEXPR_NUM_THREADS",
+    "OLDPWD",
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "OSLogRateLimit",
+    "PAGER",
+    "PATH",
+    "PWD",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONNOUSERSITE",
+    "PYTHONPATH",
+    "RUST_LOG",
+    "SHELL",
+    "SHLVL",
+    "SSH_AUTH_SOCK",
+    "TERM",
+    "TMPDIR",
+    "TOKENIZERS_PARALLELISM",
+    "USER",
+    "VECLIB_MAXIMUM_THREADS",
+    "XLA_PYTHON_CLIENT_PREALLOCATE",
+    "XPC_FLAGS",
+    "XPC_SERVICE_NAME",
+    "ZSH_TMUX_AUTOSTART",
+    "ZSH_TMUX_AUTOSTARTED",
+    "_",
+    "__CF_USER_TEXT_ENCODING"
+  ],
+  "import_origin_audit": {
+    "errors": [],
+    "module_count": 854,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/origin-audit.json",
+    "removed_live_product_paths": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ],
+    "sha256": "3975236beb9b96110c79c33108325245f40ab4ca1893300aca068d0a7a1f6f5c"
+  },
+  "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "junit": {
+    "cases": [
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-True]",
+        "outcome": "passed",
+        "time": "0.016"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-1.0]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-True]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-1.0]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-True]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-1.0]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-True]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-1.0]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-True]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-1.0]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-True]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-1.0]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-missing-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-missing-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-non_mapping-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-non_mapping-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-unsupported-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-unsupported-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-bad_version-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-bad_version-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-context-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-context-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-carrier-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-carrier-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-joint-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[push-joint-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-missing-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-missing-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-non_mapping-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-non_mapping-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-unsupported-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-unsupported-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-bad_version-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-bad_version-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-context-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-context-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-carrier-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-carrier-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-joint-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[compress-joint-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-missing-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-missing-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-non_mapping-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-non_mapping-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-unsupported-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-unsupported-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-bad_version-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-bad_version-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-context-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-context-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-carrier-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-carrier-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-joint-legacy_cas]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_declared_profile2_malformed_context_or_digest_cannot_downgrade[pull-joint-model]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_required]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_id]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_version]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_required]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_id]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_version]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law",
+        "outcome": "passed",
+        "time": "0.018"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_literal_cas_replay_keeps_original_bytes",
+        "outcome": "passed",
+        "time": "0.013"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-profile1-True]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-profile1-1.0]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-generic-True]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[legacy_cas-generic-1.0]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-profile1-True]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-profile1-1.0]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-generic-True]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion[model-generic-1.0]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_first]",
+        "outcome": "passed",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_last]",
+        "outcome": "passed",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_first]",
+        "outcome": "passed",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_last]",
+        "outcome": "passed",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_profile2_single_join_preserves_identity_and_content",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_non_profile2_joins_keep_generic_concatenation[generic]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_non_profile2_joins_keep_generic_concatenation[profile1]",
+        "outcome": "passed",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_profile_ingress",
+        "detail": null,
+        "name": "test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read",
+        "outcome": "passed",
+        "time": "0.012"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals",
+        "outcome": "passed",
+        "time": "0.024"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit",
+        "outcome": "passed",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws0-kwargs0]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws1-kwargs1]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws2-kwargs2]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws3-kwargs3]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws4-kwargs4]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws5-kwargs5]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws6-kwargs6]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws7-kwargs7]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws8-kwargs8]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws9-kwargs9]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws10-kwargs10]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws11-kwargs11]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws12-kwargs12]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_integrity_valid_forged_profile_refuses_fresh_named_computation[mean]",
+        "outcome": "passed",
+        "time": "0.012"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_integrity_valid_forged_profile_refuses_fresh_named_computation[profile]",
+        "outcome": "passed",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_integrity_valid_forged_profile_refuses_fresh_named_computation[carrier]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_integrity_valid_forged_profile_refuses_fresh_named_computation[rows]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_integrity_valid_forged_profile_refuses_fresh_named_computation[required]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_integrity_valid_forged_profile_refuses_fresh_named_computation[context]",
+        "outcome": "passed",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_v11_unprofiled_inline_carrier_replay_is_unchanged",
+        "outcome": "passed",
+        "time": "0.012"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_named_functional_markers_cannot_fall_back_when_profile_removed[False]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_named_functional_markers_cannot_fall_back_when_profile_removed[true]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_named_functional_markers_cannot_fall_back_when_profile_removed[None]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator",
+        "outcome": "passed",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_new_profile_signed_zero_uses_existing_canonical_cas_representation[None]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_new_profile_signed_zero_uses_existing_canonical_cas_representation[weights1]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_scoped_facade_resolves_actual_profile_and_reader",
+        "outcome": "passed",
+        "time": "0.345"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_identical_summaries_do_not_merge_different_persisted_atom_laws",
+        "outcome": "passed",
+        "time": "0.033"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_whole_row_reordering_preserves_functionals_changes_exact_identity",
+        "outcome": "passed",
+        "time": "0.032"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_public_functionals_refuse_non_real_or_bool_axes[samples-True]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_public_functionals_refuse_non_real_or_bool_axes[samples-bad1]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_public_functionals_refuse_non_real_or_bool_axes[samples-1.0]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_public_functionals_refuse_non_real_or_bool_axes[probabilities-True]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_public_functionals_refuse_non_real_or_bool_axes[probabilities-bad1]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_public_functionals_refuse_non_real_or_bool_axes[probabilities-1.0]",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_single_profile_consistently_forged_joint_digest_is_recomputed",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_profile_raw_cas_types_refuse_before_legacy_coercion[True]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_posterior_summary",
+        "detail": null,
+        "name": "test_profile_raw_cas_types_refuse_before_legacy_coercion[1.0]",
+        "outcome": "passed",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples0]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_identity_push_uses_finite_ratio_mean_and_inverse_cdf_atom[samples1]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_push_reissues_content_and_clears_arbitrary_map_binding",
+        "outcome": "passed",
+        "time": "0.018"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_asymmetric_push_keeps_mean_outside_equal_tail_interval",
+        "outcome": "passed",
+        "time": "0.021"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_scalar_joint_source_refuses_before_any_map_callback",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_corrupt_declared_carrier_refuses_before_any_map_callback",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-missing]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-unknown]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-required_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-id_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[push-version_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-missing]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-unknown]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-required_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-id_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[compress-version_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-missing]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-unknown]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-required_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-id_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_incomplete_profile_declaration_refuses_at_shared_inlet[pull-version_only]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_unprofiled_invalid_map_keeps_legacy_callback_coercion_order",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[push]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec[pull]",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[True]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[invalid1]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[1]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[1j]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[nan]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[inf]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_invalid_transformed_draw_refuses_whole_profile_publication[-inf]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_law_losing_compression_clears_complete_profile_declaration[interval]",
+        "outcome": "passed",
+        "time": "0.025"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_law_losing_compression_clears_complete_profile_declaration[moments]",
+        "outcome": "passed",
+        "time": "0.026"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_particles_compression_preserves_exact_axis_and_profile",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_complete_joint_particles_compression_preserves_fresh_group",
+        "outcome": "passed",
+        "time": "0.019"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_zero_spread_moment_projection_is_finite_non_gating",
+        "outcome": "passed",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_pullback_retained_ratio_mean_is_finite_constraint_only",
+        "outcome": "passed",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_pullback_selected_zero_mass_refuses_instead_of_inventing_uniform_law",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_joint_digest_admits_real_carrier_before_payload_access[None]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_joint_digest_admits_real_carrier_before_payload_access[payload1]",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_joint_digest_missing_coordinate_is_typed_refusal",
+        "outcome": "passed",
+        "time": "0.000"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_profile1_composition_keeps_legacy_functionals_and_metadata",
+        "outcome": "passed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_nonfinite_moment_projection_refuses_without_clipping",
+        "outcome": "passed",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.unit.ir.test_uncertainty_posterior_composition",
+        "detail": null,
+        "name": "test_unprofiled_particle_push_retains_legacy_mean_and_interpolation",
+        "outcome": "passed",
+        "time": "0.001"
+      }
+    ],
+    "errors": 0,
+    "failures": 0,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/junit.xml",
+    "present": true,
+    "sha256": "fe15ea3cd25055dce1262123287816995731098cab96e64c888ba732a2109c4d",
+    "skipped": 0,
+    "tests": 165
+  },
+  "peak_sampled_rss_kib": 608624,
+  "phase": "runtime",
+  "production_data_and_common_credentials_scrubbed": true,
+  "python_version": "Python 3.14.3",
+  "returncode": 0,
+  "source_integrity_after": {
+    "candidate_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "candidate_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "errors": [],
+    "extra_details": [
+      {
+        "bytes": 37,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/.gitignore",
+        "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+      },
+      {
+        "bytes": 191,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/CACHEDIR.TAG",
+        "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+      },
+      {
+        "bytes": 302,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/README.md",
+        "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+      },
+      {
+        "bytes": 22014,
+        "mode": 420,
+        "path": "policy-engine/_cache/pytest/v/cache/nodeids",
+        "sha256": "030efe7f8df332cba6ca734fe120ba2556ff20b122b8a67980631c6270154bb4"
+      }
+    ],
+    "extra_paths": [
+      "policy-engine/_cache/pytest/.gitignore",
+      "policy-engine/_cache/pytest/CACHEDIR.TAG",
+      "policy-engine/_cache/pytest/README.md",
+      "policy-engine/_cache/pytest/v/cache/nodeids"
+    ],
+    "manifest_sha256": "f4ea454b0fce6d1626b1312e57c78fe6d11e7c2f943a5360d9b3bfe68d4d4a18",
+    "missing_paths": [],
+    "ok": true,
+    "tracked_count": 3487
+  },
+  "source_integrity_before": {
+    "candidate_sha": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "candidate_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "errors": [],
+    "extra_details": [],
+    "extra_paths": [],
+    "manifest_sha256": "f4ea454b0fce6d1626b1312e57c78fe6d11e7c2f943a5360d9b3bfe68d4d4a18",
+    "missing_paths": [],
+    "ok": true,
+    "tracked_count": 3487
+  },
+  "source_manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/source-manifest.json",
+  "source_manifest_sha256": "f4ea454b0fce6d1626b1312e57c78fe6d11e7c2f943a5360d9b3bfe68d4d4a18",
+  "started_utc": "2026-10-07T20:39:22Z",
+  "status": "PASS",
+  "stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/next-intake-20261007-2018/native-E/results/runtime/stdout.txt",
+    "sha256": "2dd2622599a0ff937604a6aea5bc42089ec265642b8da65ddda4b85c08a64bbe"
+  },
+  "thread_limits": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "wall_seconds": 8.057
+}

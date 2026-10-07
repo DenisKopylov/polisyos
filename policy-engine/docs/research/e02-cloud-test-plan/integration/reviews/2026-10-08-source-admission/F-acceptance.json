@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-07T21:11:49.264209+00:00",
+  "branch": "codex/e02-integration",
+  "first_parent": "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2",
+  "original_source_commit": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "expected_merge_tree": "a1faa2717458f9bd330b566404ec1555c47817ac",
+  "code_acceptance": "bounded graph profile/report repairs and qualified unchanged carried source",
+  "finding_closure_ids": [],
+  "deciding_evidence": "exact38native/17installed andpropertyremoval; byte-equal source/config carry",
+  "main_publication": false,
+  "integration_merge": "99c7eb501c525912e4142a9ca833f07de3ff6c8e",
+  "merge_tree_readback": "a1faa2717458f9bd330b566404ec1555c47817ac",
+  "parents": [
+    "dac9d700fe684d5b4c0ae3fbcff66f5d05b2f6f2",
+    "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+  ],
+  "local_source_readback": "PASS"
+}

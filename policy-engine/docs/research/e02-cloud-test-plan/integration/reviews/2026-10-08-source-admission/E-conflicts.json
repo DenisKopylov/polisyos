@@ -1,0 +1,13 @@
+{
+  "G": "99c7eb501c525912e4142a9ca833f07de3ff6c8e",
+  "E": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "conflicts": [
+    "CONFLICT (content): Merge conflict in policy-engine/architecture/public_surface/inventory.json",
+    "CONFLICT (content): Merge conflict in policy-engine/docs/reference/public-surface.md",
+    "CONFLICT (content): Merge conflict in policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "CONFLICT (content): Merge conflict in policy-engine/src/polisyos/foundry/methods/README.md"
+  ],
+  "action": "canonical owner reconciliation; G does not resolve foreign implementation conflicts",
+  "code_property": "165focusedPASS; composition notaccepted",
+  "shared_generated_companions": "G canonical writer after sourcefreeze"
+}

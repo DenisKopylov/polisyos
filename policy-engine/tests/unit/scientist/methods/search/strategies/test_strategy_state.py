@@ -58,3 +58,18 @@ def test_actual_random_stream_survives_json_roundtrip():
     resumed = RandomSearchStrategy(space)
     resumed.set_state(StrategyState.from_artifact(original.get_state().to_artifact()))
     assert resumed.suggest([]).params == original.suggest([]).params
+
+
+@pytest.mark.parametrize("field", ["sobol_coordinate", "python_gauss_next"])
+def test_unrepresentable_base_numeric_state_refuses_atomically(field):
+    strategy = RandomSearchStrategy(SearchSpace([ParameterBounds("x")]), seed=31)
+    strategy._sobol_candidate(0)
+    before = strategy.get_state().to_artifact()
+    state = StrategyState.from_artifact(before)
+    if field == "sobol_coordinate":
+        state.rng_state["sobol"]["cache"][0][0] = 10**400
+    else:
+        state.rng_state["python"]["gauss_next"] = 10**400
+    with pytest.raises(ValueError):
+        strategy.set_state(state)
+    assert strategy.get_state().to_artifact() == before

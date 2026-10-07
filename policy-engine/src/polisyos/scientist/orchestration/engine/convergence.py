@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.core.errors import ErrorCategory
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import EngineError
@@ -209,7 +210,15 @@ class ConvergenceDetector:
             try:
                 model_ref, model_version = self._embedding_provenance()
                 emb = self._embedder.embed([text])[0]
-                vector = tuple(float(value) for value in emb)
+                coordinates: list[float] = []
+                for value in emb:
+                    coordinate = finite_real_scalar(value)
+                    if coordinate is None:
+                        raise ValueError("embedding_vector_requires_finite_real_coordinates")
+                    coordinates.append(coordinate)
+                vector = tuple(coordinates)
+                if not vector:
+                    raise ValueError("embedding_vector_dimension_required")
                 self._text_embeddings.append(
                     _EmbeddingRecord(
                         iteration=self._iteration + 1,
@@ -220,7 +229,14 @@ class ConvergenceDetector:
                         vector=vector,
                     )
                 )
-            except (AttributeError, IndexError, RuntimeError, TypeError, ValueError) as exc:
+            except (
+                AttributeError,
+                IndexError,
+                OverflowError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
                 emit_degraded_path(
                     component="engine.convergence",
                     operation="embed_text",
@@ -244,15 +260,18 @@ class ConvergenceDetector:
         model_ref = getattr(embedder, "model_id", None)
         if model_ref is None:
             model_ref = getattr(embedder, "model_name", None)
-        if model_ref is None:
-            embedder_type = type(embedder)
-            model_ref = f"{embedder_type.__module__}.{embedder_type.__qualname__}"
-
         model_version = getattr(embedder, "model_version", None)
         if model_version is None:
             model_version = getattr(embedder, "version", None)
 
-        return str(model_ref), "" if model_version is None else str(model_version)
+        for name, value in (("model_identity", model_ref), ("model_version", model_version)):
+            if (
+                not isinstance(value, str)
+                or not value.strip()
+                or value.strip().lower() == "unknown"
+            ):
+                raise ValueError(f"embedding_{name}_required")
+        return model_ref, model_version
 
     def _validate_budget_configuration(self) -> None:
         if self._config.budget_key is None:
@@ -399,6 +418,20 @@ class ConvergenceDetector:
             return None
         if not previous.input_ref or not current.input_ref:
             return None
+        for record in (previous, current):
+            if any(
+                not isinstance(value, str)
+                or not value.strip()
+                or value.strip().lower() == "unknown"
+                for value in (record.model_ref, record.model_version)
+            ):
+                return None
+            if (
+                type(record.dimension) is not int
+                or record.dimension <= 0
+                or record.dimension != len(record.vector)
+            ):
+                return None
         if (previous.model_ref, previous.model_version) != (
             current.model_ref,
             current.model_version,

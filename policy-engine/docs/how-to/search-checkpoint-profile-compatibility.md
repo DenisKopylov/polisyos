@@ -69,6 +69,49 @@ For exact continuation use the recorded source and its admitted profile, or
 start an explicitly new run. The nonempty sequence corpus/cursor wire format
 stays `sequence-generator.v1`; markers do not authorize cross-build resume.
 
+## Base sampler checkpoint numeric fields
+
+Cached Sobol coordinates require finite, float-representable values in `[0, 1]`.
+The Python Gaussian cache accepts a finite, float-representable numeric value or
+`null`. Boolean and string values refuse at their existing typed boundaries.
+An unrepresentable integer refuses with a controlled `ValueError`; it does not
+escape as `OverflowError` or become zero. These Base sampler fields and the
+effective sampler validate before the Base live RNG, iteration or cursor changes.
+
+The existing Python/Sobol codec versions and valid finite state remain supported.
+The Gaussian cache retains its admitted integer/float representation; this
+change widens refusal for unsupported state without silently migrating it.
+Retain the refused artifact for diagnosis and restore a supported checkpoint.
+
+## Embedding convergence measurement profiles
+
+`ConvergenceDetector.check_with_text` requires an explicitly declared nonblank
+string model identity and revision before admitting an embedding measurement.
+`model_id` and `model_version` are the primary fields; `model_name` and `version`
+are supported aliases when their primary fields are absent. A malformed-present
+primary field refuses instead of falling back to its alias. `unknown`, blank
+values, nonstrings and implicit class names cannot establish this basis. Opaque
+owner revisions remain supported; no semantic-version format is imposed.
+
+The measured vector must have a positive dimension and finite, float-representable
+real coordinates. Integer, float and NumPy real scalars remain supported; Boolean,
+string, nonfinite and overflowing coordinates are unavailable measurements. The
+existing common numeric admission boundary validates the whole vector before a
+measurement is recorded.
+
+Only two adjacent current measurements with matching declared identity/revision
+and vector dimension can contribute embedding similarity. Missing provenance, an
+empty vector or a refused coordinate records
+`text_embedding_unavailable`; prior vectors cannot stand in for that failed
+measurement. Recovery requires two fresh supported measurements.
+
+Previously anonymous or unversioned embedders are an unsupported measurement
+profile. Their owner must supply the actual identity/revision before enabling
+semantic convergence; a default revision or module/class name is not a migration.
+Numeric convergence and configured hard-stop reasons retain their existing
+behavior. Deterministic fixture profiles prove the bounded cosine/freshness
+mechanism and do not validate a scientific embedding model or threshold.
+
 ## Operator checks
 
 Before restoration, record the source SHA, checkpoint profile and actual backend

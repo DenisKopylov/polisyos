@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import math
 import random
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
@@ -375,8 +375,8 @@ class BaseSearchStrategy(ABC):
                     raise ValueError(
                         "Sobol checkpoint is incompatible: cache coordinate must be numeric"
                     )
-                coordinate_float = float(coordinate)
-                if not 0.0 <= coordinate_float <= 1.0:
+                coordinate_float = finite_real_scalar(coordinate)
+                if coordinate_float is None or not 0.0 <= coordinate_float <= 1.0:
                     raise ValueError(
                         "Sobol checkpoint is incompatible: cache coordinate out of range"
                     )
@@ -459,7 +459,7 @@ def _validate_python_random_state(state: Any) -> tuple[int, tuple[int, ...], flo
         isinstance(gauss_next, bool) or not isinstance(gauss_next, (int, float))
     ):
         raise ValueError("Python random gaussian state must be numeric or null")
-    if gauss_next is not None and not math.isfinite(gauss_next):
+    if gauss_next is not None and finite_real_scalar(gauss_next) is None:
         raise ValueError("Python random gaussian state must be finite")
     probe = random.Random()
     try:

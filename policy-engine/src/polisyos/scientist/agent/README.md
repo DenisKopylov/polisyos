@@ -51,6 +51,35 @@ uv run pytest tests/unit/scientist/agent/test_drafter_factory.py tests/unit/scie
 - Phase 3 acceptance notes: [`../../../../docs/reference/scientist/phase3-acceptance.md`](../../../../docs/reference/scientist/phase3-acceptance.md)
 - Cross-package navigation: [`../README.md`](../README.md), [`../search/README.md`](../search/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
+## Bounded native vector memory
+
+[`VectorMemoryStore`](vector_memory.py) is an internal discovery helper used by
+search transfer. It uses optional `hnswlib==0.8.0`; exact history addressability
+comes from full CAS `ArtifactRef` values, independently of ANN top-k.
+Add/update/load privately prepare a complete native generation and publish one
+in-process pointer. Readers capture that pointer once. Native format admission
+is pinned to this HNSW ABI; it is not a portable or distributed storage format.
+
+Embedding coordinates admit strict `int`/`float` values (excluding booleans),
+convert to finite floats, and identify the rejected coordinate. Before HNSW's
+float32 conversion and normalization, nonzero vectors are scaled and normalized
+in float64 using a stable cosine-equivalent direction. This prevents large or
+tiny finite magnitudes from becoming an overflowed or zero native norm. Native
+float32 approximate-neighbor geometry remains the supported profile. Legacy
+zero-vector behavior is retained and establishes no scientific similarity.
+A refused coordinate leaves the published generation unchanged.
+
+A saved composite CAS ref binds the native index and complete key/metadata map.
+The existing CAS verified-snapshot port supplies retained bytes/manifest pairs;
+content and envelope binding precede native load. Private loaded native vectors
+are checked for finite coordinates before publication. A valid historical CAS
+bundle with nonfinite native coordinates is refused; this cannot recover or
+distinguish historical nonzero vectors already collapsed to finite zero without
+the absent original embedding. Fresh-process tests cover an
+exact transfer history beyond 1000 discovery keys and same-ref byte tampering.
+They establish a bounded fixture workflow, not source-owner authorization,
+production history quality, or multi-host atomicity.
+
 ## Last Updated
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-07

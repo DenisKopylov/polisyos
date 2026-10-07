@@ -148,9 +148,44 @@ class VectorMemoryStore:
     def _embedding(embedding: list[float], dim: int) -> list[float]:
         if len(embedding) != dim:
             raise ValueError(f"Embedding dimension mismatch: expected {dim}, got {len(embedding)}")
-        if any(type(v) not in (int, float) or not math.isfinite(v) for v in embedding):
-            raise ValueError("Embedding must contain finite numbers")
-        return list(embedding)
+        vector = []
+        for coordinate, value in enumerate(embedding):
+            if type(value) not in (int, float):
+                raise ValueError(f"Embedding coordinate {coordinate} must be a finite number")
+            try:
+                number = float(value)
+            except (OverflowError, ValueError) as exc:
+                raise ValueError(
+                    f"Embedding coordinate {coordinate} is outside finite float range"
+                ) from exc
+            if not math.isfinite(number):
+                raise ValueError(f"Embedding coordinate {coordinate} must be finite")
+            vector.append(number)
+        # hnswlib's cosine kernel narrows to float32 before normalizing. Scaling
+        # here preserves cosine direction without overflowing its cast or norm.
+        scale = max((abs(number) for number in vector), default=0.0)
+        if scale == 0.0:
+            return vector
+        scaled = [number / scale for number in vector]
+        norm = math.hypot(*scaled)
+        return [number / norm for number in scaled]
+
+    @staticmethod
+    def _admit_native_vectors(index: Any, dim: int, count: int) -> None:
+        """Inspect private persisted vectors before publishing their native index."""
+        if count == 0:
+            return
+        vectors = index.get_items(list(range(count)))
+        if len(vectors) != count:
+            raise ValueError("Native vector count differs from its labels")
+        for label, vector in enumerate(vectors):
+            if len(vector) != dim:
+                raise ValueError(f"Native embedding row {label} has an invalid dimension")
+            for coordinate, value in enumerate(vector):
+                if not math.isfinite(float(value)):
+                    raise ValueError(
+                        f"Native embedding row {label} coordinate {coordinate} must be finite"
+                    )
 
     def add(self, key: str, embedding: list[float], metadata: dict[str, Any] | None = None) -> None:
         """Prepare add/update privately, then publish one complete generation."""
@@ -298,6 +333,7 @@ class VectorMemoryStore:
             range(len(keys))
         ):
             raise ValueError("Native labels and vector keys differ")
+        self._admit_native_vectors(candidate, dim, len(keys))
         records = tuple(
             canon.to_canonical_bytes(row, canon.CanonSpec(forbid_floats=False)) for row in metadata
         )

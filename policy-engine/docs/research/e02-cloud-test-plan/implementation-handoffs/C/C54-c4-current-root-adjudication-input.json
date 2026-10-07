@@ -503,14 +503,14 @@
       "value": "closed",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
       "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: OBS-01 implementation was already present at the slice base; its calendar, malformed/missing period, and consumer quarantine selectors passed in the final focused suite. No source code was changed for this finding and no population-wide invalid-period prevalence or production refresh was established. This disposition does not assign G formal closure.",
-      "next_action": "G registered-stage reviewer: record the D3 calendar behavior for leap-year, quarter, and year boundaries; missing and invalid/bad-month quarantine; and the declared projection/version limitations. Do not invent period rules or infer population-wide period prevalence.",
+      "next_action": "G integration reviewer: record the B146-specific behavior of common._period_to_dates, sources._period_series_to_iso_bounds, and the observation builder: supported calendar formats and leap-year, quarter, and year boundaries; missing/invalid/bad-month quarantine; and inclusive period_end in the versioned projection. Do not invent period rules or infer population-wide prevalence.",
       "next_owner": "G integration reviewer for B146"
     },
     "B147": {
       "value": "closed",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
       "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Each source artifact is copied to a private per-run temporary file before first yield. Streaming and fallback read that same copy; a row offset plus confirmed metric-frame ordinal resumes after a reader error and retains the prefix without duplicate observation IDs. This disposition does not assign G formal closure.",
-      "next_action": "G registered-stage reviewer: record the D5 private immutable per-source snapshot before first yield, same-snapshot fallback, and resume using confirmed-row plus metric-frame ordinal after yield or downstream-shard failure. Check counters and absence of duplicate observation IDs; keep the D5 clock compare-projection limitation explicit.",
+      "next_action": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure mask, schema, and semantic errors do not become format-fallback events.",
       "next_owner": "G integration reviewer for B147"
     },
     "B17": {

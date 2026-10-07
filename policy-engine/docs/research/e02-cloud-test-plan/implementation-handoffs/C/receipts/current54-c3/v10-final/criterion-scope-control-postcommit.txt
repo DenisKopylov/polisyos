@@ -1,0 +1,6 @@
+primary scopes: {'ING': [], 'CAN': ['LA-021']}
+supplemental scopes: {'NET-ING-current-frontier': ['B81', 'B82', 'B84', 'B85']}
+ING empty-primary-only states: {'B79': 'c2_frozen_evidence_carried_forward', 'B80': 'c2_frozen_evidence_carried_forward', 'B81': 'criterion_binding_corrected', 'B82': 'criterion_binding_corrected', 'B83': 'c2_frozen_evidence_carried_forward', 'B84': 'criterion_binding_corrected', 'B85': 'criterion_binding_corrected', 'B86': 'c2_frozen_evidence_carried_forward', 'B88': 'c2_frozen_evidence_carried_forward'}
+fresh criterion findings: ['B81', 'B82', 'B84', 'B85', 'LA-021']
+all-state counts: {'c2_frozen_evidence_carried_forward': 44, 'criterion_binding_corrected': 5, 'fresh_criterion_evidence_reviewed': 5}
+PASS: empty primary scope does not derive fresh criterion evidence; current freshness equals verified primary plus supplemental scope union

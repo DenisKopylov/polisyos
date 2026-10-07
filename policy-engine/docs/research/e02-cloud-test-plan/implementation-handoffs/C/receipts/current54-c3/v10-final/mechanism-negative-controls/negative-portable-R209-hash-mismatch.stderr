@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1611, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1576, in main
+    result = run_c3(
+        cut_path, markdown_path, input_path, args.expected_cut_sha, args.expected_markdown_sha
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1016, in run_c3
+    portable_index = verify_portable_receipt_bindings(c2_cut, c3_input)
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 877, in verify_portable_receipt_bindings
+    raise AssertionError(
+        (receipt_id, "portable binding differs from local-only C2 receipt")
+    )
+AssertionError: ('R209', 'portable binding differs from local-only C2 receipt')

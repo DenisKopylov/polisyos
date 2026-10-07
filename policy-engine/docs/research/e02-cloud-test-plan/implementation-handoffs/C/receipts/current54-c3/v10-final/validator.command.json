@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.c54.c3.command-receipt.v1",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+  "python": {
+    "command": "python3",
+    "version": "3.14.0",
+    "virtual_environment_used": false
+  },
+  "role": "c3-final validator against durable JSON and Markdown paths",
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+    "--repo-root",
+    ".",
+    "--mode",
+    "c3-final",
+    "--cut",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.json",
+    "--markdown",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.md",
+    "--input",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "--expected-cut-sha",
+    "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+    "--expected-markdown-sha",
+    "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d"
+  ],
+  "exit_code": 0,
+  "input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "sha256": "872c41dc370b54b7cf3f591fdfce6fd7a1c8ef61cb1d9d95479b07c8175db630",
+    "bytes": 64130
+  },
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.json",
+      "sha256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+      "bytes": 308417
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.md",
+      "sha256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d",
+      "bytes": 117107
+    }
+  ],
+  "stdout": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.stdout.json",
+    "sha256": "6fecf2a7f501e77a655956b96f8c8046b028af99ff8c9b0c90f68a1f48c4edae",
+    "bytes": 1680
+  },
+  "stderr": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "stdout_original_scratch_path": "policy-engine/.tmp/e02-C3/raw/census/final-v10-durable/validation/validator.stdout.json",
+  "stderr_original_scratch_path": "policy-engine/.tmp/e02-C3/raw/census/final-v10-durable/validation/validator.stderr.txt"
+}

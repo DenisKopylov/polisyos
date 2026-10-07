@@ -1,0 +1,124 @@
+{
+  "review_status": "GO",
+  "frozen_candidate": {
+    "commit": "5f61603705cd9742f9d14631ae6123d33f212309",
+    "tree": "9b84a4bd0e7516a85120736be46f07c4920714c6",
+    "parent": "4fc6bf936f2faa80f58475548e094a4270d2fb84",
+    "status": "clean"
+  },
+  "final_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "sha256": "872c41dc370b54b7cf3f591fdfce6fd7a1c8ef61cb1d9d95479b07c8175db630",
+    "bytes": 64130
+  },
+  "final_cut": {
+    "path": "policy-engine/.tmp/e02-C3/raw/census/v10-20261007/C54-current-root-adjudication-20261007-v10.json",
+    "sha256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+    "bytes": 308417
+  },
+  "final_markdown": {
+    "path": "policy-engine/.tmp/e02-C3/raw/census/v10-20261007/C54-current-root-adjudication-20261007-v10.md",
+    "sha256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d",
+    "bytes": 117107
+  },
+  "v9_cut_sha256": "f449895808339318de68d91f3f2a7c79efe6e3e1d892233de7795b94296ca025",
+  "recursive_diff": {
+    "changed_leaf_paths": 9,
+    "paths": [
+      "/c3_input/bytes",
+      "/c3_input/sha256",
+      "/rows/1/current_root_verdict/reason",
+      "/rows/2/current_root_verdict/reason",
+      "/rows/3/current_root_verdict/reason",
+      "/rows/5/current_root_verdict/reason",
+      "/rows/7/current_root_verdict/reason",
+      "/rows/8/current_root_verdict/reason",
+      "/rows/9/current_root_verdict/reason"
+    ],
+    "only_target_reason_strings_plus_input_hash_and_length": true
+  },
+  "corrected_reason_rows": [
+    {
+      "id": "B79",
+      "root_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "derived_state": "c2_frozen_evidence_carried_forward",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    },
+    {
+      "id": "B80",
+      "root_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "derived_state": "c2_frozen_evidence_carried_forward",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    },
+    {
+      "id": "B81",
+      "root_basis": "fresh_criterion_evidence_reviewed",
+      "derived_state": "fresh_criterion_evidence_reviewed",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    },
+    {
+      "id": "B83",
+      "root_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "derived_state": "c2_frozen_evidence_carried_forward",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    },
+    {
+      "id": "B85",
+      "root_basis": "fresh_criterion_evidence_reviewed",
+      "derived_state": "fresh_criterion_evidence_reviewed",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    },
+    {
+      "id": "B86",
+      "root_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "derived_state": "c2_frozen_evidence_carried_forward",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    },
+    {
+      "id": "B88",
+      "root_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+      "derived_state": "c2_frozen_evidence_carried_forward",
+      "reason_contains_basis": true,
+      "reason_has_retired_label": false,
+      "basis_matches_expected": true
+    }
+  ],
+  "checks": {
+    "all_seven_reason_checks_pass": true,
+    "validator_exit_code": 0,
+    "validator_result": "PASS",
+    "validator_command_results_path": "policy-engine/.tmp/e02-C3/raw/independent-review-20261007-finaldata/v10-validator.command-results.json",
+    "validator_command_results_sha256": "a32c3bbd260ae34a9822c179f5fda9a3f9d5829fc0952142bbd95213f2f0e409"
+  },
+  "validator_summary": {
+    "rows": 54,
+    "criteria": 59,
+    "bundles": 33,
+    "c3_states": {
+      "c2_frozen_evidence_carried_forward": 44,
+      "criterion_binding_corrected": 5,
+      "fresh_criterion_evidence_reviewed": 5
+    },
+    "root_verdicts": {
+      "closed": 31,
+      "held": 14,
+      "limited": 9
+    },
+    "g_formal_status": {
+      "not_adjudicated": 54
+    }
+  },
+  "finding": "The seven corrected reason strings now name the evidence basis actually derived for each row. The v10 cut differs from v9 only at those seven reason paths plus the C3 input byte length and SHA. No source, verdict, state, count, criterion reference, or G formal status changed."
+}

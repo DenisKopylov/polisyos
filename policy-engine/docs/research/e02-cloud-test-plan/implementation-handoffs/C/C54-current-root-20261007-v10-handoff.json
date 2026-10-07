@@ -1,0 +1,506 @@
+{
+  "schema": "policyos.e02.c54.current-root-handoff.v1",
+  "status": "canonical_cut_generated_validated_and_reviewed_pending_root_publication",
+  "artifact": {
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.json",
+      "sha256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+      "bytes": 308417
+    },
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.md",
+      "sha256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d",
+      "bytes": 117107
+    },
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+      "sha256": "872c41dc370b54b7cf3f591fdfce6fd7a1c8ef61cb1d9d95479b07c8175db630",
+      "bytes": 64130,
+      "schema": "policyos.e02.c54.c3.current-root-adjudication-input.v1",
+      "previous_input_at_parent": {
+        "source_commit": "5f61603705cd9742f9d14631ae6123d33f212309^",
+        "sha256": "e3c3226857fa5ac361f19b2d88b939f2085e2459e40abe61dca6f6b8e251b468",
+        "bytes": 63697
+      }
+    },
+    "canonical_generation_command": "receipts/current54-c3/v10-final/builder.command.json",
+    "durable_path_validation_command": "receipts/current54-c3/v10-final/validator.command.json"
+  },
+  "source_lineage": {
+    "report_branch": "codex/e02-C-c54-bindings-20261007",
+    "source_commit": "5f61603705cd9742f9d14631ae6123d33f212309",
+    "source_tree": "9b84a4bd0e7516a85120736be46f07c4920714c6",
+    "generic_binding_mechanism_commit": "4fc6bf936f2faa80f58475548e094a4270d2fb84",
+    "generic_binding_mechanism_tree": "e9c6bb9805ac945f5b0ffa79a2dbe5410604dfb3",
+    "mechanism_parent": "fe13c6cf8628940842e9e5458bcbbc6c46935e2c",
+    "mechanism_files": {
+      "builder": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "sha256": "472167af718a12ff67b673e4bf47f98b49562fb816b6ea68814bef9fdefc6eae",
+        "git_blob": "d69a96fba51e74102a7bcc5fa2bbabb91009efe1"
+      },
+      "validator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+        "sha256": "cc8f0d47e9b26b9594eef2463ee635fe8139895b68446798544e3fc3f60cc581",
+        "git_blob": "68d2b6187b5f2158fec6d1355f71897b25e8f76d"
+      }
+    },
+    "source_commit_ancestry_verified": true
+  },
+  "coverage_and_adjudication": {
+    "base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "g_snapshot": {
+      "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+      "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf"
+    },
+    "c2_adjudication_snapshot": {
+      "snapshot": {
+        "branch": "codex/e02-C-continuation-20261006",
+        "commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      "status": "final_root_adjudicated",
+      "final_verdicts_assigned": true,
+      "counts_derived_from_54_rows": {
+        "closed": 31,
+        "held": 14,
+        "limited": 9
+      },
+      "receipt_index_entries": 210,
+      "pointer_count": 282
+    },
+    "all_set_denominator": {
+      "all_bundles": 127,
+      "all_findings": 282,
+      "canonical_criterion_occurrences": 291,
+      "C_bundles": 33,
+      "C_findings": 54,
+      "C_hash_bound_criteria": 59
+    },
+    "validated": {
+      "rows": 54,
+      "bundles": 33,
+      "criterion_occurrences_with_inclusive_source_hash": 59,
+      "resolved_source_references": 547,
+      "historical_c2_json_pointers": 282,
+      "portable_receipt_index_entries": 210
+    },
+    "current_evaluation_state_counts": {
+      "c2_frozen_evidence_carried_forward": 44,
+      "criterion_binding_corrected": 5,
+      "fresh_criterion_evidence_reviewed": 5
+    },
+    "root_verdict_counts": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "g_formal_status_counts": {
+      "not_adjudicated": 54
+    },
+    "historical_status_is_separate": true,
+    "g_formal_closure_assigned_by_this_cut": false,
+    "baseline_use_limit": "G97 is navigation only; historical status and capability labels are preserved as historical inputs, not projected into current code outcomes or root verdicts.",
+    "source_registry": {
+      "table_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.json",
+      "json_pointers": [
+        "/topic_source_refs",
+        "/current_source_family_refs"
+      ],
+      "topic_reference_rows": 14,
+      "distinct_topic_source_heads": 13,
+      "note": "OBS and UDF are two finding-family entries that resolve to the same source head; full commit/tree/branch/handoff path/hash refs remain in the table."
+    },
+    "fresh_criterion_scope": {
+      "primary_ING_criterion_ids": [],
+      "primary_CAN_criterion_ids": [
+        "LA-021"
+      ],
+      "supplemental_NET_criterion_ids": [
+        "B81",
+        "B82",
+        "B84",
+        "B85"
+      ],
+      "scope_control_receipt": "receipts/current54-c3/v10-final/criterion-scope-control-postcommit.txt"
+    }
+  },
+  "review_findings_and_resolutions": {
+    "initial_independent_data_review": {
+      "result": "NO-GO on prior v5 data cut; findings subsequently corrected",
+      "json_receipt": "receipts/current54-c3/v10-final/independent-v5-findings.json",
+      "markdown_receipt": "receipts/current54-c3/v10-final/independent-v5-findings.md"
+    },
+    "P38_D1_through_D4": [
+      {
+        "id": "D1-LA006",
+        "finding_id": "LA-006",
+        "reviewed_issue": "Distinguish admitting a bounded existing absence from deleting a tombstone.",
+        "final_resolution": "The exact tracked path is absent at both pinned trees; C2 did not delete it. Limited to that demonstrated bounded absence and the selected ImportFrom check. Do not recreate/delete further. Resolve or explicitly bound 317 nonliteral destinations and external consumers before expanding.",
+        "table_pointers": [
+          "/rows/21/current_evaluation/code_outcome",
+          "/rows/21/current_root_verdict/reason"
+        ]
+      },
+      {
+        "id": "D2-ING-family-state",
+        "finding_ids": [
+          "B79",
+          "B80",
+          "B83",
+          "B86",
+          "B88",
+          "B81",
+          "B82",
+          "B84",
+          "B85"
+        ],
+        "reviewed_issue": "Family source refresh alone must not imply criterion-specific freshness for every ING row.",
+        "final_resolution": "The ING primary cleanup handoff declares no C54 criterion IDs. B79/B80/B83/B86/B88 carry the previously reviewed C2 criterion evidence; the NET supplemental handoff explicitly scopes B81/B82/B84/B85. CAN scope is only LA-021. The 44/5/5 state matrix is recomputed from these declared scopes.",
+        "table_pointers": [
+          "/current_source_family_refs/ING",
+          "/supplemental_source_handoffs/0",
+          "/rows/1/current_evaluation",
+          "/rows/2/current_evaluation",
+          "/rows/5/current_evaluation",
+          "/rows/8/current_evaluation",
+          "/rows/9/current_evaluation",
+          "/rows/3/current_evaluation",
+          "/rows/4/current_evaluation",
+          "/rows/6/current_evaluation",
+          "/rows/7/current_evaluation"
+        ],
+        "control_receipt": "receipts/current54-c3/v10-final/criterion-scope-control-postcommit.txt"
+      },
+      {
+        "id": "D3-B82-B84",
+        "finding_ids": [
+          "B82",
+          "B84"
+        ],
+        "reviewed_issue": "Preserve original logical-window and retained-state checks alongside the NET four-process result.",
+        "final_resolution": "Both final row summaries retain the original bounded profile/resource checks and the supplemental installed four-process cap refusal/recovery. The current 128-test retained-state/importer evidence is cited. No full checkpoint-byte idempotence, RSS, pre-return allocation, staged-spill, or real-spill-reader claim is made.",
+        "table_pointers": [
+          "/rows/4/current_evaluation/code_outcome",
+          "/rows/6/current_evaluation/code_outcome",
+          "/supplemental_source_handoffs/0"
+        ]
+      },
+      {
+        "id": "D4-LA021",
+        "finding_id": "LA-021",
+        "reviewed_issue": "Retain the bounded verified CAN profile/writer/installed details while keeping the raw Core bypass held.",
+        "final_resolution": "The row includes 12 typed write options, profile identity and depth-129 checks, pre-payload refusal, 40 focused source tests, 8 independent reader tests, and isolated installed wheel/sdist readback/consumer evidence. The marker-kept raw Core.put_json float_hex path still fails the IR reader; historical profile-less support remains unestablished, so the finding remains held.",
+        "table_pointers": [
+          "/rows/29/current_evaluation/code_outcome",
+          "/rows/29/current_root_verdict/reason"
+        ]
+      }
+    ],
+    "later_reason_binding_correction": {
+      "changed_rows": [
+        "B79",
+        "B80",
+        "B81",
+        "B83",
+        "B85",
+        "B86",
+        "B88"
+      ],
+      "carried_c2_basis_rows": [
+        "B79",
+        "B80",
+        "B83",
+        "B86",
+        "B88"
+      ],
+      "supplemental_NET_fresh_criterion_rows": [
+        "B81",
+        "B85"
+      ],
+      "delta_receipt": "receipts/current54-c3/v10-final/reason-delta-check.txt",
+      "independent_final_review": "receipts/current54-c3/v10-final/independent-v10-review.md",
+      "only_output_leaves_changed": [
+        "seven current_root_verdict.reason values",
+        "C3 input byte count",
+        "C3 input SHA-256"
+      ],
+      "criteria_verdict_values_states_source_bindings_and_counts_changed": false
+    },
+    "final_independent_review": {
+      "result": "GO",
+      "json_receipt": "receipts/current54-c3/v10-final/independent-v10-review.json",
+      "markdown_receipt": "receipts/current54-c3/v10-final/independent-v10-review.md",
+      "sha256": "1e0eb257f1f9572cf7c0ddd91490535f68023463042d5821a3b763303b3ecb38"
+    },
+    "root_validator_readback": {
+      "result": "PASS",
+      "receipt": "receipts/current54-c3/v10-final/root-v10-validator-readback.json",
+      "sha256": "f2b41bdf1f456f58e74d9931cc50deb410b750120a613e56d45569fc101cf83b"
+    }
+  },
+  "p37_predicate_provenance": {
+    "criterion_identity_and_inclusive_spans": "recomputed from the complete pinned source documents; each of 59 criterion IDs, document refs, line spans, and SHA-256 values is validated against Git bytes.",
+    "receipt_identity": "recomputed by resolving the committed Git path/blob and content digest; no working-tree-only matching bytes are accepted. R209 is bound to its tracked portable review copy in the table.",
+    "freshness_scope": "recomputed from explicit source-handoff criterion IDs. A family source refresh alone cannot upgrade a criterion; the empty ING primary scope yields carried/corrected states, while only the declared NET/CAN scopes support fresh-criterion states.",
+    "root_verdict_authority": "the per-row current root adjudication is an explicit root decision; it does not infer closure from status mapping or counts.",
+    "institutional_or_unestablished_inputs": "rights, legal authorization, external source-owner identity, full production history/content, and public cross-call contract facts remain institutionally supplied or not established where row-specific receipts say so; unknowns remain held/limited rather than promoted."
+  },
+  "p38_proxy_review": {
+    "negative_controls_manifest": "receipts/current54-c3/v10-final/mechanism-negative-controls/independent-review.command-results.json",
+    "negative_control_count": 6,
+    "expected_refusals": "state drift, original criterion span drift, finding alias, duplicate portable receipt, portable path escape, and R209 content-hash mismatch each exit 1; complete stdout/stderr bytes are in the sibling files.",
+    "prior_count_alias_control": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-summary-count-alias-control.json",
+      "sha256": "1ddf8870abed0f7a4edb65fbfe3ae39931f21c2b9d8657263ccd39a5c13ce7b4",
+      "git_blob": "03cc152dbe7c4ba9ea4ed667c956981ef1e89a9e",
+      "bytes": 2652,
+      "role": "prior C2 generic verdict-count alias corruption control"
+    },
+    "prior_author_false_green_control": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-author-validator-drift-controls.json",
+      "sha256": "e00cf072bdd3c9ba803ebe4394a72c8b744bb4033c48b7a3d1ce33ff321441c1",
+      "git_blob": "e99f355ae7db1d515b6d8cd784a1742a3c5d0922",
+      "bytes": 2035,
+      "role": "prior author validator false-green controls, retained as historical evidence"
+    },
+    "current_generic_binding_source_is": "the checker is generic over tracked Git bindings and all 59 source spans, not a finding-ID allowlist or a 64-character string-shape check."
+  },
+  "default_c2_replay": {
+    "unchanged": true,
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+    },
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.md",
+      "sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8"
+    },
+    "source_validator": "PASS"
+  },
+  "boundaries_and_unrun_work": {
+    "production_data": "No bulk/full production rows or history were processed or exported. LA-050 assessment is limited to documented manifest-named metadata paths and DuckDB information_schema; it does not establish absence of external historical inputs. Original production artifacts were not modified or committed.",
+    "availability": "The separate pinned availability note updates LA-029/032/036/040 availability only; it does not establish code behavior, source authority, admitted law/content, model pairing, or G closure.",
+    "unrun": "No product/backend/frontend suite, architecture guardrail, TypeScript scanner, or broad integration wave was run in this documentation slice. Lefthook/binary commit checks are UNRUN; this is not a product runtime certification.",
+    "environment": "Used system python3 3.14.0 only; no Root .venv or report node_modules were required or restored. No TypeScript scanner was run, so no pnpm install was required."
+  },
+  "receipts": {
+    "root": "receipts/current54-c3/v10-final/",
+    "indexed_files": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/builder.command.json",
+        "sha256": "4137c331e9deb673150da0d336ae38c81ad2eafb17bbc6aa67f9eb10b00385e5",
+        "bytes": 2425,
+        "role": "canonical builder full output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/builder.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "canonical builder full output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/builder.stdout.json",
+        "sha256": "e6dc753337d68d106bb643776a2c656e3bb6fb7cb59b718f6d9b58c41cd3e8db",
+        "bytes": 1004,
+        "role": "canonical builder full output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/criterion-scope-control-postcommit.txt",
+        "sha256": "36ad7de1bdfe6dd43e20cc3effc0100d9a0fa91af4ca2f63a59a9040b92448a6",
+        "bytes": 876,
+        "role": "freshness-scope negative/positive control output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-review.json",
+        "sha256": "1e0eb257f1f9572cf7c0ddd91490535f68023463042d5821a3b763303b3ecb38",
+        "bytes": 4603,
+        "role": "independent review receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-review.md",
+        "sha256": "8837089a0fc84103837f8f5058b59dccd1def0b733fa297dcce32ca066397366",
+        "bytes": 984,
+        "role": "independent review receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-validator-command-results.json",
+        "sha256": "a32c3bbd260ae34a9822c179f5fda9a3f9d5829fc0952142bbd95213f2f0e409",
+        "bytes": 3786,
+        "role": "independent mechanism command/output manifest"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v5-findings.json",
+        "sha256": "8fd0275695962951bfa5b341570cd08b7fa48019bd416a29c3fef1201bfc0866",
+        "bytes": 6934,
+        "role": "independent review receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v5-findings.md",
+        "sha256": "66f93567587049d0122c1504c96dca172c56981142eac33d1d3c7c43fe74890e",
+        "bytes": 1034,
+        "role": "independent review receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/independent-review.command-results.json",
+        "sha256": "9a3601f070093633c8fc6fb7acb67ea4ebd5e030ec90d56e208fa9fc2811373a",
+        "bytes": 20254,
+        "role": "independent mechanism command/output manifest"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-duplicate-R209-binding.stderr",
+        "sha256": "76b9daeb28112e75e7f5a50508769100e8b7a9b7009ab6f03c0618ca3c4b76c2",
+        "bytes": 1282,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-duplicate-R209-binding.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-field-state-drift.stderr",
+        "sha256": "baf2d37b1c75068308815f68988ad7a32fdcbc36fbcd8117fdeaf1c248a4739d",
+        "bytes": 1010,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-field-state-drift.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-finding-alias.stderr",
+        "sha256": "ac525a9f47cf18fc9fe260b13034d49a77ed3d0bf93d34cf0e4e73db3567dd17",
+        "bytes": 944,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-finding-alias.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-original-criterion-span-drift.stderr",
+        "sha256": "e807c6b9c64271980159ffd78aa011391b569a90e883f59e334a35aff1cb19bf",
+        "bytes": 1028,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-original-criterion-span-drift.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-R209-hash-mismatch.stderr",
+        "sha256": "f6c575cddaa9243a2ec65cd5a761452364f8a194b15d171f9d3b9c2d0a1881cf",
+        "bytes": 1316,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-R209-hash-mismatch.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-path-escape.stderr",
+        "sha256": "694961897e27b2457726d62b55b516c36ee095d7c6275b91d1a06f8ff0ecbbb5",
+        "bytes": 1272,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-path-escape.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "mechanism negative-control process output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/reason-delta-check.txt",
+        "sha256": "1cca491ec225e8612b9ba9720c37cc720f3561d19c990455fd95bbc7fcb25eac",
+        "bytes": 364,
+        "role": "final data-delta comparison output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/root-v10-validator-readback.json",
+        "sha256": "f2b41bdf1f456f58e74d9931cc50deb410b750120a613e56d45569fc101cf83b",
+        "bytes": 2793,
+        "role": "validator full output/readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.command.json",
+        "sha256": "29d9c02ce5b7a2fbeed30eb1a8dfa26f554f21e1357e84f6c2be1eb04994106d",
+        "bytes": 2661,
+        "role": "validator full output/readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "role": "validator full output/readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.stdout.json",
+        "sha256": "6fecf2a7f501e77a655956b96f8c8046b028af99ff8c9b0c90f68a1f48c4edae",
+        "bytes": 1680,
+        "role": "validator full output/readback"
+      }
+    ],
+    "existing_tracked_controls": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-summary-count-alias-control.json",
+        "sha256": "1ddf8870abed0f7a4edb65fbfe3ae39931f21c2b9d8657263ccd39a5c13ce7b4",
+        "git_blob": "03cc152dbe7c4ba9ea4ed667c956981ef1e89a9e",
+        "bytes": 2652,
+        "role": "prior C2 generic verdict-count alias corruption control"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-summary-count-alias-control.stderr.txt",
+        "sha256": "25fa9197c311adfea6735020a10af34537a811f01af80abfab96fb900cdf68bb",
+        "git_blob": "e02d93e8ef30942d8c97971c4c1bf75b22463f4f",
+        "bytes": 1066,
+        "role": "complete expected-failure output for count alias control"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-author-validator-drift-controls.json",
+        "sha256": "e00cf072bdd3c9ba803ebe4394a72c8b744bb4033c48b7a3d1ce33ff321441c1",
+        "git_blob": "e99f355ae7db1d515b6d8cd784a1742a3c5d0922",
+        "bytes": 2035,
+        "role": "prior author validator false-green controls, retained as historical evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-author-validator-criterion-sha-drift.stdout.json",
+        "sha256": "6021019abba588cde0ae1b169bfa294d9dbfd2971c8c5893dd896d3ca8b40b29",
+        "git_blob": "14759cc3edc1f9ee4aad689489a2af2f634d8d91",
+        "bytes": 910,
+        "role": "prior author criterion-SHA drift witness; not current checker result"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/generation/stdout.json",
+        "sha256": "01fa2f5e52ae47ba547abef06c3f326012bcbc3add65b796e6f3e64ed8cdfda6",
+        "git_blob": "064f9d3c11ead27640808f82e884c8eb78a1e0f4",
+        "bytes": 842,
+        "role": "default C2 canonical-generation receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/validation/stdout.json",
+        "sha256": "ef9a01fa01a8afbb8396e31cf77156acc2307600804898247d85982ef0157d52",
+        "git_blob": "791919dd2c510c3833ee0b184e7e07aebff5b26f",
+        "bytes": 28316,
+        "role": "default C2 canonical-validation full output"
+      }
+    ]
+  },
+  "publication": {
+    "status": "not_published",
+    "next_owner": "root",
+    "note": "Root will inspect branch readback and publish the report topic."
+  }
+}

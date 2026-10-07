@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1611, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1576, in main
+    result = run_c3(
+        cut_path, markdown_path, input_path, args.expected_cut_sha, args.expected_markdown_sha
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1284, in run_c3
+    raise AssertionError(
+        (finding_id, "C3 current-evaluation state differs from typed input")
+    )
+AssertionError: ('LA-010', 'C3 current-evaluation state differs from typed input')

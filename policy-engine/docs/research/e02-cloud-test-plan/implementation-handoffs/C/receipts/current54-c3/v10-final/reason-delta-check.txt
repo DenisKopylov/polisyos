@@ -1,0 +1,6 @@
+rows compared: 54
+only current_root_verdict.reason changed: B79,B80,B81,B83,B85,B86,B88
+carried C2 evidence: B79,B80,B83,B86,B88
+NET supplemental fresh criterion evidence: B81,B85
+criteria, bundles, historical status, source family, current code evaluation, root values/bases, and all set counts unchanged: PASS
+stale fresh_source_handoff_reviewed reason count: 0

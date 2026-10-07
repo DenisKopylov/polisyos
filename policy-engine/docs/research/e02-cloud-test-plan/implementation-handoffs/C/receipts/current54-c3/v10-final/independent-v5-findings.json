@@ -1,0 +1,130 @@
+{
+  "schema": "policyos.c54.final_data_independent_review.v1",
+  "review_scope": "Read-only review of the frozen v5 C54 final cut and its exact validator receipt; no code edit, test, or build.",
+  "source_checkout": {
+    "branch": "codex/e02-C-c54-bindings-20261007",
+    "head": "fe13c6cf8628940842e9e5458bcbbc6c46935e2c",
+    "tree": "cc58bd3ae85fc7398e66a544c6b17d67241ec4f5"
+  },
+  "cut": {
+    "path": "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v5.json",
+    "sha256": "f79b37c2817a965a295679beb9633068a0a22a5a7bf55829312cfefa1bc806cc",
+    "bytes": 286839
+  },
+  "v5_input_as_bound_by_validator": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "sha256": "467c0d4db2e325119f3a3c82dbcee738de9e1ebe03e3b0e9d1fc7619cfc63e4e",
+    "bytes": 59694
+  },
+  "validator": {
+    "manifest_path": "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v5-validator-command.json",
+    "manifest_sha256": "956a311540aee815678923224a2f2d2e4cf1e850b0bbdfaa221b27dab5fe2450",
+    "exit_code": 0,
+    "stdout_path": "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v5-validator.stdout.json",
+    "stdout_sha256": "4b02fbbe617549665c465f8fdc753986171eb60c4d665566bf42a2c3a19a26e3",
+    "result": "PASS",
+    "rows": 54,
+    "criterion_occurrences": 59,
+    "bundles": 33
+  },
+  "checks": {
+    "ids_equal_to_c2": true,
+    "criterion_refs_exactly_equal_to_c2": true,
+    "verdict_values_unchanged_from_c2": true,
+    "g_formal_statuses_all_not_adjudicated": true,
+    "ing_cleanup_has_empty_criterion_binding": true,
+    "can_handoff_explicitly_binds_la021": true
+  },
+  "counts": {
+    "rows": 54,
+    "criteria": 59,
+    "bundles": 33,
+    "current_verdicts": {
+      "closed": 31,
+      "held": 14,
+      "limited": 9
+    },
+    "c3_states": {
+      "c2_frozen_evidence_carried_forward": 39,
+      "criterion_binding_corrected": 5,
+      "fresh_source_handoff_reviewed": 10
+    },
+    "g_formal_statuses": {
+      "not_adjudicated": 54
+    },
+    "fresh_rows": [
+      "B79",
+      "B80",
+      "B81",
+      "B82",
+      "B83",
+      "B84",
+      "B85",
+      "B86",
+      "B88",
+      "LA-021"
+    ],
+    "fresh_rows_with_criterion_specific_supplement": [
+      "B81",
+      "B82",
+      "B84",
+      "B85",
+      "LA-021"
+    ],
+    "fresh_rows_without_criterion_specific_supplement": [
+      "B79",
+      "B80",
+      "B83",
+      "B86",
+      "B88"
+    ]
+  },
+  "findings": [
+    {
+      "id": "D1-LA006",
+      "severity": "data correction required",
+      "finding": "v5 says the exact mechanisms path is absent at both base and b8 trees and C2 did not delete a tombstone, but asks for authorization to change/delete that tombstone. The next step should admit the already-bounded absence or identify an exact supported FQN/caller set; retain 317 nonliteral loader destinations and external callers as unresolved.",
+      "refs": [
+        "v5 row LA-006 current_evaluation and current_root_verdict",
+        "R16 /candidate_sha, /candidate_tree_sha, /findings/1/evidence, /findings/1/missing_input, /findings/1/remaining_verification"
+      ]
+    },
+    {
+      "id": "D2-ING-family-state",
+      "severity": "criterion-evidence binding issue",
+      "finding": "The current ING cleanup source handoff explicitly has empty criterion_ids, closure_ids, and findings and states a cleanup-owner property. The four-process NET handoff explicitly binds B81/B82/B84/B85. LA-021 is explicitly bound by CAN. B79/B80/B83/B86/B88 are marked fresh but have only C2 R02 pointers and no criterion-specific current evidence; carry their prior evidence state forward unless another exact bound source is supplied.",
+      "refs": [
+        "current-ing-cleanup-20261007.json@cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e#/criterion_ids,/closure_ids,/findings,/property",
+        "C54 supplemental_source_handoffs NET-ING-current-frontier finding_ids B81/B82/B84/B85",
+        "current-canonical-ir-20261007.json@79cbb05c90026973a32022ca02c63877b2cde1a5#/criterion_ids"
+      ]
+    },
+    {
+      "id": "D3-B82-B84",
+      "severity": "data correction required",
+      "finding": "v5 current source outcome replaces the old B82 pending COUNT/TUMBLING/SESSION/SLIDING restore and schema/window/key/TTL refusal checks, and B84 retained-state/input-row/serialized-byte/output-reference pre-publication checks with only the new NET composed sequence. Retain both bounded C2 evidence and new NET results; do not imply the new four-process run covered the original full profiles/resource properties.",
+      "refs": [
+        "C2 v10 B82 /rows/14/code_outcome and /rows/14/deciding_receipts",
+        "C2 v10 B84 /rows/16/code_outcome and /rows/16/deciding_receipts",
+        "NET-ING-current-frontier.json@13c0cde6bd8275d5b8d0deb73affa198325aa7c0#/checks/8,/limitations"
+      ]
+    },
+    {
+      "id": "D4-LA021",
+      "severity": "data correction required",
+      "finding": "v5 understates the current CAN evidence. Handoff supports 12 typed write options, persisted depth 129, unsupported/missing profile rejection before payload access, 40 focused source tests, an independent 8-test reader review, and isolated installed wheel/sdist/readback checks. Preserve the direct Core.put_json float_hex bypass and held overall verdict.",
+      "refs": [
+        "current-canonical-ir-20261007.json@79cbb05c90026973a32022ca02c63877b2cde1a5#/property,/verification,/limitations"
+      ]
+    }
+  ],
+  "bounded_confirmations": [
+    "All 54 IDs and exact hash-bound original criterion_refs match C2 v10; all 59 criterion occurrences remain represented.",
+    "All current-root verdict values equal C2 v10 (31 closed, 9 limited, 14 held); this cut separately records current root adjudications.",
+    "All 54 G formal statuses remain not_adjudicated; no G closure is inferred.",
+    "Four current-availability reasons are bound to the exact committed addendum and accurately limit claims: LA-029 SSH timeout is not global absence; LA-032 footer metadata is not admitted identity/inventory; LA-036 supplier artifacts are not conditional-law admission; LA-040 selected DB exists but model/profile/paired readback remain missing. No production payload was embedded.",
+    "LA-050 remains limited to the documented 19 manifest-named paths, DuckDB information_schema (129 columns/10 tables), and four genuine current 1.0 private-copy CLI probes; it does not claim global absence of historical 0.9 artifacts.",
+    "Five MIG binding corrections map LA-010 delegation, LA-047 Common/IR, LA-048 RunManifest path identity, and LA-049 Trinity to their criterion-specific R14 receipts while separately distinguishing installed evidence; LA-006 has the path-absence correction above."
+  ],
+  "verdict": "NO-GO for v5 data publication until D1-D4 are corrected and a new exact cut/validator receipt is reviewed."
+}

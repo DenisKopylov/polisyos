@@ -1,3 +1,5 @@
+> For F head25c follow-up, use [F-resume-after-25c-focused.md](F-resume-after-25c-focused.md). Historical offline/whole-packet repeat instructions below are superseded for the unchanged parts.
+
 Прочитай также `execution-prompts/continuation-2026-10-07/COMMON.md` из fetched G. Полные пути ниже относительно `policy-engine/docs/research/e02-cloud-test-plan/`, если не указано иначе.
 
 # F — продолжить работу после PR65 и завершить исходные критерии

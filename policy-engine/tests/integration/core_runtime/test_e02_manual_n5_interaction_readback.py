@@ -67,6 +67,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     from polisyos.runtime.http.services.control.generation_cycle import (
         COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
         CompiledRecursiveGenerationCycleRun,
+        _normative_generation_sources,
     )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
@@ -82,18 +83,24 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     from polisyos.runtime.quality.design_axes.coupling_composition import (
         derive_recursive_design_graph,
     )
+    from polisyos.runtime.quality.design_axes.value_choice_provenance import (
+        NORMATIVE_GENERATION_SOURCE_KIND,
+        NormativeValueScheduleOwner,
+    )
     from polisyos.runtime.quality.design_generation import (
         N4CandidateProposalSource,
         N4CandidateScenarioProposalRun,
         generate_design_candidate_proposal_under_a,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        GENERATION_CYCLE_SCHEMA_VERSION,
         GenerationCycleController,
         JointSimulationPort,
         SimulationPortObservation,
         ValuePortObservation,
         _DefaultSimulationBoundFoundryValuePort,
         load_joint_simulation_result,
+        validate_generation_cycle_run_history,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -487,6 +494,47 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                     kind="runtime.compiled_recursive_generation_cycle",
                     schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
                 )
+                # Persist the exact current leaf cycle run through the canonical
+                # normative-source bridge. This exercises source-byte custody
+                # only; it emits no schedule, authorization, or ranking.
+                source_bindings = _normative_generation_sources(
+                    service._artifact_store,
+                    str(compiled_ref.artifact_id),
+                    persist=True,
+                    compiled_artifact_ref=compiled_ref,
+                )
+                assert set(source_bindings) == {leaf.node_ref}
+                source_binding = source_bindings[leaf.node_ref]
+                assert source_binding.compiled_run_ref == str(compiled_ref.artifact_id)
+                assert source_binding.node_ref == leaf.node_ref
+                assert leaf.cycle_run.schema_version == (
+                    "policyos.runtime.generation_cycle_controller.v5"
+                )
+                source_ref = ArtifactRef.model_validate(source_binding.source_run_ref)
+                with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                    source_raw = service._artifact_store.get_bytes(source_ref)
+                    source_manifest = service._artifact_store.get_manifest(source_ref)
+                source_payload = canon.from_canonical_bytes(source_raw)
+                assert isinstance(source_payload, dict)
+                assert source_manifest.kind == NORMATIVE_GENERATION_SOURCE_KIND
+                assert source_manifest.artifact_schema is not None
+                assert source_manifest.artifact_schema.name == NORMATIVE_GENERATION_SOURCE_KIND
+                assert source_manifest.artifact_schema.version == leaf.cycle_run.schema_version
+                assert source_payload == leaf.cycle_run.model_dump(mode="json")
+
+                # The existing owner reader uses the current schema sentinel,
+                # validates the manifest and replays the persisted history. It
+                # remains a read-only inspection here, with no authority output.
+                normative_owner = NormativeValueScheduleOwner(
+                    store=service._artifact_store
+                )
+                owner_source_payload = normative_owner._read(
+                    source_binding.source_run_ref,
+                    kind=NORMATIVE_GENERATION_SOURCE_KIND,
+                    schema=GENERATION_CYCLE_SCHEMA_VERSION,
+                )
+                assert owner_source_payload == source_payload
+                assert not validate_generation_cycle_run_history(owner_source_payload)
                 core_manifest_ref = service._publish_generation_run(
                     job=job,
                     payload={},

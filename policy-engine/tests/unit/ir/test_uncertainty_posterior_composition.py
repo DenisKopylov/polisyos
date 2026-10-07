@@ -127,6 +127,53 @@ def test_corrupt_declared_carrier_refuses_before_any_map_callback():
     assert calls == []
 
 
+@pytest.mark.parametrize(
+    "declaration", ["missing", "unknown", "required_only", "id_only", "version_only"]
+)
+@pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+def test_incomplete_profile_declaration_refuses_at_shared_inlet(declaration, operation):
+    source = _source([0.0, 1.0])
+    metadata = source.metadata.copy()
+    if declaration in {"missing", "unknown"}:
+        metadata.pop("posterior_summary_profile_id")
+        metadata.pop("posterior_summary_profile_version")
+        if declaration == "missing":
+            metadata.pop("posterior_summary_profile")
+        else:
+            metadata["posterior_summary_profile"] = {"profile_id": "unsupported"}
+    else:
+        keys = {
+            "required_only": "posterior_summary_profile_required",
+            "id_only": "posterior_summary_profile_id",
+            "version_only": "posterior_summary_profile_version",
+        }
+        metadata = {keys[declaration]: metadata[keys[declaration]]}
+    forged = source.model_copy(update={"metadata": metadata})
+    calls = []
+    func = lambda x: calls.append(x) or x
+    with pytest.raises(ValueError):
+        if operation == "push":
+            push_forward_envelope(func, forged)
+        elif operation == "compress":
+            compress_envelope(forged, target="interval")
+        else:
+            pull_back_envelope(func, forged, upstream_particles=(0.0, 1.0))
+    assert calls == []
+
+
+def test_unprofiled_invalid_map_keeps_legacy_callback_coercion_order():
+    source = _source([0.0, 1.0]).model_copy(update={"metadata": {}})
+    calls = []
+
+    def bad_first(x):
+        calls.append(x)
+        return "invalid" if x == 0.0 else x
+
+    with pytest.raises(ValueError):
+        push_forward_envelope(bad_first, source)
+    assert calls == [0.0]
+
+
 @pytest.mark.parametrize("invalid", [True, np.bool_(True), "1", 1j, np.nan, np.inf, -np.inf])
 def test_invalid_transformed_draw_refuses_whole_profile_publication(invalid):
     source = _source([0.0, 1.0])

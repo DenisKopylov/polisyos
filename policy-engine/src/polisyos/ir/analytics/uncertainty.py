@@ -1594,16 +1594,18 @@ def _ratio_composition_profile(
     """Admit declared ratio profiles without changing legacy composition."""
     from .posterior_summary import (
         PROFILE_KEY,
-        PROFILE_V2_ID,
         PosteriorSummaryProfileV2,
         read_posterior_summary_profile,
     )
 
-    raw = envelope.metadata.get(PROFILE_KEY)
-    if not (
-        (isinstance(raw, dict) and raw.get("profile_id") == PROFILE_V2_ID)
-        or envelope.metadata.get("posterior_summary_profile_id") == PROFILE_V2_ID
-        or envelope.metadata.get("posterior_summary_profile_version") == "2.0"
+    if not any(
+        key in envelope.metadata
+        for key in (
+            PROFILE_KEY,
+            "posterior_summary_profile_required",
+            "posterior_summary_profile_id",
+            "posterior_summary_profile_version",
+        )
     ):
         return None
     profile = read_posterior_summary_profile(envelope)
@@ -1867,11 +1869,10 @@ def push_forward_envelope(
     extracted = _samples_from_payload(envelope.distribution_payload)
     if extracted is not None:
         samples, weights = extracted
-        raw_pushed = [func(float(sample)) for sample in samples]
         pushed = (
-            _finite_ratio_map_values(raw_pushed)
+            _finite_ratio_map_values([func(float(sample)) for sample in samples])
             if profile is not None
-            else np.asarray([float(value) for value in raw_pushed], dtype=float)
+            else np.asarray([float(func(float(sample))) for sample in samples], dtype=float)
         )
         if profile is not None:
             from .posterior_summary import posterior_summary_functionals_v2

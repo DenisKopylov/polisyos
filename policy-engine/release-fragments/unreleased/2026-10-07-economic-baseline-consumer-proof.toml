@@ -1,0 +1,14 @@
+id = "2026-10-07-economic-baseline-consumer-proof"
+title = "Verify the historical economic baseline and signed PPO metric boundary"
+type = "changed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Document the unchanged native normalized-income/budget profile and verify its original sign, scales, population, budget, real numeric guard, aliases and import behavior. Exercise the real Economics training adapter and registered tax law through current metrics and PPO."
+compatibility = "No product equation, signature, alias, dtype, state, model law, RNG, or serialized contract changes. Signed simulation without a requested Gini remains supported; existing classical Gini admission refuses negative active wealth."
+surface_classification = "internal: tests and economic profile documentation"
+change_class = "internal"
+migration = "No runtime migration. Historical normative/optimizer holds are preserved as historical receipts; the current LA035 recommendation follows equivalent relocation in the original criterion."
+limitations = "Synthetic consumer profiles do not establish production economic authority, calibration, new welfare intent, or external dynamic callers. G acceptance is separate."
+evidence = ["tests/unit/foundry/plugins/test_historical_income_baseline.py", "tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py"]
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"

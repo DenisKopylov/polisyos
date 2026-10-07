@@ -1,0 +1,747 @@
+{
+  "all_write_options": {
+    "all_twelve_fields_match_typed_core_manifest": true,
+    "child_bytes": "{\"value\":1}",
+    "child_bytes_sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+    "child_manifest": {
+      "artifact_id": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+      "artifact_schema": {
+        "name": "test.ir-adapter.options",
+        "version": "1.0"
+      },
+      "authority": {
+        "authority_envelope_ref": "envelope://a",
+        "diagnostic_event_ref": "event://a",
+        "manifest_ref": "manifest://a",
+        "payload_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "byte_size": 11,
+      "canon": {
+        "ensure_ascii": false,
+        "exclude_none": true,
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "max_depth": 128,
+        "name": "polisyos.canon.json",
+        "separators": [
+          ",",
+          ":"
+        ],
+        "sort_keys": true,
+        "version": "0.2.0"
+      },
+      "created_at": "2026-10-07T09:22:17Z",
+      "env": {
+        "deps_lock_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "platform": "test",
+        "python": "3.14"
+      },
+      "governance": {
+        "classification": "internal",
+        "column_classification": {},
+        "encryption": null,
+        "retention": null
+      },
+      "inputs": [
+        {
+          "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+          "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+          "role": "selected_parent"
+        }
+      ],
+      "integrity": {
+        "optional": null,
+        "sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6"
+      },
+      "kind": "test.ir-adapter.options",
+      "manifest_schema_version": "v3",
+      "media_type": "application/json",
+      "producer": {
+        "component": "test-suite",
+        "git": null,
+        "version": "1.0"
+      },
+      "same_input_closure": {
+        "cell_id": "cell-a",
+        "closure_id": "closure-a",
+        "closure_sha256": null,
+        "evidence_input_refs": [
+          "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86"
+        ],
+        "job_id": "job-a",
+        "run_id": "run-a",
+        "status": "candidate_only",
+        "tenant_id": "tenant-a"
+      },
+      "tenant_context": {
+        "cell_id": "cell-a",
+        "tenant_id": "tenant-a"
+      },
+      "warnings": [
+        {
+          "code": "retained",
+          "data": null,
+          "msg": "keep this warning"
+        }
+      ]
+    },
+    "child_ref": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+    "comparisons": [
+      {
+        "field": "kind",
+        "matches_manifest": true,
+        "value": "test.ir-adapter.options"
+      },
+      {
+        "field": "media_type",
+        "matches_manifest": true,
+        "value": "application/json"
+      },
+      {
+        "field": "schema",
+        "matches_manifest": true,
+        "value": {
+          "name": "test.ir-adapter.options",
+          "version": "1.0"
+        }
+      },
+      {
+        "field": "producer",
+        "matches_manifest": true,
+        "value": {
+          "component": "test-suite",
+          "git": null,
+          "version": "1.0"
+        }
+      },
+      {
+        "field": "env",
+        "matches_manifest": true,
+        "value": {
+          "deps_lock_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "platform": "test",
+          "python": "3.14"
+        }
+      },
+      {
+        "field": "inputs",
+        "matches_manifest": true,
+        "value": [
+          {
+            "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+            "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+            "role": "selected_parent"
+          }
+        ]
+      },
+      {
+        "field": "canon",
+        "matches_manifest": true,
+        "value": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        }
+      },
+      {
+        "field": "governance",
+        "matches_manifest": true,
+        "value": {
+          "classification": "internal",
+          "column_classification": {},
+          "encryption": null,
+          "retention": null
+        }
+      },
+      {
+        "field": "tenant_context",
+        "matches_manifest": true,
+        "value": {
+          "cell_id": "cell-a",
+          "tenant_id": "tenant-a"
+        }
+      },
+      {
+        "field": "same_input_closure",
+        "matches_manifest": true,
+        "value": {
+          "cell_id": "cell-a",
+          "closure_id": "closure-a",
+          "closure_sha256": null,
+          "evidence_input_refs": [
+            "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86"
+          ],
+          "job_id": "job-a",
+          "run_id": "run-a",
+          "status": "candidate_only",
+          "tenant_id": "tenant-a"
+        }
+      },
+      {
+        "field": "authority",
+        "matches_manifest": true,
+        "value": {
+          "authority_envelope_ref": "envelope://a",
+          "diagnostic_event_ref": "event://a",
+          "manifest_ref": "manifest://a",
+          "payload_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      {
+        "field": "warnings",
+        "matches_manifest": true,
+        "value": [
+          {
+            "code": "retained",
+            "data": null,
+            "msg": "keep this warning"
+          }
+        ]
+      }
+    ],
+    "core_field_names": [
+      "kind",
+      "media_type",
+      "schema",
+      "producer",
+      "env",
+      "inputs",
+      "canon",
+      "governance",
+      "tenant_context",
+      "same_input_closure",
+      "authority",
+      "warnings"
+    ],
+    "count": 12,
+    "schema_field_names": [
+      "kind",
+      "media_type",
+      "schema",
+      "producer",
+      "env",
+      "inputs",
+      "canon",
+      "governance",
+      "tenant_context",
+      "same_input_closure",
+      "authority",
+      "warnings"
+    ],
+    "selected_input_ref": {
+      "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+      "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+      "role": "selected_parent"
+    }
+  },
+  "depth_profile": {
+    "mismatch_negative": {
+      "error": "Canonical JSON recursion depth exceeds max_depth=128",
+      "refused": true,
+      "stored_profile_max_depth": 128
+    },
+    "persisted_depth": 129,
+    "positive_readback": true,
+    "requested_depth": 129
+  },
+  "entity_match": {
+    "audit_rows": 1,
+    "candidate_count": 1,
+    "candidate_id": "installed-match-1",
+    "candidate_profile": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": false,
+      "forbid_nan_inf": true,
+      "max_depth": 128,
+      "name": "polisyos.canon.json",
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true,
+      "version": "0.2.0"
+    },
+    "candidate_ref": "sha256:7e030ba836d10d19d99977dab6acc26ed20c1f83aab7e1a7b1db1b8c6ab32fd2",
+    "override_actor": "operator-1",
+    "override_ref": "sha256:cfd6b4a82e761168d983d899b30ef844e950c6d6021119c6586eafc85c4b658d",
+    "override_status": "rejected"
+  },
+  "foreign_selected_input": {
+    "child_artifacts_visible_to_current_tenant": 0,
+    "error": "Artifact sha256:1383ae14485ec1f8858994f86e3c21a93febdd459cd6ac3eb51fb7d335fdedf9 payload is not readable by tenant tenant-b/cell-b for write input:foreign_parent",
+    "refused": true
+  },
+  "missing_required_option": {
+    "artifact_count": 0,
+    "error": "'media_type'",
+    "error_type": "KeyError",
+    "refused": true
+  },
+  "ncm": {
+    "declaration_profile_sha256": null,
+    "declaration_ref": "sha256:0b369879778b91f9e6ba2e91f7f847f20d8103c35fa91a36269cf80a94d9a76b",
+    "lineage_mismatch_control": {
+      "error": "ncm_selected_view_declaration_lineage_mismatch",
+      "refused": true
+    },
+    "ordinary_readback_equal": true,
+    "ordinary_ref": "sha256:187f2b5073f27d71195554700824a15b389c72acc3fba731526e1bd3c1bc4783",
+    "seeded_view_profile_sha256": null,
+    "seeded_view_ref": "sha256:bb03e9bf14428701f41962a33fcd5fd4a3befdc4b308dfd3770783c35a3d4726",
+    "selected_input": {
+      "artifact_id": "sha256:0b369879778b91f9e6ba2e91f7f847f20d8103c35fa91a36269cf80a94d9a76b",
+      "role": "candidate_model_declaration"
+    },
+    "selected_ncm_profile_sha256": "sha256:88bbedf3af9ce7b967dba3f021a57af198144336b024f13e21962dcd61621584",
+    "selected_ncm_ref": "sha256:bb03e9bf14428701f41962a33fcd5fd4a3befdc4b308dfd3770783c35a3d4726",
+    "selected_readback_equal": true
+  },
+  "omitted_optional_option": {
+    "case": "authority omitted from mapping input",
+    "expected_default_none": true,
+    "persisted_authority": null
+  },
+  "ordinary_ir_roundtrip": {
+    "bytes_sha256": "9122e5d5310c7c550b07e763b8c1bcc868a2e368659689db5a0a62a3c7155ab5",
+    "equal": true,
+    "manifest_canon": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": true,
+      "forbid_nan_inf": true,
+      "max_depth": 128,
+      "name": "polisyos.canon.json",
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true,
+      "version": "0.2.0"
+    },
+    "persisted_bytes": "{\"amount\":{\"_type\":\"decimal\",\"value\":\"12.30\"},\"nested\":{\"label\":\"installed-candidate\"}}",
+    "readback": {
+      "amount": {
+        "__type__": "decimal",
+        "value": "12.30"
+      },
+      "nested": {
+        "label": "installed-candidate"
+      }
+    },
+    "ref": "sha256:9122e5d5310c7c550b07e763b8c1bcc868a2e368659689db5a0a62a3c7155ab5"
+  },
+  "probe_id": "runtime-final-v2",
+  "profile_refusals_before_bytes": [
+    {
+      "byte_reads": 0,
+      "case": "missing_profile",
+      "error": "unsupported_ir_canon_profile",
+      "manifest_markers": {
+        "canon": null,
+        "kind": "ir.legacy-json",
+        "schema": {
+          "name": "polisyos.ir.legacy-json",
+          "version": "1.0"
+        }
+      },
+      "refused": true
+    },
+    {
+      "byte_reads": 0,
+      "case": "unsupported_profile_name",
+      "error": "unsupported_ir_canon_profile",
+      "manifest_markers": {
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": true,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.future",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "kind": "test.ir-unsupported-profile",
+        "schema": null
+      },
+      "refused": true
+    },
+    {
+      "byte_reads": 0,
+      "case": "unsupported_profile_version",
+      "error": "unsupported_ir_canon_profile",
+      "manifest_markers": {
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": true,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.3.0"
+        },
+        "kind": "test.ir-unsupported-profile",
+        "schema": null
+      },
+      "refused": true
+    },
+    {
+      "byte_reads": 0,
+      "case": "negative_profile_depth",
+      "error": "unsupported_ir_canon_profile",
+      "manifest_markers": {
+        "canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": true,
+          "forbid_nan_inf": true,
+          "max_depth": -1,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "kind": "test.ir-unsupported-profile",
+        "schema": null
+      },
+      "refused": true
+    }
+  ],
+  "property_removal_control": {
+    "detected": true,
+    "divergent_field": "authority",
+    "error": "write option authority differed after manifest readback: {'authority_envelope_ref': 'envelope://a', 'diagnostic_event_ref': 'event://a', 'manifest_ref': 'manifest://a', 'payload_sha256': 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'} != None",
+    "markers_preserved": true,
+    "stored_manifest_authority": null
+  },
+  "raw_core_bypass": {
+    "byte_reads": 1,
+    "error": "Unknown canonical _type: 'float_hex'",
+    "ir_refused": true,
+    "manifest_canon": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": true,
+      "forbid_nan_inf": true,
+      "max_depth": 128,
+      "name": "polisyos.canon.json",
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true,
+      "version": "0.2.0"
+    },
+    "persisted_by_core": true,
+    "raw_bytes_sha256": "98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106"
+  },
+  "runtime": {
+    "PYTHONPATH": null,
+    "VIRTUAL_ENV": null,
+    "cwd": "/private/tmp",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+    "hnswlib_present": false,
+    "installed_distribution_count": 114,
+    "installed_distributions": [
+      "about-time",
+      "absl-py",
+      "aiohappyeyeballs",
+      "aiohttp",
+      "aiosignal",
+      "alive-progress",
+      "annotated-types",
+      "anyio",
+      "attrs",
+      "autograd",
+      "certifi",
+      "cffi",
+      "charset-normalizer",
+      "chex",
+      "click",
+      "cma",
+      "contourpy",
+      "cryptography",
+      "cycler",
+      "defusedxml",
+      "deprecated",
+      "diffrax",
+      "distro",
+      "duckdb",
+      "equinox",
+      "et-xmlfile",
+      "fonttools",
+      "frozenlist",
+      "googleapis-common-protos",
+      "graphemeu",
+      "grpcio",
+      "h11",
+      "httpcore",
+      "httpx",
+      "idna",
+      "importlib-metadata",
+      "jax",
+      "jaxlib",
+      "jaxtyping",
+      "jiter",
+      "jsonpatch",
+      "jsonpointer",
+      "kiwisolver",
+      "langchain",
+      "langchain-core",
+      "langgraph",
+      "langgraph-checkpoint",
+      "langgraph-prebuilt",
+      "langgraph-sdk",
+      "langsmith",
+      "lineax",
+      "loguru",
+      "matplotlib",
+      "ml-dtypes",
+      "moocore",
+      "multidict",
+      "numpy",
+      "odfpy",
+      "openai",
+      "openpyxl",
+      "opentelemetry-api",
+      "opentelemetry-exporter-otlp-proto-common",
+      "opentelemetry-exporter-otlp-proto-grpc",
+      "opentelemetry-exporter-prometheus",
+      "opentelemetry-proto",
+      "opentelemetry-sdk",
+      "opentelemetry-semantic-conventions",
+      "opt-einsum",
+      "optax",
+      "optimistix",
+      "orjson",
+      "ormsgpack",
+      "packaging",
+      "pandas",
+      "pillow",
+      "platformdirs",
+      "policy-engine",
+      "prometheus-client",
+      "propcache",
+      "protobuf",
+      "pyarrow",
+      "pycparser",
+      "pydantic",
+      "pydantic-core",
+      "pydantic-settings",
+      "pymoo",
+      "pyparsing",
+      "pypdf",
+      "python-dateutil",
+      "python-dotenv",
+      "pytz",
+      "pyyaml",
+      "regex",
+      "requests",
+      "requests-toolbelt",
+      "scipy",
+      "six",
+      "sniffio",
+      "tenacity",
+      "tiktoken",
+      "toolz",
+      "tqdm",
+      "typing-extensions",
+      "typing-inspection",
+      "tzdata",
+      "urllib3",
+      "uuid-utils",
+      "wadler-lindig",
+      "wrapt",
+      "xlrd",
+      "xxhash",
+      "yarl",
+      "zipp",
+      "zstandard"
+    ],
+    "isolated": true,
+    "module_origins": {
+      "polisyos.core.artifacts.ir_adapter": {
+        "archive_source_path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "archive_source_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+        "byte_match": true,
+        "installed_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/ir_adapter.py",
+        "wheel_path": "polisyos/core/artifacts/ir_adapter.py",
+        "wheel_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16"
+      },
+      "polisyos.core.artifacts.store": {
+        "archive_source_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "archive_source_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+        "byte_match": true,
+        "installed_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/store.py",
+        "wheel_path": "polisyos/core/artifacts/store.py",
+        "wheel_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+      },
+      "polisyos.core.artifacts.write_contract": {
+        "archive_source_path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "archive_source_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+        "byte_match": true,
+        "installed_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/write_contract.py",
+        "wheel_path": "polisyos/core/artifacts/write_contract.py",
+        "wheel_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+      },
+      "polisyos.fabric.entity_resolution.models": {
+        "archive_source_path": "policy-engine/src/polisyos/fabric/entity_resolution/models.py",
+        "archive_source_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40",
+        "byte_match": true,
+        "installed_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/fabric/entity_resolution/models.py",
+        "wheel_path": "polisyos/fabric/entity_resolution/models.py",
+        "wheel_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      "polisyos.fabric.entity_resolution.store": {
+        "archive_source_path": "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+        "archive_source_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1",
+        "byte_match": true,
+        "installed_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/fabric/entity_resolution/store.py",
+        "wheel_path": "polisyos/fabric/entity_resolution/store.py",
+        "wheel_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1"
+      },
+      "polisyos.ir.analytics.ncm": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "archive_source_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60",
+        "byte_match": true,
+        "installed_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/analytics/ncm.py",
+        "wheel_path": "polisyos/ir/analytics/ncm.py",
+        "wheel_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60"
+      },
+      "polisyos.ir.artifacts.contracts": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "archive_source_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e",
+        "byte_match": true,
+        "installed_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/artifacts/contracts.py",
+        "wheel_path": "polisyos/ir/artifacts/contracts.py",
+        "wheel_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e"
+      },
+      "polisyos.ir.artifacts.io": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "archive_source_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+        "byte_match": true,
+        "installed_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/artifacts/io.py",
+        "wheel_path": "polisyos/ir/artifacts/io.py",
+        "wheel_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb"
+      },
+      "polisyos.ir.model_layer.canon": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "archive_source_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "byte_match": true,
+        "installed_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/model_layer/canon.py",
+        "wheel_path": "polisyos/ir/model_layer/canon.py",
+        "wheel_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+      },
+      "polisyos.runtime.quality.generation_source": {
+        "archive_source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "archive_source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+        "byte_match": true,
+        "installed_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/runtime/quality/generation_source.py",
+        "wheel_path": "polisyos/runtime/quality/generation_source.py",
+        "wheel_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056"
+      }
+    },
+    "no_bytecode": true,
+    "policy_engine_version": "0.1.0",
+    "pytest_present": false,
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "site_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages",
+    "sys_path_after_imports": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages"
+    ],
+    "sys_path_before": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages"
+    ],
+    "sys_path_unchanged": true
+  },
+  "schema": "policyos.canon.installed_package_probe.v1",
+  "source": {
+    "archive_file_count": 13699,
+    "archive_sha256": "5e3a8250835dae21b2c452f654a8f7bbf6007d50837bddc707d3e9dbc9ff94c5",
+    "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "product_file_count": 13671,
+    "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916"
+  },
+  "wheel": {
+    "bytes": 15020523,
+    "configured_package_source_count": 3449,
+    "file_member_count": 3455,
+    "forced_resource_present_and_byte_identical": true,
+    "forced_resource_source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+    "generated_dist_info_members": [
+      {
+        "bytes": 16142,
+        "path": "policy_engine-0.1.0.dist-info/METADATA",
+        "sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3"
+      },
+      {
+        "bytes": 361464,
+        "path": "policy_engine-0.1.0.dist-info/RECORD",
+        "sha256": "c2ad352f54ee1a0f2eb6ede93647ee075170dc45e1d2f4892bba09eaf317d02d"
+      },
+      {
+        "bytes": 87,
+        "path": "policy_engine-0.1.0.dist-info/WHEEL",
+        "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
+      },
+      {
+        "bytes": 3447,
+        "path": "policy_engine-0.1.0.dist-info/entry_points.txt",
+        "sha256": "610a7cc1b8a6cc73fdb45edc2b79ffa96af538735411fbcf7952c3656ffda835"
+      },
+      {
+        "bytes": 7909,
+        "path": "policy_engine-0.1.0.dist-info/licenses/LICENSE",
+        "sha256": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53"
+      }
+    ],
+    "missing_configured_package_sources": [],
+    "missing_package_readmes": [],
+    "package_readme_in_wheel_count": 167,
+    "package_readme_source_count": 167,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "sha256": "50740ad2a46b7b3aa3e692a7f75c74e9cfc7bf43eeee16c461c196174d3f373b",
+    "source_byte_matches": 3450,
+    "source_byte_mismatches": [],
+    "source_mapped_member_count": 3450,
+    "unmapped_payload_members": []
+  }
+}

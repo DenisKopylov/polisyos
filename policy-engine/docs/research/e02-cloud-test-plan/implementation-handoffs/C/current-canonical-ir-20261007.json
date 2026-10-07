@@ -1,0 +1,291 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "current-canonical-ir-20261007",
+  "closure_ids": [],
+  "bundle_ids": ["CAN-01"],
+  "criterion_ids": ["LA-021"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "criterion_source": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAN-01.md",
+    "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "span": "LA-021, beginning near line 63",
+    "source_entry_commit": "9f84276408fc6b776e35050afece5c4e74ed413d",
+    "source_entry_tree": "c9a5e4620abb8e643f25614a7df600ad499bf0c8",
+    "criterion_input_git_blob_sha1": "af84656cc4cc931cdba82351a8e8e3411539d86e",
+    "profile_task_input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json",
+      "git_blob_sha1": "32cab69568cde50256c2910696b879882d3db024",
+      "byte_equal_at": [
+        "9f84276408fc6b776e35050afece5c4e74ed413d",
+        "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+        "ebae80eaa25482d84bc6ad2e78721bc318bc0228"
+      ]
+    }
+  },
+  "implementation_commits": [
+    "29b65ccb39a519d69f3512d3752784108383e206",
+    "fe8bfb2c8017750e2a4e5edc4c12b2e9cd640990",
+    "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e"
+  ],
+  "history": [
+    {
+      "commit": "29b65ccb39a519d69f3512d3752784108383e206",
+      "tree": "ebf996a924b11be3deddace7727f3527f0701d31",
+      "status": "INTERMEDIATE_HOLD",
+      "reason": "The writer bound persisted canon metadata to its bytes, but ordinary IR reading still used the default decoder depth; a writer-accepted depth-129 artifact was not yet readable by the standard reader."
+    },
+    {
+      "commit": "fe8bfb2c8017750e2a4e5edc4c12b2e9cd640990",
+      "tree": "f624ea8bed3b56a5a312350c282af6fdd0ed521e",
+      "status": "INTERMEDIATE_HOLD",
+      "reason": "The reader used the persisted profile, including max_depth, but missing-profile handling still relied on an unestablished legacy fallback without an owner-supported historical artifact or contract."
+    },
+    {
+      "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+      "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+      "status": "FROZEN_SOURCE",
+      "reason": "The bounded C-owned reader requires a present, complete supported profile. Missing or unsupported profiles refuse before payload reads; no historical discriminator or compatibility promise was invented."
+    }
+  ],
+  "candidate_commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+  "candidate_tree_sha": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+  "branch": "codex/e02-C-canon-20261006",
+  "pull_request": null,
+  "task_input_refresh": {
+    "criterion_base_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "previous_G_task_intake": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "fetched_G": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+    "fetched_G_tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+    "comparison_scopes": {
+      "task_intake_to_fetched_G": "12 storage documentation files, 1,961 insertions",
+      "immediate_fetched_G_commit": {
+        "parent": "2f9c6f6cf9c088676e8aec74b8f5a3090b3fc22f",
+        "changed_files": 2,
+        "insertions": 34
+      }
+    },
+    "five_authoritative_task_inputs_byte_equal_previous": true,
+    "unchanged_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+        "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+        "sha256": "e12da55ecf538f579588cd1b601e39575667ee2ed7d36ac3b5f2cf4133b31ee1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/C.md",
+        "sha256": "3180269559c0803a4a2a999886d8f06106f50ef27cdee5c4def9e5b0570fd3f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+        "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce"
+      }
+    ],
+    "input_refresh_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/input-refresh-ebae.json",
+    "input_refresh_receipt_sha256": "8eb7b9135ff45588215572893826c7c23d31980156a7e13c21a1eb47ba7cfdb5",
+    "scope_note": "These are distinct Git comparisons: the immediate refresh commit changed two documents, while the full intake-to-refresh range contains 12 storage documents. The unchanged five inputs and G documentation delta do not change the CAN criterion base or establish CAN acceptance."
+  },
+  "bounded_verdict": "GO for the C-owned shared IR reader profile requirement and ordinary persisted writer/reader behavior at the frozen source commit; LA-021 remains HELD overall.",
+  "capability_reality": {
+    "bounded_C_reader_property": "Implemented and verified at the shared IR reader/writer seam; external/API/dashboard surface is surface_out_of_scope.",
+    "full_LA_021": "Incomplete because Core-owned profile admission/byte-writer strangle is not established.",
+    "remaining_typed_labels": ["verification_missing", "surface_out_of_scope"]
+  },
+  "finding_disposition": {
+    "la_021": "HELD",
+    "closure_ids": [],
+    "bounded_property": "The ordinary IR reader accepts persisted IR artifacts only when their complete canonical profile is present and supported, and decodes with that persisted profile. The shared writer and the selected C-owned consumers persist bytes/readback under the same profile.",
+    "why_full_finding_remains_held": "The B-owned raw Core put_json path can still persist Core-only float_hex bytes carrying the same canon name/version marker; an IR read then refuses those bytes. No Core-owned cross-seam admission/byte-write contract or complete producer migration has been ratified. No historical profile-less artifact reference or owner-supported compatibility contract was supplied. This C handoff does not change the C54/closure ledger or extend prior bounded acceptance."
+  },
+  "changed_paths_from_slice_base": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-writer-strangle-c2.json",
+    "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+    "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+    "policy-engine/src/polisyos/ir/analytics/ncm.py",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+    "policy-engine/tests/unit/ir/analytics/test_ncm.py"
+  ],
+  "implementation_paths": [
+    "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+    "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+    "policy-engine/src/polisyos/ir/analytics/ncm.py",
+    "policy-engine/src/polisyos/ir/artifacts/README.md",
+    "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+    "policy-engine/src/polisyos/ir/artifacts/io.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+    "policy-engine/tests/unit/ir/analytics/test_ncm.py"
+  ],
+  "delta_statistics_from_slice_base": {
+    "files": 9,
+    "insertions": 880,
+    "deletions": 67,
+    "source_tree_files": 2698
+  },
+  "pattern_pass": {
+    "ids": ["P27", "P28", "P29", "P31", "P35", "P37", "P38", "P40"],
+    "observed_class": "The same canonical-profile split was found at a deeper shared-reader boundary: writer metadata could name an accepted profile whose limits ordinary readers did not honor, followed by an implicit missing-profile fallback without an established historical input.",
+    "target_pattern": "One profile validator at the shared IR read intake: validate exact supported name/version and complete parameters before reading bytes, then use that profile for decoding. Preserve the same central IR writer and test the real persisted reader path with property-removal controls.",
+    "acceptance_signal": "A real persisted artifact written under an accepted profile is read by the ordinary IR reader; max_depth=129 round-trips, an insufficient stored depth refuses, absent/foreign/unsupported/malformed profiles refuse before payload reads, and the B-owned raw Core escape remains explicitly held."
+  },
+  "property": {
+    "statement": "Every C-owned IR JSON write seam in scope uses the shared canonical-byte writer and preserves all typed write options. An ordinary IR read requires a present complete supported profile, validates it against the IR codec contract, and decodes with that persisted profile.",
+    "actual_code": "polisyos.ir.artifacts.io owns the shared writer and reader; CoreToIRArtifactStoreAdapter, NCM selected-view persistence, and both EntityMatchStore writers use the shared IR path. The reader validates profile identity and complete parameters before payload access and uses the persisted max_depth for decode.",
+    "write_options": [
+      "kind",
+      "media_type",
+      "schema",
+      "producer",
+      "env",
+      "inputs",
+      "canon",
+      "governance",
+      "tenant_context",
+      "same_input_closure",
+      "authority",
+      "warnings"
+    ],
+    "p38_divergence": {
+      "property": "An IR consumer uses only a validated supported profile and refuses unsupported/missing profiles before reading payload bytes.",
+      "implementation": "The bounded C-owned IR intake implements that property for ordinary IR reads and uses the persisted supported profile for decode.",
+      "divergent_case": "Direct B-owned Core put_json can persist a float_hex-tagged object with canon name polisyos.canon.json and version 0.2.0; the IR reader reads the payload and refuses Unknown canonical _type: 'float_hex'. This remains a live byte-writer/profile-admission bypass, not a successful full strangle.",
+      "bounded_verdict": "Reader profile property GO; full writer strangle and LA-021 closure remain held for the Core-owned boundary."
+    },
+    "predicate_basis": "recomputed",
+    "predicate_explanation": "The read/write behavior is exercised through imported installed and source implementations, persisted CAS artifacts, and an independently repeated reader test. Persisted canon metadata is codec-ABI input only: it is validated against supported profile parameters but does not establish issuer authority, provenance truth, or permission to create an IR artifact.",
+    "profile": {
+      "supported_name": "polisyos.canon.json",
+      "supported_version": "0.2.0",
+      "parameters_are_complete_and_checked": true,
+      "persisted_max_depth_drives_decode": true,
+      "absent_profile_fallback": false,
+      "historical_profileless_support": "not_established; no actual historical artifact/ref was supplied and the scoped base source/docs scan found no explicit profile-less compatibility promise"
+    }
+  },
+  "caller_census": {
+    "source_tree_sha": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+    "path_denominator": "All tracked policy-engine/src/polisyos/**/*.py files at the frozen source tree.",
+    "file_type_denominator": "2,698 tracked product-source Python files; 0 AST parse errors.",
+    "direct_reader_calls": 133,
+    "modules_with_direct_reader_calls": 72,
+    "method": "Walk git ls-files across the full tracked product-source tree, parse every Python file with ast.parse, and count exact get_json_artifact calls. The inventory is lexical and does not establish runtime call reachability or dynamic dispatch.",
+    "raw_script": {
+      "path": ".tmp/e02-C3/raw/can-reader-profile/consumer_census.py",
+      "sha256": "243232f90e4b7cc055b2abb125a7a41491b044afbf6a6f32664d3d96fd60ee05"
+    },
+    "raw_inventory": {
+      "path": ".tmp/e02-C3/raw/can-reader-profile/consumer-census.json",
+      "sha256": "28b37f97ab3308c5a97f4fb0ffad738623a19fa4cd4c0f83ba1bfb85779680a4",
+      "bytes": 14488
+    },
+    "scoped_historical_promise_scan": {
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/base-owner-promise-scan.command.txt",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/base-owner-promise-scan.output.txt",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interpretation": "No explicit profile-less historical canon read promise was found in the scoped source/docs search; this does not establish absence of external promises or historical artifacts."
+    },
+    "scope_limit": "The census covers local tracked Python syntax only; it does not prove all dynamic/third-party consumers or inspect production CAS contents."
+  },
+  "controls": {
+    "persisted_positive": "A valid FileSystemCAS IR artifact written with the supported persisted profile is read by the ordinary reader. Source tests and the isolated installed-wheel probe both round-trip a depth-129 value when max_depth=129 is persisted.",
+    "too_low_depth": "An artifact persisted with max_depth=128 refuses a 129-deep payload with Canonical JSON recursion depth exceeds max_depth=128.",
+    "profile_negatives": [
+      "Missing profile with legacy-looking kind/schema markers refuses before payload reads.",
+      "Unsupported profile name and version refuse before payload reads.",
+      "Negative depth and malformed/unsupported parameters refuse before payload reads."
+    ],
+    "foreign_reference": "The isolated installed probe rejects a selected input ref not visible to the current tenant/cell and persists no child artifact.",
+    "write_option_removal": "The isolated installed probe removes authority from the typed write-option mapping while retaining markers; readback detects the lost authority field. Missing required media_type also refuses without creating an artifact.",
+    "raw_core_control": "A direct Core put_json control persists float_hex-tagged bytes; the ordinary IR reader then refuses the unknown tag. This control is a reproduced held bypass."
+  },
+  "verification": [
+    {
+      "kind": "author_focused_source_tests",
+      "result": "PASS: 40 passed in 17.68s",
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/author-focused-40.command.txt",
+      "output_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/author-focused-40.output.txt",
+      "output_sha256": "57605fdd2e911128e9615cfee9e70156fcc7ce9a92488578f1de072f831c6a72",
+      "exit_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/author-focused-40.exit"
+    },
+    {
+      "kind": "independent_reader_review",
+      "result": "GO for the bounded reader profile property; reviewer ran 8 tests, 8 passed in 0.20s. Not a full LA-021 closure review.",
+      "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/independent-review.md",
+      "report_sha256": "63a91e1cb91b6cdbfe5dc63943c0a515664f5019c4c08ff80d19b32ab455b2b3",
+      "test_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/independent-reader-tests.output.txt",
+      "test_output_sha256": "2286f17fc0c2574aa92292dff58068d18df421b22b623d3ddf7ec99acf46847e",
+      "test_command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/independent-reader-tests.command.txt"
+    },
+    {
+      "kind": "profile_property_removal_probe",
+      "result": "Five expected failures when runtime profile validation is removed while markers remain; unsupported name/version, negative depth, and malformed profile controls detect the missing property. Missing-profile behavior is also independently red against the prior implementation.",
+      "probe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/profile-removal-probe.py",
+      "probe_source_sha256": "2dbca78213827fee6538c1f1551a481bd8ea5292e8f4c19090c6060cecddfa6e",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/profile-removal-probe.output.txt",
+      "output_sha256": "8fc249585c4c4e7e23abec5d1dce7c80f6339c58406d1c601a9e671278fec005"
+    },
+    {
+      "kind": "prior_missing_profile_reproduction",
+      "result": "The test failed against the pre-fix reader with DID NOT RAISE, demonstrating the missing-profile behavior was previously accepted.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/unprofiled-baseline-red.output.txt",
+      "output_sha256": "e711c53a54d0aadb6a95be5042e84f90b72fefb3f0ecb0df75f79d0d1a7c6d9e"
+    },
+    {
+      "kind": "ruff",
+      "result": "PASS: ruff check and ruff format --check",
+      "check_command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/ruff-check.command.txt",
+      "check_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/ruff-check.output.txt",
+      "check_output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "format_command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/ruff-format.command.txt",
+      "format_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/ruff-format.output.txt",
+      "format_output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "kind": "exact_source_installed_package_probe",
+      "result": "PASS for the bounded installed-package contract probe, not the full test suite: source and wheel/sdist byte census passed; a fresh isolated -I interpreter loaded the exact installed wheel and exercised the standard IR reader, all 12 write options, ArtifactRef CAS round-trip, depth-129 profile, profile refusals, NCM and EntityMatchStore consumers, and the raw Core bypass control.",
+      "source_commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+      "source_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+      "wheel_sha256": "50740ad2a46b7b3aa3e692a7f75c74e9cfc7bf43eeee16c461c196174d3f373b",
+      "sdist_sha256": "2ebf1cafbf25c3b3e9e0bf31da6f47d08c7a92a9f5690460d1641dfcaf878793",
+      "wheel_source_matches": 3450,
+      "wheel_source_mismatches": 0,
+      "sdist_source_matches": 8463,
+      "sdist_source_mismatches": 0,
+      "probe_command_result_sha256": "afc18a6f04c358c8fc69528a4651aeb19d21aff07ed81a1d7d15f3d3b2fd26ae",
+      "probe_command_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-probe-command-result.json",
+      "probe_stdout_sha256": "e75d02b05f8a2ca0f5424e278209b39c1b84784d0be0920012c5f4ded610cb3d",
+      "probe_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-probe-stdout.txt",
+      "runtime_result_sha256": "f75e76b176d74f4898ba9312a5f72b408748a7c26bca48cc5e94f815d0fc41e2",
+      "probe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-probe.py",
+      "probe_spec": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-probe-spec.json",
+      "complete_installed_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-package-receipt.json",
+      "complete_installed_receipt_sha256": "eccec077b805df7e9c9b9bad508618244b9d03d4eac5202158ec1082ef8bdf4a",
+      "runtime_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-ir-c3/installed-runtime-result.json"
+    }
+  ],
+  "owner_contract_proposal": {
+    "owner": "B / Core artifact-store owner",
+    "status": "owner_contract_not_ratified",
+    "requested_contract": "Ratify one typed CAS byte-write seam for caller-supplied canonical bytes; specify the accepted options type and lifecycle fields; guarantee the exact supplied bytes are hashed and persisted without another serializer pass; preserve ArtifactRef/CAS identity and lifecycle semantics; and define the profile admission/read policy for IR-consumed objects. The owner must decide whether the existing canon name/version distinguishes profiles or what explicit discriminator is required. C does not change the Core writer, add a legacy marker, or broaden the decoder.",
+    "held_boundary": "Core direct put_json remains capable of persisting Core-only float_hex bytes that carry a marker indistinguishable by name/version from the IR profile. Source path policy-engine/src/polisyos/core/artifacts/store.py is B-owned and was not edited."
+  },
+  "limitations": [
+    "No actual historical profile-less artifact reference was supplied or inspected; its support is not established, not implicitly accepted.",
+    "The scoped source/docs scan at the slice base found no explicit owner-supported profile-less compatibility promise; this is not proof about external contracts or production data.",
+    "The local static census does not resolve dynamic or third-party call graphs and did not behaviorally execute every one of the 133 syntactic reader callsites.",
+    "The raw Core put_json bypass is demonstrated and remains held for B-owned contract/admission work. No C edit to the Core store or lifecycle was made.",
+    "No API/dashboard surface or schema migration changed. The external surface is surface_out_of_scope for this bounded reader change."
+  ],
+  "receipt_scope_note": "This machine-readable handoff and its compact receipts are navigation and evidence pointers, not logical proof by metadata, not an owner authority decision, and not a new closure or status-ledger update."
+}

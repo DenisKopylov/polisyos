@@ -1,0 +1,24 @@
+{
+  "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-independent-schema-oracle",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+    "runtime-final-v2"
+  ],
+  "cwd": "/tmp",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2",
+  "env": {},
+  "unset_env": [
+    "PYTHONPATH",
+    "VIRTUAL_ENV"
+  ],
+  "record_env": [
+    "PYTHONPATH",
+    "VIRTUAL_ENV",
+    "UV_CACHE_DIR"
+  ],
+  "redact_env": []
+}

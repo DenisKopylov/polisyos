@@ -1,0 +1,1945 @@
+{
+  "archive": {
+    "bytes": 459991040,
+    "complete_source_census": {
+      "command": {
+        "argv": [
+          "/opt/homebrew/bin/python3.14",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-census.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-input-census.json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+        "environment": {
+          "PYTHONPATH": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 0,
+        "finished_unix_ns": 1791363967100940000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-census-command/result.json",
+        "result_sha256": "bcbbe6ccf580884530a6802c4b10472b8cba05abede9844af7580c7f2e1506a5",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-census-spec.json",
+        "spec_sha256": "53f8a7311d95b901485166b503019ab9f425d83c4bc7d2d733590fa382f22561",
+        "started_unix_ns": 1791363963869781000,
+        "stderr": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-census-command/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 1651,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-census-command/stdout.bin",
+          "sha256": "7b441dd8dc0d60a19e75ffe65d2d7544168029d2ab18158bfbcece0254cbc0d3"
+        },
+        "step": "complete-git-archive-source-census"
+      },
+      "file_count": 13699,
+      "generator": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-census.py",
+      "generator_sha256": "d3d8a48ad3961b8afd11155b0419356d1085f56b1d2d3499021d572ca60b9a3a",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source-input-census.json",
+      "product_root_file_count": 13671,
+      "product_suffix_counts": {
+        ".blob": 11,
+        ".cfg": 1,
+        ".cjs": 9,
+        ".css": 17,
+        ".csv": 15,
+        ".cypher": 2,
+        ".docx": 1,
+        ".duckdb": 4,
+        ".example": 3,
+        ".fixture": 2,
+        ".html": 3,
+        ".ini": 11,
+        ".js": 4,
+        ".json": 2954,
+        ".jsonc": 1,
+        ".jsonl": 14,
+        ".lock": 1,
+        ".log": 20,
+        ".md": 2144,
+        ".mdc": 1,
+        ".mjs": 40,
+        ".patch": 2,
+        ".pkl": 2,
+        ".png": 42,
+        ".py": 6437,
+        ".pyi": 5,
+        ".rego": 23,
+        ".reproducible": 1,
+        ".retired": 1,
+        ".sh": 45,
+        ".sha256": 1,
+        ".sql": 6,
+        ".sqlite": 2,
+        ".sqlite-wal": 2,
+        ".svg": 18,
+        ".tf": 1,
+        ".tmpl": 7,
+        ".toml": 263,
+        ".tpl": 1,
+        ".ts": 519,
+        ".tsv": 6,
+        ".tsx": 720,
+        ".txt": 108,
+        ".typed": 2,
+        ".webm": 6,
+        ".whl": 1,
+        ".xml": 20,
+        ".yaml": 85,
+        ".yml": 54,
+        ".zip": 8,
+        "<none>": 25
+      },
+      "sha256": "b15ebacfd3d2ca4aeaae5f90148047c793fd9e08703379eef23ac5518f1fd548",
+      "total_file_bytes": 448706735
+    },
+    "create": {
+      "argv": [
+        "/usr/bin/git",
+        "archive",
+        "--format=tar",
+        "--output",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+        "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "environment": {
+        "GIT_DIR": null,
+        "GIT_WORK_TREE": null,
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791363932898488000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/archive-command/result.json",
+      "result_sha256": "b764f0d37ac8227ba13e9bb78fc55f2a6d6b70b42864d635976cfdf082569937",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/archive-spec.json",
+      "spec_sha256": "a2f574228a25f0c9768c4e715711b68016de1a61ba8f0cceb72db23b84f849d0",
+      "started_unix_ns": 1791363931906046000,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/archive-command/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/archive-command/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "git-archive-exact-frozen-CAN-source"
+    },
+    "extract": {
+      "argv": [
+        "/usr/bin/tar",
+        "-xf",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+      "environment": {
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791363943846488000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/extract-command/result.json",
+      "result_sha256": "e01d5a81aa6e0057bf585029f183077a02675ac531a9567c3d92f45d1a91a9a5",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/extract-spec.json",
+      "spec_sha256": "d55b1ff94d5de7b11a2f970e359531fa15c17407206f1a226b33967bef48c76c",
+      "started_unix_ns": 1791363941910683000,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/extract-command/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/extract-command/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "extract-exact-git-archive-to-private-build-input"
+    },
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+    "sha256": "5e3a8250835dae21b2c452f654a8f7bbf6007d50837bddc707d3e9dbc9ff94c5"
+  },
+  "artifact_census": {
+    "command": {
+      "argv": [
+        "/opt/homebrew/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+      "environment": {
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791364183882199000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected-command/result.json",
+      "result_sha256": "2b22d094b89227e9a441d9039b6b55eb59a1c8335fdaf1da102ef9a5da4b872e",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected-spec.json",
+      "spec_sha256": "d8514b8fb1e80692a834c81e586757c944e0a4a064a0f617c05d937b15224672",
+      "started_unix_ns": 1791364156242032000,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected-command/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 1800,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected-command/stdout.bin",
+        "sha256": "5ffde9cb8c26d396953cdf2e7932af6f3133b7d5e1391b291875192e5f6a7b53"
+      },
+      "step": "corrected-full-wheel-and-sdist-source-byte-census"
+    },
+    "generator": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected.py",
+    "generator_sha256": "3c3ebc3fad6cb4e8c32a0489e526e2e0072a50b2777fc2a631ea22b2e5173f35",
+    "initial_nondeciding_pass": {
+      "classification": "superseded: the first mapper matched broad polisyos/ before the configured forced-resource path; corrected mapping now checks the forced-resource identity first and confirms exact byte equality",
+      "command": {
+        "argv": [
+          "/opt/homebrew/bin/python3.14",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+        "environment": {
+          "PYTHONPATH": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 0,
+        "finished_unix_ns": 1791364098903517000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-command/result.json",
+        "result_sha256": "f7cecc7ce32dfff058be52e0bcf102081a23cf3a64383cf34a629f261dbcbad7",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-spec.json",
+        "spec_sha256": "a71aca994a2650ca3952c6eb17e94ef19995e5e9f69d194296ad6ce656cfc277",
+        "started_unix_ns": 1791364069022153000,
+        "stderr": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-command/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 951591,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-command/stdout.bin",
+          "sha256": "e1d9195752cf65fbaa972852bcdee4826b66ad5b2eb8dd4e7bce3052cdd82dfd"
+        },
+        "step": "complete-wheel-and-sdist-source-byte-census"
+      },
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census.json",
+      "sha256": "fe5a05ca2839dccf2c5eea26b0b2e0fe8ac5ee577db0129bc934865c1a9444fe"
+    },
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/artifact-census-corrected.json",
+    "sha256": "f19705351a72d6f02ebfbe2df8c637a273a2559207989aaf0b41a8145b87c8d7",
+    "summary": {
+      "sdist": {
+        "bytes": 65180960,
+        "excluded_product_suffix_counts": {
+          ".blob": 11,
+          ".cjs": 9,
+          ".css": 15,
+          ".duckdb": 4,
+          ".example": 2,
+          ".fixture": 2,
+          ".html": 2,
+          ".ini": 9,
+          ".js": 4,
+          ".json": 977,
+          ".jsonc": 1,
+          ".jsonl": 2,
+          ".lock": 1,
+          ".md": 65,
+          ".mdc": 1,
+          ".mjs": 38,
+          ".pkl": 2,
+          ".png": 33,
+          ".py": 2525,
+          ".reproducible": 1,
+          ".sh": 3,
+          ".svg": 18,
+          ".toml": 207,
+          ".ts": 507,
+          ".tsx": 720,
+          ".txt": 3,
+          ".whl": 1,
+          ".yaml": 19,
+          ".yml": 14,
+          ".zip": 1,
+          "<none>": 11
+        },
+        "file_member_count": 8464,
+        "forced_resource_present_and_byte_identical": true,
+        "forced_resource_source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+        "generated_members": [
+          {
+            "bytes": 16142,
+            "path": "policy_engine-0.1.0/PKG-INFO",
+            "sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3"
+          }
+        ],
+        "missing_product_readmes": [],
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0.tar.gz",
+        "product_readme_in_sdist_count": 425,
+        "product_readme_source_count": 425,
+        "product_source_count": 13671,
+        "product_sources_excluded": 5208,
+        "sha256": "2ebf1cafbf25c3b3e9e0bf31da6f47d08c7a92a9f5690460d1641dfcaf878793",
+        "source_byte_matches": 8463,
+        "source_byte_mismatches": [],
+        "source_mapped_member_count": 8463
+      },
+      "source": {
+        "archive_file_count": 13699,
+        "archive_sha256": "5e3a8250835dae21b2c452f654a8f7bbf6007d50837bddc707d3e9dbc9ff94c5",
+        "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+        "product_file_count": 13671,
+        "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916"
+      },
+      "wheel": {
+        "bytes": 15020523,
+        "configured_package_source_count": 3449,
+        "file_member_count": 3455,
+        "forced_resource_present_and_byte_identical": true,
+        "forced_resource_source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+        "generated_dist_info_members": [
+          {
+            "bytes": 16142,
+            "path": "policy_engine-0.1.0.dist-info/METADATA",
+            "sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3"
+          },
+          {
+            "bytes": 361464,
+            "path": "policy_engine-0.1.0.dist-info/RECORD",
+            "sha256": "c2ad352f54ee1a0f2eb6ede93647ee075170dc45e1d2f4892bba09eaf317d02d"
+          },
+          {
+            "bytes": 87,
+            "path": "policy_engine-0.1.0.dist-info/WHEEL",
+            "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
+          },
+          {
+            "bytes": 3447,
+            "path": "policy_engine-0.1.0.dist-info/entry_points.txt",
+            "sha256": "610a7cc1b8a6cc73fdb45edc2b79ffa96af538735411fbcf7952c3656ffda835"
+          },
+          {
+            "bytes": 7909,
+            "path": "policy_engine-0.1.0.dist-info/licenses/LICENSE",
+            "sha256": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53"
+          }
+        ],
+        "missing_configured_package_sources": [],
+        "missing_package_readmes": [],
+        "package_readme_in_wheel_count": 167,
+        "package_readme_source_count": 167,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "sha256": "50740ad2a46b7b3aa3e692a7f75c74e9cfc7bf43eeee16c461c196174d3f373b",
+        "source_byte_matches": 3450,
+        "source_byte_mismatches": [],
+        "source_mapped_member_count": 3450,
+        "unmapped_payload_members": []
+      }
+    }
+  },
+  "build": {
+    "command": {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--offline",
+        "--python",
+        "/opt/homebrew/bin/python3.14",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source/policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_DEFAULT_INDEX": null,
+        "UV_INDEX_URL": null,
+        "UV_OFFLINE": "1",
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791364003877691000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/build-offline/result.json",
+      "result_sha256": "076ec6b54180501982d3b17040e4b9a368d03f195929d1c918c699b6a2b3683a",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/build-spec.json",
+      "spec_sha256": "35d1c2932d663eb3cfc0d6d3bb0bb0174b507395d9ebcd0a19bfaeee666f425e",
+      "started_unix_ns": 1791363985735138000,
+      "stderr": {
+        "bytes": 187,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/build-offline/stderr.bin",
+        "sha256": "4ecdd91339a0826286406285e70135f006c8c029bc36bbb4087c7a11a94392f2"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/build-offline/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "build-one-canonical-wheel-and-sdist-from-exact-archive-offline"
+    },
+    "offline": true,
+    "python": "/opt/homebrew/bin/python3.14",
+    "sdist": {
+      "bytes": 65180960,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "2ebf1cafbf25c3b3e9e0bf31da6f47d08c7a92a9f5690460d1641dfcaf878793"
+    },
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source",
+    "source_was_extracted_git_archive": true,
+    "stderr_success_message_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/build-offline/stderr.bin",
+    "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/build-offline/stdout.bin",
+    "uv": "/opt/homebrew/bin/uv",
+    "wheel": {
+      "bytes": 15020523,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "50740ad2a46b7b3aa3e692a7f75c74e9cfc7bf43eeee16c461c196174d3f373b"
+    }
+  },
+  "environment": {
+    "base_sync": {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "sync",
+        "--offline",
+        "--frozen",
+        "--no-dev",
+        "--no-install-project",
+        "--python",
+        "/opt/homebrew/bin/python3.14"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source/policy-engine",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_DEFAULT_INDEX": null,
+        "UV_INDEX_URL": null,
+        "UV_OFFLINE": "1",
+        "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791364298262135000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/base-sync/result.json",
+      "result_sha256": "ab491870ce1ebc054d49b7b85a726c1d62c03118a937b3b35e50e0372628f271",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/base-sync-spec.json",
+      "spec_sha256": "e7b3261e6dc6416ffacbb5b686efa48d31bd304654457acb812cec519071c1a1",
+      "started_unix_ns": 1791364297801312000,
+      "stderr": {
+        "bytes": 2913,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/base-sync/stderr.bin",
+        "sha256": "a2d6fa1262c21d98e7f2b2b6a9b35580aafd42edf6bf56b2945d4cc80c28497d"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/base-sync/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "fresh-offline-frozen-base-only-dependency-sync-from-exact-candidate-archive"
+    },
+    "hnswlib_present": false,
+    "kind": "fresh isolated base-only profile from exact archive pyproject/uv.lock",
+    "pytest_present": false,
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "runtime_distribution_count": 114,
+    "venv": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+    "wheel_install": {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_DEFAULT_INDEX": null,
+        "UV_INDEX_URL": null,
+        "UV_OFFLINE": "1",
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791364308902522000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/wheel-install/result.json",
+      "result_sha256": "14c448c76d6a704ea65ca4fac04d0116a3b1d128cbef54318c8f5a206ead1970",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/wheel-install-spec.json",
+      "spec_sha256": "e3badaa19c67fa32c13de591f78d2bffffbbc61f7f865422de0bf73a592e85ba",
+      "started_unix_ns": 1791364308420198000,
+      "stderr": {
+        "bytes": 438,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/wheel-install/stderr.bin",
+        "sha256": "bff2d5851e781ad0a446e40898bd4e5b1ac4811893fbf66418c4418ee2dc64b7"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/wheel-install/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "install-exact-wheel-into-private-base-env-with-normal-dependency-resolution"
+    },
+    "wheel_install_mode": "normal dependency resolution enabled; no --no-deps; offline cache"
+  },
+  "installed_probe": {
+    "PYTHONPATH": null,
+    "all_preserved_probe_attempts": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "classification": "harness ownership-scope error: child byte read after tenant_scope exited",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364637053102000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe/result.json",
+        "result_sha256": "c93364452195efcae3f48b84bb6d6292ddaaeaed4be7842be678461284c3211d",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-spec.json",
+        "spec_sha256": "fa430a1b9b2c101a0680935f72d6cc7f01ce9ad9529411a57e52968ca95de3af",
+        "started_unix_ns": 1791364603112136000,
+        "stderr": {
+          "bytes": 1790,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe/stderr.bin",
+          "sha256": "13e53b47cefabebffd9b9b861cccb26e5dbc5cc9f336a1ec1d2d546fa8cdb9b7"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "classification": "harness CAS dedupe/profile setup: depth mismatch reused the positive payload store",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364667297596000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v2/result.json",
+        "result_sha256": "3f9b996faa0377c65a7e67d82407b7df8463db46125bcccd17a9b9a0d0949912",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v2-spec.json",
+        "spec_sha256": "44b3848c95cebafb5dd7c64bdc3714b1fbfa46086de9536c5a92147b0f703613",
+        "started_unix_ns": 1791364653552150000,
+        "stderr": {
+          "bytes": 361,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v2/stderr.bin",
+          "sha256": "d13f928e855f3a376fbec0956b7e2699c6b96a10015b2f0adf7d73d0a0ad390d"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v2/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-corrected-owner-context"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "classification": "harness selected-view setup: first actual selected ref was also the default view",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364697218226000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v3/result.json",
+        "result_sha256": "8c4cb35156a2261525822c5ae0044e3420b9b7ce5d4eb4a2ef3761abaf3b5243",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v3-spec.json",
+        "spec_sha256": "510c6d150921f0fa10ee9e214155d1b8590607f3cee57335adff707cca8ea965",
+        "started_unix_ns": 1791364683910734000,
+        "stderr": {
+          "bytes": 338,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v3/stderr.bin",
+          "sha256": "94494165b073100e12e2d142e3b7e9725589555525fa5d93166094cd23932a70"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v3/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-corrected-separate-manifest-store"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "classification": "same NCM profile setup control before preexisting-view fix; no product claim",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364721879609000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v4/result.json",
+        "result_sha256": "0adb46dd56803a5395413ff971e78f610a49147f8585c440467f785c4624c8b6",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v4-spec.json",
+        "spec_sha256": "c09b18ed0845722373c70655cf6541549ebda50b79ecb5740632c99a8ff7f381",
+        "started_unix_ns": 1791364707961754000,
+        "stderr": {
+          "bytes": 338,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v4/stderr.bin",
+          "sha256": "64a4a6b8b71fdea416fe7639c565812916bb944070890bfbdadc1eaf866cbfad"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v4/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-corrected-runtime-tenant-scope"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "classification": "harness assumption incorrect: seed-view selector may itself be non-null",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364764239210000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v5/result.json",
+        "result_sha256": "d1c5a5f4c82d3e2854a1933f26dc09670d35f6def72d86c9bf7a3c196d1ab7d6",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v5-spec.json",
+        "spec_sha256": "3571470408bcd1c29cb7eaccacfde10c22672e1585a51c3ae77565c59b49393f",
+        "started_unix_ns": 1791364748773473000,
+        "stderr": {
+          "bytes": 338,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v5/stderr.bin",
+          "sha256": "f45ec1e6a05632fc042903d8575742b913ab06f5dfe437b31bddb6f00c35b86f"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v5/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-corrected-real-selected-view-pair"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a"
+        ],
+        "classification": "harness reused previous CAS path, whose initial selected view was already default",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364794264392000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v6/result.json",
+        "result_sha256": "4d7410c6e40eef86c653a7e778d1ed80f11341e99283917fad8a7d48b5325bfd",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v6-spec.json",
+        "spec_sha256": "b545610d51cd43c90d4342d2fc7d2114ae6ae15fa24831b0bce5419f732d73e0",
+        "started_unix_ns": 1791364780559956000,
+        "stderr": {
+          "bytes": 338,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v6/stderr.bin",
+          "sha256": "8208fde13e8929c63aa52e81572f8e286ae7b4a34e0e9ff68f6ea25e01c8ae0b"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v6/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-corrected-selected-view-observation"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+          "runtime-v7"
+        ],
+        "classification": "all semantic assertions completed; receipt serializer lacked Decimal normalization",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 1,
+        "finished_unix_ns": 1791364845299201000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v7/result.json",
+        "result_sha256": "02970ca5a84e9f2518256abd09572c46b2d522ac437549815340aae769bacb84",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v7-spec.json",
+        "spec_sha256": "9b9ee3e117267ab3441de353c003ab8120d600bbdd0e0d853afa68c1cb3df23e",
+        "started_unix_ns": 1791364829896762000,
+        "stderr": {
+          "bytes": 1334,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v7/stderr.bin",
+          "sha256": "83e790d05c10975b893ffa54f24b9314c791a3681ad879fa9b6c4211b4762ae3"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-v7/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-clean-profile-store"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+          "runtime-final"
+        ],
+        "classification": "all semantic assertions passed on isolated unique roots; superseded by independent option oracle",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 0,
+        "finished_unix_ns": 1791364871002673000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final/result.json",
+        "result_sha256": "319239a20b76b9b2ef3e561754596dce8875a11b789a3f4ee5749646e8f00f07",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-spec.json",
+        "spec_sha256": "4aa2cf8cfcca1b7b56ea8458e4bc9da985d772087cd7b06fa33ad8e174b31ace",
+        "started_unix_ns": 1791364857130376000,
+        "stderr": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 825,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final/stdout.bin",
+          "sha256": "21cd32b38af53aa2420a0b52b3205aebb20f11b63c552941f599677097bf9d80"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-final"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+          "runtime-final-v2"
+        ],
+        "classification": "deciding independent-schema installed probe",
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 0,
+        "finished_unix_ns": 1791364939280619000,
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2/result.json",
+        "result_sha256": "afc18a6f04c358c8fc69528a4651aeb19d21aff07ed81a1d7d15f3d3b2fd26ae",
+        "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2-spec.json",
+        "spec_sha256": "b41d2a208f6f731e1e64b07da123abb80ee45fc0bf81d66a181977798b99e558",
+        "started_unix_ns": 1791364925838825000,
+        "stderr": {
+          "bytes": 0,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 828,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2/stdout.bin",
+          "sha256": "e75d02b05f8a2ca0f5424e278209b39c1b84784d0be0920012c5f4ded610cb3d"
+        },
+        "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-independent-schema-oracle"
+      }
+    ],
+    "all_write_options_match_manifest": true,
+    "command": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a",
+        "runtime-final-v2"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_unix_ns": 1791364939280619000,
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2/result.json",
+      "result_sha256": "afc18a6f04c358c8fc69528a4651aeb19d21aff07ed81a1d7d15f3d3b2fd26ae",
+      "spec_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2-spec.json",
+      "spec_sha256": "b41d2a208f6f731e1e64b07da123abb80ee45fc0bf81d66a181977798b99e558",
+      "started_unix_ns": 1791364925838825000,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 828,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2/stdout.bin",
+        "sha256": "e75d02b05f8a2ca0f5424e278209b39c1b84784d0be0920012c5f4ded610cb3d"
+      },
+      "step": "python-I-installed-CAN-CAS-and-IR-consumer-probe-independent-schema-oracle"
+    },
+    "depth_profile": {
+      "mismatch_negative": {
+        "error": "Canonical JSON recursion depth exceeds max_depth=128",
+        "refused": true,
+        "stored_profile_max_depth": 128
+      },
+      "persisted_depth": 129,
+      "positive_readback": true,
+      "requested_depth": 129
+    },
+    "entity_match_consumers": {
+      "audit_rows": 1,
+      "candidate_count": 1,
+      "candidate_id": "installed-match-1",
+      "candidate_profile": {
+        "ensure_ascii": false,
+        "exclude_none": true,
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "max_depth": 128,
+        "name": "polisyos.canon.json",
+        "separators": [
+          ",",
+          ":"
+        ],
+        "sort_keys": true,
+        "version": "0.2.0"
+      },
+      "candidate_ref": "sha256:7e030ba836d10d19d99977dab6acc26ed20c1f83aab7e1a7b1db1b8c6ab32fd2",
+      "override_actor": "operator-1",
+      "override_ref": "sha256:cfd6b4a82e761168d983d899b30ef844e950c6d6021119c6586eafc85c4b658d",
+      "override_status": "rejected"
+    },
+    "foreign_selected_input": {
+      "child_artifacts_visible_to_current_tenant": 0,
+      "error": "Artifact sha256:1383ae14485ec1f8858994f86e3c21a93febdd459cd6ac3eb51fb7d335fdedf9 payload is not readable by tenant tenant-b/cell-b for write input:foreign_parent",
+      "refused": true
+    },
+    "isolated": true,
+    "isolated_cwd": "/private/tmp",
+    "module_origins_and_source_hashes": {
+      "polisyos.core.artifacts.ir_adapter": {
+        "archive_source_path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "archive_source_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+        "byte_match": true,
+        "installed_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/ir_adapter.py",
+        "wheel_path": "polisyos/core/artifacts/ir_adapter.py",
+        "wheel_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16"
+      },
+      "polisyos.core.artifacts.store": {
+        "archive_source_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "archive_source_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+        "byte_match": true,
+        "installed_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/store.py",
+        "wheel_path": "polisyos/core/artifacts/store.py",
+        "wheel_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+      },
+      "polisyos.core.artifacts.write_contract": {
+        "archive_source_path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "archive_source_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+        "byte_match": true,
+        "installed_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/write_contract.py",
+        "wheel_path": "polisyos/core/artifacts/write_contract.py",
+        "wheel_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+      },
+      "polisyos.fabric.entity_resolution.models": {
+        "archive_source_path": "policy-engine/src/polisyos/fabric/entity_resolution/models.py",
+        "archive_source_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40",
+        "byte_match": true,
+        "installed_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/fabric/entity_resolution/models.py",
+        "wheel_path": "polisyos/fabric/entity_resolution/models.py",
+        "wheel_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+      },
+      "polisyos.fabric.entity_resolution.store": {
+        "archive_source_path": "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+        "archive_source_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1",
+        "byte_match": true,
+        "installed_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/fabric/entity_resolution/store.py",
+        "wheel_path": "polisyos/fabric/entity_resolution/store.py",
+        "wheel_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1"
+      },
+      "polisyos.ir.analytics.ncm": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "archive_source_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60",
+        "byte_match": true,
+        "installed_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/analytics/ncm.py",
+        "wheel_path": "polisyos/ir/analytics/ncm.py",
+        "wheel_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60"
+      },
+      "polisyos.ir.artifacts.contracts": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "archive_source_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e",
+        "byte_match": true,
+        "installed_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/artifacts/contracts.py",
+        "wheel_path": "polisyos/ir/artifacts/contracts.py",
+        "wheel_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e"
+      },
+      "polisyos.ir.artifacts.io": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "archive_source_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+        "byte_match": true,
+        "installed_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/artifacts/io.py",
+        "wheel_path": "polisyos/ir/artifacts/io.py",
+        "wheel_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb"
+      },
+      "polisyos.ir.model_layer.canon": {
+        "archive_source_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "archive_source_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "byte_match": true,
+        "installed_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/model_layer/canon.py",
+        "wheel_path": "polisyos/ir/model_layer/canon.py",
+        "wheel_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+      },
+      "polisyos.runtime.quality.generation_source": {
+        "archive_source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "archive_source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+        "byte_match": true,
+        "installed_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/runtime/quality/generation_source.py",
+        "wheel_path": "polisyos/runtime/quality/generation_source.py",
+        "wheel_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056"
+      }
+    },
+    "ncm_consumers": {
+      "declaration_profile_sha256": null,
+      "declaration_ref": "sha256:0b369879778b91f9e6ba2e91f7f847f20d8103c35fa91a36269cf80a94d9a76b",
+      "lineage_mismatch_control": {
+        "error": "ncm_selected_view_declaration_lineage_mismatch",
+        "refused": true
+      },
+      "ordinary_readback_equal": true,
+      "ordinary_ref": "sha256:187f2b5073f27d71195554700824a15b389c72acc3fba731526e1bd3c1bc4783",
+      "seeded_view_profile_sha256": null,
+      "seeded_view_ref": "sha256:bb03e9bf14428701f41962a33fcd5fd4a3befdc4b308dfd3770783c35a3d4726",
+      "selected_input": {
+        "artifact_id": "sha256:0b369879778b91f9e6ba2e91f7f847f20d8103c35fa91a36269cf80a94d9a76b",
+        "role": "candidate_model_declaration"
+      },
+      "selected_ncm_profile_sha256": "sha256:88bbedf3af9ce7b967dba3f021a57af198144336b024f13e21962dcd61621584",
+      "selected_ncm_ref": "sha256:bb03e9bf14428701f41962a33fcd5fd4a3befdc4b308dfd3770783c35a3d4726",
+      "selected_readback_equal": true
+    },
+    "optional_option_omission": {
+      "case": "authority omitted from mapping input",
+      "expected_default_none": true,
+      "persisted_authority": null
+    },
+    "ordinary_ir_roundtrip": {
+      "bytes_sha256": "9122e5d5310c7c550b07e763b8c1bcc868a2e368659689db5a0a62a3c7155ab5",
+      "equal": true,
+      "manifest_canon": {
+        "ensure_ascii": false,
+        "exclude_none": true,
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "max_depth": 128,
+        "name": "polisyos.canon.json",
+        "separators": [
+          ",",
+          ":"
+        ],
+        "sort_keys": true,
+        "version": "0.2.0"
+      },
+      "persisted_bytes": "{\"amount\":{\"_type\":\"decimal\",\"value\":\"12.30\"},\"nested\":{\"label\":\"installed-candidate\"}}",
+      "readback": {
+        "amount": {
+          "__type__": "decimal",
+          "value": "12.30"
+        },
+        "nested": {
+          "label": "installed-candidate"
+        }
+      },
+      "ref": "sha256:9122e5d5310c7c550b07e763b8c1bcc868a2e368659689db5a0a62a3c7155ab5"
+    },
+    "profile_refusals_before_bytes": [
+      {
+        "byte_reads": 0,
+        "case": "missing_profile",
+        "error": "unsupported_ir_canon_profile",
+        "manifest_markers": {
+          "canon": null,
+          "kind": "ir.legacy-json",
+          "schema": {
+            "name": "polisyos.ir.legacy-json",
+            "version": "1.0"
+          }
+        },
+        "refused": true
+      },
+      {
+        "byte_reads": 0,
+        "case": "unsupported_profile_name",
+        "error": "unsupported_ir_canon_profile",
+        "manifest_markers": {
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.future",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "kind": "test.ir-unsupported-profile",
+          "schema": null
+        },
+        "refused": true
+      },
+      {
+        "byte_reads": 0,
+        "case": "unsupported_profile_version",
+        "error": "unsupported_ir_canon_profile",
+        "manifest_markers": {
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.3.0"
+          },
+          "kind": "test.ir-unsupported-profile",
+          "schema": null
+        },
+        "refused": true
+      },
+      {
+        "byte_reads": 0,
+        "case": "negative_profile_depth",
+        "error": "unsupported_ir_canon_profile",
+        "manifest_markers": {
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": true,
+            "forbid_nan_inf": true,
+            "max_depth": -1,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "kind": "test.ir-unsupported-profile",
+          "schema": null
+        },
+        "refused": true
+      }
+    ],
+    "property_removal_control": {
+      "detected": true,
+      "divergent_field": "authority",
+      "error": "write option authority differed after manifest readback: {'authority_envelope_ref': 'envelope://a', 'diagnostic_event_ref': 'event://a', 'manifest_ref': 'manifest://a', 'payload_sha256': 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'} != None",
+      "markers_preserved": true,
+      "stored_manifest_authority": null
+    },
+    "raw_core_bypass": {
+      "byte_reads": 1,
+      "error": "Unknown canonical _type: 'float_hex'",
+      "ir_refused": true,
+      "manifest_canon": {
+        "ensure_ascii": false,
+        "exclude_none": true,
+        "forbid_floats": true,
+        "forbid_nan_inf": true,
+        "max_depth": 128,
+        "name": "polisyos.canon.json",
+        "separators": [
+          ",",
+          ":"
+        ],
+        "sort_keys": true,
+        "version": "0.2.0"
+      },
+      "persisted_by_core": true,
+      "raw_bytes_sha256": "98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106"
+    },
+    "required_option_removal": {
+      "artifact_count": 0,
+      "error": "'media_type'",
+      "error_type": "KeyError",
+      "refused": true
+    },
+    "result": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/runtime-final-v2-result.json",
+    "result_sha256": "f75e76b176d74f4898ba9312a5f72b408748a7c26bca48cc5e94f815d0fc41e2",
+    "result_stdout": {
+      "all_write_options": {
+        "all_twelve_fields_match_typed_core_manifest": true,
+        "child_bytes": "{\"value\":1}",
+        "child_bytes_sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+        "child_manifest": {
+          "artifact_id": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+          "artifact_schema": {
+            "name": "test.ir-adapter.options",
+            "version": "1.0"
+          },
+          "authority": {
+            "authority_envelope_ref": "envelope://a",
+            "diagnostic_event_ref": "event://a",
+            "manifest_ref": "manifest://a",
+            "payload_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "byte_size": 11,
+          "canon": {
+            "ensure_ascii": false,
+            "exclude_none": true,
+            "forbid_floats": false,
+            "forbid_nan_inf": true,
+            "max_depth": 128,
+            "name": "polisyos.canon.json",
+            "separators": [
+              ",",
+              ":"
+            ],
+            "sort_keys": true,
+            "version": "0.2.0"
+          },
+          "created_at": "2026-10-07T09:22:17Z",
+          "env": {
+            "deps_lock_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "platform": "test",
+            "python": "3.14"
+          },
+          "governance": {
+            "classification": "internal",
+            "column_classification": {},
+            "encryption": null,
+            "retention": null
+          },
+          "inputs": [
+            {
+              "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+              "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+              "role": "selected_parent"
+            }
+          ],
+          "integrity": {
+            "optional": null,
+            "sha256": "48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6"
+          },
+          "kind": "test.ir-adapter.options",
+          "manifest_schema_version": "v3",
+          "media_type": "application/json",
+          "producer": {
+            "component": "test-suite",
+            "git": null,
+            "version": "1.0"
+          },
+          "same_input_closure": {
+            "cell_id": "cell-a",
+            "closure_id": "closure-a",
+            "closure_sha256": null,
+            "evidence_input_refs": [
+              "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86"
+            ],
+            "job_id": "job-a",
+            "run_id": "run-a",
+            "status": "candidate_only",
+            "tenant_id": "tenant-a"
+          },
+          "tenant_context": {
+            "cell_id": "cell-a",
+            "tenant_id": "tenant-a"
+          },
+          "warnings": [
+            {
+              "code": "retained",
+              "data": null,
+              "msg": "keep this warning"
+            }
+          ]
+        },
+        "child_ref": "sha256:48208f9428d64634bd8e28ff345bf0eab60d53c18fa2fbdb0b9bc1e84df2b5f6",
+        "comparisons": [
+          {
+            "field": "kind",
+            "matches_manifest": true,
+            "value": "test.ir-adapter.options"
+          },
+          {
+            "field": "media_type",
+            "matches_manifest": true,
+            "value": "application/json"
+          },
+          {
+            "field": "schema",
+            "matches_manifest": true,
+            "value": {
+              "name": "test.ir-adapter.options",
+              "version": "1.0"
+            }
+          },
+          {
+            "field": "producer",
+            "matches_manifest": true,
+            "value": {
+              "component": "test-suite",
+              "git": null,
+              "version": "1.0"
+            }
+          },
+          {
+            "field": "env",
+            "matches_manifest": true,
+            "value": {
+              "deps_lock_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "platform": "test",
+              "python": "3.14"
+            }
+          },
+          {
+            "field": "inputs",
+            "matches_manifest": true,
+            "value": [
+              {
+                "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+                "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+                "role": "selected_parent"
+              }
+            ]
+          },
+          {
+            "field": "canon",
+            "matches_manifest": true,
+            "value": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            }
+          },
+          {
+            "field": "governance",
+            "matches_manifest": true,
+            "value": {
+              "classification": "internal",
+              "column_classification": {},
+              "encryption": null,
+              "retention": null
+            }
+          },
+          {
+            "field": "tenant_context",
+            "matches_manifest": true,
+            "value": {
+              "cell_id": "cell-a",
+              "tenant_id": "tenant-a"
+            }
+          },
+          {
+            "field": "same_input_closure",
+            "matches_manifest": true,
+            "value": {
+              "cell_id": "cell-a",
+              "closure_id": "closure-a",
+              "closure_sha256": null,
+              "evidence_input_refs": [
+                "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86"
+              ],
+              "job_id": "job-a",
+              "run_id": "run-a",
+              "status": "candidate_only",
+              "tenant_id": "tenant-a"
+            }
+          },
+          {
+            "field": "authority",
+            "matches_manifest": true,
+            "value": {
+              "authority_envelope_ref": "envelope://a",
+              "diagnostic_event_ref": "event://a",
+              "manifest_ref": "manifest://a",
+              "payload_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          },
+          {
+            "field": "warnings",
+            "matches_manifest": true,
+            "value": [
+              {
+                "code": "retained",
+                "data": null,
+                "msg": "keep this warning"
+              }
+            ]
+          }
+        ],
+        "core_field_names": [
+          "kind",
+          "media_type",
+          "schema",
+          "producer",
+          "env",
+          "inputs",
+          "canon",
+          "governance",
+          "tenant_context",
+          "same_input_closure",
+          "authority",
+          "warnings"
+        ],
+        "count": 12,
+        "schema_field_names": [
+          "kind",
+          "media_type",
+          "schema",
+          "producer",
+          "env",
+          "inputs",
+          "canon",
+          "governance",
+          "tenant_context",
+          "same_input_closure",
+          "authority",
+          "warnings"
+        ],
+        "selected_input_ref": {
+          "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+          "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+          "role": "selected_parent"
+        }
+      },
+      "depth_profile": {
+        "mismatch_negative": {
+          "error": "Canonical JSON recursion depth exceeds max_depth=128",
+          "refused": true,
+          "stored_profile_max_depth": 128
+        },
+        "persisted_depth": 129,
+        "positive_readback": true,
+        "requested_depth": 129
+      },
+      "entity_match": {
+        "audit_rows": 1,
+        "candidate_count": 1,
+        "candidate_id": "installed-match-1",
+        "candidate_profile": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "candidate_ref": "sha256:7e030ba836d10d19d99977dab6acc26ed20c1f83aab7e1a7b1db1b8c6ab32fd2",
+        "override_actor": "operator-1",
+        "override_ref": "sha256:cfd6b4a82e761168d983d899b30ef844e950c6d6021119c6586eafc85c4b658d",
+        "override_status": "rejected"
+      },
+      "foreign_selected_input": {
+        "child_artifacts_visible_to_current_tenant": 0,
+        "error": "Artifact sha256:1383ae14485ec1f8858994f86e3c21a93febdd459cd6ac3eb51fb7d335fdedf9 payload is not readable by tenant tenant-b/cell-b for write input:foreign_parent",
+        "refused": true
+      },
+      "missing_required_option": {
+        "artifact_count": 0,
+        "error": "'media_type'",
+        "error_type": "KeyError",
+        "refused": true
+      },
+      "ncm": {
+        "declaration_profile_sha256": null,
+        "declaration_ref": "sha256:0b369879778b91f9e6ba2e91f7f847f20d8103c35fa91a36269cf80a94d9a76b",
+        "lineage_mismatch_control": {
+          "error": "ncm_selected_view_declaration_lineage_mismatch",
+          "refused": true
+        },
+        "ordinary_readback_equal": true,
+        "ordinary_ref": "sha256:187f2b5073f27d71195554700824a15b389c72acc3fba731526e1bd3c1bc4783",
+        "seeded_view_profile_sha256": null,
+        "seeded_view_ref": "sha256:bb03e9bf14428701f41962a33fcd5fd4a3befdc4b308dfd3770783c35a3d4726",
+        "selected_input": {
+          "artifact_id": "sha256:0b369879778b91f9e6ba2e91f7f847f20d8103c35fa91a36269cf80a94d9a76b",
+          "role": "candidate_model_declaration"
+        },
+        "selected_ncm_profile_sha256": "sha256:88bbedf3af9ce7b967dba3f021a57af198144336b024f13e21962dcd61621584",
+        "selected_ncm_ref": "sha256:bb03e9bf14428701f41962a33fcd5fd4a3befdc4b308dfd3770783c35a3d4726",
+        "selected_readback_equal": true
+      },
+      "omitted_optional_option": {
+        "case": "authority omitted from mapping input",
+        "expected_default_none": true,
+        "persisted_authority": null
+      },
+      "ordinary_ir_roundtrip": {
+        "bytes_sha256": "9122e5d5310c7c550b07e763b8c1bcc868a2e368659689db5a0a62a3c7155ab5",
+        "equal": true,
+        "manifest_canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": true,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "persisted_bytes": "{\"amount\":{\"_type\":\"decimal\",\"value\":\"12.30\"},\"nested\":{\"label\":\"installed-candidate\"}}",
+        "readback": {
+          "amount": {
+            "__type__": "decimal",
+            "value": "12.30"
+          },
+          "nested": {
+            "label": "installed-candidate"
+          }
+        },
+        "ref": "sha256:9122e5d5310c7c550b07e763b8c1bcc868a2e368659689db5a0a62a3c7155ab5"
+      },
+      "probe_id": "runtime-final-v2",
+      "profile_refusals_before_bytes": [
+        {
+          "byte_reads": 0,
+          "case": "missing_profile",
+          "error": "unsupported_ir_canon_profile",
+          "manifest_markers": {
+            "canon": null,
+            "kind": "ir.legacy-json",
+            "schema": {
+              "name": "polisyos.ir.legacy-json",
+              "version": "1.0"
+            }
+          },
+          "refused": true
+        },
+        {
+          "byte_reads": 0,
+          "case": "unsupported_profile_name",
+          "error": "unsupported_ir_canon_profile",
+          "manifest_markers": {
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": true,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.future",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "kind": "test.ir-unsupported-profile",
+            "schema": null
+          },
+          "refused": true
+        },
+        {
+          "byte_reads": 0,
+          "case": "unsupported_profile_version",
+          "error": "unsupported_ir_canon_profile",
+          "manifest_markers": {
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": true,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.3.0"
+            },
+            "kind": "test.ir-unsupported-profile",
+            "schema": null
+          },
+          "refused": true
+        },
+        {
+          "byte_reads": 0,
+          "case": "negative_profile_depth",
+          "error": "unsupported_ir_canon_profile",
+          "manifest_markers": {
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": true,
+              "forbid_nan_inf": true,
+              "max_depth": -1,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "kind": "test.ir-unsupported-profile",
+            "schema": null
+          },
+          "refused": true
+        }
+      ],
+      "property_removal_control": {
+        "detected": true,
+        "divergent_field": "authority",
+        "error": "write option authority differed after manifest readback: {'authority_envelope_ref': 'envelope://a', 'diagnostic_event_ref': 'event://a', 'manifest_ref': 'manifest://a', 'payload_sha256': 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'} != None",
+        "markers_preserved": true,
+        "stored_manifest_authority": null
+      },
+      "raw_core_bypass": {
+        "byte_reads": 1,
+        "error": "Unknown canonical _type: 'float_hex'",
+        "ir_refused": true,
+        "manifest_canon": {
+          "ensure_ascii": false,
+          "exclude_none": true,
+          "forbid_floats": true,
+          "forbid_nan_inf": true,
+          "max_depth": 128,
+          "name": "polisyos.canon.json",
+          "separators": [
+            ",",
+            ":"
+          ],
+          "sort_keys": true,
+          "version": "0.2.0"
+        },
+        "persisted_by_core": true,
+        "raw_bytes_sha256": "98031d88f20c7022d4ecec4b688ba21a238ea9b129af3edc3a5fa5d46c150106"
+      },
+      "runtime": {
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null,
+        "cwd": "/private/tmp",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/bin/python",
+        "hnswlib_present": false,
+        "installed_distribution_count": 114,
+        "installed_distributions": [
+          "about-time",
+          "absl-py",
+          "aiohappyeyeballs",
+          "aiohttp",
+          "aiosignal",
+          "alive-progress",
+          "annotated-types",
+          "anyio",
+          "attrs",
+          "autograd",
+          "certifi",
+          "cffi",
+          "charset-normalizer",
+          "chex",
+          "click",
+          "cma",
+          "contourpy",
+          "cryptography",
+          "cycler",
+          "defusedxml",
+          "deprecated",
+          "diffrax",
+          "distro",
+          "duckdb",
+          "equinox",
+          "et-xmlfile",
+          "fonttools",
+          "frozenlist",
+          "googleapis-common-protos",
+          "graphemeu",
+          "grpcio",
+          "h11",
+          "httpcore",
+          "httpx",
+          "idna",
+          "importlib-metadata",
+          "jax",
+          "jaxlib",
+          "jaxtyping",
+          "jiter",
+          "jsonpatch",
+          "jsonpointer",
+          "kiwisolver",
+          "langchain",
+          "langchain-core",
+          "langgraph",
+          "langgraph-checkpoint",
+          "langgraph-prebuilt",
+          "langgraph-sdk",
+          "langsmith",
+          "lineax",
+          "loguru",
+          "matplotlib",
+          "ml-dtypes",
+          "moocore",
+          "multidict",
+          "numpy",
+          "odfpy",
+          "openai",
+          "openpyxl",
+          "opentelemetry-api",
+          "opentelemetry-exporter-otlp-proto-common",
+          "opentelemetry-exporter-otlp-proto-grpc",
+          "opentelemetry-exporter-prometheus",
+          "opentelemetry-proto",
+          "opentelemetry-sdk",
+          "opentelemetry-semantic-conventions",
+          "opt-einsum",
+          "optax",
+          "optimistix",
+          "orjson",
+          "ormsgpack",
+          "packaging",
+          "pandas",
+          "pillow",
+          "platformdirs",
+          "policy-engine",
+          "prometheus-client",
+          "propcache",
+          "protobuf",
+          "pyarrow",
+          "pycparser",
+          "pydantic",
+          "pydantic-core",
+          "pydantic-settings",
+          "pymoo",
+          "pyparsing",
+          "pypdf",
+          "python-dateutil",
+          "python-dotenv",
+          "pytz",
+          "pyyaml",
+          "regex",
+          "requests",
+          "requests-toolbelt",
+          "scipy",
+          "six",
+          "sniffio",
+          "tenacity",
+          "tiktoken",
+          "toolz",
+          "tqdm",
+          "typing-extensions",
+          "typing-inspection",
+          "tzdata",
+          "urllib3",
+          "uuid-utils",
+          "wadler-lindig",
+          "wrapt",
+          "xlrd",
+          "xxhash",
+          "yarl",
+          "zipp",
+          "zstandard"
+        ],
+        "isolated": true,
+        "module_origins": {
+          "polisyos.core.artifacts.ir_adapter": {
+            "archive_source_path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+            "archive_source_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+            "byte_match": true,
+            "installed_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/ir_adapter.py",
+            "wheel_path": "polisyos/core/artifacts/ir_adapter.py",
+            "wheel_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16"
+          },
+          "polisyos.core.artifacts.store": {
+            "archive_source_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "archive_source_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "byte_match": true,
+            "installed_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/store.py",
+            "wheel_path": "polisyos/core/artifacts/store.py",
+            "wheel_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+          },
+          "polisyos.core.artifacts.write_contract": {
+            "archive_source_path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+            "archive_source_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+            "byte_match": true,
+            "installed_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/core/artifacts/write_contract.py",
+            "wheel_path": "polisyos/core/artifacts/write_contract.py",
+            "wheel_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+          },
+          "polisyos.fabric.entity_resolution.models": {
+            "archive_source_path": "policy-engine/src/polisyos/fabric/entity_resolution/models.py",
+            "archive_source_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40",
+            "byte_match": true,
+            "installed_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/fabric/entity_resolution/models.py",
+            "wheel_path": "polisyos/fabric/entity_resolution/models.py",
+            "wheel_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+          },
+          "polisyos.fabric.entity_resolution.store": {
+            "archive_source_path": "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+            "archive_source_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1",
+            "byte_match": true,
+            "installed_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/fabric/entity_resolution/store.py",
+            "wheel_path": "polisyos/fabric/entity_resolution/store.py",
+            "wheel_sha256": "860eafb354d28e4840791cdd2a31823c6abce40f9bef503c06b4b66114ae0eb1"
+          },
+          "polisyos.ir.analytics.ncm": {
+            "archive_source_path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+            "archive_source_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60",
+            "byte_match": true,
+            "installed_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/analytics/ncm.py",
+            "wheel_path": "polisyos/ir/analytics/ncm.py",
+            "wheel_sha256": "e38f3aa9aeda0216bc1aa55118e8e66b2f20891eac6af5fab986be994248be60"
+          },
+          "polisyos.ir.artifacts.contracts": {
+            "archive_source_path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+            "archive_source_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e",
+            "byte_match": true,
+            "installed_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/artifacts/contracts.py",
+            "wheel_path": "polisyos/ir/artifacts/contracts.py",
+            "wheel_sha256": "fddf83a89f74efb9367226cb374865e73dcc6847bad8f0125db22ce31e8f2d3e"
+          },
+          "polisyos.ir.artifacts.io": {
+            "archive_source_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+            "archive_source_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+            "byte_match": true,
+            "installed_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/artifacts/io.py",
+            "wheel_path": "polisyos/ir/artifacts/io.py",
+            "wheel_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb"
+          },
+          "polisyos.ir.model_layer.canon": {
+            "archive_source_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+            "archive_source_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+            "byte_match": true,
+            "installed_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/ir/model_layer/canon.py",
+            "wheel_path": "polisyos/ir/model_layer/canon.py",
+            "wheel_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+          },
+          "polisyos.runtime.quality.generation_source": {
+            "archive_source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+            "archive_source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+            "byte_match": true,
+            "installed_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages/polisyos/runtime/quality/generation_source.py",
+            "wheel_path": "polisyos/runtime/quality/generation_source.py",
+            "wheel_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056"
+          }
+        },
+        "no_bytecode": true,
+        "policy_engine_version": "0.1.0",
+        "pytest_present": false,
+        "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+        "site_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages",
+        "sys_path_after_imports": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages"
+        ],
+        "sys_path_before": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base/lib/python3.14/site-packages"
+        ],
+        "sys_path_unchanged": true
+      },
+      "schema": "policyos.canon.installed_package_probe.v1",
+      "source": {
+        "archive_file_count": 13699,
+        "archive_sha256": "5e3a8250835dae21b2c452f654a8f7bbf6007d50837bddc707d3e9dbc9ff94c5",
+        "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+        "product_file_count": 13671,
+        "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916"
+      },
+      "wheel": {
+        "bytes": 15020523,
+        "configured_package_source_count": 3449,
+        "file_member_count": 3455,
+        "forced_resource_present_and_byte_identical": true,
+        "forced_resource_source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+        "generated_dist_info_members": [
+          {
+            "bytes": 16142,
+            "path": "policy_engine-0.1.0.dist-info/METADATA",
+            "sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3"
+          },
+          {
+            "bytes": 361464,
+            "path": "policy_engine-0.1.0.dist-info/RECORD",
+            "sha256": "c2ad352f54ee1a0f2eb6ede93647ee075170dc45e1d2f4892bba09eaf317d02d"
+          },
+          {
+            "bytes": 87,
+            "path": "policy_engine-0.1.0.dist-info/WHEEL",
+            "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
+          },
+          {
+            "bytes": 3447,
+            "path": "policy_engine-0.1.0.dist-info/entry_points.txt",
+            "sha256": "610a7cc1b8a6cc73fdb45edc2b79ffa96af538735411fbcf7952c3656ffda835"
+          },
+          {
+            "bytes": 7909,
+            "path": "policy_engine-0.1.0.dist-info/licenses/LICENSE",
+            "sha256": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53"
+          }
+        ],
+        "missing_configured_package_sources": [],
+        "missing_package_readmes": [],
+        "package_readme_in_wheel_count": 167,
+        "package_readme_source_count": 167,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "sha256": "50740ad2a46b7b3aa3e692a7f75c74e9cfc7bf43eeee16c461c196174d3f373b",
+        "source_byte_matches": 3450,
+        "source_byte_mismatches": [],
+        "source_mapped_member_count": 3450,
+        "unmapped_payload_members": []
+      }
+    },
+    "script": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/can-installed-probe.py",
+    "script_sha256": "65e594e224b942907927f31a67a00699309e0c74db42503ffe998408eda57357",
+    "selected_input_ref": {
+      "artifact_id": "sha256:9f5a1ae0c56ede5ae05aab7a80c9080f894fabad8f2f83e07e2e13ddeb830c86",
+      "manifest_profile_sha256": "sha256:dd07c19f521ad2ed7468af81c67dd80cac4c37b6ade6e7ba1b448b28fc8b7aa5",
+      "role": "selected_parent"
+    },
+    "spec": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/installed-probe-final-v2-spec.json",
+    "spec_sha256": "b41d2a208f6f731e1e64b07da123abb80ee45fc0bf81d66a181977798b99e558",
+    "sys_path_unchanged": true,
+    "write_option_count": 12,
+    "write_option_names": [
+      "kind",
+      "media_type",
+      "schema",
+      "producer",
+      "env",
+      "inputs",
+      "canon",
+      "governance",
+      "tenant_context",
+      "same_input_closure",
+      "authority",
+      "warnings"
+    ]
+  },
+  "schema": "policyos.canon.installed_package_verification.v1",
+  "scope": {
+    "full_stdout_stderr_and_artifact_bytes_retained_under_raw_scratch": true,
+    "no_external_services_or_model_weights": true,
+    "no_numeric_heavy_run": true,
+    "no_production_data": true,
+    "no_pytest_suite": true,
+    "no_source_or_test_changes": true,
+    "no_typescript_or_node_run": true,
+    "raw_scratch_ignored": true,
+    "result_is_installed_package_contract_evidence_only": true
+  },
+  "target": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "branch": "codex/e02-C-canon-20261006",
+    "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "expected_commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "expected_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+    "source_delta_name_status": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-writer-strangle-c2.json\nM\tpolicy-engine/src/polisyos/core/artifacts/ir_adapter.py\nM\tpolicy-engine/src/polisyos/fabric/entity_resolution/store.py\nM\tpolicy-engine/src/polisyos/ir/analytics/ncm.py\nM\tpolicy-engine/src/polisyos/ir/artifacts/README.md\nM\tpolicy-engine/src/polisyos/ir/artifacts/contracts.py\nM\tpolicy-engine/src/polisyos/ir/artifacts/io.py\nM\tpolicy-engine/tests/unit/core/artifacts/test_ir_adapter.py\nM\tpolicy-engine/tests/unit/ir/analytics/test_ncm.py\n",
+    "status_sb": "## codex/e02-C-canon-20261006\n",
+    "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916"
+  }
+}

@@ -165,6 +165,48 @@ def test_strangle_census_does_not_treat_symlink_directory_as_complete(
     assert receipt.status == "not_established"
 
 
+def test_strangle_census_does_not_follow_ancestor_source_symlink(
+    tmp_path: Path,
+) -> None:
+    source = (
+        "class WorkspaceLoop:\n"
+        "    def run_fixture(self, name):\n"
+        "        return name\n"
+    )
+    contained_root = tmp_path / "contained-repo"
+    contained_source = _write_source(contained_root, _OWNER_SOURCE, source)
+
+    contained = StrangleReceipt.recompute(contained_root)
+
+    assert contained.status == "strangled"
+    assert contained.source_state == "available"
+    assert contained.source_content_hash is not None
+    assert contained.source_file_count == 1
+
+    external_root = tmp_path / "external-source"
+    external_source = _write_source(external_root, _OWNER_SOURCE, source)
+    assert external_source.read_bytes() == contained_source.read_bytes()
+
+    symlink_repo_root = tmp_path / "symlink-repo"
+    symlink_repo_root.mkdir()
+    try:
+        (symlink_repo_root / "src").symlink_to(
+            external_root / "src", target_is_directory=True
+        )
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+    linked_source = symlink_repo_root / _OWNER_SOURCE
+    assert linked_source.is_file()
+    assert linked_source.read_bytes() == contained_source.read_bytes()
+
+    receipt = StrangleReceipt.recompute(symlink_repo_root)
+
+    assert receipt.status == "not_established"
+    assert receipt.source_state == "not_established"
+    assert receipt.source_content_hash is None
+    assert receipt.source_file_count == 0
+
+
 def test_strangle_census_leaves_reflection_unresolved(
     tmp_path: Path,
 ) -> None:

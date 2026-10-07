@@ -176,19 +176,27 @@ def test_registered_ncm_direct_zero_remains_a_numeric_zero(
 ) -> None:
     """An actual constant-zero engine outcome remains observable as zero."""
     spec = _ncm_with_cross_term()
-    zero_equations = tuple(
+    zero_equations = [
         equation.model_copy(
             update={
-                "equation_type": "nonlinear",
-                "equation_params": {"noise_expression": "0.0"},
+                "equation_type": "linear",
+                "equation_params": {"intercept": 0.0, "coefficients": {}},
             }
         )
         if equation.variable == "firm_survival"
         else equation
         for equation in spec.structural_equations
-    )
+    ]
     request = _request(ncm=spec.model_copy(update={"structural_equations": zero_equations}))
-    request = request.model_copy(update={"horizon": HorizonSpec(start=0, end=0)})
+    request = request.model_copy(
+        update={
+            "baseline_state": {
+                **request.baseline_state,
+                "firm_survival": 0.0,
+            },
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
     direct_outputs = _install_real_ncm_output_wrapper(monkeypatch, lambda output: None)
 
     result = JointSimulationHorizonController().run(request)

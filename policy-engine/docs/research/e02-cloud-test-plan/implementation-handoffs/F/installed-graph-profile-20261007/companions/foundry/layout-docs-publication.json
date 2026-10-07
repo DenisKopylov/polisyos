@@ -1,0 +1,49 @@
+{
+  "head": "b634d8a17ed43cad6f7e1558a9c927feb3d2e8ba",
+  "tree": "c04125bf993487876f64a7b1abb176a3acbd07e4",
+  "all_stored_decoded_git_refs": "PASS",
+  "files": 33,
+  "push": {
+    "argv": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/heads/codex/e02-F-fry-20261006"
+    ],
+    "cwd": "/workspace/e02-F-fry-20261006",
+    "exit_code": 0,
+    "seconds": 2.844031721004285,
+    "stdout": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-publish-push.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-publish-push.stderr.txt",
+      "bytes": 106,
+      "sha256": "5ad9ac8cf4ee45d30ce72442223bdee001feaca17623848023f3641ba6de21c1"
+    }
+  },
+  "remote": {
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-F-fry-20261006"
+    ],
+    "cwd": "/workspace/e02-F-fry-20261006",
+    "exit_code": 0,
+    "seconds": 2.564440994989127,
+    "stdout": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-publish-remote.stdout.txt",
+      "bytes": 77,
+      "sha256": "458acc3519ef27df04c4bb3d185312a1aa21983980a13b2bda4ee65765b05121"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/layout-docs-publish-remote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "remote_exact_head": true
+}

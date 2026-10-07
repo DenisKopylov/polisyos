@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py",
+    "--reader"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/neutral-reader-cwd",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9466"
+  },
+  "exit_code": 0,
+  "seconds": 0.5199673309980426,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.stdout.txt",
+    "bytes": 102,
+    "sha256": "e341ab21db58e49958d5d56f826aecf313673d8fd30ee6aa61c683769697e847"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

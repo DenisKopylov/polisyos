@@ -1,0 +1,387 @@
+{
+  "schema": "e02.F.api.installed4ee.independent_review.v1",
+  "outcome": "PASS",
+  "decision": "bounded independent GO of installed wheel packet, complete byte custody, actual saved consumer and removal evidence",
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "related_finding_ids": [
+    "B214",
+    "B218"
+  ],
+  "closure_ids": [],
+  "review_role": "READ-ONLY independent source/script/input/custody/complete-output inspection; no competing builder or extra native/fit invocation",
+  "complete_byte_measurement": {
+    "command": [
+      "python3",
+      "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/verify_packet.py"
+    ],
+    "exit_code": 0,
+    "observer_interpreter": {
+      "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "python": "3.12.14",
+      "scope": "metadata/byte verification only; scientific interpreter is author recorded3.14.7-I"
+    },
+    "census": {
+      "complete_files": 3464,
+      "tracked_product_files": 3453,
+      "forced_resources": 11,
+      "actual_python_files": 3147,
+      "total_product_resource_bytes": 67812929,
+      "full_binding_reference": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/pre-native-custody.json",
+        "bytes": 1280059,
+        "sha256": "4d58587ba7f0264832e47380b4dba8ce7be26d61672a8caa4526c4f51a537776"
+      },
+      "extra_missing_source_wheel_site_python": 0
+    },
+    "complete_deciding_bytes": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.json.lossless.gz",
+      "bytes": 305816,
+      "sha256": "3fd20cded377d553256014a25fc540547ab3222ca15770711c7e8a712eb85bd2",
+      "encoding": "gzip",
+      "decoded_bytes": 1375205,
+      "decoded_sha256": "9e4114c1737b117e1086ff8bed5346438c4d1ee437a4977aacf43023a523f9b8",
+      "original_raw_path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.json",
+      "transport_reason": "Complete actual3464-row byte census/audit, no normalization or row suppression."
+    },
+    "replayer": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/verify_packet.py",
+      "bytes": 11285,
+      "sha256": "2fa1a8b37778d1c4ac8475977a5e092843d737a802387858ed5fa90c5a3f28b8"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.stdout.json",
+      "bytes": 568,
+      "sha256": "65d9c0758dc7192a4a4411c8668c8bc76c339189429bb93b42a84df77c6c3c96"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/installed4ee/packet-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "wheel": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15147133,
+    "sha256": "1c912ce057fcdd3f91201979025867f9df1f2dc9041020877e2476cd7d396159"
+  },
+  "carrier_census": {
+    "count": 28,
+    "allGitblob_and_actualbytes_match": true,
+    "logical_to_absolute_adapter_validated": true,
+    "src_fallback_absent": true
+  },
+  "native_measurement": {
+    "cases": 16,
+    "PASS": 16,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "all_actual_nodeids": [
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[False-cpdag]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[False-pag]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[False-mgraph]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[True-cpdag]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[True-pag]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_other_semantic_profiles_refuse_direct_and_supplied_result[True-mgraph]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_real_producer_direction_supersedes_cache",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_current_parameters_recompute_full_content",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_reconciles_current_alignment_result"
+    ],
+    "native_owned_origin_count": 970,
+    "origin_violations": 0,
+    "actualwarning": [
+      "  /tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/conftest.py:215: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html"
+    ],
+    "execution": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.execution.json",
+      "bytes": 1099,
+      "sha256": "22348993256c265876a338f98102948848e33ee6f44a02d13c53ed13bb6ab39f"
+    },
+    "rawstdout": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.stdout.txt",
+      "bytes": 13554,
+      "sha256": "2f31a920fdc5001abe734c08974e8ab0cef6f26bf93354274f29cc29d64cb19c"
+    },
+    "rawstderr": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "XML": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native-junit.xml",
+      "bytes": 3245,
+      "sha256": "0b4f374d64ca226712bb479577bede7bc1e6901377750a4302a8c121f65c1756"
+    },
+    "proof": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/native-proof.json",
+      "bytes": 192356,
+      "sha256": "954b5ae5f0efd29df42ed774029fd6270e0d679c92cdcad26398a5edcf8028ff"
+    }
+  },
+  "differentPID_bridge": {
+    "parent_owned_origin_count": 970,
+    "child_owned_origin_count": 83,
+    "origin_violations": 0,
+    "parent_isolated": 1,
+    "child_isolated": 1,
+    "actual_parent_pid": 1006146,
+    "actual_child_pid": 1006168,
+    "one_registered_MethodJob_Node_selectedCAS_actual_IRreader": true,
+    "literal_ADMG_reverse_bidirected_relations": [
+      [
+        "X",
+        "Y",
+        "arrow",
+        "arrow",
+        null
+      ],
+      [
+        "Y",
+        "X",
+        "tail",
+        "arrow",
+        null
+      ]
+    ],
+    "complete_model_same_as_persisted_parent": true,
+    "actual_manifest_ref_source_lineage_same": true,
+    "detached_row_mutation_refused": true,
+    "proof": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader-proof.json",
+      "bytes": 16687,
+      "sha256": "2f9476641e41b0e1525011ca2f65f01e1da7bb99d74443028c20148449e192aa"
+    },
+    "parent_proof": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-bridge-proof.json",
+      "bytes": 190404,
+      "sha256": "2344762a53f8fec91790976fd4ce6e3275e6042b277d30ffc15d48dfe7d1e32c"
+    },
+    "actual_child_command": {
+      "argv": [
+        "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py",
+        "--reader"
+      ],
+      "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/neutral-reader-cwd",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466"
+      },
+      "exit_code": 0,
+      "seconds": 0.5199673309980426,
+      "stdout": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.stdout.txt",
+        "bytes": 102,
+        "sha256": "e341ab21db58e49958d5d56f826aecf313673d8fd30ee6aa61c683769697e847"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg/fresh-reader.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "removal": {
+    "raw_outcome": "FAIL",
+    "actual_counts": {
+      "cases": 1,
+      "FAIL": 1,
+      "PASS": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "interpretation": "Real installed MethodJob acceptedMGraph when private family predicate alone bypassed; unchanged staticlag/endpointchecks/functions/messages/source/markers; refusal assertion detectsbehavior.",
+    "execution": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.execution.json",
+      "bytes": 1009,
+      "sha256": "fa709ddb1c096b0a10e620c6e65b67bd5df0ab9b16c1604bd5ce5c5c64be6fd6"
+    },
+    "XML": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal-junit.xml",
+      "bytes": 1761,
+      "sha256": "0cfc62b7ca5d12929e55b550257d3074e057c8147f740821b2b24ffd7a64f8bf"
+    },
+    "rawstdout": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.stdout.txt",
+      "bytes": 2887,
+      "sha256": "ca7c1dbde787c490da5f4483a97a1204746e190f37e00896e267f3396c4c1e0d"
+    },
+    "rawstderr": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "proof": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal-proof.json",
+      "bytes": 188114,
+      "sha256": "1e7a075b6bfc543d94f06e0028d012a0f6214fcc69a2a59d289c94c0baaaf721"
+    }
+  },
+  "nondeciding_harness_errors": [
+    {
+      "name": "collection_initial",
+      "outcome": "ERROR",
+      "actual_exit_code": 1,
+      "basis": "Initial source-root path assertion wrongly included authorized readonly dependency-site pth; no native cases executed.",
+      "actual_command": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection.execution.json",
+        "bytes": 1111,
+        "sha256": "70428a72a3809787e3523730831439c16be86c082061aa81caa128e44d8026d4"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection.stderr.txt",
+        "bytes": 339,
+        "sha256": "8696a79f0a6f6d46e37c24ba7d3dec773b2cc6c0fc79724b988b504f96a410b1"
+      },
+      "original_script_snapshot": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.initial.py",
+        "bytes": 3014,
+        "sha256": "f2153d74ac638981a7459db39a4dc40b8b21c0b512b32fb25a1d01ef06f2a2bf"
+      },
+      "corrected_script": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+        "bytes": 3079,
+        "sha256": "bc8032e5509af23918cae9d6f2cbaf184b9a2eb5f2d90dd0ed2081982445fbce"
+      },
+      "corrected_output": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/collection-corrected.execution.json",
+        "bytes": 1141,
+        "sha256": "867a7dbda8c12ce85a1f4106d39f1423e9bd285f9495bab02e8e13beac8762ef"
+      }
+    },
+    {
+      "name": "fresh_admg_initial",
+      "outcome": "ERROR",
+      "actual_exit_code": 1,
+      "basis": "StopIteration on manifestrow logical-vs-absolute path lookup before producer invocation; no product/reader failure.",
+      "actual_command": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg.execution.json",
+        "bytes": 1003,
+        "sha256": "be3479f170c882261fc5fb8e8cf76ebd38ab844f5e46c0246fcaad9bef38a7ac"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg.stderr.txt",
+        "bytes": 257,
+        "sha256": "71d6774653aa42ecf553cf2db59e3156ed65738fafa3327157398425d981d5e5"
+      },
+      "original_script_snapshot": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.initial.py",
+        "bytes": 6881,
+        "sha256": "f2723990abcae6caca1ea25967f6626e8a21a798509b9c4c8ff964ca1cfacbb5"
+      },
+      "corrected_script": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py",
+        "bytes": 6885,
+        "sha256": "346df97af176aa575ae600f2667fbcc9d20e126553ac26f57fb0158b31e99a5e"
+      },
+      "corrected_output": {
+        "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/fresh-admg-corrected.execution.json",
+        "bytes": 1034,
+        "sha256": "6bdbd435d1e68d7b77bc46789846a932ff7f10d736864ae0a7ffd3058096a5eb"
+      }
+    }
+  ],
+  "script_inputs": [
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/prepare_narrow_wheel.py",
+      "bytes": 6601,
+      "sha256": "b2bca9c9ce45139f014b05c5c69044a61a70cdf2b330992685a4a8537f1fa081"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py",
+      "bytes": 3079,
+      "sha256": "bc8032e5509af23918cae9d6f2cbaf184b9a2eb5f2d90dd0ed2081982445fbce"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.initial.py",
+      "bytes": 3014,
+      "sha256": "f2153d74ac638981a7459db39a4dc40b8b21c0b512b32fb25a1d01ef06f2a2bf"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.py",
+      "bytes": 6885,
+      "sha256": "346df97af176aa575ae600f2667fbcc9d20e126553ac26f57fb0158b31e99a5e"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/fresh_admg_bridge.initial.py",
+      "bytes": 6881,
+      "sha256": "f2723990abcae6caca1ea25967f6626e8a21a798509b9c4c8ff964ca1cfacbb5"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/remove_installed_profile_guard.py",
+      "bytes": 2918,
+      "sha256": "89b353fe38ad4376e0b3e760e6d810bf83a3a96e027f0103d51908a43516c307"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/check_narrow_custody.py",
+      "bytes": 4029,
+      "sha256": "619c905f13a2ba10920a002b82e586be028f909166fb272cfe03bdd08768768b"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/capture_narrow.py",
+      "bytes": 1565,
+      "sha256": "eb7436251e362b7928a8ed1d60e0e4f7377200bd8dd0d2c17656822cc3131a54"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/capture_installed_environment.py",
+      "bytes": 1542,
+      "sha256": "3014d0f38a6e3a7bc131eb7128cc61d1b8f4d9b2255f0b8fc590b8ce8691afe2"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/narrow-installed-plan.json",
+      "bytes": 5795,
+      "sha256": "47e4148949be7fb70e5bb1a8198ec8c4776c6797b2e2d241ccfa92c65c9f5cac"
+    }
+  ],
+  "postguard": {
+    "complete_new_candidate_site_wheel_source_unchanged": true,
+    "current_files": 3464,
+    "currentPythonfiles": 3147,
+    "11resources": true,
+    "14packaging_lock_resource_blobs_equal_oldsource": true,
+    "28carriers_unchanged": true,
+    "author_old519_fullcustody_receipt_inspected_no_reexecution": true,
+    "receipt": {
+      "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/post-native-custody.json",
+      "bytes": 18555,
+      "sha256": "c73398ad7ed975e21b0683c3e27e5266004a2e827c7da006f6bd565343d7c42b"
+    }
+  },
+  "limits": [
+    "Only current wheel qualified; new sdistUNRUN.",
+    "Actual synthetic ADMG selectedCAS child is independentPID; no realworldRuntime/identification positive.",
+    "Unsupported graph family rejection is reconciliation/Compose/Node-specific, not all partial graph consumers.",
+    "Initial collection/freshbridge failures are nondeciding harnessERROR, all exact raw/script snapshots preserved.",
+    "No broader estimator/backend/native199/79/TMLE53 repeat or authority/Gclosure.",
+    "OriginalqualityRuff103FAIL/static38FAIL/scanner2ERROR retained separate original-inputscope."
+  ],
+  "qualification": {
+    "new_wheel": "PASS bounded selected native graph consumers",
+    "new_sdist": "UNRUN",
+    "DoWhy_EconML": "UNRUN in this numpy-static-graph slice; actual3.14 absence notpositivebackendwitness",
+    "Runtime_admitted_realworld_authority": "UNRUN",
+    "full_scientific_identification": "UNRUN",
+    "formal_G_closure": "UNRUN",
+    "global_quality": "Earlier source-specific FAIL/ERROR preserved; not P41exemption"
+  }
+}

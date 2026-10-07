@@ -1,0 +1,28 @@
+{
+  "name": "removal",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "argv": [
+    "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-graph-profile-20261007/foundry/remove_installed_profile_guard.py"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "9466"
+  },
+  "PYTHONPATH": "absent",
+  "exit_code": 1,
+  "seconds": 11.663077787990915,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.stdout.txt",
+    "bytes": 2887,
+    "sha256": "ca7c1dbde787c490da5f4483a97a1204746e190f37e00896e267f3396c4c1e0d"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/removal.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

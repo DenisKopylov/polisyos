@@ -137,6 +137,8 @@ remain supported; no missingness classification by node names is performed.
 Discovery retains an unsupported graph when requested prior/hint reconciliation
 cannot apply. Its existing `DiscoveryPipelineReport` carries the warning and
 machine-readable reconciliation result; persisted report readers retain them.
+The producer emits its declared `discovery_pipeline_report` slot and retains
+the existing raw `report` address as an alias of the same report object.
 An absent request produces no reconciliation limitation. Neither the retained
 graph nor a successful supported reconciliation establishes identification or
 scientific authority. See the

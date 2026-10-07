@@ -120,6 +120,7 @@ def inspect_direct_owner_references(
     tree = ast.parse(source, filename=module)
     top = _Scope(module, module, module, tree, None)
     classes: set[str] = {owner}
+    inherited_members_unresolved: set[str] = set()
     calls: set[tuple[int, int]] = set()
     unresolved: set[int] = set()
     target = f"{owner}.{member}"
@@ -160,6 +161,14 @@ def inspect_direct_owner_references(
             name = f"{scope.name}.{node.name}"
             scope.bindings[node.name] = name
             classes.add(name)
+            if node.bases and not any(
+                isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and statement.name == member
+                for statement in node.body
+            ):
+                # Resolve ownership, not just a nonempty receiver name. This
+                # bounded walk has no MRO proof for an inherited member.
+                inherited_members_unresolved.add(name)
             child = _Scope(name, module, module, node, scope)
             for statement in node.body:
                 walk(statement, child)
@@ -171,7 +180,10 @@ def inspect_direct_owner_references(
             for expression in getattr(node, "decorator_list", ()):
                 walk(expression, scope)
             name = f"{scope.name}.{getattr(node, 'name', '<lambda>')}"
-            child = _Scope(name, module, module, node, scope)
+            if not isinstance(node, ast.Lambda):
+                scope.bindings[node.name] = name
+            lexical_parent = scope.parent if isinstance(scope.node, ast.ClassDef) else scope
+            child = _Scope(name, module, module, node, lexical_parent)
             arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
             arguments += [arg for arg in (node.args.vararg, node.args.kwarg) if arg]
             child.bindings.update(
@@ -215,7 +227,8 @@ def inspect_direct_owner_references(
             if resolved == target:
                 calls.add((node.lineno, node.col_offset))
             elif isinstance(node.func, ast.Attribute) and node.func.attr == member:
-                if _resolve(node.func.value, scope) is None:
+                receiver = _resolve(node.func.value, scope)
+                if receiver not in classes or receiver in inherited_members_unresolved:
                     unresolved.add(node.lineno)
             elif isinstance(node.func, ast.Name) and node.func.id == member and resolved is None:
                 unresolved.add(node.lineno)
@@ -223,6 +236,15 @@ def inspect_direct_owner_references(
                 attribute = node.args[1] if len(node.args) > 1 else None
                 if not isinstance(attribute, ast.Constant) or attribute.value == member:
                     unresolved.add(node.lineno)
+            if not isinstance(node.func, (ast.Name, ast.Attribute)):
+                unresolved.add(node.lineno)
+            elif isinstance(node.func, ast.Name) and resolved is None:
+                binding_scope: _Scope | None = scope
+                while binding_scope is not None:
+                    if node.func.id in binding_scope.bindings:
+                        unresolved.add(node.lineno)
+                        break
+                    binding_scope = binding_scope.parent
             walk(node.func, scope, direct_callee=True)
             for argument in [*node.args, *(keyword.value for keyword in node.keywords)]:
                 walk(argument, scope)

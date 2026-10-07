@@ -199,3 +199,130 @@ def test_strangle_census_leaves_rebound_receiver_unresolved(
     receipt = StrangleReceipt.recompute(tmp_path)
 
     assert receipt.status == "not_established"
+
+
+def test_strangle_census_leaves_inherited_owner_member_unresolved(
+    tmp_path: Path,
+) -> None:
+    _workspace_loop(tmp_path)
+    _write_source(
+        tmp_path,
+        "src/polisyos/runtime/quality/child_loop.py",
+        f"from {_OWNER_MODULE} import WorkspaceLoop\n"
+        "\n"
+        "class ChildLoop(WorkspaceLoop):\n"
+        "    def dispatch(self):\n"
+        "        return self.run_fixture('fixture')\n",
+    )
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "not_established"
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "import builtins\n"
+        "\n"
+        "def dispatch(receiver):\n"
+        "    return builtins.getattr(receiver, 'run_fixture')('fixture')\n",
+        "def dispatch(receiver):\n"
+        "    return receiver.__getattribute__('run_fixture')('fixture')\n",
+    ],
+    ids=("qualified-getattr", "qualified-getattribute"),
+)
+def test_strangle_census_leaves_qualified_reflection_unresolved(
+    tmp_path: Path,
+    source: str,
+) -> None:
+    _workspace_loop(tmp_path)
+    _write_source(
+        tmp_path,
+        "src/polisyos/runtime/http/services/control/qualified_reflection.py",
+        source,
+    )
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "not_established"
+
+
+def test_strangle_census_resolves_bound_method_alias_with_arbitrary_name(
+    tmp_path: Path,
+) -> None:
+    _workspace_loop(tmp_path)
+    caller = _write_source(
+        tmp_path,
+        "src/polisyos/runtime/http/services/control/bound_alias.py",
+        f"from {_OWNER_MODULE} import WorkspaceLoop as LoopOwner\n"
+        "\n"
+        "def dispatch():\n"
+        "    loop = LoopOwner()\n"
+        "    arbitrary_name = loop.run_fixture\n"
+        "    return arbitrary_name('fixture')\n",
+    )
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "drift"
+    assert receipt.production_single_pass_callers == (
+        f"{caller.relative_to(tmp_path).as_posix()}:6",
+    )
+
+
+def test_strangle_census_leaves_nested_attribute_receiver_unresolved(
+    tmp_path: Path,
+) -> None:
+    _workspace_loop(tmp_path)
+    _write_source(
+        tmp_path,
+        "src/polisyos/runtime/http/services/control/nested_receiver.py",
+        "def dispatch(container):\n"
+        "    return container.loop.run_fixture('fixture')\n",
+    )
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "not_established"
+
+
+def test_strangle_census_keeps_nested_owner_call_with_unknown_outer_dispatch(
+    tmp_path: Path,
+) -> None:
+    _workspace_loop(
+        tmp_path,
+        "class WorkspaceLoop:\n"
+        "    def run_fixture(self, name):\n"
+        "        return name\n"
+        "\n"
+        "    def decompose_fixture(self):\n"
+        "        def nested(): return foreign.run_fixture(self.run_fixture('inner'))\n",
+    )
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "not_established"
+    assert receipt.allowed_fixture_callers == ()
+    assert receipt.production_single_pass_callers == (f"{_OWNER_SOURCE}:6",)
+
+
+def test_strangle_census_keeps_forbidden_owner_call_sharing_allowed_call_line(
+    tmp_path: Path,
+) -> None:
+    _workspace_loop(
+        tmp_path,
+        "class WorkspaceLoop:\n"
+        "    def run_fixture(self, name):\n"
+        "        return name\n"
+        "\n"
+        "    def decompose_fixture(self):\n"
+        "        foreign = WorkspaceLoop()\n"
+        "        return foreign.run_fixture(self.run_fixture('inner'))\n",
+    )
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "drift"
+    assert receipt.allowed_fixture_callers == ()
+    assert receipt.production_single_pass_callers == (f"{_OWNER_SOURCE}:7",)

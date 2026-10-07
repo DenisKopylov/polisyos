@@ -1,0 +1,1310 @@
+{
+  "schema": "policyos.e02.A.occurrence_voi_compiler_current_checks.v1",
+  "unit": "A",
+  "purpose": "Record the exact pinned 055 occurrence-readback, VOI scheduler, and compiler-negative run without promoting the synthetic B28 occurrence fixture to authentic data-version evidence.",
+  "candidate": {
+    "sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+    "tree_sha": "923d8efba603ac280216566c62542f6cc92cf4bc"
+  },
+  "run": {
+    "command": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+        "tests/unit/scientist/search/test_voi_scheduler.py",
+        "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+        "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      }
+    },
+    "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+    "target_tree_sha": "923d8efba603ac280216566c62542f6cc92cf4bc",
+    "exit_code": 0,
+    "wall_seconds": 14.981239874963649,
+    "junit_summary": {
+      "tests": 17,
+      "passed": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reported_seconds": 11.64
+    },
+    "test_groups": {
+      "B28": 1,
+      "VOI": 14,
+      "compiler_negative": 2
+    }
+  },
+  "source_blobs": {
+    "b28": {
+      "path": "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+      "git_blob": "1f0a83be57f409aa207929b8fd02d855ac6b30f3"
+    },
+    "voi": {
+      "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+      "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+    },
+    "compiler": {
+      "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "git_blob": "9b97bf857a45cd1a18f7e6a380087d1bf130d03e"
+    }
+  },
+  "criterion": {
+    "finding_id": "B28",
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_commit": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "lines": "551-564",
+    "scope": "Retain repeated candidate appearances as distinct occurrences in history while selecting one current-front occurrence and binding downstream to the intended occurrence."
+  },
+  "finding_boundary": {
+    "B28": "Limited to this synthetic fixture occurrence/history/front/readback witness; no authentic data version is established and the original criterion remains open.",
+    "VOI": "Fourteen individually passing scheduler unit cases; no broader runtime or monetary claim is made by this bundle.",
+    "compiler": "Two individually passing expected-negative compiler cases; they establish only the named resolver/fallback conditions."
+  },
+  "evidence_bundle": {
+    "source_directory": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c",
+    "destination_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c",
+    "copied_artifacts": [
+      {
+        "name": "stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/stdout.txt",
+        "bytes": 100,
+        "sha256": "095d77810a7b38d1471f608577db29961a97d9954c05597e9a24bb221564efd4"
+      },
+      {
+        "name": "stderr.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "e02_origin.py",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+      },
+      {
+        "name": "junit.xml",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "bytes": 2859,
+        "sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236"
+      },
+      {
+        "name": "origins.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      {
+        "name": "receipt.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/receipt.json",
+        "bytes": 8922,
+        "sha256": "ff7a41f94057bcabf15ca40936a03bd83c2b057c5d63b106fc14bfcca9ced075"
+      }
+    ],
+    "copied_artifact_count": 6
+  },
+  "checks": [
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.runtime.quality.test_e02_candidate_occurrence_readback::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+            "git_blob": "1f0a83be57f409aa207929b8fd02d855ac6b30f3"
+          }
+        ],
+        "criterion": {
+          "finding_id": "B28",
+          "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_commit": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": "551-564",
+          "scope": "Retain repeated candidate appearances as distinct occurrences in history while selecting one current-front occurrence and binding downstream to the intended occurrence."
+        },
+        "scope_boundary": "Synthetic occurrence/hash fixtures only; this case does not establish an authentic data version, source provenance, production currentness, N5 truth, or an N9 signature."
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "B28",
+        "result": "One bounded fixture occurrence/history/front and downstream pre-N9 readback test passed after fresh CAS replay.",
+        "duration_seconds": 0.581,
+        "limitation": "The two occurrence hashes are test fixtures, not authentic data-version evidence; this run alone does not close B28.",
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_prioritizes_higher_roi_ticket_first",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_defers_when_budget_is_insufficient",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_information_advances_until_recorded_run_budget_is_exhausted",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_rejects_dominated_candidate",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_keeps_unassessed_candidate_in_candidate_computation",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_limited_frontier_snapshot_does_not_receive_frontier_score",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_historical_registry_frontier_stays_unassessed_through_voi_scheduler",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.002,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_requests_retry_cheaper_on_high_timeout_risk_before_level4",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_predictive_voi_uses_observations_and_snapshot_round_trip",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.001,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_predictive_voi_falls_back_under_drift",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_predictive_voi_requests_retry_cheaper_when_model_support_is_too_low",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_reserves_calibration_budget_for_non_sentinels",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_voi_allows_sentinels_to_bypass_reserved_calibration_budget",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.scientist.search.test_voi_scheduler::test_predictive_voi_does_not_mix_cross_domain_observations_by_default",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+            "git_blob": "2b89870c02b1ef699fd9bd3aa83664d63596a5e6"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "VOI",
+        "result": "VOI scheduler unit case passed.",
+        "duration_seconds": 0.0,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.data_requirement.test_compiler::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+            "git_blob": "9b97bf857a45cd1a18f7e6a380087d1bf130d03e"
+          }
+        ],
+        "negative_control": "Fallback-disabled missing resolver yields no compiled specs/capability-index refs."
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "compiler_negative",
+        "result": "Expected negative compiler behavior asserted.",
+        "duration_seconds": 0.01,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_origin",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c/pytest-basetemp",
+          "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "tests/unit/scientist/search/test_voi_scheduler.py",
+          "tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled",
+          "tests/unit/data_requirement/test_compiler.py::test_compile_claim_ledger_requires_injected_resolver_when_configured"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-occurrence-voi-compiler-negative-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {}
+      },
+      "input_closure": {
+        "selector": "tests.unit.data_requirement.test_compiler::test_compile_claim_ledger_requires_injected_resolver_when_configured",
+        "candidate_tree": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "tracked_inputs": [
+          {
+            "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+            "git_blob": "9b97bf857a45cd1a18f7e6a380087d1bf130d03e"
+          }
+        ],
+        "negative_control": "Configured capability-index compilation without the required injected resolver raises FileNotFoundError."
+      },
+      "outcome": "PASS",
+      "output": {
+        "case_group": "compiler_negative",
+        "result": "Expected negative compiler behavior asserted.",
+        "duration_seconds": 0.008,
+        "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-occurrence-voi-compiler-negative-055c/junit.xml",
+        "junit_sha256": "74e11c0ff1ce7aad80686969c0864b39e1ca28a31beb17ee020bbe3652bfb236",
+        "run_tests": 17,
+        "run_failures": 0,
+        "run_errors": 0,
+        "run_skipped": 0
+      }
+    }
+  ]
+}

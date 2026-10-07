@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="12.570" timestamp="2026-10-07T23:31:59.613814+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_malformed_owner_ncm_reason_survives_n6_cas_history" time="1.226"><failure message="polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError: ncm_world_summaries_malformed: ncm_world_summaries_malformed">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc/pytest-basetemp/test_malformed_owner_ncm_reaso0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13e9d5e00&gt;
+
+    @pytest.mark.asyncio
+    async def test_malformed_owner_ncm_reason_survives_n6_cas_history(
+        tmp_path: Any,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A malformed real N5 output stays blocked through typed N6 history readback."""
+        from polisyos.core import canon
+        from polisyos.core.artifacts import ArtifactWriteOptions
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.runtime.quality.generation_cycle import (
+            CandidateGroundingObservation,
+            GenerationCycleController,
+            GenerationCycleRun,
+            JointSimulationPort,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            _budget,
+            _GenerationResult,
+            _owner_n5_case_with_selected_ncm_ref,
+            _Ranking,
+            _runtime_ncm_fixture_store,
+        )
+    
+        store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+            ncm_ref,
+            runtime_hints={
+                "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+                "joint_simulation_baseline_state": {"firm_survival": 0.0},
+            },
+        )
+        direct_outputs = _install_real_ncm_output_wrapper(
+            monkeypatch,
+            _damage_ncm_malformed_summary_container,
+        )
+    
+        class _ControlledN4:
+            async def __call__(self, generated_problem: Any, *, cycle_index: int) -&gt; Any:
+                assert generated_problem.design_problem_id == problem.design_problem_id
+                assert cycle_index == 0
+                return _GenerationResult(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        _Ranking(
+                            candidate_id=candidate.candidate_id,
+                            score=0.9,
+                            voi_estimate=4.0,
+                        ),
+                    ),
+                )
+    
+        def limited_candidate_grounding(
+            *,
+            candidate: Any,
+            problem: Any,
+            cycle_index: int,
+            generation_result: Any | None = None,
+        ) -&gt; CandidateGroundingObservation:
+            del problem, cycle_index, generation_result
+            return CandidateGroundingObservation(
+                candidate_id=candidate.candidate_id,
+                status="grounding_unavailable",
+                grounding_score=0.2,
+                issue_codes=("controlled_profile_grounding_unavailable",),
+                grounding_source="grounding_unavailable",
+            )
+    
+        controller = GenerationCycleController(
+            generation_port=_ControlledN4(),
+            grounding_port=limited_candidate_grounding,
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+            authority_scope="contract_testing",
+        )
+        assert isinstance(controller._simulation_port, JointSimulationPort)
+        assert controller._simulation_port._artifact_store is store
+    
+        try:
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+&gt;               run = await controller.run(
+                    problem,
+                    budget_state=_budget(),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:460: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/generation_cycle.py:6436: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:7377: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:9295: in _joint_value_node
+    simulation = self._simulation_port(
+src/polisyos/runtime/quality/generation_cycle.py:3476: in __call__
+    result = self._controller.run(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:1529: in run
+    trajectories = tuple(runner(request, selected_plan, decision))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:2193: in _run_ncm_horizon
+    return _run_cached_replicates(request, plan, decision, run_once)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:901: in _run_cached_replicates
+    physical_ref, cached, reused = _run_or_reuse_physical_spec(
+src/polisyos/runtime/quality/joint_simulation_horizon.py:846: in _run_or_reuse_physical_spec
+    replicated = tuple(
+                 ^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:848: in &lt;genexpr&gt;
+    run_once(
+src/polisyos/runtime/quality/joint_simulation_horizon.py:2183: in run_once
+    return _ncm_run_once(
+src/polisyos/runtime/quality/joint_simulation_horizon.py:3134: in _ncm_run_once
+    outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+output = {'counterfactual_result': {'abduction_method': 'exact', 'computation_time_seconds': 0.0033233165740966797, 'confidence_level': 0.95, 'n_samples': 1, ...}}
+selected_outcomes = ('firm_survival',)
+plan = EnginePlan(engine_kind='ncm_parallel_worlds', objective_ref='objective://firm_survival', declared_equilibrium_semantic...ry=None, constraint_registry=None, program_graph_acyclic=True, program_parameter_overrides_by_atom={}, method_fqn=None)
+
+    def _ncm_outcomes(
+        output: Mapping[str, Any],
+        selected_outcomes: Sequence[str],
+        plan: EnginePlan,
+    ) -&gt; dict[str, float]:
+        if output is None:
+            raise JointSimulationControllerError("ncm_world_summaries_missing")
+        if not isinstance(output, Mapping):
+            raise JointSimulationControllerError("ncm_world_summaries_malformed")
+        payload = output.get("counterfactual_result")
+        if payload is None:
+            raise JointSimulationControllerError("ncm_world_summaries_missing")
+        if not isinstance(payload, Mapping):
+            raise JointSimulationControllerError("ncm_world_summaries_malformed")
+        summaries = payload.get("world_summaries")
+        if summaries is None:
+            raise JointSimulationControllerError("ncm_world_summaries_missing")
+        if (
+            not isinstance(summaries, Sequence)
+            or isinstance(summaries, str | bytes | bytearray)
+        ):
+&gt;           raise JointSimulationControllerError("ncm_world_summaries_malformed")
+E           polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError: ncm_world_summaries_malformed: ncm_world_summaries_malformed
+
+src/polisyos/runtime/quality/joint_simulation_horizon.py:3074: JointSimulationControllerError</failure></testcase></testsuite></testsuites>

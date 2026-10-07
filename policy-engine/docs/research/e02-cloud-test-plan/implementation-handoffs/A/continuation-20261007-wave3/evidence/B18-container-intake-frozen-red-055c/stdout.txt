@@ -1,0 +1,446 @@
+..FFF..F.F..                                                             [100%]
+=================================== FAILURES ===================================
+_ test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-result-container] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13cf2b2f0>
+mutate = <function _damage_ncm_malformed_result_container at 0x13cd940f0>
+selected_outcomes = ('firm_survival',)
+expected_code = 'ncm_world_summaries_malformed'
+
+    @pytest.mark.parametrize(
+        ("mutate", "selected_outcomes", "expected_code"),
+        [
+            pytest.param(
+                _damage_ncm_empty_package,
+                ("firm_survival",),
+                "ncm_world_summaries_missing",
+                id="empty-result-package",
+            ),
+            pytest.param(
+                _damage_ncm_missing_selected_output,
+                ("firm_survival", "income_delta"),
+                "ncm_outcome_missing",
+                id="one-selected-output-missing",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_result_container,
+                ("firm_survival",),
+                "ncm_world_summaries_malformed",
+                id="malformed-result-container",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_summary_container,
+                ("firm_survival",),
+                "ncm_world_summaries_malformed",
+                id="malformed-summary-container",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_stats,
+                ("firm_survival",),
+                "ncm_outcome_malformed",
+                id="malformed-selected-output-structure",
+            ),
+            pytest.param(
+                _damage_ncm_nan,
+                ("firm_survival",),
+                "ncm_outcome_non_finite",
+                id="nan-selected-output",
+            ),
+            pytest.param(
+                _damage_ncm_infinity,
+                ("firm_survival",),
+                "ncm_outcome_non_finite",
+                id="infinite-selected-output",
+            ),
+        ],
+    )
+    def test_registered_ncm_output_damage_is_refused_with_distinct_reasons(
+        monkeypatch: pytest.MonkeyPatch,
+        mutate: _Mutator,
+        selected_outcomes: tuple[str, ...],
+        expected_code: str,
+    ) -> None:
+        """Malformed, absent, and non-finite NCM values never become a number."""
+        direct_outputs = _install_real_ncm_output_wrapper(monkeypatch, mutate)
+        request = _request().model_copy(
+            update={
+                "selected_outcomes": selected_outcomes,
+                "horizon": HorizonSpec(start=0, end=0),
+            }
+        )
+    
+        with pytest.raises(JointSimulationControllerError) as raised:
+            JointSimulationHorizonController().run(request)
+    
+        # The method ran and its unaltered output had the selected value.  Only the
+        # controller-bound payload was damaged; no SimulationResult escaped.
+        assert direct_outputs
+        direct_summary = _ncm_summary(direct_outputs[0])
+        for outcome in selected_outcomes:
+            assert outcome in direct_summary
+        direct_stats = direct_summary["firm_survival"]
+        assert isinstance(direct_stats, Mapping)
+        assert isinstance(direct_stats.get("mean"), (int, float))
+>       assert raised.value.code == expected_code
+E       AssertionError: assert 'ncm_world_summaries_missing' == 'ncm_world_su...ies_malformed'
+E         
+E         - ncm_world_summaries_malformed
+E         ?                      ^^^^^^^^
+E         + ncm_world_summaries_missing
+E         ?                      ^^^^^^
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:171: AssertionError
+_ test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-summary-container] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13cdedf20>
+mutate = <function _damage_ncm_malformed_summary_container at 0x13cd943b0>
+selected_outcomes = ('firm_survival',)
+expected_code = 'ncm_world_summaries_malformed'
+
+    @pytest.mark.parametrize(
+        ("mutate", "selected_outcomes", "expected_code"),
+        [
+            pytest.param(
+                _damage_ncm_empty_package,
+                ("firm_survival",),
+                "ncm_world_summaries_missing",
+                id="empty-result-package",
+            ),
+            pytest.param(
+                _damage_ncm_missing_selected_output,
+                ("firm_survival", "income_delta"),
+                "ncm_outcome_missing",
+                id="one-selected-output-missing",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_result_container,
+                ("firm_survival",),
+                "ncm_world_summaries_malformed",
+                id="malformed-result-container",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_summary_container,
+                ("firm_survival",),
+                "ncm_world_summaries_malformed",
+                id="malformed-summary-container",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_stats,
+                ("firm_survival",),
+                "ncm_outcome_malformed",
+                id="malformed-selected-output-structure",
+            ),
+            pytest.param(
+                _damage_ncm_nan,
+                ("firm_survival",),
+                "ncm_outcome_non_finite",
+                id="nan-selected-output",
+            ),
+            pytest.param(
+                _damage_ncm_infinity,
+                ("firm_survival",),
+                "ncm_outcome_non_finite",
+                id="infinite-selected-output",
+            ),
+        ],
+    )
+    def test_registered_ncm_output_damage_is_refused_with_distinct_reasons(
+        monkeypatch: pytest.MonkeyPatch,
+        mutate: _Mutator,
+        selected_outcomes: tuple[str, ...],
+        expected_code: str,
+    ) -> None:
+        """Malformed, absent, and non-finite NCM values never become a number."""
+        direct_outputs = _install_real_ncm_output_wrapper(monkeypatch, mutate)
+        request = _request().model_copy(
+            update={
+                "selected_outcomes": selected_outcomes,
+                "horizon": HorizonSpec(start=0, end=0),
+            }
+        )
+    
+        with pytest.raises(JointSimulationControllerError) as raised:
+            JointSimulationHorizonController().run(request)
+    
+        # The method ran and its unaltered output had the selected value.  Only the
+        # controller-bound payload was damaged; no SimulationResult escaped.
+        assert direct_outputs
+        direct_summary = _ncm_summary(direct_outputs[0])
+        for outcome in selected_outcomes:
+            assert outcome in direct_summary
+        direct_stats = direct_summary["firm_survival"]
+        assert isinstance(direct_stats, Mapping)
+        assert isinstance(direct_stats.get("mean"), (int, float))
+>       assert raised.value.code == expected_code
+E       AssertionError: assert 'ncm_world_summaries_missing' == 'ncm_world_su...ies_malformed'
+E         
+E         - ncm_world_summaries_malformed
+E         ?                      ^^^^^^^^
+E         + ncm_world_summaries_missing
+E         ?                      ^^^^^^
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:171: AssertionError
+_ test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-selected-output-structure] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13cdee580>
+mutate = <function _damage_ncm_malformed_stats at 0x13cd94510>
+selected_outcomes = ('firm_survival',), expected_code = 'ncm_outcome_malformed'
+
+    @pytest.mark.parametrize(
+        ("mutate", "selected_outcomes", "expected_code"),
+        [
+            pytest.param(
+                _damage_ncm_empty_package,
+                ("firm_survival",),
+                "ncm_world_summaries_missing",
+                id="empty-result-package",
+            ),
+            pytest.param(
+                _damage_ncm_missing_selected_output,
+                ("firm_survival", "income_delta"),
+                "ncm_outcome_missing",
+                id="one-selected-output-missing",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_result_container,
+                ("firm_survival",),
+                "ncm_world_summaries_malformed",
+                id="malformed-result-container",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_summary_container,
+                ("firm_survival",),
+                "ncm_world_summaries_malformed",
+                id="malformed-summary-container",
+            ),
+            pytest.param(
+                _damage_ncm_malformed_stats,
+                ("firm_survival",),
+                "ncm_outcome_malformed",
+                id="malformed-selected-output-structure",
+            ),
+            pytest.param(
+                _damage_ncm_nan,
+                ("firm_survival",),
+                "ncm_outcome_non_finite",
+                id="nan-selected-output",
+            ),
+            pytest.param(
+                _damage_ncm_infinity,
+                ("firm_survival",),
+                "ncm_outcome_non_finite",
+                id="infinite-selected-output",
+            ),
+        ],
+    )
+    def test_registered_ncm_output_damage_is_refused_with_distinct_reasons(
+        monkeypatch: pytest.MonkeyPatch,
+        mutate: _Mutator,
+        selected_outcomes: tuple[str, ...],
+        expected_code: str,
+    ) -> None:
+        """Malformed, absent, and non-finite NCM values never become a number."""
+        direct_outputs = _install_real_ncm_output_wrapper(monkeypatch, mutate)
+        request = _request().model_copy(
+            update={
+                "selected_outcomes": selected_outcomes,
+                "horizon": HorizonSpec(start=0, end=0),
+            }
+        )
+    
+        with pytest.raises(JointSimulationControllerError) as raised:
+            JointSimulationHorizonController().run(request)
+    
+        # The method ran and its unaltered output had the selected value.  Only the
+        # controller-bound payload was damaged; no SimulationResult escaped.
+        assert direct_outputs
+        direct_summary = _ncm_summary(direct_outputs[0])
+        for outcome in selected_outcomes:
+            assert outcome in direct_summary
+        direct_stats = direct_summary["firm_survival"]
+        assert isinstance(direct_stats, Mapping)
+        assert isinstance(direct_stats.get("mean"), (int, float))
+>       assert raised.value.code == expected_code
+E       AssertionError: assert 'ncm_outcome_missing' == 'ncm_outcome_malformed'
+E         
+E         - ncm_outcome_malformed
+E         + ncm_outcome_missing
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:171: AssertionError
+____________ test_registered_ncm_direct_zero_remains_a_numeric_zero ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13d1a0d70>
+
+    def test_registered_ncm_direct_zero_remains_a_numeric_zero(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """An actual constant-zero engine outcome remains observable as zero."""
+        spec = _ncm_with_cross_term()
+        zero_equations = tuple(
+            equation.model_copy(
+                update={
+                    "equation_type": "nonlinear",
+                    "equation_params": {"noise_expression": "0.0"},
+                }
+            )
+            if equation.variable == "firm_survival"
+            else equation
+            for equation in spec.structural_equations
+        )
+        request = _request(ncm=spec.model_copy(update={"structural_equations": zero_equations}))
+        request = request.model_copy(update={"horizon": HorizonSpec(start=0, end=0)})
+        direct_outputs = _install_real_ncm_output_wrapper(monkeypatch, lambda output: None)
+    
+>       result = JointSimulationHorizonController().run(request)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/joint_simulation_horizon.py:1529: in run
+    trajectories = tuple(runner(request, selected_plan, decision))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:2193: in _run_ncm_horizon
+    return _run_cached_replicates(request, plan, decision, run_once)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:901: in _run_cached_replicates
+    physical_ref, cached, reused = _run_or_reuse_physical_spec(
+src/polisyos/runtime/quality/joint_simulation_horizon.py:846: in _run_or_reuse_physical_spec
+    replicated = tuple(
+                 ^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:848: in <genexpr>
+    run_once(
+src/polisyos/runtime/quality/joint_simulation_horizon.py:2183: in run_once
+    return _ncm_run_once(
+src/polisyos/runtime/quality/joint_simulation_horizon.py:3091: in _ncm_run_once
+    output = pure_step(
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:45: in wrapped
+    direct = original(state, params)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/ncm_engine.py:1088: in pure_step
+    worlds = _parallel_worlds(
+src/polisyos/foundry/methods/catalog/causal/ncm_engine.py:871: in _parallel_worlds
+    abducted = _abduce_exogenous(
+src/polisyos/foundry/methods/catalog/causal/ncm_engine.py:671: in _abduce_exogenous
+    noise[node] = _abduct_noise_via_method(
+src/polisyos/foundry/methods/catalog/causal/ncm_engine.py:505: in _abduct_noise_via_method
+    candidates = _numeric_exact_noise_candidates(eq, parent_vals, observed_value, warnings=warnings)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/ncm_engine.py:374: in _numeric_exact_noise_candidates
+    minimizer = minimize_scalar(
+.venv/lib/python3.14/site-packages/scipy/optimize/_minimize.py:1021: in minimize_scalar
+    res = _recover_from_bracket_error(_minimize_scalar_brent,
+.venv/lib/python3.14/site-packages/scipy/optimize/_optimize.py:3136: in _recover_from_bracket_error
+    res = solver(fun, bracket, args, **options)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/scipy/optimize/_optimize.py:2735: in _minimize_scalar_brent
+    brent.optimize()
+.venv/lib/python3.14/site-packages/scipy/optimize/_optimize.py:2500: in optimize
+    xa, xb, xc, fa, fb, fc, funcalls = self.get_bracket_info()
+                                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <scipy.optimize._optimize.Brent object at 0x13cdd7b60>
+
+    def get_bracket_info(self):
+        #set up
+        func = self.func
+        args = self.args
+        brack = self.brack
+        ### BEGIN core bracket_info code ###
+        ### carefully DOCUMENT any CHANGES in core ##
+        if brack is None:
+            xa, xb, xc, fa, fb, fc, funcalls = bracket(func, args=args)
+        elif len(brack) == 2:
+            xa, xb, xc, fa, fb, fc, funcalls = bracket(func, xa=brack[0],
+                                                       xb=brack[1], args=args)
+        elif len(brack) == 3:
+            xa, xb, xc = brack
+            if (xa > xc):  # swap so xa < xc can be assumed
+                xc, xa = xa, xc
+            if not ((xa < xb) and (xb < xc)):
+                raise ValueError(
+                    "Bracketing values (xa, xb, xc) do not"
+                    " fulfill this requirement: (xa < xb) and (xb < xc)"
+                )
+            fa = func(*((xa,) + args))
+            fb = func(*((xb,) + args))
+            fc = func(*((xc,) + args))
+            if not ((fb < fa) and (fb < fc)):
+>               raise ValueError(
+                    "Bracketing values (xa, xb, xc) do not fulfill"
+                    " this requirement: (f(xb) < f(xa)) and (f(xb) < f(xc))"
+                )
+E               ValueError: Bracketing values (xa, xb, xc) do not fulfill this requirement: (f(xb) < f(xa)) and (f(xb) < f(xc))
+
+.venv/lib/python3.14/site-packages/scipy/optimize/_optimize.py:2484: ValueError
+_ test_registered_coupled_queue_output_damage_is_refused[malformed-queue-container] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13d0f27b0>
+mutate = <function _damage_coupled_malformed_queue at 0x13cd95170>
+expected_code = 'coupled_queue_trajectory_non_numeric'
+
+    @pytest.mark.parametrize(
+        ("mutate", "expected_code"),
+        [
+            pytest.param(
+                _damage_coupled_missing_queue,
+                "coupled_queue_trajectory_incomplete",
+                id="missing-required-queue-trajectory",
+            ),
+            pytest.param(
+                _damage_coupled_malformed_queue,
+                "coupled_queue_trajectory_non_numeric",
+                id="malformed-queue-container",
+            ),
+            pytest.param(
+                _damage_coupled_non_finite_queue,
+                "coupled_queue_trajectory_non_finite",
+                id="non-finite-queue-value",
+            ),
+        ],
+    )
+    def test_registered_coupled_queue_output_damage_is_refused(
+        monkeypatch: pytest.MonkeyPatch,
+        mutate: _Mutator,
+        expected_code: str,
+    ) -> None:
+        """The queue consumer refuses absent, malformed, and non-finite results."""
+        direct_outputs = _install_real_coupled_output_wrapper(monkeypatch, mutate)
+    
+        with pytest.raises(JointSimulationControllerError) as raised:
+            JointSimulationHorizonController().run(_coupled_request())
+    
+        assert direct_outputs
+        direct_result = _coupled_result(direct_outputs[0])
+        direct_trajectory = direct_result["queue_length_trajectory"]
+        assert isinstance(direct_trajectory, Sequence)
+        assert direct_trajectory
+        assert all(isinstance(value, (int, float)) for value in direct_trajectory)
+>       assert raised.value.code == expected_code
+E       AssertionError: assert 'coupled_queu...ry_incomplete' == 'coupled_queu...y_non_numeric'
+E         
+E         - coupled_queue_trajectory_non_numeric
+E         ?                            ----  ^^^
+E         + coupled_queue_trajectory_incomplete
+E         ?                          + +  ++ ^^
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py:315: AssertionError
+=============================== warnings summary ===============================
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `list[StructuralEquation]` - serialized value may not be as expected [field_name='structural_equations', input_value=(StructuralEquation(schem...0'}, is_recursive=True)), input_type=tuple])
+    return self.__pydantic_serializer__.to_python(
+
+tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py:357: RuntimeWarning: The iteration is not making good progress, as measured by the 
+   improvement from the last ten iterations.
+    solved = fsolve(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-result-container]
+FAILED tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-summary-container]
+FAILED tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-selected-output-structure]
+FAILED tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero
+FAILED tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_coupled_queue_output_damage_is_refused[malformed-queue-container]
+5 failed, 7 passed, 2 warnings in 18.10s

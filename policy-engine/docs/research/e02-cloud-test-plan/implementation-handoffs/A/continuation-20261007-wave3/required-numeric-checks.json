@@ -1,0 +1,1099 @@
+{
+  "schema": "policyos.e02.required_numeric_output_checks.v1",
+  "unit": "A",
+  "slice": "required-numeric-output-intake-wave3-checks",
+  "source_candidate": {
+    "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "slice_base_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+    "candidate_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+    "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+    "branch": "codex/e02-A-delivery-attached"
+  },
+  "required_check_keys": [
+    "command",
+    "target_sha",
+    "environment",
+    "input_closure",
+    "outcome",
+    "output"
+  ],
+  "outcome_enum": [
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "SKIP",
+    "UNRUN"
+  ],
+  "check_count": 5,
+  "checks": [
+    {
+      "check_id": "b18-initial-output-classification-red-055c",
+      "name": "frozen pre-fix B18 output-container classification red",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-container-intake-frozen-red-055c/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-container-intake-frozen-red-055c/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py"
+      ],
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-container-intake-frozen-red-055c:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "923d8efba603ac280216566c62542f6cc92cf4bc",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+        "slice_base_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "selected_targets": [
+          "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py"
+        ],
+        "selected_test_file_pins": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_target": "d563b40703c40ede23841c0944a3e346f51f5291",
+            "role": "pytest-selected test input"
+          }
+        ],
+        "selected_test_files_at_slice_base": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob_at_target": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "role": "N5 canonical selector, engine adapter, and required-output intake."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+            "git_blob_at_target": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+            "role": "Actual registered NCM pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+            "git_blob_at_target": "1f5a597e661069938241c32d2a902974a6d6b390",
+            "role": "Actual registered coupled simulation pure_step producer."
+          }
+        ],
+        "workspace_dirty_before_after_ref": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/receipt.json",
+          "json_pointers": [
+            "/workspace_dirty_before",
+            "/workspace_dirty_after"
+          ]
+        },
+        "input_denominator_note": "The raw receipt records complete pre/post workspace dirtiness; testcase counts come from the complete JUnit file. Target selectors and source/test Git blobs are pinned here. Other run counts are separate overlapping invocations."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "command_exit_code": 1,
+        "wall_seconds": 21.260292290942743,
+        "junit_counts": {
+          "tests": 12,
+          "passed": 7,
+          "failed": 5,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 12,
+          "passed": 7,
+          "failed": 5,
+          "errors": 0,
+          "skipped": 0,
+          "target_class_cases": 12
+        },
+        "selected_case_outcomes": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[empty-result-package]",
+            "outcome": "PASS"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[one-selected-output-missing]",
+            "outcome": "PASS"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-result-container]",
+            "outcome": "FAIL"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-summary-container]",
+            "outcome": "FAIL"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-selected-output-structure]",
+            "outcome": "FAIL"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[nan-selected-output]",
+            "outcome": "PASS"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[infinite-selected-output]",
+            "outcome": "PASS"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+            "outcome": "FAIL"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[missing-required-queue-trajectory]",
+            "outcome": "PASS"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[malformed-queue-container]",
+            "outcome": "FAIL"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[non-finite-queue-value]",
+            "outcome": "PASS"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_direct_zero_queue_remains_numeric_zero",
+            "outcome": "PASS"
+          }
+        ],
+        "interpretation": "The whole 12-case B18 file failed 7P/5F. Four failures are the intended semantic classification falsifiers: malformed NCM result container, malformed NCM summary container, malformed NCM stats, and malformed coupled queue container. The fifth failure is a separate invalid actual-zero fixture (Scipy abduction ValueError), not evidence for the B18 classification property.",
+        "raw_build_receipt": {
+          "build_path": "policy-engine/_build/e02-A-continuation-20261007/B18-container-intake-frozen-red-055c/receipt.json",
+          "copied_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/receipt.json",
+          "sha256": "67f50a42bf9b608f73e91a55f6e8edaa0add0916b3ada56be2fbaef96a200a2a"
+        },
+        "copied_outputs": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/receipt.json",
+            "sha256": "67f50a42bf9b608f73e91a55f6e8edaa0add0916b3ada56be2fbaef96a200a2a",
+            "bytes": 8124
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/stdout.txt",
+            "sha256": "3240b8681b720c09d2a8fbdd458b03c87d0ee31beff69bfe7ec16da1b567e1e6",
+            "bytes": 20931
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/junit.xml",
+            "sha256": "02ca65fd2b188b5c2ceed9140fcd31d53f38b16f3eb71de3e3c5627fb2a684de",
+            "bytes": 22174
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/e02_origin.py",
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "bytes": 656
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/origins.json",
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "bytes": 1095
+          }
+        ],
+        "failures": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-result-container]",
+            "kind": "failure",
+            "message": "AssertionError: assert 'ncm_world_summaries_missing' == 'ncm_world_su...ies_malformed'\n  \n  - ncm_world_summaries_malformed\n  ?                      ^^^^^^^^\n  + ncm_world_summaries_missing\n  ?                      ^^^^^^"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-summary-container]",
+            "kind": "failure",
+            "message": "AssertionError: assert 'ncm_world_summaries_missing' == 'ncm_world_su...ies_malformed'\n  \n  - ncm_world_summaries_malformed\n  ?                      ^^^^^^^^\n  + ncm_world_summaries_missing\n  ?                      ^^^^^^"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-selected-output-structure]",
+            "kind": "failure",
+            "message": "AssertionError: assert 'ncm_outcome_missing' == 'ncm_outcome_malformed'\n  \n  - ncm_outcome_malformed\n  + ncm_outcome_missing"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+            "kind": "failure",
+            "message": "ValueError: Bracketing values (xa, xb, xc) do not fulfill this requirement: (f(xb) < f(xa)) and (f(xb) < f(xc))"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[malformed-queue-container]",
+            "kind": "failure",
+            "message": "AssertionError: assert 'coupled_queu...ry_incomplete' == 'coupled_queu...y_non_numeric'\n  \n  - coupled_queue_trajectory_non_numeric\n  ?                            ----  ^^^\n  + coupled_queue_trajectory_incomplete\n  ?                          + +  ++ ^^"
+          }
+        ]
+      }
+    },
+    {
+      "check_id": "b18-zero-control-and-separate-b30-census-e848",
+      "name": "qualified real-zero control with separate B30 source-census failure",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py::test_strangle_census_does_not_follow_ancestor_source_symlink"
+      ],
+      "target_sha": "e848af39e42a4f3d092fd454f5861b1706c87136",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "31943426d210eaef4134b0c81177478cf64f8ac9",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+        "slice_base_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "selected_targets": [
+          "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+          "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py::test_strangle_census_does_not_follow_ancestor_source_symlink"
+        ],
+        "selected_test_file_pins": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_target": "b0169d7d31c676d021589d65457b0a613dbe7488",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+            "git_blob_at_target": "f03c8d45e488a30a3787d26de983de985ad4ced4",
+            "role": "pytest-selected test input"
+          }
+        ],
+        "selected_test_files_at_slice_base": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+            "git_blob_at_slice_base": "f660e871ef0732fa7b68464a67035932a24aaefa",
+            "exists_at_slice_base": true
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob_at_target": "77f0743bebfdf72f635a0f0477884c279b865da6",
+            "role": "N5 canonical selector, engine adapter, and required-output intake."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+            "git_blob_at_target": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+            "role": "Actual registered NCM pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+            "git_blob_at_target": "1f5a597e661069938241c32d2a902974a6d6b390",
+            "role": "Actual registered coupled simulation pure_step producer."
+          }
+        ],
+        "workspace_dirty_before_after_ref": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/receipt.json",
+          "json_pointers": [
+            "/workspace_dirty_before",
+            "/workspace_dirty_after"
+          ]
+        },
+        "input_denominator_note": "The raw receipt records complete pre/post workspace dirtiness; testcase counts come from the complete JUnit file. Target selectors and source/test Git blobs are pinned here. Other run counts are separate overlapping invocations."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "command_exit_code": 1,
+        "wall_seconds": 15.363501749990974,
+        "junit_counts": {
+          "tests": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected_case_outcomes": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+            "outcome": "PASS",
+            "scope": "B18 true-zero control"
+          }
+        ],
+        "interpretation": "The registered NCM direct-zero control passed on the corrected nondegenerate linear fixture. The two-test command is FAIL only because the separate B30 ancestor-symlink source-census case expected not_established but observed strangled; that failure is not assigned to B18.",
+        "raw_build_receipt": {
+          "build_path": "policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848/receipt.json",
+          "copied_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/receipt.json",
+          "sha256": "58dd211050cb1830f9bfed237b7e58fa7acc3777273a9e3eba6cf5af3a42c8d5"
+        },
+        "copied_outputs": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/receipt.json",
+            "sha256": "58dd211050cb1830f9bfed237b7e58fa7acc3777273a9e3eba6cf5af3a42c8d5",
+            "bytes": 8634
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/stdout.txt",
+            "sha256": "b743fa64eba40b33922d4b0a86fc858ca8aa041b570f7e43eb0740c120795342",
+            "bytes": 2444
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/junit.xml",
+            "sha256": "925fb5ed86c92a8f608a6343f688351c4d2f39f8520501c52cc106fd4ed53a32",
+            "bytes": 2708
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/e02_origin.py",
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "bytes": 656
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/origins.json",
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "bytes": 1095
+          }
+        ],
+        "failures": [
+          {
+            "selector": "tests.unit.remediation.test_e02_source_strangle_owner_resolution::test_strangle_census_does_not_follow_ancestor_source_symlink",
+            "kind": "failure",
+            "message": "AssertionError: assert 'strangled' == 'not_established'\n  \n  - not_established\n  + strangled"
+          }
+        ]
+      }
+    },
+    {
+      "check_id": "b18-included-in-affected-wave-86-of-86-f1df",
+      "name": "affected registered-engine/N5/N6 consumer wave after numeric parser fix",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-numeric-scanner-engine-affected-f1df/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-numeric-scanner-engine-affected-f1df/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+        "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+      ],
+      "target_sha": "f1df6f8bfb41902753949db1aca80e5081fdde51",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-numeric-scanner-engine-affected-f1df:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "ebb364a6c946886319f35b5c9adfe9498c1b7e42",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+        "slice_base_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "selected_targets": [
+          "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+          "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+          "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+          "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+        ],
+        "selected_test_file_pins": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_target": "c516236cd9cbf5a82a46496d69661129013255d4",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+            "git_blob_at_target": "77c5b164c6cf590edfe6633ae016a8fa7c36a549",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+            "git_blob_at_target": "f03c8d45e488a30a3787d26de983de985ad4ced4",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "git_blob_at_target": "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+            "git_blob_at_target": "011d8fefbb442f1be6b60f46d3484600e0ad4626",
+            "role": "pytest-selected test input"
+          }
+        ],
+        "selected_test_files_at_slice_base": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          },
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+            "git_blob_at_slice_base": "f660e871ef0732fa7b68464a67035932a24aaefa",
+            "exists_at_slice_base": true
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+            "git_blob_at_slice_base": "8f432835dbf5db938e2750de5bb50379b7e18ea0",
+            "exists_at_slice_base": true
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+            "git_blob_at_slice_base": "011d8fefbb442f1be6b60f46d3484600e0ad4626",
+            "exists_at_slice_base": true
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob_at_target": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4",
+            "role": "N5 canonical selector, engine adapter, and required-output intake."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+            "git_blob_at_target": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+            "role": "Actual registered NCM pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+            "git_blob_at_target": "1f5a597e661069938241c32d2a902974a6d6b390",
+            "role": "Actual registered coupled simulation pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "a502de05a145598f9146146cc85849104e664222",
+            "role": "N6 GenerationCycleController, JointSimulationPort, and typed refusal history."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+            "git_blob_at_target": "00558e4d7a2b01ed0f2aa1c6ec38aa8d1171c76a",
+            "role": "Actual registered StockFlow engine used in the affected applicability wave."
+          }
+        ],
+        "workspace_dirty_before_after_ref": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/receipt.json",
+          "json_pointers": [
+            "/workspace_dirty_before",
+            "/workspace_dirty_after"
+          ]
+        },
+        "input_denominator_note": "The raw receipt records complete pre/post workspace dirtiness; testcase counts come from the complete JUnit file. Target selectors and source/test Git blobs are pinned here. Other run counts are separate overlapping invocations."
+      },
+      "outcome": "PASS",
+      "output": {
+        "command_exit_code": 0,
+        "wall_seconds": 76.79221354197944,
+        "junit_counts": {
+          "tests": 86,
+          "passed": 86,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 0
+        },
+        "b18_target_case_counts": {
+          "count": 16,
+          "passed": 16,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected_case_outcomes": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[empty-result-package]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[one-selected-output-missing]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-result-container]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-summary-container]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[malformed-selected-output-structure]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[nan-selected-output]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_output_damage_is_refused_with_distinct_reasons[infinite-selected-output]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[missing-required-queue-trajectory]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[malformed-queue-container]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[non-finite-queue-value]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[empty-result-package]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[malformed-result-package]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[scalar-array-queue-container]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_queue_output_damage_is_refused[matrix-array-queue-container]",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          },
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_registered_coupled_direct_zero_queue_remains_numeric_zero",
+            "outcome": "PASS",
+            "scope": "B18 module case within 86-case affected aggregate"
+          }
+        ],
+        "interpretation": "All 86 selected cases passed. A full walk of the JUnit testcase nodes finds 16 cases in test_e02_required_numeric_container_intake.py; the other 70 cases are affected engine applicability, source census, horizon, and feasibility consumers. Counts are per invocation and do not add to other overlapping waves.",
+        "raw_build_receipt": {
+          "build_path": "policy-engine/_build/e02-A-continuation-20261007/thirteenth-numeric-scanner-engine-affected-f1df/receipt.json",
+          "copied_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/receipt.json",
+          "sha256": "6b235fed850408ce00ff983276e23c78de1a369f6f1db207313e96d00686d79b"
+        },
+        "copied_outputs": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/receipt.json",
+            "sha256": "6b235fed850408ce00ff983276e23c78de1a369f6f1db207313e96d00686d79b",
+            "bytes": 9757
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/stdout.txt",
+            "sha256": "362e7aa941e8bd7e9708efb30faac4e95b4ba5b520e5b45575c0d824b145b1aa",
+            "bytes": 2143
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/junit.xml",
+            "sha256": "0712eccec74bd6c7e9d11054143d0490f7dff2eca62d8f37a8c9eefbdf264a08",
+            "bytes": 16010
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/e02_origin.py",
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "bytes": 656
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/origins.json",
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "bytes": 1095
+          }
+        ],
+        "failures": []
+      }
+    },
+    {
+      "check_id": "b18-n6-refusal-bridge-red-0fbc",
+      "name": "pre-bridge N6 refusal-history red",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history"
+      ],
+      "target_sha": "0fbcc3859d4295ad1561d579ba8cec5c1c135960",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "d15cfa72152739f00e80a8d84c3fcdb72fceaebc",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+        "slice_base_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "selected_targets": [
+          "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history"
+        ],
+        "selected_test_file_pins": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_target": "4a18b213c98ca22413c1cda8e9d4e3fe8fd23a30",
+            "role": "pytest-selected test input"
+          }
+        ],
+        "selected_test_files_at_slice_base": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob_at_target": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4",
+            "role": "N5 canonical selector, engine adapter, and required-output intake."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+            "git_blob_at_target": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+            "role": "Actual registered NCM pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+            "git_blob_at_target": "1f5a597e661069938241c32d2a902974a6d6b390",
+            "role": "Actual registered coupled simulation pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "a502de05a145598f9146146cc85849104e664222",
+            "role": "N6 GenerationCycleController, JointSimulationPort, and typed refusal history."
+          }
+        ],
+        "workspace_dirty_before_after_ref": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/receipt.json",
+          "json_pointers": [
+            "/workspace_dirty_before",
+            "/workspace_dirty_after"
+          ]
+        },
+        "input_denominator_note": "The raw receipt records complete pre/post workspace dirtiness; testcase counts come from the complete JUnit file. Target selectors and source/test Git blobs are pinned here. Other run counts are separate overlapping invocations."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "command_exit_code": 1,
+        "wall_seconds": 15.838861541997176,
+        "junit_counts": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected_case_outcomes": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+            "outcome": "FAIL",
+            "failure": "JointSimulationControllerError escaped as ncm_world_summaries_malformed before a GenerationCycleRun could be returned."
+          }
+        ],
+        "interpretation": "The N5 parser emitted the intended typed ncm_world_summaries_malformed error, but JointSimulationPort let JointSimulationControllerError escape; GenerationCycleRun was not returned or persisted in this red.",
+        "raw_build_receipt": {
+          "build_path": "policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc/receipt.json",
+          "copied_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/receipt.json",
+          "sha256": "a85dcbb4105ce86f6526e4e70ae53f19ada2c6f69a2db290e8556aaf294cfbda"
+        },
+        "copied_outputs": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/receipt.json",
+            "sha256": "a85dcbb4105ce86f6526e4e70ae53f19ada2c6f69a2db290e8556aaf294cfbda",
+            "bytes": 9927
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/stdout.txt",
+            "sha256": "3be0be17fbb09459268a2b509d159bba9b58625dde1362e4c412af1c53591600",
+            "bytes": 59213
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/junit.xml",
+            "sha256": "8f06b915edf28e28e2586e6fa1d626a8dccf0e5b117d89f4a35f28d2688fd5b4",
+            "bytes": 8283
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/e02_origin.py",
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "bytes": 656
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/origins.json",
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "bytes": 1095
+          }
+        ],
+        "failures": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+            "kind": "failure",
+            "message": "polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError: ncm_world_summaries_malformed: ncm_world_summaries_malformed"
+          }
+        ]
+      }
+    },
+    {
+      "check_id": "b18-n6-cas-readback-pass-manual-get-not-established-814a",
+      "name": "typed N6 refusal readback plus separate manual GET route attempt",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-refusal-and-manual-fresh-GET-814a/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-refusal-and-manual-fresh-GET-814a/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses"
+      ],
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-refusal-and-manual-fresh-GET-814a:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+        "branch": "codex/e02-A-delivery-attached",
+        "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+        "slice_base_tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46",
+        "selected_targets": [
+          "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+          "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses"
+        ],
+        "selected_test_file_pins": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_target": "4a18b213c98ca22413c1cda8e9d4e3fe8fd23a30",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_target": "2ee18b5ee4bf4872bc8443184f024e68ae2b4118",
+            "role": "pytest-selected test input"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob_at_target": "20820b166e0d29c8a4ff4c927082dc0614233cb2",
+            "role": "pytest-selected test input"
+          }
+        ],
+        "selected_test_files_at_slice_base": [
+          {
+            "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          },
+          {
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_slice_base": null,
+            "exists_at_slice_base": false
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "git_blob_at_slice_base": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+            "exists_at_slice_base": true
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob_at_target": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4",
+            "role": "N5 canonical selector, engine adapter, and required-output intake."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+            "git_blob_at_target": "8128f09f62cfc9a3c6a2591097c61d5191243334",
+            "role": "Actual registered NCM pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+            "git_blob_at_target": "1f5a597e661069938241c32d2a902974a6d6b390",
+            "role": "Actual registered coupled simulation pure_step producer."
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "1759e1578eca6a4d70f4d5429035f08077c7062e",
+            "role": "N6 GenerationCycleController, JointSimulationPort, and typed refusal history."
+          }
+        ],
+        "workspace_dirty_before_after_ref": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/receipt.json",
+          "json_pointers": [
+            "/workspace_dirty_before",
+            "/workspace_dirty_after"
+          ]
+        },
+        "input_denominator_note": "The raw receipt records complete pre/post workspace dirtiness; testcase counts come from the complete JUnit file. Target selectors and source/test Git blobs are pinned here. Other run counts are separate overlapping invocations."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "command_exit_code": 1,
+        "wall_seconds": 18.67283066699747,
+        "junit_counts": {
+          "tests": 3,
+          "passed": 2,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected_case_outcomes": [
+          {
+            "selector": "tests.integration.runtime_quality.test_e02_required_numeric_container_intake::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+            "outcome": "PASS",
+            "scope": "B18 malformed-NCM N5-to-N6 CAS history consumer",
+            "interpretation": "B18 N6 refusal reason and blocked status survived verified guarded-CAS fresh typed readback."
+          },
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "outcome": "FAIL",
+            "scope": "separate served/manual-route fixture; not a B18 numeric result",
+            "interpretation": "cycle_substrate_context_job_verified_scope_mismatch occurred before N5; no GET-positive inference."
+          },
+          {
+            "selector": "tests.unit.runtime.quality.test_generation_cycle::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+            "outcome": "PASS",
+            "scope": "separate B06 fallback consumer control; not counted as a B18 B18 case",
+            "interpretation": "B06 sibling control passed; both real engine refusals remain no-run and N8 refuses."
+          }
+        ],
+        "interpretation": "The B18 malformed-NCM refusal passed through JointSimulationPort, was written to guarded CAS as a GenerationCycleRun, and retained its exact reason after fresh typed readback. The B06 sibling no-run/N8 refusal control also passed. The aggregate remains FAIL because the separate manual RunDetails GET fixture raised cycle_substrate_context_job_verified_scope_mismatch before N5; this is no positive served-route evidence and is not a B18 numeric parser failure.",
+        "raw_build_receipt": {
+          "build_path": "policy-engine/_build/e02-A-continuation-20261007/B18-refusal-and-manual-fresh-GET-814a/receipt.json",
+          "copied_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/receipt.json",
+          "sha256": "8c2344181ad641f8ae69fe534c744efda08efb423b9dc0ee13bca7738b536c47"
+        },
+        "copied_outputs": [
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/receipt.json",
+            "sha256": "8c2344181ad641f8ae69fe534c744efda08efb423b9dc0ee13bca7738b536c47",
+            "bytes": 3931
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/stdout.txt",
+            "sha256": "77ff273b0a6bc2fd17133d5c1eaba326747796a40a010740251b20f8c73671c7",
+            "bytes": 25114
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/junit.xml",
+            "sha256": "df263706341fd9876c84c123551748e74d8ffce9a132f974dd8b50f3c5a6f6a4",
+            "bytes": 25638
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/e02_origin.py",
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "bytes": 656
+          },
+          {
+            "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/origins.json",
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "bytes": 1095
+          }
+        ],
+        "failures": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "kind": "failure",
+            "message": "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextOwnerError: cycle_substrate_context_job_verified_scope_mismatch: cycle_substrate_context_job_verified_scope_mismatch"
+          }
+        ]
+      }
+    }
+  ],
+  "interpretation_rules": [
+    "Each outcome is for its own full command/JUnit denominator; a passing target case does not convert a failing aggregate to PASS.",
+    "The 86/86 f1df wave includes 16 B18 numeric-container testcases; do not add the 86-case count to other waves or relabel all 86 as B18.",
+    "The e848 and 814 invocations include unrelated sibling checks; their aggregate FAIL remains recorded with per-target B18 results separately stated.",
+    "The B18 zero controls are fixture-local outputs of actual registered engines. They do not establish causal correctness, external units/time semantics, calibrated evidence, or N9 authority.",
+    "The manual fresh-GET failure occurs before N5 at VerifiedNLJobScope binding; it is not a B18 numeric parser failure and supplies no served GET positive.",
+    "The later 98bfc manual-route fixture observation is supplemental and non-B18: it is outside the five checks and their testcase denominators, and it does not establish fresh GET completion.",
+    "The historical 814a manual-route attempt fails before N5 on owner-scope binding; the separate 98bfc attempt passes its N5/N8 assertions but stops at the nonexistent promotion_port test assertion before job completion/fresh GET. Neither result is added to this B18 check denominator."
+  ],
+  "evidence_copy_policy": {
+    "copied_once": [
+      "receipt.json",
+      "stdout.txt",
+      "stderr.txt",
+      "junit.xml",
+      "e02_origin.py",
+      "origins.json"
+    ],
+    "folders": [
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-container-intake-frozen-red-055c/",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-B30-qualified-controls-red-e848/",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-numeric-scanner-engine-affected-f1df/",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-N6-persisted-refusal-red-0fbc/",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B18-refusal-and-manual-fresh-GET-814a/"
+    ],
+    "excluded": [
+      "pytest basetemp/CAS fixture artifacts",
+      "__pycache__",
+      "source code copies already content-addressed by Git",
+      "duplicate receipt/output copies"
+    ],
+    "note": "Each ignored _build run folder supplied exactly these six files; every copied file was compared byte-for-byte and rehashed."
+  },
+  "supplemental_non_b18_observation": {
+    "intake_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/required-numeric-output-intake.json#/baseline_cells/later_non_b18_manual_route_observation",
+    "included_in_check_count": false,
+    "included_in_b18_denominators": false,
+    "summary": "The one-test 98bfc manual-route attempt passes N5/N8 assertions but fails on nonexistent GenerationCycleRecord.promotion_port before job completion/fresh GET. The ignored raw receipt is cited by path and SHA-256 in the intake; no output copy is added here."
+  }
+}

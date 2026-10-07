@@ -1091,5 +1091,88 @@
     "tree": "6d0dcfc58662bce81a6d42dc8aa75b2fb63f4748",
     "status": "historical_as_of_source_implementation_candidate_not_current_HEAD",
     "note": "The candidate SHA/tree pin is the last implementation commit in this slice; it describes the historical as-of source snapshot only, not the current workspace or dirty files."
+  },
+  "current_three_candidate_original_B10_witness": {
+    "canonical_writer": "A",
+    "test_writer": "A root-published leased test slice",
+    "independent_test_reviewer": "n7_acquisition (read-only GO), plus root diff readback",
+    "slice_base_sha": "8f2a0dcc28da58d9707cc07b485531fc9488e8c6",
+    "implementation_commit": "b99af11b0c6cf7ae12c35e81cd7fb18e05bfb4a8",
+    "candidate_sha": "a12322de1656c8cd1e86676da2fa867fb053694f",
+    "candidate_tree_sha": "3c5fc22cbfebe077f974c33a87fabaffc2d1ca41",
+    "changed_test_path": "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+    "check": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/candidate-purpose-and-alternative-current-a123/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/candidate-purpose-and-alternative-current-a123/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_prepared_n5_ignores_unconsumed_candidate_input_for_ksim",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history"
+      ],
+      "target_sha": "a12322de1656c8cd1e86676da2fa867fb053694f",
+      "environment": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/candidate-purpose-and-alternative-current-a123:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "candidate_tree_sha": "3c5fc22cbfebe077f974c33a87fabaffc2d1ca41",
+        "fixture_scope": "Three bounded candidates; genuine default N5 and scheduler, actual direct-engine comparison. Actual cost debit/diversity producer not established."
+      },
+      "outcome": "PASS",
+      "output": {
+        "selected_case": "test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate",
+        "full_batch_outcome": "FAIL",
+        "full_batch_counts": {
+          "passed": 3,
+          "failures": 1,
+          "tests": 4
+        },
+        "full_deciding_artifacts": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/candidate-purpose-and-alternative-current-a123",
+        "recorded_outputs": {
+          "stdout.txt": {
+            "bytes": 84543,
+            "sha256": "cb0da0e0677cc4a2323a9547cb9993c399e9cc3d56d9ac42e2ef8580cb9cd8d5"
+          },
+          "stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "e02_origin.py": {
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          "junit.xml": {
+            "bytes": 34103,
+            "sha256": "1d7c637c781a8ca8e3141c65beb007896478c4fdca4c2d068831ce14b547a3db"
+          },
+          "origins.json": {
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        }
+      }
+    },
+    "finding_outcome": "limited",
+    "property_witness": "High-proxy missing-input candidate skipped with exact reason; lower numeric candidate actually N5/CAS/N8; third eligible unexecuted candidate stays pending unknown with no invented value/ref; scheduler sees explicit cost 0.50 and cap 0.50.",
+    "limits": [
+      "This test does not establish provider debit/settlement or a distinct diversity policy.",
+      "A batch sibling manual GET assertion failed at its expected foreign-run reason; do not call full batch PASS.",
+      "G acceptance pending."
+    ]
   }
 }

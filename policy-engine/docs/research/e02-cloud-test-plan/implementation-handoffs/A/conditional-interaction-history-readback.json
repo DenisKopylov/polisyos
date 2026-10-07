@@ -80,6 +80,71 @@
       "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review.json and the 9e47 served-test JUnit reference above.",
       "outcome": "UNRUN",
       "output": "L6 authenticity remains not_established. Served-GET horizon/step coverage, trajectory-scope count, checked orders, residual scope/map, and fresh-readback values were not observed because N4 failed before N5."
+    },
+    {
+      "check_id": "B26-cubic-consumer-additive-current-178a",
+      "command": "pytest tests/integration/core_runtime/test_e02_higher_order_n8_intake.py::test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer tests/unit/remediation/test_sim_03.py::test_complete_additive_three_atom_basis_remains_additive",
+      "target_sha": "178aae968e6e4c699245cbfe74310be3633d4c20",
+      "environment": "Native macOS; Python 3.14.3, pytest 9.0.2, Pydantic 2.12.5, NumPy 2.3.5, SciPy 1.16.3; JAX_PLATFORMS=cpu and one thread per BLAS runtime. Exact argv/environment are in the receipt.",
+      "input_closure": "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py@blob:9277e0f55a8529d86cdce45e315ae9ca6a05be1a; tests/unit/remediation/test_sim_03.py@blob:4804ffac006db662bbd912ae835c1c8fafbb6f05; src/polisyos/runtime/quality/generation_cycle.py@blob:1759e1578eca6a4d70f4d5429035f08077c7062e; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B26-cubic-consumer-additive-current-178a/receipt.json@sha256:7c5b8e8f22ca6cc867058300cd3de72f95a410ab349cc6b336281909842b7b48. Test artifacts and CAS were created under isolated tmp_path; a separate Python process imported the pinned runtime and consumed the persisted result.",
+      "outcome": "PASS",
+      "output": "2 passed in 28.73 seconds (JUnit: 25.479 seconds). The real JointSimulationPort N5 cubic NCM wrote a seven-trajectory result and content-bound receipt to CAS; a fresh process used the actual default N8 consumer. It returned value_conditional with recomputed third-order residual 1.0. The additive three-atom control retained all three checked orders and residual 0.0. This is direct N5→CAS→fresh-process N8 evidence, not an ordinary served POST/GET result or a B26 closure decision.",
+      "literal_pins": {
+        "schema_version": "policyos.runtime.conditional_simulation_interaction_evidence.v1",
+        "horizon_start": 0,
+        "horizon_end": 0,
+        "horizon_step": 1,
+        "requested_steps": [
+          0
+        ],
+        "observed_steps": [
+          0
+        ],
+        "trajectory_scope_count": 7,
+        "checked_interaction_orders": [
+          1,
+          2,
+          3
+        ],
+        "max_checked_interaction_order": 3,
+        "higher_order_residuals": {
+          "firm_survival": {
+            "0": 1.0
+          }
+        },
+        "residual_scope": "third_order",
+        "predicate_provenance": "recomputed",
+        "authority_purpose": "conditional_simulation_only",
+        "unit_binding_status": "not_established",
+        "time_binding_status": "not_established",
+        "sampling_uncertainty_status": "not_established"
+      },
+      "semantic_controls": {
+        "blocked_by_actual_n8_consumer": [
+          "content-valid false residual",
+          "content-valid false checked-order claim",
+          "missing pair scope",
+          "wrong persisted horizon step",
+          "duplicate grid point",
+          "unknown outcome",
+          "sibling receipt-payload hash mismatch"
+        ],
+        "valid_permutation": "Trajectory permutation remained value_conditional and produced identical recomputed evidence.",
+        "actual_ast_removal_controls": [
+          "interaction_trajectory_scope_or_grid_mismatch guard removed; forged duplicate-grid case became value_conditional",
+          "interaction_residual_mismatch guard removed; forged residual case became value_conditional",
+          "interaction_order_mismatch guard removed; forged order case became value_conditional"
+        ],
+        "additive_control": "Separate controlled three-atom method test passed with checked orders [1,2,3], zero residual, and no interaction_evidence_incomplete limitation."
+      },
+      "scope_boundary": {
+        "l6_prerequisite": "No ordinary L6 source is required for this bounded direct producer-to-CAS-to-fresh-default-N8 test. This does not authenticate L6 or admit an ordinary served profile.",
+        "sampling_uncertainty": "not_established; no statistical uncertainty/error quantity, IID/QMC claim, or precision estimate was produced.",
+        "finding_state": "Root closure decision remains pending; no finding closure is assigned by this test receipt.",
+        "prior_independent_b26_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8-review.json records a bounded source review GO and prior direct consumer-wave pass while leaving B26 not adjudicated because ordinary served three-atom GET verification was still missing.",
+        "served_get": "Not exercised by this test. A separate manual GET at HEAD 178a was recorded as HTTP 200 with value_blocked; that is a distinct surface observation, not this consumer's positive result and not evidence of L6 source authenticity."
+      },
+      "evidence_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/B26-cubic-consumer-additive-current-178a/"
     }
   ],
   "property": {
@@ -185,5 +250,26 @@
       "source_of_truth": "complete_diff_command above; existing tracked artifacts are Git-addressed, not copied"
     },
     "boundary": "This is the complete intervening snapshot delta, including independent slices. The property-owned changed_paths and implementation_commits select the bounded mechanism; neither list nor current test PASS admits the whole carrier."
+  },
+  "root_original_B26_adjudication_20261008": {
+    "finding_outcome": "closed",
+    "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:517",
+    "criterion_scope": "Triple multiplicative counterexample and genuine additive control through actual N8 reader; no public GET or known uncertainty-estimate prerequisite.",
+    "deciding_check": "conditional-interaction-history-readback.json#/checks/7",
+    "execution_candidate_sha": "178aae968e6e4c699245cbfe74310be3633d4c20",
+    "execution_candidate_tree_sha": "5e9b2b9a25ea63ea2b6b6aeece1a43d9b706adae",
+    "check_outcome": "PASS",
+    "oracle": "x1*x2*x3 at zero baseline: singleton/pairwise=0; joint residual=1. Additive sum control: residual=0, checked orders [1,2,3].",
+    "independent_review": {
+      "reviewer": "empirical_graph",
+      "mode": "read_only_original_criterion_and_exact_output_review",
+      "reviewed_current_sha": "8856ca1ea29bbbea62d07d346e2ceb2a6fda2787",
+      "source_path_reuse": "Actual N8 interaction reader/recompute functions unchanged from 178a; later candidate-purpose/history epoch edits reviewed separately."
+    },
+    "limits": [
+      "Conditional simulation only; physical unit/time and sampling uncertainty remain explicitly not_established.",
+      "Public three-atom GET is separate surface verification, not added to B26 original criterion.",
+      "G code/integration acceptance pending."
+    ]
   }
 }

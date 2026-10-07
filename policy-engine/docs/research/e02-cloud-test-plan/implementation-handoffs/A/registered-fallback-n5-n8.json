@@ -465,10 +465,223 @@
         ],
         "raw_receipt_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumers-current-nodes-4bea/receipt.json"
       }
+    },
+    {
+      "name": "B06-two-refused-engines-current-0662",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662/pytest-basetemp",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8"
+      ],
+      "target_sha": "06624182ba74ad6c9cc37da8d565651d9fc62291",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "runtime_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_variables": {},
+        "launcher": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "candidate_commit": "06624182ba74ad6c9cc37da8d565651d9fc62291",
+        "candidate_tree_sha": "9cf380af1f7ed801b9c4f3f5c775b399011cf2b1",
+        "slice_base_sha": "f1df6f8bfb41902753949db1aca80e5081fdde51",
+        "branch": "codex/e02-A-delivery-attached",
+        "candidate_delta": {
+          "paths": [
+            "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+          ],
+          "test_only": true,
+          "test_git_blob": "20820b166e0d29c8a4ff4c927082dc0614233cb2",
+          "test_file_sha256": "9e10e65861e4a1661ffa62b30092fe9a5bb1a9484db55c504409c78a866fc3aa"
+        },
+        "selectors": [
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B06-static-first-rejects-multi-point-horizon]",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B07-one-point-request-reaches-coupling-gate]"
+        ],
+        "runtime_sources": [
+          {
+            "role": "actual JointSimulationPort/controller orchestration and persisted result/N8 consumer",
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob": "a502de05a145598f9146146cc85849104e664222"
+          },
+          {
+            "role": "canonical engine-plan applicability assessment and actual JointSimulationHorizonController",
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4"
+          },
+          {
+            "role": "typed coupling-composition dependency loaded by the owner request path",
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+            "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636"
+          },
+          {
+            "role": "real content-addressed artifact store used by the test fixture and consumer",
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931"
+          },
+          {
+            "role": "existing shared coupling-graph fixture builder used to compose the owner request",
+            "path": "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+            "git_blob": "6bb042e28cf756e90a8aa1cae219aea105e40c1a"
+          }
+        ],
+        "criterion_refs": [
+          {
+            "criterion_id": "B06",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+            "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+            "lines": [
+              265,
+              276
+            ],
+            "criterion_slice_sha256": "5b44bf92e85922ef58847a555400c95c7f2dfee9108946f258d287cd31d161e1"
+          }
+        ],
+        "fixture_inputs": {
+          "store": "pytest tmp_path content-addressed store from _runtime_ncm_fixture_store; isolated fixture data",
+          "owner_request_builder": "_owner_n5_case_with_selected_ncm_ref and the real JointSimulationPort request builder",
+          "request_horizon": {
+            "start": 0,
+            "end": 1,
+            "step": 1
+          },
+          "baseline_state": {
+            "firm_survival": 0.0
+          },
+          "engine_plan": [
+            {
+              "engine_kind": "ncm_parallel_worlds",
+              "origin": "real typed owner-built request"
+            },
+            {
+              "engine_kind": "system_dynamics",
+              "objective_ref": "objective://firm_survival"
+            }
+          ],
+          "coupling_graph": "existing N5 contract helper _coupling_graph(\"shared_resource\")",
+          "applicability_refusals": [
+            {
+              "engine_kind": "ncm_parallel_worlds",
+              "decision": "unsupported",
+              "reason": "static_engine_cannot_ground_dynamic_horizon"
+            },
+            {
+              "engine_kind": "system_dynamics",
+              "decision": "unsupported",
+              "reason": "system_dynamics_state_missing"
+            }
+          ]
+        },
+        "observed_consumer_path": "Actual JointSimulationPort with exact JointSimulationHorizonController, CAS persistence/readback and direct default N8 value port; owner-bounded test fixture, not a full served GenerationCycleController lifecycle."
+      },
+      "outcome": "PASS",
+      "output": {
+        "aggregate_result": {
+          "tests": 3,
+          "passed": 3,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "pytest_exit_code": 0,
+          "target_case_outcome": "PASS",
+          "target_case": "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+          "parameter_controls": [
+            {
+              "selector": "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B06-static-first-rejects-multi-point-horizon]",
+              "outcome": "PASS"
+            },
+            {
+              "selector": "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B07-one-point-request-reaches-coupling-gate]",
+              "outcome": "PASS"
+            }
+          ],
+          "aggregate_scope": "The exact 3-node selected command only; this is not the earlier affected-consumer aggregate."
+        },
+        "wall_seconds": 18.543546040949877,
+        "junit_seconds": 15.237,
+        "exit_code": 0,
+        "junit_counts_from_complete_file": true,
+        "files": [
+          {
+            "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/receipt.json",
+            "bytes": 10229,
+            "sha256": "3d92249614233aedd1a5037a13bd4b1f21a4330d2aa8b670e949b47d38561d51"
+          },
+          {
+            "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/stdout.txt",
+            "bytes": 99,
+            "sha256": "55427ffc5e883661d0eced8559b6217c81532bd1f148063a9126543f3fbc065d"
+          },
+          {
+            "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/junit.xml",
+            "bytes": 821,
+            "sha256": "257b54720f53d40288abdfd5c75ba0d264613085b599fd95e59068f4ae3d2df0"
+          },
+          {
+            "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          },
+          {
+            "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          }
+        ],
+        "raw_receipt_path": "policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662/receipt.json"
+      }
     }
   ],
-  "property": "The default GenerationCycleController accepts only the selected, actually executed registered fallback whose N5 result is CAS-persisted and read by default N8 as conditional simulate_only value with the K_sim blocker retained; the earlier rejection reason is preserved. The B07 case is deliberately limited to a one-point horizon.",
-  "predicate_basis": {
+  "property": {
+  "statement": "The default GenerationCycleController accepts only the selected, actually executed registered fallback whose N5 result is CAS-persisted and read by default N8 as conditional simulate_only value with the K_sim blocker retained; the earlier rejection reason is preserved. The B07 case is deliberately limited to a one-point horizon.",
+  "runtime_path": [
+    "registered engine applicability/controller",
+    "selected EngineDecision and trajectories",
+    "runtime numeric CAS",
+    "JointSimulationPort",
+    "default simulation-bound N8/shared content-bound loader"
+  ],
+  "proxy_divergence": "History includes rejected alternatives, yet one supported selected execution is usable; a receipt-valid selected marker with no trajectory is not an execution.",
+  "negative_controls": [
+    "two actual engine refusals produce no-run CAS and value_blocked",
+    "receipt-valid copied selected/no trajectory refused by canonical loader"
+  ]
+},
+  "predicate_basis_details": {
     "command_and_target_test_outcomes": {
       "label": "recomputed",
       "basis": "Complete retained JUnit output, exact selected node ids and candidate/test Git blob."
@@ -526,5 +739,236 @@
     ],
     "acceptance_signal": "Exact target JUnit cases PASS; aggregate remains FAIL and both finding recommendations remain limited/pending."
   },
-  "evidence_copy_policy": "Complete stdout, stderr, JUnit, runner hook, import origins, and original runner receipt for b7ec and 4bea are copied byte-exact under continuation-20261007-wave3/evidence/registered-fallback-n5-n8-{b7ec,4bea}/. The larger pytest basetemp CAS artifacts remain in ignored _build and are not copied; the raw commands and output hashes are cited."
+  "evidence_copy_policy": "Complete stdout, stderr, JUnit, runner hook, import origins, and original runner receipt for b7ec and 4bea are copied byte-exact under continuation-20261007-wave3/evidence/registered-fallback-n5-n8-{b7ec,4bea}/. The larger pytest basetemp CAS artifacts remain in ignored _build and are not copied; the raw commands and output hashes are cited. The current 0662 run has its six standard deciding files copied byte-exact under continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/; pytest basetemp/CAS fixtures are not copied.",
+  "current_consumer_check": {
+    "criterion_id": "B06",
+    "state": "closed",
+    "formal_status": "root_original_criterion_adjudicated_G_code_acceptance_pending",
+    "adjudication": "Root closed the bounded original B06 fallback criterion using the positive fallback, all-engines-refused and content-valid fake-selected/no-trajectory controls. See root_original_B06_decision. This does not close B07 or imply G code acceptance.",
+    "check_ref": "#/checks/2",
+    "outcome": "PASS",
+    "observed": {
+      "assessment": "ineligible for the exact owner-built ordered request; request digest present",
+      "port_observation": {
+        "status": "simulation_blocked",
+        "simulation_result_ref": "present and verified in the actual content-addressed store",
+        "trajectory_count": 0,
+        "engine_run_claimed": false,
+        "selected_engine_decision": false
+      },
+      "default_n8": {
+        "status": "value_blocked",
+        "value_ref": null,
+        "simulation_evaluation_input_ref": null
+      },
+      "cas_consumer_negative": "Actual no-run result and a copied result with a newly valid content-bound receipt but a forged selected decision both fail loading with joint_simulation_result_trajectory_missing."
+    },
+    "bounded_relation_to_existing_fallback_witness": "This adds the real all-engines-refused/no-run negative to the earlier bounded fallback consumer evidence; it does not replace or upgrade prior FAIL aggregates.",
+    "does_not_establish": [
+      "a full served GenerationCycleController lifecycle or production-data execution",
+      "physical engine execution, scientific/model validity, or a selected executable plan in this case",
+      "a green affected-consumer aggregate or all registered-engine/input applicability coverage",
+      "B07 producer time-grid binding; its one-point limitation remains unchanged"
+    ],
+    "next_owner": "G reviews/integrates exact A source/test packet; B07 time-grid semantics remain separate."
+  },
+  "current_test_slice": {
+    "schema": "policyos.e02.registered_fallback_current_test_slice.v1",
+    "candidate_sha": "06624182ba74ad6c9cc37da8d565651d9fc62291",
+    "candidate_tree_sha": "9cf380af1f7ed801b9c4f3f5c775b399011cf2b1",
+    "slice_base_sha": "f1df6f8bfb41902753949db1aca80e5081fdde51",
+    "branch": "codex/e02-A-delivery-attached",
+    "test_path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "test_git_blob": "20820b166e0d29c8a4ff4c927082dc0614233cb2",
+    "test_file_sha256": "9e10e65861e4a1661ffa62b30092fe9a5bb1a9484db55c504409c78a866fc3aa",
+    "candidate_delta_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+    ],
+    "candidate_delta_scope": "Test-only commit; no production source file changed between the exact base and this test candidate.",
+    "selectors": [
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B06-static-first-rejects-multi-point-horizon]",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8[B07-one-point-request-reaches-coupling-gate]"
+    ],
+    "command_argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_origin",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-q",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662/junit.xml",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662/pytest-basetemp",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses",
+      "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_persists_registered_fallback_for_default_n8"
+    ],
+    "environment": {
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+      "runtime_versions": {
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3"
+      },
+      "variables": {
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B06-two-refused-engines-current-0662:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "probe_variables": {},
+      "launcher": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+        "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+      }
+    },
+    "runtime_source_blobs": [
+      {
+        "role": "actual JointSimulationPort/controller orchestration and persisted result/N8 consumer",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "git_blob": "a502de05a145598f9146146cc85849104e664222"
+      },
+      {
+        "role": "canonical engine-plan applicability assessment and actual JointSimulationHorizonController",
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "git_blob": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4"
+      },
+      {
+        "role": "typed coupling-composition dependency loaded by the owner request path",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+        "git_blob": "9494717e0536fe6d9a2bbc360b0a0f5ea1ee0636"
+      },
+      {
+        "role": "real content-addressed artifact store used by the test fixture and consumer",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931"
+      },
+      {
+        "role": "existing shared coupling-graph fixture builder used to compose the owner request",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+        "git_blob": "6bb042e28cf756e90a8aa1cae219aea105e40c1a"
+      }
+    ],
+    "fixture_inputs": {
+      "store": "pytest tmp_path content-addressed store from _runtime_ncm_fixture_store; isolated fixture data",
+      "owner_request_builder": "_owner_n5_case_with_selected_ncm_ref and the real JointSimulationPort request builder",
+      "request_horizon": {
+        "start": 0,
+        "end": 1,
+        "step": 1
+      },
+      "baseline_state": {
+        "firm_survival": 0.0
+      },
+      "engine_plan": [
+        {
+          "engine_kind": "ncm_parallel_worlds",
+          "origin": "real typed owner-built request"
+        },
+        {
+          "engine_kind": "system_dynamics",
+          "objective_ref": "objective://firm_survival"
+        }
+      ],
+      "coupling_graph": "existing N5 contract helper _coupling_graph(\"shared_resource\")",
+      "applicability_refusals": [
+        {
+          "engine_kind": "ncm_parallel_worlds",
+          "decision": "unsupported",
+          "reason": "static_engine_cannot_ground_dynamic_horizon"
+        },
+        {
+          "engine_kind": "system_dynamics",
+          "decision": "unsupported",
+          "reason": "system_dynamics_state_missing"
+        }
+      ]
+    },
+    "observed_consumer_path": {
+      "assessment": "ineligible for the exact owner-built ordered request; request digest present",
+      "port_observation": {
+        "status": "simulation_blocked",
+        "simulation_result_ref": "present and verified in the actual content-addressed store",
+        "trajectory_count": 0,
+        "engine_run_claimed": false,
+        "selected_engine_decision": false
+      },
+      "default_n8": {
+        "status": "value_blocked",
+        "value_ref": null,
+        "simulation_evaluation_input_ref": null
+      },
+      "cas_consumer_negative": "Actual no-run result and a copied result with a newly valid content-bound receipt but a forged selected decision both fail loading with joint_simulation_result_trajectory_missing."
+    },
+    "result": {
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "wall_seconds": 18.543546040949877,
+      "junit_seconds": 15.237
+    },
+    "evidence_directory": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/",
+    "evidence_files": [
+      {
+        "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/receipt.json",
+        "bytes": 10229,
+        "sha256": "3d92249614233aedd1a5037a13bd4b1f21a4330d2aa8b670e949b47d38561d51"
+      },
+      {
+        "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/stdout.txt",
+        "bytes": 99,
+        "sha256": "55427ffc5e883661d0eced8559b6217c81532bd1f148063a9126543f3fbc065d"
+      },
+      {
+        "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/junit.xml",
+        "bytes": 821,
+        "sha256": "257b54720f53d40288abdfd5c75ba0d264613085b599fd95e59068f4ae3d2df0"
+      },
+      {
+        "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/e02_origin.py",
+        "bytes": 656,
+        "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+      },
+      {
+        "path": "continuation-20261007-wave3/evidence/B06-two-refused-engines-current-0662/origins.json",
+        "bytes": 1095,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      }
+    ],
+    "prior_aggregate_history": "The earlier updated-target aggregate remains 2 target cases PASS within a 7-test command that failed 5 cases; the exact SIM-01 355-test wave remains 350 passed and 5 failed. These historical outcomes are untouched.",
+    "status_boundary": "B06 remains limited and pending root adjudication. B07 remains limited to the one-point request, with producer-time-grid binding not_established."
+  }
+,
+"predicate_basis": "recomputed",
+  "root_original_B06_decision": {
+    "finding_outcome": "closed",
+    "scope": "Original three fallback acceptance controls only; B07 temporal meaning separate.",
+    "independent_review": {
+      "reviewer": "/root/atomic_composition",
+      "candidate_sha": "06624182ba74ad6c9cc37da8d565651d9fc62291",
+      "candidate_tree": "9cf380af1f7ed801b9c4f3f5c775b399011cf2b1",
+      "decision": "bounded GO",
+      "notes": "Positive fallback actual registered StockFlow/default N8; real no-run CAS/default N8 refusal; copied selected/no trajectory canonical shared loader refusal."
+    },
+    "G_code_acceptance": "pending",
+    "check_outcome": "PASS",
+    "receipt_ref": "#/checks/2",
+    "preserve_prior_outcomes": true
+  }
 }

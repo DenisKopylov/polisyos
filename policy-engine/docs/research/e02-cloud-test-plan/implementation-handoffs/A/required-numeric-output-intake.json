@@ -1,0 +1,647 @@
+{
+  "schema": "policyos.e02.required_numeric_output_intake.v1",
+  "unit": "A",
+  "slice": "required-numeric-output-intake",
+  "closure_ids": [
+    "B18"
+  ],
+  "bundle_ids": [
+    "SIM-02"
+  ],
+  "slice_base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+  "implementation_commits": [
+    "dc42aec2b8bcd4beb5c423de59d20ae1d6366126",
+    "6aae70ebac4cd628078a3bd4863e639f95cfc2da"
+  ],
+  "candidate_tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+    "policy-engine/tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+    "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py"
+  ],
+  "baseline_cells": {
+    "slice_base": {
+      "sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+      "tree_sha": "b20c0656f296bd2bb0f8fe6c8f49580c0ad43c46"
+    },
+    "candidate": {
+      "sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+      "tree_sha": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+      "branch": "codex/e02-A-delivery-attached"
+    },
+    "source_path_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "role": "B18 production consumer: canonical N5 output-shape and finite-value intake.",
+        "git_blob_at_slice_base": "77f0743bebfdf72f635a0f0477884c279b865da6",
+        "git_blob_at_candidate": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4",
+        "exists_at_slice_base": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "role": "B18 N5-to-N6 typed refusal bridge and retained cycle-history reason.",
+        "git_blob_at_slice_base": "24bc51b91a70e763076221228095573eb1d0e554",
+        "git_blob_at_candidate": "1759e1578eca6a4d70f4d5429035f08077c7062e",
+        "exists_at_slice_base": true
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+        "role": "B18 actual registered NCM/coupled producer-output damage, zero controls, and N6 CAS readback.",
+        "git_blob_at_slice_base": null,
+        "git_blob_at_candidate": "4a18b213c98ca22413c1cda8e9d4e3fe8fd23a30",
+        "exists_at_slice_base": false
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+        "role": "Registered-engine input/contract applicability companions included in affected wave.",
+        "git_blob_at_slice_base": null,
+        "git_blob_at_candidate": "77c5b164c6cf590edfe6633ae016a8fa7c36a549",
+        "exists_at_slice_base": false
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "role": "Separate B06 fallback/N8 consumer sibling control; not a B18 numerator.",
+        "git_blob_at_slice_base": "274058481969fb5c2fab9db4edc4833e3a4a6880",
+        "git_blob_at_candidate": "20820b166e0d29c8a4ff4c927082dc0614233cb2",
+        "exists_at_slice_base": true
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "role": "Separate manual fresh-GET route probe; its fixture fails before N5 and is not a B18 positive.",
+        "git_blob_at_slice_base": null,
+        "git_blob_at_candidate": "2ee18b5ee4bf4872bc8443184f024e68ae2b4118",
+        "exists_at_slice_base": false
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+        "role": "Separate B30 source-census sibling control co-run with the B18 zero qualification; unrelated to B18 semantics.",
+        "git_blob_at_slice_base": "f660e871ef0732fa7b68464a67035932a24aaefa",
+        "git_blob_at_candidate": "f03c8d45e488a30a3787d26de983de985ad4ced4",
+        "exists_at_slice_base": true
+      }
+    ],
+    "implementation_commit_roles": [
+      {
+        "sha": "dc42aec2b8bcd4beb5c423de59d20ae1d6366126",
+        "tree_sha": "aec19b85a3bca24aaa5ec2e0847b3db4f2fd56e5",
+        "role": "N5 required numeric output extraction: preserve missing, malformed, non-numeric, non-finite, and explicit-zero distinctions."
+      },
+      {
+        "sha": "6aae70ebac4cd628078a3bd4863e639f95cfc2da",
+        "tree_sha": "6d79e521bbede45a010e7f6fc465294c32d004c2",
+        "role": "JointSimulationPort converts only typed JointSimulationControllerError to an N5 blocked observation carrying the exact reason into N6 history."
+      }
+    ],
+    "supporting_test_commits": [
+      {
+        "sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+        "role": "Initial registered NCM/coupled output-shape negative tests; expected pre-fix red."
+      },
+      {
+        "sha": "e848af39e42a4f3d092fd454f5861b1706c87136",
+        "role": "Corrected actual-zero NCM fixture and added a separate B30 source-census control."
+      },
+      {
+        "sha": "f1df6f8bfb41902753949db1aca80e5081fdde51",
+        "role": "Registered-engine input/applicability companions and affected consumer wave."
+      },
+      {
+        "sha": "06624182ba74ad6c9cc37da8d565651d9fc62291",
+        "role": "Two real engine refusals persisted through N5 CAS and consumed by N8; B06 sibling control."
+      },
+      {
+        "sha": "ea8cd5178c625c785e0f0a5589f2a49637133458",
+        "role": "N6 CAS history readback refusal witness; expected pre-bridge red."
+      },
+      {
+        "sha": "0fbcc3859d4295ad1561d579ba8cec5c1c135960",
+        "role": "Separate manual fresh-GET route probe; it fails before reaching N5."
+      }
+    ],
+    "per_command_denominators": [
+      {
+        "check_id": "b18-initial-output-classification-red-055c",
+        "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+        "junit_counts": {
+          "tests": 12,
+          "passed": 7,
+          "failed": 5,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 12,
+          "passed": 7,
+          "failed": 5,
+          "errors": 0,
+          "skipped": 0,
+          "target_class_cases": 12
+        },
+        "outcome": "FAIL"
+      },
+      {
+        "check_id": "b18-zero-control-and-separate-b30-census-e848",
+        "target_sha": "e848af39e42a4f3d092fd454f5861b1706c87136",
+        "junit_counts": {
+          "tests": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "FAIL"
+      },
+      {
+        "check_id": "b18-included-in-affected-wave-86-of-86-f1df",
+        "target_sha": "f1df6f8bfb41902753949db1aca80e5081fdde51",
+        "junit_counts": {
+          "tests": 86,
+          "passed": 86,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 0
+        },
+        "b18_target_case_counts": {
+          "count": 16,
+          "passed": 16,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "PASS"
+      },
+      {
+        "check_id": "b18-n6-refusal-bridge-red-0fbc",
+        "target_sha": "0fbcc3859d4295ad1561d579ba8cec5c1c135960",
+        "junit_counts": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "FAIL"
+      },
+      {
+        "check_id": "b18-n6-cas-readback-pass-manual-get-not-established-814a",
+        "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+        "junit_counts": {
+          "tests": 3,
+          "passed": 2,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "exit_code": 1
+        },
+        "b18_target_case_counts": {
+          "count": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outcome": "FAIL"
+      }
+    ],
+    "denominator_note": "These are five distinct, partly overlapping command denominators, not a combined suite count. In particular, f1df is 86/86 overall with 16 B18 module cases; the separate 12-case, zero-control, N6-red, and final 3-case runs must not be summed into that wave or inherited as one aggregate result.",
+    "later_non_b18_manual_route_observation": {
+      "classification": "separate non-B18 manual-route fixture observation; excluded from B18 check and testcase denominators",
+      "candidate": {
+        "sha": "98bfc195b94f42ff05ed23ae8088da9e0118552b",
+        "tree_sha": "7688a7a3ac61e93b43ace7467b5a143fc96cdd61",
+        "branch": "codex/e02-A-delivery-attached"
+      },
+      "selector": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+      "outcome": "FAIL",
+      "junit_counts": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "observation": "The corrected-owner-scope attempt reaches and passes the test assertions for N5 joint simulation and N8 value_conditional, then fails when the test accesses nonexistent GenerationCycleRecord.promotion_port. The handler therefore does not complete the job and the fresh RunDetails GET is not reached. This does not establish a served GET positive and does not change the earlier 814a run’s historical pre-N5 scope failure.",
+      "raw_receipt": {
+        "path": "policy-engine/_build/e02-A-continuation-20261007/manual-fresh-GET-verified-98bfc/receipt.json",
+        "sha256": "a03d4cb8ba92cdc29cf7c172c7d9ff0386765447e05a2d51c283f644764a43e9"
+      }
+    }
+  },
+  "checks": [
+    {
+      "check_id": "b18-initial-output-classification-red-055c",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-container-intake-frozen-red-055c/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-container-intake-frozen-red-055c/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py"
+      ],
+      "target_sha": "055ceb1b3f0cd3fee7203231e3c556c31fad3a9b",
+      "environment": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/0/environment"
+      },
+      "input_closure": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/0/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/0/output"
+      }
+    },
+    {
+      "check_id": "b18-zero-control-and-separate-b30-census-e848",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_registered_ncm_direct_zero_remains_a_numeric_zero",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py::test_strangle_census_does_not_follow_ancestor_source_symlink"
+      ],
+      "target_sha": "e848af39e42a4f3d092fd454f5861b1706c87136",
+      "environment": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/1/environment"
+      },
+      "input_closure": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/1/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/1/output"
+      }
+    },
+    {
+      "check_id": "b18-included-in-affected-wave-86-of-86-f1df",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-numeric-scanner-engine-affected-f1df/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/thirteenth-numeric-scanner-engine-affected-f1df/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+        "tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+      ],
+      "target_sha": "f1df6f8bfb41902753949db1aca80e5081fdde51",
+      "environment": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/2/environment"
+      },
+      "input_closure": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/2/input_closure"
+      },
+      "outcome": "PASS",
+      "output": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/2/output"
+      }
+    },
+    {
+      "check_id": "b18-n6-refusal-bridge-red-0fbc",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-N6-persisted-refusal-red-0fbc/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history"
+      ],
+      "target_sha": "0fbcc3859d4295ad1561d579ba8cec5c1c135960",
+      "environment": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/3/environment"
+      },
+      "input_closure": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/3/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/3/output"
+      }
+    },
+    {
+      "check_id": "b18-n6-cas-readback-pass-manual-get-not-established-814a",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-refusal-and-manual-fresh-GET-814a/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-refusal-and-manual-fresh-GET-814a/pytest-basetemp",
+        "tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py::test_malformed_owner_ncm_reason_survives_n6_cas_history",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_two_refusals_persist_no_run_and_n8_refuses"
+      ],
+      "target_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+      "environment": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/4/environment"
+      },
+      "input_closure": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/4/input_closure"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "ref": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/required-numeric-checks.json#/checks/4/output"
+      }
+    }
+  ],
+  "property": {
+    "claim": "For the selected outcomes consumed by registered NCM and coupled engines, empty or missing output, malformed result/summary/stats containers, non-numeric values, and non-finite values do not become a numeric zero; an actual numeric zero remains zero. A typed malformed-N5 refusal is preserved through the N6 cycle record and fresh guarded-CAS readback.",
+    "producer_consumer_path": [
+      "actual registered NCM or coupled pure_step",
+      "canonical JointSimulationHorizonController output intake",
+      "N5 JointSimulationPort typed blocked observation",
+      "GenerationCycleController N6 cycle/value history",
+      "guarded runtime CAS write, verify, fresh bytes, and typed GenerationCycleRun readback"
+    ],
+    "scope": "Bounded synthetic fixtures with actual registered engines under contract-testing scope. The B18 N6 history case verifies a malformed NCM result refusal; the B18 numeric-output cases separately exercise both NCM and coupled queue output containers.",
+    "numeric_zero_control": "A supported linear NCM fixture is set to actual zero with baseline zero; the real registered producer emits mean 0.0 and the canonical trajectory retains 0.0. The coupled queue zero control also calls the actual registered coupled pure_step.",
+    "b18_criterion": "B18 requires empty package, one selected output missing, explicit zero, NaN/Inf, and malformed structure to remain distinct, and a missing required output not to create a positive numeric result.",
+    "statement": "For the selected outcomes consumed by registered NCM and coupled engines, empty or missing output, malformed result/summary/stats containers, non-numeric values, and non-finite values do not become a numeric zero; an actual numeric zero remains zero. A typed malformed-N5 refusal is preserved through the N6 cycle record and fresh guarded-CAS readback.",
+    "runtime_path": [
+      "actual registered NCM or coupled pure_step",
+      "canonical JointSimulationHorizonController output intake",
+      "N5 JointSimulationPort typed blocked observation",
+      "GenerationCycleController N6 cycle/value history",
+      "guarded runtime CAS write, verify, fresh bytes, and typed GenerationCycleRun readback"
+    ],
+    "proxy_divergence": "The consumer parses the actual selected registered-engine return values. A missing/malformed/non-finite output that the former projection could collapse into a missing-value/default path must be refused rather than become numeric zero; the tested damage wrapper mutates only a copy after real pure_step. This checks output-container semantics, not causal/unit/time truth.",
+    "negative_controls": [
+      "Actual registered NCM cases: empty result package, one selected output missing, malformed result container, malformed summary container, malformed selected-output structure, NaN, and infinity.",
+      "Actual registered coupled-engine cases: missing required queue trajectory, malformed queue container, and non-finite queue value.",
+      "The malformed-NCM refusal is consumed through N5 and persisted/reloaded as the same refusal in N6 CAS history."
+    ]
+  },
+  "capability_state_or_finding_state": "limited",
+  "limitations_and_next_owner": {
+    "finding_state": "Root original B18 finding outcome is closed for the two registered adapters, as explicitly recorded in root_original_B18_decision; broader unit/time/scientific and served capabilities remain limited. G code acceptance is pending.",
+    "observer_scope": [
+      "registered NCM and coupled output-container/value semantics only",
+      "no causal effect validity",
+      "no unit or time-meaning validation",
+      "no production measurement/source admission or calibration",
+      "no N9 promotion or publication authority"
+    ],
+    "current_evidence_boundary": [
+      "B18 malformed-NCM refusal now passes the selected producer→N5→N6 typed history→guarded CAS→fresh typed readback path.",
+      "The direct zero controls are real registered-engine outputs in synthetic fixtures.",
+      "The 814a command remains a 3-case aggregate FAIL with 2 passing selected cases because that manual fresh-GET fixture fails before N5. A separate 98bfc attempt clears that pre-N5 point and passes N5/N8 assertions, but fails on the test’s nonexistent promotion_port access before job completion/fresh GET; see baseline_cells.later_non_b18_manual_route_observation.",
+      "The earlier 055c malformed-container red and 0fbc uncaught-error red remain preserved as pre-fix evidence, not current failures."
+    ],
+    "next_owner": "Root adjudication is recorded in root_original_B18_decision. G reviews the exact bounded source/test slice. The separate manual-route attempts are observations, not an assumed B18 prerequisite; served-route execution remains unestablished, and unit/time semantics remain a separate B22 boundary."
+  },
+  "source_criteria": {
+    "finding_id": "B18",
+    "source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "git_blob_at_slice_base": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "git_blob_at_candidate": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "file_sha256_at_slice_base": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "criterion_lines_one_based": [
+        411,
+        424
+      ],
+      "criterion_slice_sha256": "7a231693e1ff776923bcae7ffaf37eafcdec6e7738a8f2f22f4e853cb7826dd2",
+      "canonical_coverage_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "finding_row_id": "B18",
+        "criterion_slice_sha256_recorded": "7a231693e1ff776923bcae7ffaf37eafcdec6e7738a8f2f22f4e853cb7826dd2",
+        "historical_ledger_status": "partial",
+        "closure_now": "not_adjudicated"
+      }
+    },
+    "bundle": {
+      "bundle_id": "SIM-02",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-02.md",
+      "git_blob_at_slice_base": "86b498696495ebd7ba0423989cabcf666dc5763a",
+      "git_blob_at_candidate": "86b498696495ebd7ba0423989cabcf666dc5763a",
+      "file_sha256_at_slice_base": "d56311f8067a37ae2f904d0c6b7c5abfffa08427223d5995f129ddf3ce2def43",
+      "source_section_lines_one_based": [
+        48,
+        67
+      ]
+    }
+  },
+  "source_review": {
+    "candidate_source_commit": "6aae70ebac4cd628078a3bd4863e639f95cfc2da",
+    "decision": "narrow GO as relayed by root",
+    "review_scope": "Only the specific typed JointSimulationControllerError-to-N6 refusal bridge; this is not a general HTTP-route acceptance, B18 formal closure, or G acceptance.",
+    "review_artifact_status": "No independent review artifact was copied into this bounded packet."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P04",
+      "P10",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "anti_pattern_found": "The pre-fix consumer collapsed malformed NCM/coupled output shapes into missing-value branches; a default-zero projection could make absent output look numeric.",
+    "target_pattern": "Validate actual registered producer output at the canonical consumer, preserve distinct typed status/reasons, keep explicit zero, and demonstrate the N5-to-N6-CAS readback path.",
+    "acceptance_signal": "Malformed/missing/nonfinite cases refuse, actual registered zero controls retain zero, and the exact malformed-NCM refusal survives fresh N6 history readback. Served GET and scientific authority remain explicitly unestablished."
+  },
+  "predicate_basis_details": [
+    {
+      "predicate": "An NCM or coupled selected output is usable only when present and structurally/numerically valid.",
+      "classification": "recomputed",
+      "basis": "The actual controller executes the selected registered method, then the shared runtime parser traverses the returned package/trajectory and performs finite-scalar validation. The damage wrapper changes only a copy after the real pure_step call.",
+      "limit": "The required outcome set is the selected request outcome set; no separate claim is made that every possible method output is enumerated here."
+    },
+    {
+      "predicate": "A fixture-local explicit zero is preserved as zero.",
+      "classification": "recomputed",
+      "basis": "The test captures the real method output before mutation and compares its zero with the actual controller trajectory; it does not substitute a hand-authored engine result.",
+      "limit": "This is an execution/value comparison, not an independent scientific or causal oracle."
+    },
+    {
+      "predicate": "The typed N5 refusal remains the same blocked reason in persisted N6 history.",
+      "classification": "recomputed",
+      "basis": "The N5 typed exception code is mapped to SimulationPortObservation, stored with the actual GenerationCycleRun in the runtime CAS, verified, reloaded from fresh bytes, and parsed by GenerationCycleRun.from_persisted_payload."
+    },
+    {
+      "predicate": "Production causal correctness, unit/time semantics, calibration, and N9 promotion authority.",
+      "classification": "not_established",
+      "basis": "Synthetic contract-testing models, no production measurements or independently verified causal evidence, no unit/time validation, and no N9 admission."
+    },
+    {
+      "predicate": "The manual RunDetails fresh-GET route reaches and consumes this N5 refusal.",
+      "classification": "not_established",
+      "basis": "The earlier 814a fixture stopped before N5 at cycle_substrate_context_job_verified_scope_mismatch. A later 98bfc attempt passes its N5/N8 assertions but aborts in the test handler on nonexistent GenerationCycleRecord.promotion_port before job completion and the fresh GET; neither run establishes GET consumption.",
+      "limit": "The 98bfc attempt is a separate non-B18 fixture observation and is not included in the five B18 checks or testcase denominators."
+    }
+  ],
+  "predicate_basis": "recomputed"
+,
+"root_original_B18_decision": {
+    "finding_outcome": "closed",
+    "scope": "Original B18 diagnosed NCM-summary and coupled-queue projections; no universal nested-output engine schema, semantic units, causal truth or N9 claim.",
+    "independent_review": {
+      "reviewer": "/root/atomic_composition",
+      "source_commits": [
+        "dc42aec2b8bcd4beb5c423de59d20ae1d6366126",
+        "6aae70ebac4cd628078a3bd4863e639f95cfc2da"
+      ],
+      "execution_candidates": [
+        "f1df6f8bfb41902753949db1aca80e5081fdde51",
+        "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+      ],
+      "decision": "bounded GO",
+      "notes": "16 real producer-output cases PASS; missing selected output conservatively refuses whole result. Successful-output partial retention is permissive in original, not required. Fresh N6 CAS readback retains exact typed refusal."
+    },
+    "G_code_acceptance": "pending",
+    "check_outcomes": "f1df aggregate PASS; 814a aggregate FAIL with specific B18 case PASS; separate manual GET failures retained.",
+    "serve_boundary": "Authentic L6 ordinary positive UNRUN; not an original B18 intake prerequisite."
+  }
+,
+"complete_candidate_snapshot_diff": {
+    "base_sha": "9e4753f12aa554faf19075c368123b7b914d63df",
+    "candidate_sha": "814a9cbc1f93f0b6f7b86203d2347a4866d84b96",
+    "tree": "441fd4a6c4eaee55a3b68ac6b08b4bf609284da3",
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "9e4753f12aa554faf19075c368123b7b914d63df",
+      "814a9cbc1f93f0b6f7b86203d2347a4866d84b96"
+    ],
+    "complete_changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/conditional-interaction-history-readback.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/configured-n7-resolver-current.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/configured-n7-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/coupling-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/duplicate-fixture-native-trash/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/monetary_raw_json_oracle.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/monetary-raw-json-stdlib-oracle/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/e02_origin.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/s10-resolver-disposition-frozen-red/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/e02_origin.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/supported-v2-n5-direct-value-intake/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/e02_origin.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-affected-frozen-0aba/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-architecture-9e47/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-architecture-9e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-architecture-9e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/e02_origin.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-configured-n7-resolver-9e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/e02_origin.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-coupling-and-structure-current-9e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-ruff-source-test-9e47/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-ruff-source-test-9e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-ruff-source-test-9e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/e02_origin.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/origins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/thirteenth-two-corrected-consumers-9e47/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/interaction-history-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/reason-preservation-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/sparse-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/structure-context-checks.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/coupling-composition-current.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/monetary-producer-decoder-input-gap.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-resolver-reason-preservation.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/sparse-owner-v2-intake.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/structure-context-forwarding-current.json",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_registered_engine_applicability.py",
+      "policy-engine/tests/integration/runtime_quality/test_e02_required_numeric_container_intake.py",
+      "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+    ],
+    "denominator": {
+      "all_paths": 68,
+      "production": 2,
+      "tests": 5,
+      "documentation_and_evidence_companions": 61
+    },
+    "boundary": "The existing changed_paths is the seven owner-scoped product/test paths; this complete snapshot footprint includes mandatory companion changes and is not whole-carrier GO."
+  }
+}

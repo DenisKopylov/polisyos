@@ -1,0 +1,15 @@
+........................................................................ [ 83%]
+..............                                                           [100%]
+=============================== warnings summary ===============================
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `OperatorKind` - serialized value may not be as expected [field_name='operator_kind', input_value={'trinity_kind': 'tax_sub...ntionType.NODE: 'node'>}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `TargetSelectorBinding` - serialized value may not be as expected [field_name='target_selector', input_value={'trinity_target': {'kind...e3a837ca092796e5e38f61'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DirectEffectBundle` - serialized value may not be as expected [field_name='direct_effect_bundle', input_value={'params': {'rate': Decim...nnels': (), 'notes': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `CausalDoExpression` - serialized value may not be as expected [field_name='causal_do_expr', input_value={'intervention_type': <Pr...lector_content_bound']}}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IntendedDownstreamEstimand` - serialized value may not be as expected [field_name='intended_downstream_estimand', input_value={'target_kind': <QueryTar...: None, 'unit_id': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IdentificationPlanRef` - serialized value may not be as expected [field_name='causal_path_or_identification_plan_ref', input_value={'plan_ref': 'sha256:5fe4...tions': (), 'notes': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+86 passed, 1 warning in 73.47s (0:01:13)

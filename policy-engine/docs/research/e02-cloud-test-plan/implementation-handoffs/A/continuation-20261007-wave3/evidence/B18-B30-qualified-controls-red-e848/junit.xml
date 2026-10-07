@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="11.983" timestamp="2026-10-07T23:13:06.988950+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.runtime_quality.test_e02_required_numeric_container_intake" name="test_registered_ncm_direct_zero_remains_a_numeric_zero" time="0.901" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_follow_ancestor_source_symlink" time="0.005"><failure message="AssertionError: assert 'strangled' == 'not_established'&#10;  &#10;  - not_established&#10;  + strangled">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/B18-B30-qualified-controls-red-e848/pytest-basetemp/test_strangle_census_does_not_0')
+
+    def test_strangle_census_does_not_follow_ancestor_source_symlink(
+        tmp_path: Path,
+    ) -&gt; None:
+        source = (
+            "class WorkspaceLoop:\n"
+            "    def run_fixture(self, name):\n"
+            "        return name\n"
+        )
+        contained_root = tmp_path / "contained-repo"
+        contained_source = _write_source(contained_root, _OWNER_SOURCE, source)
+    
+        contained = StrangleReceipt.recompute(contained_root)
+    
+        assert contained.status == "strangled"
+        assert contained.source_state == "available"
+        assert contained.source_content_hash is not None
+        assert contained.source_file_count == 1
+    
+        external_root = tmp_path / "external-source"
+        external_source = _write_source(external_root, _OWNER_SOURCE, source)
+        assert external_source.read_bytes() == contained_source.read_bytes()
+    
+        symlink_repo_root = tmp_path / "symlink-repo"
+        symlink_repo_root.mkdir()
+        try:
+            (symlink_repo_root / "src").symlink_to(
+                external_root / "src", target_is_directory=True
+            )
+        except OSError as exc:
+            pytest.skip(f"directory symlinks unavailable: {exc}")
+        linked_source = symlink_repo_root / _OWNER_SOURCE
+        assert linked_source.is_file()
+        assert linked_source.read_bytes() == contained_source.read_bytes()
+    
+        receipt = StrangleReceipt.recompute(symlink_repo_root)
+    
+&gt;       assert receipt.status == "not_established"
+E       AssertionError: assert 'strangled' == 'not_established'
+E         
+E         - not_established
+E         + strangled
+
+tests/unit/remediation/test_e02_source_strangle_owner_resolution.py:204: AssertionError</failure></testcase></testsuite></testsuites>

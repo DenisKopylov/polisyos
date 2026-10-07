@@ -758,13 +758,13 @@
     }
   ],
   "property": {
-    "statement": "Strict persisted checkpoint reuse must bind the actual statically selected source-readable imported helper graph, not only module name/version; an unsupported dynamic namespace path must refuse before physical checkpoint consumers.",
+    "statement": "Strict persisted checkpoint reuse must bind the actual statically selected source-readable imported helper graph, not only module name/version; the actual direct __import__ namespace control must refuse before physical checkpoint consumers. Returned frame namespaces remain an explicitly failing unsupported graph boundary.",
     "runtime_path": [
-      "actual fresh registry/MethodComposer two-node multiply\u2192required consumer",
+      "actual fresh registry/MethodComposer two-node multiply→required consumer",
       "FileSystemCAS.put_bytes and actual guarded manifest-profile selected input",
-      "CheckpointingChainExecutor.execute(strict artifact context) \u2192 immutable ChainCheckpoint generation/public pointer",
+      "CheckpointingChainExecutor.execute(strict artifact context) → immutable ChainCheckpoint generation/public pointer",
       "fresh ChainCheckpoint.load and freshFileSystemCAS reader",
-      "CheckpointingChainExecutor.execute(resume prefix0) \u2192 remaining consumer resolving current imported ModuleType member \u2192 physical effect file"
+      "CheckpointingChainExecutor.execute(resume prefix0) → remaining consumer resolving current imported ModuleType member → physical effect file"
     ],
     "proxy_divergence": "The exact selected CAS ref, original producer6/history/prefix, immutable pointer, same module name/Python version and code-graph profile markers survive removal of selected_members. Real fresh resume then computes107 rather than7 and physically writes replacement. The defining test fails without changing its expectation.",
     "negative_controls": [
@@ -784,12 +784,12 @@
     "historical_cells": "consumer_asserted/source-reported compact context only; no raw baseline archive proof",
     "formal_closure": "not_established; ROOT/G remains owner"
   },
-  "capability_state_or_finding_state": "Concrete B74 same-version imported-member false resume and dynamic namespace sibling reproduced, then finite canonical static/member and fail-closed dynamic admission properties independently verified on eb4. Foreign CMP source review NONBLOCKING within declared opaque installed-callable boundary; closure_ids empty.",
+  "capability_state_or_finding_state": "B74 LIMITED: actual same-version static selected imported-member binding and direct __import__ cold-refusal controls independently verified on eb4; returned frame namespace admits a real replacement consumer in the separately published e82 owner evidence. Foreign CMP source review remains NONBLOCKING only within the finite static/direct-capability and declared opaque installed-callable profile; closure_ids empty.",
   "limitations_and_next_owner": [
     "CMP owns canonical implementation_identity/checkpoint and canonical compiler consumer; this author edits only unique mirrored test/evidence and normally merges immutable owner checkpoints for replay.",
     "Parent ROOT/G decides complete B74/RES04 acceptance, institutional/history/versioned SKG law and full repaired final-source cohort; no all-B/global green or formal closure by this packet.",
     "No current independent JAX/opaque numerical internal mutation claim: installed external callable internals/transitive state/code remain explicit opaque boundary. CMP actual109 intermediate3FAIL/final successor own results must be consumed separately, not inferred from independent4.",
-    "Unsupported module transport/dynamic namespace/reflection/local import/introspection is cold strict refusal; no arbitrary dynamic dependency decoder or complete transitive runtime/hostile mutation guarantee.",
+    "Strict refusal is established for implemented direct namespace-producing/reflection capabilities, checked attributes and local-import bytecode, including the actual __import__ admission control. It is not universal reflection or returned-namespace refusal: sys._getframe().f_globals[math] remains admitted and executes the replacement helper. No arbitrary dynamic dependency decoder or complete transitive runtime/hostile mutation guarantee.",
     "Baseline eight cells/source/ref/environment/inputclosure retained via original ae56/6ab packet; source-reported historicalPASS is navigation only, never proof of new member-binding repair.",
     "B47 historical solver finite math/consumer observations reused only after13 old source blobs and11 committed evidence hashes checked; composer differs by cold intake/equivalent key refinement, no new current solver-native/global graph authority.",
     "Original test authored RuffPT012 failure is preserved; final whole own test Ruff/formatPASS on exact ce3, and a4 test bytes equal actualfinal1970. Initial historical style command profile was not separately retained; rawdiagnostic custody only, no inherited waiver.",
@@ -860,5 +860,33 @@
     }
   ],
   "canonical_source_candidate": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
-  "phase": "finished independent finite consumer/oracle/source slice; formal acceptance separate"
+  "phase": "finished independent finite consumer/oracle/source slice; formal acceptance separate",
+  "forward_scope_qualification": {
+    "previous_canonical_receipt_sha": "ed4fca3916562b56ff293fc93ccb3464b7a30e0b",
+    "preserved": "Original implementation commits/tree/full38-path footprint, seven checks, exact native/stdout/XML/source/style inputs and evidence index unchanged. This is a forward prose scope correction only, with no source/test/native rerun or copied peer outputs.",
+    "historical_source_review_claim_correction": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/source-review.json",
+      "field": "reviewed_properties[1]",
+      "qualification": "Historical generic reflection/introspection refusal wording is too broad. Read it only as implemented direct capability and statically selected module-path controls; it does not attest namespaces returned by opaque builtin calls. Original review bytes remain preserved."
+    },
+    "peer_published_receipt": {
+      "git_sha": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+      "tree": "aa8ac79b65490ca876f09a6c197186dc896d702e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity.json",
+      "bytes": 110777,
+      "sha256": "fa486b858446d25315598be0087f223693dd53279336c6657fda2728c9381693",
+      "checks": [
+        12,
+        13
+      ]
+    },
+    "observed_peer_boundary": "The published owner evidence retains original ignored1FAIL and mirrored native1FAIL separately: cold7 and unchanged resume7, then actual returned frame namespace helper replacement computes107 and writes replacement while history_complete=true and checkpoint pointer unchanged. These are separate owner-native observations, not a new reviewer execution or global closure.",
+    "claim_basis": {
+      "original_own_static4_and_removal1": "recomputed original independent outputs, unchanged",
+      "peer_frame_execution": "consumer_asserted owner-native outputs at the exact published receipt",
+      "forward_scope_correction": "independently_reconciled own wording and exact published peer scope",
+      "formal_closure": "not_established; closure_ids=[]"
+    },
+    "next_owner": "B canonical implementation identity owner must bind or refuse returned runtime namespaces generically before complete B74 proposal; ROOT/G owns final criterion adjudication. No helper-specific repair or arbitrary reflection closure is claimed."
+  }
 }

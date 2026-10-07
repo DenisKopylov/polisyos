@@ -1791,6 +1791,8 @@ async def _run_controlled_simulate_only_job_fixture(
     tmp_path,
     *,
     proposal_source_persistence_failure: bool = False,
+    max_iterations: int = 1,
+    intervention_substrate: object | None = None,
 ) -> SimpleNamespace:
     """Run a synthetic owner-bound N4 candidate through a served N5 request.
 
@@ -1866,6 +1868,7 @@ async def _run_controlled_simulate_only_job_fixture(
         artifact_store=store,
         tenant_id="tenant-fixture",
         cell_id="cell-fixture",
+        intervention_substrate=intervention_substrate,
     )
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
     with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
@@ -1906,6 +1909,7 @@ async def _run_controlled_simulate_only_job_fixture(
     compiled_runs = []
     n4_organ_runs = []
     n4_port_attempts = []
+    candidate_handoffs = []
     execution_order: list[tuple[str, str]] = []
     started_core_contexts = []
 
@@ -2168,6 +2172,7 @@ async def _run_controlled_simulate_only_job_fixture(
             assert handoff.context == resolved_context
             assert handoff.profile == profile
             assert handoff.model_declaration == model_declaration
+            candidate_handoffs.append(handoff)
 
             class _ControlledN4GenerationPort(N4GenerationPort):
                 async def __call__(self, problem_for_cycle, *, cycle_index):
@@ -2210,7 +2215,7 @@ async def _run_controlled_simulate_only_job_fixture(
             request=problem.nl_provenance.raw_request,
             llm_model=str(recording["model_id"]),
             context=context_payload,
-            max_iterations=1,
+            max_iterations=max_iterations,
         )
         claims = _fixture_claims()
         launch = await service.launch_nl_run(
@@ -2667,9 +2672,19 @@ async def _run_controlled_simulate_only_job_fixture(
         fixture = SimpleNamespace(
             service=service,
             job=completed,
+            request=request,
             compiled_payload=service._artifact_store.get_bytes(compiled_artifact_ref),
             compiled_ref=str(compiled_ref),
             cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],
+            recursive_run=compiled_runs[0],
+            original_problem=problem,
+            candidate_simulation_profile=profile,
+            candidate_simulation_model_declaration=model_declaration,
+            candidate_simulation_admission_owner=source_owner,
+            candidate_simulation_handoffs=tuple(candidate_handoffs),
+            candidate_simulation_context_job_ref=owner_refs[0],
+            verified_nl_job_scope=verified_scope_observations[0],
+            n5_port_observations=tuple(n5_port_observations),
         )
         service_transferred = True
         return fixture

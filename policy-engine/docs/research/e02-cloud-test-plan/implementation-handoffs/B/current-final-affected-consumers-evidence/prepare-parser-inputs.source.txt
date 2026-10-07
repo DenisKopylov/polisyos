@@ -1,0 +1,64 @@
+"""Adapt literal completed capture fields for the unchanged 3cd data-only parser."""
+import hashlib
+import json
+from pathlib import Path
+
+OUT = Path('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006')
+
+def read(name):
+    return json.loads((OUT / name).read_bytes())
+
+def ident(name):
+    p = OUT / name
+    b = p.read_bytes()
+    return {'path': str(p), 'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest()}
+
+def write(name, value):
+    with (OUT / name).open('x') as f:
+        json.dump(value, f, indent=2, ensure_ascii=False)
+        f.write('\n')
+
+w = read('wrapper.json')
+p = read('execution-profile.json')
+i = read('inventory.json')
+assert w['harness_state'] == 'EXECUTED' and w['setup_failure'] is None
+assert i['state'] == 'session_finished'
+assert w['source_before'] == w['source_after']
+assert w['source_before']['head'] == p['actual_source_head'] == '10e812a98d5f7f3997e7d0aa44de43dc90eb022c'
+assert w['argv'] == p['argv']
+assert len(i['selectors']) == len(set(i['selectors'])) == w['whole_file_count'] == 35
+sources = {name: ident(name) for name in ('wrapper.json', 'execution-profile.json', 'selector-proposal.json', 'inventory.json')}
+selectors = {
+    'schema': 'policyos.e02.parser_input_aliases.v1',
+    'root_snapshot_sha': p['actual_source_head'],
+    'root_snapshot_tree': p['actual_source_tree'],
+    'test_paths': i['selectors'],
+    'candidate_whole_file_count': len(i['selectors']),
+    'absent_named_selectors': [],
+    'scope': 'Only this explicitly selected 35-file invocation; no claim about other absent canonical names or backends.',
+    'derivation': 'Exact config.args paths from completed observer, bijective with declared wholefile_inputs after root-relative normalization.',
+    'original_inputs': sources,
+}
+assert [str(Path('/workspace/e02-B-current-coordination') / x) for x in p['wholefile_inputs']] == selectors['test_paths']
+write('parser-selectors.json', selectors)
+write('parser-profile.json', {
+    'schema': 'policyos.e02.parser_input_aliases.v1',
+    'sha': p['actual_source_head'], 'tree': p['actual_source_tree'],
+    'argv': p['argv'], 'cwd': p['cwd'],
+    'inputs': {'selector_sha256': ident('parser-selectors.json')['sha256'], 'test_paths': selectors['test_paths']},
+    'original_profile': ident('execution-profile.json'),
+    'original_inputs': sources,
+    'field_mapping': {'sha': 'actual_source_head', 'tree': 'actual_source_tree', 'argv': 'unchanged argv', 'cwd': 'unchanged cwd'},
+})
+write('parser-wrapper.json', {
+    'schema': 'policyos.e02.parser_input_aliases.v1',
+    'head': w['source_before']['head'], 'head_after': w['source_after']['head'],
+    'tree': w['source_before']['tree'], 'command': w['argv'], 'cwd': p['cwd'],
+    'output_sha256': w['stdout']['sha256'], 'output_path': w['stdout']['path'],
+    'exit_code': w['actual_exit_code'], 'wall_s': w['wall_s'],
+    'process_rusage_maxrss_kib': w['max_rss_kib'],
+    'harness_state': w['harness_state'], 'setup_failure': w['setup_failure'],
+    'original_wrapper': ident('wrapper.json'),
+    'field_mapping': {'head': 'source_before.head', 'head_after': 'source_after.head', 'tree': 'source_before.tree', 'command': 'argv', 'cwd': 'execution-profile.cwd', 'output_sha256': 'stdout.sha256', 'output_path': 'stdout.path', 'exit_code': 'actual_exit_code', 'process_rusage_maxrss_kib': 'max_rss_kib'},
+})
+print(json.dumps({'state': 'COMPLETE_FIELD_ALIASES', 'sources': sources, 'derived': [ident(n) for n in ('parser-selectors.json', 'parser-profile.json', 'parser-wrapper.json')]}))

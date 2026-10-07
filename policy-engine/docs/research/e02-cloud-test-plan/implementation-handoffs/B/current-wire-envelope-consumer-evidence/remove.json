@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+    "--repo",
+    "/workspace/e02-B-current-adapters",
+    "--output",
+    "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+    "--mode",
+    "remove",
+    "--child"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "target_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+  "head_after": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "mode": "remove",
+  "actual_child_exit": 1,
+  "wall_s": 1.7285352799954126,
+  "maxrss_kib": 105404,
+  "stdout": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4/remove.txt",
+    "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae",
+    "bytes": 28865
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "profile": "native pytest.main -vv, isolated filesystem fixtures/cache; no marker exclusions or process/worker/thread quotas",
+  "input_overlay": "isolated interpreter removes exactly _decode_wire_tag model branch; module file bytes stay frozen"
+}

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "mypy",
+    "--cache-dir",
+    "/tmp/e02-B-jit-data-getattr-20261007/mypy-cache",
+    "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+  "source_after": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+  "source_status": "",
+  "wall_seconds": 37.802776486991206,
+  "max_rss_kib": 1285880,
+  "actual_exit_code": -9,
+  "output": {
+    "bytes": 63977,
+    "sha256": "160083473bb652d4355eb240dbd969ff07e0b97840b5af1f9c7cb17903050efe"
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+    "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index"
+  }
+}

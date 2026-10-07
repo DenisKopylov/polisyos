@@ -1,0 +1,3361 @@
+{
+  "schema": "policyos.e02.independent_source_input_capture.v1",
+  "captured_at": "2026-10-06T20:34:52.788660+00:00",
+  "argv": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-evidence/review.source.txt",
+    "--repo",
+    "/workspace/e02-B-current-execution-state",
+    "--out",
+    "/tmp/e02-B-llm-completion-source-review-exe/source-inputs.json"
+  ],
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "git_version": "git version 2.52.0",
+  "reviewer_head_before": "b3ab709441527919b5839fcdb5b0e02c1a6029ea",
+  "reviewer_head_after": "b3ab709441527919b5839fcdb5b0e02c1a6029ea",
+  "source_read_mechanism": "immutable Git show; no foreign working-tree/import custody claim",
+  "checkpoints": [
+    {
+      "role": "upper",
+      "base_sha": "d56c0218592ed9539e114cdcf5686a57c6b65d75",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "target_tree": "9dc76f183b4b562ef78f44220293a093400cceb3",
+      "full_delta_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+        "policy-engine/src/polisyos/core/llm/README.md",
+        "policy-engine/src/polisyos/core/llm/response.py",
+        "policy-engine/src/polisyos/core/llm/settlement.py",
+        "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"
+      ],
+      "refs": [
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+          "git_blob": "e09e587e4ae44253aab76ba595b11bd22abec644",
+          "bytes": 2220,
+          "sha256": "44ae473a8090feaff15985a4918000a92d4d0cfffb069c0309e4cc9d5a4c015e"
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/core/llm/README.md",
+          "git_blob": "3fba332326ccbcc10903093e1ad74fcfe7131e34",
+          "bytes": 4468,
+          "sha256": "e1a7429b76765f5e0e64c1311daf4bf7e48ecf7aeb0ff042467c463191c93af3"
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/core/llm/response.py",
+          "git_blob": "b7eec7d0205deedefe30b7a68b1bca02a7f8d94f",
+          "bytes": 8579,
+          "sha256": "4f807c0d649cf422320e7e6a7362809e8e55f19f050a96ee3f1a63f43b5c26ff",
+          "ast_definition_locators": [
+            {
+              "name": "LLMResponseData",
+              "line": 14,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "extract_llm_response_data",
+              "line": 51,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_extract_cache_provenance",
+              "line": 117,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_extract_physical_provider_response_data",
+              "line": 135,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_as_float",
+              "line": 149,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_field",
+              "line": 171,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_usage_token",
+              "line": 180,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_extract_cost_data",
+              "line": 192,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_as_str",
+              "line": 240,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "total_tokens",
+              "line": 35,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "origin_total_tokens",
+              "line": 39,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "git_blob": "ffe401ee6a81b2abd803b952b097674443ed8e37",
+          "bytes": 13529,
+          "sha256": "14bab0fd9071359c5172a12cb386b72e84685b1b30d9545d813dc6fa38330d25",
+          "ast_definition_locators": [
+            {
+              "name": "_request_digest",
+              "line": 26,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "LLMProducerEvent",
+              "line": 49,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "LLMSettlementAck",
+              "line": 98,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "LLMProducerSettlement",
+              "line": 109,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "LLMAuditObligation",
+              "line": 126,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "LLMAuditResolution",
+              "line": 201,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_completion_amount",
+              "line": 213,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "LLMSettledResponse",
+              "line": 237,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_CacheReuseOwner",
+              "line": 253,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_CacheReuseProvenance",
+              "line": 284,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_cache_reuse_provenance",
+              "line": 295,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_SettlementOwner",
+              "line": 316,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_ProducerCompletion",
+              "line": 324,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_CacheReuseConsumer",
+              "line": 331,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_new_producer_id",
+              "line": 347,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_current_settlement_owner",
+              "line": 351,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_current_producer_completion",
+              "line": 355,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_settlement_owner_context",
+              "line": 360,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_producer_completion_context",
+              "line": 375,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_cache_reuse_consumer_context",
+              "line": 388,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "producer_settlement",
+              "line": 399,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "bind",
+              "line": 29,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__post_init__",
+              "line": 62,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "payload_digest",
+              "line": 76,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__post_init__",
+              "line": 115,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 140,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "metadata",
+              "line": 171,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "payload_digest",
+              "line": 176,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 242,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__getattr__",
+              "line": 246,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__str__",
+              "line": 249,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 258,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "owns",
+              "line": 262,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_signature",
+              "line": 265,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "issue",
+              "line": 269,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__reduce_ex__",
+              "line": 279,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__reduce_ex__",
+              "line": 291,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+          "git_blob": "d416185b4c5ea5e9e8a8a0192e8afbe76ba29094",
+          "bytes": 35673,
+          "sha256": "3adcb44b76198a840f2e9e51aadd598ec42cb19f9b45335c05960746e46049aa",
+          "ast_definition_locators": [
+            {
+              "name": "_load_runtime_trace_types",
+              "line": 54,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "LLMAccountingError",
+              "line": 82,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_default_tracer",
+              "line": 105,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_default_metrics",
+              "line": 109,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_OptionalSpan",
+              "line": 113,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TracedLLMClient",
+              "line": 132,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "__init__",
+              "line": 89,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 114,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__getattr__",
+              "line": 117,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 142,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_optional_span",
+              "line": 197,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_await_owned_call",
+              "line": 227,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_require_accounting_ready",
+              "line": 244,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "reconcile_accounting",
+              "line": 248,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__getattr__",
+              "line": 266,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "unwrap",
+              "line": 283,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "list_model_ids",
+              "line": 292,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_detect_model_name",
+              "line": 301,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_detect_prompt_mode",
+              "line": 309,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_detect_provider",
+              "line": 334,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_build_prompt_text",
+              "line": 354,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_sanitize_call_args",
+              "line": 370,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_restore_response",
+              "line": 383,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_build_span_attributes",
+              "line": 391,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_estimate_cost_usd",
+              "line": 413,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_record_tokens",
+              "line": 422,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "invoke",
+              "line": 584,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "ainvoke",
+              "line": 632,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_ainvoke_owned",
+              "line": 635,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_completion_event",
+              "line": 683,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 704,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_generate_owned",
+              "line": 708,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_normalize_generate_call",
+              "line": 805,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_record_error_metric",
+              "line": 844,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "optional",
+              "line": 118,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "completed",
+              "line": 236,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_FallbackSpanKind",
+              "line": 59,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_FallbackStatusCode",
+              "line": 62,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_FallbackStatus",
+              "line": 66,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "unmanaged_stream",
+              "line": 270,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "complete",
+              "line": 739,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 67,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+          "git_blob": "22c884794a7e9461f172ce8997bb25e0c2ee158c",
+          "bytes": 5937,
+          "sha256": "c5ec0ca12af7867e1feaec1cb2f705d7092f2234147d14f608b187f555cb85f6"
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "git_blob": "a01dba070b22943023e5d9d25580bf18973dd337",
+          "bytes": 50578,
+          "sha256": "a7b1874aab8cf6fcc99cc54633e2116b26a4263072098e1c9fbb23e4c7666790",
+          "ast_definition_locators": [
+            {
+              "name": "_default_metrics",
+              "line": 47,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_default_operational_monitor",
+              "line": 53,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_BudgetReservation",
+              "line": 58,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_CompletionResolver",
+              "line": 76,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "LLMBudgetEnforcer",
+              "line": 100,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "outstanding_items",
+              "line": 65,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "clear_key",
+              "line": 68,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "has_outstanding",
+              "line": 72,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 79,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve",
+              "line": 82,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 109,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "budget_state",
+              "line": 160,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_reserve_budget",
+              "line": 165,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_release_budget",
+              "line": 170,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "remaining_budget",
+              "line": 176,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_estimate_cost",
+              "line": 188,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_pre_check",
+              "line": 215,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_release_reservation",
+              "line": 350,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_post_record",
+              "line": 384,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_resolve_actual_cost",
+              "line": 460,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_coerce_cost_decimal",
+              "line": 467,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_emit_cost_metrics",
+              "line": 473,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_record_latency",
+              "line": 529,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_resolve_metrics",
+              "line": 540,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_resolve_operational_monitor",
+              "line": 549,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_event_body",
+              "line": 560,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_retain_completion",
+              "line": 573,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_complete_record",
+              "line": 635,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_abort_unstarted_intent",
+              "line": 655,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_audit_error",
+              "line": 693,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_append_audit",
+              "line": 712,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "reconcile_required_audit",
+              "line": 776,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_accounting_scope",
+              "line": 822,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_ledger_event_identity",
+              "line": 831,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_settle_event",
+              "line": 837,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_finish_settlement",
+              "line": 892,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_validate_receipt",
+              "line": 956,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "reconcile_settlement",
+              "line": 970,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 1019,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_retain_failed_attempt",
+              "line": 1032,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "ainvoke",
+              "line": 1073,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_generate_owned",
+              "line": 1086,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "invoke",
+              "line": 1154,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "completed",
+              "line": 1024,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "completed",
+              "line": 1078,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settle",
+              "line": 1101,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settle",
+              "line": 1168,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "git_blob": "337af929388eac4355c0b4431dde5cc6bef00f45",
+          "bytes": 27838,
+          "sha256": "56b327209d659ca5aec50e49c27fbfa431880f04ae60cb8535d4bd615c857cee",
+          "ast_definition_locators": [
+            {
+              "name": "GatewayUsage",
+              "line": 27,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "GatewayToolCall",
+              "line": 49,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "GatewayLLMResponse",
+              "line": 59,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_HTTPError",
+              "line": 72,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_gateway_degraded",
+              "line": 117,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_is_retryable_status",
+              "line": 134,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_should_retry_without_response_format",
+              "line": 143,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "GatewayLLMClient",
+              "line": 170,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_extract_usage_value",
+              "line": 666,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_as_int",
+              "line": 672,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_as_str",
+              "line": 680,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_extract_error_code",
+              "line": 687,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_parse_retry_after_seconds",
+              "line": 704,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_resolve_preset",
+              "line": 724,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_merge_plugins",
+              "line": 734,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__post_init__",
+              "line": 37,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 75,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 177,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_ensure_session",
+              "line": 209,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_request_timeout",
+              "line": 218,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "aclose",
+              "line": 221,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 227,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "list_model_ids",
+              "line": 288,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "generate_stream",
+              "line": 343,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_build_messages",
+              "line": 423,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_post_json",
+              "line": 443,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_build_request_headers",
+              "line": 555,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_parse_completion_payload",
+              "line": 573,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_normalize_content",
+              "line": 649,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "git_blob": "201cbfa12bfea5f3e0d50a07ba340d13643294fe",
+          "bytes": 38237,
+          "sha256": "e4bce7674e30f4314e3f2ed89b33a23088f038a31db3b513b570d9c8247f064b",
+          "ast_definition_locators": [
+            {
+              "name": "CacheReuseEvidence",
+              "line": 66,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "CacheReuseRequest",
+              "line": 76,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "CacheReuseDecision",
+              "line": 89,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "CacheReuseAuthorizer",
+              "line": 138,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "CacheReuseDeniedError",
+              "line": 144,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_ProducerGatewayResponse",
+              "line": 148,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_SerializedGatewayToolCall",
+              "line": 166,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_SerializedGatewayResponse",
+              "line": 174,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_CacheReuseGatewayResponse",
+              "line": 191,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "PromptCacheProtocol",
+              "line": 226,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "CacheAdmissionUnsupportedError",
+              "line": 242,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_ProducerFlight",
+              "line": 247,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "compute_cache_key",
+              "line": 252,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "PromptCacheTelemetry",
+              "line": 298,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "InMemoryPromptCache",
+              "line": 310,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "CachingLLMClient",
+              "line": 396,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_normalize_prompt_call",
+              "line": 700,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_mark_cache_response",
+              "line": 717,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_cache_skip_reason",
+              "line": 741,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_record_cache_skip",
+              "line": 809,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_maybe_await",
+              "line": 815,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_coerce_timeout",
+              "line": 821,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_consume_task_exception",
+              "line": 833,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_provider_kwargs",
+              "line": 844,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_cache_reuse_context",
+              "line": 854,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_normalize_cache_identity_value",
+              "line": 910,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_normalize_cache_metadata",
+              "line": 922,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_normalize_invalid_reuse_context",
+              "line": 951,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_freeze_response",
+              "line": 969,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_thaw_response",
+              "line": 996,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_serialize_payload",
+              "line": 1028,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_deserialize_payload",
+              "line": 1042,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_sanitize_cache_metadata",
+              "line": 1050,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_strip_volatile_cache_metadata",
+              "line": 1055,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_is_volatile_cache_metadata_key",
+              "line": 1070,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "binds",
+              "line": 102,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "key_payload",
+              "line": 121,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "authorize_reuse",
+              "line": 141,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 151,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 202,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "get",
+              "line": 229,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "put",
+              "line": 230,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 317,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "get",
+              "line": 326,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "put",
+              "line": 344,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "size",
+              "line": 368,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "clear",
+              "line": 372,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "stats",
+              "line": 377,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record_skip",
+              "line": 390,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 399,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__getattr__",
+              "line": 421,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "unwrap",
+              "line": 424,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_reuse_admission",
+              "line": 427,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_require_current_reuse",
+              "line": 465,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 481,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_produce",
+              "line": 616,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_require_producer_budget",
+              "line": 678,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_require_emission_admission",
+              "line": 682,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_call_provider",
+              "line": 691,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "admit",
+              "line": 655,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+          "git_blob": "5dce5c6d4f6e2bbeeff9f077f1548a2f6f7652d0",
+          "bytes": 21171,
+          "sha256": "47a708cc44040e86be2d90628eb5a4e30223384829aafbe62f7d9b69d3b88355",
+          "ast_definition_locators": [
+            {
+              "name": "_make_response_mock",
+              "line": 23,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_make_response_with_provider_cost",
+              "line": 47,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_FakeMetricRecorder",
+              "line": 62,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_FakeMetricAdder",
+              "line": 70,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_FakeMetricSetter",
+              "line": 78,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_FakeBudgetMetrics",
+              "line": 86,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_FakeOperationalMonitor",
+              "line": 96,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestLLMBudgetEnforcer",
+              "line": 120,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "__init__",
+              "line": 63,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record",
+              "line": 66,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 71,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "add",
+              "line": 74,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 79,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "set",
+              "line": 82,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 87,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 97,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record_alert",
+              "line": 100,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_generate_within_budget",
+              "line": 122,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_generate_exceeds_budget",
+              "line": 143,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_records_spend_after_call",
+              "line": 164,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_post_record_prefers_provider_reported_cost",
+              "line": 184,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_post_record_falls_back_to_reserved_cost_when_accounting_breaks",
+              "line": 203,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_pre_check_counts_explicit_messages",
+              "line": 229,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_audit_log_on_budget_check",
+              "line": 262,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_audit_log_on_budget_exceeded",
+              "line": 295,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_strips_internal_kwargs",
+              "line": 319,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_budget_state_property",
+              "line": 339,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_parallel_calls_do_not_overspend_reserved_budget",
+              "line": 350,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_entered_provider_failure_retains_owned_unknown_reservation",
+              "line": 394,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_caller_cancellation_retains_live_producer_reservation",
+              "line": 439,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_actual_cost_commit_reconciles_estimate_delta",
+              "line": 479,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_accepts_injected_metrics_and_operational_monitor",
+              "line": 504,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_post_record_failure_does_not_over_credit_budget",
+              "line": 561,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_generate",
+              "line": 355,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_generate",
+              "line": 443,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "_fail_get_metrics",
+              "line": 523,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_fail_get_monitor",
+              "line": 526,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_post_record_then_fail",
+              "line": 577,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "git_blob": "41e01cbaf59832e3d2890b72ed03144b98d8ff08",
+          "bytes": 6644,
+          "sha256": "bad07ae1d13e7df68db4fb1a4c864003d6715fec21ab07ae1ad1f4417a0a70b9",
+          "ast_definition_locators": [
+            {
+              "name": "_make_enforcer",
+              "line": 25,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_mock_response",
+              "line": 44,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "TestPostRecordEmitsCostHistogram",
+              "line": 62,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestPostRecordEmitsTokenCounts",
+              "line": 81,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestLatencyMeasured",
+              "line": 93,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestBudgetUtilizationGauge",
+              "line": 111,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestCostAnomalyDetectorNormal",
+              "line": 130,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestCostAnomalyDetectorSpike",
+              "line": 137,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestCostAnomalyDetectorEmptyWindow",
+              "line": 145,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestMetricsGracefulWithoutRegistry",
+              "line": 161,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestGrafanaDashboard",
+              "line": 178,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "test_cost_histogram_recorded",
+              "line": 63,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_post_record_returns_cost",
+              "line": 69,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_token_recording_does_not_crash",
+              "line": 82,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_invoke_measures_latency",
+              "line": 94,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_generate_measures_latency",
+              "line": 100,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_utilization_updated_after_spend",
+              "line": 112,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_utilization_none_for_unknown_key",
+              "line": 120,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_no_anomaly_on_uniform_costs",
+              "line": 131,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_detects_large_spike",
+              "line": 138,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_first_call_not_anomaly",
+              "line": 146,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_second_call_not_anomaly",
+              "line": 150,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_post_record_works_when_get_metrics_raises",
+              "line": 162,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_dashboard_json_valid",
+              "line": 179,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "git_blob": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+          "bytes": 21213,
+          "sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb",
+          "ast_definition_locators": [
+            {
+              "name": "_UnitDeploymentOwner",
+              "line": 29,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_owner_caching_client",
+              "line": 61,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_actual_unit_principal",
+              "line": 66,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_make_response",
+              "line": 78,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_FakeLLMClient",
+              "line": 84,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_frozen_snapshot_metadata",
+              "line": 94,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_SlowLLMClient",
+              "line": 123,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestComputeCacheKey",
+              "line": 140,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestInMemoryPromptCache",
+              "line": 210,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "TestCachingLLMClient",
+              "line": 303,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "__init__",
+              "line": 32,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "authorize_reuse",
+              "line": 35,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 85,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 88,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 124,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 130,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_deterministic",
+              "line": 141,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_different_params_different_keys",
+              "line": 146,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_temperature_affects_key",
+              "line": 151,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_messages_and_positional_prompt_affect_key",
+              "line": 156,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_volatile_metadata_is_excluded_from_key",
+              "line": 178,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_hit",
+              "line": 211,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_put_stores_isolated_snapshot",
+              "line": 219,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_cached_tool_calls_and_raw_payloads_are_clone_isolated",
+              "line": 229,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_miss",
+              "line": 259,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_ttl_expiry",
+              "line": 263,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_maxsize_eviction",
+              "line": 269,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_size_property",
+              "line": 279,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_stats_track_hits_misses_puts_and_skips",
+              "line": 287,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_caches_deterministic_positional_prompt_calls",
+              "line": 305,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_cache_hits_do_not_share_mutable_response_state",
+              "line": 327,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_skips_cache_for_tool_calls_and_freshness_sensitive_inputs",
+              "line": 348,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_frozen_snapshot_with_url_reuses",
+              "line": 378,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_changed_snapshot_bytes_or_hash_cannot_hit",
+              "line": 407,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_lost_permission_and_model_change_cannot_hit",
+              "line": 441,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_live_url_without_snapshot_skips",
+              "line": 475,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_four_identical_allowed_misses_single_flight",
+              "line": 488,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_different_seed_and_tenant_are_separate_flights",
+              "line": 517,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_cancelled_follower_does_not_cancel_owner",
+              "line": 549,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_failed_owner_clears_inflight_entry",
+              "line": 577,
+              "kind": "AsyncFunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+          "repository_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+          "git_blob": "57c7ae709702b129fba47ffcf8b72576d71b8fbe",
+          "bytes": 19889,
+          "sha256": "e0b009098ffdc8e8ea2f7a528d1889fe947383644589da0974d4c908dadd0864",
+          "ast_definition_locators": [
+            {
+              "name": "_Span",
+              "line": 70,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_assert_source_custody",
+              "line": 87,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_actual_response",
+              "line": 123,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_PhysicalProvider",
+              "line": 206,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_event_view",
+              "line": 241,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_exercise",
+              "line": 254,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider",
+              "line": 407,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_known_usage_and_price_preserve_legitimate_charge_controls",
+              "line": 421,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_factory_streaming_cannot_bypass_configured_completion",
+              "line": 446,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider",
+              "line": 501,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__enter__",
+              "line": 71,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__exit__",
+              "line": 74,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "set_attribute",
+              "line": 77,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "set_status",
+              "line": 80,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record_exception",
+              "line": 83,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 207,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "generate",
+              "line": 217,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "observe_settlement",
+              "line": 298,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "physical_stream",
+              "line": 451,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "unexpected_settlement",
+              "line": 474,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "consume",
+              "line": 477,
+              "kind": "AsyncFunctionDef"
+            },
+            {
+              "name": "UnavailableCost",
+              "line": 128,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "total_cost_usd",
+              "line": 133,
+              "kind": "FunctionDef"
+            }
+          ]
+        }
+      ],
+      "diff_sha256": "dc5be16639f6bd8aa6cbea4673f14762b4179e06ea5d4a232b269dd8ad7085e9"
+    },
+    {
+      "role": "lower",
+      "base_sha": "3602e00ceba7dc7fd4b6ed014180a314fe063612",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "target_tree": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+      "full_delta_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+      ],
+      "refs": [
+        {
+          "source_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+          "repository_path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+          "git_blob": "638e393abf55d45e76c8ae053a765d1e6a60ef08",
+          "bytes": 1475,
+          "sha256": "5201281ce4f318070688120ef060c1ad40340cae4e9f101df613c8e02bd50be4"
+        },
+        {
+          "source_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+          "repository_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+          "ast_definition_locators": [
+            {
+              "name": "BudgetLedgerWriter",
+              "line": 45,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerMutation",
+              "line": 55,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerSpendReceipt",
+              "line": 83,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerSettlementOutcomeUnknownError",
+              "line": 101,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerCompletionObligation",
+              "line": 113,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerCompletionResolution",
+              "line": 226,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerCompletionResolver",
+              "line": 239,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerCompletionRequiredError",
+              "line": 249,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerCompletionOutcomeUnknownError",
+              "line": 260,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_CompletionRuntimeOwner",
+              "line": 270,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedgerSnapshot",
+              "line": 277,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_require_wire_fields",
+              "line": 302,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_require_nonnegative_amounts",
+              "line": 349,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_decode_snapshot",
+              "line": 365,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_validate_completion_receipts",
+              "line": 421,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "BudgetLedgerMutationResult",
+              "line": 459,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "BudgetLedger",
+              "line": 468,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_fsync_dir",
+              "line": 529,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "FileBudgetLedger",
+              "line": 537,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "_branch_budget_state",
+              "line": 1361,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_default_ledger_id",
+              "line": 1372,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 104,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_validate_completion",
+              "line": 137,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "payload_digest",
+              "line": 218,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve",
+              "line": 242,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 252,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 263,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settlement_owner_identity",
+              "line": 472,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "completion_owner_epoch",
+              "line": 474,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "load",
+              "line": 476,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "snapshot",
+              "line": 477,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "load_or_bootstrap",
+              "line": 478,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record_spend",
+              "line": 479,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "reserve",
+              "line": 486,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "release",
+              "line": 487,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "commit_reservation",
+              "line": 488,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settle_spend",
+              "line": 495,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve_spend",
+              "line": 504,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "load_for_admission",
+              "line": 505,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "with_completion_resolver",
+              "line": 506,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "retain_completion_obligation",
+              "line": 509,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "admit_provider_intent",
+              "line": 512,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "abort_provider_intent",
+              "line": 513,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "list_completion_obligations",
+              "line": 514,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "transition_completion_obligation",
+              "line": 517,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "complete_completion_obligation",
+              "line": 520,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 540,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "completion_owner_epoch",
+              "line": 572,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_require_live_completion_owner",
+              "line": 577,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "with_completion_resolver",
+              "line": 581,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_assert_runtime_admission",
+              "line": 598,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_acknowledge_completion_publication",
+              "line": 612,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_intersecting_completions",
+              "line": 619,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "load_for_admission",
+              "line": 633,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "list_completion_obligations",
+              "line": 653,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "admit_provider_intent",
+              "line": 665,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "abort_provider_intent",
+              "line": 710,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "retain_completion_obligation",
+              "line": 763,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "transition_completion_obligation",
+              "line": 794,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "complete_completion_obligation",
+              "line": 869,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_verify_completion_resolution",
+              "line": 919,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_write_completions",
+              "line": 942,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "load",
+              "line": 978,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settlement_owner_identity",
+              "line": 986,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "snapshot",
+              "line": 996,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "load_or_bootstrap",
+              "line": 1003,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record_spend",
+              "line": 1026,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "reserve",
+              "line": 1049,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "release",
+              "line": 1061,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "commit_reservation",
+              "line": 1072,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settle_spend",
+              "line": 1095,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve_spend",
+              "line": 1167,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_file_lock",
+              "line": 1176,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_mutate",
+              "line": 1191,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_load_snapshot",
+              "line": 1249,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_persist_snapshot",
+              "line": 1256,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_build_snapshot",
+              "line": 1286,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_build_mutation",
+              "line": 1308,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_normalize_snapshot",
+              "line": 1342,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_needs_contract_upgrade",
+              "line": 1352,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "apply",
+              "line": 1033,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "apply",
+              "line": 1050,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "apply",
+              "line": 1062,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "apply",
+              "line": 1079,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+          "repository_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+          "ast_definition_locators": [
+            {
+              "name": "BudgetMiddleware",
+              "line": 25,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "__init__",
+              "line": 28,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "budget_state",
+              "line": 42,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "completion_owner_epoch",
+              "line": 49,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settlement_owner_identity",
+              "line": 57,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "pre_check",
+              "line": 64,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "check_thresholds",
+              "line": 75,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "record_spend_safe",
+              "line": 86,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "reserve_safe",
+              "line": 104,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "release_safe",
+              "line": 113,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "commit_safe",
+              "line": 122,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "settle_spend_safe",
+              "line": 137,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve_spend_safe",
+              "line": 164,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "with_completion_resolver",
+              "line": 173,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "retain_completion_obligation_safe",
+              "line": 184,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "admit_provider_intent_safe",
+              "line": 195,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "abort_provider_intent_safe",
+              "line": 204,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "list_completion_obligations_safe",
+              "line": 213,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "transition_completion_obligation_safe",
+              "line": 222,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "complete_completion_obligation_safe",
+              "line": 233,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_refresh_completion",
+              "line": 250,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+          "repository_path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+          "git_blob": "38c14640e53d1bffddaac44fc48b2a0ebe42722c",
+          "bytes": 26912,
+          "sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d",
+          "ast_definition_locators": [
+            {
+              "name": "_child",
+              "line": 51,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_middleware",
+              "line": 63,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_record",
+              "line": 72,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_receipt",
+              "line": 101,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_ActualAuditResolver",
+              "line": 112,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "test_unknown_cost_reopen_blocks_same_key_but_other_key_can_reserve",
+              "line": 129,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_known_charge_survives_audit_failure_and_exact_reconciliation_never_recharges",
+              "line": 150,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_unknown_event_cannot_be_rewritten_to_clear_pending",
+              "line": 209,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_current_wire_missing_completion_fields_fails_real_child_unchanged",
+              "line": 241,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_full_legacy_snapshots_migrate_explicitly_without_attesting_unknown_old_cost",
+              "line": 258,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_completion_publication_fault_reopens_complete_old_or_new_state",
+              "line": 284,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_intent",
+              "line": 322,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_physical_work",
+              "line": 347,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_intent_faults_never_lose_physical_admission_uncertainty",
+              "line": 356,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_four_controlled_live_intents_are_concurrent_but_unknown_blocks_new_work",
+              "line": 413,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_inherited_live_owner_cannot_admit_after_actual_fork",
+              "line": 453,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_actual_process_publication_serializes_fresh_admission_or_retains_killed_intent",
+              "line": 510,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_same_amount_foreign_receipt_and_boolean_resolver_cannot_clear_actual_pending",
+              "line": 555,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_UnenteredWorkResolver",
+              "line": 594,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "test_original_unentered_owner_abort_restores_only_its_actual_reserved_amount",
+              "line": 612,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_actual_entered_work_and_fresh_owner_cannot_abort_original_intent",
+              "line": 639,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_failed_second_key_reservation_leaves_no_partial_intent_or_first_key_charge",
+              "line": 655,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "__init__",
+              "line": 113,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve",
+              "line": 116,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "fsync",
+              "line": 295,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "replace",
+              "line": 300,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "fsync",
+              "line": 371,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "replace",
+              "line": 376,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "producer",
+              "line": 419,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "BooleanResolver",
+              "line": 580,
+              "kind": "ClassDef"
+            },
+            {
+              "name": "__init__",
+              "line": 595,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve",
+              "line": 598,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "perform",
+              "line": 388,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "resolve",
+              "line": 581,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "refuse_replace",
+              "line": 623,
+              "kind": "FunctionDef"
+            }
+          ]
+        },
+        {
+          "source_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+          "repository_path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+          "git_blob": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f",
+          "bytes": 13720,
+          "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+          "ast_definition_locators": [
+            {
+              "name": "_command",
+              "line": 89,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_child",
+              "line": 97,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_middleware",
+              "line": 108,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "_settle",
+              "line": 117,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_exact_event_retry_survives_restart_and_bounded_journal_eviction",
+              "line": 121,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_conflicting_event_identity_refuses_without_modifying_bytes",
+              "line": 144,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_lost_ack_remains_unknown_until_actual_reopen_and_exact_retry",
+              "line": 165,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_concurrent_actual_middleware_producers_apply_same_event_once",
+              "line": 187,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_complete_legacy_wire_upgrades_but_sparse_legacy_never_defaults",
+              "line": 223,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_required_settlement_wire_fields_cannot_silently_forget_ack",
+              "line": 249,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_inconsistent_settlement_wire_refuses_all_actual_inlets",
+              "line": 280,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_memory_only_middleware_cannot_issue_durable_ack_or_owner_identity",
+              "line": 308,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_cold_settlement_cannot_publish_an_implicit_unlimited_ledger",
+              "line": 319,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_nullable_provider_omission_is_valid_in_a_real_settlement_receipt",
+              "line": 329,
+              "kind": "FunctionDef"
+            },
+            {
+              "name": "test_owner_identity_is_actual_persisted_and_stable_across_processes",
+              "line": 338,
+              "kind": "FunctionDef"
+            }
+          ]
+        }
+      ],
+      "diff_sha256": "a72102467463dd94022ebaf465e58b57fa24cfa5067539ac981d94916b45bd58"
+    }
+  ],
+  "canonical_context_refs": [
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "ast_definition_locators": [
+        {
+          "name": "_as_bool",
+          "line": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_is_plausible_gateway_api_key",
+          "line": 28,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_load_gateway_dotenv",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_candidate_dotenv_paths",
+          "line": 52,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "GatewayLLMConfig",
+          "line": 64,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "create_traced_gateway_client",
+          "line": 148,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "from_env",
+          "line": 86,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "git_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c",
+      "bytes": 2148,
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+      "ast_definition_locators": [
+        {
+          "name": "LLMPrice",
+          "line": 11,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "pricing_table",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "estimate_llm_cost_usd",
+          "line": 63,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_protocol.py",
+      "git_blob": "8376a3e476272b649c02d39b57ca1e62ef0d0a12",
+      "bytes": 997,
+      "sha256": "af87aaf57f6fecf097efaa131e49cb97d93a7692e4d098d11ec4e1ca7bd50a66",
+      "ast_definition_locators": [
+        {
+          "name": "AuditLog",
+          "line": 11,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "NoopAuditLog",
+          "line": 33,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "append",
+          "line": 18,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "close",
+          "line": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "append",
+          "line": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "close",
+          "line": 39,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py",
+      "git_blob": "18b74346ce1bd3313526f260deabfaa10ef1d37d",
+      "bytes": 2917,
+      "sha256": "e2f1a1ddafa681bdfda7f151e5c3603be2fd29bf58084f642b7cbf004ffc6f14",
+      "ast_definition_locators": [
+        {
+          "name": "_get_current_trace_context",
+          "line": 12,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "ChainedAuditLog",
+          "line": 26,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "__init__",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "append",
+          "line": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "close",
+          "line": 81,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_sink.py",
+      "git_blob": "7ca64fc28be8e36edc3c6ad46d9c4ac8ec6e9fac",
+      "bytes": 14861,
+      "sha256": "edbd457fe7da614834767484b350c906b7f37f531ed0b38fcf153e280415b576",
+      "ast_definition_locators": [
+        {
+          "name": "_default_metrics",
+          "line": 34,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "AuditStorageBackend",
+          "line": 38,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "LocalJsonlBackend",
+          "line": 48,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "HotTierBackend",
+          "line": 95,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ColdTierBackend",
+          "line": 145,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChainedAuditSink",
+          "line": 212,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "build_default_audit_backends_from_env",
+          "line": 408,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_read_tail_lines",
+          "line": 429,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_load_boto3_s3_client",
+          "line": 448,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write",
+          "line": 41,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "flush",
+          "line": 44,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "__init__",
+          "line": 51,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "path",
+          "line": 57,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write",
+          "line": 60,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "flush",
+          "line": 67,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "read_last_valid",
+          "line": 70,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "__init__",
+          "line": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write",
+          "line": 105,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "flush",
+          "line": 111,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_flush_locked",
+          "line": 115,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "__init__",
+          "line": 148,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "bucket",
+          "line": 158,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write",
+          "line": 161,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "flush",
+          "line": 173,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_flush_locked",
+          "line": 177,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "__init__",
+          "line": 215,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "emit",
+          "line": 246,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log_audit_event",
+          "line": 257,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_recover_state",
+          "line": 276,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_chain_entry",
+          "line": 288,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_append_and_enqueue",
+          "line": 312,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_writer_loop",
+          "line": 347,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "flush",
+          "line": 391,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "close",
+          "line": 399,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_models.py",
+      "git_blob": "4396c884f267cbbb70eb49eda5d56200ca7d89fa",
+      "bytes": 4287,
+      "sha256": "c9006d8058ab735ef95283007e09358138826f894faa617dccfdc8481b0d4dc5",
+      "ast_definition_locators": [
+        {
+          "name": "AuditEventType",
+          "line": 16,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AuditActor",
+          "line": 34,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AuditResource",
+          "line": 45,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AuditCorrelation",
+          "line": 55,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChainedLogEntry",
+          "line": 68,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "compute_hash",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "genesis_prev_hash",
+          "line": 91,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "make_entry_id",
+          "line": 96,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "build",
+          "line": 101,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_verifier.py",
+      "git_blob": "203795297cbad90dfa64d78015b246b9c6f31f6c",
+      "bytes": 3243,
+      "sha256": "a48f8e4eadfa8deefe842518dd7e13b5480a86921f39cf5ccafc02e084e0ab55",
+      "ast_definition_locators": [
+        {
+          "name": "_default_metrics",
+          "line": 18,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "ChainVerificationResult",
+          "line": 23,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChainVerifier",
+          "line": 34,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "__init__",
+          "line": 37,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "verify_segment",
+          "line": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "verify_jsonl_file",
+          "line": 78,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+      "bytes": 6159,
+      "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+      "ast_definition_locators": [
+        {
+          "name": "BudgetLimit",
+          "line": 15,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "BudgetState",
+          "line": 25,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "BudgetExhaustedError",
+          "line": 167,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "remaining",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "would_exceed",
+          "line": 56,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record_spend",
+          "line": 63,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "reserve",
+          "line": 77,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "release",
+          "line": 87,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "commit_reservation",
+          "line": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "is_soft_limit_exceeded",
+          "line": 107,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "utilization",
+          "line": 114,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "threshold_alerts",
+          "line": 122,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "from_experiment_budgets",
+          "line": 137,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "to_experiment_budgets",
+          "line": 155,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "bytes": 1336380,
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "git_blob": "58267726b4fb3a390c421c68130c788a0c6e90ee",
+      "bytes": 33768,
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db"
+    }
+  ],
+  "context_byte_equivalence": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_protocol.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_protocol.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_sink.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_sink.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_models.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_models.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_verifier.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/audit_verifier.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "target_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "byte_equal_to_DD": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "byte_equal_to_DD": true
+    }
+  ],
+  "runtime": "UNRUN",
+  "collection": "UNRUN",
+  "product_imports": "UNRUN",
+  "gate_execution": "UNRUN",
+  "predicate_basis": "recomputed",
+  "predicate_scope": "source object identities, full diff footprint and AST locators only",
+  "composed_source": "not_established; upper and lower are independently pinned source checkpoints"
+}

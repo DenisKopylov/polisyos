@@ -1,0 +1,50 @@
+{
+  "schema": "policyos.e02.artifact_index.v1",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/README.md",
+      "bytes": 1725,
+      "sha256": "8e3fdeb930b9927c369df416f37e8f637f3c113ef53b1ba529b37e27896f7461"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/ancillary-locator-error.txt",
+      "bytes": 1028,
+      "sha256": "307bac8f82bcef40b8e65b35f394819f91a75bd9e83ee9a0a888030d17249104"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/audit-full-stdout.json",
+      "bytes": 1449976,
+      "sha256": "ade0e28fa99410eefe0547f5978a4ef72eb85404db5373e6b57540cfaf4b30ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/audit-instrument.source.txt",
+      "bytes": 17562,
+      "sha256": "db99e0a88770ad10949828719ceb3a83efea0de882ebab0713ee16a17c059943"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/audit-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/review.json",
+      "bytes": 91153,
+      "sha256": "3010bb2839df20131df5df79bba959978d2214c021f3116dd7a29be858076256"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/supplement-full-stdout.json",
+      "bytes": 85914,
+      "sha256": "5a9e5cbf107227dd244341c08521325cd557cb46c6d676e2d9894a6ab565bb18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/supplement-instrument.source.txt",
+      "bytes": 5693,
+      "sha256": "9d727550ea008170b066a760ad4847db902b710d900f043e101ea1019fd2534c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit/supplement-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

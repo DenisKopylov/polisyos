@@ -1,0 +1,41 @@
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent.json' does not exist in '85e97d91801bac9a4314655e81a4fe8c68a17235'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json' exists on disk, but not in '85e97d91801bac9a4314655e81a4fe8c68a17235'
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: invalid object name 'ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256'.
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.xml' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.xml' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.xml' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.xml' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/evidence-index.json' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.txt' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.txt' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.txt' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.txt' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.txt' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.txt' does not exist in '0d3ee9707d397a7066eb144345220f42e36d7386'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json' does not exist in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json' exists on disk, but not in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json' does not exist in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json' does not exist in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json' exists on disk, but not in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json' does not exist in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json' exists on disk, but not in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json' does not exist in '0b69840df64e3630c41e59aa85ce8e58f220df9a'
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review.json' exists on disk, but not in '9fba2e79095bb0eca4b50603df34cbac2b1fab9a'

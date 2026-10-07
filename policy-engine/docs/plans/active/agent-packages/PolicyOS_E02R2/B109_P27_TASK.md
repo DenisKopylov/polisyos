@@ -1,3 +1,5 @@
+Current criterion-scope correction: [B109/B111/B100 errata](../../../../research/e02-cloud-test-plan/integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
 # B109 / P27 — use the existing Pareto owner on the served search path
 
 **Status:** partial. The local comparator has a bounded 31/31 whole-file witness at `0cf4afa19`, but the exact current six-file four-base cohort and registered served behavior remain `UNRUN`. Earlier 8/25/8/25 whole-file counts use different case sets; they are not four-base outcomes for the later 31-case file. This task does not close B109 or imply production registration of `ParetoRegistry`.

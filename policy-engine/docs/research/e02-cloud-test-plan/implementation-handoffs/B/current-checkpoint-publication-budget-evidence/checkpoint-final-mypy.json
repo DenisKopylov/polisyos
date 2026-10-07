@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=skip",
+    "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+    "src/polisyos/scientist/orchestration/engine/async_executor.py"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "head": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+  "tree": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+  "head_after": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+  "wall_s": 0.18035243899794295,
+  "process_rusage_maxrss_kib": 40472,
+  "exit_code": 1,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/checkpoint-final-mypy.txt",
+  "output_sha256": "da4b06bcf18e70e8c732be750684175f444c07f9a5bf2da52cb59b7d9d5c7734",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

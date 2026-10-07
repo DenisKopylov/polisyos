@@ -1,0 +1,267 @@
+"""Specific read-only audit of the two delivered 1862 native outputs.
+
+This is not the generic 27-check parser, a pytest plugin, or a terminal partition
+reconstructor. It reads the original profiles without aliases or restamping.
+"""
+
+import collections
+import datetime
+import hashlib
+import json
+import os
+import platform
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-B-current-coordination")
+SHA = "1862c021df74a5c5815bc5cd21a20e61b30132b6"
+TREE = "f765043b27b96a1fbb0795aa600db9bd94df0e36"
+RAW = ROOT / ".polisyos/e02-B-current/raw/review"
+FULL = "completed-final-B-cohort"
+AFFECTED = "completed-final-affected-consumers"
+FULL_SCRATCH = Path("/dev/shm/e02-B-completed-final-1862c021df74")
+AFFECTED_SCRATCH = Path("/dev/shm/e02-B-completed-affected-1862c021df74-bound")
+PINS = {
+    RAW / (FULL + ".json"): "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+    RAW / (FULL + "-profile.json"): "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+    RAW / (FULL + "-inventory.json"): "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+    RAW / (FULL + ".txt"): "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+    RAW / (AFFECTED + ".json"): "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+    RAW / (AFFECTED + "-profile.json"): "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+    RAW / (AFFECTED + "-inventory.json"): "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+    RAW / (AFFECTED + ".txt"): "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+    FULL_SCRATCH / "whole-files.args": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a",
+    AFFECTED_SCRATCH / "whole-files.args": "458d1f6100b18f667989312d72fc9f019a7e9b2d3a9cca2baff03202de01c973",
+    AFFECTED_SCRATCH / "native.xml": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+    RAW / "completed-final-selector.json": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+}
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(ROOT), *args])
+
+
+def identity(data):
+    return {"bytes": len(data), "sha256": digest(data)}
+
+
+def checkpoint():
+    result = {
+        "sha": git("rev-parse", "HEAD").decode().strip(),
+        "tree": git("rev-parse", "HEAD^{tree}").decode().strip(),
+        "branch": git("symbolic-ref", "HEAD").decode().strip(),
+        "tracked_status": git("status", "--porcelain=v1", "--untracked-files=no").decode(),
+    }
+    assert result["sha"] == SHA and result["tree"] == TREE
+    assert result["branch"] == "refs/heads/codex/e02-B-current-coordination"
+    assert result["tracked_status"] == ""
+    return result
+
+
+before = checkpoint()
+records = []
+data_by_path = {}
+for path, expected in PINS.items():
+    first = path.stat()
+    data = path.read_bytes()
+    last = path.stat()
+    assert digest(data) == expected, path
+    assert (first.st_dev, first.st_ino, first.st_size, first.st_mtime_ns) == (
+        last.st_dev, last.st_ino, last.st_size, last.st_mtime_ns
+    ), path
+    records.append({"path": str(path), **identity(data), "stable_during_read": True})
+    data_by_path[path] = data
+
+
+def load(tag, suffix):
+    return json.loads(data_by_path[RAW / (tag + suffix)])
+
+
+wrappers = {tag: load(tag, ".json") for tag in (FULL, AFFECTED)}
+profiles = {tag: load(tag, "-profile.json") for tag in (FULL, AFFECTED)}
+inventories = {tag: load(tag, "-inventory.json") for tag in (FULL, AFFECTED)}
+tree_bytes = git("ls-tree", "-rz", "--full-tree", SHA)
+tracked_blobs = {}
+for entry in tree_bytes.split(b"\0"):
+    if entry:
+        meta, path = entry.split(b"\t", 1)
+        _, kind, oid = meta.decode().split()
+        if kind == "blob":
+            tracked_blobs[path.decode()] = oid
+
+all_selected = set()
+source_identities = []
+for tag, scratch in ((FULL, FULL_SCRATCH), (AFFECTED, AFFECTED_SCRATCH)):
+    wrapper, profile, inventory = wrappers[tag], profiles[tag], inventories[tag]
+    assert wrapper["head"] == wrapper["head_after"] == SHA
+    assert wrapper["tree"] == TREE
+    assert wrapper["harness_state"] == "EXECUTED" and wrapper["exec_setup_error"] is None
+    profile_sha = profile.get("sha", profile.get("source_sha"))
+    profile_tree = profile.get("tree", profile.get("source_tree"))
+    assert profile_sha == SHA and profile_tree == TREE
+    assert "inputs" not in profile
+    args = data_by_path[scratch / "whole-files.args"].decode().splitlines()
+    assert args == profile["test_paths"] == inventory["selectors"]
+    assert len(args) == len(set(args)) == profile["whole_file_count"]
+    assert "@" + str(scratch / "whole-files.args") in wrapper["command"]
+    assert inventory["git_at_start"]["head"] == SHA
+    assert inventory["git_at_start"]["tree"] == TREE
+    assert inventory["git_at_start"]["tracked_status"] == ""
+    all_selected.update(args)
+
+for path in sorted(all_selected):
+    repository_path = "policy-engine/" + path
+    observed = (ROOT / repository_path).read_bytes()
+    blob_oid = hashlib.sha1(b"blob " + str(len(observed)).encode() + b"\0" + observed).hexdigest()
+    assert blob_oid == tracked_blobs[repository_path]
+    source_identities.append({"path": repository_path, "blob_oid": blob_oid, **identity(observed)})
+
+assert profiles[FULL]["whole_file_count"] == 250
+assert profiles[AFFECTED]["whole_file_count"] == 47
+for row in profiles[AFFECTED]["whole_file_identities"]:
+    assert digest((ROOT / row["path"]).read_bytes()) == row["sha256"]
+
+full_inventory = inventories[FULL]
+assert full_inventory["state"] == "collection_finished_runtime_pending"
+assert full_inventory["counts"]["session_items"] == 3882
+assert full_inventory["counts"]["collect_reports"] == 406
+assert full_inventory["counts"]["runtime_phase_reports"] == 0
+assert full_inventory["runtime_phase_reports"] == []
+assert all(full_inventory["counts"][key] == 0 for key in (
+    "collection_failed", "collection_skipped", "deselected"
+))
+for absent in ("session_exitstatus", "git_at_finish", "module_origin_snapshot"):
+    assert absent not in full_inventory
+full_xml = FULL_SCRATCH / "native.xml"
+assert not full_xml.exists() and not full_xml.is_symlink()
+assert wrappers[FULL]["exit_code"] == -9
+
+full_text = data_by_path[RAW / (FULL + ".txt")].decode()
+label_pattern = re.compile(
+    r"^(tests/.*?)(?:\s+)(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)"
+    r"(?:\s+\[\s*\d+%\])?\s*$", re.M
+)
+visible = label_pattern.findall(full_text)
+visible_ids = [nodeid for nodeid, _ in visible]
+collected = {item["nodeid"] for item in full_inventory["session_items_before_execution"]}
+assert len(collected) == 3882
+assert len(visible_ids) == len(set(visible_ids))
+assert set(visible_ids) <= collected
+visible_counts = dict(collections.Counter(label for _, label in visible))
+assert visible_counts == {"PASSED": 1290, "FAILED": 16, "ERROR": 16}
+assert "short test summary info" not in full_text
+assert "warnings summary" not in full_text
+
+affected_inventory = inventories[AFFECTED]
+assert affected_inventory["state"] == "session_finished"
+assert affected_inventory["session_testscollected"] == 807
+assert affected_inventory["session_testsfailed"] == 1
+assert affected_inventory["session_exitstatus"] == wrappers[AFFECTED]["exit_code"] == 1
+assert affected_inventory["git_at_finish"]["head"] == SHA
+assert affected_inventory["git_at_finish"]["tree"] == TREE
+assert affected_inventory["git_at_finish"]["tracked_status"] == ""
+reports = affected_inventory["runtime_phase_reports"]
+assert len(reports) == 2421
+phase_counts = collections.Counter((r["when"], r["outcome"]) for r in reports)
+assert phase_counts == {("setup", "passed"): 807, ("call", "passed"): 806,
+                        ("call", "failed"): 1, ("teardown", "passed"): 807}
+by_node = collections.defaultdict(list)
+for report in reports:
+    by_node[report["nodeid"]].append(report)
+    assert not report["has_wasxfail"] and report["evaluated_xfail"] is False
+assert len(by_node) == 807
+assert all(collections.Counter(r["when"] for r in rows) == {
+    "setup": 1, "call": 1, "teardown": 1
+} for rows in by_node.values())
+assert set(by_node) == {item["nodeid"] for item in affected_inventory["session_items_before_execution"]}
+
+xml_root = ET.fromstring(data_by_path[AFFECTED_SCRATCH / "native.xml"])
+cases = xml_root.findall(".//testcase")
+assert len(cases) == 807
+assert len({(case.attrib["classname"], case.attrib["name"]) for case in cases}) == 807
+xml_counts = collections.Counter()
+failures = []
+for case in cases:
+    failure, error, skipped = case.find("failure"), case.find("error"), case.find("skipped")
+    label = "FAIL" if failure is not None else "ERROR" if error is not None else "SKIP" if skipped is not None else "PASS"
+    xml_counts[label] += 1
+    if failure is not None:
+        failures.append({"classname": case.attrib["classname"], "name": case.attrib["name"],
+                         "message": failure.attrib.get("message"), "diagnostic": failure.text})
+assert xml_counts == {"PASS": 806, "FAIL": 1}
+failure_id = "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution"
+assert [r["nodeid"] for r in reports if r["when"] == "call" and r["outcome"] == "failed"] == [failure_id]
+assert failures[0]["name"] == "test_scenario_adversary_fallback_and_execution"
+affected_text = data_by_path[RAW / (AFFECTED + ".txt")].decode()
+assert "1 failed, 806 passed, 15 warnings in 178.45s" in affected_text
+
+snapshot = affected_inventory["module_origin_snapshot"]
+assert len(snapshot["observed_modules"]) == snapshot["module_entry_denominator"] == 4891
+backends = snapshot["observed_file_backends"]
+assert len(backends) == snapshot["distinct_file_backend_denominator"] == 4688
+assert len({row["path"] for row in backends}) == 4688
+canonical_rows = [row for row in backends if row["expected_git_blob_oid"] is not None]
+for row in canonical_rows:
+    assert tracked_blobs[row["repository_path"]] == row["expected_git_blob_oid"]
+    assert row["source_git_byte_match"] is True
+    assert row["actual_read"]["git_blob_oid_from_observed_bytes"] == row["expected_git_blob_oid"]
+    assert row["actual_read"]["stable_during_read"] is True
+assert len(canonical_rows) == 1705
+assert snapshot["loaded_instrument_source_git_byte_match"] is True
+
+context = {"observed_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+           "qualification": "One after-observation of the shared cgroup, no per-victim or temporal causal attribution."}
+for name in ("memory.events", "memory.events.local", "memory.current", "memory.max", "memory.peak"):
+    path = Path("/sys/fs/cgroup") / name
+    if path.is_file():
+        observed = path.read_bytes()
+        context[name] = {"path": str(path), "text": observed.decode(), **identity(observed)}
+
+after = checkpoint()
+result = {
+    "schema": "policyos.e02.completed_native_observation_review.v1",
+    "reviewer_operation": "Specific original JSON/XML/stdout/Git data reconciliation; no pytest, collection, generic 27-check parser, project imports, gates or reruns.",
+    "reviewer_environment": {"python": sys.executable, "version": sys.version, "platform": platform.platform(), "cwd": os.getcwd()},
+    "target_sha": SHA, "target_tree": TREE, "source_before": before, "source_after": after,
+    "input_objects": records, "git_tree_read": identity(tree_bytes),
+    "selected_file_source_identities": source_identities,
+    "profiles": {tag: {"keys": list(profiles[tag]), "test_paths_field": "top-level test_paths",
+                        "generic_parser_inputs_field": "ABSENT; generic 27-check parser UNRUN; no alias/restamp"}
+                 for tag in (FULL, AFFECTED)},
+    "full_cohort": {
+        "execution": "EXECUTED, interrupted by SIGKILL; final native partition NOT_ESTABLISHED",
+        "exit_code": -9, "wall_s": wrappers[FULL]["wall_s"], "max_rss_kib": wrappers[FULL]["process_rusage_maxrss_kib"],
+        "whole_files": 250, "collected_items": 3882, "collection_reports": 406,
+        "inventory_state": full_inventory["state"], "persisted_runtime_phase_reports": 0,
+        "missing_terminal_artifacts": [str(full_xml), "session_exitstatus", "git_at_finish", "module_origin_snapshot"],
+        "visible_stdout_rows": len(visible), "visible_stdout_labels": visible_counts,
+        "visible_nonpass_labels": [{"nodeid": nodeid, "label": label} for nodeid, label in visible if label != "PASSED"],
+        "last_complete_visible_row": visible[-1], "last_started_line": full_text.splitlines()[-1],
+        "qualification": "Visible labels are distinct stdout observations, not complete per-node phases or a terminal partition. Missing rows are not classified UNRUN/PASS/FAIL/ERROR. No historical DD grades or 27-check conclusions imported."
+    },
+    "affected_consumers": {
+        "execution": "EXECUTED; terminal complete native FAIL", "whole_files": 47,
+        "collected_items": 807, "cases": dict(xml_counts), "runtime_phase_reports": 2421,
+        "phase_counts": [{"when": key[0], "outcome": key[1], "count": count} for key, count in sorted(phase_counts.items())],
+        "exit_code": 1, "wall_s": wrappers[AFFECTED]["wall_s"], "max_rss_kib": wrappers[AFFECTED]["process_rusage_maxrss_kib"],
+        "stdout_pytest_s": 178.45, "stdout_warning_count": 15,
+        "xml_suite_attributes": [suite.attrib for suite in xml_root.findall(".//testsuite")],
+        "failure_id": failure_id, "failure": failures[0],
+        "qualification": "Actual scientific vulnerabilities[] assertion remains FAIL, with no inherited P41 attribution, fixture weakening or product disposition inferred by this execution audit. This targeted47 wave is not the full250 B cohort.",
+        "observed_module_entries": 4891, "observed_file_backends": 4688,
+        "captured_canonical_Git_byte_matches": len(canonical_rows), "canonical_mismatches": 0,
+        "observed_backend_scopes": dict(collections.Counter(row["scope"] for row in backends)),
+        "module_boundary": snapshot["resource_boundary"] + " Hook-time loaded modules only, not all transient/child imports or complete resource/backend read sets."
+    },
+    "shared_cgroup_after_sample": context,
+    "root_output_delivery": "Exact original paths@SHA above; root will publish full original custody once. No future commit/path/SHA is assumed.",
+    "finding_closure_ids": [], "metadata_audit_outcome": "PASS"
+}
+print(json.dumps(result, ensure_ascii=False, indent=2))

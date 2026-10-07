@@ -1,0 +1,1809 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-runtime-executor",
+  "closure_ids": [],
+  "candidate_finding_ids": [
+    "B69",
+    "B95",
+    "B40",
+    "LA-057"
+  ],
+  "bundle_ids": [
+    "RUN-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "fd0a8b0044bb51539d812c2d0957381ed52ed3fd"
+  ],
+  "candidate_tree_sha": "894501580e379d140108a58cc87b7739cdb52400",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/e02-current-runtime.toml",
+    "policy-engine/src/polisyos/common/README.md",
+    "policy-engine/src/polisyos/common/async_tools.py",
+    "policy-engine/tests/unit/common/test_async_tools.py"
+  ],
+  "evidence_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-native.txt",
+      "sha256": "04efba577e452a0ad0f4011fb55eff466a51ab6567504e72118a7e63996864ff",
+      "bytes": 14894
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-native.xml",
+      "sha256": "9fabfcbd59209d9bb0d7514233ab4e349abdf6e3d309c6ce9625eeae169adce6",
+      "bytes": 18113
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-receipt.json",
+      "sha256": "10a269e805a7160c5faf0ceab36c79351715d13339a7ab896472cee332ef019f",
+      "bytes": 1312
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+      "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab",
+      "bytes": 97442
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-native.txt",
+      "sha256": "c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-native.xml",
+      "sha256": "219bf75cc823c4c1bb3abc7ba625fc5c0b55feb352fa75fc2ebc5fe99828e877",
+      "bytes": 2960
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-receipt.json",
+      "sha256": "544d1278419a4681482d7de5eaac188e746e1433e3c7c78fca6a65d457ee97ec",
+      "bytes": 1144
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/commit.txt",
+      "sha256": "0e59a2a09bb7679bb0c4c8802a5e28f8d37dd32f1c472e2955f77278a9d28a0d",
+      "bytes": 896
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/consumer-native.txt",
+      "sha256": "30ebb134e05c2c98d0518e644ea4e0668a454c0633133fb330362703fdd331a8",
+      "bytes": 6273
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/consumer-native.xml",
+      "sha256": "917382e0ba28588466c35eb73f29d1c8ea3ccab2e0c898de04e21afe90cebe95",
+      "bytes": 14995
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+      "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+      "bytes": 16289
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/mypy.txt",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "bytes": 42
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-native.txt",
+      "sha256": "1f56f1f4ef03fbdf30c91cb6ee0636b5e462e33678064d10a611957990c31166",
+      "bytes": 10835
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-native.xml",
+      "sha256": "392392bf7e17715dfcd6165023c230e42e73fb2db2baa1435782aa8fa1ac59ff",
+      "bytes": 14077
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-receipt.json",
+      "sha256": "0f9f29d9faf129da7a45edd94b4bd9c075f8f6dd47d924c3e85a2c408483aa1c",
+      "bytes": 1225
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+      "sha256": "d5ff7677b499e138411d22a0405d0538a9c939b22f1d39a02ecd305e16f13ae7",
+      "bytes": 3167
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/ruff.txt",
+      "sha256": "afa20b27dacc9bf0aba3c1d265964c21e04ab42f6e39e2dd4769718ceded003a",
+      "bytes": 45
+    }
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P008",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "FAILED",
+      "collected": "52",
+      "calls": "52",
+      "call_pass": "49",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.83",
+      "rss_kib": "135056",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "125",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F01-P008",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "125"
+      }
+    },
+    {
+      "id": "F03-P083",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.97",
+      "rss_kib": "87436.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "213",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F03-P083",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "213"
+      }
+    },
+    {
+      "id": "F05-P104",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.19",
+      "rss_kib": "100588",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "514",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F05-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "514"
+      }
+    },
+    {
+      "id": "F06-P021",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "PASS",
+      "collected": "35",
+      "calls": "35",
+      "call_pass": "35",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.529636859893799",
+      "rss_kib": "112348",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "205",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F06-P021",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "205"
+      }
+    },
+    {
+      "id": "F09-P017",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "FAILED",
+      "collected": "52",
+      "calls": "52",
+      "call_pass": "49",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "10.86",
+      "rss_kib": "144420",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "133",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F09-P017",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "133"
+      }
+    },
+    {
+      "id": "F09-P084",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.14",
+      "rss_kib": "100964",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "200",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F09-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "200"
+      }
+    },
+    {
+      "id": "F10-P012",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "PASS",
+      "collected": "35",
+      "calls": "35",
+      "call_pass": "35",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.24",
+      "rss_kib": "118808",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "132",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F10-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "132"
+      }
+    },
+    {
+      "id": "F10-P080",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.93",
+      "rss_kib": "114868",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "200",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F10-P080",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "200"
+      }
+    },
+    {
+      "id": "F15-P012",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "state": "FAILED",
+      "collected": "52",
+      "calls": "52",
+      "call_pass": "49",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "10.86",
+      "rss_kib": "141924",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "167",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B24",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B24"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F15-P012",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "167"
+      }
+    },
+    {
+      "id": "F15-P096",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.05",
+      "rss_kib": "102856",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "251",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B14",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B14"
+        },
+        {
+          "finding_id": "B40",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B40"
+        },
+        {
+          "finding_id": "B69",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B69"
+        },
+        {
+          "finding_id": "B95",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B95"
+        },
+        {
+          "finding_id": "LA-057",
+          "unit": "B",
+          "cell_id": "F15-P096",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-057"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "251"
+      }
+    },
+    {
+      "id": "F03-P092",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.33",
+      "rss_kib": "115456.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "222",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F03-P092",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F03-P092",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "222"
+      }
+    },
+    {
+      "id": "F04-P105",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.773",
+      "rss_kib": "559040",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "315",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F04-P105",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F04-P105",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "315"
+      }
+    },
+    {
+      "id": "F06-P122",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "37.05731272697449",
+      "rss_kib": "1394624",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "306",
+      "extra_json": "{\"reason\":\"null\"}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F06-P122",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F06-P122",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "306"
+      }
+    },
+    {
+      "id": "F07-P098",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "36.08620238304138",
+      "rss_kib": "1381720.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "104",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F07-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F07-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "104"
+      }
+    },
+    {
+      "id": "F09-P094",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.39",
+      "rss_kib": "125452",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "210",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F09-P094",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F09-P094",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "210"
+      }
+    },
+    {
+      "id": "F11-P098",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "33.006",
+      "rss_kib": "1388536",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "227",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F11-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F11-P098",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "227"
+      }
+    },
+    {
+      "id": "F14-P107",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "state": "PASS",
+      "collected": "9",
+      "calls": "9",
+      "call_pass": "9",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.119340536999516",
+      "rss_kib": "134908",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "457",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F14-P107",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F14-P107",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "457"
+      }
+    },
+    {
+      "id": "F14-P123",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.901992692999556",
+      "rss_kib": "1427016",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "473",
+      "extra_json": "{}",
+      "refs": [
+        {
+          "finding_id": "B39",
+          "unit": "B",
+          "cell_id": "F14-P123",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B39"
+        },
+        {
+          "finding_id": "B96",
+          "unit": "B",
+          "cell_id": "F14-P123",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B96"
+        }
+      ],
+      "locator": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": "473"
+      }
+    }
+  ],
+  "baseline_source_environment_input_contexts": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+    "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab",
+    "bytes": 97442
+  },
+  "checks": [
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py --mode base --output-dir _build/e02-current-runtime/base-complete",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+        "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+        "bytes": 16289
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+          "sha256": "d5ff7677b499e138411d22a0405d0538a9c939b22f1d39a02ecd305e16f13ae7",
+          "bytes": 3167
+        },
+        "test": {
+          "path": "policy-engine/tests/unit/common/test_async_tools.py",
+          "at_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+          "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+        },
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-receipt.json",
+          "sha256": "10a269e805a7160c5faf0ceab36c79351715d13339a7ab896472cee332ef019f",
+          "bytes": 1312
+        }
+      },
+      "outcome": "FAIL",
+      "observed": {
+        "tests": "20",
+        "failures": "8",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.263"
+      },
+      "interpretation": "negative control must fail the changed ownership property",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-native.txt",
+        "sha256": "04efba577e452a0ad0f4011fb55eff466a51ab6567504e72118a7e63996864ff",
+        "bytes": 14894
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-native.xml",
+        "sha256": "9fabfcbd59209d9bb0d7514233ab4e349abdf6e3d309c6ce9625eeae169adce6",
+        "bytes": 18113
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py --mode removed --output-dir _build/e02-current-runtime/removal-complete",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+        "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+        "bytes": 16289
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+          "sha256": "d5ff7677b499e138411d22a0405d0538a9c939b22f1d39a02ecd305e16f13ae7",
+          "bytes": 3167
+        },
+        "test": {
+          "path": "policy-engine/tests/unit/common/test_async_tools.py",
+          "at_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+          "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+        },
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-receipt.json",
+          "sha256": "0f9f29d9faf129da7a45edd94b4bd9c075f8f6dd47d924c3e85a2c408483aa1c",
+          "bytes": 1225
+        }
+      },
+      "outcome": "FAIL",
+      "observed": {
+        "tests": "20",
+        "failures": "6",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.271"
+      },
+      "interpretation": "negative control must fail the changed ownership property",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-native.txt",
+        "sha256": "1f56f1f4ef03fbdf30c91cb6ee0636b5e462e33678064d10a611957990c31166",
+        "bytes": 10835
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-native.xml",
+        "sha256": "392392bf7e17715dfcd6165023c230e42e73fb2db2baa1435782aa8fa1ac59ff",
+        "bytes": 14077
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py --mode candidate --output-dir _build/e02-current-runtime/candidate-complete",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+        "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+        "bytes": 16289
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+          "sha256": "d5ff7677b499e138411d22a0405d0538a9c939b22f1d39a02ecd305e16f13ae7",
+          "bytes": 3167
+        },
+        "test": {
+          "path": "policy-engine/tests/unit/common/test_async_tools.py",
+          "at_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+          "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+        },
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-receipt.json",
+          "sha256": "544d1278419a4681482d7de5eaac188e746e1433e3c7c78fca6a65d457ee97ec",
+          "bytes": 1144
+        }
+      },
+      "outcome": "PASS",
+      "observed": {
+        "tests": "20",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.338"
+      },
+      "interpretation": "authored current executor property passed; independent review still required",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-native.txt",
+        "sha256": "c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3",
+        "bytes": 80
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-native.xml",
+        "sha256": "219bf75cc823c4c1bb3abc7ba625fc5c0b55feb352fa75fc2ebc5fe99828e877",
+        "bytes": 2960
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/core/artifacts/test_async_store.py tests/unit/runtime/http/test_resilience_guards.py tests/unit/scientist/orchestration/engine/test_retry.py --junitxml=/workspace/e02-B-current-runtime/_build/e02-current-runtime/executor-consumers.xml",
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+        "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+        "bytes": 16289
+      },
+      "input_closure": "configuration/conftests observed in environment.json; listed full test paths and their production imports at candidate; shared venv distributions captured",
+      "outcome": "FAIL",
+      "observed": {
+        "tests": "63",
+        "failures": "3",
+        "errors": "0",
+        "skipped": "0",
+        "time": "9.663"
+      },
+      "failing_cases": [
+        "tests.unit.scientist.orchestration.engine.test_retry::test_timeout_cleans_owned_process_descendant[sync]",
+        "tests.unit.scientist.orchestration.engine.test_retry::test_timeout_cleans_owned_process_descendant[async]",
+        "tests.unit.scientist.orchestration.engine.test_retry::test_cleanup_kills_descendant_after_worker_exit"
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/consumer-native.txt",
+        "sha256": "30ebb134e05c2c98d0518e644ea4e0668a454c0633133fb330362703fdd331a8",
+        "bytes": 6273
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/consumer-native.xml",
+        "sha256": "917382e0ba28588466c35eb73f29d1c8ea3ccab2e0c898de04e21afe90cebe95",
+        "bytes": 14995
+      },
+      "interpretation": "60 passes, 3 actual descendant cleanup failures remain assigned process work; no inherited-red/fullscope closure asserted"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m mypy --follow-imports=skip src/polisyos/common/async_tools.py",
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+        "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+        "bytes": 16289
+      },
+      "input_closure": "candidate common/async_tools.py; pyproject config; installed Mypy captured",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/mypy.txt",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+        "bytes": 42
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py",
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+        "sha256": "2f9130552577f509731c887071766b4a70d513ede09fed5830bb9274d4e2a9fc",
+        "bytes": 16289
+      },
+      "input_closure": "the two exact candidate source/test paths and committed configuration hashes",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/ruff.txt",
+        "sha256": "afa20b27dacc9bf0aba3c1d265964c21e04ab42f6e39e2dd4769718ceded003a",
+        "bytes": 45
+      }
+    }
+  ],
+  "property": {
+    "statement": "The real shared executor holds logical ownership until callable wrapper and synchronous callbacks return, counts physical workers separately, and refuses worker/callback-context nested submit when capacity is full while preserving standard Future result/error/cancel/callback order/thread/late registration. Explicit unbounded helper use preserves the legacy omitted/None default.",
+    "runtime_path": [
+      "get_shared_executor producer at actual supported4 worker minimum",
+      "stdlib ThreadPoolExecutor real queued/running callable",
+      "Future-compatible proxy and standard asyncio.wrap_future / concurrent.wait consumers",
+      "sync done callbacks including late registration and shutdown(cancel_futures) real queued cancellation"
+    ],
+    "proxy_divergence": "On the same20-test input the canonical base returns done Futures with all4 actual workers still inside callbacks: nested jobs are admitted, cannot run until callbacks return, and timeout. Candidate returns typed immediate refusal and no inner callable executes, including after release. Future.done is not free physical capacity.",
+    "negative_controls": [
+      "exact base module from Git198 with same candidate20 input:12PASS8FAIL",
+      "replace only the private producer class by real stdlib ThreadPoolExecutor while leaving candidate helper API:14PASS6FAIL",
+      "one spare actual worker accepts nested callback task and returns42",
+      "late callback physically full pool cannot enqueue an inner effect; callback runs in registering thread",
+      "four actual blockers allow cancellation before start; cancellation waiter notification checked before blocker release"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "fresh first executor candidate; independent review pending; full RUN scope open",
+  "finding_dispositions": [
+    {
+      "finding_id": "B14",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "pending_runtime_continuation",
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "limitation": "No closure from baseline cells. Retry/process/deadline path remains to be tested and repaired on the current fresh base.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "cd policy-engine && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py"
+    },
+    {
+      "finding_id": "B24",
+      "bundle_ids": [
+        "RUN-02"
+      ],
+      "state": "pending_runtime_continuation",
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F06-P021",
+        "F09-P017",
+        "F10-P012",
+        "F15-P012"
+      ],
+      "limitation": "No closure from baseline cells. Retry/process/deadline path remains to be tested and repaired on the current fresh base.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "cd policy-engine && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py"
+    },
+    {
+      "finding_id": "B39",
+      "bundle_ids": [
+        "RUN-03"
+      ],
+      "state": "pending_runtime_continuation",
+      "baseline_cell_ids": [
+        "F03-P092",
+        "F04-P105",
+        "F06-P122",
+        "F07-P098",
+        "F09-P094",
+        "F11-P098",
+        "F14-P107",
+        "F14-P123"
+      ],
+      "limitation": "No closure from baseline cells. Retry/process/deadline path remains to be tested and repaired on the current fresh base.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "cd policy-engine && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py"
+    },
+    {
+      "finding_id": "B40",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "pending_runtime_continuation",
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "limitation": "No closure from baseline cells. Retry/process/deadline path remains to be tested and repaired on the current fresh base.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "cd policy-engine && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py"
+    },
+    {
+      "finding_id": "B69",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "candidate_property_passed_pending_independent_review",
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "limitation": "Future saturation, callback barriers/late registration, queue cancellation, result/error/context and shutdown checked; native async-store/guard consumers included; independent review and fuller consumer trace pending",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py --mode candidate --output-dir _build/e02-current-runtime/candidate-complete"
+    },
+    {
+      "finding_id": "B95",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "pending_runtime_continuation",
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "limitation": "No closure from baseline cells. Retry/process/deadline path remains to be tested and repaired on the current fresh base.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "cd policy-engine && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py"
+    },
+    {
+      "finding_id": "B96",
+      "bundle_ids": [
+        "RUN-03"
+      ],
+      "state": "pending_runtime_continuation",
+      "baseline_cell_ids": [
+        "F03-P092",
+        "F04-P105",
+        "F06-P122",
+        "F07-P098",
+        "F09-P094",
+        "F11-P098",
+        "F14-P107",
+        "F14-P123"
+      ],
+      "limitation": "No closure from baseline cells. Retry/process/deadline path remains to be tested and repaired on the current fresh base.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "cd policy-engine && PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py"
+    },
+    {
+      "finding_id": "LA-057",
+      "bundle_ids": [
+        "RUN-01"
+      ],
+      "state": "type_only_base_property_preserved_pending_consumer_census",
+      "baseline_cell_ids": [
+        "F01-P008",
+        "F03-P083",
+        "F05-P104",
+        "F06-P021",
+        "F09-P017",
+        "F09-P084",
+        "F10-P012",
+        "F10-P080",
+        "F15-P012",
+        "F15-P096"
+      ],
+      "limitation": "Four function-scoped generic parameters already present at pinned base and AST/type-hints native check passed; package/dynamic import census and G97 consumer acceptance pending; no new type-only source diff claimed.",
+      "next_owner": "B current RUN writer then independent root/G",
+      "replay_command": "/workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py --mode candidate --output-dir _build/e02-current-runtime/candidate-complete"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Arbitrary already-running user callable/callback remains cooperative. No interruption of running arbitrary Python code is promised.",
+    "No production dataset was used or published; these ownership properties use actual generic thread/filesystem/process fixtures.",
+    "Retry process descendant cleanup has3 real failures on this candidate and remains assigned continuation work. One global deadline and complete retry/error classification are not established by this first slice.",
+    "Author checks are separate from root/G independent acceptance; no full finding closure is asserted.",
+    "LA-057 changes were already present at fresh base; external opaque distribution consumer obligations remain open."
+  ],
+  "owner_paths": [
+    "policy-engine/release-fragments/unreleased/e02-current-runtime.toml",
+    "policy-engine/src/polisyos/common/README.md",
+    "policy-engine/src/polisyos/common/async_tools.py",
+    "policy-engine/tests/unit/common/test_async_tools.py"
+  ],
+  "provenance": {
+    "producer_source_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+    "canonical_criteria": [
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md@198076863e143dea9f89f02734b13d50dae3eed5#RUN-01",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@198076863e143dea9f89f02734b13d50dae3eed5"
+    ],
+    "rule_schema": "policyos.e02.implementation_handoff.v1",
+    "time_roles": "worker/callback lifetime determines capacity, Future.done is only a result-state observation; monotonic deadlines in remaining retry path not yet established"
+  }
+}

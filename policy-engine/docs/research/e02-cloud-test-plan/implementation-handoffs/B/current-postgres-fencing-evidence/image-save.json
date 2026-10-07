@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/usr/local/bin/docker",
+    "--host",
+    "unix:///var/run/docker.sock",
+    "image",
+    "save",
+    "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+    "--output",
+    "/tmp/e02-B38-pg-evidence/postgres17-image.tar"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 0.019999773998279124
+}

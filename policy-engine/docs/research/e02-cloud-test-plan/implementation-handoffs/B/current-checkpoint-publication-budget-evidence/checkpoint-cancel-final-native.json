@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "-q",
+    "--basetemp=/tmp/e02-B-current-execution-state/checkpoint-deadline/cancel-final-native-pytest",
+    "--junitxml=/tmp/e02-B-current-execution-state/checkpoint-deadline/cancel-final-native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "head": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "tree": "21ea656dcc31d414db5183d6a59b5d57deff8a40",
+  "head_after": "84e40e5f83054a1f1c6c60d2fbacd53fa6c71497",
+  "wall_s": 19.684968054993078,
+  "process_rusage_maxrss_kib": 671064,
+  "exit_code": 0,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/checkpoint-cancel-final-native.txt",
+  "output_sha256": "b1caae85ec31d08a00b70488af9cc30676ea609b8012c2800620e199adf3bcb2",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

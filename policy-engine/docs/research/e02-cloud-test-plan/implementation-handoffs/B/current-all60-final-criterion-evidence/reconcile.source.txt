@@ -1,0 +1,223 @@
+"""Read-only Git/XML metadata reconciliation; no product imports or test execution."""
+import collections
+import csv
+import hashlib
+import io
+import json
+import pathlib
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+proposal_path = pathlib.Path(sys.argv[1])
+output_path = pathlib.Path(sys.argv[2])
+proposal_bytes = proposal_path.read_bytes()
+proposal = json.loads(proposal_bytes)
+errors = []
+
+
+def require(condition, message):
+    if not condition:
+        errors.append(message)
+
+
+def git_bytes(sha, path):
+    return subprocess.check_output(["git", "show", sha + ":" + path])
+
+
+def checked_ref(ref):
+    sha = ref.get("git_sha", ref.get("commit"))
+    data = git_bytes(sha, ref["path"])
+    require(len(data) == ref["bytes"], "size:" + ref["path"])
+    require(hashlib.sha256(data).hexdigest() == ref["sha256"], "hash:" + ref["path"])
+    return data
+
+
+def xml_state(case):
+    for child, state in [("error", "ERROR"), ("failure", "FAIL"), ("skipped", "SKIP")]:
+        if case.find(child) is not None:
+            return state
+    return "PASS"
+
+
+source_sha = proposal["root_source"]["sha"]
+source_tree = subprocess.check_output(["git", "rev-parse", source_sha + "^{tree}"], text=True).strip()
+require(source_tree == proposal["root_source"]["tree"], "source-tree")
+rows = proposal["all60_manual_rows"]
+require(len(rows) == 60, "60-rows")
+require(len({r["finding_id"] for r in rows}) == 60, "unique-ids")
+require(len({r["bundle_id"] for r in rows}) == 25, "25-bundles")
+require(proposal["closure_ids"] == [], "formal-closure")
+require(all(r["formal_closure"] is False for r in rows), "row-formal-closure")
+require(all(r["proposed_status"] in {"closed", "limited", "held", "open"} for r in rows), "registered-status")
+owner_data = checked_ref(proposal["denominator"]["finding_source"]).decode()
+owner_rows = list(csv.DictReader(io.StringIO(owner_data), delimiter="\t"))
+expected_ids = {r["finding_id"] for r in owner_rows if r["unit"] == "B"}
+require({r["finding_id"] for r in rows} == expected_ids, "TSV-exact-B-60")
+for row in rows:
+    owner = next(r for r in owner_rows if r["finding_id"] == row["finding_id"])
+    require(owner["source_closure_owner"] == row["bundle_id"], "canonical-owner:" + row["finding_id"])
+
+route_rows = list(csv.DictReader(io.StringIO(checked_ref(proposal["denominator"]["routes_source"]).decode()), delimiter="\t"))
+b_routes = [row for row in route_rows if row["finding_id"] in expected_ids]
+b_cell_ids = {row["cell_id"] for row in b_routes}
+cell_rows = list(csv.DictReader(io.StringIO(checked_ref(proposal["denominator"]["baseline_cells_source"]).decode()), delimiter="\t"))
+cells_by_id = {row["id"]: row for row in cell_rows}
+require(len(b_routes) == 561 and len(b_cell_ids) == 189, "baseline-route-cell-denominator")
+require(b_cell_ids <= set(cells_by_id), "baseline-exact-cell-lookup")
+require(all(cells_by_id[cell_id]["source_sha"] and cells_by_id[cell_id]["source_file"] for cell_id in b_cell_ids), "baseline-source-ref-resolution")
+checked_ref(proposal["denominator"]["baseline_context_source"])
+
+canonical_sha = proposal["canonical_source"]["git_sha"]
+card_template = proposal["canonical_source"]["card_path_template"]
+card_cache = {}
+for row in rows:
+    fid = row["finding_id"]
+    path = card_template.format(bundle_id=row["bundle_id"])
+    if path not in card_cache:
+        card_cache[path] = git_bytes(canonical_sha, path)
+        require(card_cache[path] == git_bytes(source_sha, path), "card-content:" + path)
+    text = card_cache[path].decode()
+    namespace = "LA:" if fid.startswith("LA-") else "B:"
+    marker_id = namespace + fid
+    match = re.search(r"<!-- SOURCE_BEGIN " + re.escape(marker_id) + r" -->(.*?)<!-- SOURCE_END " + re.escape(marker_id) + r" -->", text, re.S)
+    require(match is not None, "actual-marker:" + fid)
+    if match:
+        digest = hashlib.sha256(match.group(1).encode()).hexdigest()
+        require(digest == row["canonical_criterion"]["source_block_sha256"], "raw-criterion:" + fid)
+
+refs = proposal["evidence_index"]
+ref_data = {key: checked_ref(ref) for key, ref in refs.items()}
+for row in rows:
+    require(all(key in refs for key in row["deciding_reference_ids"]), "deciding-ref-alias:" + row["finding_id"])
+for path, expected in proposal["canonical_runtime_anchors"]["content_index"].items():
+    actual = git_bytes(source_sha, path)
+    require(len(actual) == expected["bytes"] and hashlib.sha256(actual).hexdigest() == expected["sha256"], "runtime-anchor:" + path)
+
+historic = json.loads(ref_data["historical_manual_basis"])
+old_xml = list(ET.fromstring(ref_data["dd_xml"]).iter("testcase"))
+old_cases_reconciled = 0
+for row in rows:
+    index = int(row["historical_actual_locator"].split("/")[2])
+    old_row = historic["all60_manual_rows"][index]
+    require(old_row["finding_id"] == row["finding_id"], "historic-pointer:" + row["finding_id"])
+    selectors = old_row["DD_deciding_cases"]["junit_indexes"]
+    states = dict(collections.Counter(xml_state(old_xml[i]) for i in selectors))
+    require(states == row["historical_case_states"], "historic-literal-outcomes:" + row["finding_id"])
+    old_cases_reconciled += len(selectors)
+old_inputs_same = []
+old_inputs_changed = []
+for name, ref in historic["test_input_index"].items():
+    actual_old = checked_ref(ref)
+    actual_current = git_bytes(source_sha, ref["path"])
+    (old_inputs_same if actual_old == actual_current else old_inputs_changed).append(name)
+require(sorted(old_inputs_changed) == ["T37", "T50"], "exact-old-input-delta")
+
+current_xml = list(ET.fromstring(ref_data["root_affected_xml"]).iter("testcase"))
+current_counts = dict(collections.Counter(xml_state(c) for c in current_xml))
+require(len(current_xml) == 807 and current_counts == {"PASS": 806, "FAIL": 1}, "actual-root807")
+current_wrapper = json.loads(ref_data["root_affected_wrapper"])
+current_profile = json.loads(ref_data["root_affected_profile"])
+require(current_wrapper["head"] == source_sha == current_wrapper["head_after"], "actual-root807-source")
+require(current_profile["source_sha"] == source_sha and current_profile["whole_file_count"] == 47, "actual-root47-profile")
+require(current_wrapper["output_sha256"] == refs["root_affected_stdout"]["sha256"], "actual-root807-stdout")
+current_row_selectors = 0
+for row in rows:
+    check = row["actual_current_check"]
+    if isinstance(check, dict) and check.get("check") == "root_affected807":
+        selected = [c for c in current_xml if any(s in c.attrib["classname"] for s in check["classname_substrings"])]
+        require(dict(collections.Counter(xml_state(c) for c in selected)) == check["literal_case_counts"], "current-row-XML:" + row["finding_id"])
+        current_row_selectors += 1
+full_wrapper = json.loads(ref_data["root_full_wrapper"])
+require(full_wrapper["head"] == source_sha == full_wrapper["head_after"] and full_wrapper["exit_code"] == -9, "actual-full-incomplete")
+require(proposal["native_evidence_state"]["full_joint"]["terminal_phase_join"].startswith("UNRUN"), "no-terminal-grades")
+require(set(proposal["P37_primary_labels"]) == {"recomputed", "independently_reconciled", "consumer_asserted", "institutionally_supplied", "not_established"}, "registered-P37-labels")
+
+affected = proposal["native_evidence_state"]["engine_affected35"]
+affected_sha = affected["actual_execution_sha"]
+affected_xml = list(ET.fromstring(ref_data["affected35_xml"]).iter("testcase"))
+require(len(affected_xml) == 712 and dict(collections.Counter(xml_state(c) for c in affected_xml)) == {"PASS": 712}, "actual-affected35-712")
+affected_wrapper = json.loads(ref_data["affected35_wrapper"])
+affected_profile = json.loads(ref_data["affected35_profile"])
+require(affected_wrapper["actual_exit_code"] == 0 and affected_wrapper["source_before"]["head"] == affected_sha == affected_wrapper["source_after"]["head"], "affected35-actual-source")
+require(affected_wrapper["whole_file_count"] == affected_profile["wholefile_inputs"].__len__() == 35, "affected35-files")
+require(affected_profile["actual_source_head"] == affected_sha and affected_profile["content_only_reference"] == source_sha, "affected35-not-restamped")
+stdout_wrapper = json.loads(ref_data["affected35_stdout_wrapper"])
+stdout = stdout_wrapper["text"].encode("utf-8")
+require(hashlib.sha256(stdout).hexdigest() == affected_wrapper["stdout"]["sha256"] == stdout_wrapper["original"]["sha256"] and len(stdout) == stdout_wrapper["original"]["bytes"], "affected35-lossless-stdout")
+affected_index = json.loads(ref_data["affected35_index"])
+for ref in affected_index["files"]:
+    checked_ref({"git_sha": refs["affected35_index"]["git_sha"], **ref})
+require(len(affected_index["files"]) == 27 and sum(ref["bytes"] for ref in affected_index["files"]) == 2087261, "affected35-index-denominator")
+partition = json.loads(ref_data["affected35_partition"])
+require(partition["parse_state"] == "COMPLETE" and partition["case_counts"] == {"PASS": 712, "FAIL": 0, "ERROR": 0, "XFAIL": 0, "SKIP": 0, "UNRUN": 0}, "affected35-phase-join")
+require(len(partition["reconciliation_checks"]) == 27 and all(partition["reconciliation_checks"].values()), "affected35-27-parser-checks")
+phase_table = json.loads(ref_data["affected35_phases"])
+columns = phase_table["table"]["columns"]
+phase_rows = []
+for encoded in phase_table["table"]["rows"]:
+    phase_rows.append({column["name"]: column["values"][offset]["value"] for column, offset in zip(columns, encoded) if column["values"][offset]["present"]})
+require(len(phase_rows) == 2136 and collections.Counter((row["when"], row["outcome"]) for row in phase_rows) == {("setup", "passed"): 712, ("call", "passed"): 712, ("teardown", "passed"): 712}, "affected35-all-phases")
+
+def source_projection(sha):
+    data = subprocess.check_output(["git", "ls-tree", "-r", sha, "--", "policy-engine/src", "policy-engine/tests", "policy-engine/product"], text=True)
+    return {line.split("\t", 1)[1]: line.split("\t", 1)[0].split() for line in data.splitlines()}
+
+observed_projection = source_projection(affected_sha)
+reference_projection = source_projection(source_sha)
+require(observed_projection == reference_projection and len(observed_projection) == 6246, "affected35-content-projection")
+for key in ["affected35_before", "affected35_after"]:
+    snapshot = json.loads(ref_data[key])
+    require(snapshot["identity"]["head"] == affected_sha and snapshot["identity"]["tracked_status"] == "", "affected35-clean:" + key)
+    for ref in snapshot["declared_disk_inputs"]:
+        data = git_bytes(affected_sha, ref["path"])
+        require(ref["actual_disk_git_bytes_match"] and len(data) == ref["bytes"] and hashlib.sha256(data).hexdigest() == ref["sha256"], "affected35-declared-input:" + ref["path"])
+affected_row_selections = 0
+for row in rows:
+    check = row.get("actual_affected35_check")
+    if check:
+        selected = [c for c in affected_xml if any(selector["classname_contains"] in c.attrib["classname"] and (not selector["name_starts_with_any"] or any(c.attrib["name"].startswith(prefix) for prefix in selector["name_starts_with_any"])) for selector in check["selectors"])]
+        require(dict(collections.Counter(xml_state(c) for c in selected)) == check["literal_case_counts"], "affected35-row-XML:" + row["finding_id"])
+        affected_row_selections += 1
+counts = dict(sorted(collections.Counter(r["proposed_status"] for r in rows).items()))
+require(counts == proposal["proposal_status_counts"], "non-target-status-counts")
+require(next(r for r in rows if r["finding_id"] == "B87")["proposed_status"] == "open", "actual-C-open")
+require({r["finding_id"] for r in rows if r["proposed_status"] == "held"} == {"B61", "B67", "B68", "B148"}, "actual-missing-law-set")
+output = {
+    "schema": "policyos.e02.final-all60-metadata-reconciliation.v1",
+    "scope": "Read-only data/source reconciliation; no product import, pytest, collection, gates or runtime execution by this reader.",
+    "python": {"executable": sys.executable, "version": sys.version},
+    "proposal_sha256": hashlib.sha256(proposal_bytes).hexdigest(),
+    "proposal_bytes": len(proposal_bytes),
+    "checked_source_sha": source_sha,
+    "checked_source_tree": source_tree,
+    "finding_rows": 60,
+    "baseline_navigation_routes": len(b_routes),
+    "baseline_navigation_cells": len(b_cell_ids),
+    "baseline_role": "Source-reported navigation only; no baseline raw or imported PASS proves a new fix",
+    "canonical_cards": len(card_cache),
+    "raw_criterion_digests": 60,
+    "evidence_git_objects_verified": len(ref_data),
+    "runtime_source_anchors_verified": len(proposal["canonical_runtime_anchors"]["content_index"]),
+    "historical_actual_case_selectors_verified": old_cases_reconciled,
+    "historical_input_equal_count": len(old_inputs_same),
+    "historical_input_changed": old_inputs_changed,
+    "final_root_actual_cases": len(current_xml),
+    "final_root_actual_counts": current_counts,
+    "current_perrow_XML_selections_verified": current_row_selectors,
+    "new35_actual_execution_sha": affected_sha,
+    "new35_content_reference_only": source_sha,
+    "new35_source_projection_entries_verified": len(observed_projection),
+    "new35_actual_cases": len(affected_xml),
+    "new35_actual_phase_reports": len(phase_rows),
+    "new35_index_payloads_verified": len(affected_index["files"]),
+    "new35_perrow_XML_selections_verified": affected_row_selections,
+    "full_join": "UNRUN terminal phase join; actual exit-9 collection is not final grading",
+    "proposals_only_counts": counts,
+    "closure_ids": [],
+    "errors": errors,
+}
+output_path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n")
+print(json.dumps(output, ensure_ascii=False))
+sys.exit(1 if errors else 0)

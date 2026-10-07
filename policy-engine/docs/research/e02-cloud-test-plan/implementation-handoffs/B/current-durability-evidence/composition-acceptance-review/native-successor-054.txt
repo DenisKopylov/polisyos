@@ -1,0 +1,186 @@
+{"order": "chain-first", "value": 21, "node_count": 2, "actual_edges": 1}
+.{"order": "async-first", "value": 21, "node_count": 2, "actual_edges": 1}
+.2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.prepare@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.use_prepared@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.neighbor@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.prepare@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.57 fqn=review.composition.prepare@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.prepare@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.neighbor@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.6 fqn=review.composition.neighbor@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.neighbor@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.use_prepared@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.42 fqn=review.composition.use_prepared@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.use_prepared@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=71.74
+2026-10-06 12:25:02 [info     ] chain_start                    total_levels=2 total_nodes=3
+2026-10-06 12:25:02 [debug    ] chain_level_start              level_idx=0 level_size=2
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.prepare@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.neighbor@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=22.96 fqn=review.composition.neighbor@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=25.42 fqn=review.composition.prepare@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_level_complete           elapsed_ms=53.0 level_idx=0 level_size=2
+2026-10-06 12:25:02 [debug    ] chain_level_start              level_idx=1 level_size=1
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.use_prepared@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.76 fqn=review.composition.use_prepared@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_level_complete           elapsed_ms=23.2 level_idx=1 level_size=1
+2026-10-06 12:25:02 [info     ] chain_complete                 total_levels=2 total_nodes=3 total_wall_time_ms=76.46
+{"sequential_value": 21, "async_state": {"prepared": 7, "neighbor": 5, "result": 21}, "levels": [["c07002d5-5210-4e65-ac38-96042c3c57c5", "38263b97-a9a0-4b23-8347-ecef1f89fad1"], ["383b8e2d-0ce1-4275-a8e4-2b5c6fa4e4ce"]], "actual_parallel_barrier_parties": 2}
+.2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.matching_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.matching_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.matching_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.85 fqn=review.composition.matching_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.matching_source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.matching_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.61 fqn=review.composition.matching_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.matching_target@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:02 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.31
+{"rename": false, "actual_bindings": {"c_first": "b_fixed", "d_second": "a_flexible"}, "actual_result": {"result": 1107}}
+.2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.matching_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.matching_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.matching_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.98 fqn=review.composition.matching_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.matching_source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.matching_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.58 fqn=review.composition.matching_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.matching_target@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:02 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.16
+{"rename": true, "actual_bindings": {"z_first": "a_fixed", "a_second": "z_flexible"}, "actual_result": {"result": 1107}}
+.2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.left_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.right_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.sum_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.left_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.99 fqn=review.composition.left_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.left_source@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.right_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.59 fqn=review.composition.right_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.right_source@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.sum_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.53 fqn=review.composition.sum_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.sum_target@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=72.28
+{"positive_actual_full_dag_result": {"result": 30}, "positive_bound_inputs": [["value", "left"], ["value", "right"]]}
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.left_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.right_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.sum_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.left_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.9 fqn=review.composition.left_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.left_source@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.right_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.74 fqn=review.composition.right_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.right_source@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.sum_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.28 fqn=review.composition.sum_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.sum_target@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=71.63
+.2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.estimate@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] method_registered              backend=numpy fqn=review.composition.sensitivity@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:02 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.67 fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.estimate@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.sensitivity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.6 fqn=review.composition.sensitivity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:02 [debug    ] chain_node_complete            fqn=review.composition.sensitivity@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:02 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.43 fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.estimate@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=69.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.estimate@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.sensitivity@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+{"actual_valid_repeated_value": 31, "early_invalid_strict": "ValueError ordering", "early_invalid_warn": ["[semantic] review.composition.sensitivity@1.0.0: Sensitivity/refutation methods should follow a causal estimation step. (prerequisite methods found: review.composition.estimate@1.0.0, but none precede it in execution order)"], "warn_not_executed": true}
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.estimate@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.sensitivity@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.86 fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.estimate@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.sensitivity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.5 fqn=review.composition.sensitivity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.sensitivity@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.32 fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.estimate@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=69.26
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.estimate@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.sensitivity@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+{"actual_control_final_value": 31, "explicit_edges": [["1e82736c-d4f4-479d-8cfe-a26204e4e199", "690df8a4-d6e4-4235-b26c-c955c8c9ed96"], ["690df8a4-d6e4-4235-b26c-c955c8c9ed96", "5909315d-842e-4c61-8741-772b21d80bd6"]], "required_earlier_id": "1e82736c-d4f4-479d-8cfe-a26204e4e199", "future_same_FQN_id": "5909315d-842e-4c61-8741-772b21d80bd6"}
+2026-10-06 12:25:03 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.71 fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.estimate@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.sensitivity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.72 fqn=review.composition.sensitivity@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.sensitivity@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.89 fqn=review.composition.estimate@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.estimate@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=68.94
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.first@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.second@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.left_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.right_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.sum_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] chain_start                    total_nodes=3
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.left_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.63 fqn=review.composition.left_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.left_source@1.0.0 node_index=1 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.right_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.62 fqn=review.composition.right_source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.right_source@1.0.0 node_index=2 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.sum_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.6 fqn=review.composition.sum_target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.sum_target@1.0.0 node_index=3 total_nodes=3 wall_time_ms=0.0
+2026-10-06 12:25:03 [info     ] chain_complete                 total_nodes=3 total_wall_time_ms=69.21
+{"strict_duplicate": "ValueError", "warn_diagnostics": ["[slot] Slot value in review.composition.target@1.0.0 connected multiple times"], "warn_not_authority_or_execution": true, "actual_merge_result": 30}
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.68 fqn=review.composition.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.64 fqn=review.composition.target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.target@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:03 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.34
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.bad_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.bad_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] chain_start                    total_nodes=2
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.61 fqn=review.composition.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.source@1.0.0 node_index=1 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:03 [debug    ] method_dispatch_start          backend=numpy fqn=review.composition.target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.7 fqn=review.composition.target@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 12:25:03 [debug    ] chain_node_complete            fqn=review.composition.target@1.0.0 node_index=2 total_nodes=2 wall_time_ms=0.0
+2026-10-06 12:25:03 [info     ] chain_complete                 total_nodes=2 total_wall_time_ms=46.22
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.bad_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.bad_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+{"False": {"actual_allowed_value": 21, "forbidden_type": "SemanticCompatibilityError"}, "True": {"actual_allowed_value": 21, "forbidden_type": "SemanticCompatibilityError"}}
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+{"gate": "unit", "actual_routes": {"False": {"type": "UnitMismatchError", "message": "Unit mismatch: source(USD) -> target(yr)", "producer_calls": []}, "True": {"type": "UnitMismatchError", "message": "Unit mismatch: source(USD) -> target(yr)", "producer_calls": []}}}
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+{"gate": "shape", "actual_routes": {"False": {"type": "ShapeMismatchError", "message": "Shape mismatch: source(2,) -> target(3,)", "producer_calls": []}, "True": {"type": "ShapeMismatchError", "message": "Shape mismatch: source(2,) -> target(3,)", "producer_calls": []}}}
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_source@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.structural_target@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+{"gate": "partial", "actual_routes": {"False": {"type": "SlotConnectionError", "message": "Unconnected required inputs in review.composition.structural_target@1.0.0 (18e8adb8-dbba-49ff-92af-374536644d0e): ['required']", "producer_calls": []}, "True": {"type": "SlotConnectionError", "message": "Unconnected required inputs in review.composition.structural_target@1.0.0 (72662e0a-1f58-456e-8b7f-a439d306a189): ['missing']", "producer_calls": []}}}
+.2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.cycle_a@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+2026-10-06 12:25:03 [info     ] method_registered              backend=numpy fqn=review.composition.cycle_b@1.0.0 lazy=False namespace=review.composition override=True tags=['review'] version=1.0.0
+.{"type": "ModuleNotFoundError", "name": "polisyos.foundry.methods.backends.async_chain_executor", "message": "Injected required async module absence", "injection": "meta-path controlled required-module absence, not physical installation removal"}
+.
+15 passed in 5.78s

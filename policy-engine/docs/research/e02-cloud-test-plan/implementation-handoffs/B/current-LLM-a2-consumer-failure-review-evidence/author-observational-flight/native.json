@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.shared-flight-diagnostic-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "test_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+  "test_sha256": "b89b439c51c669c5a073c0f1b05b337265889e8fc25af87571967003df98d9c6",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/child.source.txt",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+    "--noconftest",
+    "-c",
+    "/dev/null",
+    "--import-mode=importlib",
+    "-p",
+    "pytest_asyncio.plugin",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/fixtures",
+    "--junitxml",
+    "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "E02_B65_CONTEXT": "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /tmp filesystem/provider/ledger; no live TCP/API/external financial authority. No numerical/process/thread/CPU quota added.",
+  "actual_exit": 1,
+  "wall_seconds": 1.1754251230013324,
+  "max_rss_kib": 79852,
+  "source_head_before_after": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "test_head_before_after": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "actual_cases": [
+    {
+      "classname": "",
+      "name": "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+      "outcome": "FAIL"
+    }
+  ],
+  "outcomes": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/native.txt",
+      "bytes": 3143,
+      "sha256": "1aaca1fbc2a76bbcd5ebcacf28235a7986e6c77b1308ad9effb0b1c86c328261"
+    },
+    {
+      "path": "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/native.xml",
+      "bytes": 1041,
+      "sha256": "2e203c07da0bb398cd9bbbf988ad8606a21419e9d5fced3f6402bf6b96b03d90"
+    },
+    {
+      "path": "/tmp/e02-B66-flight-diagnosis-a2-b3yor0e8/source-context.json",
+      "bytes": 27691,
+      "sha256": "4b93227dd5caca510983ea799d426ef8683a21c7b121acee16c8df567b119bac"
+    }
+  ],
+  "closure_ids": []
+}

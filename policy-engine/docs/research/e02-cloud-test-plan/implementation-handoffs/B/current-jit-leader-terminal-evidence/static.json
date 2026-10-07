@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "/workspace/e02-B-current-adapters/policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py"
+    ],
+    "actual_exit": 0,
+    "output": "All checks passed!\n"
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "/workspace/e02-B-current-adapters/policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py"
+    ],
+    "actual_exit": 0,
+    "output": "1 file already formatted\n"
+  }
+]

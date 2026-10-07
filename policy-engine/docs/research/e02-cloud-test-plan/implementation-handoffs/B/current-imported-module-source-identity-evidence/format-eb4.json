@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+  "exit_code": 0,
+  "wall_seconds": 0.039950376987690106,
+  "stdout_path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/format-eb4.txt",
+  "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+  "ruff_version": "ruff 0.14.10"
+}

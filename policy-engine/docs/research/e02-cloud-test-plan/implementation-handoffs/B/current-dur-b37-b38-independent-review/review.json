@@ -1,0 +1,553 @@
+{
+  "schema": "policyos.e02.independent_DUR_B37_B38_source_and_published_evidence_review.v1",
+  "unit": "B",
+  "reviewer": "/root/cas_probe",
+  "reviewer_role": "CAS author, independent of DUR source/oracle and EXE PostgreSQL test author",
+  "authority_purpose": "Read-only canonical clause/source/consumer/output/input-custody audit; no product edits, imports, native tests, SQL queries, provisioning, cleanup or formal root/G adjudication.",
+  "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+  "source_tree_sha": "b75980daba837e15d8664785107e12d759101b82",
+  "comparison_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "comparison_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "closure_ids": [],
+  "proposed_criterion_ids": [
+    "B37",
+    "B38"
+  ],
+  "canonical_refs": [
+    {
+      "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "bytes": 602186,
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87",
+      "git_blob": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c"
+    },
+    {
+      "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md",
+      "bytes": 9457,
+      "sha256": "4d2c05567d77dbe20306b5b6dddfb7c680befdc4063d177110c78573454746bf",
+      "git_blob": "333b6e91afbdf22b37cabd29328dacc8e9f0619a"
+    },
+    {
+      "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+      "bytes": 14763,
+      "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652",
+      "git_blob": "8b7adee3877694b633ab03c5086775e89b8316ff"
+    },
+    {
+      "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "bytes": 1336380,
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    }
+  ],
+  "canonical_source_lines": {
+    "B37": [
+      700,
+      717
+    ],
+    "B38": [
+      718,
+      735
+    ]
+  },
+  "baseline_navigation": {
+    "refs": [
+      {
+        "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+        "bytes": 280085,
+        "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2",
+        "git_blob": "484108de4691f41cfac81996eeff477607774c05"
+      },
+      {
+        "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+        "bytes": 451094,
+        "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152",
+        "git_blob": "51c6234d89edf66d0a88025572b24960fce0c22d"
+      },
+      {
+        "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/baseline-navigation.json",
+        "bytes": 4423,
+        "sha256": "5ba00cfd30fa8f7bb90fec9d6a1bf0aa5825d58eb6e2c432e1f25a8cca9cf6ac",
+        "git_blob": "aa58eaaf2783512e465b1397b215003a70d61f1d"
+      },
+      {
+        "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/baseline-navigation.json",
+        "bytes": 60608,
+        "sha256": "596af5f4e2a71bc5dc97070c7f199de60d4ed929041513d1362c0b0e44744457",
+        "git_blob": "658e14e79e2649fa7620ec882ee44c84a0fc1367"
+      }
+    ],
+    "exact_routed_cells": 19,
+    "B37_cells": 1,
+    "B38_cells": 18,
+    "resolution": "Full exact TSV/cell/job-message/source/ref/environment and compact historical input closure join in audit-full-stdout.json. Heterogeneous original metadata key names retained; missing job role is explicitly missing and route source_ref stays the route basis.",
+    "qualification": "Navigation only. All 19 exact route/cell/source/ref/environment/compact input closures reconciled; original raw runtime fixtures/archives absent. No baseline PASS or red attribution is new evidence.",
+    "historical_environment": "Includes original reported numeric thread profile; never executed/reused by this audit and never promoted to the current uncapped profile."
+  },
+  "source_projection": {
+    "actual_review_source": "0fdc39831bc95f059dd220c054494fd410bde9da",
+    "canonical_four_paths_same_bytes_as": [
+      "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+      "81c3f2ac8318fcf79d7c99b21f3e51a77310c609",
+      "85f2417187396d40ef0a41e9d7f6651286f55754",
+      "414c7ec3148a857c3a4e5554dde5d5503fec6e95"
+    ],
+    "all_ten_root81_native_files_same_bytes_at_0fd": true,
+    "scope": "Bytes of ledger, middleware, control-plane store and worker plus ten native test files were recomputed. Other transitive source/environment/fixture inputs may differ, so the historical native checks retain their actual target SHA; no full-input-disjoint/inherited-green claim."
+  },
+  "B37": {
+    "source_invariant": [
+      {
+        "property": "Read and mutation share the stable separate .lock inode; readers use shared flock, mutations/bootstrap exclusive flock, and writer publication is complete private same-directory bytes, file fsync, replace and directory fsync.",
+        "source": {
+          "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+          "bytes": 26353
+        },
+        "relevant_methods": [
+          "FileBudgetLedger._file_lock",
+          "load",
+          "snapshot",
+          "load_or_bootstrap",
+          "_mutate",
+          "_persist_snapshot"
+        ]
+      },
+      {
+        "property": "Missing pathname is absence, never an implicit unlimited budget for load or public record_spend/settle. Only explicit load_or_bootstrap(initial_state) can create it. Existing empty, malformed, nonobject, sparse or invalid typed snapshots refuse before rewriting.",
+        "relevant_methods": [
+          "_load_snapshot",
+          "_decode_snapshot",
+          "_require_wire_fields",
+          "record_spend",
+          "settle_spend"
+        ]
+      },
+      {
+        "property": "Wire intake and emission require all nonnullable writer properties recursively across concrete writer/mutation/state/limit/receipt schemas before constructor defaults. Nullable omissions remain legal; 1.0 receipt absence remains legal, while 1.1 spend_receipts is required. Finite nonnegative accounting and receipt/revision/spend consistency are checked.",
+        "relevant_source_lines": [
+          124,
+          220,
+          578,
+          589
+        ]
+      },
+      {
+        "property": "BudgetState() is a legitimate explicit unlimited initializer. It does not make {}, state:{} or omitted required fields a valid persisted unlimited record. A complete semantically forged JSON record is not made authentic by this parser; no cryptographic authority law is invented."
+      },
+      {
+        "property": "Stable settle_spend event ID/digest/key/amount/provider gives durable exact retry across lost acknowledgement and journal eviction. Ordinary record_spend has no producer event identifier and is not claimed idempotent."
+      }
+    ],
+    "actual_original_198_falsifier": {
+      "receipt": {
+        "receipt": {
+          "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-bootstrap.json",
+          "sha256": "1db37db66055e170ccbc6ecf597f27021bbf20cb019a6ae34b71fbc9c093ca0f",
+          "bytes": 13596
+        },
+        "check_indices": [
+          0
+        ]
+      },
+      "outcome": "4 FAIL / 3 PASS reported in complete stdout: real cold public record_spend created unlimited state, {} and state:{} were admitted/rewritten, and required deletion admitted sparse snapshots.",
+      "input": "Tracked test-only overlay test_budget_ledger_process.py@bff2464a1303c76e387f4cd2d0cbb995e02d4bea is pinned by source SHA/hash in the receipt; source under test is198. This distinguishes actual default-application behavior, not atomic-helper presence.",
+      "stdout": {
+        "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.txt",
+        "sha256": "416c134a20b60f871ef73b7c00be6fd4e8528e6f20b08ac93d90affb3bd70727",
+        "bytes": 5698
+      },
+      "limit": "No Git JUnit for this baseline check; no independently reconstructed native case census beyond the complete printed outcome. Pytest assertion display truncation is preserved."
+    },
+    "criterion_clause_assessment": [
+      {
+        "clause": "Concurrent read never sees intermediate empty/partial budget.",
+        "source_basis": "Stable shared/exclusive file lock and atomic publication.",
+        "actual_consumers": [
+          "test_ledger_reader_never_observes_blank_snapshot_during_writer_pause",
+          "test_concurrent_real_middleware_processes_preserve_spend_and_exhausted_cap"
+        ],
+        "evidence": {
+          "receipt": {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer.json",
+            "sha256": "fe7e48a15c9c8c9bcc4f693be8c2bfab06091474b7d67171bb12bd7232d967ac",
+            "bytes": 14180
+          },
+          "check_indices": [
+            0
+          ]
+        },
+        "assessment": "Supported by published actual consumer bodies and PASS outcomes at81; current source/test bytes match. Four actual writer processes plus reader barrier account100 spend/provider100 then fresh middleware exhausts."
+      },
+      {
+        "clause": "Controlled crash/fault leaves verifiable old/new complete state or addressed cold recovery.",
+        "actual_consumers": [
+          "test_process_publication_fault_reopens_complete_or_requires_recovery[file_fsync-{False,True}]",
+          "test_process_publication_fault_reopens_complete_or_requires_recovery[replace_before-{False,True}]",
+          "test_process_publication_fault_reopens_complete_or_requires_recovery[directory_fsync-{False,True}]",
+          "test_process_publication_fault_reopens_complete_or_requires_recovery[kill_before_replace-{False,True}]",
+          "test_process_publication_fault_reopens_complete_or_requires_recovery[kill_after_replace-{False,True}]",
+          "test_ledger_failed_atomic_replace_preserves_last_valid_snapshot"
+        ],
+        "evidence": {
+          "receipt": {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer.json",
+            "sha256": "fe7e48a15c9c8c9bcc4f693be8c2bfab06091474b7d67171bb12bd7232d967ac",
+            "bytes": 14180
+          },
+          "check_indices": [
+            0
+          ]
+        },
+        "assessment": "Ten real process publication cases (five boundaries x cold/warm), including four SIGKILL cases, plus two middleware writer-pause/replace cases form12 distinct controls. They are not12 physical-kill cases. Separate fresh process reopens actual file; post-replace failures keep complete new bytes; before first publication missing stays missing and requires explicit bootstrap."
+      },
+      {
+        "clause": "Corruption cannot remove caps/reset spending, and read observations do not spend.",
+        "actual_consumers": [
+          "test_malformed_existing_ledger_is_not_rebootstrapped",
+          "test_parseable_sparse_existing_snapshot_is_not_unlimited_or_rewritten",
+          "test_invalid_typed_accounting_never_rewrites_existing_bytes",
+          "test_legal_nullable_omissions_remain_readable_across_processes",
+          "test_cold_record_spend_requires_bootstrap_across_processes",
+          "test_explicit_unlimited_bootstrap_remains_valid_across_processes",
+          "test_ledger_reads_are_observations_without_spending_or_revision"
+        ],
+        "evidence": {
+          "receipt": {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer.json",
+            "sha256": "fe7e48a15c9c8c9bcc4f693be8c2bfab06091474b7d67171bb12bd7232d967ac",
+            "bytes": 14180
+          },
+          "check_indices": [
+            0
+          ]
+        },
+        "assessment": "Complete concrete writer serialization is mutated at every schema-required path and fed to actual public child/middleware consumers; each refusal preserves damaged bytes. Legal nullable and explicit-unlimited positives distinguish refusal from a blanket deny. Current snapshot source/test paths are byte-identical to81."
+      },
+      {
+        "clause": "Later attempt does not charge twice under one operation ID (separate canonical condition).",
+        "actual_consumers": [
+          "test_lost_ack_remains_unknown_until_actual_reopen_and_exact_retry",
+          "test_cold_settlement_cannot_publish_an_implicit_unlimited_ledger",
+          "test_required_settlement_wire_fields_cannot_silently_forget_ack",
+          "test_inconsistent_settlement_wire_refuses_all_actual_inlets",
+          "test_nullable_provider_omission_is_valid_in_a_real_settlement_receipt"
+        ],
+        "evidence": {
+          "receipt": {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer.json",
+            "sha256": "fe7e48a15c9c8c9bcc4f693be8c2bfab06091474b7d67171bb12bd7232d967ac",
+            "bytes": 14180
+          },
+          "check_indices": [
+            0
+          ]
+        },
+        "assessment": "Thirty actual settlement cases at81 include four lost-ACK faults, current amount/key/provider/digest mismatch refusal, exact event retry, concurrent same-event and journal eviction. Only the explicit settlement API has this guarantee; it is not external billing/execution authority."
+      }
+    ],
+    "independent_oracle": {
+      "receipt": {
+        "receipt": {
+          "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas.json",
+          "sha256": "7616ab2e7b9fd2fc85d31c2e8e92a499050da7093e318174903238a615f160e7",
+          "bytes": 38250
+        },
+        "check_indices": [
+          1,
+          2
+        ]
+      },
+      "ordinary_actual_wire": {
+        "target": "a82302c3f964c2f8bff4d127d900bf33289d2e16",
+        "wire_cases": 24,
+        "PASS": 24,
+        "combined_file_cases": 26,
+        "combined_extra_CAS_cases": 2
+      },
+      "removal_actual_wire": {
+        "target": "2e66535a630d6115e41c657103a6d98f4010338b",
+        "FAIL": 12,
+        "PASS": 12,
+        "control": "Only _require_wire_fields bypassed in actual child; known model/marker bytes unchanged."
+      },
+      "current_projection_limit": "The12 removal failures are historic, not a claimed12-failure removal on0fd. Current explicit version/contract checks are stronger, so the same narrow bypass need not remove all defenses. Current full24 ordinary cases at81 pass and their test bytes match0fd."
+    },
+    "remaining_intrinsic_criterion_gap_found": null,
+    "conditional_bounded_adjudication": "Eligible for finite local POSIX criterion closure when root/G reconciles actual defining cases on its final frozen source/input cohort. No unstated all-filesystem, powerloss or multihost-proof requirement is added. Current audit neither executes nor declares that future cohort PASS.",
+    "boundaries": [
+      "Crash test means controlled fault/SIGKILL on measured local filesystem, not power-cut/media failure or malicious pathname/host mutation.",
+      "shared_posix_file_lock is the explicit existing coordination mode; multi-host deployments require their own actual supported filesystem/locking inputs.",
+      "Complete arbitrary JSON authenticity and external billing authority are separate laws."
+    ]
+  },
+  "B38": {
+    "source_invariant": [
+      {
+        "property": "Actual ControlWorker handler enters store.job_execution_fence with current(job_id,worker_id,attempt). Guarded dependency calls carry the bound context; source checks live lease rather than trusting a detached owner marker.",
+        "source": {
+          "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+          "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+          "bytes": 13613
+        },
+        "source_lines": [
+          189,
+          273
+        ]
+      },
+      {
+        "property": "Every canonical source publication SQL mutator joins actual common transaction admission via _job_transaction/_execute/direct SQLite/PG mutation contexts. Bound current identity and unexpired lease are admitted under SQLite BEGIN IMMEDIATE or PostgreSQL row lock on source job; resource/identity/generation rechecked before commit.",
+        "source": {
+          "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+          "bytes": 209996
+        },
+        "source_lines": [
+          5031,
+          5134
+        ]
+      },
+      {
+        "property": "complete/fail affected-row checks enforce current owner/attempt/running/unexpired predicate; status, bound progress, event/outbox/deadletter publish in one actual transaction. Internal accepted terminal change can clear lease only inside that transaction; later bound calls admit again and refuse. Legitimate renewal updates expiry; a forged owner/attempt rewrite rolls back.",
+        "source_lines": [
+          3571,
+          3678
+        ]
+      },
+      {
+        "property": "The heartbeat can stop while physical handler remains alive, but subsequent protected SQL actions lose admission. Canonical B38 expressly permits cancellation OR prohibited new protected action. An old detached CAS diagnostic may survive but cannot become the current generation result."
+      },
+      {
+        "property": "Completed-proof publication has the existing narrower matching completed owner/attempt/history/progress contract, not an invented new running lease. Unbound administrative store APIs remain legitimate; authority class is the actual bound worker/guarded-dependency path."
+      }
+    ],
+    "canonical_all_mutator_denominator": {
+      "source": {
+        "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/B38-source-census-73.json",
+        "bytes": 13214,
+        "sha256": "06286ae3987c0f7b10578170b87a5faeb94bb23ab5b9ea699fb062c7c57cbe1a",
+        "git_blob": "5e50506b3d01c117602d9f68f53ae8f3f12eca92"
+      },
+      "current_store_bytes_match": true,
+      "own_method_count": 96,
+      "publication_mutator_count": 35,
+      "unadmitted_raw_resource_methods": 0,
+      "denominator": {
+        "source_files": 1,
+        "file_type": "Python AST",
+        "owner_class": "ControlPlaneStore",
+        "all_owner_methods": 96,
+        "SQL_or_transaction_inlet_methods": 42,
+        "publication_mutator_methods_including_delegators": 35
+      },
+      "qualification": "Canonical source census and common transaction admission; not a claim that all 35 inlets independently ran on PostgreSQL."
+    },
+    "actual_SQLite_consumer_evidence": {
+      "receipts": [
+        {
+          "receipt": {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability.json",
+            "sha256": "551d2229eee0b9ef61e44ccc1cc588412c761e319680a25044bb15412cfdd896",
+            "bytes": 91141
+          },
+          "check_indices": [
+            0,
+            1,
+            2,
+            6,
+            7
+          ]
+        },
+        {
+          "receipt": {
+            "commit": "0fdc39831bc95f059dd220c054494fd410bde9da",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-fenced-budget-consumer.json",
+            "sha256": "fe7e48a15c9c8c9bcc4f693be8c2bfab06091474b7d67171bb12bd7232d967ac",
+            "bytes": 14180
+          },
+          "check_indices": [
+            0
+          ]
+        }
+      ],
+      "actual_bodies": "Real SQLite ControlWorker/persisted lease expiry, fresh process generation2 running/completed takeover, same source job plus sibling mutators/full dump unchanged, current terminal positive, actual status/event failure rollback, expired-at-commit refusal, actual same-attempt renewal, forged self-generation rollback, independent fresh completed-proof reader.",
+      "actual_selected_counts": "12 terminal/expiry/current/renewal/forge controls at73 plus20 corrected completed-proof cases at4f; these are separate from B37 12-control quantity. Complete nine-file206 at4f and independent ten-file230 at81 are measured XML totals, not criterion counts.",
+      "property_removal": "Published B38 common admission control at73 PASS and bypassed same guard FAIL, real persisted SQL row/current-worker terminal consumer outputs retained. This selected sibling-mutation control does not read CAS bytes. Grouped sequential assertions make later predicates UNRUN after first failure; no multiplied removal count.",
+      "no_all_mutators_runtime_count_claim": "Source census35 publication methods (96 owner methods/42 SQL or transaction inlets) is static. Actual SQLite siblings13 plus defining terminal/process consumers and common-guard removal support the generic class; not a claim of35 separately measured native cases."
+    },
+    "actual_PostgreSQL_consumer_evidence": {
+      "receipt": {
+        "commit": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+        "bytes": 57308,
+        "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3",
+        "git_blob": "827770e7e6b6fea8c221c0399e9b1e9081231676"
+      },
+      "index": {
+        "commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/index.json",
+        "bytes": 11784,
+        "sha256": "25de04aae1c6d6a146965efdac98785d7f0d449ddc0dd7641799030fdae81f9b",
+        "git_blob": "cb5c82b5f2b4fa06d98b5b40515d865cac2d57b2"
+      },
+      "all45_artifacts_checked": true,
+      "actual_server": "Published native PostgreSQL17.11 x86_64musl image binaries, task-owned uid1000 SCRAMloopback server; pinned image/config10 layers and actual psycopg3.3.2 overlay. No successful Docker container execution claimed.",
+      "native8_source": "85f2417187396d40ef0a41e9d7f6651286f55754",
+      "native8_XML": {
+        "commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-85.xml",
+        "sha256": "2b6bb177e417ceb09a6bcb9f357559abd4d4ee4d145e606351245f5bbdf7f93a",
+        "bytes": 10099
+      },
+      "actual_conditions": "2 stale(A vs running/completed B) x18 actual protected inlets, schema-wide rows unchanged after EACH refusal; real process B current finalization;2 current terminal completed/failed positives;4 native SQL event/outbox trigger faults after terminal mutation with every table row rollback and reopened canonical store.",
+      "affected4_source": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+      "affected4_XML": {
+        "commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-414.xml",
+        "sha256": "20fad1ecfb4da96b1ff9741ee425c155abbf93d49fa3017627f3e0d959c50d25",
+        "bytes": 4644
+      },
+      "successor_relation": "Formatting and outline identical fault terminal call into local operation(); original guard/error/all-table/reopen assertions remain. Four affected fault cases PASS at414; whole8@414 remains UNRUN by author.",
+      "retained_actual_readback": {
+        "artifact": {
+          "commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/retained-tables-85.json",
+          "bytes": 101593,
+          "sha256": "e0b518f3616432c6d98708506dc2190368f714e9b4bd9d0a72042c7cd4b1b68d",
+          "git_blob": "6520facdd57ac2e0b8515fce79bd1dd5ea0597c1"
+        },
+        "schema_count": 8,
+        "table_counts": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "actual_total_rows": [
+          20,
+          20,
+          13,
+          14,
+          6,
+          6,
+          6,
+          6
+        ],
+        "schema_case_table_denominator_and_XML_hash_match": true,
+        "qualification": "Published actual postwave independent connections, not this reviewer reopening a live DB; excludes sequence/catalog/schemaDDL and external effects."
+      },
+      "source_projection": "Store/worker bytes exactly0fd/4f/81/85/414;0fd PG test equals85, not414. This independently checks published Git inputs/outputs, not a second reviewer DB execution.",
+      "environment_boundary": {
+        "source": {
+          "commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/input-profile-85.json",
+          "bytes": 2219,
+          "sha256": "2a3a041a3adeb1b81ffd0d7a19f3c978cd8fd6c648e09c65e3d2ae825c285572",
+          "git_blob": "e748dccbe4f605c247c0cefa14f4a4e4e740433c"
+        },
+        "all_six_declared_source_blob_hashes_match": true,
+        "driver_distributions": [
+          {
+            "name": "psycopg",
+            "version": "3.3.2",
+            "path": "/tmp/e02-B38-pg-profile/psycopg-3.3.2.dist-info"
+          },
+          {
+            "name": "psycopg-binary",
+            "version": "3.3.2",
+            "path": "/tmp/e02-B38-pg-profile/psycopg_binary-3.3.2.dist-info"
+          }
+        ],
+        "source_profile": "Bound six explicit source/config/test paths, task-local psycopg3.3.2 overlay and actual isolated root Python executable. Full ambient installed-distribution census not duplicated in this PG packet; replay requires owned environment closure.",
+        "secrets": "No DSN/password bytes read by this audit; private task inputs omitted by author."
+      }
+    },
+    "criterion_clause_assessment": [
+      {
+        "clause": "Old worker cannot complete/corrupt new attempt; current worker completes.",
+        "assessment": "Concrete bound handler+SQL+current generation process/consumer positives and stale negatives exist on both SQLite and actual PG. No institutional external-effect exactly-once claim follows."
+      },
+      {
+        "clause": "Lost lease reaches cancellation OR prohibition of new protected action.",
+        "assessment": "Common publication admission refuses after persisted expiry/reissue and on after-terminal calls; actual bound worker inlets exercise it. Physical compute cancellation is not required by the canonical alternative and is not claimed."
+      },
+      {
+        "clause": "Status/progress/event failure recovers coherent history.",
+        "assessment": "Actual SQLite rollback/fresh store and PostgreSQL trigger faults/all table readbacks distinguish transactional publishing from SQL-shape marker checks. Atomic sequence/catalog rollback and DB-server powerloss are outside the specific status/event table-row criterion."
+      },
+      {
+        "clause": "Detached stale CAS bytes cannot attach as current result.",
+        "assessment": "Actual existing acquisition guarded consumers plus stale attempt direct SQL controls preserve diagnostic CAS bytes but refuse current attachment. This is bound handler/current generation authority, not global restriction of legitimate unbound admin projection."
+      }
+    ],
+    "remaining_intrinsic_criterion_gap_found": null,
+    "conditional_bounded_adjudication": "Eligible for finite SQLite/PostgreSQL transaction/current-worker criterion closure after actual final-frozen consumer reconciliation. Absence of network outage, hard process death, all deployment proof or external exactly-once is not an unstated universal blocker. The final current-source full cohort remains root/G-owned and unestablished by this review.",
+    "boundaries": [
+      "35-source-method admission census does not fabricate35 native PG cases; PG measured18 protected inlets per stale condition.",
+      "Snapshots cover every observed table row, not sequence counters/schema/catalog changes.",
+      "Raw admin SQL/new unbound store construction and independently governed external effects are outside the injected-bound-handler class."
+    ]
+  },
+  "preserved_failures_and_qualifications": [
+    "Original198 B37 real consumer4FAIL/3PASS remains; atomic publication helper presence is not a bug/closure discriminator.",
+    "Original73 complete206=186PASS20FAIL is an introduced fixture-bound authority clash retained; corrected4f proof fixtures use legitimate independent admin instance without weakening bound refusal.",
+    "Original73 broad378 denominator declared17FAIL252ERROR6SKIP retained, with complete deciding stdout and wrapper Git-bound; XML is ignored-only/unavailable in Git. This audit does not recompute full378 from XML or mark red inherited. Changed store intersects inputs; P41 full-input disjoint inheritance NOT_ESTABLISHED.",
+    "PG original85 Ruff/formatFAIL, Docker-save ENOSPC and first native-initdb ICUERROR retained.414 style/affected4PASS and legitimate relocated server READY do not erase those outcomes.",
+    "First independent metadata parser invocation failed KeyError source on heterogeneous historic F03 metadata; original literal script/tool-returned error retained. Corrected parser accepts explicit source/source_sha key forms, source_role/role and exact field locators; no product or baseline outcome altered.",
+    "No ignored historical raw archives, private DSN/password, live DB, native fixture paths, Docker or current workspace raw outputs were read. Every deciding input in this audit is a published Git object.",
+    "Own CAS B148 held authority-law decision and B154 A all-confirmations publisher consumer_missing are untouched; this independent DUR review cannot adjudicate them."
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B37",
+      "state": "limited",
+      "basis": "Finite source/published actual consumer evidence nonblocking; final root/G current-frozen case/input adjudication pending",
+      "proposed_bounded_state": "conditional criterion closure for supported local POSIX profile",
+      "remaining_intrinsic_mechanism_clause_found": null,
+      "closure_ids": [],
+      "next_owner": "root/G final actual current-source consumer reconciliation"
+    },
+    {
+      "finding_id": "B38",
+      "state": "limited",
+      "basis": "Finite SQLite+native PostgreSQL source/published actual consumer evidence nonblocking; final root/G current-frozen case/input adjudication pending",
+      "proposed_bounded_state": "conditional criterion closure for supported SQLite/PostgreSQL bound-worker transaction profile",
+      "remaining_intrinsic_mechanism_clause_found": null,
+      "closure_ids": [],
+      "next_owner": "root/G final actual current-source consumer reconciliation"
+    }
+  ],
+  "per_premise_basis": {
+    "canonical_clause_read": "human source-reviewed exact pinned original/card/manifest bytes",
+    "immutable_input_hashes_and_source_byte_equality": "recomputed",
+    "historical_native_case_count": "recomputed from complete published XML where available",
+    "historical_native_effect_predicate": "consumer_asserted by original actual native source/outputs; independently read, not rerun",
+    "final_current_frozen_native": "not_established by this review",
+    "formal_closure": "not_adjudicated"
+  },
+  "outcome": "NONBLOCKING source/published-evidence audit for the finite profile; no new runtime or formal closure claim",
+  "created_at_utc": "2026-10-06T18:58:46.545275+00:00"
+}

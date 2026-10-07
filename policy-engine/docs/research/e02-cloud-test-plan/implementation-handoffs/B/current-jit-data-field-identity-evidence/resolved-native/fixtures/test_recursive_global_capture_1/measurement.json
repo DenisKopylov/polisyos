@@ -1,0 +1,6 @@
+{
+  "refusal": "CheckpointIdentityError",
+  "error": "CheckpointIdentityError",
+  "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+  "actual_effects": []
+}

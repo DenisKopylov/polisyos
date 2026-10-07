@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.852" timestamp="2026-10-06T11:54:53.290911+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.core.artifacts.test_batch_completion_admission" name="test_real_forty_item_source_waits_for_a_bounded_pending_window" time="0.790"><failure message="AssertionError: inventory advanced beyond four before any callback could finish&#10;assert not True&#10; +  where True = wait(0.1)&#10; +    where wait = &lt;threading.Event at 0x7fc81b1683e0: set&gt;.wait">tests/unit/core/artifacts/test_batch_completion_admission.py:282: in test_real_forty_item_source_waits_for_a_bounded_pending_window
+    assert not fifth.wait(0.1), (
+E   AssertionError: inventory advanced beyond four before any callback could finish
+E   assert not True
+E    +  where True = wait(0.1)
+E    +    where wait = &lt;threading.Event at 0x7fc81b1683e0: set&gt;.wait</failure></testcase></testsuite></testsuites>

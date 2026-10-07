@@ -1,0 +1,47 @@
+{
+  "started_at": "2026-10-07T10:07:05.391591+00:00",
+  "finished_at": "2026-10-07T10:07:22.757793+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-jit-data-getattr-20261007/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "7c05686dbd8427fa2e8bf217827046acef097058",
+    "/tmp/e02-B-jit-data-getattr-20261007/terminal-native/module-origins.json",
+    "tests/unit/remediation/test_jit_01.py",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-module-terminal-native-779347",
+    "--junitxml",
+    "/tmp/e02-B-jit-data-getattr-20261007/terminal-native/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+    "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+    "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+    "status": ""
+  },
+  "exit_code": 1,
+  "wait4_status": 256,
+  "signal": null,
+  "wall_seconds": 17.366206129983766,
+  "max_rss_kib": 278840,
+  "user_cpu_seconds": 16.545934,
+  "system_cpu_seconds": 0.908283,
+  "stdout": {
+    "bytes": 22315,
+    "sha256": "fe1bb9c35649c5aaac34004d4d14b627f04fb8ae80efb597671b37e1d03f8279"
+  }
+}

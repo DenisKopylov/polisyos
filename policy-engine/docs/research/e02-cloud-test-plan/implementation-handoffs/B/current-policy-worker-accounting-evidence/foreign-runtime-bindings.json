@@ -1,0 +1,171 @@
+{
+  "receipt": {
+    "git_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+    "bytes": 32317,
+    "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd"
+  },
+  "evidence_implementation_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+  "test_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+  "target_source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "checks": [
+    {
+      "id": "native",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-14-493612",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/wrapper.json",
+          "bytes": 3431,
+          "sha256": "1f97384bcbadf33981be9118b8d8cd0e20b6166c47f6f0bc8a6cf6b86fb91468"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": null,
+        "overlay_driver": null,
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "PASS",
+      "expected_property_removal_failure": false,
+      "native_case_count": 14,
+      "deciding_quantities": "14 actual PASS. Unknown both worker routes physical1, first LLMAccountingError then fresh same-ledger refusal, actual cost_unknown/no spend or receipts. Known .02 twice becomes .04 all keys, no pending. Raw/mixed/ledgerless/active-loop actual typed refusal/physical0. Explicit unbudgeted known profile real output/physical2 remains non-durable.",
+      "wall_seconds": 13.84613847998844,
+      "maxrss_kib": 730784,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.txt",
+      "output_sha256": "6a9151b4e7a43cfa4d28126738d748f6a358f9ef5ece734daa4f5e53951b7d74",
+      "output_bytes": 137301,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.xml",
+        "bytes": 2182,
+        "sha256": "7a62a7ca067bd5aed4de7bddd6d904d1adef617d9d4e8c23b2e06998a87314f5"
+      }
+    },
+    {
+      "id": "remove-admission",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-remove-admission-493612 --removal durable_admission",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/wrapper.json",
+          "bytes": 3066,
+          "sha256": "ca8bde6bc1031f418e0c5ea5217007f90357f1d615a09329eda12758488222da"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": "durable_admission",
+        "overlay_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+          "bytes": 3153,
+          "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+        },
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "FAIL",
+      "expected_property_removal_failure": true,
+      "native_case_count": 2,
+      "deciding_quantities": "2 actual FAIL, no errors. Each worker raw-only missing SDK usage physically called twice, propagated unknown both times and retained estimated reservation without known spend. Same 14-case input selected raw-only; only declared admission function replacement in memory.",
+      "wall_seconds": 12.868397325000842,
+      "maxrss_kib": 689624,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.txt",
+      "output_sha256": "07fb92d9def8e9870624c80794a0544e049fef5ead81752da5ecb5bef285ea16",
+      "output_bytes": 54870,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.xml",
+        "bytes": 31056,
+        "sha256": "9deafbbfadfcd0d8642f0a04c79d330a82675532c174dd085ce5508d18a647b0"
+      }
+    },
+    {
+      "id": "remove-propagation",
+      "command": "python3 /tmp/e02-B-worker-repair-preparation-5902/run.source.txt --source-root /workspace/e02-B-current-adapters --source-sha 4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd --test-sha 5902db2744b518cdde223901904c1bbf928481f3 --output /tmp/e02-B-worker-repair-4b368-remove-propagation-493612 --removal accounting_error_propagation",
+      "target_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+      "environment": {
+        "actual_python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "wrapper": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/wrapper.json",
+          "bytes": 3083,
+          "sha256": "2425510fe7e801b04f19e5b405138b95cb890d06622a30a1c790b710c2efa9b5"
+        },
+        "shared_python_immutable": true,
+        "source_root": "/workspace/e02-B-current-adapters",
+        "strict_head_tree_tracked_clean_before_after": true,
+        "numeric_caps": "All six ambient numerical caps removed; values and explicit PYTHONPATH/tokenizer env in actual wrapper."
+      },
+      "input_closure": {
+        "test_git_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+        "test_path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+        "test_sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+        "product_git_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+        "product_tree_sha": "81a1399d2c167044e6127c8b4201f1276f85370d",
+        "actual_command_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+          "bytes": 4177,
+          "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+        },
+        "declared_in_memory_source_overlay": "accounting_error_propagation",
+        "overlay_driver": {
+          "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+          "bytes": 3153,
+          "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+        },
+        "fixture": "Real worker/factory/decoder/cache/Traced/enforcer/FileBudgetLedger; only GatewayLLMClient._post_json SDK boundary returns known .02 or omitted usage and fsyncs each full actual request. Fresh BudgetMiddleware and FileBudgetLedger(path) every configured call. Exact official cl100k cache asset pinned in wrapper."
+      },
+      "outcome": "FAIL",
+      "expected_property_removal_failure": true,
+      "native_case_count": 2,
+      "deciding_quantities": "2 actual FAIL, no errors. Each configured worker returned deterministic fallback twice instead of typed unknown; actual durable cost_unknown kept physical1. The error-handler removal proves propagation separately and does not show a second durable provider effect.",
+      "wall_seconds": 13.398496925001382,
+      "maxrss_kib": 692632,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.txt",
+      "output_sha256": "e218c8ec3181ad2a09ba4170a761f831d1914bec4d92f8eb2d5dd9aef3a523bc",
+      "output_bytes": 57283,
+      "junit": {
+        "git_sha": "e6af1ded9ac6415b1edde1b6e4b9518804958d28",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.xml",
+        "bytes": 31390,
+        "sha256": "b99053406197f80c546182da668802575ba9d9bdf9e9248aad43f93ef985584e"
+      }
+    }
+  ],
+  "qualification": "External independent DUR author runtime. Actual4b source; no docs9d runtime replay or self certification. Full deciding bytes remain at exact foreign Git refs, not duplicated into this owner packet."
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.moderate_evidence_index.v1",
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/audit-full-stdout.json",
+      "bytes": 62822,
+      "sha256": "cebd99be0d55cd345dfc2e2124242c90903974c6e74ff2b0c497a11274c44c55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/audit.py.txt",
+      "bytes": 7497,
+      "sha256": "27d6bb3436d78d1c522098d83d396dedc319cb0e62e5fd3c6e98bf33c719c152"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/census-full-stdout.json",
+      "bytes": 28659,
+      "sha256": "b7bd9f7f188648b7425dcd99c357b6fae373d5733a7740690485eea28623f29e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/census.py.txt",
+      "bytes": 4622,
+      "sha256": "432fb777084cf49664407fa8c50534df137f19c5d762bc8c93a2e4717782e931"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/commands-and-prepared-local-G.json",
+      "bytes": 2189,
+      "sha256": "56298ba8496e728368fc3035f0f9975e8c4a9d64ab756a9716c668d8fac9a738"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/environment-checkpoint.json",
+      "bytes": 3398,
+      "sha256": "eab915bcd0121c04cbd3796809a24407c6250f4677f4771044029f3f1cae9436"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/new-forests-census.json",
+      "bytes": 92751,
+      "sha256": "91a003d09cf542c7349310458e13dc51c0f8d8a5a7f8322b697014c0a847fbaf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/prepared-filebacked-launcher.py.txt",
+      "bytes": 6834,
+      "sha256": "25b390a1afb74c9376617a0a5ba98a6f5fbbba03ddd96ae4717e24c8d6c485b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/prepared-retry-derivation.json",
+      "bytes": 1402,
+      "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/retained-top-level-census.json",
+      "bytes": 21733,
+      "sha256": "1372bba2dd6a5620fbb1ec80ee7413f3e0668c8a19b439d0a4f106b702c8b591"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-finite-cloud-resource-boundary/review.json",
+      "bytes": 11889,
+      "sha256": "c846a973fa526e4ab7d43efc0cca0565779aa4bfb7e196a04d2a3518f61e51c7"
+    }
+  ],
+  "object_count": 11,
+  "total_bytes": 243796
+}

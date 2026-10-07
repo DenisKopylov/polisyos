@@ -1,0 +1,1091 @@
+{
+  "root_head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "root_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "root_status": "",
+  "raw_inputs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+      "bytes": 4445184,
+      "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.json",
+      "bytes": 2667,
+      "sha256": "c6c6a0403f3ebaa47bcc000a8ff9264829ea105c1c9e3fd365e80b2d4cc077eb",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.json",
+      "bytes": 2679,
+      "sha256": "034683efdd3c7c188f1a28012307c35f0589d8f5d8ac2eb2e6228dc6a24c4943",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-filebacked-retry-derivation.json",
+      "bytes": 1402,
+      "sha256": "0c76ee00c9c12c3523cd5c8e86f8ed24ba4dd596793f817fbc9a143f935e05b3",
+      "receiver_availability": "not_established; original ignored bytes retained, no copied large inventory/stdout"
+    }
+  ],
+  "source_inputs": [
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+      "bytes": 20488,
+      "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+      "bytes": 6709,
+      "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "bytes": 14010,
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+      "bytes": 5820,
+      "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+      "bytes": 133813,
+      "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/unit/runtime/http/conftest.py",
+      "bytes": 74,
+      "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/tests/conftest.py",
+      "bytes": 9664,
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/app.py",
+      "bytes": 23110,
+      "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/container.py",
+      "bytes": 39227,
+      "sha256": "6b537e9183d57a503a35b211c2309309f52c5f2480c7adbba88a49e3a80e2f81",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "bytes": 37677,
+      "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "bytes": 29478,
+      "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "working_bytes_equal": true
+    },
+    {
+      "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "bytes": 27007,
+      "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286",
+      "working_bytes_equal": true
+    },
+    {
+      "copied_observer": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/current_cohort_inventory.py",
+      "bytes_equal_pinned": true
+    }
+  ],
+  "selector": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+    "bytes": 1450744,
+    "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3"
+  },
+  "args": {
+    "path": "/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+    "bytes": 14447,
+    "sha256": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a"
+  },
+  "same_exact_250_paths_and_order": true,
+  "observer_checkpoint": {
+    "state": "collection_finished_runtime_pending",
+    "counts": {
+      "session_items": 3882,
+      "collect_reports": 406,
+      "collection_failed": 0,
+      "collection_skipped": 0,
+      "deselected": 0,
+      "runtime_phase_reports": 0
+    },
+    "collection_head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "collection_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "runtime_persistence": "runtest_logreport appends only in memory; collection_finish/xdist_collection/sessionfinish/unconfigure persist. SIGKILL cannot run final hooks; zero persisted runtime reports does not mean zero runtime execution."
+  },
+  "resource_quantity": {
+    "declared_runtime_api_env_cases": 561,
+    "hidden_collection_index0": 1322,
+    "remaining_declared_fixture_cases": 544,
+    "by_file": {
+      "tests/unit/runtime/http/test_acquisition_routes_api.py": 2,
+      "tests/unit/runtime/http/test_api_maturity.py": 6,
+      "tests/unit/runtime/http/test_artifact_inspector_api.py": 4,
+      "tests/unit/runtime/http/test_auth_api.py": 1,
+      "tests/unit/runtime/http/test_authority_values.py": 1,
+      "tests/unit/runtime/http/test_authorization_audience_denials.py": 7,
+      "tests/unit/runtime/http/test_b88_served_replay.py": 5,
+      "tests/unit/runtime/http/test_bureaucratic_rendering_api.py": 8,
+      "tests/unit/runtime/http/test_capability_discovery_api.py": 7,
+      "tests/unit/runtime/http/test_case_inspection_api.py": 6,
+      "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py": 3,
+      "tests/unit/runtime/http/test_control_api.py": 66,
+      "tests/unit/runtime/http/test_control_job_execution_intent.py": 1,
+      "tests/unit/runtime/http/test_core_only_runs_api.py": 2,
+      "tests/unit/runtime/http/test_debug_api.py": 6,
+      "tests/unit/runtime/http/test_decision_validity_api.py": 7,
+      "tests/unit/runtime/http/test_ds20_authorization_binding_followups.py": 2,
+      "tests/unit/runtime/http/test_ds20_seeded_negatives.py": 15,
+      "tests/unit/runtime/http/test_e2e_ingestion.py": 16,
+      "tests/unit/runtime/http/test_fabric_integration_routes.py": 4,
+      "tests/unit/runtime/http/test_governed_projection_api.py": 9,
+      "tests/unit/runtime/http/test_human_decision_api.py": 2,
+      "tests/unit/runtime/http/test_insights_api.py": 3,
+      "tests/unit/runtime/http/test_lineage_api.py": 6,
+      "tests/unit/runtime/http/test_lineage_routes.py": 3,
+      "tests/unit/runtime/http/test_public_decision_verification_routes.py": 4,
+      "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py": 2,
+      "tests/unit/runtime/http/test_review_collaboration_api.py": 5,
+      "tests/unit/runtime/http/test_review_effectiveness_projection.py": 3,
+      "tests/unit/runtime/http/test_run_compare_api.py": 4,
+      "tests/unit/runtime/http/test_run_evidence_context_promotions.py": 2,
+      "tests/unit/runtime/http/test_run_paper_api.py": 11,
+      "tests/unit/runtime/http/test_runs_api.py": 38,
+      "tests/unit/runtime/http/test_runtime_api_authz.py": 169,
+      "tests/unit/runtime/http/test_runtime_api_contract_hardening.py": 1,
+      "tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py": 1,
+      "tests/unit/runtime/http/test_runtime_api_observability.py": 3,
+      "tests/unit/runtime/http/test_runtime_authorization_access_audit.py": 23,
+      "tests/unit/runtime/http/test_runtime_deployment_security.py": 1,
+      "tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py": 5,
+      "tests/unit/runtime/http/test_runtime_postgres_linearizability.py": 3,
+      "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py": 16,
+      "tests/unit/runtime/http/test_runtime_step_up_authz.py": 22,
+      "tests/unit/runtime/http/test_sae_spatial_route.py": 1,
+      "tests/unit/runtime/http/test_scenarios_api.py": 6,
+      "tests/unit/runtime/http/test_temporal_api.py": 6,
+      "tests/unit/runtime/http/test_temporal_routes.py": 9,
+      "tests/unit/runtime/http/test_timeline_api.py": 7,
+      "tests/unit/runtime/http/test_workspace_loop_transition.py": 27
+    },
+    "observed_final_duckdb_logical_size_distribution": {
+      "6303744": 30,
+      "2633728": 8,
+      "3420160": 6,
+      "3158016": 12
+    },
+    "observed_example_catalog_bytes": 6303744,
+    "remaining_linear_size_projection_bytes": 3429236736,
+    "qualification": "Fixture declaration and actual retained-file size projection only; not a lower bound, fit guarantee, future quantity, or outcome partition. Direct helper calls/failed setup native allocations remain unmeasured."
+  },
+  "census": {
+    "input": {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/resource-prerequisite-1862/new-forests-census.json",
+      "bytes": 92751,
+      "sha256": "91a003d09cf542c7349310458e13dc51c0f8d8a5a7f8322b697014c0a847fbaf"
+    },
+    "summary": {
+      "candidate_count": 64,
+      "stable_inactive_candidates": 64,
+      "allocated_bytes": 268632064,
+      "allocated_zero_page_bytes": 228196352
+    },
+    "forest_totals": [
+      {
+        "path": "/dev/shm/e02-B-completed-affected-1862c021df74",
+        "files": 1,
+        "allocated_bytes": 4096,
+        "logical_bytes": 2917,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound",
+        "files": 1590,
+        "allocated_bytes": 8728576,
+        "logical_bytes": 5313390,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-architecture-1862c021df74",
+        "files": 16998,
+        "allocated_bytes": 561344512,
+        "logical_bytes": 522097206,
+        "duckdb_count": 4,
+        "duckdb_allocated_bytes": 16384
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+        "files": 31361,
+        "allocated_bytes": 1649201152,
+        "logical_bytes": 1575358719,
+        "duckdb_count": 4,
+        "duckdb_allocated_bytes": 16384
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-final-1862c021df74",
+        "files": 20983,
+        "allocated_bytes": 383369216,
+        "logical_bytes": 333413874,
+        "duckdb_count": 59,
+        "duckdb_allocated_bytes": 268599296
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-architecture",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-format",
+        "files": 39,
+        "allocated_bytes": 159744,
+        "logical_bytes": 13112,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-mypy",
+        "files": 7658,
+        "allocated_bytes": 244805632,
+        "logical_bytes": 227109780,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-parity-uncapped",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-ruff",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-runtime-api",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      },
+      {
+        "path": "/dev/shm/e02-B-completed-quality-1862c021df74-verify-uncapped",
+        "files": 0,
+        "allocated_bytes": 0,
+        "logical_bytes": 0,
+        "duckdb_count": 0,
+        "duckdb_allocated_bytes": 0
+      }
+    ],
+    "fd_boundary": "Accessible FD/maps before and after; dockerd and containerd access denied. No universal absence, no mutation authorization."
+  },
+  "actual_wrapper_outcomes": {
+    "completed-final-B-cohort.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/dev/shm/e02-B-completed-final-1862c021df74/pytest",
+        "-o",
+        "cache_dir=/dev/shm/e02-B-completed-final-1862c021df74/cache",
+        "--junitxml=/dev/shm/e02-B-completed-final-1862c021df74/native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "wall_s": 486.20474443299463,
+      "process_rusage_maxrss_kib": 1289484,
+      "exit_code": -9,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "output_sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+      "source_environment": {
+        "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json"
+      },
+      "limitations": [
+        "Combined stdout/stderr; no separate stream-count claim.",
+        "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+        "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+      ]
+    },
+    "completed-final-production-invocation-1862c021df74.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation/production-invocation-full.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "wall_s": 123.27904838400718,
+      "process_rusage_maxrss_kib": 5610612,
+      "exit_code": -9,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-1862c021df74.txt",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "limitations": [
+        "Combined stdout/stderr; no separate stream-count claim.",
+        "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+        "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+      ]
+    },
+    "completed-final-production-invocation-retry-1862c021df74.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-coordination/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry/production-invocation-full.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "wall_s": 109.96838946299977,
+      "process_rusage_maxrss_kib": 5456628,
+      "exit_code": -9,
+      "exec_setup_error": null,
+      "harness_state": "EXECUTED",
+      "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "limitations": [
+        "Combined stdout/stderr; no separate stream-count claim.",
+        "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+        "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+      ]
+    }
+  },
+  "native_profile": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "-vv",
+      "-p",
+      "current_cohort_inventory",
+      "@/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+      "--continue-on-collection-errors",
+      "--basetemp",
+      "/dev/shm/e02-B-completed-final-1862c021df74/pytest",
+      "-o",
+      "cache_dir=/dev/shm/e02-B-completed-final-1862c021df74/cache",
+      "--junitxml=/dev/shm/e02-B-completed-final-1862c021df74/native.xml"
+    ],
+    "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+    "verification_inputs": {
+      "installed_wheel_profile": "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json",
+      "installed_wheel_profile_sha256": "009c6b38467f697b7c4c3972ee3a81fb374c066c2ae29b7bde6807711f0f74f3",
+      "installed_wheel_inputs": {
+        "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+        "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+        "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+        "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+        "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+        "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+      },
+      "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+      "postgres_private_dsn_file": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+      "postgres_driver_root": "/tmp/e02-B38-pg-profile",
+      "postgres_driver_distribution_profile": "Task-only psycopg and psycopg-binary 3.3.2; inherited 194-distribution environment unchanged",
+      "postgres_dsn_values": "Private credentials passed only to actual fixture consumers; omitted from public profiles",
+      "postgres_existing_optional_native_profile": "POLISYOS_TEST_PG_DSN supplied and POLISYOS_DS9_REQUIRE_PG=1; unavailable backend is a failure, not a silent skip"
+    },
+    "selector_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+    "selector_sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+    "test_paths": [
+      "tests/integration/scientist/test_checkpoint_resume.py",
+      "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+      "tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "tests/unit/common/test_async_tools.py",
+      "tests/unit/common/test_async_tools_installed_wheel.py",
+      "tests/unit/core/artifacts/backends/test_caching_store.py",
+      "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "tests/unit/core/artifacts/test_async_store.py",
+      "tests/unit/core/artifacts/test_batch_completion_admission.py",
+      "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+      "tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "tests/unit/core/artifacts/test_import_admission_noop.py",
+      "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+      "tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+      "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+      "tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "tests/unit/core/artifacts/test_signed_evidence.py",
+      "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "tests/unit/core/phase0/test_artifact_export_import.py",
+      "tests/unit/core/phase0/test_artifact_graph.py",
+      "tests/unit/core/phase0/test_artifact_store.py",
+      "tests/unit/core/phase0/test_audit_export_verify.py",
+      "tests/unit/core/phase0/test_audit_manifest_compat.py",
+      "tests/unit/core/phase0/test_canon_json.py",
+      "tests/unit/core/phase0/test_cli.py",
+      "tests/unit/core/phase0/test_cli_resume.py",
+      "tests/unit/core/phase0/test_cli_signing.py",
+      "tests/unit/core/phase0/test_decorators.py",
+      "tests/unit/core/phase0/test_environment_manifest.py",
+      "tests/unit/core/phase0/test_logs.py",
+      "tests/unit/core/phase0/test_metric_validation_cli.py",
+      "tests/unit/core/phase0/test_metrics.py",
+      "tests/unit/core/phase0/test_observability.py",
+      "tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+      "tests/unit/core/phase0/test_propagation.py",
+      "tests/unit/core/phase0/test_provenance_contract_shims.py",
+      "tests/unit/core/phase0/test_registry_bundle.py",
+      "tests/unit/core/phase0/test_run_context.py",
+      "tests/unit/core/phase0/test_signing.py",
+      "tests/unit/core/phase0/test_store_signing.py",
+      "tests/unit/core/phase0/test_tracer.py",
+      "tests/unit/core/phase0/test_workspace_commands.py",
+      "tests/unit/core/phase0/test_worktree_admission.py",
+      "tests/unit/core/test_llm_core.py",
+      "tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+      "tests/unit/fabric/connectors/test_pool_e02.py",
+      "tests/unit/fabric/connectors/test_registry.py",
+      "tests/unit/fabric/connectors/test_resilience.py",
+      "tests/unit/fabric/connectors/test_resilience_e02.py",
+      "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+      "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+      "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+      "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "tests/unit/foundry/methods/components/test_composition_e02.py",
+      "tests/unit/foundry/methods/test_artifacts.py",
+      "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+      "tests/unit/foundry/methods/test_compiler.py",
+      "tests/unit/foundry/methods/test_compiler_e02.py",
+      "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+      "tests/unit/foundry/methods/test_composer.py",
+      "tests/unit/foundry/methods/test_composer_hardening.py",
+      "tests/unit/foundry/methods/test_linker.py",
+      "tests/unit/foundry/methods/test_semantic_validator.py",
+      "tests/unit/foundry/mirror_contracts/test_specialization.py",
+      "tests/unit/remediation/test_cas_01.py",
+      "tests/unit/remediation/test_cas_02.py",
+      "tests/unit/remediation/test_cas_03.py",
+      "tests/unit/remediation/test_cmp_01.py",
+      "tests/unit/remediation/test_cmp_02.py",
+      "tests/unit/remediation/test_cmp_03.py",
+      "tests/unit/remediation/test_dur_02.py",
+      "tests/unit/remediation/test_dur_02_process.py",
+      "tests/unit/remediation/test_exe_02.py",
+      "tests/unit/remediation/test_jit_01.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_res_01.py",
+      "tests/unit/remediation/test_res_02.py",
+      "tests/unit/remediation/test_res_03.py",
+      "tests/unit/remediation/test_res_04.py",
+      "tests/unit/remediation/test_run_03.py",
+      "tests/unit/remediation/test_wire_01.py",
+      "tests/unit/runtime/http/services/test__control_contracts.py",
+      "tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "tests/unit/runtime/http/services/test_lex_pipeline.py",
+      "tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py",
+      "tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+      "tests/unit/runtime/http/test_acquisition_control_worker.py",
+      "tests/unit/runtime/http/test_acquisition_human_source.py",
+      "tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+      "tests/unit/runtime/http/test_acquisition_routes_api.py",
+      "tests/unit/runtime/http/test_acquisition_surface_projection.py",
+      "tests/unit/runtime/http/test_analysis_api.py",
+      "tests/unit/runtime/http/test_api_maturity.py",
+      "tests/unit/runtime/http/test_architecture_boundaries.py",
+      "tests/unit/runtime/http/test_artifact_inspector_api.py",
+      "tests/unit/runtime/http/test_artifact_inspector_service.py",
+      "tests/unit/runtime/http/test_artifact_surface_safety.py",
+      "tests/unit/runtime/http/test_auth_api.py",
+      "tests/unit/runtime/http/test_authority_values.py",
+      "tests/unit/runtime/http/test_authorization_audience_denials.py",
+      "tests/unit/runtime/http/test_b88_served_replay.py",
+      "tests/unit/runtime/http/test_bureaucratic_rendering_api.py",
+      "tests/unit/runtime/http/test_capability_discovery_api.py",
+      "tests/unit/runtime/http/test_case_inspection_api.py",
+      "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py",
+      "tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py",
+      "tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py",
+      "tests/unit/runtime/http/test_control_api.py",
+      "tests/unit/runtime/http/test_control_hardening.py",
+      "tests/unit/runtime/http/test_control_import_boundary.py",
+      "tests/unit/runtime/http/test_control_job_core_attempts.py",
+      "tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "tests/unit/runtime/http/test_control_plane_store.py",
+      "tests/unit/runtime/http/test_control_service_di.py",
+      "tests/unit/runtime/http/test_control_worker_custody.py",
+      "tests/unit/runtime/http/test_control_worker_maintenance.py",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "tests/unit/runtime/http/test_core_only_runs_api.py",
+      "tests/unit/runtime/http/test_curated_dir_resolution.py",
+      "tests/unit/runtime/http/test_cycle_board_historical_availability.py",
+      "tests/unit/runtime/http/test_cycle_board_movement.py",
+      "tests/unit/runtime/http/test_cycle_board_projection_access_replay.py",
+      "tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py",
+      "tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+      "tests/unit/runtime/http/test_cycle_board_projection_loading.py",
+      "tests/unit/runtime/http/test_cycle_board_projection_service.py",
+      "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+      "tests/unit/runtime/http/test_debug_api.py",
+      "tests/unit/runtime/http/test_decision_validity_api.py",
+      "tests/unit/runtime/http/test_depth_n_route_projection_artifact.py",
+      "tests/unit/runtime/http/test_ds20_authorization_binding_followups.py",
+      "tests/unit/runtime/http/test_ds20_seeded_negatives.py",
+      "tests/unit/runtime/http/test_e2e_ingestion.py",
+      "tests/unit/runtime/http/test_epoch_custody_container.py",
+      "tests/unit/runtime/http/test_epoch_issuance_composition.py",
+      "tests/unit/runtime/http/test_error_semantics.py",
+      "tests/unit/runtime/http/test_fabric_integration_routes.py",
+      "tests/unit/runtime/http/test_fixture_runtime_api_loader.py",
+      "tests/unit/runtime/http/test_governed_projection_api.py",
+      "tests/unit/runtime/http/test_governed_projection_service.py",
+      "tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+      "tests/unit/runtime/http/test_human_decision_api.py",
+      "tests/unit/runtime/http/test_human_decision_guarded_custody.py",
+      "tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+      "tests/unit/runtime/http/test_human_decision_mutation_binding.py",
+      "tests/unit/runtime/http/test_human_decision_service.py",
+      "tests/unit/runtime/http/test_insights_api.py",
+      "tests/unit/runtime/http/test_lineage_api.py",
+      "tests/unit/runtime/http/test_lineage_routes.py",
+      "tests/unit/runtime/http/test_mobility_api.py",
+      "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "tests/unit/runtime/http/test_non_data_acquisition_projection.py",
+      "tests/unit/runtime/http/test_normative_evidence_intake.py",
+      "tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "tests/unit/runtime/http/test_public_decision_verification.py",
+      "tests/unit/runtime/http/test_public_decision_verification_configuration.py",
+      "tests/unit/runtime/http/test_public_decision_verification_routes.py",
+      "tests/unit/runtime/http/test_public_decision_verification_schema.py",
+      "tests/unit/runtime/http/test_public_export.py",
+      "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py",
+      "tests/unit/runtime/http/test_resilience_guards.py",
+      "tests/unit/runtime/http/test_review_collaboration_api.py",
+      "tests/unit/runtime/http/test_review_collaboration_service.py",
+      "tests/unit/runtime/http/test_review_effectiveness_projection.py",
+      "tests/unit/runtime/http/test_run_compare_api.py",
+      "tests/unit/runtime/http/test_run_evidence_context_promotions.py",
+      "tests/unit/runtime/http/test_run_paper_api.py",
+      "tests/unit/runtime/http/test_runs_api.py",
+      "tests/unit/runtime/http/test_runtime_api_authz.py",
+      "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py",
+      "tests/unit/runtime/http/test_runtime_api_observability.py",
+      "tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+      "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+      "tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py",
+      "tests/unit/runtime/http/test_runtime_permission_vocabulary.py",
+      "tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+      "tests/unit/runtime/http/test_runtime_security_compliance.py",
+      "tests/unit/runtime/http/test_runtime_service_container.py",
+      "tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "tests/unit/runtime/http/test_sae_spatial_route.py",
+      "tests/unit/runtime/http/test_scenarios_api.py",
+      "tests/unit/runtime/http/test_served_unknown_target_scope.py",
+      "tests/unit/runtime/http/test_temporal_api.py",
+      "tests/unit/runtime/http/test_temporal_routes.py",
+      "tests/unit/runtime/http/test_timeline_api.py",
+      "tests/unit/runtime/http/test_workspace_loop_transition.py",
+      "tests/unit/runtime/quality/test_chronology_proof.py",
+      "tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+      "tests/unit/scientist/agent/test_optional_spend_projection_boundary.py",
+      "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "tests/unit/scientist/mirror_contracts/test_local_runner.py",
+      "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_circuit_breaker.py",
+      "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "tests/unit/scientist/orchestration/engine/test_retry.py",
+      "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "tests/unit/scientist/orchestration/llm/test_factory.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+      "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+      "tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py"
+    ],
+    "whole_file_count": 250,
+    "inventory": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+    "fresh_scratch": "/dev/shm/e02-B-completed-final-1862c021df74",
+    "ambient_cap_names_removed": [],
+    "all_cap_names_absent_in_child": [
+      "OMP_NUM_THREADS",
+      "OPENBLAS_NUM_THREADS",
+      "MKL_NUM_THREADS",
+      "NUMEXPR_NUM_THREADS",
+      "VECLIB_MAXIMUM_THREADS",
+      "BLIS_NUM_THREADS"
+    ],
+    "environment": {
+      "PYTHONPATH": "/tmp/e02-B38-pg-profile:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+      "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+      "UV_NO_SYNC": "1",
+      "POLISYOS_METRICS_PORT": "0",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+      "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json"
+    },
+    "launcher_sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+    "input_admission_sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+    "capture_sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+    "qualification": "Complete native files, no test/marker/worker/thread/CPU quota. Observer records hook-time modules, not a complete import read set or child/transient modules."
+  },
+  "installed_wheel_preparation_profiles": {
+    "profile.json": {
+      "source_before": {
+        "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "status": ""
+      },
+      "source_after": {
+        "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "status": ""
+      },
+      "test_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "test_sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+      "consumer_path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "consumer_sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "wheel": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "a9b7d921724a176b725222ca609f93d241fc83c244ec8aba996a3b0588912449",
+      "input_environment": {
+        "E02_LA057_WHEEL_PATH": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+        "E02_LA057_INSTALLED_SITE": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+        "E02_LA057_SOURCE_ROOT": "/workspace/e02-B-current-coordination/policy-engine",
+        "E02_LA057_SOURCE_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "E02_LA057_INSTALLED_PYTHON": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+        "E02_LA057_CONSUMER_SHA256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+        "E02_LA057_OUTER_TEST_SHA256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+      },
+      "cleanup_candidates": [
+        "/tmp/e02-B-la057-final-1862c021df74-run"
+      ],
+      "runtime_observation": "Native deciding XML/stdout, not command-exit-alone closure. Inspect actual case properties before finding adjudication."
+    },
+    "wheel-build.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "build",
+        "--wheel",
+        "--no-build-isolation",
+        "--python",
+        "/tmp/e02-B-la057-final-1862c021df74-run/build-env/bin/python",
+        "--no-python-downloads",
+        "--no-create-gitignore",
+        "--out-dir",
+        "/tmp/e02-B-la057-final-1862c021df74-run/wheels",
+        "/workspace/e02-B-current-coordination/policy-engine"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-1862c021df74-run",
+      "start_utc": "2026-10-06T22:31:16.521929+00:00",
+      "end_utc": "2026-10-06T22:31:18.944766+00:00",
+      "wall_s": 2.422847185007413,
+      "child_maxrss_platform_units": 37696,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-1862c021df74-run/wheel-build.txt",
+      "output_bytes": 81,
+      "output_sha256": "430982fdee80715cdcd8cfe97c600955d040a0744c6f540e92297d3d36287def",
+      "source": {
+        "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "status": ""
+      }
+    },
+    "wheel-install.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+        "--no-deps",
+        "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-1862c021df74-run",
+      "start_utc": "2026-10-06T22:31:18.945305+00:00",
+      "end_utc": "2026-10-06T22:31:19.162770+00:00",
+      "wall_s": 0.21747592400060967,
+      "child_maxrss_platform_units": 47632,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-1862c021df74-run/wheel-install.txt",
+      "output_bytes": 253,
+      "output_sha256": "2af5038f3d76b4931a22b58a63d55a832c221e7e22c5fd5813d1a25f9202590f",
+      "source": {
+        "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "status": ""
+      }
+    },
+    "build-dependencies.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-1862c021df74-run/build-env/bin/python",
+        "hatchling==1.27.0"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-1862c021df74-run",
+      "start_utc": "2026-10-06T22:31:13.597887+00:00",
+      "end_utc": "2026-10-06T22:31:16.521675+00:00",
+      "wall_s": 2.923796858987771,
+      "child_maxrss_platform_units": 43200,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-1862c021df74-run/build-dependencies.txt",
+      "output_bytes": 243,
+      "output_sha256": "8e3ef4013092bb3c7838545357c477f80dac3c5092f0ff41fc83d747d4b23100",
+      "source": {
+        "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "status": ""
+      }
+    },
+    "consumer-dependencies.json": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+        "--no-deps",
+        "pytest==9.0.2",
+        "iniconfig==2.3.0",
+        "packaging==25.0",
+        "pluggy==1.6.0",
+        "pygments==2.19.2"
+      ],
+      "cwd": "/tmp/e02-B-la057-final-1862c021df74-run",
+      "start_utc": "2026-10-06T22:31:19.163004+00:00",
+      "end_utc": "2026-10-06T22:31:21.314792+00:00",
+      "wall_s": 2.1518009979918133,
+      "child_maxrss_platform_units": 43536,
+      "maxrss_unit": "KiB on Linux; bytes on macOS",
+      "exit": 0,
+      "output": "/tmp/e02-B-la057-final-1862c021df74-run/consumer-dependencies.txt",
+      "output_bytes": 280,
+      "output_sha256": "2c502b367414ce8ac76b8eb152fdfff1bc340f36d289d8c3b3bfc3af3a6484f8",
+      "source": {
+        "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "status": ""
+      }
+    }
+  },
+  "installed_wheel_preparation_refs": [
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run/profile.json",
+      "bytes": 1870,
+      "sha256": "a54ca2943c672045836c68e7f1172f9994e1da4696e82bc67f5baa574fcdc6eb"
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run/wheel-build.json",
+      "bytes": 1055,
+      "sha256": "b10877a202f460181401cbd5ec60e3c682ace6d8c9be51f86b82567ba0a2bade"
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run/wheel-install.json",
+      "bytes": 954,
+      "sha256": "3ce7894317371800cfa32e79af07678d885645582842d2709f703fb153960cab"
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run/build-dependencies.json",
+      "bytes": 870,
+      "sha256": "585ace9467f7eef982a380a9202b38b5320ca089ff8ff3f086c378d080c8df24"
+    },
+    {
+      "path": "/tmp/e02-B-la057-final-1862c021df74-run/consumer-dependencies.json",
+      "bytes": 983,
+      "sha256": "a7796d20f004110b4ea59f9832323bd4f05236823f1cdef42c1edaa065fc375f"
+    }
+  ],
+  "before_environment": {
+    "utc": "2026-10-06T23:05:52.033072+00:00",
+    "cgroup": {
+      "memory.max": "17179869184\n",
+      "memory.current": "16851173376\n",
+      "memory.peak": "17180602368\n",
+      "memory.events": "low 0\nhigh 0\nmax 221128\noom 7\noom_kill 5\noom_group_kill 0\n",
+      "memory.stat": "anon 50880512\nfile 14870859776\nkernel 1928830976\nkernel_stack 638976\npagetables 2203648\nsec_pagetables 0\npercpu 14448\nsock 0\nvmalloc 0\nshmem 12336029696\nfile_mapped 39690240\nfile_dirty 10055680\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 18874368\nshmem_thp 0\ninactive_anon 5541511168\nactive_anon 6845235200\ninactive_file 264531968\nactive_file 2270298112\nunevictable 0\nslab_reclaimable 1488280832\nslab_unreclaimable 437659232\nslab 1925940064\nworkingset_refault_anon 0\nworkingset_refault_file 10560213\nworkingset_activate_anon 0\nworkingset_activate_file 2483996\nworkingset_restore_anon 0\nworkingset_restore_file 1383197\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 49606168\npgsteal 18509883\npswpin 0\npswpout 0\npgscan_kswapd 9980891\npgscan_direct 39625277\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 9646274\npgsteal_direct 8863609\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 748819223\npgmajfault 30123\npgrefill 11739039\npgactivate 15512004\npgdeactivate 10916998\npglazyfree 2296537\npglazyfreed 381\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 4\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "memory.swap.max": "max\n",
+      "memory.swap.current": "0\n"
+    },
+    "fs": {
+      "/workspace": {
+        "fsid": 4239674575097193000,
+        "allocated_bytes": 30508662784,
+        "available_bytes": 1526767616,
+        "physical_free_bytes": 3261530112,
+        "total_bytes": 33770192896
+      },
+      "/tmp": {
+        "fsid": 8231221146984765500,
+        "allocated_bytes": 6965108736,
+        "available_bytes": 2476240896,
+        "physical_free_bytes": 2476240896,
+        "total_bytes": 9441349632
+      },
+      "/dev/shm": {
+        "fsid": 5053483822830950985,
+        "allocated_bytes": 5344034816,
+        "available_bytes": 4097314816,
+        "physical_free_bytes": 4097314816,
+        "total_bytes": 9441349632
+      }
+    },
+    "mountinfo": "52 37 0:27 / / rw,relatime shared:1 - overlay overlay rw,lowerdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/lower-0,upperdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/upper/upper,workdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/upper/work,index=off,metacopy=off\n53 52 0:30 / /proc rw,nosuid,nodev,noexec,relatime shared:2 - proc proc rw\n54 52 0:31 / /dev rw,nosuid shared:3 - tmpfs tmpfs rw,size=65536k,mode=755\n55 54 0:32 / /dev/pts rw,nosuid,noexec,relatime shared:4 - devpts devpts rw,gid=5,mode=620,ptmxmode=666\n56 54 0:26 / /dev/shm rw,relatime shared:5 - tmpfs shm rw\n57 54 0:25 / /dev/mqueue rw,nosuid,nodev,noexec,relatime shared:6 - mqueue mqueue rw\n58 52 0:20 / /sys rw,nosuid,nodev,noexec,relatime shared:7 - sysfs sysfs rw\n59 58 0:24 /.. /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime shared:8 - cgroup2 cgroup2 rw,nsdelegate\n38 52 0:33 / /tmp rw,relatime shared:9 - tmpfs none rw\n"
+  },
+  "after_environment": {
+    "utc": "2026-10-06T23:05:52.189422+00:00",
+    "cgroup": {
+      "memory.max": "17179869184\n",
+      "memory.current": "16868478976\n",
+      "memory.peak": "17180602368\n",
+      "memory.events": "low 0\nhigh 0\nmax 221128\noom 7\noom_kill 5\noom_group_kill 0\n",
+      "memory.stat": "anon 67543040\nfile 14870863872\nkernel 1929101312\nkernel_stack 638976\npagetables 2412544\nsec_pagetables 0\npercpu 14672\nsock 0\nvmalloc 0\nshmem 12336029696\nfile_mapped 39690240\nfile_dirty 10055680\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 18874368\nshmem_thp 0\ninactive_anon 5558284288\nactive_anon 6845235200\ninactive_file 262885376\nactive_file 2271948800\nunevictable 0\nslab_reclaimable 1488288640\nslab_unreclaimable 437714576\nslab 1926003216\nworkingset_refault_anon 0\nworkingset_refault_file 10560214\nworkingset_activate_anon 0\nworkingset_activate_file 2483996\nworkingset_restore_anon 0\nworkingset_restore_file 1383197\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 49606168\npgsteal 18509883\npswpin 0\npswpout 0\npgscan_kswapd 9980891\npgscan_direct 39625277\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 9646274\npgsteal_direct 8863609\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 748840478\npgmajfault 30124\npgrefill 11739039\npgactivate 15512407\npgdeactivate 10916998\npglazyfree 2296537\npglazyfreed 381\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 4\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "memory.swap.max": "max\n",
+      "memory.swap.current": "0\n"
+    },
+    "fs": {
+      "/workspace": {
+        "fsid": 4239674575097193000,
+        "allocated_bytes": 30508662784,
+        "available_bytes": 1526767616,
+        "physical_free_bytes": 3261530112,
+        "total_bytes": 33770192896
+      },
+      "/tmp": {
+        "fsid": 8231221146984765500,
+        "allocated_bytes": 6965108736,
+        "available_bytes": 2476240896,
+        "physical_free_bytes": 2476240896,
+        "total_bytes": 9441349632
+      },
+      "/dev/shm": {
+        "fsid": 5053483822830950985,
+        "allocated_bytes": 5344034816,
+        "available_bytes": 4097314816,
+        "physical_free_bytes": 4097314816,
+        "total_bytes": 9441349632
+      }
+    },
+    "mountinfo": "52 37 0:27 / / rw,relatime shared:1 - overlay overlay rw,lowerdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/lower-0,upperdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/upper/upper,workdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/upper/work,index=off,metacopy=off\n53 52 0:30 / /proc rw,nosuid,nodev,noexec,relatime shared:2 - proc proc rw\n54 52 0:31 / /dev rw,nosuid shared:3 - tmpfs tmpfs rw,size=65536k,mode=755\n55 54 0:32 / /dev/pts rw,nosuid,noexec,relatime shared:4 - devpts devpts rw,gid=5,mode=620,ptmxmode=666\n56 54 0:26 / /dev/shm rw,relatime shared:5 - tmpfs shm rw\n57 54 0:25 / /dev/mqueue rw,nosuid,nodev,noexec,relatime shared:6 - mqueue mqueue rw\n58 52 0:20 / /sys rw,nosuid,nodev,noexec,relatime shared:7 - sysfs sysfs rw\n59 58 0:24 /.. /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime shared:8 - cgroup2 cgroup2 rw,nsdelegate\n38 52 0:33 / /tmp rw,relatime shared:9 - tmpfs none rw\n"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "execution": "stdlib metadata/filesystem/source reads only; no native/import/gate/collection/punch/move/delete/start/stop",
+  "root_after": {
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "status": ""
+  }
+}

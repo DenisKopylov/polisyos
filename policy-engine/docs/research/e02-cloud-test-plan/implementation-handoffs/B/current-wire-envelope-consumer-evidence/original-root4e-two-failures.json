@@ -1,0 +1,146 @@
+{
+  "schema": "e02.wire.original_two_failures.v1",
+  "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "source_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "origin": "same completed root native wave; parsing/extraction only, no pytest invocation",
+  "original_inputs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml",
+      "sha256": "f7fa098c6b921b7b9c0188f03997bc6962db1f3849826fd3e9fa61e9b6c6800b",
+      "bytes": 1333443
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.json",
+      "sha256": "b3acbd3c58ce152af8d05314e063c477e640fc1ff5bda7f842186f9bdd31a61f",
+      "bytes": 2338
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-profile.json",
+      "sha256": "778214f30623054317e3cb51ea7233339adc13cc5020e1e6d3c49cf0554ee44c",
+      "bytes": 10440
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.txt",
+      "sha256": "2156c46a4fb2273fb52ed9fca25e73b8fe32581886eb190875443523b152bda7",
+      "bytes": 1431050
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/final-root-case-partition-3cd-recorded.json",
+      "sha256": "ecd0944bf9ca6a02f2785b06ca7e7e6d2f1830a9b3f30f0125cf8fe700730492",
+      "bytes": 4297291
+    }
+  ],
+  "case_records": [
+    {
+      "case_partition_record": {
+        "nodeid": "tests/unit/remediation/test_wire_01.py::test_artifact_ref_and_artifact_id_tags_are_compatible[native]",
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_wire_01.py",
+        "location": [
+          "tests/unit/remediation/test_wire_01.py",
+          251,
+          "test_artifact_ref_and_artifact_id_tags_are_compatible[native]"
+        ],
+        "state": "FAIL",
+        "reason": "observed call failure including strict XPASS",
+        "complete": true,
+        "assignment_ambiguous": false,
+        "phase_report_indexes": {
+          "setup": [
+            3081
+          ],
+          "call": [
+            3082
+          ],
+          "teardown": [
+            3083
+          ]
+        },
+        "unknown_phase_report_indexes": [],
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "unexpected_success_nonstrict": false,
+        "unexpected_success_strict": false,
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_wire_01.py",
+        "definition_path": "tests/unit/remediation/test_wire_01.py",
+        "same_lexical_collection_and_definition_path": true,
+        "junit_representation_indexes": [
+          1027
+        ]
+      },
+      "native_junit_attributes": {
+        "classname": "tests.unit.remediation.test_wire_01",
+        "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native]",
+        "time": "0.001"
+      },
+      "native_failure_attributes": {
+        "message": "KeyError: 'inputs'"
+      },
+      "native_failure_text_complete": "@pytest.mark.usefixtures(\"_wire_backend\")\n    def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:\n        ref = _artifact_ref()\n        state = ExperimentState(run_id=\"wire-01-artifact-tags\", inputs={\"input\": ref})\n    \n        payload = serialize_state(state)\n        encoded = serialization_module._loads(payload)\n>       encoded_ref = encoded[\"inputs\"][\"input\"]\n                      ^^^^^^^^^^^^^^^^^\nE       KeyError: 'inputs'\n\ntests/unit/remediation/test_wire_01.py:259: KeyError"
+    },
+    {
+      "case_partition_record": {
+        "nodeid": "tests/unit/remediation/test_wire_01.py::test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib]",
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_wire_01.py",
+        "location": [
+          "tests/unit/remediation/test_wire_01.py",
+          251,
+          "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib]"
+        ],
+        "state": "FAIL",
+        "reason": "observed call failure including strict XPASS",
+        "complete": true,
+        "assignment_ambiguous": false,
+        "phase_report_indexes": {
+          "setup": [
+            3084
+          ],
+          "call": [
+            3085
+          ],
+          "teardown": [
+            3086
+          ]
+        },
+        "unknown_phase_report_indexes": [],
+        "phase_states": {
+          "setup": [
+            "PASS"
+          ],
+          "call": [
+            "FAIL"
+          ],
+          "teardown": [
+            "PASS"
+          ]
+        },
+        "unexpected_success_nonstrict": false,
+        "unexpected_success_strict": false,
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_wire_01.py",
+        "definition_path": "tests/unit/remediation/test_wire_01.py",
+        "same_lexical_collection_and_definition_path": true,
+        "junit_representation_indexes": [
+          1028
+        ]
+      },
+      "native_junit_attributes": {
+        "classname": "tests.unit.remediation.test_wire_01",
+        "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib]",
+        "time": "0.001"
+      },
+      "native_failure_attributes": {
+        "message": "KeyError: 'inputs'"
+      },
+      "native_failure_text_complete": "@pytest.mark.usefixtures(\"_wire_backend\")\n    def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:\n        ref = _artifact_ref()\n        state = ExperimentState(run_id=\"wire-01-artifact-tags\", inputs={\"input\": ref})\n    \n        payload = serialize_state(state)\n        encoded = serialization_module._loads(payload)\n>       encoded_ref = encoded[\"inputs\"][\"input\"]\n                      ^^^^^^^^^^^^^^^^^\nE       KeyError: 'inputs'\n\ntests/unit/remediation/test_wire_01.py:259: KeyError"
+    }
+  ],
+  "unchanged_result": "two original callFAIL are retained; tag assertions and deserialize_state were not reached"
+}

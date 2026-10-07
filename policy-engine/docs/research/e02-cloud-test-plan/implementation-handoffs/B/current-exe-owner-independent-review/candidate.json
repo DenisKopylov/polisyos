@@ -1,0 +1,39 @@
+{
+  "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "source_identity": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": "ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b",
+    "policy-engine/src/polisyos/core/artifacts/async_store.py": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493"
+  },
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "cancellation_count_final": 1,
+  "suppressed_hook": [
+    {
+      "kind": "cancellation_suppressed",
+      "cancelling": 1
+    },
+    {
+      "kind": "real_checkpoint_completed",
+      "cancelling": 1
+    }
+  ],
+  "termination": {
+    "type": "CancelledError",
+    "message": "Workflow owner cancelled during checkpoint; execution_state=unknown"
+  },
+  "provider_calls": 1,
+  "events_before_cancel": [
+    "RUN_STARTED",
+    "RUN_INPUT_ADDED",
+    "RUN_INPUT_ADDED",
+    "NODE_STARTED",
+    "NODE_CACHE_STORE",
+    "NODE_OK"
+  ],
+  "events_after_cancel": [],
+  "run_outputs_after_cancel": [],
+  "checkpoint_physically_exists": true,
+  "unbounded_owner": true,
+  "all_source_unchanged": true,
+  "pass_no_new_owner_publication": true
+}

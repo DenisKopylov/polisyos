@@ -1,0 +1,60 @@
+{
+  "source_sha": "e4feaf90105dcdd9058fc8fd5451ed0ee72fa637",
+  "source_tree": "f2bb170361bb2d94c727216a9b012f4326e9f857",
+  "source_binding": "tracked HEAD plus exact input-closure bytes; draft status is recorded separately",
+  "driver_sha256": "fa4f9cd526ae7ef8bc5f1336c69ddf6f3eaa2aa19c2ff444eb24eb0e34016e6a",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_skip_width_preserves_frontier_and_reopened_resume_meaning",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py::test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis",
+    "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/cohort.xml",
+    "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/tmp"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "POLISYOS_METRICS_PORT": "0",
+    "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/environment.json",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/input-closure.json",
+    "sha256": "27a9449ac4d01b46f531dd1a87c40c40fc154674be45014454e5477b23999c7a",
+    "paths": 2733,
+    "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data"
+  },
+  "start_utc": "2026-10-06T12:03:40.937639+00:00",
+  "end_utc": "2026-10-06T12:03:56.892884+00:00",
+  "wall_s": 15.858599244995276,
+  "max_rss_kib": 736880,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/cohort.xml",
+      "sha256": "01395733f200b0a1d6b4c7745825d3ac202f2e62dd4c42e900e35865954728f7",
+      "bytes": 4618
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/environment.json",
+      "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+      "bytes": 9887
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/input-closure.json",
+      "sha256": "27a9449ac4d01b46f531dd1a87c40c40fc154674be45014454e5477b23999c7a",
+      "bytes": 519257
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-frontier-state-current/native.txt",
+      "sha256": "8ccff457dc42ec2a1b12aa165b5302f6f860099f195a4d67f03ec6f0eb8d6fef",
+      "bytes": 3301
+    }
+  ]
+}

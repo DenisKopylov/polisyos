@@ -1,0 +1,246 @@
+{
+  "objects": 48,
+  "total_bytes": 1371941,
+  "refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/baseline-query.json",
+      "bytes": 51374,
+      "sha256": "c2d92ead320b511f27f756bedd29d827f29106cb3537ed4c28d7bd8cd44cc8c3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/baseline-source-context.json",
+      "bytes": 755695,
+      "sha256": "729661c36beeb6532dd78de52374034baa5920b1ef5cb7cfa909318cca5a7014"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/contract-census.json",
+      "bytes": 6881,
+      "sha256": "26b3575fef7f21d2ba435d1b73c52434a36702e4ac84ba8e1b5847b095e72338"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili0/ledger.json",
+      "bytes": 856,
+      "sha256": "368aa4356c9350493c40c85ad5938bd1b7b79d362821c022899c206ba0df8879"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili1/ledger.json",
+      "bytes": 856,
+      "sha256": "e6ea41673a278d657918abcb3943ae51eea594ee568681e2216738bf457d73e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili1/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili2/ledger.json",
+      "bytes": 856,
+      "sha256": "96671166ac378f9c885de426ed5bf6c3497d0b6215107c29906b6246bcdcb90c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili2/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili3/ledger.json",
+      "bytes": 856,
+      "sha256": "bb703f940731b9d746a38af510d5b7bf19c1112a077247fdf6f80989f525323f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/actual-files/test_protected_audit_reconcili3/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/capture.source.txt",
+      "bytes": 4955,
+      "sha256": "d13580a6d64e6bf0eee161a8fa943edb4f823056172cbf8cd49eb9e5c246fbaa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/case-join.json",
+      "bytes": 2437,
+      "sha256": "05be6763added437044fd4e4d1d6bb8194345600d2fcef2a785bba8d87d51363"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/child.source.txt",
+      "bytes": 2502,
+      "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/native.txt",
+      "bytes": 135500,
+      "sha256": "91a46fcbc2183b89a401cd3169cfcaa5bcd400c3775de9adfa4d14af613c97e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/native.xml",
+      "bytes": 129900,
+      "sha256": "be80087158382341922d6fc242d9abdbbac003693d6698dc13bb87a307c67993"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/source-context.json",
+      "bytes": 52720,
+      "sha256": "de644087decb50f712859a88d87e729e34c173a7ba4efb055bfc45f8a5ee4917"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/initial-not-established/wrapper.json",
+      "bytes": 4712,
+      "sha256": "c3296840c20df436bde3ea1e97592fbdb7a546940407c9505300cb7649330ffa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/metadata-preparation.json",
+      "bytes": 661,
+      "sha256": "1a1c1aaf9f31cb7a7df9cc8480d68d6d6220befa450edbbceb634e9a2e5729e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/package-initial.source.txt",
+      "bytes": 9103,
+      "sha256": "127c09dc388b486c579a4a904991e378e5db027bc2ea91329762482b40084c83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/package.source.txt",
+      "bytes": 8960,
+      "sha256": "ef8968aafd2111052f85c93a228d1ed45ab90e770867c7b5e24baa50216e51e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/premise-input-delta.txt",
+      "bytes": 1226,
+      "sha256": "4b39e36ac08711b4779efd992b7586414bb51ed5f537b5c04a2c8db2969bc356"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili0/actual-provider.jsonl",
+      "bytes": 114,
+      "sha256": "71c8e93f6805de1c408edf29405fea669f43b5e6a4baa09a8e369d85645ff935"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili0/ledger.json",
+      "bytes": 4283,
+      "sha256": "d75dff7f184bf8c5ac818151db23226a32852390e02bf03270cb58e822bcbf45"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili0/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili0/protected-audit.jsonl",
+      "bytes": 5664,
+      "sha256": "634845f3e014b10a0b5ec958a72d2314e19ed1a1a619d43e54df82d6b5f00181"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili1/actual-provider.jsonl",
+      "bytes": 110,
+      "sha256": "17fe16ea398e6011549f1cbfab27197398eba0f55d1966a273ad14845be8353b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili1/ledger.json",
+      "bytes": 4283,
+      "sha256": "3208d313e9cf1bc2559a13de75797ba0c8205b5975e6a63a2e0cda9061fead9b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili1/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili1/protected-audit.jsonl",
+      "bytes": 5776,
+      "sha256": "4be7b7322d61addc044c9e559e67176653639dd38a881cedbc5b02a94303f2c4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili2/actual-provider.jsonl",
+      "bytes": 114,
+      "sha256": "71c8e93f6805de1c408edf29405fea669f43b5e6a4baa09a8e369d85645ff935"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili2/ledger.json",
+      "bytes": 4283,
+      "sha256": "aa58d164fd0502723b93ad5d89969685c87407e4c86374026f56d0fd9df2cb77"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili2/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili2/protected-audit.jsonl",
+      "bytes": 4840,
+      "sha256": "ff0c1c10be3ea2c1902127a2aa73000c62de784b91e4635ab8963c5925601f97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili3/actual-provider.jsonl",
+      "bytes": 110,
+      "sha256": "17fe16ea398e6011549f1cbfab27197398eba0f55d1966a273ad14845be8353b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili3/ledger.json",
+      "bytes": 4283,
+      "sha256": "4698deea6eee5204c4e2d3baf26a1a5770993276fb138851d1d2ef95a6e70685"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili3/ledger.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/actual-files/test_protected_audit_reconcili3/protected-audit.jsonl",
+      "bytes": 4924,
+      "sha256": "4dddbcfbc3f19930870ca0b260136a7ca2b839f7da67946d669457d763306ddd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/capture.source.txt",
+      "bytes": 4965,
+      "sha256": "6df0961810c696d6ff408d5066379b775b2b958b3f434caa15c1dbc7e08dee11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/case-join.json",
+      "bytes": 1855,
+      "sha256": "191fdf24515d741b8831b42d48ac973f360fba795eae0685a966bf84c56e05f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/child.source.txt",
+      "bytes": 2502,
+      "sha256": "1900dea13644be7ee214891bec51e5f52b537afdee2184837c0bb80a7a837e8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.txt",
+      "bytes": 78759,
+      "sha256": "2b32c24941f6e798970d2aee67b9d7bc7c012d4ccb5622738edd1710c5143e86"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/native.xml",
+      "bytes": 11955,
+      "sha256": "81ff734fdb7d12d3eca87e2bcc8e5fc4fa3101ab0bd7030db0f6c30a4cd38dad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/source-context.json",
+      "bytes": 52196,
+      "sha256": "343fd56d1465d00c6aca20ae3b33bcb495ad7c316e1c4ee7e18eb7e580c8bf1b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/qualified/wrapper.json",
+      "bytes": 4721,
+      "sha256": "180a22f615d53adf66a398b72a1274880548d10e56bd6f54d17f8ce08a393a5f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/source-check.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/static-checks.json",
+      "bytes": 851,
+      "sha256": "1a1b28a4742bf7f63ce090e4f34a438fb7acf01ea8ca81ae2a19020579774403"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence/summary.json",
+      "bytes": 5303,
+      "sha256": "f2528ec40d38e00d53779fe3f04b006d81c48c598a9d004bf3091ee5cb3f44a8"
+    }
+  ]
+}

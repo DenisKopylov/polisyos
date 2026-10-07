@@ -1,0 +1,387 @@
+.........................FFFFF.....                                      [100%]
+=================================== FAILURES ===================================
+__ test_actual_class_helper_replacement_refuses_stale_required_resume[static] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla0')
+descriptor = 'static'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:34:11 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:11 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.95 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.8 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.72 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.7 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.85 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.16 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+__ test_actual_class_helper_replacement_refuses_stale_required_resume[class] ___
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla1')
+descriptor = 'class'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.72 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.69 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.77 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.6 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.65 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:12 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.83 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+__ test_actual_class_helper_replacement_refuses_stale_required_resume[method] __
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla2')
+descriptor = 'method'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:12 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.67 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.69 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.78 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.78 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.63 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.57 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_actual_class_helper_replacement_refuses_stale_required_resume[property] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_class_helper_repla3')
+descriptor = 'property'
+
+    @pytest.mark.parametrize("descriptor", ["static", "class", "method", "property"])
+    def test_actual_class_helper_replacement_refuses_stale_required_resume(tmp_path, descriptor):
+        """The same class/entrypoint calls a replaced descriptor in real arithmetic."""
+    
+        def original_helper(*args):
+            return 2
+    
+        def changed_helper(*args):
+            return 3
+    
+        wrappers = {
+            "static": staticmethod,
+            "class": classmethod,
+            "method": lambda fn: fn,
+            "property": property,
+        }
+    
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                instance = Source()
+                factor = instance.helper if descriptor == "property" else instance.helper()
+                return {"product": state["x"] * factor}
+    
+        Source.helper = wrappers[descriptor](original_helper)
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        original = executor.execute(chain, initial_state={"x": 3}, seed=7, artifact_context=context)
+        path = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+        checkpoint = ChainCheckpoint.load(path)
+        pointer = path.read_bytes()
+        unchanged = executor.execute(
+            chain, initial_state={"x": 3}, checkpoint=checkpoint, seed=7, artifact_context=context
+        )
+        assert original.final_state["total"] == unchanged.final_state["total"] == 7
+        assert unchanged.history_complete
+        Source.helper = wrappers[descriptor](changed_helper)
+        cold = CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain, initial_state={"x": 3}, seed=7, artifact_context=context
+        )
+        assert cold.final_state["total"] == 10
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:639: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:34:13 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:13 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:13 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=['test'] version=1.0.0
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.7 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.82 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.0 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.75 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.65 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.62 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_______ test_actual_consumed_frozen_metadata_change_refuses_stale_resume _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp/test_actual_consumed_frozen_me0')
+
+    def test_actual_consumed_frozen_metadata_change_refuses_stale_resume(tmp_path):
+        class Source:
+            signature: ClassVar = _PRODUCER_SIGNATURE
+            metadata: ClassVar = MethodMetadata(description="2")
+    
+            @staticmethod
+            def pure_step(state, params):
+                return {"product": state["x"] * int(Source.metadata.description)}
+    
+        chain, registry = _chain()
+        registry.register(Source, override=True)
+        store = FileSystemCAS(tmp_path / "cas")
+        context = _strict_context(store, chain)
+        dispatcher = _RecordingDispatcher()
+        executor = CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+            checkpoint_dir=tmp_path / "checkpoints",
+        )
+        assert (
+            executor.execute(chain, initial_state={"x": 3}, artifact_context=context).final_state[
+                "total"
+            ]
+            == 7
+        )
+        checkpoint = ChainCheckpoint.load(next((tmp_path / "checkpoints").glob("*_0000_*.json")))
+        Source.metadata = MethodMetadata(description="3")
+        assert (
+            CheckpointingChainExecutor(registry=registry)
+            .execute(chain, initial_state={"x": 3})
+            .final_state["total"]
+            == 10
+        )
+        dispatcher.calls.clear()
+>       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:682: Failed
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:34:13 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:13 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 lazy=False namespace=tests.checkpoint_identity override=False tags=['test'] version=1.0.0
+2026-10-06 11:34:13 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 lazy=False namespace=tests.checkpoint_identity override=True tags=[] version=1.0.0
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.64 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.06 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.89 fqn=tests.checkpoint_identity.source@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:13 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:14 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.67 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:14 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:34:14 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.76 fqn=tests.checkpoint_identity.consumer@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[static]
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[class]
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[method]
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[property]
+FAILED tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_consumed_frozen_metadata_change_refuses_stale_resume
+5 failed, 30 passed in 8.17s

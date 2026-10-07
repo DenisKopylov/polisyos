@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="9" time="6.387" timestamp="2026-10-06T11:23:27.726124+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_selected_verify_uses_one_manifest_snapshot" time="0.044"><failure message="AssertionError: assert {'blob': 1, 'manifest': 2} == {'blob': 1, 'manifest': 1}&#10;  &#10;  Omitting 1 identical items, use -vv to show&#10;  Differing items:&#10;  {'manifest': 2} != {'manifest': 1}&#10;  Use -v to get more diff">tests/unit/core/artifacts/test_verification_snapshot_report.py:45: in test_selected_verify_uses_one_manifest_snapshot
+    assert counts == {"blob": 1, "manifest": 1}
+E   AssertionError: assert {'blob': 1, 'manifest': 2} == {'blob': 1, 'manifest': 1}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Differing items:
+E     {'manifest': 2} != {'manifest': 1}
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_integrity_report_cannot_project_an_unverified_second_manifest" time="0.029"><failure message="AssertionError: assert 'foreign@99' == 'raw-bytes'&#10;  &#10;  - raw-bytes&#10;  + foreign@99">tests/unit/core/artifacts/test_verification_snapshot_report.py:74: in test_integrity_report_cannot_project_an_unverified_second_manifest
+    assert report.canonicalization_rule_ref == "raw-bytes"
+E   AssertionError: assert 'foreign@99' == 'raw-bytes'
+E     
+E     - raw-bytes
+E     + foreign@99</failure></testcase><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_staged_verification_cannot_mix_digest_with_later_size" time="0.028"><failure message="AssertionError: assert not True&#10; +  where True = VerificationReport(ok=True, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', exp...75be5', actual_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', byte_size=22, error=None).ok">tests/unit/core/artifacts/test_verification_snapshot_report.py:102: in test_staged_verification_cannot_mix_digest_with_later_size
+    assert not report.ok
+E   AssertionError: assert not True
+E    +  where True = VerificationReport(ok=True, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', exp...75be5', actual_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', byte_size=22, error=None).ok</failure></testcase><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_actual_snapshot_refuses_damaged_blob_or_selected_size[same_size]" time="0.042" /><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_actual_snapshot_refuses_damaged_blob_or_selected_size[wrong_size]" time="0.034" /><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_actual_nonregular_read_is_a_finite_child_refusal[symlink]" time="0.359"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py&quot;, line 33, in &lt;module&gt;&#10;      raise RuntimeError(&quot;nonregular supplied member was accepted or referent changed&quot;)&#10;  RuntimeError: nonregular supplied member was accepted or referent changed&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/...ember was accepted or referent changed&quot;)\nRuntimeError: nonregular supplied member was accepted or referent changed\n').returncode">tests/unit/core/artifacts/test_verification_snapshot_report.py:132: in test_actual_nonregular_read_is_a_finite_child_refusal
+    assert child.returncode == 0, child.stdout + child.stderr
+E   AssertionError: Traceback (most recent call last):
+E       File "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py", line 33, in &lt;module&gt;
+E         raise RuntimeError("nonregular supplied member was accepted or referent changed")
+E     RuntimeError: nonregular supplied member was accepted or referent changed
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/...ember was accepted or referent changed")\nRuntimeError: nonregular supplied member was accepted or referent changed\n').returncode</failure></testcase><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_actual_nonregular_read_is_a_finite_child_refusal[dangling]" time="0.354" /><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_actual_nonregular_read_is_a_finite_child_refusal[fifo]" time="5.009"><failure message="subprocess.TimeoutExpired: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-tmp/test_actual_nonregular_read_is2/cas', 'fifo']' timed out after 5 seconds">tests/unit/core/artifacts/test_verification_snapshot_report.py:126: in test_actual_nonregular_read_is_a_finite_child_refusal
+    child = subprocess.run(
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:2153: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py:1267: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/workspace/polisyos/policy-engine/.venv/bin/python', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-input/policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py', '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/snapshot-base-replay-tmp/test_actual_nonregular_read_is2/cas', 'fifo']' timed out after 5 seconds</failure></testcase><testcase classname="tests.unit.core.artifacts.test_verification_snapshot_report" name="test_actual_nonregular_read_is_a_finite_child_refusal[socket]" time="0.357" /></testsuite></testsuites>

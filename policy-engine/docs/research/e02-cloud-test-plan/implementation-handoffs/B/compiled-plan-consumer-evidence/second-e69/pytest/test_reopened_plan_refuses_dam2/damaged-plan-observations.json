@@ -1,0 +1,16 @@
+{
+  "damage": "cycle",
+  "ref": {
+    "artifact_id": "sha256:a4391d8534d28dbeff63116d502a932123cdfcf21a452b4070bfd401551fc37a",
+    "kind": "foundry.compiled_chain_plan",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:cb7e78ce790596143dbd8da823dee56b00006a8623b7aa3671af59955e4e427c"
+  },
+  "wire_sha256": "a4391d8534d28dbeff63116d502a932123cdfcf21a452b4070bfd401551fc37a",
+  "refusal_type": "CyclicDependencyError",
+  "refusal": "Cyclic dependency detected: tests.independent_preparation.reduce@1.0.0 -> tests.independent_preparation.draw@1.0.0 -> tests.independent_preparation.reduce@1.0.0 -> tests.independent_preparation.reduce@1.0.0",
+  "body_entries": {
+    "draw": 0,
+    "reduce": 0
+  }
+}

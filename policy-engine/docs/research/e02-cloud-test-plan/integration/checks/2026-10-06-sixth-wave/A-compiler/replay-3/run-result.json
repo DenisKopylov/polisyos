@@ -1,0 +1,52 @@
+{
+  "started_utc": "2026-10-06T16:41:02.191114+00:00",
+  "ended_utc": "2026-10-06T16:41:05.639339+00:00",
+  "elapsed_seconds": 3.266,
+  "returncode": -15,
+  "timed_out": false,
+  "disk_cap_exceeded": true,
+  "stop_reason": "generated-data or combined-source cap exceeded",
+  "outcome": "UNRUN",
+  "classification": "harness_resource_error",
+  "outer_timeout_seconds": 180,
+  "max_sampled_process_tree_rss_kib": 177120,
+  "max_sampled_process_tree_rss_bytes": 181370880,
+  "rss_accounting": "sum of sampled RSS for pytest root process and observed descendants; sampled via ps at ~250ms intervals and may double-count shared pages",
+  "initial_generated_allocated_unique_bytes": 77586432,
+  "max_generated_allocated_unique_bytes": 243929088,
+  "final_generated_allocated_unique_bytes": 243929088,
+  "generated_cap_bytes": 209715200,
+  "selected_source_allocated_unique_bytes": 75272192,
+  "max_combined_allocated_unique_bytes": 319201280,
+  "final_combined_allocated_unique_bytes": 319201280,
+  "combined_cap_bytes": 314572800,
+  "wheel_artifacts": [
+    {
+      "path": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3/pytest-basetemp/test_installed_wheel_keeps_act0/wheelhouse/policy_engine-0.1.0-py3-none-any.whl",
+      "size_bytes": 15018577,
+      "sha256": "c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27"
+    }
+  ],
+  "installed_wheel_package_roots": [
+    {
+      "package_root": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3/pytest-basetemp/test_installed_wheel_keeps_act0/venv/lib/python3.14/site-packages/polisyos",
+      "python_module_file_count": 2698
+    }
+  ],
+  "persisted_compiler_reports": [],
+  "junit": null,
+  "junit_properties": [],
+  "pytest_stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-3/pytest.stdout.txt",
+  "pytest_stdout_bytes": 0,
+  "pytest_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "pytest_stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-3/pytest.stderr.txt",
+  "pytest_stderr_bytes": 0,
+  "pytest_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "test_source_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "test_source_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "candidate_commit": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "free_disk_after_bytes": 15550947328,
+  "g_head_after": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "test_contract_limit": "This test uses a RecordingResolver fixture; a pass proves installed-wheel-origin plus the named REQ-01 compiler/facade assertions, not production source admission or full REQ-01 closure."
+}

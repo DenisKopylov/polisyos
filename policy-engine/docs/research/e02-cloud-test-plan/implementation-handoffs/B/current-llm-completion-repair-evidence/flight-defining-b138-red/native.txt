@@ -1,0 +1,22 @@
+...FF....
+=================================== FAILURES ===================================
+_ test_actual_join_retires_only_undispatched_intent_after_terminal_failure[unknown-False] _
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py:330: in test_actual_join_retires_only_undispatched_intent_after_terminal_failure
+    assert state.spent["run"] == 0 and state.reserved["run"] > 0
+           ^^^^^^^^^^^^^^^^^^
+E   KeyError: 'run'
+_ test_actual_join_retires_only_undispatched_intent_after_terminal_failure[unknown-True] _
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py:330: in test_actual_join_retires_only_undispatched_intent_after_terminal_failure
+    assert state.spent["run"] == 0 and state.reserved["run"] > 0
+           ^^^^^^^^^^^^^^^^^^
+E   KeyError: 'run'
+=============================== warnings summary ===============================
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[unknown-False]
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure[unknown-True]

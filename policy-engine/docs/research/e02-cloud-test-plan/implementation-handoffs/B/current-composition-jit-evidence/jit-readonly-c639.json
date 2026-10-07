@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/read_only_jit_probe.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+    "tree": "22374e2a7480ab580e2192b066555ae47d1312c6",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T11:23:46.071029+00:00",
+  "exit_code": 1,
+  "wall_seconds": 1.0013577439967776,
+  "max_rss_kib": 160088,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+    "tree": "22374e2a7480ab580e2192b066555ae47d1312c6",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T11:23:47.127705+00:00"
+}

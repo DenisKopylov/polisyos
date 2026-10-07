@@ -1,0 +1,1965 @@
+[
+  {
+    "ordinal": 0,
+    "warm": false,
+    "workflow_started_ns": 113659017596240,
+    "workflow_finished_ns": 113659071228346,
+    "workflow_return_cost_ns": 53632106,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659019582735,
+        "resumed_ns": 113659020077043,
+        "lateness_ns": 494308
+      },
+      {
+        "scheduled_ns": 113659022078226,
+        "resumed_ns": 113659023252903,
+        "lateness_ns": 1174677
+      },
+      {
+        "scheduled_ns": 113659025254206,
+        "resumed_ns": 113659025526156,
+        "lateness_ns": 271950
+      },
+      {
+        "scheduled_ns": 113659027527068,
+        "resumed_ns": 113659030702336,
+        "lateness_ns": 3175268
+      },
+      {
+        "scheduled_ns": 113659032703298,
+        "resumed_ns": 113659032964969,
+        "lateness_ns": 261671
+      },
+      {
+        "scheduled_ns": 113659034966141,
+        "resumed_ns": 113659035089335,
+        "lateness_ns": 123194
+      },
+      {
+        "scheduled_ns": 113659037090397,
+        "resumed_ns": 113659037195524,
+        "lateness_ns": 105127
+      },
+      {
+        "scheduled_ns": 113659039196375,
+        "resumed_ns": 113659039297004,
+        "lateness_ns": 100629
+      },
+      {
+        "scheduled_ns": 113659041297645,
+        "resumed_ns": 113659041399787,
+        "lateness_ns": 102142
+      },
+      {
+        "scheduled_ns": 113659043400548,
+        "resumed_ns": 113659043502048,
+        "lateness_ns": 101500
+      },
+      {
+        "scheduled_ns": 113659045502740,
+        "resumed_ns": 113659045785240,
+        "lateness_ns": 282500
+      },
+      {
+        "scheduled_ns": 113659047786152,
+        "resumed_ns": 113659048342898,
+        "lateness_ns": 556746
+      },
+      {
+        "scheduled_ns": 113659050343940,
+        "resumed_ns": 113659050618765,
+        "lateness_ns": 274825
+      },
+      {
+        "scheduled_ns": 113659052619687,
+        "resumed_ns": 113659053051729,
+        "lateness_ns": 432042
+      },
+      {
+        "scheduled_ns": 113659055052841,
+        "resumed_ns": 113659056199235,
+        "lateness_ns": 1146394
+      },
+      {
+        "scheduled_ns": 113659058200518,
+        "resumed_ns": 113659058477949,
+        "lateness_ns": 277431
+      },
+      {
+        "scheduled_ns": 113659060479020,
+        "resumed_ns": 113659061184466,
+        "lateness_ns": 705446
+      },
+      {
+        "scheduled_ns": 113659063185839,
+        "resumed_ns": 113659063347863,
+        "lateness_ns": 162024
+      },
+      {
+        "scheduled_ns": 113659065348854,
+        "resumed_ns": 113659071250678,
+        "lateness_ns": 5901824
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "put",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659032891622,
+        "finished_ns": 113659051570730,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 199085,
+    "cache_read_bytes": 0,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 27,
+        "cache_hit": false,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 1,
+    "warm": true,
+    "workflow_started_ns": 113659076730538,
+    "workflow_finished_ns": 113659134953049,
+    "workflow_return_cost_ns": 58222511,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659078720880,
+        "resumed_ns": 113659079565757,
+        "lateness_ns": 844877
+      },
+      {
+        "scheduled_ns": 113659081567030,
+        "resumed_ns": 113659081895406,
+        "lateness_ns": 328376
+      },
+      {
+        "scheduled_ns": 113659083896889,
+        "resumed_ns": 113659084131259,
+        "lateness_ns": 234370
+      },
+      {
+        "scheduled_ns": 113659086132331,
+        "resumed_ns": 113659086819051,
+        "lateness_ns": 686720
+      },
+      {
+        "scheduled_ns": 113659088820274,
+        "resumed_ns": 113659088923928,
+        "lateness_ns": 103654
+      },
+      {
+        "scheduled_ns": 113659090924719,
+        "resumed_ns": 113659091025048,
+        "lateness_ns": 100329
+      },
+      {
+        "scheduled_ns": 113659093025689,
+        "resumed_ns": 113659093125125,
+        "lateness_ns": 99436
+      },
+      {
+        "scheduled_ns": 113659095125826,
+        "resumed_ns": 113659095224832,
+        "lateness_ns": 99006
+      },
+      {
+        "scheduled_ns": 113659097225403,
+        "resumed_ns": 113659097426781,
+        "lateness_ns": 201378
+      },
+      {
+        "scheduled_ns": 113659099427783,
+        "resumed_ns": 113659099538710,
+        "lateness_ns": 110927
+      },
+      {
+        "scheduled_ns": 113659101539712,
+        "resumed_ns": 113659102279011,
+        "lateness_ns": 739299
+      },
+      {
+        "scheduled_ns": 113659104280113,
+        "resumed_ns": 113659104393436,
+        "lateness_ns": 113323
+      },
+      {
+        "scheduled_ns": 113659106394378,
+        "resumed_ns": 113659106495778,
+        "lateness_ns": 101400
+      },
+      {
+        "scheduled_ns": 113659108496419,
+        "resumed_ns": 113659108596406,
+        "lateness_ns": 99987
+      },
+      {
+        "scheduled_ns": 113659110597078,
+        "resumed_ns": 113659110694280,
+        "lateness_ns": 97202
+      },
+      {
+        "scheduled_ns": 113659112694851,
+        "resumed_ns": 113659112795450,
+        "lateness_ns": 100599
+      },
+      {
+        "scheduled_ns": 113659114796171,
+        "resumed_ns": 113659114924371,
+        "lateness_ns": 128200
+      },
+      {
+        "scheduled_ns": 113659116925393,
+        "resumed_ns": 113659117033836,
+        "lateness_ns": 108443
+      },
+      {
+        "scheduled_ns": 113659119034718,
+        "resumed_ns": 113659119906376,
+        "lateness_ns": 871658
+      },
+      {
+        "scheduled_ns": 113659121907337,
+        "resumed_ns": 113659122046458,
+        "lateness_ns": 139121
+      },
+      {
+        "scheduled_ns": 113659124047490,
+        "resumed_ns": 113659124676703,
+        "lateness_ns": 629213
+      },
+      {
+        "scheduled_ns": 113659126677794,
+        "resumed_ns": 113659126856009,
+        "lateness_ns": 178215
+      },
+      {
+        "scheduled_ns": 113659128857251,
+        "resumed_ns": 113659134974649,
+        "lateness_ns": 6117398
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659085204294,
+        "finished_ns": 113659098182639,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659102683029,
+        "finished_ns": 113659115589779,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 2,
+    "warm": true,
+    "workflow_started_ns": 113659141482031,
+    "workflow_finished_ns": 113659198048610,
+    "workflow_return_cost_ns": 56566579,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659143471852,
+        "resumed_ns": 113659143805829,
+        "lateness_ns": 333977
+      },
+      {
+        "scheduled_ns": 113659145807272,
+        "resumed_ns": 113659146804646,
+        "lateness_ns": 997374
+      },
+      {
+        "scheduled_ns": 113659148806139,
+        "resumed_ns": 113659149816808,
+        "lateness_ns": 1010669
+      },
+      {
+        "scheduled_ns": 113659151818091,
+        "resumed_ns": 113659151922657,
+        "lateness_ns": 104566
+      },
+      {
+        "scheduled_ns": 113659153923438,
+        "resumed_ns": 113659154025169,
+        "lateness_ns": 101731
+      },
+      {
+        "scheduled_ns": 113659156025930,
+        "resumed_ns": 113659156120848,
+        "lateness_ns": 94918
+      },
+      {
+        "scheduled_ns": 113659158121519,
+        "resumed_ns": 113659158221717,
+        "lateness_ns": 100198
+      },
+      {
+        "scheduled_ns": 113659160222278,
+        "resumed_ns": 113659160323037,
+        "lateness_ns": 100759
+      },
+      {
+        "scheduled_ns": 113659162323748,
+        "resumed_ns": 113659162666211,
+        "lateness_ns": 342463
+      },
+      {
+        "scheduled_ns": 113659164667323,
+        "resumed_ns": 113659165275185,
+        "lateness_ns": 607862
+      },
+      {
+        "scheduled_ns": 113659167276177,
+        "resumed_ns": 113659168377447,
+        "lateness_ns": 1101270
+      },
+      {
+        "scheduled_ns": 113659170378659,
+        "resumed_ns": 113659170482544,
+        "lateness_ns": 103885
+      },
+      {
+        "scheduled_ns": 113659172483245,
+        "resumed_ns": 113659172585657,
+        "lateness_ns": 102412
+      },
+      {
+        "scheduled_ns": 113659174586368,
+        "resumed_ns": 113659174686767,
+        "lateness_ns": 100399
+      },
+      {
+        "scheduled_ns": 113659176687438,
+        "resumed_ns": 113659176790851,
+        "lateness_ns": 103413
+      },
+      {
+        "scheduled_ns": 113659178791463,
+        "resumed_ns": 113659179133555,
+        "lateness_ns": 342092
+      },
+      {
+        "scheduled_ns": 113659181134437,
+        "resumed_ns": 113659181245926,
+        "lateness_ns": 111489
+      },
+      {
+        "scheduled_ns": 113659183246918,
+        "resumed_ns": 113659183586786,
+        "lateness_ns": 339868
+      },
+      {
+        "scheduled_ns": 113659185587908,
+        "resumed_ns": 113659185829952,
+        "lateness_ns": 242044
+      },
+      {
+        "scheduled_ns": 113659187831084,
+        "resumed_ns": 113659188610068,
+        "lateness_ns": 778984
+      },
+      {
+        "scheduled_ns": 113659190611320,
+        "resumed_ns": 113659198057256,
+        "lateness_ns": 7445936
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659149195238,
+        "finished_ns": 113659162087120,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659166663262,
+        "finished_ns": 113659179842435,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 3,
+    "warm": true,
+    "workflow_started_ns": 113659204523230,
+    "workflow_finished_ns": 113659260996641,
+    "workflow_return_cost_ns": 56473411,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659206512470,
+        "resumed_ns": 113659206855414,
+        "lateness_ns": 342944
+      },
+      {
+        "scheduled_ns": 113659208856766,
+        "resumed_ns": 113659209848220,
+        "lateness_ns": 991454
+      },
+      {
+        "scheduled_ns": 113659211849472,
+        "resumed_ns": 113659212772707,
+        "lateness_ns": 923235
+      },
+      {
+        "scheduled_ns": 113659214773919,
+        "resumed_ns": 113659214879457,
+        "lateness_ns": 105538
+      },
+      {
+        "scheduled_ns": 113659216880158,
+        "resumed_ns": 113659216980586,
+        "lateness_ns": 100428
+      },
+      {
+        "scheduled_ns": 113659218981297,
+        "resumed_ns": 113659219080183,
+        "lateness_ns": 98886
+      },
+      {
+        "scheduled_ns": 113659221080784,
+        "resumed_ns": 113659221183487,
+        "lateness_ns": 102703
+      },
+      {
+        "scheduled_ns": 113659223184218,
+        "resumed_ns": 113659223286650,
+        "lateness_ns": 102432
+      },
+      {
+        "scheduled_ns": 113659225287331,
+        "resumed_ns": 113659225407927,
+        "lateness_ns": 120596
+      },
+      {
+        "scheduled_ns": 113659227409330,
+        "resumed_ns": 113659228438553,
+        "lateness_ns": 1029223
+      },
+      {
+        "scheduled_ns": 113659230439726,
+        "resumed_ns": 113659230554641,
+        "lateness_ns": 114915
+      },
+      {
+        "scheduled_ns": 113659232556134,
+        "resumed_ns": 113659232662473,
+        "lateness_ns": 106339
+      },
+      {
+        "scheduled_ns": 113659234663235,
+        "resumed_ns": 113659234795212,
+        "lateness_ns": 131977
+      },
+      {
+        "scheduled_ns": 113659236795994,
+        "resumed_ns": 113659236899758,
+        "lateness_ns": 103764
+      },
+      {
+        "scheduled_ns": 113659238900459,
+        "resumed_ns": 113659238999355,
+        "lateness_ns": 98896
+      },
+      {
+        "scheduled_ns": 113659240999976,
+        "resumed_ns": 113659241115683,
+        "lateness_ns": 115707
+      },
+      {
+        "scheduled_ns": 113659243116284,
+        "resumed_ns": 113659243415436,
+        "lateness_ns": 299152
+      },
+      {
+        "scheduled_ns": 113659245416608,
+        "resumed_ns": 113659245969266,
+        "lateness_ns": 552658
+      },
+      {
+        "scheduled_ns": 113659247970168,
+        "resumed_ns": 113659248896999,
+        "lateness_ns": 926831
+      },
+      {
+        "scheduled_ns": 113659250898342,
+        "resumed_ns": 113659251762496,
+        "lateness_ns": 864154
+      },
+      {
+        "scheduled_ns": 113659253763768,
+        "resumed_ns": 113659261005016,
+        "lateness_ns": 7241248
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659212386208,
+        "finished_ns": 113659225333813,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659229943711,
+        "finished_ns": 113659242826847,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 4,
+    "warm": true,
+    "workflow_started_ns": 113659266475900,
+    "workflow_finished_ns": 113659324381395,
+    "workflow_return_cost_ns": 57905495,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659268464909,
+        "resumed_ns": 113659268809096,
+        "lateness_ns": 344187
+      },
+      {
+        "scheduled_ns": 113659270810498,
+        "resumed_ns": 113659271970338,
+        "lateness_ns": 1159840
+      },
+      {
+        "scheduled_ns": 113659273971570,
+        "resumed_ns": 113659274978883,
+        "lateness_ns": 1007313
+      },
+      {
+        "scheduled_ns": 113659276980255,
+        "resumed_ns": 113659277086154,
+        "lateness_ns": 105899
+      },
+      {
+        "scheduled_ns": 113659279086915,
+        "resumed_ns": 113659279196841,
+        "lateness_ns": 109926
+      },
+      {
+        "scheduled_ns": 113659281197733,
+        "resumed_ns": 113659281299333,
+        "lateness_ns": 101600
+      },
+      {
+        "scheduled_ns": 113659283300095,
+        "resumed_ns": 113659283399772,
+        "lateness_ns": 99677
+      },
+      {
+        "scheduled_ns": 113659285400433,
+        "resumed_ns": 113659285496553,
+        "lateness_ns": 96120
+      },
+      {
+        "scheduled_ns": 113659287497335,
+        "resumed_ns": 113659288121367,
+        "lateness_ns": 624032
+      },
+      {
+        "scheduled_ns": 113659290122830,
+        "resumed_ns": 113659290780776,
+        "lateness_ns": 657946
+      },
+      {
+        "scheduled_ns": 113659292781677,
+        "resumed_ns": 113659293006038,
+        "lateness_ns": 224361
+      },
+      {
+        "scheduled_ns": 113659295007341,
+        "resumed_ns": 113659295112758,
+        "lateness_ns": 105417
+      },
+      {
+        "scheduled_ns": 113659297113460,
+        "resumed_ns": 113659297219017,
+        "lateness_ns": 105557
+      },
+      {
+        "scheduled_ns": 113659299219639,
+        "resumed_ns": 113659299320117,
+        "lateness_ns": 100478
+      },
+      {
+        "scheduled_ns": 113659301320718,
+        "resumed_ns": 113659301425535,
+        "lateness_ns": 104817
+      },
+      {
+        "scheduled_ns": 113659303426236,
+        "resumed_ns": 113659303526283,
+        "lateness_ns": 100047
+      },
+      {
+        "scheduled_ns": 113659305526934,
+        "resumed_ns": 113659305847497,
+        "lateness_ns": 320563
+      },
+      {
+        "scheduled_ns": 113659307848739,
+        "resumed_ns": 113659308414192,
+        "lateness_ns": 565453
+      },
+      {
+        "scheduled_ns": 113659310415153,
+        "resumed_ns": 113659311350851,
+        "lateness_ns": 935698
+      },
+      {
+        "scheduled_ns": 113659313352054,
+        "resumed_ns": 113659314363294,
+        "lateness_ns": 1011240
+      },
+      {
+        "scheduled_ns": 113659316364987,
+        "resumed_ns": 113659316553611,
+        "lateness_ns": 188624
+      },
+      {
+        "scheduled_ns": 113659318554723,
+        "resumed_ns": 113659324402765,
+        "lateness_ns": 5848042
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659274320837,
+        "finished_ns": 113659287394161,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659292343995,
+        "finished_ns": 113659305210039,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 5,
+    "warm": true,
+    "workflow_started_ns": 113659330100034,
+    "workflow_finished_ns": 113659387889324,
+    "workflow_return_cost_ns": 57789290,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659332089635,
+        "resumed_ns": 113659332419013,
+        "lateness_ns": 329378
+      },
+      {
+        "scheduled_ns": 113659334420446,
+        "resumed_ns": 113659335561280,
+        "lateness_ns": 1140834
+      },
+      {
+        "scheduled_ns": 113659337562752,
+        "resumed_ns": 113659337724436,
+        "lateness_ns": 161684
+      },
+      {
+        "scheduled_ns": 113659339725508,
+        "resumed_ns": 113659339953275,
+        "lateness_ns": 227767
+      },
+      {
+        "scheduled_ns": 113659341954307,
+        "resumed_ns": 113659342059063,
+        "lateness_ns": 104756
+      },
+      {
+        "scheduled_ns": 113659344059845,
+        "resumed_ns": 113659344155464,
+        "lateness_ns": 95619
+      },
+      {
+        "scheduled_ns": 113659346156145,
+        "resumed_ns": 113659346262885,
+        "lateness_ns": 106740
+      },
+      {
+        "scheduled_ns": 113659348263517,
+        "resumed_ns": 113659348385786,
+        "lateness_ns": 122269
+      },
+      {
+        "scheduled_ns": 113659350386948,
+        "resumed_ns": 113659350635825,
+        "lateness_ns": 248877
+      },
+      {
+        "scheduled_ns": 113659352636897,
+        "resumed_ns": 113659352941489,
+        "lateness_ns": 304592
+      },
+      {
+        "scheduled_ns": 113659354942491,
+        "resumed_ns": 113659356125133,
+        "lateness_ns": 1182642
+      },
+      {
+        "scheduled_ns": 113659358126356,
+        "resumed_ns": 113659358284753,
+        "lateness_ns": 158397
+      },
+      {
+        "scheduled_ns": 113659360285755,
+        "resumed_ns": 113659360401021,
+        "lateness_ns": 115266
+      },
+      {
+        "scheduled_ns": 113659362401842,
+        "resumed_ns": 113659362512300,
+        "lateness_ns": 110458
+      },
+      {
+        "scheduled_ns": 113659364513001,
+        "resumed_ns": 113659364624570,
+        "lateness_ns": 111569
+      },
+      {
+        "scheduled_ns": 113659366625412,
+        "resumed_ns": 113659366732843,
+        "lateness_ns": 107431
+      },
+      {
+        "scheduled_ns": 113659368733594,
+        "resumed_ns": 113659368982883,
+        "lateness_ns": 249289
+      },
+      {
+        "scheduled_ns": 113659370984486,
+        "resumed_ns": 113659371121753,
+        "lateness_ns": 137267
+      },
+      {
+        "scheduled_ns": 113659373122705,
+        "resumed_ns": 113659373414726,
+        "lateness_ns": 292021
+      },
+      {
+        "scheduled_ns": 113659375415768,
+        "resumed_ns": 113659375563956,
+        "lateness_ns": 148188
+      },
+      {
+        "scheduled_ns": 113659377565008,
+        "resumed_ns": 113659378474396,
+        "lateness_ns": 909388
+      },
+      {
+        "scheduled_ns": 113659380475849,
+        "resumed_ns": 113659387897810,
+        "lateness_ns": 7421961
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659338353158,
+        "finished_ns": 113659351478127,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659356584705,
+        "finished_ns": 113659369591294,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 6,
+    "warm": true,
+    "workflow_started_ns": 113659393908478,
+    "workflow_finished_ns": 113659453606219,
+    "workflow_return_cost_ns": 59697741,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659395898700,
+        "resumed_ns": 113659396179256,
+        "lateness_ns": 280556
+      },
+      {
+        "scheduled_ns": 113659398180689,
+        "resumed_ns": 113659398513935,
+        "lateness_ns": 333246
+      },
+      {
+        "scheduled_ns": 113659400515117,
+        "resumed_ns": 113659400706997,
+        "lateness_ns": 191880
+      },
+      {
+        "scheduled_ns": 113659402708179,
+        "resumed_ns": 113659403497933,
+        "lateness_ns": 789754
+      },
+      {
+        "scheduled_ns": 113659405499636,
+        "resumed_ns": 113659405605034,
+        "lateness_ns": 105398
+      },
+      {
+        "scheduled_ns": 113659407605755,
+        "resumed_ns": 113659407715220,
+        "lateness_ns": 109465
+      },
+      {
+        "scheduled_ns": 113659409716112,
+        "resumed_ns": 113659409816530,
+        "lateness_ns": 100418
+      },
+      {
+        "scheduled_ns": 113659411817362,
+        "resumed_ns": 113659411926135,
+        "lateness_ns": 108773
+      },
+      {
+        "scheduled_ns": 113659413926777,
+        "resumed_ns": 113659414117545,
+        "lateness_ns": 190768
+      },
+      {
+        "scheduled_ns": 113659416118647,
+        "resumed_ns": 113659416367094,
+        "lateness_ns": 248447
+      },
+      {
+        "scheduled_ns": 113659418368025,
+        "resumed_ns": 113659419642916,
+        "lateness_ns": 1274891
+      },
+      {
+        "scheduled_ns": 113659421643958,
+        "resumed_ns": 113659421801368,
+        "lateness_ns": 157410
+      },
+      {
+        "scheduled_ns": 113659423802731,
+        "resumed_ns": 113659423918918,
+        "lateness_ns": 116187
+      },
+      {
+        "scheduled_ns": 113659425919590,
+        "resumed_ns": 113659426027773,
+        "lateness_ns": 108183
+      },
+      {
+        "scheduled_ns": 113659428028374,
+        "resumed_ns": 113659428131397,
+        "lateness_ns": 103023
+      },
+      {
+        "scheduled_ns": 113659430132058,
+        "resumed_ns": 113659430233949,
+        "lateness_ns": 101891
+      },
+      {
+        "scheduled_ns": 113659432234600,
+        "resumed_ns": 113659432518603,
+        "lateness_ns": 284003
+      },
+      {
+        "scheduled_ns": 113659434520096,
+        "resumed_ns": 113659435249684,
+        "lateness_ns": 729588
+      },
+      {
+        "scheduled_ns": 113659437250716,
+        "resumed_ns": 113659437970448,
+        "lateness_ns": 719732
+      },
+      {
+        "scheduled_ns": 113659439971541,
+        "resumed_ns": 113659440104399,
+        "lateness_ns": 132858
+      },
+      {
+        "scheduled_ns": 113659442105391,
+        "resumed_ns": 113659443118435,
+        "lateness_ns": 1013044
+      },
+      {
+        "scheduled_ns": 113659445119817,
+        "resumed_ns": 113659445320564,
+        "lateness_ns": 200747
+      },
+      {
+        "scheduled_ns": 113659447321616,
+        "resumed_ns": 113659453627629,
+        "lateness_ns": 6306013
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659401858707,
+        "finished_ns": 113659414978859,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659420172612,
+        "finished_ns": 113659433276794,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 18,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 7,
+    "warm": true,
+    "workflow_started_ns": 113659459580529,
+    "workflow_finished_ns": 113659531874115,
+    "workflow_return_cost_ns": 72293586,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659461569558,
+        "resumed_ns": 113659477419644,
+        "lateness_ns": 15850086
+      },
+      {
+        "scheduled_ns": 113659479421037,
+        "resumed_ns": 113659479993950,
+        "lateness_ns": 572913
+      },
+      {
+        "scheduled_ns": 113659481995052,
+        "resumed_ns": 113659482233961,
+        "lateness_ns": 238909
+      },
+      {
+        "scheduled_ns": 113659484234882,
+        "resumed_ns": 113659484974582,
+        "lateness_ns": 739700
+      },
+      {
+        "scheduled_ns": 113659486975534,
+        "resumed_ns": 113659487081492,
+        "lateness_ns": 105958
+      },
+      {
+        "scheduled_ns": 113659489082263,
+        "resumed_ns": 113659489198785,
+        "lateness_ns": 116522
+      },
+      {
+        "scheduled_ns": 113659491199827,
+        "resumed_ns": 113659491335508,
+        "lateness_ns": 135681
+      },
+      {
+        "scheduled_ns": 113659493336590,
+        "resumed_ns": 113659493455907,
+        "lateness_ns": 119317
+      },
+      {
+        "scheduled_ns": 113659495456859,
+        "resumed_ns": 113659495571794,
+        "lateness_ns": 114935
+      },
+      {
+        "scheduled_ns": 113659497572686,
+        "resumed_ns": 113659497868641,
+        "lateness_ns": 295955
+      },
+      {
+        "scheduled_ns": 113659499869443,
+        "resumed_ns": 113659501100113,
+        "lateness_ns": 1230670
+      },
+      {
+        "scheduled_ns": 113659503101055,
+        "resumed_ns": 113659503247409,
+        "lateness_ns": 146354
+      },
+      {
+        "scheduled_ns": 113659505248301,
+        "resumed_ns": 113659505364632,
+        "lateness_ns": 116331
+      },
+      {
+        "scheduled_ns": 113659507365464,
+        "resumed_ns": 113659507471763,
+        "lateness_ns": 106299
+      },
+      {
+        "scheduled_ns": 113659509472424,
+        "resumed_ns": 113659509582831,
+        "lateness_ns": 110407
+      },
+      {
+        "scheduled_ns": 113659511583632,
+        "resumed_ns": 113659511682077,
+        "lateness_ns": 98445
+      },
+      {
+        "scheduled_ns": 113659513682688,
+        "resumed_ns": 113659513844432,
+        "lateness_ns": 161744
+      },
+      {
+        "scheduled_ns": 113659515845404,
+        "resumed_ns": 113659516331086,
+        "lateness_ns": 485682
+      },
+      {
+        "scheduled_ns": 113659518331878,
+        "resumed_ns": 113659519557511,
+        "lateness_ns": 1225633
+      },
+      {
+        "scheduled_ns": 113659521558523,
+        "resumed_ns": 113659522142060,
+        "lateness_ns": 583537
+      },
+      {
+        "scheduled_ns": 113659524143032,
+        "resumed_ns": 113659524250644,
+        "lateness_ns": 107612
+      },
+      {
+        "scheduled_ns": 113659526251426,
+        "resumed_ns": 113659531894924,
+        "lateness_ns": 5643498
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659483387527,
+        "finished_ns": 113659496554725,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659501513345,
+        "finished_ns": 113659514412653,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 8,
+    "warm": true,
+    "workflow_started_ns": 113659537514218,
+    "workflow_finished_ns": 113659592630226,
+    "workflow_return_cost_ns": 55116008,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659539503859,
+        "resumed_ns": 113659539987497,
+        "lateness_ns": 483638
+      },
+      {
+        "scheduled_ns": 113659541988619,
+        "resumed_ns": 113659542605396,
+        "lateness_ns": 616777
+      },
+      {
+        "scheduled_ns": 113659544606438,
+        "resumed_ns": 113659545397074,
+        "lateness_ns": 790636
+      },
+      {
+        "scheduled_ns": 113659547398086,
+        "resumed_ns": 113659547501690,
+        "lateness_ns": 103604
+      },
+      {
+        "scheduled_ns": 113659549502481,
+        "resumed_ns": 113659549601357,
+        "lateness_ns": 98876
+      },
+      {
+        "scheduled_ns": 113659551602108,
+        "resumed_ns": 113659551710863,
+        "lateness_ns": 108755
+      },
+      {
+        "scheduled_ns": 113659553711614,
+        "resumed_ns": 113659553812253,
+        "lateness_ns": 100639
+      },
+      {
+        "scheduled_ns": 113659555812944,
+        "resumed_ns": 113659555914084,
+        "lateness_ns": 101140
+      },
+      {
+        "scheduled_ns": 113659557914715,
+        "resumed_ns": 113659558147533,
+        "lateness_ns": 232818
+      },
+      {
+        "scheduled_ns": 113659560148425,
+        "resumed_ns": 113659560612867,
+        "lateness_ns": 464442
+      },
+      {
+        "scheduled_ns": 113659562614270,
+        "resumed_ns": 113659562840846,
+        "lateness_ns": 226576
+      },
+      {
+        "scheduled_ns": 113659564841917,
+        "resumed_ns": 113659564949249,
+        "lateness_ns": 107332
+      },
+      {
+        "scheduled_ns": 113659566950011,
+        "resumed_ns": 113659567050770,
+        "lateness_ns": 100759
+      },
+      {
+        "scheduled_ns": 113659569051491,
+        "resumed_ns": 113659569154655,
+        "lateness_ns": 103164
+      },
+      {
+        "scheduled_ns": 113659571155386,
+        "resumed_ns": 113659571253711,
+        "lateness_ns": 98325
+      },
+      {
+        "scheduled_ns": 113659573254332,
+        "resumed_ns": 113659573357135,
+        "lateness_ns": 102803
+      },
+      {
+        "scheduled_ns": 113659575357766,
+        "resumed_ns": 113659575591976,
+        "lateness_ns": 234210
+      },
+      {
+        "scheduled_ns": 113659577592758,
+        "resumed_ns": 113659578090844,
+        "lateness_ns": 498086
+      },
+      {
+        "scheduled_ns": 113659580091545,
+        "resumed_ns": 113659580949227,
+        "lateness_ns": 857682
+      },
+      {
+        "scheduled_ns": 113659582950139,
+        "resumed_ns": 113659583839089,
+        "lateness_ns": 888950
+      },
+      {
+        "scheduled_ns": 113659585840021,
+        "resumed_ns": 113659592651716,
+        "lateness_ns": 6811695
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659544719907,
+        "finished_ns": 113659557529056,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659562147138,
+        "finished_ns": 113659574989151,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 9,
+    "warm": true,
+    "workflow_started_ns": 113659598285337,
+    "workflow_finished_ns": 113659654943910,
+    "workflow_return_cost_ns": 56658573,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659600275528,
+        "resumed_ns": 113659600576493,
+        "lateness_ns": 300965
+      },
+      {
+        "scheduled_ns": 113659602577595,
+        "resumed_ns": 113659603417975,
+        "lateness_ns": 840380
+      },
+      {
+        "scheduled_ns": 113659605419007,
+        "resumed_ns": 113659606228602,
+        "lateness_ns": 809595
+      },
+      {
+        "scheduled_ns": 113659608229534,
+        "resumed_ns": 113659608328229,
+        "lateness_ns": 98695
+      },
+      {
+        "scheduled_ns": 113659610328920,
+        "resumed_ns": 113659610428497,
+        "lateness_ns": 99577
+      },
+      {
+        "scheduled_ns": 113659612429189,
+        "resumed_ns": 113659612523876,
+        "lateness_ns": 94687
+      },
+      {
+        "scheduled_ns": 113659614524547,
+        "resumed_ns": 113659614623623,
+        "lateness_ns": 99076
+      },
+      {
+        "scheduled_ns": 113659616624265,
+        "resumed_ns": 113659616726306,
+        "lateness_ns": 102041
+      },
+      {
+        "scheduled_ns": 113659618726997,
+        "resumed_ns": 113659618980103,
+        "lateness_ns": 253106
+      },
+      {
+        "scheduled_ns": 113659620981045,
+        "resumed_ns": 113659621521581,
+        "lateness_ns": 540536
+      },
+      {
+        "scheduled_ns": 113659623522302,
+        "resumed_ns": 113659623806185,
+        "lateness_ns": 283883
+      },
+      {
+        "scheduled_ns": 113659625807218,
+        "resumed_ns": 113659625920771,
+        "lateness_ns": 113553
+      },
+      {
+        "scheduled_ns": 113659627921512,
+        "resumed_ns": 113659628027250,
+        "lateness_ns": 105738
+      },
+      {
+        "scheduled_ns": 113659630027912,
+        "resumed_ns": 113659630127719,
+        "lateness_ns": 99807
+      },
+      {
+        "scheduled_ns": 113659632128360,
+        "resumed_ns": 113659632230713,
+        "lateness_ns": 102353
+      },
+      {
+        "scheduled_ns": 113659634231364,
+        "resumed_ns": 113659634330530,
+        "lateness_ns": 99166
+      },
+      {
+        "scheduled_ns": 113659636331201,
+        "resumed_ns": 113659636689995,
+        "lateness_ns": 358794
+      },
+      {
+        "scheduled_ns": 113659638690957,
+        "resumed_ns": 113659639106087,
+        "lateness_ns": 415130
+      },
+      {
+        "scheduled_ns": 113659641106859,
+        "resumed_ns": 113659642006940,
+        "lateness_ns": 900081
+      },
+      {
+        "scheduled_ns": 113659644008022,
+        "resumed_ns": 113659644872176,
+        "lateness_ns": 864154
+      },
+      {
+        "scheduled_ns": 113659646873759,
+        "resumed_ns": 113659654952616,
+        "lateness_ns": 8078857
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659605540283,
+        "finished_ns": 113659618365443,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659623100494,
+        "finished_ns": 113659636098558,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 10,
+    "warm": true,
+    "workflow_started_ns": 113659661168461,
+    "workflow_finished_ns": 113659717347300,
+    "workflow_return_cost_ns": 56178839,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659663158663,
+        "resumed_ns": 113659663653152,
+        "lateness_ns": 494489
+      },
+      {
+        "scheduled_ns": 113659665654244,
+        "resumed_ns": 113659666307021,
+        "lateness_ns": 652777
+      },
+      {
+        "scheduled_ns": 113659668307963,
+        "resumed_ns": 113659669183539,
+        "lateness_ns": 875576
+      },
+      {
+        "scheduled_ns": 113659671184430,
+        "resumed_ns": 113659671287243,
+        "lateness_ns": 102813
+      },
+      {
+        "scheduled_ns": 113659673287884,
+        "resumed_ns": 113659673387061,
+        "lateness_ns": 99177
+      },
+      {
+        "scheduled_ns": 113659675387822,
+        "resumed_ns": 113659675486838,
+        "lateness_ns": 99016
+      },
+      {
+        "scheduled_ns": 113659677487439,
+        "resumed_ns": 113659677589541,
+        "lateness_ns": 102102
+      },
+      {
+        "scheduled_ns": 113659679590372,
+        "resumed_ns": 113659679690761,
+        "lateness_ns": 100389
+      },
+      {
+        "scheduled_ns": 113659681691442,
+        "resumed_ns": 113659682124787,
+        "lateness_ns": 433345
+      },
+      {
+        "scheduled_ns": 113659684126379,
+        "resumed_ns": 113659684736005,
+        "lateness_ns": 609626
+      },
+      {
+        "scheduled_ns": 113659686737248,
+        "resumed_ns": 113659687204473,
+        "lateness_ns": 467225
+      },
+      {
+        "scheduled_ns": 113659689205465,
+        "resumed_ns": 113659689332496,
+        "lateness_ns": 127031
+      },
+      {
+        "scheduled_ns": 113659691333498,
+        "resumed_ns": 113659691438866,
+        "lateness_ns": 105368
+      },
+      {
+        "scheduled_ns": 113659693439517,
+        "resumed_ns": 113659693543783,
+        "lateness_ns": 104266
+      },
+      {
+        "scheduled_ns": 113659695544414,
+        "resumed_ns": 113659695645654,
+        "lateness_ns": 101240
+      },
+      {
+        "scheduled_ns": 113659697646315,
+        "resumed_ns": 113659697770218,
+        "lateness_ns": 123903
+      },
+      {
+        "scheduled_ns": 113659699770889,
+        "resumed_ns": 113659700130555,
+        "lateness_ns": 359666
+      },
+      {
+        "scheduled_ns": 113659702131457,
+        "resumed_ns": 113659702540756,
+        "lateness_ns": 409299
+      },
+      {
+        "scheduled_ns": 113659704543090,
+        "resumed_ns": 113659705483538,
+        "lateness_ns": 940448
+      },
+      {
+        "scheduled_ns": 113659707484540,
+        "resumed_ns": 113659708362520,
+        "lateness_ns": 877980
+      },
+      {
+        "scheduled_ns": 113659710363602,
+        "resumed_ns": 113659717367728,
+        "lateness_ns": 7004126
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659668512833,
+        "finished_ns": 113659681423345,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659686482055,
+        "finished_ns": 113659699446685,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 11,
+    "warm": true,
+    "workflow_started_ns": 113659723020826,
+    "workflow_finished_ns": 113659783429206,
+    "workflow_return_cost_ns": 60408380,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659725010416,
+        "resumed_ns": 113659725366836,
+        "lateness_ns": 356420
+      },
+      {
+        "scheduled_ns": 113659727367898,
+        "resumed_ns": 113659728281655,
+        "lateness_ns": 913757
+      },
+      {
+        "scheduled_ns": 113659730282758,
+        "resumed_ns": 113659731334832,
+        "lateness_ns": 1052074
+      },
+      {
+        "scheduled_ns": 113659733335854,
+        "resumed_ns": 113659733441623,
+        "lateness_ns": 105769
+      },
+      {
+        "scheduled_ns": 113659735442464,
+        "resumed_ns": 113659735545047,
+        "lateness_ns": 102583
+      },
+      {
+        "scheduled_ns": 113659737545768,
+        "resumed_ns": 113659737644494,
+        "lateness_ns": 98726
+      },
+      {
+        "scheduled_ns": 113659739645084,
+        "resumed_ns": 113659739764459,
+        "lateness_ns": 119375
+      },
+      {
+        "scheduled_ns": 113659741765090,
+        "resumed_ns": 113659741867202,
+        "lateness_ns": 102112
+      },
+      {
+        "scheduled_ns": 113659743870868,
+        "resumed_ns": 113659744436622,
+        "lateness_ns": 565754
+      },
+      {
+        "scheduled_ns": 113659746437493,
+        "resumed_ns": 113659746934918,
+        "lateness_ns": 497425
+      },
+      {
+        "scheduled_ns": 113659748935549,
+        "resumed_ns": 113659749429688,
+        "lateness_ns": 494139
+      },
+      {
+        "scheduled_ns": 113659751430740,
+        "resumed_ns": 113659751549282,
+        "lateness_ns": 118542
+      },
+      {
+        "scheduled_ns": 113659753550214,
+        "resumed_ns": 113659753660732,
+        "lateness_ns": 110518
+      },
+      {
+        "scheduled_ns": 113659755661483,
+        "resumed_ns": 113659755803800,
+        "lateness_ns": 142317
+      },
+      {
+        "scheduled_ns": 113659757804602,
+        "resumed_ns": 113659761398718,
+        "lateness_ns": 3594116
+      },
+      {
+        "scheduled_ns": 113659763401123,
+        "resumed_ns": 113659765056027,
+        "lateness_ns": 1654904
+      },
+      {
+        "scheduled_ns": 113659767057710,
+        "resumed_ns": 113659767703985,
+        "lateness_ns": 646275
+      },
+      {
+        "scheduled_ns": 113659769705177,
+        "resumed_ns": 113659769831253,
+        "lateness_ns": 126076
+      },
+      {
+        "scheduled_ns": 113659771832125,
+        "resumed_ns": 113659772447712,
+        "lateness_ns": 615587
+      },
+      {
+        "scheduled_ns": 113659774448774,
+        "resumed_ns": 113659774607602,
+        "lateness_ns": 158828
+      },
+      {
+        "scheduled_ns": 113659776608464,
+        "resumed_ns": 113659783450195,
+        "lateness_ns": 6841731
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659730791749,
+        "finished_ns": 113659743738828,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659748725803,
+        "finished_ns": 113659762598046,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 19,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  },
+  {
+    "ordinal": 12,
+    "warm": true,
+    "workflow_started_ns": 113659789386024,
+    "workflow_finished_ns": 113659847593687,
+    "workflow_return_cost_ns": 58207663,
+    "loop_thread_id": 140121671477120,
+    "neighbour_timer_samples": [
+      {
+        "scheduled_ns": 113659791375043,
+        "resumed_ns": 113659791671380,
+        "lateness_ns": 296337
+      },
+      {
+        "scheduled_ns": 113659793672552,
+        "resumed_ns": 113659794578906,
+        "lateness_ns": 906354
+      },
+      {
+        "scheduled_ns": 113659796579948,
+        "resumed_ns": 113659796631745,
+        "lateness_ns": 51797
+      },
+      {
+        "scheduled_ns": 113659798632707,
+        "resumed_ns": 113659798766087,
+        "lateness_ns": 133380
+      },
+      {
+        "scheduled_ns": 113659800766868,
+        "resumed_ns": 113659800866185,
+        "lateness_ns": 99317
+      },
+      {
+        "scheduled_ns": 113659802866916,
+        "resumed_ns": 113659802966944,
+        "lateness_ns": 100028
+      },
+      {
+        "scheduled_ns": 113659804967535,
+        "resumed_ns": 113659805068595,
+        "lateness_ns": 101060
+      },
+      {
+        "scheduled_ns": 113659807069276,
+        "resumed_ns": 113659807172890,
+        "lateness_ns": 103614
+      },
+      {
+        "scheduled_ns": 113659809173882,
+        "resumed_ns": 113659809312322,
+        "lateness_ns": 138440
+      },
+      {
+        "scheduled_ns": 113659811313144,
+        "resumed_ns": 113659811459098,
+        "lateness_ns": 145954
+      },
+      {
+        "scheduled_ns": 113659813460501,
+        "resumed_ns": 113659814073974,
+        "lateness_ns": 613473
+      },
+      {
+        "scheduled_ns": 113659816074956,
+        "resumed_ns": 113659816484074,
+        "lateness_ns": 409118
+      },
+      {
+        "scheduled_ns": 113659818485216,
+        "resumed_ns": 113659818588230,
+        "lateness_ns": 103014
+      },
+      {
+        "scheduled_ns": 113659820589001,
+        "resumed_ns": 113659820691243,
+        "lateness_ns": 102242
+      },
+      {
+        "scheduled_ns": 113659822691915,
+        "resumed_ns": 113659822801710,
+        "lateness_ns": 109795
+      },
+      {
+        "scheduled_ns": 113659824802552,
+        "resumed_ns": 113659824907319,
+        "lateness_ns": 104767
+      },
+      {
+        "scheduled_ns": 113659826908040,
+        "resumed_ns": 113659827011274,
+        "lateness_ns": 103234
+      },
+      {
+        "scheduled_ns": 113659829012076,
+        "resumed_ns": 113659829116101,
+        "lateness_ns": 104025
+      },
+      {
+        "scheduled_ns": 113659831116702,
+        "resumed_ns": 113659831889895,
+        "lateness_ns": 773193
+      },
+      {
+        "scheduled_ns": 113659833890667,
+        "resumed_ns": 113659835521161,
+        "lateness_ns": 1630494
+      },
+      {
+        "scheduled_ns": 113659837522093,
+        "resumed_ns": 113659837667577,
+        "lateness_ns": 145484
+      },
+      {
+        "scheduled_ns": 113659839668468,
+        "resumed_ns": 113659839883262,
+        "lateness_ns": 214794
+      },
+      {
+        "scheduled_ns": 113659841884164,
+        "resumed_ns": 113659847615698,
+        "lateness_ns": 5731534
+      }
+    ],
+    "cache_io_samples": [
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659797118054,
+        "finished_ns": 113659810104968,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      },
+      {
+        "operation": "get",
+        "kind": "scientist.node_cache_entry",
+        "started_ns": 113659815862691,
+        "finished_ns": 113659828963279,
+        "thread_id": 140120109897408,
+        "serialized_bytes": 199085,
+        "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+      }
+    ],
+    "serialized_cache_put_bytes": 0,
+    "cache_read_bytes": 398170,
+    "native_node_completed_metrics": [
+      {
+        "alias": "compute",
+        "node_id": "scientist.cache_cost_oracle@1.0.0",
+        "workflow_id": "cache_cost_profile",
+        "status": "ok",
+        "duration_ms": 17,
+        "cache_hit": true,
+        "retry_count": 0
+      }
+    ],
+    "actual_provider_calls": 1
+  }
+]

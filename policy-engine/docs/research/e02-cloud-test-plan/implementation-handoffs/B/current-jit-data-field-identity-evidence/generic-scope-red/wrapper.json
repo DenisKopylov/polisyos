@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-10-07T09:30:09.530693+00:00",
+  "finished_at": "2026-10-07T09:30:13.053319+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-jit-data-getattr-20261007/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "90751819e8b043d04add9318c75ef03f02a1a52c",
+    "/tmp/e02-B-jit-data-getattr-20261007/generic-scope-red/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_runtime_selector_or_rebinding_does_not_gain_data_field_identity[_GenericFieldSource]",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-module-generic-scope-red-772812",
+    "--junitxml",
+    "/tmp/e02-B-jit-data-getattr-20261007/generic-scope-red/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "90751819e8b043d04add9318c75ef03f02a1a52c",
+    "tree": "364f6d4b61fb90e91b385c3ce7dd14fd05ba172d",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "90751819e8b043d04add9318c75ef03f02a1a52c",
+    "tree": "364f6d4b61fb90e91b385c3ce7dd14fd05ba172d",
+    "status": ""
+  },
+  "exit_code": 1,
+  "wait4_status": 256,
+  "signal": null,
+  "wall_seconds": 3.5226229160034563,
+  "max_rss_kib": 179880,
+  "user_cpu_seconds": 2.884409,
+  "system_cpu_seconds": 0.667473,
+  "stdout": {
+    "bytes": 5519,
+    "sha256": "58c1e25831440460d4a3ad0e9dedb2652bd1c3491361d005e67035e9f8e47a45"
+  }
+}

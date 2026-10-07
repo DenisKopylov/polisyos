@@ -1,0 +1,67 @@
+{
+  "provenance_method": "Read existing uv archive-v0 package files and their internal wheel RECORD; verified every RECORD member hash and byte size before repackaging. Local wheel hashes are pinned in PEP 503 URLs and manifest. This is a reconstructed wheel container from content-verified cached distribution files; upstream wheel SHA (when cached in simple metadata) is recorded separately.",
+  "network": "offline local PEP 503 file index; reconstructed wheel containers are not upstream byte-identical archives",
+  "total_source_bytes": 1294565,
+  "packages": [
+    {
+      "name": "hatchling",
+      "version": "1.32.0",
+      "filename": "hatchling-1.32.0-py3-none-any.whl",
+      "record_sha256": "78015f9f818f21956294431e6a83740e62d804fc0f3b62f35b17e85e4475340e",
+      "record_members_verified": 73,
+      "record_listed_source_bytes": 298758,
+      "reconstructed_wheel_sha256": "733a20d4c881ff9251da8cd84bd2636fddde40dcbc5540ce1982bbec3837d17d",
+      "cached_upstream_wheel_sha256": "0e17c9c3b9aa7c625acc8d0f5b622f107d5049af9ecf5ada4de1aada5be7cdbc"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "filename": "packaging-26.3-py3-none-any.whl",
+      "record_sha256": "49910a2cb1de4511589f678097f0fd771a2b4266f944806edb1b846f11af324c",
+      "record_members_verified": 29,
+      "record_listed_source_bytes": 499179,
+      "reconstructed_wheel_sha256": "ad83a6165df03c6e376f6f54d7848f900e62a348ad16e9bd82a673c803716a3e",
+      "cached_upstream_wheel_sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    {
+      "name": "pathspec",
+      "version": "1.1.1",
+      "filename": "pathspec-1.1.1-py3-none-any.whl",
+      "record_sha256": "4ac63b5e39220a5029201e9315e61ea033e4ea737cd1e53a04fc1a039f63d906",
+      "record_members_verified": 36,
+      "record_listed_source_bytes": 164568,
+      "reconstructed_wheel_sha256": "d8e2372bb172851f754601894a853c82c17839b38cdb2bafb66fbed4f3c88764",
+      "cached_upstream_wheel_sha256": "a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "filename": "pluggy-1.6.0-py3-none-any.whl",
+      "record_sha256": "e3f054e6e651035e45561a2f97427e0cd24205e6c1ee6c9c38cc59424b743c90",
+      "record_members_verified": 14,
+      "record_listed_source_bytes": 65823,
+      "reconstructed_wheel_sha256": "1fff2e38881eb0bf9adff6b42d87f1c2114a5b63789fa897eefafec8e6681928",
+      "cached_upstream_wheel_sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+    },
+    {
+      "name": "tomlkit",
+      "version": "0.15.1",
+      "filename": "tomlkit-0.15.1-py3-none-any.whl",
+      "record_sha256": "7905011971418866c68be775625e043fcf9e5cff6f04dfa243aa2867c0e38302",
+      "record_members_verified": 17,
+      "record_listed_source_bytes": 207760,
+      "reconstructed_wheel_sha256": "3a0486a7d910021453b1d8c90ffd3da4228a98a65859599b3f58f1eaaed8d578",
+      "cached_upstream_wheel_sha256": "177a05aece5a8ca5266fd3c448abb47b8d352f09d477d3ca8332db4d89b24304"
+    },
+    {
+      "name": "trove-classifiers",
+      "version": "2026.6.1.19",
+      "filename": "trove_classifiers-2026.6.1.19-py3-none-any.whl",
+      "record_sha256": "a701741ce2d6071a28d6b488ad4746a9841e9f0c997f8b049820132308085aaf",
+      "record_members_verified": 9,
+      "record_listed_source_bytes": 58477,
+      "reconstructed_wheel_sha256": "2c9b82a05bbd498d0982b84e8353281fd0678cee6e5ce7be96846056325cbedc",
+      "cached_upstream_wheel_sha256": "ab4c4ec93cc4a4e7815fa759906e05e6bb3f2fbd92ea0f897288c6a43efd15b3"
+    }
+  ]
+}

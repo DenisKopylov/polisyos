@@ -1,0 +1,101 @@
+{
+  "kind": "actual read-only data-only source456 savednative consumer join capture",
+  "command": [
+    "/usr/bin/python3",
+    ".polisyos/e02-B-current-runtime/final-run-consumer-review/derive-native-review.py",
+    "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime",
+  "exit_code": 0,
+  "interpreter": {
+    "executable": "/usr/bin/python3",
+    "version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "role": "metadata-only stdlib JSON/hash; nativepytestchild uses pinned root3.14.2 separateprofile"
+  },
+  "driver_bytes": 4345,
+  "driver_sha256": "064fb290359e12528d7a29edf0fbdf3ce626b9e84aeeb6893b0c69f29e28a063",
+  "driver_source_utf8": "\"\"\"Read terminal saved metadata only. Never import PolicyOS/pytest or invoke tests.\"\"\"\nfrom collections import Counter\nimport hashlib\nimport json\nfrom pathlib import Path\nimport subprocess\nimport sys\n\nTARGET = '456f34938731b1ef11555d8333d011d3552574ec'\nTREE = 'd3bae9a9502b701e2ed73d9ffab07ba6a0883502'\nFILES = (\n    'tests/unit/common/test_async_tools.py',\n    'tests/unit/scientist/orchestration/engine/test_retry.py',\n    'tests/unit/remediation/test_run_03.py',\n    'tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py',\n)\n\ndef read_json(path):\n    path = Path(path).resolve()\n    before = path.stat()\n    data = path.read_bytes()\n    after = path.stat()\n    assert (before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns), path\n    return json.loads(data), {\n        'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(),\n        'stable_at_read': True,\n    }\n\ndef project(case):\n    return {key: case[key] for key in (\n        'nodeid', 'state', 'reason', 'complete', 'assignment_ambiguous',\n        'phase_report_indexes', 'phase_states', 'junit_representation_indexes',\n        'unexpected_success_nonstrict', 'unexpected_success_strict',\n    )}\n\ndef main():\n    if len(sys.argv) != 4:\n        raise SystemExit('Usage: derive-native-review.py PARTITION_JSON WRAPPER_JSON PROFILE_JSON')\n    partition, partition_ref = read_json(sys.argv[1])\n    wrapper, wrapper_ref = read_json(sys.argv[2])\n    profile, profile_ref = read_json(sys.argv[3])\n    assert partition['source_sha'] == wrapper['head'] == wrapper['head_after'] == profile['sha'] == TARGET\n    assert partition['source_tree'] == wrapper['tree'] == profile['tree'] == TREE\n    assert partition['parse_state'] == 'COMPLETE', partition['parse_state']\n    assert all(partition['reconciliation_checks'].values()), partition['reconciliation_checks']\n    assert partition['session']['actual_wait4_exit_code'] == wrapper['exit_code']\n    assert len(partition['cases']) == partition['denominators']['unique_nodeids']\n    assert len({case['nodeid'] for case in partition['cases']}) == len(partition['cases'])\n    selected = [case for case in partition['cases'] if case['nodeid'].split('::')[0] in FILES]\n    groups = {}\n    for path in FILES:\n        cases = [case for case in selected if case['nodeid'].split('::')[0] == path]\n        groups[path] = {'counts': dict(Counter(case['state'] for case in cases)),\n                        'case_denominator': len(cases), 'case_refs': [project(case) for case in cases]}\n    cancellations = [case for case in partition['cases'] if 'cancel' in case['nodeid'].lower()]\n    xfails = [case for case in partition['cases'] if case['state'] == 'XFAIL']\n    nonpassing = [case for case in selected if case['state'] != 'PASS']\n    report = {\n        'kind': 'independent_data_only_native_consumer_reconciliation',\n        'source_sha': TARGET, 'source_tree': TREE,\n        'input_refs': {'partition': partition_ref, 'wrapper': wrapper_ref, 'profile': profile_ref},\n        'complete_root_counts': partition['case_counts'],\n        'complete_root_denominators': partition['denominators'],\n        'actual_wait4_exit_code': wrapper['exit_code'],\n        'selected_file_denominator': len(FILES),\n        'selected_case_denominator': len(selected),\n        'selected_case_counts': dict(Counter(case['state'] for case in selected)),\n        'groups': groups,\n        'selected_nonpassing_cases': [project(case) for case in nonpassing],\n        'cancellation_name_filter': {\n            'predicate': \"'cancel' in actual unique nodeid.lower(); lexical filter, not complete cancellation-mechanism census\",\n            'counts': dict(Counter(case['state'] for case in cancellations)),\n            'case_denominator': len(cancellations),\n            'nonpassing_cases': [project(case) for case in cancellations if case['state'] != 'PASS'],\n        },\n        'all_native_xfail_cases': [project(case) for case in xfails],\n        'xfail_denominator': len(xfails),\n        'grade': 'Saved terminal root execution only; no reviewer runtime and no G finding closure. A PASS validates the actual admitted assertion input; failed prerequisite/entrant and native failure are distinct quantities.',\n    }\n    print(json.dumps(report, ensure_ascii=False, indent=2))\n\nif __name__ == '__main__':\n    main()\n",
+  "execution_own_head": "a243edc5ba1ef850ddc4e79657be4c66277728a6",
+  "source_target": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "source_scope": "Pinned savedexecution and immutableGit source-retention reads; owncurrentruntime checkout supplies ignoredmetadata driver only. No productimports/native/collection/gates. No independent review claim of RUNauthor owncode.",
+  "data_only_parser": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "parser_reconciliation_count": 27,
+  "parser_reconciliation_checks": {
+    "pytest_source_profile": true,
+    "plain_single_process_observation": true,
+    "phase_annotations_present": true,
+    "session_count_binding": true,
+    "wrapper_source": true,
+    "profile_source": true,
+    "same_source_tree": true,
+    "observer_start_source": true,
+    "observer_finish_source": true,
+    "observer_source_tree": true,
+    "same_command": true,
+    "same_cwd": true,
+    "stdout_binding": true,
+    "selector_hash_binding": true,
+    "selector_list_binding": true,
+    "selector_denominator": true,
+    "case_identity_unique": true,
+    "case_partition_total": true,
+    "case_file_groupings_complete": true,
+    "all_reports_have_admitted_nodeid": true,
+    "same_junit_path": true,
+    "native_xml_case_projection": true,
+    "native_junit_source_profile": true,
+    "native_xml_collector_projection": true,
+    "origins_recorded_denominators": true,
+    "instrument_byte_match": true,
+    "every_xml_representation_assigned": true
+  },
+  "large_raw_refs": [
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+      "bytes": 6907511,
+      "sha256": "5f648ded17057e7c8339aaf045faa1334351d82bef5da033f2a638ba1868aee4",
+      "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+      "bytes": 20097609,
+      "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4",
+      "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+      "bytes": 3583926,
+      "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b",
+      "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+      "bytes": 3611397,
+      "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5",
+      "custody": "complete ignored runtime artifact; moderate selectedcase/diagnostics slices committed here; not whole raw transportedproof"
+    }
+  ],
+  "full_native_counts": {
+    "PASS": 2177,
+    "FAIL": 85,
+    "ERROR": 1314,
+    "XFAIL": 0,
+    "SKIP": 2,
+    "UNRUN": 0
+  },
+  "selected_counts": {
+    "PASS": 86,
+    "ERROR": 108
+  },
+  "diagnostic_premise": "All108selectedERROR setupfailed/no call and matchingXML actualtmp_path numbered-directory failure; beforeRUN/deadlinebody. LiteralERROR retainedin nativecensus. Diskoverlay0avail observedseparately, no errnohiddenin thosegenericdiagnostics claimed.",
+  "negative_filter_qualification": "Initial uncommittedXMLprefixcapture included2adjacenttest_retry_spend errors; preserved/tmpseparate. Current exactmodule-or-classsuffix set matches108 selecteduniqueerrors. No authorednativebytes rewritten.",
+  "scope_limitations": [
+    "First456 wave is predecessor after6afcheckpoint and5eceCAS source repairs; no futurewholecohortacceptance.",
+    "All0XFAIL actualnativepartition quantity distinctfrom sourceabsence markers and lexicalcancel44cases, not universalcancellationmechanism census.",
+    "Fullrawgraphs keptignored exactpathsha; thisselectedpacket doesnotclaimcomplete crossfamily/fullrawtransport, root/G owns larger runtime archive or exactrerun.",
+    "Newcounterexample/nativeproducer byreviewer notrun."
+  ]
+}

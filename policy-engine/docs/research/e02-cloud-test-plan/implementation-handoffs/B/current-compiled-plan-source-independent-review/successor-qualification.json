@@ -1,0 +1,115 @@
+{
+  "schema": "policyos.e02.independent_source_review_successor.v1",
+  "reviewer": "/root/dur_probe",
+  "finding_ids": [
+    "B43"
+  ],
+  "closure_ids": [],
+  "created_at_utc": "2026-10-06T21:32:19.955701+00:00",
+  "prior_own_review_sha": "6f028c7c3a8fbcad1c7e65bc5b6bafdb0c5e5132",
+  "source_base_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+  "source_candidate_sha": "885b3e0eff36ee8a733e32a0c604bdcd58a62eb5",
+  "source_candidate_tree_sha": "fccab3a77a1e4d257d8e347a4d27c63cee286c0f",
+  "source_delta_paths": [
+    "policy-engine/src/polisyos/foundry/methods/base.pyi",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+    "policy-engine/tools/devx/foundry/README.md",
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "manual_delta_review": [
+    {
+      "quantity": "Generated canonical private typed helpers",
+      "decision": "base.pyi now exposes actual private stable-digest helpers using selected canonical stubgen include-private for base and composer. Companion README describes that selection; no fabricated public ratification."
+    },
+    {
+      "quantity": "Generated composer imports",
+      "decision": "Import ordering/format changes preserve restoration constructor/private field/API declarations."
+    },
+    {
+      "quantity": "Actual cache-key calculation",
+      "decision": "Canonical composer binds each immutable NodeKey once and filters None before reading its static digest. Source review finds same upstream ID set/sorted digest payload/backend and no graph or producer/reader relaxation."
+    }
+  ],
+  "source_verdict": "NONBLOCKING for reviewed finite cold-plan profile; five-path delta only. No reviewer native/mypy/gate execution.",
+  "foreign_publication_qualification": {
+    "evidence_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+    "evidence_tree_sha": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+    "index": {
+      "sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/evidence-index.json",
+      "bytes": 4840,
+      "sha256": "b657449a2ab41a0d64f23302432ecddccf89cdb5d6db2e74924a6bd71a211ef1"
+    },
+    "integrity": "All 33 indexed Git blobs match bytes/SHA256; total 279404 bytes excluding index. This is metadata custody, not a semantic runtime gate.",
+    "literal_cases": {
+      "defining-f563": {
+        "PASS": 11,
+        "FAIL": 6,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "defining-e69": {
+        "PASS": 18,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "defining-9ce": {
+        "PASS": 19,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "affected-9ce": {
+        "PASS": 62,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      }
+    },
+    "runtime_identity": "Each foreign actual wrapper retains its executed command/cwd/environment/target source before-after and selected tracked-file hashes. Named selected-file custody does not prove every loaded runtime origin; no all-loaded-module claim is imported.",
+    "evidence_refs": {
+      "defining-f563": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-f563.json"
+      ],
+      "defining-e69": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-e69.json"
+      ],
+      "defining-9ce": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/defining-9ce.json"
+      ],
+      "affected-9ce": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/affected-9ce.json"
+      ]
+    },
+    "historical_inlet_qualification": "First f563 seven wire mutation literalPASS refused at earlier unprofiled ref, so intended decoder predicates remain not_established in that wave. e69 last repeated-occurrence sibling-order FAIL is an unpromised ordering premise; actual graph/ABI/UUID/arithmetic assertions already reached. Original bytes remain unchanged.",
+    "current_runtime": "9ce actual19 defining and62 existing consumers PASS independently reconciled from full stdout/wrapper/XML. These are not885 results.",
+    "quality_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-imported-9ce.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-9ce.json"
+    ],
+    "quality": "Actual imported mypy9ce three diagnostics in canonical composer, and generated composer RuffI001 FAIL. No slice-base replay/zero-denominator proof: P41 not_established, no inherited waiver. New885 actual checks pending.",
+    "supersedes": "Prior review local-only/G-not-established publication locators for f563/e69 now resolve to committed complete moderate files at this exact evidence_sha. Historical review object remains unchanged."
+  },
+  "predicate_basis": {
+    "byte_hashes_and_XML_counts": "recomputed",
+    "manual_source_and_full_foreign_outputs": "independently_reconciled",
+    "stable_registry_and_numeric_fixture_inputs": "consumer_asserted",
+    "formal_closure_and885_runtime": "not_established"
+  },
+  "next_owner": [
+    "CMP executes/imported typing checks on frozen885 and publishes exact outputs; CAS publishes its independent real readback/executor/removal packet; root/G independently accepts source and full criterion after actual joined candidate.",
+    "No A/C authority, current-registry cold plan only; legacy provenance recipe remains distinct."
+  ]
+}

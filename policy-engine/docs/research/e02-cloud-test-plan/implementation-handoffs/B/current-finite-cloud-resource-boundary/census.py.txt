@@ -1,0 +1,79 @@
+import collections, datetime, errno, hashlib, json, os, stat
+from pathlib import Path
+OUT=Path(__file__).parent
+ROOTS=sorted(Path('/dev/shm').glob('e02-B-completed*1862*'))
+def proc_snapshot():
+ refs=set(); active=[]; states=collections.Counter(); errors=[]
+ for n in os.listdir('/proc'):
+  if not n.isdigit():continue
+  p=Path('/proc')/n
+  try:
+   d={a:b.strip() for a,b in (l.split(':',1) for l in (p/'status').read_text().splitlines() if ':' in l)}
+   states[d['State'][0]]+=1
+   if d['State'][0]=='Z':continue
+   active.append({'pid':int(n),'name':d.get('Name'),'rss':d.get('VmRSS'),'anon':d.get('RssAnon'),'shmem':d.get('RssShmem')})
+   for f in (p/'fd').iterdir():
+    try:
+     s=f.stat();refs.add((s.st_dev,s.st_ino))
+    except OSError:pass
+   for line in (p/'maps').read_text().splitlines():
+    bits=line.split(None,5)
+    if len(bits)>4 and int(bits[4]):
+     a,b=bits[3].split(':');refs.add((os.makedev(int(a,16),int(b,16)),int(bits[4])))
+  except OSError as e:errors.append({'pid':int(n),'errno':e.errno})
+ return refs,{'states':dict(states),'active':active,'errors':errors}
+def identity(s):return [s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns,s.st_blocks]
+def candidate(p,s,refs):
+ r={'path':str(p),'identity_before':identity(s),'allocated_bytes':s.st_blocks*512,'fd_or_map_before':(s.st_dev,s.st_ino) in refs}
+ if r['fd_or_map_before']:r['state']='not_read_active';return r
+ h=hashlib.sha256();zero=0;total=0;extents=[]
+ with p.open('rb',buffering=0) as f:
+  fs=os.fstat(f.fileno())
+  if identity(fs)!=identity(s):r['state']='changed_before_read';return r
+  while True:
+   b=f.read(1024*1024)
+   if not b:break
+   h.update(b);total+=len(b)
+  pos=0
+  try:
+   while pos<s.st_size:
+    try:start=os.lseek(f.fileno(),pos,os.SEEK_DATA)
+    except OSError as e:
+     if e.errno==errno.ENXIO:break
+     raise
+    end=min(os.lseek(f.fileno(),start,os.SEEK_HOLE),s.st_size);extents.append([start,end]);f.seek(start)
+    cursor=start
+    while cursor<end:
+     b=f.read(min(1024*1024,end-cursor));
+     if not b:break
+     for off in range((-cursor)%4096,len(b)-4095,4096):
+      if b[off:off+4096]==bytes(4096):zero+=4096
+     cursor+=len(b)
+    pos=end
+   r['allocated_zero_page_bytes']=min(zero,r['allocated_bytes']);r['data_extents']=extents
+  except OSError as e:r['extent_read_error']={'errno':e.errno,'message':str(e)}
+  after=os.fstat(f.fileno())
+ r.update(sha256=h.hexdigest(),bytes_read=total,identity_after=identity(after),path_identity_after=identity(p.lstat()),state='stable_read' if identity(s)==identity(after)==identity(p.lstat()) and total==s.st_size else 'changed_during_read')
+ return r
+start=datetime.datetime.now(datetime.timezone.utc).isoformat();refs,process_before=proc_snapshot();forests=[];candidates=[];errors=[]
+for root in ROOTS:
+ summary={'path':str(root),'file_count':0,'logical_bytes':0,'allocated_bytes':0,'duckdb_count':0,'duckdb_allocated_bytes':0,'by_suffix':{}}
+ by=collections.defaultdict(lambda:[0,0,0])
+ for folder,dirs,files in os.walk(root,followlinks=False):
+  for name in files:
+   p=Path(folder)/name
+   try:s=p.lstat()
+   except OSError as e:errors.append({'path':str(p),'errno':e.errno});continue
+   if not stat.S_ISREG(s.st_mode):continue
+   summary['file_count']+=1;summary['logical_bytes']+=s.st_size;summary['allocated_bytes']+=s.st_blocks*512
+   v=by[p.suffix or '<none>'];v[0]+=1;v[1]+=s.st_size;v[2]+=s.st_blocks*512
+   if p.suffix=='.duckdb':
+    summary['duckdb_count']+=1;summary['duckdb_allocated_bytes']+=s.st_blocks*512
+    if s.st_blocks:candidates.append(candidate(p,s,refs))
+ summary['by_suffix']=dict(by);forests.append(summary)
+refs_after,process_after=proc_snapshot()
+for c in candidates:
+ a=c['identity_before'];c['fd_or_map_after']=(a[0],a[1]) in refs_after
+result={'utc_before':start,'utc_after':datetime.datetime.now(datetime.timezone.utc).isoformat(),'roots':list(map(str,ROOTS)),'forests':forests,'candidates':candidates,'process_before':process_before,'process_after':process_after,'errors':errors,'summary':{'candidate_count':len(candidates),'stable_inactive_candidates':sum(c.get('state')=='stable_read' and not c.get('fd_or_map_before') and not c.get('fd_or_map_after') for c in candidates),'allocated_bytes':sum(c['allocated_bytes'] for c in candidates),'allocated_zero_page_bytes':sum(c.get('allocated_zero_page_bytes',0) for c in candidates)}}
+(OUT/'new-forests-census.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'utc_before':start,'utc_after':result['utc_after'],'forests':forests,'summary':result['summary'],'process_before':process_before,'process_after':process_after,'errors':errors},indent=2))

@@ -1,0 +1,384 @@
+{
+  "schema": "policyos.e02.extracted_evidence.v1",
+  "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "selected_case_count": 3,
+  "selection": "Only three parent-named failure testcase elements; no full cohort denominator/outcome reconciliation performed by this reviewer. Original complete XML/stdout are bound separately.",
+  "cases": [
+    {
+      "testcase": {
+        "classname": "tests.unit.core.phase0.test_artifact_store",
+        "name": "test_corruption_detection",
+        "time": "0.024"
+      },
+      "failure_attributes": {
+        "message": "AssertionError: assert 'Blob sha256 ...647e451df7d2f' == 'sha256 mismatch'\n  \n  - sha256 mismatch\n  + Blob sha256 mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: 7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f"
+      },
+      "complete_failure_text": "store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7ff04ad18d50>\n\n    def test_corruption_detection(store: FileSystemCAS):\n        data = b\"original\"\n        ref = store.put_bytes(\n            data,\n            PutOptions(kind=\"test.bytes\", media_type=\"application/octet-stream\"),\n        )\n    \n        blob_path, _ = store._paths(ref.artifact_id)\n        blob_path.write_bytes(b\"tampered!!!\")\n    \n        rep = store.verify(ref.artifact_id)\n        assert rep.ok is False\n>       assert rep.error == \"sha256 mismatch\"\nE       AssertionError: assert 'Blob sha256 ...647e451df7d2f' == 'sha256 mismatch'\nE         \nE         - sha256 mismatch\nE         + Blob sha256 mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5: 7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f\n\ntests/unit/core/phase0/test_artifact_store.py:121: AssertionError"
+    },
+    {
+      "testcase": {
+        "classname": "tests.unit.runtime.http.test_runtime_authorization_access_audit",
+        "name": "test_human_decision_exposure_is_a_top_level_completed_event",
+        "time": "0.066"
+      },
+      "failure_attributes": {
+        "message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell"
+      },
+      "complete_failure_text": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_human_decision_exposure_i0')\n\n    def test_human_decision_exposure_is_a_top_level_completed_event(tmp_path) -> None:\n        from polisyos.core.artifacts.ids import ArtifactID\n        from polisyos.core.artifacts.signing import (\n            Ed25519Signer,\n            Ed25519Verifier,\n            KeyPair,\n            SignatureVerificationStatus,\n        )\n        from polisyos.core.artifacts.store import FileSystemCAS\n        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions\n        from polisyos.core.canon import from_canonical_bytes\n        from polisyos.runtime.http.access_audit import (\n            HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,\n            HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,\n            HumanDecisionExposureAuditEvent,\n            RuntimeDataAccessAuditTrail,\n            complete_human_decision_exposure_event,\n            prepare_human_decision_exposure_event,\n            reserve_human_decision_exposure_event,\n        )\n        from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore\n        from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent\n        from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog\n    \n        artifact_store = FileSystemCAS(tmp_path / \"cas\").for_tenant(\"tenant-a\", cell_id=\"cell-a\")\n        control_store = ControlPlaneStore(\n            backend=\"sqlite\",\n            sqlite_path=tmp_path / \"control.sqlite3\",\n        )\n        event_log = RuntimeDiagnosticEventLog(\n            store=control_store,\n            artifact_store=artifact_store,\n        )\n        custody_identity = \"service://runtime/human-decision-custody\"\n        custody_pair = KeyPair.generate()\n        custody_signer = Ed25519Signer(custody_pair.private_key)\n        verifier = Ed25519Verifier(strict_identity=True)\n        verifier.add_trusted_key(\n            custody_pair.public_key,\n            identity=custody_identity,\n        )\n        delivered_body = b'{\"opened\":\"exact evidence bytes\"}'\n        delivered_ref = artifact_store.put_bytes(\n            delivered_body,\n            ArtifactWriteOptions(\n                kind=\"test.human_decision.exposed_content\",\n                media_type=\"application/json\",\n            ),\n        )\n        delivered_id = str(delivered_ref.artifact_id)\n        unsigned_core = HumanDecisionExposureAuditEvent(\n            timestamp=1.0,\n            event_id=\"exposure-1\",\n            event_ref=\"runtime://human-decision/exposure-events/exposure-1\",\n            event_receipt_ref=None,\n            tenant_id=\"tenant-a\",\n            actor_ref=\"principal-a\",\n            run_id=\"run-a\",\n            request_ref=\"sha256:\" + \"a\" * 64,\n            request_digest=\"sha256:\" + \"b\" * 64,\n            basis_digest=\"sha256:\" + \"c\" * 64,\n            session_ref=\"sha256:\" + \"d\" * 64,\n            artifact_id=delivered_id,\n            content_digest=delivered_id,\n            delivered_bytes=len(delivered_body),\n            allowed_multiplicity=1,\n            verifier_epoch=\"ds9-test-epoch\",\n        )\n        path = tmp_path / \"access.jsonl\"\n        trail = RuntimeDataAccessAuditTrail(path=path)\n>       prepared = prepare_human_decision_exposure_event(\n            event=unsigned_core,\n            artifact_store=artifact_store,\n            event_log=event_log,\n        )\n\ntests/unit/runtime/http/test_runtime_authorization_access_audit.py:914: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/runtime/http/access_audit.py:762: in prepare_human_decision_exposure_event\n    result = writer(\nsrc/polisyos/runtime/http/services/control/artifacts.py:576: in write_runtime_authority_artifact\n    result = write_authority_artifact(\nsrc/polisyos/runtime/http/services/control/artifacts.py:281: in write_authority_artifact\n    effective_attestation_ref = _persist_cas_writer_attestation(\nsrc/polisyos/runtime/http/services/control/artifacts.py:435: in _persist_cas_writer_attestation\n    ref = store.put_json(\nsrc/polisyos/core/artifacts/store.py:2528: in put_json\n    return self.put_bytes(data, opts2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:2461: in put_bytes\n    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(\nsrc/polisyos/core/artifacts/store.py:2213: in _put_blob_and_manifest_once\n    self._require_bound_context_for_owner(opts.tenant_context, owner)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ncontext = ArtifactTenantContextInfo(tenant_id='tenant-a', cell_id=None)\nowner = {'cell_id': 'cell-a', 'tenant_id': 'tenant-a'}\n\n    @staticmethod\n    def _require_bound_context_for_owner(\n        context: ArtifactTenantContextInfo | None,\n        owner: dict[str, str | None] | None,\n        *,\n        require_bound: bool = False,\n    ) -> None:\n        \"\"\"Compare declared bound identity with the concrete scoped write owner.\"\"\"\n        if owner is None:\n            return\n        tenant_id = owner[\"tenant_id\"]\n        if tenant_id is None:\n            raise ArtifactOwnershipError(\"Scoped write owner has no concrete tenant\")\n        if context is None:\n            if require_bound:\n                raise ArtifactOwnershipError(\n                    f\"Import is not owned by tenant {owner['tenant_id']}: \"\n                    \"manifest has no bound tenant/cell context\"\n                )\n            return\n        if context.tenant_id != owner[\"tenant_id\"]:\n            raise ArtifactOwnershipError(\"Manifest is bound to a different tenant\")\n        if context.cell_id != owner[\"cell_id\"]:\n>           raise ArtifactOwnershipError(\"Manifest is bound to a different cell\")\nE           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell\n\nsrc/polisyos/core/artifacts/store.py:2834: ArtifactOwnershipError"
+    },
+    {
+      "testcase": {
+        "classname": "tests.unit.runtime.http.test_runtime_authorization_access_audit",
+        "name": "test_exposure_signature_failure_leaves_no_completed_row",
+        "time": "0.037"
+      },
+      "failure_attributes": {
+        "message": "polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell"
+      },
+      "complete_failure_text": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_exposure_signature_failur0')\n\n    def test_exposure_signature_failure_leaves_no_completed_row(tmp_path) -> None:\n        from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair\n        from polisyos.core.artifacts.store import FileSystemCAS\n        from polisyos.runtime.http.access_audit import (\n            HumanDecisionExposureAuditEvent,\n            RuntimeAuthorizationAuditError,\n            RuntimeDataAccessAuditTrail,\n            prepare_human_decision_exposure_event,\n            reserve_human_decision_exposure_event,\n        )\n        from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore\n        from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog\n    \n        artifact_store = FileSystemCAS(tmp_path / \"cas\").for_tenant(\"tenant-a\", cell_id=\"cell-a\")\n        event_log = RuntimeDiagnosticEventLog(\n            store=ControlPlaneStore(\n                backend=\"sqlite\",\n                sqlite_path=tmp_path / \"control.sqlite3\",\n            ),\n            artifact_store=artifact_store,\n        )\n        signer = Ed25519Signer(KeyPair.generate().private_key)\n        untrusted_verifier = Ed25519Verifier(strict_identity=True)\n        event = HumanDecisionExposureAuditEvent(\n            timestamp=1.0,\n            event_id=\"exposure-signature-failure\",\n            event_ref=\"runtime://human-decision/exposure-events/signature-failure\",\n            event_receipt_ref=None,\n            tenant_id=\"tenant-a\",\n            actor_ref=\"principal-a\",\n            run_id=\"run-a\",\n            request_ref=\"sha256:\" + \"a\" * 64,\n            request_digest=\"sha256:\" + \"b\" * 64,\n            basis_digest=\"sha256:\" + \"c\" * 64,\n            session_ref=\"sha256:\" + \"d\" * 64,\n            artifact_id=\"sha256:\" + \"e\" * 64,\n            content_digest=\"sha256:\" + \"e\" * 64,\n            delivered_bytes=12,\n            allowed_multiplicity=1,\n            verifier_epoch=\"ds9-test-epoch\",\n        )\n        trail = RuntimeDataAccessAuditTrail(path=tmp_path / \"access.jsonl\")\n>       prepared = prepare_human_decision_exposure_event(\n            event=event,\n            artifact_store=artifact_store,\n            event_log=event_log,\n        )\n\ntests/unit/runtime/http/test_runtime_authorization_access_audit.py:1024: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/runtime/http/access_audit.py:762: in prepare_human_decision_exposure_event\n    result = writer(\nsrc/polisyos/runtime/http/services/control/artifacts.py:576: in write_runtime_authority_artifact\n    result = write_authority_artifact(\nsrc/polisyos/runtime/http/services/control/artifacts.py:281: in write_authority_artifact\n    effective_attestation_ref = _persist_cas_writer_attestation(\nsrc/polisyos/runtime/http/services/control/artifacts.py:435: in _persist_cas_writer_attestation\n    ref = store.put_json(\nsrc/polisyos/core/artifacts/store.py:2528: in put_json\n    return self.put_bytes(data, opts2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/core/artifacts/store.py:2461: in put_bytes\n    deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(\nsrc/polisyos/core/artifacts/store.py:2213: in _put_blob_and_manifest_once\n    self._require_bound_context_for_owner(opts.tenant_context, owner)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ncontext = ArtifactTenantContextInfo(tenant_id='tenant-a', cell_id=None)\nowner = {'cell_id': 'cell-a', 'tenant_id': 'tenant-a'}\n\n    @staticmethod\n    def _require_bound_context_for_owner(\n        context: ArtifactTenantContextInfo | None,\n        owner: dict[str, str | None] | None,\n        *,\n        require_bound: bool = False,\n    ) -> None:\n        \"\"\"Compare declared bound identity with the concrete scoped write owner.\"\"\"\n        if owner is None:\n            return\n        tenant_id = owner[\"tenant_id\"]\n        if tenant_id is None:\n            raise ArtifactOwnershipError(\"Scoped write owner has no concrete tenant\")\n        if context is None:\n            if require_bound:\n                raise ArtifactOwnershipError(\n                    f\"Import is not owned by tenant {owner['tenant_id']}: \"\n                    \"manifest has no bound tenant/cell context\"\n                )\n            return\n        if context.tenant_id != owner[\"tenant_id\"]:\n            raise ArtifactOwnershipError(\"Manifest is bound to a different tenant\")\n        if context.cell_id != owner[\"cell_id\"]:\n>           raise ArtifactOwnershipError(\"Manifest is bound to a different cell\")\nE           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Manifest is bound to a different cell\n\nsrc/polisyos/core/artifacts/store.py:2834: ArtifactOwnershipError"
+    }
+  ],
+  "exact_deciding_source_segments": {
+    "base_FileSystemCAS.verify": "def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:\n        \"\"\"Check blob and exact selected manifest view integrity.\"\"\"\n        aid, profile_sha256, ref = _artifact_reference(artifact_id)\n        if profile_sha256 is None:\n            self._require_artifact_owner(aid, operation=\"verify\", ref=ref)\n        else:\n            self._require_blob_owner(aid, operation=\"verify\", ref=ref)\n            self._require_manifest_view_owner(\n                aid,\n                profile_sha256,\n                operation=\"verify_manifest\",\n                ref=ref,\n            )\n        blob, _default_manifest = self._paths(aid)\n        manp = self._manifest_path_for_ref(aid, profile_sha256)\n        if not self._hpc_enabled or self._tracer is None:\n            report = _verify_filesystem_artifact(aid, blob_path=blob, manifest_path=manp)\n        else:\n            short_id = f\"{aid.hex[:16]}...\"\n            with self._tracer.start_as_current_span(\n                \"cas.verify\",\n                attributes={\"cas.artifact_id\": short_id},\n            ) as span:\n                report = _verify_filesystem_artifact(\n                    aid,\n                    blob_path=blob,\n                    manifest_path=manp,\n                )\n                span.set_attribute(\"cas.verified\", report.ok)\n                if report.byte_size is not None:\n                    span.set_attribute(\"cas.byte_size\", report.byte_size)\n\n        if report.ok and ref is not None:\n            try:\n                self.get_manifest(ref)\n            except (OSError, ValueError) as exc:\n                return report.model_copy(update={\"ok\": False, \"error\": str(exc)})\n        return report",
+    "candidate_FileSystemCAS.verify": "def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:\n        \"\"\"Check blob and exact selected manifest view integrity.\"\"\"\n        aid, profile_sha256, ref = _artifact_reference(artifact_id)\n        if profile_sha256 is None:\n            self._require_artifact_owner(aid, operation=\"verify\", ref=ref)\n        else:\n            self._require_blob_owner(aid, operation=\"verify\", ref=ref)\n            self._require_manifest_view_owner(\n                aid,\n                profile_sha256,\n                operation=\"verify_manifest\",\n                ref=ref,\n            )\n\n        def verify_snapshot() -> VerificationReport:\n            try:\n                return self._load_verified_snapshot(ref or aid).verification_report(aid)\n            except (OSError, RuntimeError, TypeError, ValueError) as exc:\n                blob, _ = self._paths(aid)\n                manifest_path = self._manifest_path_for_ref(aid, profile_sha256)\n                error = (\n                    \"blob missing\"\n                    if not blob.exists()\n                    else \"manifest missing\"\n                    if not manifest_path.exists()\n                    else str(exc)\n                )\n                return VerificationReport(\n                    ok=False, artifact_id=str(aid), expected_sha256_hex=aid.hex, error=error\n                )\n\n        if not self._hpc_enabled or self._tracer is None:\n            return verify_snapshot()\n        with self._tracer.start_as_current_span(\n            \"cas.verify\", attributes={\"cas.artifact_id\": f\"{aid.hex[:16]}...\"}\n        ) as span:\n            report = verify_snapshot()\n            span.set_attribute(\"cas.verified\", report.ok)\n            if report.byte_size is not None:\n                span.set_attribute(\"cas.byte_size\", report.byte_size)\n            return report",
+    "_snapshot_from_paths": "def _snapshot_from_paths(\n        self,\n        aid: ArtifactID,\n        *,\n        blob: Path,\n        manifest_path: Path,\n        profile_sha256: str | None,\n        ref: ArtifactRef | None,\n    ) -> _VerifiedArtifactSnapshot:\n        \"\"\"Prepare one locally hashed pair for live and private-stage consumers.\"\"\"\n        manifest_bytes = self._read_cas_file_no_follow(\n            manifest_path,\n            member=\"manifest\",\n        )\n        data = self._read_cas_file_no_follow(blob, member=\"blob\")\n        manifest = ArtifactManifest.model_validate_json(manifest_bytes)\n        if profile_sha256 is not None and (\n            self._manifests.profile_sha256(manifest) != profile_sha256\n        ):\n            raise ArtifactIntegrityError(f\"Selected manifest profile mismatch for {aid}\")\n        if ref is not None and (ref.kind != manifest.kind or ref.media_type != manifest.media_type):\n            raise ArtifactIntegrityError(\n                f\"Artifact reference type does not match selected manifest for {aid}\"\n            )\n        actual_sha256_hex = content_hash(data)\n        try:\n            _validate_read_integrity_with_digest(\n                aid,\n                data=data,\n                manifest=manifest,\n                actual_sha256_hex=actual_sha256_hex,\n            )\n        except ArtifactIntegrityError as exc:\n            self._record_integrity_failure(reason=type(exc).__name__)\n            raise\n        return _VerifiedArtifactSnapshot(\n            data=data,\n            manifest_bytes=manifest_bytes,\n            actual_sha256_hex=actual_sha256_hex,\n            byte_size=len(data),\n        )",
+    "_require_bound_context_for_owner": "def _require_bound_context_for_owner(\n        context: ArtifactTenantContextInfo | None,\n        owner: dict[str, str | None] | None,\n        *,\n        require_bound: bool = False,\n    ) -> None:\n        \"\"\"Compare declared bound identity with the concrete scoped write owner.\"\"\"\n        if owner is None:\n            return\n        tenant_id = owner[\"tenant_id\"]\n        if tenant_id is None:\n            raise ArtifactOwnershipError(\"Scoped write owner has no concrete tenant\")\n        if context is None:\n            if require_bound:\n                raise ArtifactOwnershipError(\n                    f\"Import is not owned by tenant {owner['tenant_id']}: \"\n                    \"manifest has no bound tenant/cell context\"\n                )\n            return\n        if context.tenant_id != owner[\"tenant_id\"]:\n            raise ArtifactOwnershipError(\"Manifest is bound to a different tenant\")\n        if context.cell_id != owner[\"cell_id\"]:\n            raise ArtifactOwnershipError(\"Manifest is bound to a different cell\")",
+    "_exposure_authority_write_inputs": "def _exposure_authority_write_inputs(\n    event: HumanDecisionExposureAuditEvent,\n    *,\n    has_artifact: Callable[[str], bool],\n) -> tuple[dict[str, Any], str, artifacts.ArtifactWriteOptions, dict[str, Any]]:\n    \"\"\"Build the one canonical receipt write used by direct and service seams.\"\"\"\n    canon_spec = canon.CanonSpec(forbid_floats=False)\n    payload = event.model_dump(mode=\"json\")\n    payload_ref = \"sha256:\" + sha256(canon.to_canonical_bytes(payload, canon_spec)).hexdigest()\n    input_refs = tuple(\n        ref\n        for ref in (\n            event.artifact_id,\n            event.session_ref,\n            event.request_ref,\n            event.basis_digest,\n        )\n        if _is_canonical_artifact_ref(ref) and has_artifact(ref)\n    )\n    generated_at = datetime.fromtimestamp(event.timestamp, tz=UTC).isoformat()\n    closure_digest = (\n        \"sha256:\"\n        + sha256(\n            canon.to_canonical_bytes(\n                {\n                    \"event_id\": event.event_id,\n                    \"tenant_id\": event.tenant_id,\n                    \"run_id\": event.run_id,\n                    \"session_ref\": event.session_ref,\n                    \"artifact_id\": event.artifact_id,\n                }\n            )\n        ).hexdigest()\n    )\n    job_id = f\"human-decision-exposure-{event.event_id}\"\n    options = artifacts.ArtifactWriteOptions(\n        kind=HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,\n        media_type=\"application/json\",\n        schema=artifacts.SchemaInfo(\n            name=\"polisyos.runtime.HumanDecisionExposureAuditEvent\",\n            version=HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,\n        ),\n        producer=artifacts.ProducerInfo(\n            component=\"polisyos.runtime.http.access_audit\",\n            version=\"1.0\",\n        ),\n        governance=artifacts.ArtifactGovernanceInfo(classification=\"restricted\"),\n        inputs=[\n            artifacts.InputRef(\n                artifact_id=artifacts.ArtifactID.model_validate(ref),\n                role=\"exposure_input\",\n            )\n            for ref in input_refs\n        ],\n    )\n    authority_fields: dict[str, Any] = {\n        \"evidence_id\": event.event_id,\n        \"evidence_class\": \"authority_bearing\",\n        \"authority_role\": \"producer_authority\",\n        \"provenance_kind\": \"runtime_emitted\",\n        \"owner\": \"polisyos.runtime.http.human_decision_custody\",\n        \"reader_contract\": \"runtime.http.human_decision_exposure_event.reader\",\n        \"reader_contract_version\": \"1.0\",\n        \"tenant_id\": event.tenant_id,\n        \"cell_id\": None,\n        \"run_id\": event.run_id,\n        \"job_id\": job_id,\n        \"trace_id\": f\"trace-{event.event_id}\",\n        \"span_id\": f\"span-{event.event_id}\",\n        \"parent_span_id\": None,\n        \"requested_execution_profile\": \"governed\",\n        \"effective_execution_profile\": \"governed\",\n        \"phase\": \"human_decision_evidence_delivery\",\n        \"generated_at\": generated_at,\n        \"as_of_time\": generated_at,\n        \"same_input_closure\": {\n            \"closure_id\": f\"human-decision-exposure.{closure_digest[7:31]}\",\n            \"status\": \"closed\",\n            \"run_id\": event.run_id,\n            \"job_id\": job_id,\n            \"tenant_id\": event.tenant_id,\n            \"cell_id\": None,\n            \"effective_mode_ref\": \"runtime://human-decision/evidence-delivery\",\n            \"degradation_ledger_ref\": None,\n            \"evidence_input_refs\": input_refs,\n            \"closure_sha256\": closure_digest,\n        },\n        \"input_refs\": input_refs,\n        \"effective_mode_ref\": \"runtime://human-decision/evidence-delivery\",\n        \"degradation_ledger_ref\": None,\n        \"semantic_binding_ref\": event.session_ref,\n        \"validation_status\": \"pass\",\n        \"blocking_status\": \"non_blocking\",\n        \"governance\": GovernanceMetadata(\n            classification=\"restricted\",\n            authority_boundary=\"runtime.human_decision_exposure_transport\",\n            pii=\"identity_bound\",\n            retention_policy=\"runtime-quality-90d\",\n            review_status=\"runtime_verified\",\n            override_policy=\"none\",\n            approval_policy=\"completed_exact_byte_delivery_only\",\n        ),\n        \"event_id\": f\"evt_human_decision_exposure_{closure_digest[7:31]}\",\n        \"event_source\": \"polisyos.runtime.http.access_audit\",\n        \"event_type\": \"polisyos.runtime.diagnostic.cas_write.v1\",\n        \"event_subject\": (f\"run/{event.run_id}/human-decision-exposure/{event.event_id}\"),\n        \"state_after\": \"prepared\",\n        \"canon_spec\": canon_spec,\n    }\n    return payload, payload_ref, options, authority_fields",
+    "test_corruption_detection": "def test_corruption_detection(store: FileSystemCAS):\n    data = b\"original\"\n    ref = store.put_bytes(\n        data,\n        PutOptions(kind=\"test.bytes\", media_type=\"application/octet-stream\"),\n    )\n\n    blob_path, _ = store._paths(ref.artifact_id)\n    blob_path.write_bytes(b\"tampered!!!\")\n\n    rep = store.verify(ref.artifact_id)\n    assert rep.ok is False\n    assert rep.error == \"sha256 mismatch\"",
+    "test_human_decision_exposure_is_a_top_level_completed_event": "def test_human_decision_exposure_is_a_top_level_completed_event(tmp_path) -> None:\n    from polisyos.core.artifacts.ids import ArtifactID\n    from polisyos.core.artifacts.signing import (\n        Ed25519Signer,\n        Ed25519Verifier,\n        KeyPair,\n        SignatureVerificationStatus,\n    )\n    from polisyos.core.artifacts.store import FileSystemCAS\n    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions\n    from polisyos.core.canon import from_canonical_bytes\n    from polisyos.runtime.http.access_audit import (\n        HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,\n        HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,\n        HumanDecisionExposureAuditEvent,\n        RuntimeDataAccessAuditTrail,\n        complete_human_decision_exposure_event,\n        prepare_human_decision_exposure_event,\n        reserve_human_decision_exposure_event,\n    )\n    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore\n    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent\n    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog\n\n    artifact_store = FileSystemCAS(tmp_path / \"cas\").for_tenant(\"tenant-a\", cell_id=\"cell-a\")\n    control_store = ControlPlaneStore(\n        backend=\"sqlite\",\n        sqlite_path=tmp_path / \"control.sqlite3\",\n    )\n    event_log = RuntimeDiagnosticEventLog(\n        store=control_store,\n        artifact_store=artifact_store,\n    )\n    custody_identity = \"service://runtime/human-decision-custody\"\n    custody_pair = KeyPair.generate()\n    custody_signer = Ed25519Signer(custody_pair.private_key)\n    verifier = Ed25519Verifier(strict_identity=True)\n    verifier.add_trusted_key(\n        custody_pair.public_key,\n        identity=custody_identity,\n    )\n    delivered_body = b'{\"opened\":\"exact evidence bytes\"}'\n    delivered_ref = artifact_store.put_bytes(\n        delivered_body,\n        ArtifactWriteOptions(\n            kind=\"test.human_decision.exposed_content\",\n            media_type=\"application/json\",\n        ),\n    )\n    delivered_id = str(delivered_ref.artifact_id)\n    unsigned_core = HumanDecisionExposureAuditEvent(\n        timestamp=1.0,\n        event_id=\"exposure-1\",\n        event_ref=\"runtime://human-decision/exposure-events/exposure-1\",\n        event_receipt_ref=None,\n        tenant_id=\"tenant-a\",\n        actor_ref=\"principal-a\",\n        run_id=\"run-a\",\n        request_ref=\"sha256:\" + \"a\" * 64,\n        request_digest=\"sha256:\" + \"b\" * 64,\n        basis_digest=\"sha256:\" + \"c\" * 64,\n        session_ref=\"sha256:\" + \"d\" * 64,\n        artifact_id=delivered_id,\n        content_digest=delivered_id,\n        delivered_bytes=len(delivered_body),\n        allowed_multiplicity=1,\n        verifier_epoch=\"ds9-test-epoch\",\n    )\n    path = tmp_path / \"access.jsonl\"\n    trail = RuntimeDataAccessAuditTrail(path=path)\n    prepared = prepare_human_decision_exposure_event(\n        event=unsigned_core,\n        artifact_store=artifact_store,\n        event_log=event_log,\n    )\n    reserved = reserve_human_decision_exposure_event(\n        trail=trail,\n        prepared=prepared,\n        artifact_store=artifact_store,\n        signer=custody_signer,\n        signer_identity=custody_identity,\n        verifier=verifier,\n    )\n    completed = complete_human_decision_exposure_event(\n        trail=trail,\n        reserved=reserved,\n        artifact_store=artifact_store,\n        signer=custody_signer,\n        signer_identity=custody_identity,\n        verifier=verifier,\n    )\n    rows = [json.loads(line) for line in path.read_text(encoding=\"utf-8\").splitlines()]\n\n    assert [row[\"event_type\"] for row in rows] == [\n        \"runtime.human_decision.exposure_delivery_reserved\",\n        \"runtime.human_decision.exposure\",\n    ]\n    persisted = HumanDecisionExposureAuditEvent.model_validate(rows[1])\n    assert persisted == completed\n    assert persisted.event_type == \"runtime.human_decision.exposure\"\n    assert \"outcome\" not in persisted.model_dump(mode=\"json\")\n    assert persisted.event_receipt_ref is not None\n\n    receipt_id = ArtifactID.model_validate(persisted.event_receipt_ref)\n    manifest = artifact_store.get_manifest(receipt_id)\n    assert manifest.kind == HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND\n    assert manifest.artifact_schema is not None\n    assert manifest.artifact_schema.name == \"polisyos.runtime.HumanDecisionExposureAuditEvent\"\n    assert manifest.artifact_schema.version == HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION\n    assert manifest.authority is not None\n\n    signed_core = HumanDecisionExposureAuditEvent.model_validate(\n        from_canonical_bytes(artifact_store.get_bytes(receipt_id))\n    )\n    assert signed_core == unsigned_core\n    assert persisted.model_copy(update={\"event_receipt_ref\": None}) == signed_core\n\n    signature = artifact_store.get_signature(receipt_id)\n    assert signature is not None\n    assert signature.artifact_id == str(receipt_id)\n    assert signature.signer_identity == custody_identity\n    verification = artifact_store.verify_signature(\n        receipt_id,\n        verifier,\n        strict_identity=True,\n    )\n    assert verification.status == SignatureVerificationStatus.VALID\n    assert verification.signer_identity == custody_identity\n\n    diagnostic_ref = manifest.authority.diagnostic_event_ref\n    diagnostic = DiagnosticEvent.model_validate(\n        from_canonical_bytes(artifact_store.get_bytes(diagnostic_ref))\n    )\n    durable = control_store.list_diagnostic_events(event_id=diagnostic.event_id)\n    assert len(durable) == 1\n    assert durable[0].event == diagnostic",
+    "test_exposure_signature_failure_leaves_no_completed_row": "def test_exposure_signature_failure_leaves_no_completed_row(tmp_path) -> None:\n    from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair\n    from polisyos.core.artifacts.store import FileSystemCAS\n    from polisyos.runtime.http.access_audit import (\n        HumanDecisionExposureAuditEvent,\n        RuntimeAuthorizationAuditError,\n        RuntimeDataAccessAuditTrail,\n        prepare_human_decision_exposure_event,\n        reserve_human_decision_exposure_event,\n    )\n    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore\n    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog\n\n    artifact_store = FileSystemCAS(tmp_path / \"cas\").for_tenant(\"tenant-a\", cell_id=\"cell-a\")\n    event_log = RuntimeDiagnosticEventLog(\n        store=ControlPlaneStore(\n            backend=\"sqlite\",\n            sqlite_path=tmp_path / \"control.sqlite3\",\n        ),\n        artifact_store=artifact_store,\n    )\n    signer = Ed25519Signer(KeyPair.generate().private_key)\n    untrusted_verifier = Ed25519Verifier(strict_identity=True)\n    event = HumanDecisionExposureAuditEvent(\n        timestamp=1.0,\n        event_id=\"exposure-signature-failure\",\n        event_ref=\"runtime://human-decision/exposure-events/signature-failure\",\n        event_receipt_ref=None,\n        tenant_id=\"tenant-a\",\n        actor_ref=\"principal-a\",\n        run_id=\"run-a\",\n        request_ref=\"sha256:\" + \"a\" * 64,\n        request_digest=\"sha256:\" + \"b\" * 64,\n        basis_digest=\"sha256:\" + \"c\" * 64,\n        session_ref=\"sha256:\" + \"d\" * 64,\n        artifact_id=\"sha256:\" + \"e\" * 64,\n        content_digest=\"sha256:\" + \"e\" * 64,\n        delivered_bytes=12,\n        allowed_multiplicity=1,\n        verifier_epoch=\"ds9-test-epoch\",\n    )\n    trail = RuntimeDataAccessAuditTrail(path=tmp_path / \"access.jsonl\")\n    prepared = prepare_human_decision_exposure_event(\n        event=event,\n        artifact_store=artifact_store,\n        event_log=event_log,\n    )\n    with pytest.raises(RuntimeAuthorizationAuditError, match=\"did not verify\"):\n        reserve_human_decision_exposure_event(\n            trail=trail,\n            prepared=prepared,\n            artifact_store=artifact_store,\n            signer=signer,\n            signer_identity=\"service://runtime/human-decision-custody\",\n            verifier=untrusted_verifier,\n        )\n\n    assert not (tmp_path / \"access.jsonl\").exists()"
+  },
+  "retained_fixture_observations": [
+    {
+      "root": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_corruption_detection0",
+      "retained_regular_files": [
+        {
+          "path": ".polisyos/artifacts/ownership/transactions/locks/stripe-37.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".polisyos/artifacts/ownership/transactions/root.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".polisyos/artifacts/sha256/06/82/0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5.blob",
+          "bytes": 11,
+          "sha256": "7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f",
+          "retained_small_payload": "tampered!!!"
+        },
+        {
+          "path": ".polisyos/artifacts/sha256/06/82/0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5.manifest.json",
+          "bytes": 346,
+          "sha256": "b8991c4ad2160213073f843aec4444d91e2d24ce859829ea7662f0ef3c735f41",
+          "manifest": {
+            "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+            "kind": "test.bytes",
+            "byte_size": 8,
+            "integrity": {
+              "sha256": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5"
+            },
+            "tenant_context": null
+          }
+        },
+        {
+          "path": ".polisyos/artifacts/sha256/06/82/0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5.view.b941667a640093832e1796f5bf3fbf1fcc147ff367ee799ec0b10489ea217551.manifest.json",
+          "bytes": 346,
+          "sha256": "b8991c4ad2160213073f843aec4444d91e2d24ce859829ea7662f0ef3c735f41",
+          "manifest": {
+            "artifact_id": "sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5",
+            "kind": "test.bytes",
+            "byte_size": 8,
+            "integrity": {
+              "sha256": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5"
+            },
+            "tenant_context": null
+          }
+        }
+      ],
+      "read_only_database_observations": [],
+      "access_jsonl_exists": false,
+      "observation_scope": "Post-run retained files, not universal runtime readset or proof of absence before all possible futures."
+    },
+    {
+      "root": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_human_decision_exposure_i0",
+      "retained_regular_files": [
+        {
+          "path": "cas/artifacts/ownership/generations/41ee2f71e2909a04efc6287ad367ccb34d6087bb05acd2f202db9edb172c1ff5.json",
+          "bytes": 1556,
+          "sha256": "41ee2f71e2909a04efc6287ad367ccb34d6087bb05acd2f202db9edb172c1ff5",
+          "ownership_generation": {
+            "legacy_source": null,
+            "mode": "shared_immutable_cas",
+            "parent_generation_sha256": "sha256:780bdae7f9328010a8e59a5b67311a8e78fad3a14d273f589585f821fa42c607",
+            "payload": {
+              "artifacts": {
+                "sha256:ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c": [
+                  {
+                    "cell_id": "cell-a",
+                    "claimed_at": "2026-10-06T14:35:15+00:00",
+                    "tenant_id": "tenant-a",
+                    "writer": "FileSystemCAS"
+                  },
+                  {
+                    "cell_id": "cell-a",
+                    "claimed_at": "2026-10-06T14:35:15+00:00",
+                    "manifest_profile_sha256": "sha256:fe36ef97baa8793aaacdb39a3f14a5da2fa1492a45d6e43ec6c97668d2828600",
+                    "tenant_id": "tenant-a",
+                    "writer": "FileSystemCAS"
+                  }
+                ]
+              },
+              "blob_readers": {},
+              "mode": "shared_immutable_cas",
+              "public_read_closures": {},
+              "schema_version": "policyos.artifact_ownership_index.v3"
+            },
+            "payload_sha256": "sha256:c91cab9c1b57a4bda20abd1cdac3374f3dd2058d397dd39400743ac41aa9abe4",
+            "schema_version": "policyos.artifact_ownership_index_generation.v1",
+            "signature": {
+              "algorithm": "sha256-local-integrity",
+              "index_schema_version": "policyos.artifact_ownership_index.v3",
+              "index_sha256": "sha256:c91cab9c1b57a4bda20abd1cdac3374f3dd2058d397dd39400743ac41aa9abe4",
+              "key_id": "local-cas-ownership-index",
+              "mode": "shared_immutable_cas",
+              "schema_version": "policyos.artifact_ownership_index_signature.v3",
+              "signature": "sha256:6aae661ce805045356bcef47e687005dc162a14af5390b3714430acd73a77b01"
+            }
+          }
+        },
+        {
+          "path": "cas/artifacts/ownership/generations/780bdae7f9328010a8e59a5b67311a8e78fad3a14d273f589585f821fa42c607.json",
+          "bytes": 1199,
+          "sha256": "780bdae7f9328010a8e59a5b67311a8e78fad3a14d273f589585f821fa42c607",
+          "ownership_generation": {
+            "legacy_source": null,
+            "mode": "shared_immutable_cas",
+            "parent_generation_sha256": null,
+            "payload": {
+              "artifacts": {
+                "sha256:ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c": [
+                  {
+                    "cell_id": "cell-a",
+                    "claimed_at": "2026-10-06T14:35:15+00:00",
+                    "tenant_id": "tenant-a",
+                    "writer": "FileSystemCAS"
+                  }
+                ]
+              },
+              "blob_readers": {},
+              "mode": "shared_immutable_cas",
+              "public_read_closures": {},
+              "schema_version": "policyos.artifact_ownership_index.v3"
+            },
+            "payload_sha256": "sha256:b97dcf346479cbcf04d8233b2bb305566d527eb1d2bcbfe260f9028894b9ea2b",
+            "schema_version": "policyos.artifact_ownership_index_generation.v1",
+            "signature": {
+              "algorithm": "sha256-local-integrity",
+              "index_schema_version": "policyos.artifact_ownership_index.v3",
+              "index_sha256": "sha256:b97dcf346479cbcf04d8233b2bb305566d527eb1d2bcbfe260f9028894b9ea2b",
+              "key_id": "local-cas-ownership-index",
+              "mode": "shared_immutable_cas",
+              "schema_version": "policyos.artifact_ownership_index_signature.v3",
+              "signature": "sha256:2f11a9093abe7b7c74549d24faa25389ace45bc9c8abac496706e5749f93b7bd"
+            }
+          }
+        },
+        {
+          "path": "cas/artifacts/ownership/index.json",
+          "bytes": 203,
+          "sha256": "0f90cb903eb0cc238a6f7ca7ea6e5739b2f88600886b8370fe9dd54d74c8285b"
+        },
+        {
+          "path": "cas/artifacts/ownership/index.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-29.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-42.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/root.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/sha256/ff/25/ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c.blob",
+          "bytes": 33,
+          "sha256": "ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c",
+          "retained_small_payload": "{\"opened\":\"exact evidence bytes\"}"
+        },
+        {
+          "path": "cas/artifacts/sha256/ff/25/ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c.manifest.json",
+          "bytes": 364,
+          "sha256": "729134fc9157f5780fc00446ed937b5bfde9a810d0a982f89c84e1c01789305c",
+          "manifest": {
+            "artifact_id": "sha256:ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c",
+            "kind": "test.human_decision.exposed_content",
+            "byte_size": 33,
+            "integrity": {
+              "sha256": "ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c"
+            },
+            "tenant_context": null
+          }
+        },
+        {
+          "path": "cas/artifacts/sha256/ff/25/ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c.view.fe36ef97baa8793aaacdb39a3f14a5da2fa1492a45d6e43ec6c97668d2828600.manifest.json",
+          "bytes": 364,
+          "sha256": "729134fc9157f5780fc00446ed937b5bfde9a810d0a982f89c84e1c01789305c",
+          "manifest": {
+            "artifact_id": "sha256:ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c",
+            "kind": "test.human_decision.exposed_content",
+            "byte_size": 33,
+            "integrity": {
+              "sha256": "ff25c03ae494818cc86b8314e570e7a29b7419e21f732cd43b7428cf5abaaf5c"
+            },
+            "tenant_context": null
+          }
+        },
+        {
+          "path": "control.sqlite3",
+          "bytes": 159744,
+          "sha256": "6003bbac42ec1f0a20a5f854c83f501e0edd2472517e5ffbdce3bbd940546392"
+        },
+        {
+          "path": "control.sqlite3-shm",
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        {
+          "path": "control.sqlite3-wal",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "read_only_database_observations": [
+        {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_human_decision_exposure_i0/control.sqlite3",
+          "mode": "uri mode=ro",
+          "table_counts": {
+            "control_jobs": 0,
+            "control_job_events": 0,
+            "sqlite_sequence": 0,
+            "control_job_progress": 0,
+            "runtime_acquisition_action_heads": 0,
+            "control_worker_leases": 0,
+            "control_outbox_events": 0,
+            "control_diagnostic_events": 0,
+            "control_dead_letter_jobs": 0,
+            "runtime_scenario_heads": 0,
+            "runtime_step_up_replays": 0,
+            "runtime_human_decision_reservations": 0
+          }
+        }
+      ],
+      "access_jsonl_exists": false,
+      "observation_scope": "Post-run retained files, not universal runtime readset or proof of absence before all possible futures."
+    },
+    {
+      "root": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_exposure_signature_failur0",
+      "retained_regular_files": [
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-17.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-29.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-42.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/locks/stripe-59.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "cas/artifacts/ownership/transactions/root.lock",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control.sqlite3",
+          "bytes": 159744,
+          "sha256": "6003bbac42ec1f0a20a5f854c83f501e0edd2472517e5ffbdce3bbd940546392"
+        },
+        {
+          "path": "control.sqlite3-shm",
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        {
+          "path": "control.sqlite3-wal",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "read_only_database_observations": [
+        {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest/test_exposure_signature_failur0/control.sqlite3",
+          "mode": "uri mode=ro",
+          "table_counts": {
+            "control_jobs": 0,
+            "control_job_events": 0,
+            "sqlite_sequence": 0,
+            "control_job_progress": 0,
+            "runtime_acquisition_action_heads": 0,
+            "control_worker_leases": 0,
+            "control_outbox_events": 0,
+            "control_diagnostic_events": 0,
+            "control_dead_letter_jobs": 0,
+            "runtime_scenario_heads": 0,
+            "runtime_step_up_replays": 0,
+            "runtime_human_decision_reservations": 0
+          }
+        }
+      ],
+      "access_jsonl_exists": false,
+      "observation_scope": "Post-run retained files, not universal runtime readset or proof of absence before all possible futures."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="15" time="1.204" timestamp="2026-10-06T09:59:45.729154+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_static_dynamic_override_payload_is_identical_in_every_executor[sequential]" time="0.079" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_static_dynamic_override_payload_is_identical_in_every_executor[async]" time="0.035" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_static_dynamic_override_payload_is_identical_in_every_executor[checkpoint]" time="0.030" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_checkpoint_consumes_actual_bound_slot_through_canonical_materializer" time="0.082" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_resume_materializes_bound_slot_from_original_per_node_history" time="0.107" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_unknown_override_is_refused_before_actual_method_execution[sequential]" time="0.025" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_unknown_override_is_refused_before_actual_method_execution[async]" time="0.013" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_unknown_override_is_refused_before_actual_method_execution[checkpoint]" time="0.009" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_changed_effective_payload_refuses_warm_checkpoint[static]" time="0.075" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_changed_effective_payload_refuses_warm_checkpoint[override]" time="0.079" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_missing_history_preserves_frontier_and_known_suffix_through_filesystem" time="0.105" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_missing_bound_history_refuses_before_consumer_dispatch" time="0.071" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_foreign_history_is_not_admitted_as_original_result" time="0.072" /><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_present_rows_do_not_restore_incomplete_history_authority[header]" time="0.104"><failure message="AssertionError: assert not True&#10; +  where True = ChainExecutionResult(final_state={'product': 12, 'x': 4, 'total': 13}, node_results=((UUID('f2bd8fed-9fc7-48e9-8025-c9...al', 'history_complete': True, 'completed_node_count': 2, 'missing_history_node_ids': []}, missing_history_node_ids=()).history_complete">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/history-provenance-red-84b9c91-tmp/test_present_rows_do_not_resto0')
+incomplete_provenance = 'header'
+
+    @pytest.mark.parametrize("incomplete_provenance", ["header", "original_warning"])
+    def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, incomplete_provenance):
+        chain, registry, calls = _bound_chain()
+        writer_dir = tmp_path / "writer"
+        CheckpointingChainExecutor(registry=registry, checkpoint_dir=writer_dir).execute(
+            chain, initial_state={"x": 4}, seed=7
+        )
+        checkpoint = ChainCheckpoint.load(next(writer_dir.glob("*_0000_*.json")))
+        assert checkpoint.history_complete
+        assert len(checkpoint.node_results) == checkpoint.n_completed == 1
+        if incomplete_provenance == "header":
+            checkpoint.history_complete = False
+        else:
+            checkpoint.node_results[0]["warnings"].append("history_incomplete")
+        path = tmp_path / "incomplete-provenance.json"
+        checkpoint.save(path)
+        checkpoint = ChainCheckpoint.load(path)
+        calls.clear()
+        resumed_dir = tmp_path / "resumed"
+        result = CheckpointingChainExecutor(registry=registry, checkpoint_dir=resumed_dir).execute(
+            chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7
+        )
+        # The original slot is available for real suffix arithmetic, while its
+        # explicitly incomplete provenance must survive result and republishing.
+        assert calls == ["add"]
+        assert result.final_state["total"] == 13
+        assert len(result.node_results) == 2
+        assert result.missing_history_node_ids == ()
+&gt;       assert not result.history_complete
+E       AssertionError: assert not True
+E        +  where True = ChainExecutionResult(final_state={'product': 12, 'x': 4, 'total': 13}, node_results=((UUID('f2bd8fed-9fc7-48e9-8025-c9...al', 'history_complete': True, 'completed_node_count': 2, 'missing_history_node_ids': []}, missing_history_node_ids=()).history_complete
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:404: AssertionError</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpointing_execution" name="test_present_rows_do_not_restore_incomplete_history_authority[original_warning]" time="0.112"><failure message="AssertionError: assert not True&#10; +  where True = ChainExecutionResult(final_state={'product': 12, 'x': 4, 'total': 13}, node_results=((UUID('8f8b8377-42a7-4034-a9c8-4b...al', 'history_complete': True, 'completed_node_count': 2, 'missing_history_node_ids': []}, missing_history_node_ids=()).history_complete">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/history-provenance-red-84b9c91-tmp/test_present_rows_do_not_resto1')
+incomplete_provenance = 'original_warning'
+
+    @pytest.mark.parametrize("incomplete_provenance", ["header", "original_warning"])
+    def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, incomplete_provenance):
+        chain, registry, calls = _bound_chain()
+        writer_dir = tmp_path / "writer"
+        CheckpointingChainExecutor(registry=registry, checkpoint_dir=writer_dir).execute(
+            chain, initial_state={"x": 4}, seed=7
+        )
+        checkpoint = ChainCheckpoint.load(next(writer_dir.glob("*_0000_*.json")))
+        assert checkpoint.history_complete
+        assert len(checkpoint.node_results) == checkpoint.n_completed == 1
+        if incomplete_provenance == "header":
+            checkpoint.history_complete = False
+        else:
+            checkpoint.node_results[0]["warnings"].append("history_incomplete")
+        path = tmp_path / "incomplete-provenance.json"
+        checkpoint.save(path)
+        checkpoint = ChainCheckpoint.load(path)
+        calls.clear()
+        resumed_dir = tmp_path / "resumed"
+        result = CheckpointingChainExecutor(registry=registry, checkpoint_dir=resumed_dir).execute(
+            chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7
+        )
+        # The original slot is available for real suffix arithmetic, while its
+        # explicitly incomplete provenance must survive result and republishing.
+        assert calls == ["add"]
+        assert result.final_state["total"] == 13
+        assert len(result.node_results) == 2
+        assert result.missing_history_node_ids == ()
+&gt;       assert not result.history_complete
+E       AssertionError: assert not True
+E        +  where True = ChainExecutionResult(final_state={'product': 12, 'x': 4, 'total': 13}, node_results=((UUID('8f8b8377-42a7-4034-a9c8-4b...al', 'history_complete': True, 'completed_node_count': 2, 'missing_history_node_ids': []}, missing_history_node_ids=()).history_complete
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:404: AssertionError</failure></testcase></testsuite></testsuites>

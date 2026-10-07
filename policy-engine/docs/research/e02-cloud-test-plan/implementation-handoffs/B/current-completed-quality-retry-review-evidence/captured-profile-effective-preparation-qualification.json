@@ -1,0 +1,27 @@
+{
+  "qualification": "Forward-only custody erratum, not rewriting actual profile/capture bytes",
+  "affected_captured_profile": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-runtime-ml-ready-1862c021df74-profile.json",
+    "bytes": 3078,
+    "sha256": "45933c5c354b85a4e9fdf372d6cba7464acaae952be0c368328df8608f5c7822"
+  },
+  "field": "cache_prerequisite_profile_sha256",
+  "captured_value": "2160e9a862d6d2f0e56ca8f9d063219d17741834dd7468be5dbe800e70fb24ce",
+  "captured_actual_ancestor": {
+    "source_ref": "71ffc6341623e53602564ad42fdc61c0cdc39c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review-evidence/cache-warm-profile.json",
+    "path": "/tmp/e02-B-architecture-cache-warm-record-1862c021df74/profile.json",
+    "bytes": 7927,
+    "sha256": "2160e9a862d6d2f0e56ca8f9d063219d17741834dd7468be5dbe800e70fb24ce",
+    "role": "Prior DEFAULT149 preparation ancestor, not runtime+ml159 effective profile"
+  },
+  "correct_effective_profile": {
+    "source_ref": "def52c48c9bc715f4126db05549c0831a67e83da:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+    "path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/profile.json",
+    "bytes": 8870,
+    "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69",
+    "role": "Actual registered runtime+ml159 preparation at referenced f70 receipt"
+  },
+  "correct_effective_receipt": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite.json",
+  "actual_command_source_capture_unchanged": true,
+  "no_freshness_or_verdict_upgrade": true
+}

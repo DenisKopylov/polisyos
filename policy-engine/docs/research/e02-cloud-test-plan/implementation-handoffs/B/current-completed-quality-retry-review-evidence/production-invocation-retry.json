@@ -1,0 +1,40 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/workspace/e02-B-current-coordination/policy-engine",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry/production-invocation-full.json"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "head_after": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "wall_s": 109.96838946299977,
+  "process_rusage_maxrss_kib": 5456628,
+  "exit_code": -9,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-production-invocation-retry-1862c021df74.txt",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

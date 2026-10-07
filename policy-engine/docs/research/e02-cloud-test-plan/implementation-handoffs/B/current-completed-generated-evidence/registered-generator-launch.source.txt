@@ -1,0 +1,26 @@
+"""Execute existing registered OpenAPI/client recipes with fresh retained outputs."""
+import os,json,pathlib,subprocess,hashlib
+R=pathlib.Path('/workspace/e02-B-current-coordination'); P=R/'policy-engine'; H=R/'.polisyos/e02-B-current'; B=P/'docs/research/e02-cloud-test-plan/implementation-handoffs/B'
+sha=subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip()
+assert not subprocess.check_output(['git','-C',str(R),'status','--porcelain'],text=True).strip()
+scratch=pathlib.Path('/dev/shm')/('e02-B-completed-generated-'+sha[:12]); scratch.mkdir(mode=0o700)
+old=json.loads((B/'successor-generated-companion.json').read_text()); env=dict(os.environ); env.update(old['checks'][1]['environment'])
+for key in list(env):
+ if env[key] is None:env.pop(key)
+client_env=dict(env); client_env.update({k:v for k,v in old['checks'][2]['environment'].items() if v is not None})
+commands=[]
+for i in range(1,6):
+ c=list(old['checks'][i]['command']); c=[x.replace('/tmp/e02-B-successor-openapi-02ff',str(scratch)).replace('/tmp/e02-B-successor-client-421',str(scratch)) for x in c]; commands.append(c)
+profile={'source_sha':sha,'source_tree':subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD^{tree}'],text=True).strip(),'recipe_source':str(B/'successor-generated-companion.json'),'recipe_source_sha256':hashlib.sha256((B/'successor-generated-companion.json').read_bytes()).hexdigest(),'scratch':str(scratch),'commands':commands,'driver_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),'before_outputs':{str(p.relative_to(R)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [P/'schemas/runtime_api_v1.openapi.json',P/'packages/runtime-api-client/types.ts',P/'packages/runtime-api-client/canonicalRuntimeApiClient.ts',P/'packages/runtime-api-client/canonicalRuntimeApiClient.js']}}
+(scratch/'driver-profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+for i,cmd in enumerate(commands):
+ tag='completed-generated-step'+str(i)+'-'+sha[:12]
+ capture=[str(H/'environment/bin/python'),str(B/'final-root-evidence/capture_frozen.py'),'--repo',str(R),'--tag',tag,'--',*cmd]
+ result=subprocess.run(capture,cwd=R,env=env if i==0 else client_env)
+ if result.returncode:raise SystemExit(result.returncode)
+ if i==0:
+  actual=scratch/'after.json'; target=P/'schemas/runtime_api_v1.openapi.json'
+  if actual.read_bytes()!=target.read_bytes():target.write_bytes(actual.read_bytes())
+profile['after_outputs']={k:hashlib.sha256((R/k).read_bytes()).hexdigest() for k in profile['before_outputs']}
+(scratch/'driver-result.json').write_text(json.dumps(profile,indent=2)+'\n')
+print('Registered generators completed with retained outputs',scratch)

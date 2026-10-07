@@ -1,0 +1,83 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/binary.headers.txt.sanitized.txt",
+      "bytes": 5299,
+      "sha256": "4cb357ceab62264a2ea5564a9767bf2efadac8133c5e2a14760c9747a2c7c21c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/case-quantities.json",
+      "bytes": 32712,
+      "sha256": "571ddd3deef15eaa363d58effb9f6ad49f18bde9bd5cbdf71716e73a2d46c0a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/checksum.headers.txt.sanitized.txt",
+      "bytes": 5348,
+      "sha256": "1e8a98e58448317a68384115c18fdb84d5d1f43f8717c14d81bce7d7c694f0ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/executed-commands.json",
+      "bytes": 4220,
+      "sha256": "1fbc9475b9f2411f2ae0addf5fffd6acc5bf1c8dc2be91f9229ec71705584d29"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.headers.txt.sanitized.txt",
+      "bytes": 1778,
+      "sha256": "38951a32f1344312c154db4dd3b0d8d7c791eba6aa437acb09f054ffa5e8b8f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/latest.json",
+      "bytes": 34877,
+      "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native-wrapper.json",
+      "bytes": 2064,
+      "sha256": "c8d5262cd8bc746884ff8102f2e5607f6e315c9adf70af5c4a7d98aba8182b2a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.txt",
+      "bytes": 43592,
+      "sha256": "2da72960ec1b1779f3a58c38ed715d843b59da50691203eabf0595c437a7af91"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/native.xml",
+      "bytes": 46096,
+      "sha256": "9749a48f879ccd06383c8251e87ab6cc293d2b961fdce3018c41657ae1313ba7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/opa_linux_amd64_static.sha256",
+      "bytes": 89,
+      "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/package-evidence.source.txt",
+      "bytes": 10464,
+      "sha256": "80f446fcba4077160a15e72780ee313784e01cda3c4a9b9593368889283e96fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/profile.json",
+      "bytes": 3847,
+      "sha256": "f7b427ca4ae2b3a8a9b3112d2ccdc1da7e6c2131955f9f99896553663b166be8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/source-inputs.json",
+      "bytes": 35657,
+      "sha256": "d928c28bebc6b8a9289aee7d18a1b3842c905f25ddc65d5fb05eb8472433032e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/transport-qualification.json",
+      "bytes": 3083,
+      "sha256": "9683807a112cd96087f809782a712f8148d0b666d47889ef2e54fb5faf46aff4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-opa-ci-backend-evidence/version.txt",
+      "bytes": 215,
+      "sha256": "4d416ccdfb3aad15074543067b349925406b25aca40b67b0bbc50b509109b7f8"
+    }
+  ],
+  "count": 15,
+  "bytes": 229341,
+  "scope": "Complete moderate official metadata/checksum/version/profile/commands and full actual native outputs; large official binary and raw signed transport remain local qualified",
+  "normalization_qualification": "Current index binds committed LF-normalized sanitized headers; original precommit CRLF index retained at22913; all actual runtime/metadata/checksum/version bytes unchanged"
+}

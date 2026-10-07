@@ -1,0 +1,147 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "EXE independent foreign reviewer; neither upper nor lower author",
+  "upper_sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+  "lower_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "source_verdict": "NONBLOCKING within explicitly initialized FileBudgetLedger and trusted constructor owner/resolver profile",
+  "runtime": "UNRUN",
+  "collection": "UNRUN",
+  "product_imports": "UNRUN",
+  "gates": "UNRUN",
+  "closure_ids": [],
+  "composed_source": "not_established; two separate immutable source checkpoints, no claimed composed execution",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "source-only independent reading and exact Git input reconciliation; no successor runtime acceptance",
+  "review_coverage": {
+    "upper": "All six changed production files, four changed test files, two READMEs and release fragment read in full delta and relevant full canonical context.",
+    "lower": "Both full changed production mechanisms, full 669-line defining native test, legacy test delta and release fragment read.",
+    "canonical_context": "Factory order, pricing, BudgetState, actual protected audit adapter/sink/model/verifier, full B65/B66 cards and current closure decisions; byte identical to previously fully read DD context."
+  },
+  "source_mechanism": [
+    {
+      "name": "cost knowledge",
+      "source": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "paths": [
+        "core/llm/response.py:51-114,149-237",
+        "core/llm/settlement.py:213-234",
+        "scientist/orchestration/llm/gateway_client.py:GatewayUsage and _parse_completion_payload"
+      ],
+      "conclusion": "Numeric defaults and missing/invalid knowledge remain distinct. Actual reported zero, valid zero token counts and configured free price remain numeric controls; invalid cost cannot become pricing fallback. Unknown completion is amount=None, not a fabricated zero receipt.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "original producer custody",
+      "source": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "paths": [
+        "scientist/orchestration/llm/budget_enforcer.py:215-348,1086-1217",
+        "core/llm/traced_client.py:708-791",
+        "core/llm/settlement.py:settlement owner context"
+      ],
+      "conclusion": "Attempt and request identity are fixed before client entry and forwarded through trace/cache completion. Obtained response and immutable event remain retained on settlement failure; asynchronous outer caller cancellation does not create a new producer. Arbitrary entered client failures conservatively retain unknown intent.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "cache and streaming admission",
+      "source": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "paths": [
+        "scientist/orchestration/llm/prompt_cache.py:producer completion and cache publication",
+        "core/llm/traced_client.py:267-280"
+      ],
+      "conclusion": "Completion callback precedes cache put; unknown monetary amount refuses reusable publication even without a durable callback. Configured mandatory/active settlement streaming refuses before delegate iteration, unmanaged streaming remains delegated. Existing sealed reuse is a separate zero-extra-charge consumption event.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "protected audit identity",
+      "source": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "paths": [
+        "core/llm/settlement.py:125-197",
+        "scientist/orchestration/llm/budget_enforcer.py:712-820"
+      ],
+      "conclusion": "Original metadata is private canonical JSON, exposed only as detached copies. Digest binds original actor/action/run/scope/act/event and actual charge acknowledgment/receipts. Audit errors retain known monetary ACK separately. Trusted constructor reconciliation verifies the exact obligation; no provider request, recharge or blind duplicate audit append is issued.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "pre-provider all-key intent",
+      "source": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "paths": [
+        "scientist/orchestration/engine/budget_ledger.py:665-710",
+        "scientist/orchestration/engine/budget_middleware.py:admit_provider_intent_safe"
+      ],
+      "conclusion": "Stable file lock covers current ledger read, intersecting obligation gate, private all-key reservation and one whole snapshot publication before provider is entered. Reservation failure on any key leaves prior state and no partial intent. Same live owner may retain actual concurrently controlled intents; raw reserve never bypasses persisted unresolved work.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "publication uncertainty shared by owner views",
+      "source": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "paths": [
+        "scientist/orchestration/engine/budget_ledger.py:563-651,924-975,1212-1217"
+      ],
+      "conclusion": "Constructor epoch/PID and shared runtime uncertainty survive resolver-view construction. OSError captures exact attempted record before stable lock release. Exact older disk-record readback cannot acknowledge a newer failed completion digest. Intersecting admission consults runtime uncertainty plus persisted obligations; a foreign/fork PID receives no old-owner exemption.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "known monetary receipts and completion proof",
+      "source": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "paths": [
+        "scientist/orchestration/engine/budget_ledger.py:424-462,788-925"
+      ],
+      "conclusion": "Complete/transition verifies actual receipt identity, producer-event/key digest, provider and amount for every budget key. Typed constructor resolution must exactly match retained phase/digest/receipt coordinates; a reference or boolean alone cannot clear. Unknown cost cannot clear through this API. Upper proof is temporary and bound to its exact original local record.",
+      "basis": "independently_reconciled"
+    },
+    {
+      "name": "wire and legacy",
+      "source": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "paths": [
+        "scientist/orchestration/engine/budget_ledger.py:112-279,291-421,1256-1284,1342-1358"
+      ],
+      "conclusion": "Wire1.2 requires completion_obligations and complete current record fields. Complete legacy1.0/1.1 decode remains explicit; old wires cannot smuggle new fields/mutations. Actual snapshot publication retains whole state, receipt and completion indices with fsync/replace/directory-fsync. Legacy migration does not attest previously unknown usage or external billing.",
+      "basis": "independently_reconciled"
+    }
+  ],
+  "pending_qualifications": [
+    {
+      "name": "run_id input",
+      "source": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "basis": "independently_reconciled",
+      "state": "pending author decision/native qualification",
+      "details": "Lower record requires nonempty run_id; c0 test_budget_enforcer.py:400-411 ledger-backed fixture omits run_id, as does existing test_prompt_cache_e02.py near609. Public upper default is empty. Author informed before native; no reviewer execution or claimed product failure."
+    },
+    {
+      "name": "required companions",
+      "source": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "basis": "independently_reconciled",
+      "state": "pending canonical owner",
+      "details": "New experimental ledger API/wire1.2 companion release currently sets public_surface_inventory_reviewed=false and migration_docs=[]; nearest engine README belongs to root. Source mechanism verdict does not waive mandatory companions."
+    },
+    {
+      "name": "failed pre-replace transition recovery",
+      "source": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "basis": "independently_reconciled",
+      "state": "bounded fail-closed recovery limit",
+      "details": "Upper stores intended local completion record before I/O. If replace failed and disk retains previous intent, later local expected_digest may be intended rather than previous record. This cannot open admission; no generic automatic recovery claim is made. Actual supported same-record readback/resolver controls must retain exact source/input provenance."
+    }
+  ],
+  "distinguishing_inputs": [
+    "Unknown actual SDK usage/cost with obtained response versus reported0/knownpriced/configuredfree; inspect actual receipt amount, reservation, physical provider count and cache.",
+    "Known .02 charge receipt plus actual protected JSONL append refusal; fresh owner and same bound view must refuse second provider until exact original protected act is verified.",
+    "Post-effect fsync/replace fault leaves older in-flight disk record; clone resolver view with same live owner must stay blocked, and replaying older record must not clear newer uncertainty.",
+    "True fork/foreign owner and killed writer after replace; use physical process/file effects and complete reopened ledger, not owner-field markers.",
+    "Caller mutation of diagnostic nested metadata must leave original digest/action/actor unchanged; actual original ChainedLogEntry owner reconciles, no recreated sink/act.",
+    "Missing fields/version-smuggled current completion data and same-amount foreign receipt/boolean resolver must fail unchanged; full legacy scalar accounting remains readable."
+  ],
+  "historical_evidence": {
+    "source": "dd9584728bd96f204983615216efdbc58117e713",
+    "prior_independent_handoff": "current-llm-accounting-contract-independent-review.json@b3ab709441527919b5839fcdb5b0e02c1a6029ea",
+    "B65": "qualified9c76 real2PASS/2FAIL, originalc181 tokenizer premise4FAIL/not_established preserved",
+    "B66": "original882 real8PASS/8FAIL retained; no successor execution adopted"
+  },
+  "limits_and_next_owner": [
+    "ADAPTER and DUR own canonical implementation/native composition; this reviewer executed no product import/native/gate/collection/provider operation.",
+    "Unknown external cost or unobserved entered operation remains unresolved; no vendor invoice, institutional authority or arbitrary cost-zero default is invented.",
+    "Plain BudgetState is memory profile. Real deployment factory call sites do not automatically supply durable middleware/protected audit; trusted construction remains an explicit premise.",
+    "Trusted audit resolver may verify definite original no-append or ambiguous effects; no automatic append on ambiguous fsync acknowledgment.",
+    "Configured resolver must not reenter the ledger while lower stable lock is held. Exact local proof bridge only consults retained memory.",
+    "Fault/process tests are finite POSIX/filesystem observations and do not attest power-loss durability or remote billing.",
+    "Root/G must accept final composed source, mandatory companions, actual source-bound positive/negative native outputs and full cohort separately. Closure IDs remain empty."
+  ]
+}

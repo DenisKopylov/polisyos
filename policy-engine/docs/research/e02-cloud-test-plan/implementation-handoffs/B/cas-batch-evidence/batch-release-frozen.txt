@@ -1,0 +1,21 @@
+........................................................................ [ 34%]
+........................................................................ [ 68%]
+...........................F.....................................        [100%]
+=================================== FAILURES ===================================
+___ test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry ____
+tests/unit/core/artifacts/test_multi_tenant_shared_cas.py:610: in test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry
+    target.import_exact_view(
+src/polisyos/core/artifacts/store.py:1413: in import_exact_view
+    with self._admit_import_members(intake) as admission:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:3007: in _admit_import_members
+    self._require_bound_context_for_owner(
+src/polisyos/core/artifacts/store.py:2826: in _require_bound_context_for_owner
+    raise ArtifactOwnershipError(
+E   polisyos.core.artifacts.ownership.ArtifactOwnershipError: Import is not owned by tenant tenant-exact-view: manifest has no bound tenant/cell context
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_multi_tenant_shared_cas.py::test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry
+1 failed, 208 passed in 42.93s

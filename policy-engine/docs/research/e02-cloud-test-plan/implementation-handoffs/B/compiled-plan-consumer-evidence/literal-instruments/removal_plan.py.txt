@@ -1,0 +1,22 @@
+import json
+import os
+from dataclasses import replace
+from pathlib import Path
+from types import MappingProxyType
+
+from polisyos.foundry.methods.artifacts import CompiledChainPlan
+
+ORIGINAL = CompiledChainPlan.to_chain
+
+
+def _without_effective_predecessors(self, **kwargs):
+    chain = ORIGINAL(self, **kwargs)
+    empty = MappingProxyType({node_id: frozenset() for node_id in chain.dag.nodes})
+    dag = replace(chain.dag, predecessors=empty, successors=empty)
+    path = Path(os.environ['COMPILED_ORIGIN_OBSERVATIONS']).with_name('property-removal-effects.jsonl')
+    with path.open('a') as output:
+        output.write(json.dumps({'removed_quantity': 'loaded effective ordering-only dependency', 'node_ids': [str(node_id) for node_id in chain.execution_order], 'original_predecessors': {str(node_id): sorted(str(parent) for parent in parents) for node_id, parents in chain.dag.predecessors.items()}, 'returned_predecessors': {str(node_id): [] for node_id in chain.dag.nodes}, 'source_files_mutated': False}) + '\n')
+    return replace(chain, dag=dag)
+
+
+CompiledChainPlan.to_chain = _without_effective_predecessors

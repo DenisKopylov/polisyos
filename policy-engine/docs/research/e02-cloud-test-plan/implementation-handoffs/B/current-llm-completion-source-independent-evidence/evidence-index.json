@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-evidence/README.md",
+      "bytes": 720,
+      "sha256": "dd76250d5a05d4df718bcfe9ed05eff88a5def82378ae864d85f79fd97ad5b6b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-evidence/review.json",
+      "bytes": 11076,
+      "sha256": "18c5e2cdbe22a604ad108b07fef1c08fc6a7f32034f29ce2db522e0c3543942c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-evidence/review.source.txt",
+      "bytes": 5474,
+      "sha256": "944c025deec8fdaff2156b7dbb262191fb264117fdc2ba7c0290e7f1c242862b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-evidence/source-capture.txt",
+      "bytes": 181,
+      "sha256": "2d96b5d768f0d04997dbbac114b5a212e2679ad05ce4eac1f7c97eb4e4d543e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-evidence/source-inputs.json",
+      "bytes": 98262,
+      "sha256": "785990b894742e5a2db41db886c3e558127c761e3b904f44466a3779af1c517e"
+    }
+  ]
+}

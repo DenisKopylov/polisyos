@@ -1,0 +1,2 @@
+{"error": "CancelledError", "message": "", "owner_operation": "checkpoint", "caller_cancelling": 1, "head_at_return": false}
+{"head_verified": true, "history_matches": true, "state": {"result": 14, "seed": 7}, "producer": 1, "outputs": 0, "finalized": false}

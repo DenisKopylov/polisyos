@@ -1,0 +1,41 @@
+{"argv": ["/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "-m", "pytest", "-vv", "-p", "origin_guard", "-p", "removal_guard2", "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]", "--basetemp", "/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest", "-o", "cache_dir=/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache", "--junitxml=/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native.xml"], "cwd": "/workspace/e02-B-current-cas-generation/policy-engine", "source": {"head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e", "status": ""}, "test": {"head": "619e3834cb56a8109460d07cd5d18fcde1fedc49", "tree": "9fa61d024b3231b598416b89148f621640650a09", "status": ""}}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke] _
+
+tmp_path = PosixPath('/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/pytest/test_posteffect_completion_pub0')
+mode = 'invoke', syscall = 'file_fsync'
+
+    @pytest.mark.parametrize("mode", ["invoke", "generate"])
+    @pytest.mark.parametrize("syscall", ["file_fsync", "replace_before"])
+    def test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers(
+        tmp_path: Path, mode: str, syscall: str
+    ) -> None:
+        path, effects = tmp_path / "ledger.json", tmp_path / "physical-effects.jsonl"
+        failed = _child(path, effects, "completion_fault", mode, syscall)
+        assert failed["status"] == "refused", failed
+>       assert failed["same_live_sibling"]["status"] == "refused", failed
+E       AssertionError: {'cause': 'BudgetLedgerCompletionOutcomeUnknownError', 'cause_text': "budget completion publication outcome unknown for 'llm-producer:eb7934b7d56f4574a2e3fd02b6580220'", 'exception': 'LLMAccountingError', 'faulted_staged_snapshots': [{'canonical_contract': 'scientist.multi_host_budget_ledger.v1', 'completion_obligations': {'llm-producer:eb7934b7d56f4574a2e3fd02b6580220': {'budget_keys': ['run'], 'event_digest': 'sha256:a0306ba4b6385a6968a8fa62867c799e512dfb89e56c4616571db0d618d9e0f2', 'event_payload': {'amount': '0.02', 'cost_origin': 'reported', 'event_id': 'llm-producer:eb7934b7d56f4574a2e3fd02b6580220', 'kind': 'provider', ...}, 'known_receipt_ids': [], ...}}, 'coordination_mode': 'shared_posix_file_lock', 'last_writer': {'host_id': 'b878f4efbdfc', 'pid': 468184, 'writer_id': 'b878f4efbdfc:468184:ledger.json'}, ...}], ...}
+E       assert 'accepted' == 'refused'
+E         
+E         - refused
+E         + accepted
+
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py:327: AssertionError
+- generated xml file: /tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70/native.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke]
+============================== 1 failed in 0.72s ===============================

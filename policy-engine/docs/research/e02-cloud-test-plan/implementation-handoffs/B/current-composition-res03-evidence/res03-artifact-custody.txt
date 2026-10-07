@@ -1,0 +1,204 @@
+{
+  "producer_source_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+  "readback_source_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+  "store_module": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/core/artifacts/store.py",
+  "store_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+  "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-tmp/test_res_03_real_simulation_la0/cas",
+  "guarded_scope": {
+    "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "cell_id": "cell-a"
+  },
+  "property": "real guarded producer artifact/report/state readback; no HTTP consumer execution",
+  "node_outcomes": {
+    "run_simulation": {
+      "status": "ok",
+      "skip_reason": null
+    },
+    "later_failure": {
+      "status": "fail",
+      "skip_reason": null
+    },
+    "dependent_after_failure": {
+      "status": "skip",
+      "skip_reason": "upstream_failed"
+    },
+    "independent_sibling": {
+      "status": "ok",
+      "skip_reason": null
+    }
+  },
+  "simulation_ref_as_persisted": {
+    "artifact_id": "sha256:8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb",
+    "kind": "foundry.simulation_result",
+    "media_type": "application/json"
+  },
+  "manifest_profile_limit": "Persisted producer refs in this fixture omit selected manifest profile; native default manifest reads are recorded as such, not converted into selected-view authority.",
+  "simulation_input_roles": [
+    "exec_plan",
+    "input.bound_state_snapshot_ref",
+    "input.data_snapshot_ref",
+    "input.input_bindings_ref",
+    "metrics",
+    "state_delta",
+    "state_snapshot"
+  ],
+  "manifest_file_denominator": 118,
+  "retained_selected_kinds": [
+    "foundry.exec_plan",
+    "foundry.input_bindings",
+    "foundry.simulation_result",
+    "scientist.experiment_state",
+    "scientist.workflow_report"
+  ],
+  "artifacts": [
+    {
+      "ref_as_read": {
+        "artifact_id": "sha256:4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe",
+        "kind": "scientist.experiment_state",
+        "media_type": "application/json"
+      },
+      "files": [
+        {
+          "path": "artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.blob",
+          "sha256": "4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe",
+          "bytes": 8080
+        },
+        {
+          "path": "artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.manifest.json",
+          "sha256": "5991e4d408d295aca969e9e3b325590a70193f8a2da3d9934a8ae62c4dab71c2",
+          "bytes": 736
+        },
+        {
+          "path": "artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.view.759cf75819dead4678abe49fcf7dead8c4b7906d35c0141415f76da984577956.manifest.json",
+          "sha256": "5991e4d408d295aca969e9e3b325590a70193f8a2da3d9934a8ae62c4dab71c2",
+          "bytes": 736
+        }
+      ]
+    },
+    {
+      "ref_as_read": {
+        "artifact_id": "sha256:5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f",
+        "kind": "foundry.input_bindings",
+        "media_type": "application/json"
+      },
+      "files": [
+        {
+          "path": "artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.blob",
+          "sha256": "5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f",
+          "bytes": 915
+        },
+        {
+          "path": "artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.manifest.json",
+          "sha256": "ac3581d91d0ad525033a9790cbc11b5a53276e54870ce91782fc96782b5d67be",
+          "bytes": 1089
+        },
+        {
+          "path": "artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.view.3ac230d01f567baefc15d9e1c971514e29a754d2ee8e7e0ff857770cfad4736f.manifest.json",
+          "sha256": "ac3581d91d0ad525033a9790cbc11b5a53276e54870ce91782fc96782b5d67be",
+          "bytes": 1089
+        }
+      ]
+    },
+    {
+      "ref_as_read": {
+        "artifact_id": "sha256:743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae",
+        "kind": "foundry.exec_plan",
+        "media_type": "application/json"
+      },
+      "files": [
+        {
+          "path": "artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.blob",
+          "sha256": "743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae",
+          "bytes": 448
+        },
+        {
+          "path": "artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.manifest.json",
+          "sha256": "b83b92f87ef02ce210b9850a97dea08020153292bd78a3a1370f24e6014978af",
+          "bytes": 806
+        },
+        {
+          "path": "artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.view.8811eb27a6beb8ce6e9c3bf500ddabf56365438cc56c665b251e22911cb0b9f1.manifest.json",
+          "sha256": "b83b92f87ef02ce210b9850a97dea08020153292bd78a3a1370f24e6014978af",
+          "bytes": 806
+        }
+      ]
+    },
+    {
+      "ref_as_read": {
+        "artifact_id": "sha256:7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee",
+        "kind": "scientist.workflow_report",
+        "media_type": "application/json"
+      },
+      "files": [
+        {
+          "path": "artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.blob",
+          "sha256": "7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee",
+          "bytes": 9806
+        },
+        {
+          "path": "artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.manifest.json",
+          "sha256": "c00e0c73ff87776bdb8d7370b6ac0a682a1a0e0fb3e849c058a76e6ee775d28d",
+          "bytes": 733
+        },
+        {
+          "path": "artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.view.354ab564d1bce3c937ff0f3cacf5a1e7c16829fe0e621999542d2dcb7dc38364.manifest.json",
+          "sha256": "c00e0c73ff87776bdb8d7370b6ac0a682a1a0e0fb3e849c058a76e6ee775d28d",
+          "bytes": 733
+        }
+      ]
+    },
+    {
+      "ref_as_read": {
+        "artifact_id": "sha256:8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb",
+        "kind": "foundry.simulation_result",
+        "media_type": "application/json"
+      },
+      "files": [
+        {
+          "path": "artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.blob",
+          "sha256": "8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb",
+          "bytes": 828
+        },
+        {
+          "path": "artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.manifest.json",
+          "sha256": "90938e17d20c77aa32b06f4d83295077d10b795b8217055f359b1274ef296b9f",
+          "bytes": 1525
+        },
+        {
+          "path": "artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.view.67216ca643ffcdc80ddf15b6065ca657c21f3c9103330a9b9f46c03c02e53d79.manifest.json",
+          "sha256": "90938e17d20c77aa32b06f4d83295077d10b795b8217055f359b1274ef296b9f",
+          "bytes": 1525
+        }
+      ]
+    },
+    {
+      "ref_as_read": {
+        "artifact_id": "sha256:d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa",
+        "kind": "scientist.experiment_state",
+        "media_type": "application/json"
+      },
+      "files": [
+        {
+          "path": "artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.blob",
+          "sha256": "d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa",
+          "bytes": 1687
+        },
+        {
+          "path": "artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.manifest.json",
+          "sha256": "9f656f6d443b07dd860d7500c51b71eacd9b14f769f3cd082b2b681e72159684",
+          "bytes": 736
+        },
+        {
+          "path": "artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.view.759cf75819dead4678abe49fcf7dead8c4b7906d35c0141415f76da984577956.manifest.json",
+          "sha256": "9f656f6d443b07dd860d7500c51b71eacd9b14f769f3cd082b2b681e72159684",
+          "bytes": 736
+        }
+      ]
+    }
+  ],
+  "trace": {
+    "sha256": "30f1434e352e9bb6655fe0683bafd245bd354e1507564f259953e483a51da434",
+    "bytes": 20141
+  },
+  "served_consumer_executed": false
+}

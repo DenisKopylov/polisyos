@@ -1,0 +1,68 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+________ test_cancel_preserves_actual_finished_item_and_explicit_abort _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:97: in test_cancel_preserves_actual_finished_item_and_explicit_abort
+    assert report.state == "aborted" and report.abort_reason == "cancelled"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+_______ test_deadline_stops_lazy_inventory_before_more_real_verification _______
+tests/unit/core/artifacts/test_batch_completion_admission.py:125: in test_deadline_stops_lazy_inventory_before_more_real_verification
+    assert report.state == "aborted" and report.abort_reason == "deadline"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+______________ test_cancel_interrupts_actual_default_name_census _______________
+tests/unit/core/artifacts/test_batch_completion_admission.py:186: in test_cancel_interrupts_actual_default_name_census
+    assert report.state == "aborted" and report.abort_reason == "cancelled"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+___________ test_late_real_signer_cannot_start_signature_publication ___________
+tests/unit/core/artifacts/test_batch_completion_admission.py:314: in test_late_real_signer_cannot_start_signature_publication
+    assert report.state == "aborted" and report.abort_reason == "deadline"
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+_____ test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify] _____
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+______ test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign] ______
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+____ test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify] ____
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+_____ test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign] _____
+tests/unit/core/artifacts/test_batch_completion_admission.py:353: in test_duplicate_intake_obeys_each_supplied_item_budget
+    assert report.state == "aborted" and report.abort_reason == expected_reason
+E   AssertionError: assert ('complete' == 'aborted'
+E     
+E     - aborted
+E     + complete)
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_preserves_actual_finished_item_and_explicit_abort
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_deadline_stops_lazy_inventory_before_more_real_verification
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_interrupts_actual_default_name_census
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_late_real_signer_cannot_start_signature_publication
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[cancel-verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[cancel-sign]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[deadline-verify]
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_duplicate_intake_obeys_each_supplied_item_budget[deadline-sign]
+8 failed in 3.67s

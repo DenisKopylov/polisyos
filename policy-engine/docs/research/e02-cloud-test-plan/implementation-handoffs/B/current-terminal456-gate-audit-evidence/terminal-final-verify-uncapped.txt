@@ -1,0 +1,349 @@
+{
+  "schema": "policyos.e02.uncapped_gate_plan.v1",
+  "config_source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+  "target_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "target_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "canonical_uv_binding": {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "version": "uv 0.9.21"
+  },
+  "suite": "verify",
+  "canonical_flags": [
+    "--backend-only"
+  ],
+  "execute": true,
+  "factory_paths": [
+    "policy-engine/tools/devx/workspace/verify.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+    "policy-engine/tools/devx/workspace/ci_parity.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+    "policy-engine/tools/devx/workspace/_common.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022"
+  ],
+  "original_top_level_commands": 15,
+  "expanded_commands": 15,
+  "environment_delta": {
+    "omit": [
+      "BLIS_NUM_THREADS",
+      "MKL_NUM_THREADS",
+      "NUMEXPR_NUM_THREADS",
+      "OMP_NUM_THREADS",
+      "OPENBLAS_NUM_THREADS",
+      "VECLIB_MAXIMUM_THREADS"
+    ],
+    "ambient_names_present": []
+  },
+  "additional_argv_projection": null,
+  "numerical_cap_option_exists": false,
+  "commands": [
+    {
+      "index": 0,
+      "label": "doctor",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "tools.devx.workspace.doctor",
+        "--skip-contract-checks"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 1,
+      "label": "lint imports",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 2,
+      "label": "check package import gates (shell-package closure)",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 3,
+      "label": "lint foundry",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 4,
+      "label": "check state reads",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 5,
+      "label": "check scholar imports",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 6,
+      "label": "check connector contracts",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "polisyos-tools",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 7,
+      "label": "check schema freshness",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 8,
+      "label": "check runtime API contract",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 9,
+      "label": "check last-mile inventory baseline",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 10,
+      "label": "build honest diagnostics coverage dashboard",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 11,
+      "label": "check honest diagnostics substrate drift",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 12,
+      "label": "check extension example contract coverage",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 13,
+      "label": "check schemas pure-data closure",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {},
+      "uncapped_environment_overlay": {}
+    },
+    {
+      "index": 14,
+      "label": "pytest fast backend gate",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "canonical_environment_overlay": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1"
+      },
+      "uncapped_environment_overlay": {}
+    }
+  ]
+}
+[uncapped constituent] doctor
+Resolved 418 packages in 9ms
+Scope: all 6 workspace projects
+Done in 652ms using pnpm v10.33.2
+[PASS] python: Python 3.14.2 via /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+[PASS] node: Node v22.22.0
+[PASS] uv: uv 0.9.21 at /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv
+[PASS] playwright: Chromium browser is launchable
+[PASS] uv.lock: uv.lock is up to date
+[PASS] pnpm-lock: pnpm-lock.yaml matches package manifests
+[PASS] optional-surfaces: No optional surfaces selected
+doctor passed.
+[uncapped constituent] lint imports
+Import gate report
+
+Policy: architecture/imports/policy.toml (v2)
+Exceptions: architecture/imports/exceptions.toml
+Scan mode: full
+Parse cache: hits=2701, misses=0
+
+Lapsed cover (0): none
+
+Unadjudicated (21):
+- src/polisyos/foundry/methods/catalog/causal/literature_prior.py:27 [ARCH007] forbidden narrowed internal import: foundry -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/ir/migrations/base.py:10 [ARCH006] forbidden internal subpackage import: polisyos.ir.migrations.base -> polisyos.common.migrations._engine. Cross-root imports must go through public facades.
+- src/polisyos/runtime/quality/chronology_proof.py:18 [ARCH006] forbidden internal subpackage import: polisyos.runtime.quality.chronology_proof -> polisyos.core.artifacts._manifest_lifecycle. Cross-root imports must go through public facades.
+- src/polisyos/runtime/quality/generation_source.py:18 [ARCH006] forbidden internal subpackage import: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts._manifest_lifecycle. Cross-root imports must go through public facades.
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:33 [ARCH001] forbidden internal import: runtime -> policy_grammar via polisyos.policy_grammar (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:1015 [ARCH001] forbidden internal import: runtime -> obligation_graph via polisyos.obligation_graph (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:1016 [ARCH001] forbidden internal import: runtime -> obligation_rules via polisyos.obligation_rules (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:1021 [ARCH001] forbidden internal import: runtime -> policy_grammar via polisyos.policy_grammar (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/scientist/agent/feasibility.py:232 [ARCH006] forbidden internal subpackage import: polisyos.scientist.agent.feasibility -> polisyos.foundry.execute._internal.snapshots. Cross-root imports must go through public facades.
+- src/polisyos/scientist/cross_graph/compiler.py:86 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/methods/discovery/prior_miner.py:28 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py:41 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:38 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:89 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py:63 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py:65 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:90 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/context.py:11 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/executor.py:93 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/executor.py:545 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/protocol.py:15 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+
+Violation populations: lapsed cover=0 + unadjudicated=21 = total=21
+
+Allowed exceptions: none
+
+Cycles (runtime imports, package-level):
+- polisyos.calibration, polisyos.core, polisyos.data_forge, polisyos.data_requirement, polisyos.fabric, polisyos.fabric.io, polisyos.foundry, polisyos.ir, polisyos.lex, polisyos.obligation_rules, polisyos.pdc, polisyos.policy_grammar, polisyos.scholar, polisyos.scientist, polisyos.scientist.agent
+
+Top god files (internal import count, top 10):
+- src/polisyos/runtime/quality/__init__.py: 83
+- src/polisyos/runtime/http/services/control/run_lifecycle.py: 82
+- src/polisyos/foundry/methods/catalog/causal/__init__.py: 71
+- src/polisyos/foundry/methods/catalog/causal/_registry_boot.py: 60
+- src/polisyos/runtime/http/services/control/nl_pipeline.py: 59
+- src/polisyos/runtime/quality/generation_cycle.py: 57
+- src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py: 55
+- src/polisyos/runtime/quality/scorecard.py: 55
+- src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py: 54
+- src/polisyos/scientist/nodes/builtins/__init__.py: 47
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py", line 225, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py", line 220, in main
+    subprocess.run(list(spec.argv), cwd=spec.cwd, env=env, check=True)  # noqa: S603
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv', 'run', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1.

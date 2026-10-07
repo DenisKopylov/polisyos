@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/run_selector.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine",
+  "pytest_args": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/pytest.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/basetemp",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/benchmarks",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/pytest-cache"
+  ],
+  "timeout_seconds": 180,
+  "environment_overrides": {
+    "E02_CHECK_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/tmp",
+    "TMP": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/tmp",
+    "TEMP": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/tmp",
+    "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/tmp/mplconfig",
+    "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/xdg-cache",
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/uv-cache",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu",
+    "JAX_PLATFORM_NAME": "cpu",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "false"
+  },
+  "environment_cleared_for_test_isolation": [
+    "PYTEST_ADDOPTS",
+    "PYTEST_PLUGINS",
+    "PYTEST_XDIST_WORKER",
+    "PYTEST_CURRENT_TEST"
+  ],
+  "cleared_variables_set_at_parent_start": [],
+  "candidate_sha": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "candidate_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "candidate_archive_sha256_before": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+  "candidate_manifest_file_count": 2946,
+  "candidate_manifest_payload_bytes": 55497795
+}

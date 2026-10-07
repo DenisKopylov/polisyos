@@ -1,0 +1,254 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: /workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/cache
+rootdir: /dev
+configfile: null
+collecting ... collected 3 items
+
+../../../dev::test_normalization_cannot_escape_original_pending_accounting[gpt-4o] <- ../workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py DRAFTER_ACCOUNTING_ACTUAL {"critique_model": "gpt-4o", "original_response_content": "{\"value\":7}", "physical_provider_requests": [{"user": "first actual request"}, {"user": "request after ordinary critique normalization"}], "required_callback_calls": 1, "same_original_error": false, "source_origins": [{"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/response.py", "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"}, {"module": "polisyos.scientist.agent._drafter_llm", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/agent/_drafter_llm.py", "sha256": "bf4727c653003c2a9d5a19f5fb7a5f511618f1ee3351e5c7c4cf6def6b7995af"}, {"module": "polisyos.scientist.agent._drafter_orchestrator", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py", "sha256": "761e9885e85a34bdf86ebbb256164c01581ebc05954f680ecc7dc4190c9fd62b"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"}]}
+FAILED
+../../../dev::test_normalization_cannot_escape_original_pending_accounting[different-critique-model] <- ../workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py DRAFTER_ACCOUNTING_ACTUAL {"critique_model": "different-critique-model", "original_response_content": "{\"value\":7}", "physical_provider_requests": [{"user": "first actual request"}, {"user": "request after ordinary critique normalization"}], "required_callback_calls": 1, "same_original_error": false, "source_origins": [{"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/response.py", "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"}, {"module": "polisyos.scientist.agent._drafter_llm", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/agent/_drafter_llm.py", "sha256": "bf4727c653003c2a9d5a19f5fb7a5f511618f1ee3351e5c7c4cf6def6b7995af"}, {"module": "polisyos.scientist.agent._drafter_orchestrator", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py", "sha256": "761e9885e85a34bdf86ebbb256164c01581ebc05954f680ecc7dc4190c9fd62b"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"}]}
+FAILED
+../../../dev::test_unmanaged_critique_retarget_preserves_real_provider_result <- ../workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py DRAFTER_UNMANAGED_ACTUAL {"source_origins": [{"module": "polisyos.core.llm.response", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/response.py", "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"}, {"module": "polisyos.core.llm.settlement", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/settlement.py", "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"}, {"module": "polisyos.core.llm.traced_client", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/traced_client.py", "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a"}, {"module": "polisyos.scientist.agent._drafter_llm", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/agent/_drafter_llm.py", "sha256": "bf4727c653003c2a9d5a19f5fb7a5f511618f1ee3351e5c7c4cf6def6b7995af"}, {"module": "polisyos.scientist.agent._drafter_orchestrator", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py", "sha256": "761e9885e85a34bdf86ebbb256164c01581ebc05954f680ecc7dc4190c9fd62b"}, {"module": "polisyos.scientist.orchestration.llm.gateway_client", "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"}], "physical_provider_requests": [{"user": "legitimate unmanaged request"}]}
+PASSED
+
+=================================== FAILURES ===================================
+_____ test_normalization_cannot_escape_original_pending_accounting[gpt-4o] _____
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp/test_normalization_cannot_esca0')
+critique_model = 'gpt-4o'
+
+    @pytest.mark.parametrize("critique_model", ["gpt-4o", "different-critique-model"])
+    def test_normalization_cannot_escape_original_pending_accounting(
+        tmp_path: Path, critique_model: str
+    ) -> None:
+        origins = _source_custody()
+        provider = _PhysicalProvider(tmp_path / "physical-provider.jsonl")
+        callback_events: list[dict[str, Any]] = []
+        cause = OSError("mandatory local accounting effect remains unresolved")
+    
+        def required_accounting(event: dict[str, Any]) -> None:
+            callback_events.append(event)
+            raise cause
+    
+        original = TracedLLMClient(
+            provider,
+            model_name="gpt-4o",
+            required_accounting=required_accounting,
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        )
+    
+        async def exercise() -> None:
+            with pytest.raises(LLMAccountingError) as first:
+                await original.generate(user="first actual request")
+            assert first.value.response is provider.responses[0]
+            assert first.value.cause is cause
+            with pytest.raises(LLMAccountingError) as ordinary_guard:
+                await original.generate(user="blocked original request")
+            assert ordinary_guard.value is first.value
+            received_error = None
+            try:
+                normalized = _normalize(original, critique_model)
+                await normalized.generate(user="request after ordinary critique normalization")
+            except LLMAccountingError as exc:
+                received_error = exc
+            work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+            print(
+                "DRAFTER_ACCOUNTING_ACTUAL "
+                + json.dumps(
+                    {
+                        "critique_model": critique_model,
+                        "source_origins": origins,
+                        "physical_provider_requests": work,
+                        "required_callback_calls": len(callback_events),
+                        "same_original_error": received_error is first.value,
+                        "original_response_content": first.value.response.content,
+                    },
+                    sort_keys=True,
+                )
+            )
+            assert len(work) == len(provider.responses) == 1, (
+                "ordinary normalization lost the original mandatory completion fence"
+            )
+            assert len(callback_events) == 1
+            assert received_error is first.value
+    
+>       asyncio.run(exercise())
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def exercise() -> None:
+        with pytest.raises(LLMAccountingError) as first:
+            await original.generate(user="first actual request")
+        assert first.value.response is provider.responses[0]
+        assert first.value.cause is cause
+        with pytest.raises(LLMAccountingError) as ordinary_guard:
+            await original.generate(user="blocked original request")
+        assert ordinary_guard.value is first.value
+        received_error = None
+        try:
+            normalized = _normalize(original, critique_model)
+            await normalized.generate(user="request after ordinary critique normalization")
+        except LLMAccountingError as exc:
+            received_error = exc
+        work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+        print(
+            "DRAFTER_ACCOUNTING_ACTUAL "
+            + json.dumps(
+                {
+                    "critique_model": critique_model,
+                    "source_origins": origins,
+                    "physical_provider_requests": work,
+                    "required_callback_calls": len(callback_events),
+                    "same_original_error": received_error is first.value,
+                    "original_response_content": first.value.response.content,
+                },
+                sort_keys=True,
+            )
+        )
+>       assert len(work) == len(provider.responses) == 1, (
+            "ordinary normalization lost the original mandatory completion fence"
+        )
+E       AssertionError: ordinary normalization lost the original mandatory completion fence
+E       assert 2 == 1
+E        +  where 2 = len([namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])
+E        +    where [namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = <agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c754cc20>.responses
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:158: AssertionError
+_ test_normalization_cannot_escape_original_pending_accounting[different-critique-model] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp/test_normalization_cannot_esca1')
+critique_model = 'different-critique-model'
+
+    @pytest.mark.parametrize("critique_model", ["gpt-4o", "different-critique-model"])
+    def test_normalization_cannot_escape_original_pending_accounting(
+        tmp_path: Path, critique_model: str
+    ) -> None:
+        origins = _source_custody()
+        provider = _PhysicalProvider(tmp_path / "physical-provider.jsonl")
+        callback_events: list[dict[str, Any]] = []
+        cause = OSError("mandatory local accounting effect remains unresolved")
+    
+        def required_accounting(event: dict[str, Any]) -> None:
+            callback_events.append(event)
+            raise cause
+    
+        original = TracedLLMClient(
+            provider,
+            model_name="gpt-4o",
+            required_accounting=required_accounting,
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        )
+    
+        async def exercise() -> None:
+            with pytest.raises(LLMAccountingError) as first:
+                await original.generate(user="first actual request")
+            assert first.value.response is provider.responses[0]
+            assert first.value.cause is cause
+            with pytest.raises(LLMAccountingError) as ordinary_guard:
+                await original.generate(user="blocked original request")
+            assert ordinary_guard.value is first.value
+            received_error = None
+            try:
+                normalized = _normalize(original, critique_model)
+                await normalized.generate(user="request after ordinary critique normalization")
+            except LLMAccountingError as exc:
+                received_error = exc
+            work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+            print(
+                "DRAFTER_ACCOUNTING_ACTUAL "
+                + json.dumps(
+                    {
+                        "critique_model": critique_model,
+                        "source_origins": origins,
+                        "physical_provider_requests": work,
+                        "required_callback_calls": len(callback_events),
+                        "same_original_error": received_error is first.value,
+                        "original_response_content": first.value.response.content,
+                    },
+                    sort_keys=True,
+                )
+            )
+            assert len(work) == len(provider.responses) == 1, (
+                "ordinary normalization lost the original mandatory completion fence"
+            )
+            assert len(callback_events) == 1
+            assert received_error is first.value
+    
+>       asyncio.run(exercise())
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def exercise() -> None:
+        with pytest.raises(LLMAccountingError) as first:
+            await original.generate(user="first actual request")
+        assert first.value.response is provider.responses[0]
+        assert first.value.cause is cause
+        with pytest.raises(LLMAccountingError) as ordinary_guard:
+            await original.generate(user="blocked original request")
+        assert ordinary_guard.value is first.value
+        received_error = None
+        try:
+            normalized = _normalize(original, critique_model)
+            await normalized.generate(user="request after ordinary critique normalization")
+        except LLMAccountingError as exc:
+            received_error = exc
+        work = [json.loads(line) for line in provider.path.read_text().splitlines()]
+        print(
+            "DRAFTER_ACCOUNTING_ACTUAL "
+            + json.dumps(
+                {
+                    "critique_model": critique_model,
+                    "source_origins": origins,
+                    "physical_provider_requests": work,
+                    "required_callback_calls": len(callback_events),
+                    "same_original_error": received_error is first.value,
+                    "original_response_content": first.value.response.content,
+                },
+                sort_keys=True,
+            )
+        )
+>       assert len(work) == len(provider.responses) == 1, (
+            "ordinary normalization lost the original mandatory completion fence"
+        )
+E       AssertionError: ordinary normalization lost the original mandatory completion fence
+E       assert 2 == 1
+E        +  where 2 = len([namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])
+E        +    where [namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = <agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c6c7efd0>.responses
+
+../../e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py:158: AssertionError
+- generated xml file: /workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/native.xml -
+=========================== short test summary info ============================
+FAILED ../../../dev::test_normalization_cannot_escape_original_pending_accounting[gpt-4o] - AssertionError: ordinary normalization lost the original mandatory completion fence
+assert 2 == 1
+ +  where 2 = len([namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])
+ +    where [namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = <agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c754cc20>.responses
+FAILED ../../../dev::test_normalization_cannot_escape_original_pending_accounting[different-critique-model] - AssertionError: ordinary normalization lost the original mandatory completion fence
+assert 2 == 1
+ +  where 2 = len([namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))])
+ +    where [namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02)), namespace(content='{"value":7}', model='gpt-4o', provider='physical-constructor-oracle', usage=namespace(prompt_tokens=7, completion_tokens=3, cost_usd=0.02))] = <agent.test_drafter_accounting_owner_oracle._PhysicalProvider object at 0x7f24c6c7efd0>.responses
+========================= 2 failed, 1 passed in 6.09s ==========================

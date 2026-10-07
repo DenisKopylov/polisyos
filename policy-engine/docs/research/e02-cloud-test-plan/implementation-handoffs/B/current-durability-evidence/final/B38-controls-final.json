@@ -1,0 +1,55 @@
+{
+  "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/B38-controls-final",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/B38-controls-final.xml",
+    "tests/unit/remediation/test_dur_02_process.py",
+    "-k",
+    "terminal or expiry or current_source or renewal or forge"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.12.14",
+    "no_artificial_process_or_numeric_thread_quota": true
+  },
+  "start_utc": "2026-10-06T10:51:10.131974+00:00",
+  "end_utc": "2026-10-06T10:53:11.437316+00:00",
+  "exit_code": 0,
+  "wall_s": 121.3056593270012,
+  "max_child_rss_kib": 796828,
+  "status_before": "",
+  "status_after": "",
+  "inputs": [
+    "tests/unit/remediation/test_dur_02_process.py",
+    "-k",
+    "terminal or expiry or current_source or renewal or forge"
+  ],
+  "counts": {
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "input_closure": "Actual checked checkout and complete native files; isolated unique pytest basetemp and real POSIX file/process controls or temporary SQLite typed collaborators; no production dataset/external services.",
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/B38-controls-final.txt",
+      "sha256": "ab402592ca0f4c59c1ec939ffbc9103398898955e99e27a7ec2fbb23bcf5dfbb",
+      "bytes": 125
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/B38-controls-final.xml",
+      "sha256": "9241d9e6bd4adcf6c2da926a19f908d127e5ba43394fe9416e92a17f283d6031",
+      "bytes": 2257
+    }
+  ]
+}

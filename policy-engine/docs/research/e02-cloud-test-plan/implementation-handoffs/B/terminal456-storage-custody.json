@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "terminal456-storage-custody",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "slice_base_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "implementation_commits": [
+    "d3665c87fc1e2e881878c2de6371005e93495ea6",
+    "b06a22511e581f662b0e8fe7ba715b21d462aa10"
+  ],
+  "candidate_tree_sha": "fc4cff301e409e11fa0b5dfc41da3c9f1f822d17",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/preservation-ledger.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-B-cohort-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-B-cohort.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-all-changed-format-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-all-changed-format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-all-changed-ruff-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-all-changed-ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-architecture-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-architecture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-parity-uncapped-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-parity-uncapped.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-production-invocation-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-production-invocation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-runtime-api-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-runtime-api.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-verify-uncapped-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/terminal-final-verify-uncapped.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "Completed original exact eight launch commands are in terminal456-storage-evidence/*-profile.json and complete wait4 wrappers. Ledger copied with independent stream SHA readback; no runtime rerun here.",
+      "target_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "environment": "Original194 distribution contributor profile in preserved gate profiles; /workspace overlay capacity exhausted; preservation /tmp separate tmpfs.",
+      "input_closure": "Complete moderate18 files + largeignored raw path@sha in custody.json; source-machine availability is not receiver proof.",
+      "outcome": "FAIL",
+      "output": "terminal456-storage-evidence/custody.json with literal eight EXECUTED/exit1 wrappers; historical native2177PASS85FAIL1314ERROR2SKIP."
+    }
+  ],
+  "property": {
+    "statement": "Preserve exact predecessor measurements without laundering resource/setup failures or bytes unavailable to G into successor closure.",
+    "runtime_path": [
+      "unchanged source456 native/gate processes",
+      "complete actualstdout/JUnit/phase output",
+      "source-bound wrappers and independent parsers",
+      "receiver exact rerun if raw unavailable"
+    ],
+    "proxy_divergence": "A terminal pytest exit1 or counted1314ERROR is not1314 observed criterion failures: 928 tmp_path setuperrors have no call phase.",
+    "negative_controls": [
+      "Original outputs and all failed/UNRUN predecessor captures remain immutable; no case exclusion, status rewriting or cleanup."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "predecessor evidence preserved; formalclosure[]; repaired source/new wave pending",
+  "limitations_and_next_owner": [
+    "G source-machine raw unavailable remains not_established until exact rerun; no required-check waiver.",
+    "/tmp preservation volatile cloud-session custody, not filesystem durability.",
+    "No native Trash; cleanup candidates documented at finalcloseout. Production/code/environments/unique fixtures preserved."
+  ]
+}

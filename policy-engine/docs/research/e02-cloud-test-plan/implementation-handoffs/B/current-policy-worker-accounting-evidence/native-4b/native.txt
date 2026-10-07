@@ -1,0 +1,21 @@
+.................F.
+=================================== FAILURES ===================================
+________________ test_scenario_adversary_fallback_and_execution ________________
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py:286: in test_scenario_adversary_fallback_and_execution
+    assert result.stress_test_report.vulnerabilities
+E   AssertionError: assert []
+E    +  where [] = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_32150a8fc65ecac4cfe6506d483ce59522f94346dac0b61...on_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}).vulnerabilities
+E    +    where StressTestReport(schema_version='1.0', report_id='stress.report.sha256_32150a8fc65ecac4cfe6506d483ce59522f94346dac0b61...on_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}) = AdversaryExecutionResult(scenario_bundle=AdversarialScenarioBundle(schema_version='1.0', candidate_id='candidate_polic..._vulnerability_count': 0, 'presented_vulnerability_count': 0}), stress_test_report_ref=None, adversary_bundle_ref=None).stress_test_report
+=============================== warnings summary ===============================
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution

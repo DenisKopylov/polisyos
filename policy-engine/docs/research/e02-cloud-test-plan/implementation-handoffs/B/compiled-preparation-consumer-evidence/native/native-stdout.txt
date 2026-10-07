@@ -1,0 +1,22 @@
+{"argv": ["/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "-m", "pytest", "-vv", "-p", "origin_guard", "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py", "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape", "--basetemp", "/tmp/e02-B-compiled-preparation-aaa4386f3960/pytest", "-o", "cache_dir=/tmp/e02-B-compiled-preparation-aaa4386f3960/cache", "--junitxml=/tmp/e02-B-compiled-preparation-aaa4386f3960/native.xml"], "cwd": "/workspace/e02-B-current-cas-generation/policy-engine", "source": {"head": "83b7b81a4f6d665380993b3fed3b9985a51b547d", "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18", "status": ""}}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-compiled-preparation-aaa4386f3960/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6 items
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False] PASSED [ 16%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True] PASSED [ 33%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False] PASSED [ 50%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True] PASSED [ 66%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds PASSED [ 83%]
+tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape PASSED [100%]
+
+- generated xml file: /tmp/e02-B-compiled-preparation-aaa4386f3960/native.xml --
+============================== 6 passed in 7.88s ===============================

@@ -1,0 +1,13 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  prettier (skip) no files for inspection
+│  eslint (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  check-reduced-motion (skip) no matching staged files
+                                      
+  ────────────────────────────────────
+summary: (done in 0.14 seconds)       
+[codex/e02-B-current-runtime 3f4455f11] fix(scientist): reap supervised node trees before result admission
+ 3 files changed, 606 insertions(+), 135 deletions(-)
+ create mode 100644 policy-engine/release-fragments/unreleased/e02-current-runtime-process.toml

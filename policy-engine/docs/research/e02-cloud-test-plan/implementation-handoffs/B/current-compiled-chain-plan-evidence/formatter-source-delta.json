@@ -1,0 +1,11 @@
+{
+  "base_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+  "path": "policy-engine/tools/devx/foundry/generate_stubs.py",
+  "before_sha256": "d3fec7ef8663b6f499225e74973c2a522da064f16b900f22723ce2893a09ba28",
+  "after_sha256": "e3d0c110837c051dcc77c655d1faeb0eff11c21dfb1181f3a34440c78c5a587b",
+  "full_ast_equal": true,
+  "actual_diff_paths": [
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "qualification": "Formatter-only tool edit; prior native81 and independent16 remain actual6d7 observations. Complete loaded runtime module byte equality reconciled separately; no future full-gate or native PASS inherited."
+}

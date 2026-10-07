@@ -1,0 +1,239 @@
+# ruff: noqa: S101 - assertions are this offline data-inspection oracle, not product gates.
+
+"""Inspect immutable author Git artifacts without importing or running product code."""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+AUTHOR = "9dcf877a037a9814f18ac7ddc75b992049c737b5"
+BASE = "143b68a1596841fa444aace15120e2a46a746cb8"
+FIRST = "85f2417187396d40ef0a41e9d7f6651286f55754"
+FINAL = "414c7ec3148a857c3a4e5554dde5d5503fec6e95"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+TEST = "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py"
+FAULT = "test_postgres_real_statement_fault_rolls_back_all_terminal_rows"
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(["/usr/bin/git", *args])  # noqa: S603 - fixed read-only Git argv
+
+
+def blob(ref: str, path: str) -> bytes:
+    return git("show", ref + ":" + path)
+
+
+def identity(ref: str, path: str) -> dict[str, object]:
+    data = blob(ref, path)
+    return {
+        "ref": ref,
+        "path": path,
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def normalized(node: ast.AST) -> str:
+    return ast.dump(node, include_attributes=False)
+
+
+def main() -> None:
+    index_path = PREFIX + "current-postgres-fencing-evidence/index.json"
+    index = json.loads(blob(AUTHOR, index_path))
+    mismatches = []
+    for item in index["objects"]:
+        actual = identity(AUTHOR, item["path"])
+        if actual["bytes"] != item["bytes"] or actual["sha256"] != item["sha256"]:
+            mismatches.append({"expected": item, "actual": actual})
+    assert not mismatches
+    assert sum(item["bytes"] for item in index["objects"]) == index["total_bytes"]
+    assert len({item["path"] for item in index["objects"]}) == len(index["objects"])
+
+    source_paths = [
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+    ]
+    source_equality = {}
+    for path in source_paths:
+        data = blob(BASE, path)
+        source_equality[path] = all(blob(ref, path) == data for ref in (FIRST, FINAL, AUTHOR))
+    assert all(source_equality.values())
+    footprint = git("diff", "--name-only", BASE, FINAL).decode().splitlines()
+    assert footprint == [TEST]
+    old = ast.parse(blob(FIRST, TEST))
+    new = ast.parse(blob(FINAL, TEST))
+    old_defs = {
+        node.name: node for node in old.body if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+    }
+    new_defs = {
+        node.name: node for node in new.body if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+    }
+    assert old_defs.keys() == new_defs.keys()
+    unchanged = {
+        name: normalized(old_defs[name]) == normalized(new_defs[name])
+        for name in old_defs
+        if name != FAULT
+    }
+    assert all(unchanged.values())
+    old_fault, new_fault = old_defs[FAULT], new_defs[FAULT]
+    old_asserts = [normalized(node) for node in ast.walk(old_fault) if isinstance(node, ast.Assert)]
+    new_asserts = [normalized(node) for node in ast.walk(new_fault) if isinstance(node, ast.Assert)]
+    assert old_asserts == new_asserts
+    assert [normalized(node) for node in old_fault.decorator_list] == [
+        normalized(node) for node in new_fault.decorator_list
+    ]
+    operation = next(
+        node
+        for node in new_fault.body
+        if isinstance(node, ast.FunctionDef) and node.name == "operation"
+    )
+    old_terminal = next(
+        node for node in old_fault.body if isinstance(node, ast.With) and len(node.items) == 2
+    )
+    new_terminal = next(
+        node for node in new_fault.body if isinstance(node, ast.With) and len(node.items) == 2
+    )
+    assert [normalized(node) for node in operation.body] == [
+        normalized(node) for node in old_terminal.body
+    ]
+    assert normalized(old_terminal.items[0]) == normalized(new_terminal.items[0])
+    assert normalized(old_terminal.items[1]) == normalized(new_terminal.items[1])
+    assert len(new_terminal.body) == 1
+    assert isinstance(new_terminal.body[0], ast.Expr)
+    assert normalized(new_terminal.body[0].value) == normalized(
+        ast.parse("operation()", mode="eval").body
+    )
+
+    runs = []
+    schemas = []
+    for tag, target, expected in (("85", FIRST, 8), ("414", FINAL, 4)):
+        path = PREFIX + "current-postgres-fencing-evidence/native-" + tag
+        wrapper = json.loads(blob(AUTHOR, path + ".json"))
+        stdout = blob(AUTHOR, path + ".txt")
+        xml_bytes = blob(AUTHOR, path + ".xml")
+        assert b"<!DOCTYPE" not in xml_bytes
+        assert b"<!ENTITY" not in xml_bytes
+        xml = ET.fromstring(xml_bytes)  # noqa: S314 - fixed Git fixture, entity declarations rejected
+        assert wrapper["head"] == wrapper["head_after"] == target
+        assert wrapper["tree"] == git("rev-parse", target + "^{tree}").decode().strip()
+        assert wrapper["harness_state"] == "EXECUTED"
+        assert wrapper["exec_setup_error"] is None
+        assert wrapper["exit_code"] == 0
+        assert wrapper["output_sha256"] == hashlib.sha256(stdout).hexdigest()
+        cases = xml.findall(".//testcase")
+        assert len(cases) == expected
+        rows = []
+        for case in cases:
+            assert not any(case.find(kind) is not None for kind in ("failure", "error", "skipped"))
+            props = {
+                prop.attrib["name"]: prop.attrib["value"]
+                for prop in case.findall("properties/property")
+            }
+            assert props["driver_version"] == "3.3.2"
+            assert props["driver_origin"] == (
+                "/tmp/e02-B38-pg-profile/psycopg/__init__.py"  # noqa: S108 - recorded string only
+            )
+            tables = json.loads(props["table_denominator"])
+            assert len(tables) == len(set(tables)) == 11
+            native = json.loads(props["postgres_identity"])
+            assert native[0].startswith("PostgreSQL 17.11 ")
+            assert native[1:] == ["postgres", "127.0.0.1/32", 45483]
+            schemas.append(props["postgres_schema"])
+            row = {
+                "classname": case.attrib["classname"],
+                "name": case.attrib["name"],
+                "junit_outcome": "PASS",
+            }
+            if "stale_rejected_inlets" in props:
+                inlets = json.loads(props["stale_rejected_inlets"])
+                assert len(inlets) == len(set(inlets)) == 18
+                assert props["unchanged_rows_after_each_rejection"] == "True"
+                row["stale_rejected_inlets"] = inlets
+                row["all_table_rows_equal_after_each_rejection"] = True
+            rows.append(row)
+        runs.append(
+            {
+                "target_sha": target,
+                "wrapper_ref": identity(AUTHOR, path + ".json"),
+                "stdout_ref": identity(AUTHOR, path + ".txt"),
+                "junit_ref": identity(AUTHOR, path + ".xml"),
+                "command": wrapper["command"],
+                "cwd": wrapper["cwd"],
+                "junit_cases": rows,
+                "wait4_actual_exit": wrapper["exit_code"],
+                "wait4_wall_s": wrapper["wall_s"],
+                "wait4_RSS_kib": wrapper["process_rusage_maxrss_kib"],
+                "phase_inventory": (
+                    "not_established; native author capture includes JUnit, "
+                    "not observer phase reports"
+                ),
+            }
+        )
+    assert len(schemas) == len(set(schemas))
+    first_ids = {(row["classname"], row["name"]) for row in runs[0]["junit_cases"]}
+    final_ids = {(row["classname"], row["name"]) for row in runs[1]["junit_cases"]}
+    assert final_ids < first_ids
+    result = {
+        "schema": "policyos.e02.independent-artifact-inspection.v1",
+        "mode": (
+            "Read-only stdlib/Git data inspection; product imports, pytest, collection, "
+            "PostgreSQL connects and provisioning UNRUN"
+        ),
+        "python": {"executable": sys.executable, "version": sys.version},
+        "author_handoff_ref": identity(AUTHOR, PREFIX + "current-postgres-fencing.json"),
+        "evidence_index_ref": identity(AUTHOR, index_path),
+        "indexed_objects": len(index["objects"]),
+        "indexed_bytes": index["total_bytes"],
+        "hash_or_size_mismatches": mismatches,
+        "actual_test_footprint": footprint,
+        "production_source_equality": source_equality,
+        "test_refs": [identity(FIRST, TEST), identity(FINAL, TEST)],
+        "style_delta": {
+            "nonfault_top_level_definitions_AST_equal": all(unchanged.values()),
+            "fault_assertions_AST_equal": True,
+            "fault_parameter_decorators_AST_equal": True,
+            "old_complete_fail_conditional_equals_new_operation_body": True,
+            "same_execution_fence_and_exception_context": True,
+            "operation_called_once_inside_context": True,
+        },
+        "author_native_runs": runs,
+        "unique_case_name_count_across_two_targets": len(first_ids | final_ids),
+        "repeated_fault_case_names": len(first_ids & final_ids),
+        "whole_eight_case_runtime_at_final_414": (
+            "UNRUN; do not transplant source-equality or prior8PASS to a fresh whole-file result"
+        ),
+        "limitations": [
+            (
+                "Native outcomes inspected from author immutable artifacts, "
+                "not independently executed by reviewer."
+            ),
+            (
+                "JUnit outcomes are its representation, "
+                "not a full setup/call/teardown phase inventory."
+            ),
+            (
+                "11-table/18-inlet quantities describe this actual fixture; "
+                "they are not admission or stop rules for future source additions."
+            ),
+            (
+                "Hash integrity of published evidence is independently recomputed; "
+                "the full OS/vendor/import readset and institutional database authenticity "
+                "are not established by this inspection."
+            ),
+            (
+                "Schema table rows exclude sequences, catalog/index counters, "
+                "physical worker death, network ambiguity "
+                "and external action exactly-once semantics."
+            ),
+        ],
+    }
+    sys.stdout.write(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

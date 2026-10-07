@@ -1,0 +1,54 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-module-frame-mirrored-749328",
+    "--junitxml",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "tree": "053cf4aa9b631a5bfaf98d8a7d788fc57f4e97f7",
+    "status": ""
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "RAYON_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "python_version": "Python 3.14.2",
+  "fixture": "/dev/shm/e02-B-module-frame-mirrored-749328",
+  "fixtures_preserved": true,
+  "no_caps_added": true,
+  "test_input_bytes": [
+    {
+      "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+      "bytes": 14768,
+      "sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50"
+    }
+  ]
+}

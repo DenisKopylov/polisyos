@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="35.215" timestamp="2026-10-06T17:24:06.287184+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_real_atomic_head_35_seconds_fits_original_60_second_workflow" time="35.064"><failure message="AssertionError: {'budget_seconds': 60, 'delay_seconds': 35, 'elapsed_physical_complete': 35.028297151991865, 'elapsed_to_return': 30.053990072003216, ...}&#10;assert WorkflowTimeoutError('Workflow deadline_oracle exceeded timeout of 60s') is None">tmp_path = PosixPath('/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/budget/pytest-scratch-first/test_real_atomic_head_35_secon0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fafc275e8b0&gt;
+
+    @pytest.mark.asyncio
+    async def test_real_atomic_head_35_seconds_fits_original_60_second_workflow(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        """The real replace waits 35s; the owner permits it for 60s, not 30s."""
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=60)
+        entered, completed = threading.Event(), threading.Event()
+        original_replace = os.replace
+        observed: dict[str, object] = {"sources": sources, "delay_seconds": 35, "budget_seconds": 60}
+    
+        def delayed_real_replace(source: str | Path, destination: str | Path) -&gt; None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                entered.set()
+                # Real filesystem latency is injected at the actual atomic operation.
+                # Its delegated replacement, fsync and history write remain canonical.
+                threading.Event().wait(35)
+            original_replace(source, destination)
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                completed.set()
+    
+        monkeypatch.setattr(os, "replace", delayed_real_replace)
+        started = time.perf_counter()
+        result = None
+        error: BaseException | None = None
+        try:
+            result = await executor.execute(workflow, ExperimentState(run_id="R_budget"))
+        except BaseException as exc:
+            error = exc
+        observed.update(
+            elapsed_to_return=time.perf_counter() - started,
+            entered=entered.is_set(),
+            physical_complete_at_return=completed.is_set(),
+            error_type=type(error).__name__ if error is not None else None,
+            error_message=str(error) if error is not None else None,
+            head_at_return=load_checkpoint_head(run_dir) is not None,
+            physical_workers_at_return=async_tools.get_shared_executor()._physical_workers,
+            reserved_jobs_at_return=async_tools.get_shared_executor()._outstanding_jobs,
+            result_status=result.report.status if result is not None else None,
+        )
+        # Finish the actual entered I/O before teardown; late physical completion
+        # remains a separate observation from an accepted workflow frontier.
+        await _wait_event(completed, timeout=40)
+        await asyncio.sleep(0)
+        reopened = FileSystemCAS(store.root)
+        resolved = resolve_latest_checkpoint(reopened, "R_budget", run_dir=run_dir)
+        assert resolved is not None
+        assert resolved[1].state is not None
+        observed.update(
+            elapsed_physical_complete=time.perf_counter() - started,
+            reopened_checkpoint_verified=reopened.verify(resolved[0].checkpoint_ref).ok,
+            reopened_completed_nodes=resolved[1].metadata.completed_nodes,
+            reopened_answer=resolved[1].state["params"]["answer"],
+            producer_calls=node.calls,
+        )
+        print("CHECKPOINT_BUDGET_ORACLE=" + json.dumps(observed, sort_keys=True), flush=True)
+&gt;       assert error is None, observed
+E       AssertionError: {'budget_seconds': 60, 'delay_seconds': 35, 'elapsed_physical_complete': 35.028297151991865, 'elapsed_to_return': 30.053990072003216, ...}
+E       assert WorkflowTimeoutError('Workflow deadline_oracle exceeded timeout of 60s') is None
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:166: AssertionError</failure></testcase></testsuite></testsuites>

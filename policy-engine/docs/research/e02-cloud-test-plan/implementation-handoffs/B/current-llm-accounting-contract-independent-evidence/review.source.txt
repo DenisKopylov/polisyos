@@ -1,0 +1,164 @@
+"""Read frozen LLM source and completed independent native artifacts; no runtime replay."""
+from __future__ import annotations
+import collections
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+SHA = 'dd9584728bd96f204983615216efdbc58117e713'
+OUT = Path('/tmp/e02-B-llm-contract-review-exe')
+
+def git(*args):
+    return subprocess.check_output(['/usr/bin/git', '--no-optional-locks', '-C', str(ROOT), *args])
+
+def ref(path):
+    raw = path.read_bytes()
+    return {'path': str(path), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+
+def source(path):
+    expected = git('show', SHA + ':' + path)
+    actual = (ROOT / path).read_bytes()
+    assert actual == expected, path
+    return {**ref(ROOT / path), 'repository_path': path, 'source_sha': SHA,
+            'git_blob': git('rev-parse', SHA + ':' + path).decode().strip()}
+
+def state():
+    return {'head': git('rev-parse', 'HEAD').decode().strip(),
+            'tree': git('rev-parse', 'HEAD^{tree}').decode().strip(),
+            'status': git('status', '--porcelain').decode()}
+
+def counts(xml):
+    cases = ET.parse(xml).getroot().findall('.//testcase')
+    rows = []
+    for case in cases:
+        outcome = 'ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+        rows.append({'name': case.attrib['name'], 'outcome': outcome})
+    return {'observed_cases': len(rows), 'outcomes': dict(collections.Counter(r['outcome'] for r in rows)), 'cases': rows}
+
+def observations(path, prefix):
+    return [json.loads(line[len(prefix):]) for line in path.read_text().splitlines() if line.startswith(prefix)]
+
+pre = state()
+assert pre['head'] == SHA and not pre['status']
+paths = [
+ 'src/polisyos/core/llm/settlement.py', 'src/polisyos/core/llm/response.py',
+ 'src/polisyos/core/llm/traced_client.py', 'src/polisyos/core/observability/pricing.py',
+ 'src/polisyos/scientist/orchestration/llm/factory.py',
+ 'src/polisyos/scientist/orchestration/llm/prompt_cache.py',
+ 'src/polisyos/scientist/orchestration/llm/gateway_client.py',
+ 'src/polisyos/scientist/orchestration/llm/budget_enforcer.py',
+ 'src/polisyos/scientist/orchestration/engine/budget_middleware.py',
+ 'src/polisyos/scientist/orchestration/engine/budget_ledger.py',
+ 'src/polisyos/core/security/audit_protocol.py', 'src/polisyos/core/security/audit_log_adapter.py',
+ 'src/polisyos/core/security/audit_sink.py',
+ 'docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md',
+ 'docs/research/e02-cloud-test-plan/closure-decisions/B.md',
+]
+source_refs = [source('policy-engine/' + p) for p in paths]
+queries = []
+for finding in ['B65', 'B66']:
+    argv = ['python3', 'docs/research/e02-cloud-test-plan/results/query.py', '--finding', finding, '--details', '--job-context', '--limit', '30', '--block-limit', '3']
+    raw = subprocess.check_output(argv, cwd=ROOT / 'policy-engine')
+    query = json.loads(raw)
+    target = OUT / (finding + '-query.json')
+    with target.open('xb') as stream:
+        stream.write(raw)
+    queries.append({'finding_id': finding, 'command': argv, 'output': ref(target),
+                    'top_level_fields': sorted(query), 'cells': query['cells'],
+                    'finding_routes': query['finding_routes'],
+                    'qualification': 'Historical source-reported navigation only; PASS summaries do not prove DD or the new repair.'})
+
+b65 = Path('/tmp/e02-B65-protected-audit-qualified')
+b66 = Path('/tmp/e02-b66-unknown-dd-7jdlujt1')
+wrapper65 = json.loads((b65 / 'wrapper.json').read_bytes())
+wrapper66 = json.loads((b66 / 'native.json').read_bytes())
+assert wrapper65['root_source_sha'] == wrapper66['target_source_sha'] == SHA
+assert wrapper65['pre']['root'] == wrapper65['post']['root'] == pre
+assert wrapper65['pre']['test_sha256'] == wrapper65['post']['test_sha256']
+for wrapper, own, commit, field in [
+ (wrapper65, Path('/workspace/e02-B-current-runtime'), '9c76d54cf10255ab5b926dfd961dcb3e07711ff4', 'policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py'),
+ (wrapper66, Path('/workspace/e02-B-current-adapters'), '882b543ed7e9127abd777753811ff7a3a9c0857c', 'policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py'),
+]:
+    frozen = subprocess.check_output(['/usr/bin/git', '--no-optional-locks', '-C', str(own), 'show', commit + ':' + field])
+    expected = wrapper65['pre']['test_sha256'] if wrapper is wrapper65 else wrapper66['test_sha256']
+    assert hashlib.sha256(frozen).hexdigest() == expected
+
+obs65 = observations(b65 / 'native.txt', 'B65_FINAL ')
+obs66 = observations(b66 / 'native.txt', 'B66_ACTUAL ')
+assert len(obs65) == 4 and len(obs66) == 16
+summary65 = []
+for row in obs65:
+    snap = row['fresh_reopened_snapshot']
+    summary65.append({'route': row['route'], 'fault': row['fault'],
+       'physical_provider_count': len(row['provider_requests']), 'spent': snap['state']['spent'],
+       'reserved': snap['state']['reserved'], 'receipt_count': len(snap['spend_receipts']),
+       'protected_committed_records': sum(e['payload']['action'] == 'BUDGET_COMMITTED' for e in row['audit_entries']),
+       'audit_chain': row['audit_chain'], 'second_error_type': row.get('second_error_type'),
+       'first_error_cause': row.get('first_error_cause')})
+summary66 = []
+for row in obs66:
+    snap = row['fresh_ledger_snapshot']
+    summary66.append({'profile': row['profile'], 'caller_cancelled': row['caller_cancelled'],
+       'physical_provider_count': row['provider_calls'], 'input_normalization': row['input_normalization'],
+       'result_exception': row['result_exception'], 'observed_events': row['observed_events'],
+       'actual_acks': row['actual_acks'], 'cache_entries': row['cache_entries'],
+       'spent': snap['state']['spent'], 'reserved': snap['state']['reserved'],
+       'receipt_count': len(snap['spend_receipts'])})
+outputs = [ref(p) for p in [b65 / 'native.txt', b65 / 'native.xml', b65 / 'wrapper.json',
+                           b65 / 'source-context.json', b66 / 'native.txt', b66 / 'native.xml', b66 / 'native.json']]
+post = state()
+assert post == pre
+payload = {
+ 'schema': 'policyos.e02.readonly_llm_contract_review.v1', 'source_sha': SHA, 'source_tree': pre['tree'],
+ 'reviewer_runtime': 'UNRUN; complete source and existing actual input/output inspection only',
+ 'predicate_basis': 'independently_reconciled', 'source_before': pre, 'source_after': post,
+ 'canonical_criteria': {'B65': 'B_r19_original.md lines1669-1688 mandatory persistence/reconciliation and next-action restriction',
+                         'B66': 'B_r19_original.md lines1689-1708 missing raw does not prove zero network cost'},
+ 'source_refs': source_refs, 'historical_navigation': queries,
+ 'actual_native_inputs': {'B65': {'source_sha': SHA, 'test_sha': wrapper65['own_test_implementation_sha'],
+                                 'command': wrapper65['command'], 'environment': wrapper65['explicit_environment'],
+                                 'actual_exit': wrapper65['exit'], **counts(b65 / 'native.xml')},
+                         'B66': {'source_sha': SHA, 'test_sha': wrapper66['test_sha'],
+                                 'command': wrapper66['argv'], 'environment': wrapper66['explicit_environment'],
+                                 'actual_exit': wrapper66['actual_exit'], **counts(b66 / 'native.xml')}},
+ 'outputs': outputs, 'B65_actual_observations': summary65, 'B66_actual_observations': summary66,
+ 'source_path': [
+  'Factory raw provider -> CachingLLMClient -> TracedLLMClient; enforcer is composed separately by real consumers.',
+  'Owned producer completion runs before cache put and calls exact settlement-owner callback.',
+  'Normalizer missing/invalid usage yields numeric token0 + costNone; trace prices token0 and mints estimated Decimal0 event.',
+  'Enforcer settles that amount into actual FileBudgetLedger; its exact receipt is real although amount knowledge was absent.',
+  'Protected BUDGET_COMMITTED audit runs after reservation release and pending-event removal; failure leaves next action unblocked.',
+  'FileBudgetLedger resolve/retry is exact-event idempotent. AuditLog.append has no equivalent exact-ID ACK/readback API.',
+ ],
+ 'three_distinct_states': {
+  'cost_knowledge_unknown': 'Provider operation/result exists, amount evidence absent/invalid; no numeric0 receipt/cache admission. Retain exact request/response/model/attempt identity and reservation; hold later spend.',
+  'durable_ack_unknown': 'Amount evidence known, exact ledger delivery may have happened; resolve/retry SAME event+charge through existing ledger, never new producer/event or guessed zero.',
+  'protected_audit_unknown': 'Known amount and ledger receipts may be committed, mandatory protected act not acknowledged. Keep separate audit blocker; never repeat charge/provider to reconcile audit.',
+ },
+ 'minimal_owner_contract': [
+  'Add explicit usage/cost knowledge to normalized response and producer completion; missing/invalid is distinct from reported0 and known priced/free usage.',
+  'Retain one producer-owned exact completion identity before monetary settlement. Unknown amount requires a typed pending event/amountNone, not an LLMProducerEvent requiring Decimal0.',
+  'Retain typed obligation phases cost/ledger/protected_audit with immutable owner scope/event/payload/response and original receipt/reservation identities.',
+  'Next provider admission stays blocked while any mandatory phase unresolved, including all cancellation-completion routes. Optional metrics remain independent.',
+  'Known ledger receipt permits reservation release without declaring audit complete. Overall committed/cache-admissible ACK requires every configured mandatory owner phase acknowledged.',
+  'Existing ledger reconciliation resolves/retries the same known event only. Protected audit reconciliation must bind the exact event+payload to trusted owner evidence/ACK, not caller assertion or a fresh provider.',
+  'A live ChainedAuditSink advances sequence before physical append; blind redelivery after missing/ambiguous write cannot guarantee chain recovery. Without an exact protected-owner recovery/ACK capability, remain blocked and expose unresolved phase.',
+ ],
+ 'negative_input_qualifications': [
+  'B65 IsADirectoryError is a definite local append refusal after true known .02 ledger ACK; not a demonstrated fsync fault or remote replica failure.',
+  'B65 original c181 tokenizer-download 4FAIL did not reach provider/audit; property not_established, preserved by RUN separately.',
+  'B66 physical synthetic provider actual operation + canonical normalizer/trace/cache/FileBudgetLedger consumer; no real vendor invoice/cost authority claimed.',
+  'B66 caller cancellation is independently varied on all four unknown and four known profiles.',
+ ],
+ 'remaining_review': 'ADAPTER proposed/frozen repair not yet inspected; no repair acceptance or criterion closure inferred.',
+ 'closure_ids': [], 'next_owner': 'ADAPTER canonical LLM writer; RUN protected-audit oracle; root integration/criterion adjudication',
+}
+with (OUT / 'review.json').open('x') as stream:
+    json.dump(payload, stream, indent=2)
+    stream.write('\n')
+print(json.dumps({'review': ref(OUT / 'review.json'), 'B65': counts(b65 / 'native.xml')['outcomes'],
+                  'B66': counts(b66 / 'native.xml')['outcomes'], 'source_unchanged': post == pre}, sort_keys=True))

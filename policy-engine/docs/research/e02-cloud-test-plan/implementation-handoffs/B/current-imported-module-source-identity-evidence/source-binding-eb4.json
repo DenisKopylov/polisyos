@@ -1,0 +1,95 @@
+{
+  "slice_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "candidate_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+  "candidate_tree_sha": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "protected_matches_denominator": 5,
+  "files": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "94facd34234f5bfd63f487389e8a7485f866491b",
+      "bytes": 616,
+      "sha256": "25388788b52f285e06b836c3cb1f4c18285e1205fc1b3dbf373298c3e6e16995",
+      "protected": false,
+      "base_equal": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "37716b989d07d342764e76244f5fb9ff54af07c9",
+      "bytes": 6407,
+      "sha256": "acffb7cb16c578944b8d0a9ff5ce3734607becbee91e9c989d4fcf8f8e36f2af",
+      "protected": false,
+      "base_equal": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "9e8d63ab8c629cde236089cfec6e6b6b16997812",
+      "bytes": 14990,
+      "sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73",
+      "protected": false,
+      "base_equal": null
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "11fa05a186834b2bc6a1478d816bcd8c962a2d45",
+      "bytes": 10336,
+      "sha256": "a7e304187010ae6514c3ef908f9c7771c0fbb421bf6e664062263722e3b3118a",
+      "protected": false,
+      "base_equal": null
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "bytes": 108192,
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+      "protected": true,
+      "base_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "bytes": 53953,
+      "sha256": "cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6",
+      "protected": true,
+      "base_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "protected": true,
+      "base_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "protected": true,
+      "base_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/streaming.py",
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "git_blob": "94c9290497ad479ea453c5cd7aa18d3765cb17c0",
+      "bytes": 6305,
+      "sha256": "0b934bbdbed7ae34d387560389d60b7480015cd190ece02dd7c1d589a1b1128b",
+      "protected": true,
+      "base_equal": true
+    }
+  ]
+}

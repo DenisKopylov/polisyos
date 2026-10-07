@@ -1,0 +1,293 @@
+{
+  "actual_observations": [
+    {
+      "namespace": "lexical-binding-red",
+      "source": {
+        "sha": "8c8e7a360eb08c0f91e0c2ca824562a562251800",
+        "tree": "2e9299452311e0325db80dcd149cfafdc48f0c51",
+        "status": ""
+      },
+      "counts": {
+        "PASS": 0,
+        "FAIL": 3,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 3,
+      "wall_seconds": 3.122569280996686,
+      "max_rss_kib": 177376,
+      "stdout": {
+        "bytes": 7594,
+        "sha256": "08f1ccf4ae9f2653a2561a67e1d029662656721a0aecdf5e1b0d0ca189935575"
+      },
+      "origins": 166,
+      "measurements": [
+        {
+          "relative_fixture": "test_recursive_global_capture_0",
+          "measurement": {
+            "refusal": null,
+            "error": "TypeError",
+            "message": "attribute name must be string, not 'dict'",
+            "actual_effects": [
+              "body"
+            ]
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_1",
+          "measurement": {
+            "refusal": null,
+            "actual_effects": [
+              "body"
+            ]
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_2",
+          "measurement": {
+            "refusal": null,
+            "actual_effects": [
+              "body"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "namespace": "resolved-native",
+      "source": {
+        "sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+        "tree": "79444947f48872f7743002a796d8307dcc2cab81",
+        "status": ""
+      },
+      "counts": {
+        "PASS": 126,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 127,
+      "wall_seconds": 17.58457012998406,
+      "max_rss_kib": 278136,
+      "stdout": {
+        "bytes": 22142,
+        "sha256": "9273ef78c7e12ee17ed43c0e8c9438cc3c83e6d78b4c80466c04d4ddccaef8e5"
+      },
+      "origins": 168,
+      "measurements": [
+        {
+          "relative_fixture": "test_recursive_global_capture_0",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_1",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_2",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_returned_frame_namespace_0",
+          "measurement": {
+            "original": 7,
+            "unchanged_resume": 7,
+            "before_effects": [
+              "original",
+              "original"
+            ],
+            "refusal": null,
+            "changed_resume": 107,
+            "history_complete": true,
+            "pointer_unchanged": true,
+            "actual_effects": [
+              "original",
+              "original",
+              "replacement"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "namespace": "resolved-removal",
+      "source": {
+        "sha": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+        "tree": "79444947f48872f7743002a796d8307dcc2cab81",
+        "status": ""
+      },
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 1,
+      "wall_seconds": 3.0952464700094424,
+      "max_rss_kib": 199840,
+      "stdout": {
+        "bytes": 5198,
+        "sha256": "69b51a04dfd7de837d67fe680fde21381600c94eac4d8f4507a4cae424dcf777"
+      },
+      "origins": 166,
+      "measurements": []
+    },
+    {
+      "namespace": "getter-entry-red",
+      "source": {
+        "sha": "515669fd11f0a96f866cb5c0dc5306c6aa39c962",
+        "tree": "c76c9177078fd3035764cc6432a968ffbf51ef1a",
+        "status": ""
+      },
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 1,
+      "wall_seconds": 2.8535893239895813,
+      "max_rss_kib": 176740,
+      "stdout": {
+        "bytes": 3767,
+        "sha256": "5ab08b284ccb82991e6bd553a38b66ce9c5e00aa3f680d9c51ab028caf5bd436"
+      },
+      "origins": 166,
+      "measurements": [
+        {
+          "relative_fixture": "test_recursive_global_capture_0",
+          "measurement": {
+            "refusal": null,
+            "error": "TypeError",
+            "message": "attribute name must be string, not 'dict'",
+            "actual_effects": [
+              "body"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "namespace": "terminal-native",
+      "source": {
+        "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+        "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+        "status": ""
+      },
+      "counts": {
+        "PASS": 127,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 128,
+      "wall_seconds": 17.366206129983766,
+      "max_rss_kib": 278840,
+      "stdout": {
+        "bytes": 22315,
+        "sha256": "fe1bb9c35649c5aaac34004d4d14b627f04fb8ae80efb597671b37e1d03f8279"
+      },
+      "origins": 168,
+      "measurements": [
+        {
+          "relative_fixture": "test_recursive_global_capture_0",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_1",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_2",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_recursive_global_capture_3",
+          "measurement": {
+            "refusal": "CheckpointIdentityError",
+            "error": "CheckpointIdentityError",
+            "message": "Strict checkpoint source identity is unavailable for builtin_function_or_method",
+            "actual_effects": []
+          }
+        },
+        {
+          "relative_fixture": "test_returned_frame_namespace_0",
+          "measurement": {
+            "original": 7,
+            "unchanged_resume": 7,
+            "before_effects": [
+              "original",
+              "original"
+            ],
+            "refusal": null,
+            "changed_resume": 107,
+            "history_complete": true,
+            "pointer_unchanged": true,
+            "actual_effects": [
+              "original",
+              "original",
+              "replacement"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "namespace": "terminal-removal",
+      "source": {
+        "sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+        "tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+        "status": ""
+      },
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": 1,
+      "wall_seconds": 3.0382767539995257,
+      "max_rss_kib": 199840,
+      "stdout": {
+        "bytes": 5198,
+        "sha256": "47527108a2751d593d178a92b9032954f7fd761802c814b15f075d41aa25185f"
+      },
+      "origins": 166,
+      "measurements": []
+    }
+  ],
+  "not_a_full_B_run": true,
+  "remaining_frame_namespace_falsifier": "B74 LIMITED; replacement suffix executes107 and actual filesystem event, without bound returned-context identity.",
+  "p40_class": "Ordinary finite data-field admission requires actual root lexical/object binding for builtin alias, scalar selector and iterator; recursively captured nested globals cannot authorize a different root value.",
+  "p41_inherited_attribution": "not_established; no waiver"
+}

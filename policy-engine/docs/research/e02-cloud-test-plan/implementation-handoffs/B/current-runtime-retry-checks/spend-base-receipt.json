@@ -1,0 +1,33 @@
+{
+  "mode": "base",
+  "base_sha": "80c9e28badea71d4bdfc74d3aa0f0cbff6c69d9c",
+  "candidate_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "input_sha256": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139",
+    "policy-engine/tests/unit/scientist/orchestration/engine/_retry_setup_probe.py": "8674a2409897c6f5a532b751a9a1187cae69f4205669d9925ac92853986ca747",
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+  },
+  "overlay_basis_sha": "80c9e28badea71d4bdfc74d3aa0f0cbff6c69d9c",
+  "overlay_basis_source_sha256": "da744df11256dbc85d67f1cf82caa3578d049555d3dc9ea4c24e4ca17493b80b",
+  "executed_overlay_source_sha256": "da744df11256dbc85d67f1cf82caa3578d049555d3dc9ea4c24e4ca17493b80b",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "-k",
+    "completed_failed_spend or framed_failed_spend or late_failed_spend or original_error_and_known_spend",
+    "--junitxml=/workspace/e02-B-current-runtime/_build/e02-current-runtime/spend-final-base/native.xml"
+  ],
+  "PYTHONPATH": "/workspace/e02-B-current-runtime/_build/e02-current-runtime/spend-final-base/overlay:/workspace/e02-B-current-runtime/policy-engine/src:/workspace/e02-B-current-runtime/policy-engine",
+  "POLISYOS_METRICS_PORT": "0",
+  "exit_code": 1,
+  "stdout_sha256": "5e8ee916fba40d2d3b8cc38c99012f6e36967397bcc3599206fff0f1f543f8ac"
+}

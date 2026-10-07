@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/README.md",
+      "bytes": 3398,
+      "sha256": "7115be425da5331514b51b85904073af57a40e47328d66e77da08b879745d3de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit-full-stdout.txt",
+      "bytes": 3696,
+      "sha256": "225deed86124a991c45cbbbe6623e7706564e53b964a1afea3546f8b2c4ccb33"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit.json",
+      "bytes": 137258,
+      "sha256": "1dfd98992a612b65d398628392b18bff6f04a2cd8dab2d453f980e7312f14ead"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit.py.txt",
+      "bytes": 19544,
+      "sha256": "d155a49493bea5996bb942df3c0e4d6288f133b3d97a82373fd03ec7a5f59c6c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/cost-input-custody.json",
+      "bytes": 796,
+      "sha256": "b2f051a2be3665c6e40802831dc0fc706efeee2e0699b5518bf13daa6f1146f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/individual-costs-1024.json",
+      "bytes": 50299,
+      "sha256": "b8f37d14b742006dea960b33b0a0ca2189ba632ac525082973c72114aeb18667"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/individual-costs-65536.json",
+      "bytes": 54778,
+      "sha256": "dc886c0024ed82080ae1710f7dadeea944d46cd8c0f1ed06535a2c0092953c1e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/judgment.json",
+      "bytes": 10468,
+      "sha256": "779394b57563d448de1bcb8b0acd78864839a6d3412f9f6c6c6d70980c0f80d4"
+    }
+  ],
+  "file_count": 8,
+  "payload_bytes": 280237,
+  "no_project_import_native_or_gate": true
+}

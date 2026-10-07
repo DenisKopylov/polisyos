@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/common/test_async_tools.py",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "tests/unit/remediation/test_run_03.py",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run-cache",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "610906bbb99dd5e26fa1494517d733fea3556075",
+  "tree": "2db184ce0cea106a0bb40f7c228acfe05b2a2020",
+  "head_after": "610906bbb99dd5e26fa1494517d733fea3556075",
+  "wall_s": 11.63818925000669,
+  "process_rusage_maxrss_kib": 130572,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current610-run.txt",
+  "output_sha256": "114a2afb2eadb87c01b8f590f7c5e59083535b9a9f5b08c84830de6b49ed637b",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

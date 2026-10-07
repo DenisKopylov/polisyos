@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-10-07T08:26:44.762360+00:00",
+  "finished_at": "2026-10-07T08:26:48.187061+00:00",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-module-frame-mirrored-749328",
+    "--junitxml",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "tree": "053cf4aa9b631a5bfaf98d8a7d788fc57f4e97f7",
+    "status": ""
+  },
+  "source_after": {
+    "sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "tree": "053cf4aa9b631a5bfaf98d8a7d788fc57f4e97f7",
+    "status": ""
+  },
+  "exit_code": 1,
+  "wait4_status": 256,
+  "signal": null,
+  "wall_seconds": 3.4247012510022614,
+  "max_rss_kib": 175080,
+  "user_cpu_seconds": 3.033623,
+  "system_cpu_seconds": 0.623853,
+  "stdout": {
+    "bytes": 5253,
+    "sha256": "c67d0417abfbb2680d4fad479d039b9a932b00f933fcd1444aa8c67b22e9eb4a"
+  }
+}

@@ -1,0 +1,71 @@
+from pathlib import Path, PurePosixPath
+import urllib.request, json, hashlib, concurrent.futures, tarfile, os, time
+ROOT=Path('/tmp/e02-B38-pg-evidence/oci'); ROOT.mkdir(exist_ok=True)
+EXPECTED='sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24'
+CONFIG='sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537'
+REG='https://registry-1.docker.io/v2/library/postgres/'
+token=json.load(urllib.request.urlopen('https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/postgres:pull'))['token']
+accept=','.join(['application/vnd.oci.image.index.v1+json','application/vnd.docker.distribution.manifest.list.v2+json','application/vnd.oci.image.manifest.v1+json','application/vnd.docker.distribution.manifest.v2+json'])
+def get(kind,digest):
+ req=urllib.request.Request(REG+kind+'/'+digest,headers={'Authorization':'Bearer '+token,'Accept':accept})
+ p=ROOT/(digest.split(':')[1]+('.json' if kind=='manifests' else '.blob'))
+ h=hashlib.sha256(); n=0
+ with urllib.request.urlopen(req,timeout=120) as r,p.open('xb') as w:
+  while b:=r.read(1024*1024):h.update(b);w.write(b);n+=len(b)
+ assert 'sha256:'+h.hexdigest()==digest,(kind,digest,h.hexdigest())
+ return p,n
+start=time.monotonic();indexp,_=get('manifests',EXPECTED);index=json.loads(indexp.read_bytes())
+manifestdigest=EXPECTED
+if 'manifests' in index:
+ matches=[m for m in index['manifests'] if m.get('platform',{}).get('os')=='linux' and m.get('platform',{}).get('architecture')=='amd64' and not m.get('platform',{}).get('variant')]
+ assert len(matches)==1,matches
+ manifestdigest=matches[0]['digest'];manifestp,_=get('manifests',manifestdigest);manifest=json.loads(manifestp.read_bytes())
+else:manifest=index
+assert manifest['config']['digest']==CONFIG
+configp,_=get('blobs',CONFIG)
+def layer(l):
+ p,n=get('blobs',l['digest']);assert n==l['size'];return {'digest':l['digest'],'bytes':n,'path':str(p)}
+with concurrent.futures.ThreadPoolExecutor() as pool:layers=list(pool.map(layer,manifest['layers']))
+meta={'root_digest':EXPECTED,'platform_manifest_digest':manifestdigest,'config_digest':CONFIG,'config_path':str(configp),'layers':layers,'wall_seconds':time.monotonic()-start,'network':'inherited proxy, verified TLS; token memory only'}
+(ROOT/'fetch.json').write_text(json.dumps(meta,indent=2)+'\n')
+# Resolve layer whiteouts in an in-memory final inventory before materializing any files.
+entries={}
+for layer in layers:
+ with tarfile.open(layer['path']) as tar:
+  for member in tar:
+   name=member.name.removeprefix('./').rstrip('/');q=PurePosixPath(name)
+   assert not q.is_absolute() and '..' not in q.parts,name
+   if not name:continue
+   if q.name=='.wh..wh..opq':
+    parent=str(q.parent);entries={n:v for n,v in entries.items() if not n.startswith(parent+'/')};continue
+   if q.name.startswith('.wh.'):
+    removed=str(q.parent/q.name[4:]);entries={n:v for n,v in entries.items() if n!=removed and not n.startswith(removed+'/')};continue
+   entries[name]=(layer['path'],member)
+rootfs=ROOT/'rootfs';rootfs.mkdir(exist_ok=False)
+# All parent directories must be actual directories, never a symlink to host paths.
+for name,(_,m) in entries.items():
+ parent=rootfs/PurePosixPath(name).parent;parent.mkdir(parents=True,exist_ok=True)
+ if m.isdir():(rootfs/name).mkdir(exist_ok=True)
+opened={}
+try:
+ for name,(archive,m) in entries.items():
+  dst=rootfs/name
+  if not m.isfile():continue
+  if archive not in opened:opened[archive]=tarfile.open(archive)
+  with opened[archive].extractfile(m) as r,dst.open('xb') as w:
+   while b:=r.read(1024*1024):w.write(b)
+  dst.chmod(m.mode)
+finally:
+ for tar in opened.values():tar.close()
+for name,(_,m) in entries.items():
+ dst=rootfs/name
+ if m.issym():
+  target=m.linkname
+  if target.startswith('/'):target=os.path.relpath(rootfs/target.lstrip('/'),dst.parent)
+  resolved=(dst.parent/target).resolve();assert resolved.is_relative_to(rootfs),name
+  dst.symlink_to(target)
+ elif m.islnk():
+  target=rootfs/m.linkname.removeprefix('./');assert target.resolve().is_relative_to(rootfs);os.link(target,dst)
+meta['rootfs']=str(rootfs);meta['final_members']=len(entries);meta['extraction']='final layered inventory, whiteouts resolved in memory, absolute symlinks rewritten within owned rootfs, no devices or host extraction'
+(ROOT/'fetch.json').write_text(json.dumps(meta,indent=2)+'\n')
+print(json.dumps({k:v for k,v in meta.items() if k!='layers'}))

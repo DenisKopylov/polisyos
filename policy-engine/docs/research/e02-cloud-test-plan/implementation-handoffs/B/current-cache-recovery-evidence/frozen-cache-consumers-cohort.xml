@@ -1,0 +1,1086 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="225" time="81.924" timestamp="2026-10-06T10:08:16.020775+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_cold_seed_is_off_loop_and_replays_real_operations[trace]" time="0.629" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_cold_seed_is_off_loop_and_replays_real_operations[checkpoint]" time="0.603" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_cold_seed_late_read_cannot_publish_cache[deadline-trace]" time="1.172" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_cold_seed_late_read_cannot_publish_cache[deadline-checkpoint]" time="1.201" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_cold_seed_late_read_cannot_publish_cache[cancel-trace]" time="1.171" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint]" time="1.169" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_successful_native_publication_restores_trace_hit_after_reopen" time="0.479" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[run-trace]" time="0.509" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[run-checkpoint]" time="0.506" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-trace]" time="0.516" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_recovery_respects_read_budget_and_warm_hit_skips_compute_budget[read-checkpoint]" time="0.532" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_seed_deadline_prevents_any_following_real_read[trace]" time="0.158" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_seed_deadline_prevents_any_following_real_read[checkpoint]" time="0.160" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_absent_owner_deadline_does_not_inherit_helper_timeout[recovery-trace]" time="0.829" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_absent_owner_deadline_does_not_inherit_helper_timeout[recovery-checkpoint]" time="0.786" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_absent_owner_deadline_does_not_inherit_helper_timeout[warm_read-trace]" time="0.781" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_absent_owner_deadline_does_not_inherit_helper_timeout[warm_read-checkpoint]" time="0.804" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_startup_and_body_share_one_absolute_workflow_deadline" time="0.956" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_publication_trace_requires_completed_verified_storage[unbounded]" time="0.762" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_publication_trace_requires_completed_verified_storage[cancel]" time="0.703" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_cache_recovery" name="test_publication_trace_requires_completed_verified_storage[corrupt_destination]" time="0.675" /><testcase classname="tests.unit.scientist.orchestration.engine.test_cache_reference_custody" name="test_seed_rejects_valid_foreign_manifest_view_without_default_fallback[trace]" time="0.048" /><testcase classname="tests.unit.scientist.orchestration.engine.test_cache_reference_custody" name="test_seed_rejects_valid_foreign_manifest_view_without_default_fallback[checkpoint]" time="0.046" /><testcase classname="tests.unit.scientist.orchestration.engine.test_cache_reference_custody" name="test_verified_default_does_not_dedupe_a_distinct_foreign_view" time="0.045" /><testcase classname="tests.unit.scientist.orchestration.engine.test_cache_reference_custody" name="test_successful_full_ref_dedupe_does_not_skip_another_entry" time="0.061" /><testcase classname="tests.unit.scientist.orchestration.engine.test_cache_reference_custody" name="test_legacy_outcome_ref_keeps_its_selected_manifest_view" time="0.063" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_simple_linear_dag" time="0.007" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_parallel_tier" time="0.013" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_failed_node_blocks_downstream" time="0.008" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_max_parallelism_one_degrades_to_sequential" time="0.011" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_metrics_tier_completed_called" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_async_executor_persists_via_async_artifact_store_adapter" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor" name="test_no_metrics_no_crash" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries" name="test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not" time="0.039" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries" name="test_cache_io_does_not_block_independent_coroutine" time="0.147" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries" name="test_cache_timeout_passes_remaining_deadline_to_producer" time="0.049" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries" name="test_cache_put_does_not_block_and_failed_entry_is_not_published" time="0.185" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries" name="test_failed_cache_entry_does_not_publish_partial_cas_artifacts" time="0.010" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries" name="test_incompatible_cached_replay_is_discarded_and_recomputed" time="0.053" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncFailFastAdmission" name="test_fail_fast_rechecks_cancellation_after_semaphore_acquire" time="0.048" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncFailFastAdmission" name="test_metric_failure_after_semaphore_acquire_releases_slot" time="0.094" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation" name="test_parallel_nodes_get_independent_copies" time="0.008" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation" name="test_bind_failure_becomes_typed_node_error" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation" name="test_runtime_lookup_failure_becomes_typed_node_error" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints" name="test_tier_rollback_on_failure" time="0.007" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints" name="test_rollback_compensation_hook_receives_fail_fast_event" time="0.009" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints" name="test_failed_single_node_does_not_commit_state_in_continue_mode" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints" name="test_parallel_merge_conflict_rolls_back_whole_tier" time="0.009" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints" name="test_parallel_merge_policy_can_resolve_conflict" time="0.009" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestWorkflowTimeout" name="test_workflow_timeout_raises" time="0.118" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestWorkflowTimeout" name="test_no_timeout_by_default" time="0.010" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestBudgetIntegration" name="test_budget_exhausted_fails_node" time="0.007" /><testcase classname="tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestBackwardCompat" name="test_new_params_have_defaults" time="0.009" /><testcase classname="tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency" name="test_executor_cache_hit_after_restart_same_run_id" time="0.648" /><testcase classname="tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency" name="test_executor_cache_hit_preserves_unrelated_current_state" time="0.578" /><testcase classname="tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency" name="test_executor_cache_hit_replays_top_level_ref_write" time="0.485" /><testcase classname="tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency" name="test_executor_reexecutes_when_cached_replay_target_is_incompatible" time="0.519" /><testcase classname="tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency" name="test_executor_resume_retries_failed_node_and_reuses_cached_ok_node" time="0.468" /><testcase classname="tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency" name="test_executor_failed_node_state_is_not_committed" time="0.281" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_compute_idempotency_key_stable_for_same_inputs" time="0.219" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_compute_idempotency_key_changes_on_artifact_change" time="0.242" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_idempotency_key_preserves_presence_and_nested_missing_semantics" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_idempotency_key_applies_only_declared_consumer_default" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_compute_idempotency_key_available_for_all_builtin_nodes" time="2.042" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_roundtrip" time="0.036" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_failed_publication_has_no_index_or_new_cas_ids" time="0.007" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_reloads_legacy_v1_entry" time="0.054" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache" time="0.037" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_expired_deadline_before_store_io" time="0.029" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_expired_deadline_before_publication" time="0.007" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_tampered_embedded_outcome" time="0.052" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_does_not_replay_status_blind_epoch_two_entries" time="0.054" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_serializes_concurrent_journals_consistently" time="0.150" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_corrupted_entry_is_treated_as_miss" time="0.035" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_does_not_reuse_outcome_without_journal" time="0.030" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_unknown_replay_versions[schema_version-9.9]" time="0.048" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_unknown_replay_versions[state_mutations_version-2.0]" time="0.046" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_rejects_legacy_empty_unproven_contract" time="0.110" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_seed_from_trace" time="0.033" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_node_result_cache_seed_ignores_other_runs" time="0.034" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_output_aware_cache_preserves_complete_outcome" time="0.096" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_ordinary_cache_embeds_outcome_in_current_entry_epoch" time="0.029" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_output_aware_cache_writes_current_embedded_epoch" time="0.083" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_output_aware_cache_refuses_loading_base_epoch_entry" time="0.062" /><testcase classname="tests.unit.scientist.orchestration.engine.test_idempotency" name="test_output_aware_cache_refuses_old_entry_epoch" time="0.070" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_compute_workflow_fingerprint_changes_on_spec_change" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_head_roundtrip" time="0.033" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_create_checkpoint_async_repeated_soak_smoke" time="0.497" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_producers_reject_caller_asserted_scope[False]" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_producers_reject_caller_asserted_scope[True]" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_producer_captures_active_scope_when_omitted" time="0.035" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_hook_async_repeated_writes_soak_smoke" time="0.498" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_head_invalid_json_raises_typed_error" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_history_invalid_json_raises_typed_error" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resolve_latest_checkpoint_success" time="0.037" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resolve_latest_checkpoint_repairs_history_when_head_is_newer" time="0.059" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resolve_latest_checkpoint_rejects_head_history_conflict" time="0.049" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resolve_latest_checkpoint_rejects_divergent_latest_history_entries" time="0.056" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resolve_latest_checkpoint_rejects_head_artifact_metadata_mismatch" time="0.033" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resolve_latest_checkpoint_detects_corruption" time="0.036" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_run_lock_conflict" time="0.004" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_hook_disabled_by_policy" time="0.007" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_hook_gc_failure_does_not_rollback_commit_bookkeeping" time="0.060" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_hook_runtime_metadata_roundtrip_preserves_sequence" time="0.054" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_hook_runtime_metadata_serializes_store_config" time="0.006" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_restore_checkpoint_hook_from_runtime_metadata_rejects_invalid_store_config" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_checkpoint_hook_async_path_uses_async_artifact_store_adapter" time="0.032" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resume_allows_valid_state_without_cache_refs" time="0.414" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_resume_refuses_status_blind_checkpoint_completed_nodes" time="0.035" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_incremental_checkpoint_materializes_full_state" time="0.053" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint" name="test_incremental_checkpoint_rejects_cross_tenant_base" time="0.057" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointGCPolicy" name="test_defaults" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointGCPolicy" name="test_extra_forbid" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointGCPolicy" name="test_bounds" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints" name="test_empty_dir_noop" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints" name="test_with_head_returns_zero" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints" name="test_history_is_written_alongside_head" time="0.005" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints" name="test_gc_prunes_old_history_by_count_and_age" time="0.013" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints" name="test_gc_keeps_incremental_ancestors_needed_by_head" time="0.009" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation" name="test_same_version_passes" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation" name="test_minor_upgrade_passes" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation" name="test_minor_newer_warns" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation" name="test_major_mismatch_raises" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation" name="test_major_mismatch_reverse" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation" name="test_invalid_format_raises" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestLockRetry" name="test_single_attempt_default" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestLockRetry" name="test_retry_succeeds_second_attempt" time="0.053" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestLockRetry" name="test_all_attempts_exhausted" time="0.002" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestFileSystemCheckpointStore" name="test_roundtrip" time="0.004" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestFileSystemCheckpointStore" name="test_read_missing_returns_none" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestFileSystemCheckpointStore" name="test_protocol_compliance" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_branch_state_isolates_declared_nested_write_path" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_branch_state_uses_copy_on_write_overlay_for_nested_pydantic_models" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_branch_state_deeply_isolates_nested_elements_of_declared_leaf" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_branch_state_records_top_level_scalar_ref_assignment" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_snapshot_state_deep_clones_mutable_state_surfaces" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_cache_replay_normalizes_specialized_artifact_refs" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_artifacts_index_rejects_malformed_specialized_ref_before_journaling" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_branching" name="test_artifact_shaped_json_remains_json_outside_artifacts_index" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_empty_outcomes" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_single_outcome_disjoint_dict_write" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_two_outcomes_disjoint_writes" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_overlapping_dict_keys_conflict" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_disjoint_dict_keys_same_field" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_base_state_unchanged_on_empty" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_scalar_field_write" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_preserves_base_keys_on_merge" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_dot_path_writes_merge_atomically" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_dot_path_conflict_keeps_base_state" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_last_write_wins_is_explicit" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_nested_overlap_is_reported_as_conflict" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_preserves_unrelated_changes_and_reapplies_same_value_write" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_distinguishes_delete_null_and_no_write" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_rejects_deletion_from_protected_index" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_replays_top_level_ref_and_same_value_write" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_preserves_child_set_then_parent_delete_order" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_preserves_parent_set_then_child_delete_order" time="0.000" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_deduplicates_overlapping_write_specs" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_invalid_container_or_index_fails_closed[current_params0]" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_invalid_container_or_index_fails_closed[current_params1]" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_invalid_container_or_index_fails_closed[current_params2]" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_invalid_container_or_index_fails_closed[current_params3]" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_replace_requires_current_list_target[current_params0]" time="0.001" /><testcase classname="tests.unit.scientist.orchestration.engine.test_state_merge.TestMergeParallelOutcomes" name="test_replay_replace_requires_current_list_target[current_params1]" time="0.001" /><testcase classname="tests.unit.remediation.test_res_01" name="test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load" time="0.035" /><testcase classname="tests.unit.remediation.test_res_01" name="test_cache_seed_does_not_mix_different_content_under_same_key" time="0.050"><failure message="assert 'sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03' in [&quot;artifact_id=ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03') kind='scienti...ce71853409322452a3aa51') kind='scientist.node_cache_entry' media_type='application/json' manifest_profile_sha256=None&quot;]&#10; +  where 'sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03' = str(ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03'))&#10; +    where ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03') = ArtifactRef(artifact_id=ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03'), kind='scientist.node_cache_entry', media_type='application/json', manifest_profile_sha256=None).artifact_id">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_does_not_mix_d0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f55a694aba0&gt;
+
+    def test_cache_seed_does_not_mix_different_content_under_same_key(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_conflict"
+        key = "b" * 64
+        first = NodeResultCache(store, run_id=run_id).put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "first"),
+        )
+        second = NodeResultCache(store, run_id=run_id).put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "second"),
+        )
+    
+        reads: list[str] = []
+        original_get_bytes = store.get_bytes
+    
+        def counted_get_bytes(artifact_id):
+            reads.append(str(artifact_id))
+            return original_get_bytes(artifact_id)
+    
+        monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.seed_from_entry_refs([first, second]) == 1
+&gt;       assert str(first.artifact_id) in reads
+E       assert 'sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03' in ["artifact_id=ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03') kind='scienti...ce71853409322452a3aa51') kind='scientist.node_cache_entry' media_type='application/json' manifest_profile_sha256=None"]
+E        +  where 'sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03' = str(ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03'))
+E        +    where ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03') = ArtifactRef(artifact_id=ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03'), kind='scientist.node_cache_entry', media_type='application/json', manifest_profile_sha256=None).artifact_id
+
+policy-engine/tests/unit/remediation/test_res_01.py:106: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_cache_seed_revalidates_full_ref_identity[kind-scientist.other_cache_entry]" time="0.033"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'immutable_epoch_mismatch'&#10;  Actual message: 'Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu0')
+field = 'kind', value = 'scientist.other_cache_entry'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+        with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+&gt;           replay.load_entry(altered_ref)
+
+policy-engine/tests/unit/remediation/test_res_01.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:712: in load_entry
+    entry, _decoded, proof_valid = self._read_entry(
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:451: in _read_entry
+    payload = from_canonical_bytes(self._store.get_bytes(entry_ref))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:1286: in get_bytes
+    data = self._read_verified_blob(aid, blob, manifest_ref=ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4007: in _read_verified_blob
+    return _read_verified_blob(
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:108: in read_verified_blob
+    manifest = load_manifest(artifact_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4010: in &lt;lambda&gt;
+    load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55b1e67350&gt;
+artifact_id = ArtifactRef(artifact_id=ArtifactID(root='sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'), kind='scientist.other_cache_entry', media_type='application/json', manifest_profile_sha256=None)
+
+    @_transactional_read()
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -&gt; ArtifactManifest:
+        """Load and validate the default or explicitly selected manifest view.
+    
+        Raises:
+            FileNotFoundError: If the manifest file is missing.
+            ValueError: If the manifest JSON does not match `ArtifactManifest`.
+        """
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="read_manifest",
+                ref=ref,
+            )
+        else:
+            self._require_default_manifest_access(
+                aid,
+                operation="read_manifest",
+                ref=ref,
+            )
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
+        manifest = self._manifests.read(manp)
+        try:
+            _validate_manifest_identity(aid, manifest)
+            if profile_sha256 is not None:
+                actual_profile = self._manifests.profile_sha256(manifest)
+                if actual_profile != profile_sha256:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {aid}"
+                    )
+            if ref is not None and (
+                ref.kind != manifest.kind or ref.media_type != manifest.media_type
+            ):
+&gt;               raise ArtifactIntegrityError(
+                    f"Artifact reference type does not match selected manifest for {aid}"
+                )
+E               polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86
+
+policy-engine/src/polisyos/core/artifacts/store.py:1454: ArtifactIntegrityError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu0')
+field = 'kind', value = 'scientist.other_cache_entry'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+&gt;       with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'immutable_epoch_mismatch'
+E         Actual message: 'Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'
+
+policy-engine/tests/unit/remediation/test_res_01.py:135: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_cache_seed_revalidates_full_ref_identity[media_type-text/plain]" time="0.030"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'immutable_epoch_mismatch'&#10;  Actual message: 'Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu1')
+field = 'media_type', value = 'text/plain'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+        with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+&gt;           replay.load_entry(altered_ref)
+
+policy-engine/tests/unit/remediation/test_res_01.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:712: in load_entry
+    entry, _decoded, proof_valid = self._read_entry(
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:451: in _read_entry
+    payload = from_canonical_bytes(self._store.get_bytes(entry_ref))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:1286: in get_bytes
+    data = self._read_verified_blob(aid, blob, manifest_ref=ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4007: in _read_verified_blob
+    return _read_verified_blob(
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:108: in read_verified_blob
+    manifest = load_manifest(artifact_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4010: in &lt;lambda&gt;
+    load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55b1e67b50&gt;
+artifact_id = ArtifactRef(artifact_id=ArtifactID(root='sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'), kind='scientist.node_cache_entry', media_type='text/plain', manifest_profile_sha256=None)
+
+    @_transactional_read()
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -&gt; ArtifactManifest:
+        """Load and validate the default or explicitly selected manifest view.
+    
+        Raises:
+            FileNotFoundError: If the manifest file is missing.
+            ValueError: If the manifest JSON does not match `ArtifactManifest`.
+        """
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="read_manifest",
+                ref=ref,
+            )
+        else:
+            self._require_default_manifest_access(
+                aid,
+                operation="read_manifest",
+                ref=ref,
+            )
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
+        manifest = self._manifests.read(manp)
+        try:
+            _validate_manifest_identity(aid, manifest)
+            if profile_sha256 is not None:
+                actual_profile = self._manifests.profile_sha256(manifest)
+                if actual_profile != profile_sha256:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {aid}"
+                    )
+            if ref is not None and (
+                ref.kind != manifest.kind or ref.media_type != manifest.media_type
+            ):
+&gt;               raise ArtifactIntegrityError(
+                    f"Artifact reference type does not match selected manifest for {aid}"
+                )
+E               polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86
+
+policy-engine/src/polisyos/core/artifacts/store.py:1454: ArtifactIntegrityError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu1')
+field = 'media_type', value = 'text/plain'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+&gt;       with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'immutable_epoch_mismatch'
+E         Actual message: 'Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'
+
+policy-engine/tests/unit/remediation/test_res_01.py:135: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_resume_preserves_origin_fingerprint_across_two_stops" time="0.661" /><testcase classname="tests.unit.remediation.test_res_01" name="test_full_valid_state_resumes_without_unnecessary_cache_seed" time="0.175"><failure message="polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_full_valid_state_resumes_0')
+
+    def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+        run_id = "R_res_01_full_state"
+        state = ExperimentState(
+            run_id=run_id,
+            params={"a": 1, "b": 2},
+        )
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        ctx, bundle_ref = _context(store, run_id)
+        del ctx
+&gt;       resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+        )
+
+policy-engine/tests/unit/remediation/test_res_01.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4cecf50&gt;
+run_id = 'R_res_01_full_state'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -&gt; Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+&gt;               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_resume_rejects_missing_state_written_by_completed_node" time="0.031"><failure message="polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_resume_rejects_missing_st0')
+
+    def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        run_id = "R_res_01_missing_state"
+        state = ExperimentState(run_id=run_id, params={"a": 1})
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        with pytest.raises(CheckpointCorruptedError, match="params.b"):
+&gt;           resume_from_checkpoint(
+                store,
+                run_id,
+                workflow=workflow,
+                registry=registry,
+            )
+
+policy-engine/tests/unit/remediation/test_res_01.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4ced250&gt;
+run_id = 'R_res_01_missing_state'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -&gt; Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+&gt;               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_allow_replay_rebuilds_completed_nodes_for_missing_state" time="0.179"><failure message="polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_allow_replay_rebuilds_com0')
+
+    def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
+        registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+        run_id = "R_res_01_allow_replay"
+        state = ExperimentState(run_id=run_id, params={"a": 1})
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        ctx, bundle_ref = _context(store, run_id)
+        del ctx
+&gt;       resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+            resume_strategy="allow_replay",
+        )
+
+policy-engine/tests/unit/remediation/test_res_01.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4cedf50&gt;
+run_id = 'R_res_01_allow_replay'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -&gt; Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+&gt;               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_changed_functional_input_remains_incompatible_with_checkpoint" time="0.032"><failure message="polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_changed_functional_input_0')
+
+    def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path: Path) -&gt; None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow().model_copy(
+            update={
+                "nodes": [
+                    _resume_workflow().nodes[0].model_copy(update={"params": {"mode": "v1"}}),
+                    *_resume_workflow().nodes[1:],
+                ]
+            }
+        )
+        run_id = "R_res_01_changed_input"
+        state = ExperimentState(run_id=run_id)
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=0,
+            completed_node_alias="a",
+            completed_node_id="scientist.node_res_a@1.0.0",
+            completed_nodes=["a"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=0,
+            node_alias="a",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+        changed = workflow.model_copy(
+            update={
+                "nodes": [
+                    workflow.nodes[0].model_copy(update={"params": {"mode": "v2"}}),
+                    *workflow.nodes[1:],
+                ]
+            }
+        )
+        with pytest.raises(WorkflowMismatchError):
+&gt;           resume_from_checkpoint(store, run_id, workflow=changed, registry=_resume_registry())
+
+policy-engine/tests/unit/remediation/test_res_01.py:470: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4cee350&gt;
+run_id = 'R_res_01_changed_input'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -&gt; Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+&gt;               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError</failure></testcase><testcase classname="tests.unit.remediation.test_res_01" name="test_duplicate_cache_ref_is_not_independent_coverage" time="0.032" /><testcase classname="tests.unit.remediation.test_res_02" name="test_single_skip_is_not_added_to_checkpoint_completed_set" time="0.003" /><testcase classname="tests.unit.remediation.test_res_02" name="test_independent_neighbor_does_not_promote_parallel_skip_to_completed" time="0.004" /><testcase classname="tests.unit.remediation.test_res_02" name="test_parallel_tier_publishes_one_checkpoint_with_full_completed_set_and_cache_refs" time="0.004" /><testcase classname="tests.unit.remediation.test_res_02" name="test_fail_fast_discards_parallel_tier_without_checkpoint_but_keeps_output_record" time="0.003" /><testcase classname="tests.unit.remediation.test_res_02" name="test_continue_checkpoints_successes_and_preserves_their_outputs" time="0.003" /><testcase classname="tests.unit.remediation.test_res_02" name="test_serial_tier_supports_async_only_node_checkpoint_hook" time="0.003" /><testcase classname="tests.unit.remediation.test_res_02" name="test_parallel_tier_without_checkpoint_hook_still_executes" time="0.003" /><testcase classname="tests.unit.remediation.test_res_02" name="test_multi_node_tier_rejects_node_only_hook_before_node_execution" time="0.002" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_readiness_launch_baseline_is_not_execution_input" time="0.000" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_readiness_launch_pair_isolates_nested_mutable_state" time="0.000" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_readiness_rejects_journal_operation_outside_declared_paths" time="0.000" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_readiness_rebases_stale_returned_snapshot_to_declared_delta" time="0.001" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_readiness_rejects_undeclared_returned_snapshot_write" time="0.000" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_independent_successor_starts_before_slow_sibling" time="0.004" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_unordered_read_write_overlap_keeps_tier_barrier" time="0.003" /><testcase classname="tests.unit.remediation.test_exe_02" name="test_declared_dependency_keeps_successor_after_b_and_overlap" time="0.004" /><testcase classname="tests.unit.scientist.mirror_contracts.test_local_runner" name="test_local_runner_source_modules_have_static_contracts" time="0.008" /><testcase classname="tests.unit.core.artifacts.test_async_store" name="test_async_artifact_store_round_trip" time="0.035" /><testcase classname="tests.unit.core.artifacts.test_async_store" name="test_async_artifact_store_times_out_on_slow_backend" time="0.051" /><testcase classname="tests.unit.core.artifacts.test_async_store" name="test_ensure_async_artifact_store_reuses_existing_async_store" time="0.008" /><testcase classname="tests.unit.common.test_async_tools" name="test_function_type_parameters_resolve_without_module_typevar" time="0.001" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_coro_sync_returns_result_without_running_loop" time="0.000" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_coro_sync_works_inside_running_loop" time="0.011" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_coro_sync_preserves_context_inside_running_loop" time="0.001" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_coro_sync_times_out_instead_of_hanging" time="0.051" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_blocking_async_keeps_event_loop_responsive" time="0.051" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_blocking_async_times_out" time="0.051" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_blocking_async_preserves_inner_timeout_message" time="0.001" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_blocking_async_reuses_shared_executor_soak_smoke" time="0.003" /><testcase classname="tests.unit.common.test_async_tools" name="test_run_blocking_async_concurrent_soak_smoke" time="0.003" /><testcase classname="tests.unit.common.test_async_tools" name="test_done_callbacks_hold_physical_capacity_and_refuse_nested_work" time="0.002" /><testcase classname="tests.unit.common.test_async_tools" name="test_worker_body_refuses_nested_work_when_physically_full" time="0.002" /><testcase classname="tests.unit.common.test_async_tools" name="test_nested_callback_uses_an_actual_spare_worker" time="0.001" /><testcase classname="tests.unit.common.test_async_tools" name="test_late_callback_refuses_nested_work_under_new_full_workers" time="0.002" /><testcase classname="tests.unit.common.test_async_tools" name="test_proxy_queue_cancellation_notifies_waiters_and_never_executes" time="0.001" /><testcase classname="tests.unit.common.test_async_tools" name="test_proxy_callback_order_exception_context_and_late_registration" time="0.003" /><testcase classname="tests.unit.common.test_async_tools" name="test_proxy_future_preserves_asyncio_result_exception_and_context" time="0.002" /><testcase classname="tests.unit.common.test_async_tools" name="test_shutdown_cancel_callback_can_submit_without_a_lock_cycle" time="0.069" /><testcase classname="tests.unit.common.test_async_tools" name="test_explicit_unbounded_owner_does_not_inherit_helper_default" time="0.041" /><testcase classname="tests.unit.common.test_async_tools" name="test_unbounded_and_float_timeout_are_rejected_before_admission" time="0.001" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated" time="0.537" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-b-cell-a]" time="0.584" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-a-cell-b]" time="0.620" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_resume_falls_back_to_local_runner_when_distributed_backend_is_configured" time="0.536" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_resume_uses_configured_distributed_runner_with_pruned_workflow" time="0.544" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_truncated" time="0.521" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_parallel_tier_rejects_node_only_hook_before_any_side_effect" time="0.157" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer" time="8.872" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_async_executor_parallel_tier_checkpoints_merged_state_for_resume" time="0.497" /><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier" time="15.902"><failure message="assert [0, 0] == [1, 1]&#10;  &#10;  At index 0 diff: 0 != 1&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_seeded_checkpoint_publica0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f55f5202890&gt;
+
+    def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A fresh reader follows only the atomic head's committed tier frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+        for cut in ("after_artifact_before_head", "after_head_before_history"):
+            store = FileSystemCAS(tmp_path / cut)
+            workflow = _seeded_parallel_workflow()
+            run_id = f"R_b73_seeded_publication_cut_{cut}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            run_dir = Path(store.root) / "runs" / run_id
+            seed_head = load_checkpoint_head(run_dir)
+            assert seed_head is not None
+            seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+            seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+            assert seed_completed_nodes == ["seed"]
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=seed_completed_nodes,
+                )
+            )
+            phase_queue = process_context.Queue()
+            release_event = process_context.Event()
+            writer = process_context.Process(
+                target=_b73_pause_writer_at_owner_phase,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    cut,
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head",
+                    phase_queue,
+                    release_event,
+                ),
+            )
+            try:
+                writer.start()
+                observed = phase_queue.get(timeout=60)
+                assert observed["phase"] == cut
+                remove_left_for_cut = (
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head"
+                )
+                if remove_left_for_cut:
+                    assert observed["mutation_receipt"] == {
+                        "source_sha256": (
+                            "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+                        ),
+                        "method": "AsyncWorkflowExecutor.execute",
+                        "original_expression": "completed_nodes.extend(tier_completed)",
+                        "mutated_expression": (
+                            "completed_nodes.extend(("
+                            "b73_frontier_alias for b73_frontier_alias "
+                            "in tier_completed if b73_frontier_alias != 'left'))"
+                        ),
+                        "mutant_installed": True,
+                    }
+                else:
+                    assert observed["mutation_receipt"] is None
+                assert observed["left_calls"] == 1
+                assert observed["right_calls"] == 1
+                assert observed["final_calls"] == 0
+    
+                observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+                history = load_checkpoint_history(run_dir)
+                history_refs = (
+                    []
+                    if history is None
+                    else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+                )
+                if cut == "after_artifact_before_head":
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head == seed_head
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    uncommitted = load_checkpoint(store, observed_ref)
+                    uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                    assert (
+                        uncommitted.metadata.completed_node_status_contract
+                        == "native_node_outcome_v1"
+                    )
+                    assert uncommitted_state["params"] == {
+                        "seed": 29,
+                        "step1": 1,
+                        "left": 1,
+                        "right": 2,
+                    }
+                    _assert_tier_cache_entries_bind_node_identity_and_content(
+                        store,
+                        run_id=run_id,
+                        workflow=workflow,
+                        completed_nodes=["seed", "left", "right"],
+                        checkpoint_state=uncommitted_state,
+                        cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                    )
+                    assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
+                    expected_before_resume = ["seed"]
+                    expected_peer_calls = [1, 1]
+                else:
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head is not None
+                    assert current_head.checkpoint_ref == observed_ref
+                    assert current_head.sequence_number == observed["sequence_number"]
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    expected_before_resume = ["seed", "left", "right"]
+                    expected_peer_calls = [0, 0]
+    
+                writer.terminate()
+                writer.join(timeout=5)
+                assert not writer.is_alive()
+                assert writer.exitcode != 0
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                phase_queue.close()
+    
+            result_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_fresh_reader_then_resume,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    result_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                result = result_queue.get(timeout=5)
+                assert reader.exitcode == 0, result
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                result_queue.close()
+    
+            assert result["pid"] != os.getpid()
+            assert result["before_resume"]["origin_workflow_fingerprint"] == (
+                expected_origin_fingerprint
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if cut == "after_artifact_before_head"
+                else expected_residual_fingerprint
+            )
+            assert result["before_resume"]["workflow_fingerprint"] == (
+                expected_current_fingerprint
+            )
+            assert result["before_resume"]["completed_nodes"] == expected_before_resume
+            if cut == "after_head_before_history":
+                assert result["before_resume"]["params"] == {
+                    "seed": 29,
+                    "step1": 1,
+                    "left": 1,
+                    "right": 2,
+                }
+                assert result["before_resume"]["cache_aliases"] == ["left", "right"]
+            else:
+                assert result["before_resume"]["params"] == {"seed": 29, "step1": 1}
+                assert result["before_resume"]["cache_entry_refs"] == []
+                assert result["before_resume"]["cache_aliases"] == []
+            assert result["report_status"] == "ok"
+            assert result["resumed_params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+                "final": True,
+            }
+&gt;           assert result["peer_calls"] == expected_peer_calls
+E           assert [0, 0] == [1, 1]
+E             
+E             At index 0 diff: 0 != 1
+E             Use -v to get more diff
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1546: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.test_checkpoint_resume" name="test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer" time="17.507"><failure message="assert [0, 1] == [1, 1]&#10;  &#10;  At index 0 diff: 0 != 1&#10;  Use -v to get more diff">tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_parallel_resume_fail_fast0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f55f5038210&gt;
+
+    def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Fresh readers retry only the peers absent from the durable frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+    
+        error_policies: tuple[Literal["fail_fast", "continue"], ...] = ("fail_fast", "continue")
+        for error_policy in error_policies:
+            store = FileSystemCAS(tmp_path / error_policy)
+            workflow = _seeded_parallel_workflow(error_policy=error_policy)
+            run_id = f"R_b73_failure_policy_{error_policy}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            seed = resolve_latest_checkpoint(store, run_id)
+            assert seed is not None
+            _, seed_checkpoint = seed
+            assert seed_checkpoint.state is not None
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=list(seed_checkpoint.metadata.completed_nodes),
+                )
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if error_policy == "fail_fast"
+                else expected_residual_fingerprint
+            )
+    
+            writer_queue = process_context.Queue()
+            writer = process_context.Process(
+                target=_b73_failure_policy_writer,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    writer_queue,
+                ),
+            )
+            try:
+                writer.start()
+                writer.join(timeout=60)
+                assert writer.exitcode == 0
+                first = writer_queue.get(timeout=5)
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                writer_queue.close()
+    
+            assert first["pid"] != os.getpid()
+            assert first["report_status"] == "fail"
+            assert first["peer_calls"] == [1, 1]
+            if error_policy == "fail_fast":
+                assert first["completed_nodes"] == ["seed"]
+                assert first["params"] == {"seed": 29, "step1": 1}
+                assert first["cache_entry_refs"] == []
+            else:
+                assert first["completed_nodes"] == ["seed", "left"]
+                assert first["params"] == {"seed": 29, "step1": 1, "left": 1}
+                assert len(first["cache_entry_refs"]) == 1
+    
+            reader_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_failure_policy_fresh_reader,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    expected_current_fingerprint,
+                    False,
+                    reader_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                assert reader.exitcode == 0
+                retried = reader_queue.get(timeout=5)
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                reader_queue.close()
+    
+            assert retried["pid"] != first["pid"]
+            before = retried["before_resume"]
+            assert before["origin_workflow_fingerprint"] == expected_origin_fingerprint
+            assert before["workflow_fingerprint"] == expected_current_fingerprint
+            assert retried["report_status"] == "ok"
+            assert retried["resumed_params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+                "final": True,
+            }
+&gt;           assert retried["peer_calls"] == (
+                [1, 1] if error_policy == "fail_fast" else [0, 1]
+            )
+E           assert [0, 1] == [1, 1]
+E             
+E             At index 0 diff: 0 != 1
+E             Use -v to get more diff
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1782: AssertionError</failure></testcase></testsuite></testsuites>

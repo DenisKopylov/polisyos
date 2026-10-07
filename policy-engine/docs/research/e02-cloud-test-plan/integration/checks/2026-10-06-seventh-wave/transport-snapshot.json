@@ -1,0 +1,135 @@
+{
+  "review_anchor": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "observed_tip_updates": {
+    "origin/codex/e02-A-compiler-full": {
+      "previous": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+      "head": "44f0ac8d62da3d96464515b58c5bc29f03d238fa"
+    },
+    "origin/codex/e02-A-full-queue": {
+      "previous": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
+      "head": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15"
+    },
+    "origin/codex/e02-A-replay-full": {
+      "previous": "162231e8baf0ff3e840cf7ff9ef99a9acfb02878",
+      "head": "164cc001a81a570657079a1666e70ffe3650d82a"
+    },
+    "origin/codex/e02-A-s10-verifier": {
+      "previous": "be8f8d53597b8cdd480a28b9ab023c34facf5726",
+      "head": "a83f7eda380eb516d5162bfa11d7dc52278bc673"
+    },
+    "origin/codex/e02-B-current-adapters": {
+      "previous": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+      "head": "84566f836be6efaa42b26ccd9163c937ce4ef118"
+    },
+    "origin/codex/e02-B-current-cas-generation": {
+      "previous": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+      "head": "d021a262a54eae8558fb81b6ae89d02049277d2e"
+    },
+    "origin/codex/e02-B-current-composition": {
+      "previous": "965744100e645a39f0ecc19558656aa8c0878496",
+      "head": "da924a4cbac8db9bc461e9c5ef3513c838bdf9ba"
+    },
+    "origin/codex/e02-B-current-coordination": {
+      "previous": "b824930d0269bb6808675cf764d0394899106e4c",
+      "head": "456f34938731b1ef11555d8333d011d3552574ec"
+    },
+    "origin/codex/e02-B-current-durability": {
+      "previous": "67c4a6f6f4e396c61d26846c51127cc4724978e1",
+      "head": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6"
+    },
+    "origin/codex/e02-B-current-execution-state": {
+      "previous": "5ba2411581d164d1c5051907799a3b80337ba3ca",
+      "head": "f70331f5c007ec8a9886a50bc6c8da4fbb35a24d"
+    },
+    "origin/codex/e02-B-current-runtime": {
+      "previous": "dae863be52dc612e7ccef8b52a542159ca69e330",
+      "head": "eec8523d7d901cdaf9f93ef50d06569096dfe1bc"
+    },
+    "origin/codex/e02-C-hygiene-20261006": {
+      "previous": null,
+      "head": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3"
+    },
+    "origin/codex/e02-C-migrations-20261006": {
+      "previous": null,
+      "head": "552c7d923130b25480fc3f43eae0164e38063f1d"
+    },
+    "origin/codex/e02-C-plugins-20261006": {
+      "previous": null,
+      "head": "976212bbefb684da4823f61d810bf7a208a6e298"
+    },
+    "origin/codex/e02-C-schema-20261006": {
+      "previous": null,
+      "head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6"
+    },
+    "origin/codex/e02-D-published-champion": {
+      "previous": "1615d2923ce5b276ab4c243364ef5d841d1809ed",
+      "head": "b2fefca972c4fddb8cd372a3c4cef0f0de94fca0"
+    },
+    "origin/codex/e02-D-published-funnel": {
+      "previous": "d212314677ed2a6af8021350ec135e568db719d7",
+      "head": "1159cad1c970c783b30c943cf2eb38b61265f48d"
+    },
+    "origin/codex/e02-D-published-oracle": {
+      "previous": "7d7b35876400a7b9a35e47f178e0dcdf158c9d00",
+      "head": "c40e633fc01398cdf757f3361f6e1ed0d62497ab"
+    },
+    "origin/codex/e02-D-published-root": {
+      "previous": "9cfe108376df509cbfd6edd7fd0d7e24e3dd277d",
+      "head": "3c636ff52718897c9900a49580c9bd058086de35"
+    },
+    "origin/codex/e02-D-published-search": {
+      "previous": "dfe296816c95bee372ffea66d972826e5eb126a5",
+      "head": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61"
+    },
+    "origin/codex/e02-D-published-stress": {
+      "previous": "6e9c6662d74977847f70e7c66228ca529f1e1bf1",
+      "head": "0905131301921f9256bf0e9b4e62f41292f8e2dd"
+    },
+    "origin/codex/e02-D-published-transfer": {
+      "previous": "cc87e523f0e8cf2ded2283ce8680d018e8a10bd0",
+      "head": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c"
+    },
+    "origin/codex/e02-E-continuation-20261006": {
+      "previous": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+      "head": "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1"
+    },
+    "origin/codex/e02-E-doe-20261006": {
+      "previous": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "head": "a1ef819e69c71bf01d3e4d1427a5b90f7322b3b6"
+    },
+    "origin/codex/e02-F-closeout-20261006": {
+      "previous": "421f1dd977b237307394c68820caab4156716eb2",
+      "head": "39133d4d8b9a680942ffeb983385cbee1b1b493a"
+    },
+    "origin/codex/e02-F-economics-20261006": {
+      "previous": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "head": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef"
+    },
+    "origin/codex/e02-F-fry-20261006": {
+      "previous": "ad8f0f7532022014c028d74d872c93fe3349d220",
+      "head": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a"
+    },
+    "origin/codex/e02-F-graph-20261006": {
+      "previous": "c225e0d125ab9978ccf7b54022564811dfd0e293",
+      "head": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0"
+    },
+    "origin/codex/e02-F-tmle-20261006": {
+      "previous": "d23f004d4f0ed442bc00dae634ed73c6b80275d5",
+      "head": "27f172d56b59c3157275e90e50b1d00cc5219a91"
+    }
+  },
+  "late_user_E_update": {
+    "ref": "origin/codex/e02-E-continuation-20261006",
+    "previous_reviewed": "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1",
+    "head": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "tree": "d884554723bb66e83f5df467fc95766fd90f7bda"
+  },
+  "scope": "29 original tip updates plus one later observation replacing E tip; immutable source reviews, no automatic code acceptance",
+  "late_user_A_update": {
+    "ref": "origin/codex/e02-A-delivery-attached",
+    "head": "579788751baefe065fd5b94c446ab665eb65861a",
+    "tree": "e3ff953110c39ab11635f1c2ae99454d6333865c",
+    "source": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+    "consumer": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f"
+  }
+}

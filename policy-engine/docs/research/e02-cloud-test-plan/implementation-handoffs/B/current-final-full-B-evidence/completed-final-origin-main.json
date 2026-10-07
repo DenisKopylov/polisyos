@@ -1,0 +1,17 @@
+{
+  "fetch_commands_executed": [
+    "git fetch origin",
+    "git fetch origin main:refs/remotes/origin/main"
+  ],
+  "published_main_SHA": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "published_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "remote_main_SHA": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_is_ancestor": true,
+  "production_source_SHA": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "forbidden_old_candidate": "a3daffbe867ddfe9eede5e5990687283b552952a",
+  "forbidden_is_ancestor": false,
+  "git_status": "",
+  "attached_branch": "refs/heads/codex/e02-B-current-coordination",
+  "scope": "Read-only main/ref verification; all publications only B topic; no main/history rewrite."
+}

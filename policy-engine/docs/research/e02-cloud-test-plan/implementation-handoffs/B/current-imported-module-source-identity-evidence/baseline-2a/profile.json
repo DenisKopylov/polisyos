@@ -1,0 +1,54 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-module-baseline-2a-653371",
+    "--junitxml",
+    "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+    "tree": "34f5301b7b772fbab140477b419bb979a56a7268",
+    "status": ""
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "RAYON_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "python_version": "Python 3.14.2",
+  "fixture": "/dev/shm/e02-B-module-baseline-2a-653371",
+  "fixtures_preserved": true,
+  "no_caps_added": true,
+  "test_input_bytes": [
+    {
+      "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "bytes": 4005,
+      "sha256": "fae0c9d34a2fde02f85959e2cfee7f171d89c1cf1537df6f32b8922af64619d9"
+    }
+  ]
+}

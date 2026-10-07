@@ -1,0 +1,25 @@
+import datetime,hashlib,json,os,pathlib,resource,subprocess,time
+root=pathlib.Path('/workspace/e02-B-current-adapters')
+sha='a697a8312ff00edfcc766f9906dbcd2252cfcf96'
+test=pathlib.Path('/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py')
+out=pathlib.Path(__file__).parent
+env=dict(os.environ);removed={}
+for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS'):
+ removed[key]=env.pop(key,None)
+env.update(PYTHONPATH=str(root/'policy-engine/src')+':'+str(root/'policy-engine'),E02_WORKER_ACCOUNTING_ROOT=str(root),E02_WORKER_ACCOUNTING_SHA=sha,PYTHONDONTWRITEBYTECODE='1',POLISYOS_METRICS_PORT='0',TIKTOKEN_CACHE_DIR='/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache')
+def state():
+ return {'head':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'tree':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD^{tree}'],text=True).strip(),'tracked_status':subprocess.check_output(['git','-C',str(root),'status','--porcelain','--untracked-files=no'],text=True),'test_sha256':hashlib.sha256(test.read_bytes()).hexdigest()}
+tokenizer=pathlib.Path(env['TIKTOKEN_CACHE_DIR'])/'9b5ad71b2ce5302211f9c61530b329a4922fc6a4'
+assert hashlib.sha256(tokenizer.read_bytes()).hexdigest()=='223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7'
+before=state();assert before['head']==sha and before['tracked_status']==''
+argv=['/workspace/polisyos/policy-engine/.venv/bin/python','-m','pytest','-vv','-s','--noconftest','-c',str(root/'policy-engine/pyproject.toml'),str(test),'--basetemp',str(out/'pytest'),'-o','cache_dir='+str(out/'cache'),'--junitxml='+str(out/'native.xml')]
+start=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.monotonic()
+with (out/'native.txt').open('wb') as stream:
+ proc=subprocess.Popen(argv,cwd='/workspace/e02-B-current-durability/policy-engine',env=env,stdout=stream,stderr=subprocess.STDOUT)
+ _,status,usage=os.wait4(proc.pid,0)
+ code=os.waitstatus_to_exitcode(status);proc.returncode=code
+wall=time.monotonic()-t
+record={'argv':argv,'cwd':'/workspace/e02-B-current-durability/policy-engine','target_sha':sha,'source_before':before,'source_after':state(),'test_input_sha':subprocess.check_output(['git','-C','/workspace/e02-B-current-durability','rev-parse','HEAD'],text=True).strip(),'start':start,'end':datetime.datetime.now(datetime.timezone.utc).isoformat(),'wall_seconds':wall,'exit_code':code,'raw_wait_status':status,'maxrss_kib':usage.ru_maxrss,'environment':{k:env.get(k) for k in ('PYTHONPATH','E02_WORKER_ACCOUNTING_ROOT','E02_WORKER_ACCOUNTING_SHA','PYTHONDONTWRITEBYTECODE','POLISYOS_METRICS_PORT','TIKTOKEN_CACHE_DIR')},'ambient_numeric_caps_removed':removed,'tokenizer_input':{'path':str(tokenizer),'bytes':tokenizer.stat().st_size,'sha256':hashlib.sha256(tokenizer.read_bytes()).hexdigest()},'actual_python':'/workspace/polisyos/policy-engine/.venv/bin/python','tmp_scope':'Actual local filesystem fsync work witness; no powerloss durability claim'}
+record['outputs']={n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ('native.txt','native.xml')}
+(out/'wrapper.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'output':str(out),'wall':wall,'exit':code,'rss':usage.ru_maxrss,'before':before,'after':record['source_after']}))

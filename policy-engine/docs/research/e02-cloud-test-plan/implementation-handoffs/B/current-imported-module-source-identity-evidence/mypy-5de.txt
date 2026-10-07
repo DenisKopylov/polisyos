@@ -1,0 +1,3 @@
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:89: error: "FunctionType" has no attribute "__builtins__"  [attr-defined]
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:90: error: "FunctionType" has no attribute "__builtins__"  [attr-defined]
+Found 2 errors in 1 file (checked 1 source file)

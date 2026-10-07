@@ -1,0 +1,23 @@
+import datetime,hashlib,json,os,pathlib,subprocess,sys,time
+cwd=pathlib.Path('/workspace/e02-B-current-adapters/policy-engine'); repo=cwd.parent
+raw=pathlib.Path('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw'); stem='independent-net02-943-5f9'
+python='/workspace/polisyos/policy-engine/.venv/bin/python'
+prod='943325b228984dd949e03b609e3173d6de814dbe';test='5f9c6a359a23ac4b8d7b5bc4ae662f304aeecd82'
+paths=['src/polisyos/fabric/connectors/resilience/_bounded_registry.py','src/polisyos/fabric/connectors/resilience/circuit_breaker.py','src/polisyos/fabric/connectors/resilience/rate_limiter.py','tests/unit/fabric/connectors/test_resilience_e02.py']
+def git(*args):return subprocess.check_output(['git',*args],cwd=repo,text=True).strip()
+def source():
+ packet={'HEAD':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'status':git('status','--porcelain'),'scoped_files':{}}
+ for p in paths:
+  actual=(cwd/p).read_bytes();bound=test if p.startswith('tests/') else prod;expected=subprocess.check_output(['git','show',bound+':policy-engine/'+p],cwd=repo)
+  assert actual==expected,(p,bound)
+  packet['scoped_files'][p]={'source_sha':bound,'module_path':str(cwd/p),'sha256':hashlib.sha256(actual).hexdigest()}
+ return packet
+argv=[python,'-m','pytest','-o','addopts=','-o',f'cache_dir={raw/(stem+"-cache")}','-q',paths[-1],f'--basetemp={raw/(stem+"-tmp")}',f'--junitxml={raw/(stem+".xml")}']
+env=os.environ.copy();env.update(PYTHONPATH='src',POLISYOS_METRICS_PORT='0',PYTHONDONTWRITEBYTECODE='1')
+packet={'scope':'Independent read-only NET02 registry/regulator source and full6 nativeconsumer tests; unrelated dirtyLLM excluded by exact scopedbytes','argv':argv,'cwd':str(cwd),'source_before':source(),'environment':{k:env.get(k) for k in ('PYTHONPATH','POLISYOS_METRICS_PORT','PYTHONDONTWRITEBYTECODE','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','JAX_PLATFORMS','XLA_FLAGS')},'python':subprocess.check_output([python,'--version'],text=True).strip(),'start_utc':datetime.datetime.now(datetime.UTC).isoformat()}
+start=time.monotonic()
+with (raw/(stem+'.txt')).open('wb') as out:
+ child=subprocess.Popen(argv,cwd=cwd,env=env,stdout=out,stderr=subprocess.STDOUT)
+ _,status,usage=os.wait4(child.pid,0);child.returncode=os.waitstatus_to_exitcode(status)
+packet.update(exit_code=child.returncode,wall_seconds=time.monotonic()-start,max_rss_kib=usage.ru_maxrss,resource_method='direct wait4 child rusage; Linux KiB',source_after=source(),end_utc=datetime.datetime.now(datetime.UTC).isoformat())
+(raw/(stem+'.json')).write_text(json.dumps(packet,indent=2)+'\n');print(json.dumps(packet,indent=2));print((raw/(stem+'.txt')).read_text());sys.exit(child.returncode)

@@ -1,0 +1,57 @@
+{
+  "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "target_tree": "9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/DUR02-existing-2c52",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/DUR02-existing-2c52.xml",
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2",
+    "no_artificial_process_or_numeric_thread_quota": true
+  },
+  "start_utc": "2026-10-06T10:08:09.312432+00:00",
+  "end_utc": "2026-10-06T10:08:55.649166+00:00",
+  "exit_code": 0,
+  "wall_s": 46.33707517699804,
+  "max_child_rss_kib": 889456,
+  "status_before": "",
+  "status_after": "",
+  "inputs": [
+    "tests/unit/remediation/test_dur_02.py",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "tests/unit/runtime/http/test_acquisition_control_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py"
+  ],
+  "counts": {
+    "tests": 91,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "input_closure": "Actual checked checkout and complete native files; isolated unique pytest basetemp and real POSIX file/process controls or temporary SQLite typed collaborators; no production dataset/external services.",
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR02-existing-2c52.txt",
+      "sha256": "e11b52e689a854972e7bbf502be69ca1d8e6526b4b0804f29d286c36a2b1d2b4",
+      "bytes": 180
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR02-existing-2c52.xml",
+      "sha256": "0c3a7c40154d0815a914fccedac768eb34aee6239c96950b3d0b604f1ab9b606",
+      "bytes": 15899
+    }
+  ]
+}

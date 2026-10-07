@@ -1,0 +1,1 @@
+{"checkpoint_id":"stream.jsonl:events:default:0","committed_at":null,"connector_id":"stream.jsonl","created_at":"2026-10-06T23:00:46.420652Z","dataset_id":"events","dedupe_keys":[],"lifecycle_state":"active","metadata":{},"offset":0,"partition_key":"default","resume_token":null,"schema_fingerprint":null,"stream_id":"stream.jsonl:events:default","watermark_type":"offset"}

@@ -1,0 +1,738 @@
+{"argv": ["/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "-m", "pytest", "-vv", "-p", "plan_origins", "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py", "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape", "--basetemp", "/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest", "-o", "cache_dir=/tmp/e02-B-reopened-compiled-plan-fce1b198228c/cache", "--junitxml=/tmp/e02-B-reopened-compiled-plan-fce1b198228c/native.xml"], "cwd": "/workspace/e02-B-current-cas-generation/policy-engine", "source": {"head": "f563fde9238a08b55135f167ddf0d6fa154690c5", "tree": "411e48ca75e101a34af8b0a5c10ec557e1a7e050", "status": ""}, "tests": {"head": "0e62123402220c576153694acdf9c22b185bbcca", "tree": "d2a825b40179b3c522b7213174dd9b7c43ccfbd7", "status": ""}}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-reopened-compiled-plan-fce1b198228c/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 16 items
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False] PASSED [  6%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True] PASSED [ 12%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False] PASSED [ 18%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True] PASSED [ 25%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds PASSED [ 31%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_keeps_independent_real_branches_parallel[async] FAILED [ 37%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_keeps_independent_real_branches_parallel[auto] FAILED [ 43%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential] FAILED [ 50%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async] FAILED [ 56%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto] FAILED [ 62%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled] FAILED [ 68%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit] FAILED [ 75%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge] FAILED [ 81%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node] FAILED [ 87%]
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle] FAILED [ 93%]
+tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape PASSED [100%]
+
+=================================== FAILURES ===================================
+______ test_reopened_plan_keeps_independent_real_branches_parallel[async] ______
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_reopened_plan_keeps_indep0')
+mode = 'async'
+
+    @pytest.mark.parametrize("mode", ["async", "auto"])
+    def test_reopened_plan_keeps_independent_real_branches_parallel(tmp_path: Path, mode: str) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry = MethodRegistry._create_fresh()
+        for method in (_ParallelRequired, _ParallelSibling, _ParallelDependent):
+            registry.register(method)
+        composer = MethodComposer(registry=registry)
+        dependent = composer.add(_ParallelDependent.signature.fqn)
+        required = composer.add(_ParallelRequired.signature.fqn)
+        sibling = composer.add(_ParallelSibling.signature.fqn)
+        chain = composer.build()
+        plan = CompiledChainPlan.from_chain(chain)
+        ref = store_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), plan)
+>       restored = load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:351: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0bec616990>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:b661bda899292a54bd803399c58e53063297037225b476c484b213a46696a2f1'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=numpy fqn=tests.independent_plan_parallel.required@1.0.0 lazy=False namespace=tests.independent_plan_parallel override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=numpy fqn=tests.independent_plan_parallel.sibling@1.0.0 lazy=False namespace=tests.independent_plan_parallel override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=numpy fqn=tests.independent_plan_parallel.dependent@1.0.0 lazy=False namespace=tests.independent_plan_parallel override=False tags=[] version=1.0.0
+______ test_reopened_plan_keeps_independent_real_branches_parallel[auto] _______
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_reopened_plan_keeps_indep1')
+mode = 'auto'
+
+    @pytest.mark.parametrize("mode", ["async", "auto"])
+    def test_reopened_plan_keeps_independent_real_branches_parallel(tmp_path: Path, mode: str) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry = MethodRegistry._create_fresh()
+        for method in (_ParallelRequired, _ParallelSibling, _ParallelDependent):
+            registry.register(method)
+        composer = MethodComposer(registry=registry)
+        dependent = composer.add(_ParallelDependent.signature.fqn)
+        required = composer.add(_ParallelRequired.signature.fqn)
+        sibling = composer.add(_ParallelSibling.signature.fqn)
+        chain = composer.build()
+        plan = CompiledChainPlan.from_chain(chain)
+        ref = store_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), plan)
+>       restored = load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:351: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0bec1390f0>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:5f04bb5741026ad1ab96dce4669915318cd3704d5940a5d5f885e431060e5ea2'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=numpy fqn=tests.independent_plan_parallel.required@1.0.0 lazy=False namespace=tests.independent_plan_parallel override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=numpy fqn=tests.independent_plan_parallel.sibling@1.0.0 lazy=False namespace=tests.independent_plan_parallel override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=numpy fqn=tests.independent_plan_parallel.dependent@1.0.0 lazy=False namespace=tests.independent_plan_parallel override=False tags=[] version=1.0.0
+_ test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_canonical_plan_cas_reopen0')
+mode = 'sequential'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+>           restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0bee367ad0>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:b8ead8e8406c9ab4cdcf755f48078940562a81ec9a1e3e3e91048fe986d52db9'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_canonical_plan_cas_reopen1')
+mode = 'async'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+>           restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0bec19bf00>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:d8c0856ac178e9fd9aded7b698d159a4e7191ab4dff268dda21d170f0db70fc9'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_canonical_plan_cas_reopen2')
+mode = 'auto'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+>           restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0be43a5450>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:209269c15044fe8d4b44dd8fc01e41c86fe9811169cfb4a6f0b716d4534ceaca'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_canonical_plan_cas_reopen3')
+mode = 'compiled'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+>           restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0be43a6650>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:b725b49b42ce2637734e9395deb97c99276cbe0603789f25a55a1c3f254ba97d'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_canonical_plan_cas_reopen4')
+mode = 'compiled-jit'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+>           restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0be43a7250>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:44b38feb4866b66addba248bea373015df51d6e96674b785a4a1cddf6ff34a89'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_reopened_plan_refuses_dam0')
+damage = 'required-edge'
+
+    @pytest.mark.parametrize("damage", ["required-edge", "required-node", "cycle"])
+    def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
+        tmp_path: Path, damage: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.foundry.methods.artifacts import CompiledChainPlan, load_compiled_chain_plan
+        from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        payload = json.loads(CompiledChainPlan.from_chain(chain).to_canonical_bytes())
+        producer_id, reducer_id = str(producer.id), str(reducer.id)
+        if damage == "required-edge":
+            payload["predecessors"][reducer_id] = []
+            expected_error, message = ValueError, "effective dependency mismatch"
+        elif damage == "required-node":
+            payload["nodes"] = [node for node in payload["nodes"] if node["node_id"] != producer_id]
+            payload["nodes"][0]["insertion_order"] = 0
+            payload["execution_order"] = [reducer_id]
+            del payload["predecessors"][producer_id]
+            payload["predecessors"][reducer_id] = []
+            del payload["cache_keys"][producer_id]
+            expected_error, message = MissingRequirementError, "draw"
+        else:
+            payload["predecessors"][producer_id] = [reducer_id]
+            expected_error, message = CyclicDependencyError, "draw|reduce"
+        wire = to_canonical_bytes(payload, CanonSpec(forbid_floats=False, exclude_none=False))
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            wire,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.foundry.compiled_chain_plan", version="1.0.0"),
+            ),
+        )
+        with _body_observer() as calls:
+            with pytest.raises(expected_error, match=message) as refusal:
+>               load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:503: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0be43a7750>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:b4645ef70a023417e4e94825770946e2906f13c46e1e0922a1279b301e37d490'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_reopened_plan_refuses_dam0')
+damage = 'required-edge'
+
+    @pytest.mark.parametrize("damage", ["required-edge", "required-node", "cycle"])
+    def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
+        tmp_path: Path, damage: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.foundry.methods.artifacts import CompiledChainPlan, load_compiled_chain_plan
+        from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        payload = json.loads(CompiledChainPlan.from_chain(chain).to_canonical_bytes())
+        producer_id, reducer_id = str(producer.id), str(reducer.id)
+        if damage == "required-edge":
+            payload["predecessors"][reducer_id] = []
+            expected_error, message = ValueError, "effective dependency mismatch"
+        elif damage == "required-node":
+            payload["nodes"] = [node for node in payload["nodes"] if node["node_id"] != producer_id]
+            payload["nodes"][0]["insertion_order"] = 0
+            payload["execution_order"] = [reducer_id]
+            del payload["predecessors"][producer_id]
+            payload["predecessors"][reducer_id] = []
+            del payload["cache_keys"][producer_id]
+            expected_error, message = MissingRequirementError, "draw"
+        else:
+            payload["predecessors"][producer_id] = [reducer_id]
+            expected_error, message = CyclicDependencyError, "draw|reduce"
+        wire = to_canonical_bytes(payload, CanonSpec(forbid_floats=False, exclude_none=False))
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            wire,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.foundry.compiled_chain_plan", version="1.0.0"),
+            ),
+        )
+        with _body_observer() as calls:
+>           with pytest.raises(expected_error, match=message) as refusal:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'effective dependency mismatch'
+E             Actual message: 'Compiled plan requires an exact typed selected-manifest reference'
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:502: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_reopened_plan_refuses_dam1')
+damage = 'required-node'
+
+    @pytest.mark.parametrize("damage", ["required-edge", "required-node", "cycle"])
+    def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
+        tmp_path: Path, damage: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.foundry.methods.artifacts import CompiledChainPlan, load_compiled_chain_plan
+        from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        payload = json.loads(CompiledChainPlan.from_chain(chain).to_canonical_bytes())
+        producer_id, reducer_id = str(producer.id), str(reducer.id)
+        if damage == "required-edge":
+            payload["predecessors"][reducer_id] = []
+            expected_error, message = ValueError, "effective dependency mismatch"
+        elif damage == "required-node":
+            payload["nodes"] = [node for node in payload["nodes"] if node["node_id"] != producer_id]
+            payload["nodes"][0]["insertion_order"] = 0
+            payload["execution_order"] = [reducer_id]
+            del payload["predecessors"][producer_id]
+            payload["predecessors"][reducer_id] = []
+            del payload["cache_keys"][producer_id]
+            expected_error, message = MissingRequirementError, "draw"
+        else:
+            payload["predecessors"][producer_id] = [reducer_id]
+            expected_error, message = CyclicDependencyError, "draw|reduce"
+        wire = to_canonical_bytes(payload, CanonSpec(forbid_floats=False, exclude_none=False))
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            wire,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.foundry.compiled_chain_plan", version="1.0.0"),
+            ),
+        )
+        with _body_observer() as calls:
+            with pytest.raises(expected_error, match=message) as refusal:
+>               load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:503: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0be4380a50>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:c39a5b5d4b11c5bebb7f15f09bc9cf9a8c5a5de23b00bd73c96aa7b05a84ca9c'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+_ test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle] _
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest/test_reopened_plan_refuses_dam2')
+damage = 'cycle'
+
+    @pytest.mark.parametrize("damage", ["required-edge", "required-node", "cycle"])
+    def test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies(
+        tmp_path: Path, damage: str
+    ) -> None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.foundry.methods.artifacts import CompiledChainPlan, load_compiled_chain_plan
+        from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        payload = json.loads(CompiledChainPlan.from_chain(chain).to_canonical_bytes())
+        producer_id, reducer_id = str(producer.id), str(reducer.id)
+        if damage == "required-edge":
+            payload["predecessors"][reducer_id] = []
+            expected_error, message = ValueError, "effective dependency mismatch"
+        elif damage == "required-node":
+            payload["nodes"] = [node for node in payload["nodes"] if node["node_id"] != producer_id]
+            payload["nodes"][0]["insertion_order"] = 0
+            payload["execution_order"] = [reducer_id]
+            del payload["predecessors"][producer_id]
+            payload["predecessors"][reducer_id] = []
+            del payload["cache_keys"][producer_id]
+            expected_error, message = MissingRequirementError, "draw"
+        else:
+            payload["predecessors"][producer_id] = [reducer_id]
+            expected_error, message = CyclicDependencyError, "draw|reduce"
+        wire = to_canonical_bytes(payload, CanonSpec(forbid_floats=False, exclude_none=False))
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = cas.put_bytes(
+            wire,
+            PutOptions(
+                kind="foundry.compiled_chain_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.foundry.compiled_chain_plan", version="1.0.0"),
+            ),
+        )
+        with _body_observer() as calls:
+            with pytest.raises(expected_error, match=message) as refusal:
+>               load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:503: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cas = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f0be4381550>
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:62c7625875aca9a965d62d45038b12d2c1f9a6035cd7cc5c089f95d0afb911c7'), kind='foundry.compiled_chain_plan', media_type='application/json', manifest_profile_sha256=None)
+
+    def load_compiled_chain_plan(
+        cas: FileSystemCAS,
+        ref: ArtifactRef,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> CompiledMethodChain:
+        """Guard-read a selected plan view and rebuild its current cold chain.
+    
+        The exact reference is retained for both public CAS reads. Its manifest and
+        blob verification grant no authority over method code or execution policy.
+        """
+        if (
+            not isinstance(ref, ArtifactRef)
+            or ref.kind != "foundry.compiled_chain_plan"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+>           raise ValueError("Compiled plan requires an exact typed selected-manifest reference")
+E           ValueError: Compiled plan requires an exact typed selected-manifest reference
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/parts.py:156: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.draw@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+2026-10-06 21:20:10 [info     ] method_registered              backend=jax fqn=tests.independent_preparation.reduce@1.0.0 lazy=False namespace=tests.independent_preparation override=False tags=[] version=1.0.0
+- generated xml file: /tmp/e02-B-reopened-compiled-plan-fce1b198228c/native.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_keeps_independent_real_branches_parallel[async]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_keeps_independent_real_branches_parallel[auto]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node]
+FAILED tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle]
+========================= 10 failed, 6 passed in 8.01s =========================

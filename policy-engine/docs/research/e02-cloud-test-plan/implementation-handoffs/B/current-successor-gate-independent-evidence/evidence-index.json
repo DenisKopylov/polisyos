@@ -1,0 +1,232 @@
+{
+  "schema": "policyos.e02.readonly_gate_evidence_index.v1",
+  "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "target_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/instrument.source.txt",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/instrument.source.txt",
+      "bytes": 7648,
+      "sha256": "04f96a156c86ab5b8ab6eb18d2ad29f46e74c68d2b7c074243bd01c2efce572e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.json",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/audit.json",
+      "bytes": 505515,
+      "sha256": "cba643548cb5facd8e1fe6f03624fba3c73013a276ac6a8a5c44fcbb37e46493"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/execution.json",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/execution.json",
+      "bytes": 8244,
+      "sha256": "7d93bf4845d44139a086727eb3762ae9718477fd90f30d8f0494b65faca4c746"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/audit.stdout.txt",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/audit.stdout.txt",
+      "bytes": 513,
+      "sha256": "85e1d53c763196ee9f47b1f27283b576bebd007b6f36c023d3abb5ea5096ac55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.source.txt",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/profile-review.source.txt",
+      "bytes": 16542,
+      "sha256": "10d7de6f469a96b77dc87a2b6bf43d0e7e0867e59cd610c26ad952254c121f4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/profile-review.json",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/review.json",
+      "bytes": 30807,
+      "sha256": "58b30a44a07e7c697e097fd92c4ab58b037498e19158e7fe86b1a98a14114ea8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json",
+      "bytes": 2866,
+      "sha256": "bec139fa5bfc2c15a12e4deac7bb3c8bc7eb414fe1ed1bb71d7a093e429bf111"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-B-cohort-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json",
+      "bytes": 20483,
+      "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.json",
+      "bytes": 25789,
+      "sha256": "74e96794cd2ec23e82da135f7c6be598144af9651f29aa7011e18c6c734f7454"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-format-profile.json",
+      "bytes": 80987,
+      "sha256": "524397af5b165f71f3ae51adcd030b71a31469180e66aef31e3b2d6d91f6e736"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-format.txt",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-format.txt",
+      "bytes": 13414,
+      "sha256": "dd14a88e7d1879b15972307ce2d814b5748c4b6a52d93c72aa4270f210b4f6da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-ruff.json",
+      "bytes": 25788,
+      "sha256": "eedd85fe38597382307d88ddfeba890c34cfc5c94bf33fc41c5a6535f2762ab4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-all-changed-ruff-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-all-changed-ruff-profile.json",
+      "bytes": 80987,
+      "sha256": "c4a62d6a46a5443eec590f7918a15f1fa66a6a16d988bdaca742f43df644f750"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.json",
+      "bytes": 2370,
+      "sha256": "a5992868aa96648b99c4c72b6bd5e1b3fa59dd5c1ce898b1586daefc601aa648"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-architecture-profile.json",
+      "bytes": 2260,
+      "sha256": "e5f23de583e54ffe179eabddbda2694de5b36112b1bf2aeeb07dbba6c5423a66"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-architecture.txt",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-architecture.txt",
+      "bytes": 123875,
+      "sha256": "479a319a2882490b7a8afe0cbb1823c8bec3a5c1690fbb6d090bf2d741c97f4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-parity-uncapped.json",
+      "bytes": 2771,
+      "sha256": "0ed4941f30088dae23437b6ba2f7edae624c53df7135390d4db551e44075f358"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-parity-uncapped-profile.json",
+      "bytes": 3216,
+      "sha256": "8f24e40e87987d566999a50879b5b988ff248a6be0e3258aabfff58f8cc20c76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-parity-uncapped.txt",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-parity-uncapped.txt",
+      "bytes": 28824,
+      "sha256": "58ec835f6baab8ab189bb94b5eae7199271576af29feae26dbdf45388655b825"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-production-invocation.json",
+      "bytes": 2592,
+      "sha256": "0ba4e7bb411c874414b594593da7a3c81a48d92e5a55612b1c0e0013b08d808e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-production-invocation-profile.json",
+      "bytes": 2564,
+      "sha256": "fa62c3a6b1b86db072e755fafc1f5b01b1987568bfb185f6e14bb37f9c55121f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-production-invocation.txt",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-production-invocation.txt",
+      "bytes": 17100,
+      "sha256": "dac6c1312029f29ccad83fd610bd37d801f533c51c4fd251cc011bf5cd17335a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.json",
+      "bytes": 2418,
+      "sha256": "84527056299644ca338c8f6e03fb39c3d21aaa8cdf38c00e8dc623bed4e20eff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-runtime-api-profile.json",
+      "bytes": 2312,
+      "sha256": "e8f7724c2597fa9c5783bd7ac619786bd0fc9ffe984401329373e971debd1463"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-runtime-api.txt",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-runtime-api.txt",
+      "bytes": 7059,
+      "sha256": "a0ee7dc4ea91da8b7d74043ca0df20ac15b33ccb673182033858ec8da572408b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.json",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-verify-uncapped.json",
+      "bytes": 2767,
+      "sha256": "fac5ceae3501dd7ebbe031d81ae41e4e200a132bb40851554148d0c222be6ece"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped-profile.json",
+      "observed_path": "/tmp/e02-B-successor-final/raw/review/successor-final-verify-uncapped-profile.json",
+      "bytes": 3213,
+      "sha256": "67c1241e1b09ffde7004547a91dcb7973898453215f402dacd51dd9a72197060"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-final-verify-uncapped.txt",
+      "observed_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-verify-uncapped.txt",
+      "bytes": 18074,
+      "sha256": "23466b43a52b841ca1b3e0ecb7367d1636302d96a28f7f19e2ab3f906f8deae3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-prefreeze-openapi-02ff.json",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-prefreeze-openapi-02ff.json",
+      "bytes": 2269,
+      "sha256": "8daa9f106086bc0638a9c9b3d1547b84dc281f0f4848d5c4a2f7e16a793aebbd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-gate-independent-evidence/successor-prefreeze-openapi-02ff.txt",
+      "observed_path": "/tmp/e02-B-successor-gate-audit-exe/profile-review-v2/successor-prefreeze-openapi-02ff.txt",
+      "bytes": 6800,
+      "sha256": "27c66961d1cdb4c268375ce0433d54d76c850202a88ce13994743b57e0e65c26"
+    }
+  ],
+  "ignored_large_actual_inputs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+      "bytes": 3267622,
+      "sha256": "3d3ac32f7a36c9af45e2fcb0605641977794dbad4b9146143baf4fcb0c52b30e",
+      "retention": "complete bytes retained at ignored original path; not in this topic packet",
+      "transfer_qualification": "not_established until deciding full bytes available to receiving reviewer; exact source-bound rerun if unavailable"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+      "bytes": 3168754,
+      "sha256": "c61a02426c844ea6e3de05d0853fa939e1ce6cad9b5d31e1b8c5e8a65fa78cf7",
+      "retention": "complete bytes retained at ignored original path; not in this topic packet",
+      "transfer_qualification": "not_established until deciding full bytes available to receiving reviewer; exact source-bound rerun if unavailable"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-all-changed-ruff.txt",
+      "bytes": 2911509,
+      "sha256": "fbd0d530a76b9eed40e2908c5272f4489fc1c045e03efc3658128f2f9d74ad6b",
+      "retention": "complete bytes retained at ignored original path; not in this topic packet",
+      "transfer_qualification": "not_established until deciding full bytes available to receiving reviewer; exact source-bound rerun if unavailable"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-production-invocation-full.json",
+      "bytes": 173531613,
+      "sha256": "b2edb9713544937d5231068d13f9e279b4a178fe3163821692a69544f040fe3e",
+      "retention": "complete bytes retained at ignored original path; not in this topic packet",
+      "transfer_qualification": "not_established until deciding full bytes available to receiving reviewer; exact source-bound rerun if unavailable"
+    }
+  ],
+  "resume_admission": {
+    "path": "/tmp/e02-B-successor-gate-audit-exe/admission/resume.json",
+    "bytes": 135822,
+    "sha256": "98738204c67517ea92330bcf9647c06007770f1bd04946353585a5aadea994a2",
+    "status": "admitted",
+    "complete_json_retained": true
+  },
+  "original_reader": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+    "sha": "a4640e6812123877ce40685a3ca9c7974c856fc7",
+    "sha256": "4140d5996c7563eb3cd40d58eeed0e122d2d011b19808f1f0c1eddfe7968e7ed",
+    "duplicate_source_copy_committed": false
+  },
+  "source_acceptance": false,
+  "closure_ids": []
+}

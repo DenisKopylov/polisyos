@@ -1,0 +1,605 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-merged-consumer-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RUN-02",
+    "CMP-01",
+    "RES-03",
+    "RES-04",
+    "DUR-01",
+    "CAS-01",
+    "CAS-02",
+    "NET-01",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "66ba74e6cf45977024b43c2195b7a34be9aa091f"
+  ],
+  "candidate_sha": "66ba74e6cf45977024b43c2195b7a34be9aa091f",
+  "candidate_tree_sha": "0300b2317d82f5fc6965493959da07fb271906e3",
+  "checked_runtime_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+  "checked_runtime_tree": "7b75540a46da8a1b173050c22c340fc775dc7195",
+  "post_check_delta": "Two owned README companions only; no runtime/test bytes changed. This is an intermediate affected-consumer wave, not final B freeze/cohort.",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put-evidence/base-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put-evidence/put-native-v2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put-evidence/put-native-v3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put-evidence/put-native-v3.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put-evidence/put-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-put.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/invocation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red-input.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/setup-pnpm.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/setup-pnpm.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-bootstrap.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-origin.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-property-control-pinned.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-property-removal-pinned.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-source-origin.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/first-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/first-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/first-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-cas-quantity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-cas-quantity.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-cas-quantity.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-draft.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-draft2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-final.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-budget.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-budget.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-budget.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-cas.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-cas.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/oracle-remove-cas.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/remove-cas-draft2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas-evidence/remove-cas-quantity.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-budget-cas.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/base-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/candidate-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/commit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/consumer-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/consumer-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/mypy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/removal-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-transfer-generations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-payload.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-pool-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-wire-v2.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-independent-oracles.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-runtime.toml",
+    "policy-engine/src/polisyos/common/README.md",
+    "policy-engine/src/polisyos/common/async_tools.py",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/fabric/connectors/README.md",
+    "policy-engine/src/polisyos/fabric/connectors/pool.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/common/async_tools.py",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+    "policy-engine/src/polisyos/fabric/connectors/pool.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+  ],
+  "test_paths": [
+    "policy-engine/tests/unit/common/test_async_tools.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+    "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-transfer-generations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-payload.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-pool-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-wire-v2.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-independent-oracles.toml",
+    "policy-engine/release-fragments/unreleased/e02-current-runtime.toml",
+    "policy-engine/src/polisyos/common/README.md",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/fabric/connectors/README.md",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/README.md"
+  ],
+  "owner": "B root independent consumer replay; exclusive canonical production writers retain ownership",
+  "baseline_cells": "Exact routes/cells/source/environment custody are navigation-only in existing immutable current-independent-budget-cas and writer receipts; results/verification.json@198 has no original raw archives. New decisions use these exact independent current-candidate runs. Full owner denominator is tracked finding-owners.tsv and coverage.json@198, 60 findings/25 bundles.",
+  "checks": [
+    {
+      "target_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+      "target_tree": "7b75540a46da8a1b173050c22c340fc775dc7195",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/core/artifacts/test_async_store.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-run-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-run-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-run.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 2.87439159299538,
+      "maxrss_kib": 90620,
+      "cases": 23,
+      "pass": 23,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0,
+      "failures": [],
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-run.txt",
+          "sha256": "475bcfb56b286d857c4310602373e306e2cb722ad6df6053d0e1aff939c18220",
+          "bytes": 80
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-run.xml",
+          "sha256": "ee65833dd55f523c2f899e53a790946b81e82e1947725cbb38bbee31216e18b8",
+          "bytes": 3371
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-run.json",
+          "sha256": "b8e4c4fe90874529b27a3185b81dd1b83872c51c0ec1b6637f3c0dfc38845604",
+          "bytes": 1913
+        }
+      ]
+    },
+    {
+      "target_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+      "target_tree": "7b75540a46da8a1b173050c22c340fc775dc7195",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cmp-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cmp-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cmp.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 6.932295749997138,
+      "maxrss_kib": 179456,
+      "cases": 43,
+      "pass": 43,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0,
+      "failures": [],
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cmp.txt",
+          "sha256": "986dbc9a5d6b6525242d1315dd44f9f5e97162596004680091f1927df955e4ea",
+          "bytes": 80
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cmp.xml",
+          "sha256": "81f0e1c55f26324a04270b68e01a99cddaddd6cadb1249bbc306a3a6dc02dfc7",
+          "bytes": 7061
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cmp.json",
+          "sha256": "4e7162bc2505dd8e6e69bd8735c65e063176fe820d339f8990a347a730d88f1e",
+          "bytes": 2047
+        }
+      ]
+    },
+    {
+      "target_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+      "target_tree": "7b75540a46da8a1b173050c22c340fc775dc7195",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-dur-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-dur-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-dur.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 38.91750617598882,
+      "maxrss_kib": 92184,
+      "cases": 87,
+      "pass": 87,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0,
+      "failures": [],
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-dur.txt",
+          "sha256": "cc34b63aed9ded66f0e7fe2019892e09f95bda31d78523503dd936241e3dc3f5",
+          "bytes": 160
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-dur.xml",
+          "sha256": "0d61c51c86c712c63a0349b5f5dd8fd8f888d2a3a6c0d10aa02bf1b1bde9de30",
+          "bytes": 17331
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-dur.json",
+          "sha256": "97a8b8190e93d6da9a0c8480271290106a4298c9bff3a966fdcb8339c2bd859f",
+          "bytes": 2129
+        }
+      ]
+    },
+    {
+      "target_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+      "target_tree": "7b75540a46da8a1b173050c22c340fc775dc7195",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-cas.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 250.90386221199878,
+      "maxrss_kib": 223620,
+      "cases": 78,
+      "pass": 62,
+      "fail": 16,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0,
+      "failures": [
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_archive_refuses_nonregular_final_path_before_staging[regular_symlink]",
+          "time": "20.069"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_archive_refuses_nonregular_final_path_before_staging[dangling_symlink]",
+          "time": "20.069"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_archive_refuses_nonregular_final_path_before_staging[fifo]",
+          "time": "20.071"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_archive_refuses_nonregular_final_path_before_staging[socket]",
+          "time": "20.069"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_archive_refuses_nonregular_final_path_before_staging[directory]",
+          "time": "20.068"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False]",
+          "time": "20.090"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[True]",
+          "time": "20.072"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]",
+          "time": "20.077"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]",
+          "time": "20.080"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo]",
+          "time": "20.095"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[socket]",
+          "time": "20.083"
+        },
+        {
+          "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+          "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]",
+          "time": "20.081"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_failed_reused_directory_export_preserves_prior_complete_generation",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_import_enforces_existing_tenant_ownership",
+          "time": "0.089"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_import_rejects_a_selected_view_bound_to_another_tenant",
+          "time": "0.086"
+        },
+        {
+          "classname": "tests.unit.remediation.test_cas_02",
+          "name": "test_import_rolls_back_new_generation_on_mid_publication_failure",
+          "time": "0.105"
+        }
+      ],
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cas.txt",
+          "sha256": "5a5b8d744cfbc0de2071df90df53cbf26857f3090ef52b9ba2e12f1263eb9fd1",
+          "bytes": 42901
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cas.xml",
+          "sha256": "a37a06bf787d2f2c2b5251d3a7d516689c9bda3b2ec66f24453889191c0efe38",
+          "bytes": 47314
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-cas.json",
+          "sha256": "71f82660cf0d024ecdf2f2b8ab6591ae756ccaa8d3478100659242b3a214d616",
+          "bytes": 2122
+        }
+      ]
+    },
+    {
+      "target_sha": "5650964f97fcb3dea9fac6e2978f86262dc2411b",
+      "target_tree": "7b75540a46da8a1b173050c22c340fc775dc7195",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-net-wire-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-net-wire-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current565-net-wire.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "source_environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 4.037018820003141,
+      "maxrss_kib": 178852,
+      "cases": 78,
+      "pass": 78,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0,
+      "failures": [],
+      "outputs": [
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-net-wire.txt",
+          "sha256": "ac495f87c93297f7a6b6576302f0c026457a444008c68b065caf82d3eed780d0",
+          "bytes": 160
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-net-wire.xml",
+          "sha256": "626a04fb9c0f1ea98a2eeb1b723859ee7285d117f2d75efed561d6c3351c0967",
+          "bytes": 13808
+        },
+        {
+          "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/current565-net-wire.json",
+          "sha256": "abd41caf88076b694c41d6d0ea0268607c7ffe86d16b4d07f945dcfd74a0ecf7",
+          "bytes": 2050
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Replay affected real executor, registry chain, ledger/fresh-process wire, CAS publication/import, connector and versioned state/outcome consumers after joining reviewed B topic checkpoints.",
+    "runtime_path": [
+      "actual registered two-node chain and checkpoint execution",
+      "public ledger bootstrap/load/mutate/settle/resolve and fresh-child admission",
+      "FileSystemCAS duplicate put/export/import/get/verify plus caching consumer",
+      "actual connector acquisition/cleanup and typed state/outcome codecs",
+      "shared physical executor Future callback/admission consumers"
+    ],
+    "proxy_divergence": "Atomic helper presence and pytest process exit cannot establish bootstrap/custody/generation/physical-worker properties. Root fixed independent ledger field inventory and actual CAS writer+separate-process reader/removal tests are pinned in prior receipt; this replay repeats their real assertions. Default-importlib CAS children additionally expose a test-driver import closure gap before any CAS body runs.",
+    "negative_controls": [
+      "prior independently reviewed budget-wire and complete put-digest removal controls at a823 remain immutable",
+      "CAS current wave retains all 16 FAIL: 12 physical test-driver unpickle ModuleNotFoundError(core), 4 known canonical fault-seam/ownership negatives awaiting CAS writer successor",
+      "new checkpoint state/history namespace and relative-path actual FAIL at89 are preserved separately, not admitted by this older checkpoint replay",
+      "new retry Event-setup realEMFILE leak at3f independently held pending first-resource repair"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "intermediate code review and affected-consumer evidence only; all60 census/final cohort pending. No finding closed by aggregate pass count.",
+  "totals": {
+    "cases": 309,
+    "pass": 293,
+    "fail": 16,
+    "error": 0,
+    "skip": 0,
+    "xfail": 0
+  },
+  "limitations_and_next_owner": [
+    "RUN process/deadline next producer checkpoints pending; EXE absolute deadline consumer must replay thereafter.",
+    "DUR all-bound-mutation lease fence, CAS scoped admission/batch/snapshot/iterator, CMP strict artifact/source context and JIT, adapter settlement/permission/registry full receipts still active in writer topics.",
+    "B61 held without versioned SKG owner contract; institutional reuse authority and cross-tenant recommendation require owner disposition.",
+    "A generation_cycle.py/run_lifecycle.py and C streaming.py remain exclusively owned. Typed exact-candidate input/negative handoff through Git; production-data admission and absent service backends remain local G residual.",
+    "No P41 inherited-red label: architecture all-input gate intersects changed paths; old failed commands are retained with attribution not_established.",
+    "Full B cohort not executed yet. XFAIL/SKIP/UNRUN final denominator is pending complete current selectors."
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "preserve; enumerate exact candidates; no permanent deletion or registration pruning",
+    "candidates": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input",
+      "/workspace/e02-B-current-coordination/policy-engine/node_modules"
+    ],
+    "preserve": [
+      "all B topic worktrees/code and committed useful docs",
+      "all unique deciding raw outputs and input receipts until independent custody",
+      "production data (not transferred)"
+    ]
+  }
+}

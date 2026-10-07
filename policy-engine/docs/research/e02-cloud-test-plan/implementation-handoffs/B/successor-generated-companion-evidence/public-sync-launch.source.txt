@@ -1,0 +1,10 @@
+from pathlib import Path
+import os,subprocess
+root=Path('/workspace/e02-B-current-coordination');scratch=root/'.polisyos/e02-B-current';prod=root/'policy-engine';h=prod/'docs/research/e02-cloud-test-plan/implementation-handoffs/B'
+assert subprocess.check_output(['git','-C',str(root),'status','--porcelain'],text=True).strip()==''
+env=dict(os.environ)
+for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)
+env.update(PYTHONPATH=str(prod/'src')+':'+str(prod),UV_PROJECT_ENVIRONMENT=str(scratch/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0',TIKTOKEN_CACHE_DIR=str(scratch/'tools/tokenizer-input/cache'))
+argv=[str(scratch/'tools/uv-0.9.21/bin/uv'),'run','--no-sync','python','tools/devx/architecture/guardrails.py','sync','--skip-deep-import-baseline']
+result=subprocess.run([str(scratch/'environment/bin/python'),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag','successor-prefreeze-public-sync-02ff','--',*argv],env=env,cwd=root)
+raise SystemExit(result.returncode)

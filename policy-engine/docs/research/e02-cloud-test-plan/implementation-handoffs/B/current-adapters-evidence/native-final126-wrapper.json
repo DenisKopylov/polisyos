@@ -1,0 +1,56 @@
+{
+  "schema": "e02.actual.affected-consumer.v1",
+  "target_sha": "126024b95fcac6400f5afc29a60596b88cdd5212",
+  "target_sha_after": "126024b95fcac6400f5afc29a60596b88cdd5212",
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "tools/quality/testing/run_timed_suite.py",
+    "--lane",
+    "pytest:e02-current-adapters-final126",
+    "--capture-pytest-workload",
+    "--receipt-output",
+    "_build/e02-B-current-adapters/raw/native-final126-receipt.json",
+    "--",
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+    "tests/unit/scientist/orchestration/llm/test_factory.py",
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+    "tests/unit/core/test_llm_core.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "--junitxml=_build/e02-B-current-adapters/raw/native-final126.xml"
+  ],
+  "started_at": "2026-10-06T11:36:46.237810+00:00",
+  "wall_s": 10.862642549996963,
+  "exit_code": 0,
+  "wait4_ru_maxrss_kib": 530368,
+  "rss_scope": "OS-reported maxrss for timed wrapper and its reaped descendants; not summed simultaneous cohort RSS",
+  "driver_sha256": "65c8964edef8c4ede2a4c2c82e717a5381f33e16eed7a3fd7fd3f9664dc0a0f6",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "PYTHONPATH": "src:.",
+  "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+  "outputs": {
+    "native-final126.log": {
+      "sha256": "1b429ab0e054eb9bd904328868f883c812e9782d0770cde81d67c19466ff596a",
+      "bytes": 180
+    },
+    "native-final126.xml": {
+      "sha256": "9e2e24c3e8825b84e3ff04d054fc50b2ae1c7362f9bbb033bec235ee8a007228",
+      "bytes": 20897
+    },
+    "native-final126-receipt.json": {
+      "sha256": "0314e747825bb41ba776cce036ebc3d7a0927709a4bbb9487f7d3086459fb332",
+      "bytes": 19592
+    }
+  }
+}

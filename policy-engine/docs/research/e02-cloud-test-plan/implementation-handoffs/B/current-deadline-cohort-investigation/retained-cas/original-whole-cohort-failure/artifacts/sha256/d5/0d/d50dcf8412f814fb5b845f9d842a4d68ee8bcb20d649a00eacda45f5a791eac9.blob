@@ -1,0 +1,1 @@
+{"error_policy":"fail_fast","nodes":[{"alias":"compute","condition":null,"depends_on":[],"node_id":"scientist.deadline_consumer@1.0.0","params":{},"retry":null,"timeout_s":null}],"notes":[],"required_binds":[],"schema_version":"1.0","workflow_id":"owned_deadline"}

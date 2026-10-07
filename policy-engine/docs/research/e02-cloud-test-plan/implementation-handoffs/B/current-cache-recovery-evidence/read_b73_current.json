@@ -1,0 +1,968 @@
+{
+  "source_sha": "79b2a7095b15f159d0ca168e8c15a8f94727b685",
+  "test_sha256": "da8ce0745c462c7be03f1597df198f6e287ea5bb94fdbc6e2590d423328a35c7",
+  "observed_cases": [
+    {
+      "label": "publication_before_head",
+      "cas_root": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_seeded_checkpoint_publica0/after_artifact_before_head",
+      "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+      "history": [
+        {
+          "ref": {
+            "artifact_id": "sha256:52c40ea9140c84a0a830c2e6a9b4848fa633cb5f1086c92ecbf917be6efc7923",
+            "kind": "scientist.checkpoint",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "metadata": {
+            "schema_version": "1.3",
+            "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+            "tenant_id": null,
+            "cell_id": null,
+            "sequence_number": 0,
+            "completed_node_alias": "seed",
+            "completed_node_id": "scientist.node_step_one@1.0.0",
+            "completed_nodes": [
+              "seed"
+            ],
+            "completed_node_status_contract": "native_node_outcome_v1",
+            "workflow_id": "wf_seeded_parallel_checkpoint_resume",
+            "workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "origin_workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "fsm_phase": "UNKNOWN",
+            "cache_entry_refs": [],
+            "snapshot_mode": "full",
+            "changed_paths": [],
+            "chain_depth": 0,
+            "created_at": "2026-10-06T10:09:04.645283Z",
+            "writer_pid": 103062,
+            "writer_hostname": "b878f4efbdfc",
+            "trace_id": null,
+            "span_id": null,
+            "research_dag_ref": null
+          },
+          "params": {
+            "seed": 29,
+            "step1": 1
+          }
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:e8463744bfc629a5a791e92cf8258e31595c54a8cad23c5b247edf927a64994c",
+            "kind": "scientist.checkpoint",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "metadata": {
+            "schema_version": "1.3",
+            "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+            "tenant_id": null,
+            "cell_id": null,
+            "sequence_number": 2,
+            "completed_node_alias": "right",
+            "completed_node_id": "scientist.node_parallel_right@1.0.0",
+            "completed_nodes": [
+              "seed",
+              "left",
+              "right"
+            ],
+            "completed_node_status_contract": "native_node_outcome_v1",
+            "workflow_id": "wf_seeded_parallel_checkpoint_resume",
+            "workflow_fingerprint": "96ef38ff634188bf401deddcd96e46a020dc035c659564094153f91f54035809",
+            "origin_workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "fsm_phase": "UNKNOWN",
+            "cache_entry_refs": [],
+            "snapshot_mode": "incremental",
+            "changed_paths": [
+              "params.left",
+              "params.right"
+            ],
+            "chain_depth": 1,
+            "created_at": "2026-10-06T10:09:18.745384Z",
+            "writer_pid": 103578,
+            "writer_hostname": "b878f4efbdfc",
+            "trace_id": null,
+            "span_id": null,
+            "research_dag_ref": null
+          },
+          "params": {
+            "seed": 29,
+            "step1": 1,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:01f516a14b417d589bc824c870e7df01a4dab0e238b00f2ca0e63d8e9c307f40",
+            "kind": "scientist.checkpoint",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "metadata": {
+            "schema_version": "1.3",
+            "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+            "tenant_id": null,
+            "cell_id": null,
+            "sequence_number": 3,
+            "completed_node_alias": "final",
+            "completed_node_id": "scientist.node_parallel_final@1.0.0",
+            "completed_nodes": [
+              "seed",
+              "left",
+              "right",
+              "final"
+            ],
+            "completed_node_status_contract": "native_node_outcome_v1",
+            "workflow_id": "wf_seeded_parallel_checkpoint_resume",
+            "workflow_fingerprint": "96ef38ff634188bf401deddcd96e46a020dc035c659564094153f91f54035809",
+            "origin_workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "fsm_phase": "UNKNOWN",
+            "cache_entry_refs": [
+              {
+                "artifact_id": "sha256:63293d358724a35b946badd9646b2e0d46eb48171c8a57a3abf8835370c7c33b",
+                "kind": "scientist.node_cache_entry",
+                "media_type": "application/json"
+              }
+            ],
+            "snapshot_mode": "incremental",
+            "changed_paths": [
+              "last_checkpoint_ref",
+              "params.final"
+            ],
+            "chain_depth": 2,
+            "created_at": "2026-10-06T10:09:18.791145Z",
+            "writer_pid": 103578,
+            "writer_hostname": "b878f4efbdfc",
+            "trace_id": null,
+            "span_id": null,
+            "research_dag_ref": null
+          },
+          "params": {
+            "seed": 29,
+            "step1": 1,
+            "left": 1,
+            "right": 2,
+            "final": true
+          }
+        }
+      ],
+      "trace_sha256": "564fd56777c66241b76f824107548bf16dca7f9bf948af37171792bbd0f1e8e2",
+      "trace_publication_readback": [
+        {
+          "publication_resume_ordinal": 1,
+          "trace_event_index": 7,
+          "alias": "left",
+          "ref": {
+            "artifact_id": "sha256:09c3a32d7274618a860af08756c2d808e1e6c3e328f8e600f2aeac4c4d6dc28d",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "blob_sha256": "09c3a32d7274618a860af08756c2d808e1e6c3e328f8e600f2aeac4c4d6dc28d",
+          "payload": {
+            "schema_version": "2.0",
+            "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+            "node_id": "scientist.node_parallel_left@1.0.0",
+            "idempotency_key": "6c7691726bdab94ef9d98645237f06b7cd4c45030501899c291042d9b77641fc",
+            "tenant_context": null,
+            "outcome_ref": null,
+            "outcome_payload": {
+              "artifacts": [],
+              "error": null,
+              "events": [],
+              "skip_blocker": null,
+              "state": {
+                "artifacts_index": {},
+                "budgets": {},
+                "capability_manifest_ref": null,
+                "causal_capability_contract_ref": null,
+                "causal_method_fqn": null,
+                "causal_method_params": {},
+                "champion_policy_dossier_ref": null,
+                "constitution_hash": null,
+                "control_job_id": null,
+                "critic_knowledge_base_ref": null,
+                "evaluator_report_ref": null,
+                "execution_plan_ref": null,
+                "execution_profile": null,
+                "inputs": {
+                  "registry_bundle_ref": {
+                    "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+                    "kind": "core.registry_bundle",
+                    "media_type": "application/json"
+                  }
+                },
+                "iteration_state_ref": null,
+                "last_checkpoint_ref": null,
+                "legal_candidate_pack_ref": null,
+                "legal_source_pack_ref": null,
+                "memory_index_ref": null,
+                "method_catalog_snapshot_ref": null,
+                "observational_data_ref": null,
+                "params": {
+                  "left": 1,
+                  "seed": 29,
+                  "step1": 1
+                },
+                "policy_brief_ref": null,
+                "policy_option_set_ref": null,
+                "policy_output_bundle_ref": null,
+                "policy_request_ref": null,
+                "preflight_report_ref": null,
+                "reports_index": {},
+                "reproducibility_manifest_ref": null,
+                "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+                "schema_version": "1.3",
+                "source_verification_report_ref": null,
+                "verified_policy_report_ref": null
+              },
+              "status": "ok"
+            },
+            "state_mutations": [
+              {
+                "path": "params.left",
+                "operation": "set",
+                "value": 1,
+                "value_kind": "json",
+                "index": null,
+                "start": null,
+                "stop": null,
+                "step": null,
+                "target_presence": "missing",
+                "target_kind": "missing"
+              }
+            ],
+            "state_mutations_version": "1.0",
+            "replay_epoch": "2.1",
+            "journal_proof": {
+              "replay_epoch": "2.1",
+              "payload_hash": "sha256:931680ef0a9bd8b88f9e7982b154e3299e9fc3c702717883eff2f4598f869d48",
+              "manifest_schema": {
+                "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+                "version": "2.0"
+              },
+              "manifest_producer": {
+                "component": "scientist.engine.idempotency",
+                "version": "1.0.0",
+                "git": null
+              }
+            },
+            "created_at": "2026-10-06T10:09:11Z"
+          },
+          "manifest": {
+            "manifest_schema_version": "v3",
+            "artifact_id": "sha256:09c3a32d7274618a860af08756c2d808e1e6c3e328f8e600f2aeac4c4d6dc28d",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json",
+            "byte_size": 2136,
+            "created_at": "2026-10-06T10:09:11Z",
+            "artifact_schema": {
+              "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+              "version": "2.0"
+            },
+            "canon": {
+              "name": "polisyos.canon.json",
+              "version": "0.2.0",
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "exclude_none": true,
+              "max_depth": 128,
+              "sort_keys": true,
+              "separators": [
+                ",",
+                ":"
+              ],
+              "ensure_ascii": false
+            },
+            "inputs": [],
+            "producer": {
+              "component": "scientist.engine.idempotency",
+              "version": "1.0.0",
+              "git": null
+            },
+            "env": null,
+            "governance": null,
+            "tenant_context": null,
+            "same_input_closure": null,
+            "authority": null,
+            "integrity": {
+              "sha256": "09c3a32d7274618a860af08756c2d808e1e6c3e328f8e600f2aeac4c4d6dc28d",
+              "optional": null
+            },
+            "warnings": []
+          },
+          "native_apply_params": {
+            "seed": 29,
+            "step1": 1,
+            "unrelated": "current",
+            "left": 1
+          }
+        },
+        {
+          "publication_resume_ordinal": 1,
+          "trace_event_index": 9,
+          "alias": "right",
+          "ref": {
+            "artifact_id": "sha256:f42401017c2a634c86cb710d556a5bb315805340435c8525fe1580a32902af91",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "blob_sha256": "f42401017c2a634c86cb710d556a5bb315805340435c8525fe1580a32902af91",
+          "payload": {
+            "schema_version": "2.0",
+            "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+            "node_id": "scientist.node_parallel_right@1.0.0",
+            "idempotency_key": "0c75abb328edc92a9953b396c7404e9f4a9154f1d4884bc8b522c042706a7c99",
+            "tenant_context": null,
+            "outcome_ref": null,
+            "outcome_payload": {
+              "artifacts": [],
+              "error": null,
+              "events": [],
+              "skip_blocker": null,
+              "state": {
+                "artifacts_index": {},
+                "budgets": {},
+                "capability_manifest_ref": null,
+                "causal_capability_contract_ref": null,
+                "causal_method_fqn": null,
+                "causal_method_params": {},
+                "champion_policy_dossier_ref": null,
+                "constitution_hash": null,
+                "control_job_id": null,
+                "critic_knowledge_base_ref": null,
+                "evaluator_report_ref": null,
+                "execution_plan_ref": null,
+                "execution_profile": null,
+                "inputs": {
+                  "registry_bundle_ref": {
+                    "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+                    "kind": "core.registry_bundle",
+                    "media_type": "application/json"
+                  }
+                },
+                "iteration_state_ref": null,
+                "last_checkpoint_ref": null,
+                "legal_candidate_pack_ref": null,
+                "legal_source_pack_ref": null,
+                "memory_index_ref": null,
+                "method_catalog_snapshot_ref": null,
+                "observational_data_ref": null,
+                "params": {
+                  "right": 2,
+                  "seed": 29,
+                  "step1": 1
+                },
+                "policy_brief_ref": null,
+                "policy_option_set_ref": null,
+                "policy_output_bundle_ref": null,
+                "policy_request_ref": null,
+                "preflight_report_ref": null,
+                "reports_index": {},
+                "reproducibility_manifest_ref": null,
+                "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+                "schema_version": "1.3",
+                "source_verification_report_ref": null,
+                "verified_policy_report_ref": null
+              },
+              "status": "ok"
+            },
+            "state_mutations": [
+              {
+                "path": "params.right",
+                "operation": "set",
+                "value": 2,
+                "value_kind": "json",
+                "index": null,
+                "start": null,
+                "stop": null,
+                "step": null,
+                "target_presence": "missing",
+                "target_kind": "missing"
+              }
+            ],
+            "state_mutations_version": "1.0",
+            "replay_epoch": "2.1",
+            "journal_proof": {
+              "replay_epoch": "2.1",
+              "payload_hash": "sha256:6b279175453579f598c7bf13ab94bd7493bbde908353c0cd09e670aa15862580",
+              "manifest_schema": {
+                "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+                "version": "2.0"
+              },
+              "manifest_producer": {
+                "component": "scientist.engine.idempotency",
+                "version": "1.0.0",
+                "git": null
+              }
+            },
+            "created_at": "2026-10-06T10:09:11Z"
+          },
+          "manifest": {
+            "manifest_schema_version": "v3",
+            "artifact_id": "sha256:f42401017c2a634c86cb710d556a5bb315805340435c8525fe1580a32902af91",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json",
+            "byte_size": 2139,
+            "created_at": "2026-10-06T10:09:11Z",
+            "artifact_schema": {
+              "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+              "version": "2.0"
+            },
+            "canon": {
+              "name": "polisyos.canon.json",
+              "version": "0.2.0",
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "exclude_none": true,
+              "max_depth": 128,
+              "sort_keys": true,
+              "separators": [
+                ",",
+                ":"
+              ],
+              "ensure_ascii": false
+            },
+            "inputs": [],
+            "producer": {
+              "component": "scientist.engine.idempotency",
+              "version": "1.0.0",
+              "git": null
+            },
+            "env": null,
+            "governance": null,
+            "tenant_context": null,
+            "same_input_closure": null,
+            "authority": null,
+            "integrity": {
+              "sha256": "f42401017c2a634c86cb710d556a5bb315805340435c8525fe1580a32902af91",
+              "optional": null
+            },
+            "warnings": []
+          },
+          "native_apply_params": {
+            "seed": 29,
+            "step1": 1,
+            "unrelated": "current",
+            "right": 2
+          }
+        }
+      ],
+      "trace_hits": [
+        {
+          "ts": "2026-10-06T10:09:18Z",
+          "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+          "phase": "scientist.node.left",
+          "event": "NODE_CACHE_HIT",
+          "refs": {
+            "inputs": [],
+            "outputs": []
+          },
+          "metrics": {
+            "duration_ms": 4,
+            "cache_hit": 1
+          },
+          "warnings": [],
+          "errors": []
+        },
+        {
+          "ts": "2026-10-06T10:09:18Z",
+          "run_id": "R_b73_seeded_publication_cut_after_artifact_before_head",
+          "phase": "scientist.node.right",
+          "event": "NODE_CACHE_HIT",
+          "refs": {
+            "inputs": [],
+            "outputs": []
+          },
+          "metrics": {
+            "duration_ms": 6,
+            "cache_hit": 1
+          },
+          "warnings": [],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "label": "fail_fast",
+      "cas_root": "/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_parallel_resume_fail_fast0/fail_fast",
+      "run_id": "R_b73_failure_policy_fail_fast",
+      "history": [
+        {
+          "ref": {
+            "artifact_id": "sha256:06917f4b9200af48bdb2ab8edf6b43aaba8cac2fd8a7106a4887c31349f4230f",
+            "kind": "scientist.checkpoint",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "metadata": {
+            "schema_version": "1.3",
+            "run_id": "R_b73_failure_policy_fail_fast",
+            "tenant_id": null,
+            "cell_id": null,
+            "sequence_number": 0,
+            "completed_node_alias": "seed",
+            "completed_node_id": "scientist.node_step_one@1.0.0",
+            "completed_nodes": [
+              "seed"
+            ],
+            "completed_node_status_contract": "native_node_outcome_v1",
+            "workflow_id": "wf_seeded_parallel_checkpoint_resume",
+            "workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "origin_workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "fsm_phase": "UNKNOWN",
+            "cache_entry_refs": [],
+            "snapshot_mode": "full",
+            "changed_paths": [],
+            "chain_depth": 0,
+            "created_at": "2026-10-06T10:09:20.564098Z",
+            "writer_pid": 103062,
+            "writer_hostname": "b878f4efbdfc",
+            "trace_id": null,
+            "span_id": null,
+            "research_dag_ref": null
+          },
+          "params": {
+            "seed": 29,
+            "step1": 1
+          }
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:367f268ad417a500c805a962ff6b5bf19f45b02ba1a6a9b197fb2f631408aeef",
+            "kind": "scientist.checkpoint",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "metadata": {
+            "schema_version": "1.3",
+            "run_id": "R_b73_failure_policy_fail_fast",
+            "tenant_id": null,
+            "cell_id": null,
+            "sequence_number": 2,
+            "completed_node_alias": "right",
+            "completed_node_id": "scientist.node_parallel_right@1.0.0",
+            "completed_nodes": [
+              "seed",
+              "left",
+              "right"
+            ],
+            "completed_node_status_contract": "native_node_outcome_v1",
+            "workflow_id": "wf_seeded_parallel_checkpoint_resume",
+            "workflow_fingerprint": "96ef38ff634188bf401deddcd96e46a020dc035c659564094153f91f54035809",
+            "origin_workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "fsm_phase": "UNKNOWN",
+            "cache_entry_refs": [
+              {
+                "artifact_id": "sha256:1801e87da40d8bbccf91c0d7fbc2e93b1ffe733a526af234928fe3452b506ba5",
+                "kind": "scientist.node_cache_entry",
+                "media_type": "application/json"
+              }
+            ],
+            "snapshot_mode": "incremental",
+            "changed_paths": [
+              "params.left",
+              "params.right"
+            ],
+            "chain_depth": 1,
+            "created_at": "2026-10-06T10:09:36.254590Z",
+            "writer_pid": 103874,
+            "writer_hostname": "b878f4efbdfc",
+            "trace_id": null,
+            "span_id": null,
+            "research_dag_ref": null
+          },
+          "params": {
+            "seed": 29,
+            "step1": 1,
+            "left": 1,
+            "right": 2
+          }
+        },
+        {
+          "ref": {
+            "artifact_id": "sha256:c2c6e142e93b7b503110fcb03e26c3b2320692e56585f926dc1b6da7348b2b44",
+            "kind": "scientist.checkpoint",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "metadata": {
+            "schema_version": "1.3",
+            "run_id": "R_b73_failure_policy_fail_fast",
+            "tenant_id": null,
+            "cell_id": null,
+            "sequence_number": 3,
+            "completed_node_alias": "final",
+            "completed_node_id": "scientist.node_parallel_final@1.0.0",
+            "completed_nodes": [
+              "seed",
+              "left",
+              "right",
+              "final"
+            ],
+            "completed_node_status_contract": "native_node_outcome_v1",
+            "workflow_id": "wf_seeded_parallel_checkpoint_resume",
+            "workflow_fingerprint": "96ef38ff634188bf401deddcd96e46a020dc035c659564094153f91f54035809",
+            "origin_workflow_fingerprint": "91d354a998b84fc13d6c3c0a0dcff6dacd6ad6ce5bbb214fd6e8b6a88d0dde26",
+            "fsm_phase": "UNKNOWN",
+            "cache_entry_refs": [
+              {
+                "artifact_id": "sha256:1801e87da40d8bbccf91c0d7fbc2e93b1ffe733a526af234928fe3452b506ba5",
+                "kind": "scientist.node_cache_entry",
+                "media_type": "application/json"
+              },
+              {
+                "artifact_id": "sha256:8375747c643d642cd8f37540008afeb1a3784e4164b0281cb059fc96c79b1388",
+                "kind": "scientist.node_cache_entry",
+                "media_type": "application/json"
+              }
+            ],
+            "snapshot_mode": "incremental",
+            "changed_paths": [
+              "last_checkpoint_ref",
+              "params.final"
+            ],
+            "chain_depth": 2,
+            "created_at": "2026-10-06T10:09:36.294021Z",
+            "writer_pid": 103874,
+            "writer_hostname": "b878f4efbdfc",
+            "trace_id": null,
+            "span_id": null,
+            "research_dag_ref": null
+          },
+          "params": {
+            "seed": 29,
+            "step1": 1,
+            "left": 1,
+            "right": 2,
+            "final": true
+          }
+        }
+      ],
+      "trace_sha256": "f9a8f96a4f87398292e55cb61108368ca10bf89b2f3f4b67375739b0ed996eac",
+      "trace_publication_readback": [
+        {
+          "publication_resume_ordinal": 1,
+          "trace_event_index": 8,
+          "alias": "left",
+          "ref": {
+            "artifact_id": "sha256:f5da433c7529d531717141dc4940a50275921d97124bfc6a1ae35d1010f3b9b0",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "blob_sha256": "f5da433c7529d531717141dc4940a50275921d97124bfc6a1ae35d1010f3b9b0",
+          "payload": {
+            "schema_version": "2.0",
+            "run_id": "R_b73_failure_policy_fail_fast",
+            "node_id": "scientist.node_parallel_left@1.0.0",
+            "idempotency_key": "8a9ea6683e3304c3fb6e4f0e00b158cc39e628e950b001284714c547d3226b2d",
+            "tenant_context": null,
+            "outcome_ref": null,
+            "outcome_payload": {
+              "artifacts": [],
+              "error": null,
+              "events": [],
+              "skip_blocker": null,
+              "state": {
+                "artifacts_index": {},
+                "budgets": {},
+                "capability_manifest_ref": null,
+                "causal_capability_contract_ref": null,
+                "causal_method_fqn": null,
+                "causal_method_params": {},
+                "champion_policy_dossier_ref": null,
+                "constitution_hash": null,
+                "control_job_id": null,
+                "critic_knowledge_base_ref": null,
+                "evaluator_report_ref": null,
+                "execution_plan_ref": null,
+                "execution_profile": null,
+                "inputs": {
+                  "registry_bundle_ref": {
+                    "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+                    "kind": "core.registry_bundle",
+                    "media_type": "application/json"
+                  }
+                },
+                "iteration_state_ref": null,
+                "last_checkpoint_ref": null,
+                "legal_candidate_pack_ref": null,
+                "legal_source_pack_ref": null,
+                "memory_index_ref": null,
+                "method_catalog_snapshot_ref": null,
+                "observational_data_ref": null,
+                "params": {
+                  "left": 1,
+                  "seed": 29,
+                  "step1": 1
+                },
+                "policy_brief_ref": null,
+                "policy_option_set_ref": null,
+                "policy_output_bundle_ref": null,
+                "policy_request_ref": null,
+                "preflight_report_ref": null,
+                "reports_index": {},
+                "reproducibility_manifest_ref": null,
+                "run_id": "R_b73_failure_policy_fail_fast",
+                "schema_version": "1.3",
+                "source_verification_report_ref": null,
+                "verified_policy_report_ref": null
+              },
+              "status": "ok"
+            },
+            "state_mutations": [
+              {
+                "path": "params.left",
+                "operation": "set",
+                "value": 1,
+                "value_kind": "json",
+                "index": null,
+                "start": null,
+                "stop": null,
+                "step": null,
+                "target_presence": "missing",
+                "target_kind": "missing"
+              }
+            ],
+            "state_mutations_version": "1.0",
+            "replay_epoch": "2.1",
+            "journal_proof": {
+              "replay_epoch": "2.1",
+              "payload_hash": "sha256:609a4b2ed7f93afa04a0da6f04d7ebd28ab969149f89590cffe9f814995fabfe",
+              "manifest_schema": {
+                "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+                "version": "2.0"
+              },
+              "manifest_producer": {
+                "component": "scientist.engine.idempotency",
+                "version": "1.0.0",
+                "git": null
+              }
+            },
+            "created_at": "2026-10-06T10:09:27Z"
+          },
+          "manifest": {
+            "manifest_schema_version": "v3",
+            "artifact_id": "sha256:f5da433c7529d531717141dc4940a50275921d97124bfc6a1ae35d1010f3b9b0",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json",
+            "byte_size": 2086,
+            "created_at": "2026-10-06T10:09:27Z",
+            "artifact_schema": {
+              "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+              "version": "2.0"
+            },
+            "canon": {
+              "name": "polisyos.canon.json",
+              "version": "0.2.0",
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "exclude_none": true,
+              "max_depth": 128,
+              "sort_keys": true,
+              "separators": [
+                ",",
+                ":"
+              ],
+              "ensure_ascii": false
+            },
+            "inputs": [],
+            "producer": {
+              "component": "scientist.engine.idempotency",
+              "version": "1.0.0",
+              "git": null
+            },
+            "env": null,
+            "governance": null,
+            "tenant_context": null,
+            "same_input_closure": null,
+            "authority": null,
+            "integrity": {
+              "sha256": "f5da433c7529d531717141dc4940a50275921d97124bfc6a1ae35d1010f3b9b0",
+              "optional": null
+            },
+            "warnings": []
+          },
+          "native_apply_params": {
+            "seed": 29,
+            "step1": 1,
+            "unrelated": "current",
+            "left": 1
+          }
+        },
+        {
+          "publication_resume_ordinal": 2,
+          "trace_event_index": 21,
+          "alias": "right",
+          "ref": {
+            "artifact_id": "sha256:1801e87da40d8bbccf91c0d7fbc2e93b1ffe733a526af234928fe3452b506ba5",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json"
+          },
+          "verified": true,
+          "blob_sha256": "1801e87da40d8bbccf91c0d7fbc2e93b1ffe733a526af234928fe3452b506ba5",
+          "payload": {
+            "schema_version": "2.0",
+            "run_id": "R_b73_failure_policy_fail_fast",
+            "node_id": "scientist.node_parallel_right@1.0.0",
+            "idempotency_key": "517b01fbd984fa401bd5c7f72485aee614f57374c7817fb454b6ff89440a371c",
+            "tenant_context": null,
+            "outcome_ref": null,
+            "outcome_payload": {
+              "artifacts": [],
+              "error": null,
+              "events": [],
+              "skip_blocker": null,
+              "state": {
+                "artifacts_index": {},
+                "budgets": {},
+                "capability_manifest_ref": null,
+                "causal_capability_contract_ref": null,
+                "causal_method_fqn": null,
+                "causal_method_params": {},
+                "champion_policy_dossier_ref": null,
+                "constitution_hash": null,
+                "control_job_id": null,
+                "critic_knowledge_base_ref": null,
+                "evaluator_report_ref": null,
+                "execution_plan_ref": null,
+                "execution_profile": null,
+                "inputs": {
+                  "registry_bundle_ref": {
+                    "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+                    "kind": "core.registry_bundle",
+                    "media_type": "application/json"
+                  }
+                },
+                "iteration_state_ref": null,
+                "last_checkpoint_ref": null,
+                "legal_candidate_pack_ref": null,
+                "legal_source_pack_ref": null,
+                "memory_index_ref": null,
+                "method_catalog_snapshot_ref": null,
+                "observational_data_ref": null,
+                "params": {
+                  "right": 2,
+                  "seed": 29,
+                  "step1": 1
+                },
+                "policy_brief_ref": null,
+                "policy_option_set_ref": null,
+                "policy_output_bundle_ref": null,
+                "policy_request_ref": null,
+                "preflight_report_ref": null,
+                "reports_index": {},
+                "reproducibility_manifest_ref": null,
+                "run_id": "R_b73_failure_policy_fail_fast",
+                "schema_version": "1.3",
+                "source_verification_report_ref": null,
+                "verified_policy_report_ref": null
+              },
+              "status": "ok"
+            },
+            "state_mutations": [
+              {
+                "path": "params.right",
+                "operation": "set",
+                "value": 2,
+                "value_kind": "json",
+                "index": null,
+                "start": null,
+                "stop": null,
+                "step": null,
+                "target_presence": "missing",
+                "target_kind": "missing"
+              }
+            ],
+            "state_mutations_version": "1.0",
+            "replay_epoch": "2.1",
+            "journal_proof": {
+              "replay_epoch": "2.1",
+              "payload_hash": "sha256:56617ef4453e7defd50dd088d77ea35f8e60bb51eec5e00e3dede96c4b9d989e",
+              "manifest_schema": {
+                "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+                "version": "2.0"
+              },
+              "manifest_producer": {
+                "component": "scientist.engine.idempotency",
+                "version": "1.0.0",
+                "git": null
+              }
+            },
+            "created_at": "2026-10-06T10:09:36Z"
+          },
+          "manifest": {
+            "manifest_schema_version": "v3",
+            "artifact_id": "sha256:1801e87da40d8bbccf91c0d7fbc2e93b1ffe733a526af234928fe3452b506ba5",
+            "kind": "scientist.node_cache_entry",
+            "media_type": "application/json",
+            "byte_size": 2089,
+            "created_at": "2026-10-06T10:09:36Z",
+            "artifact_schema": {
+              "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+              "version": "2.0"
+            },
+            "canon": {
+              "name": "polisyos.canon.json",
+              "version": "0.2.0",
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "exclude_none": true,
+              "max_depth": 128,
+              "sort_keys": true,
+              "separators": [
+                ",",
+                ":"
+              ],
+              "ensure_ascii": false
+            },
+            "inputs": [],
+            "producer": {
+              "component": "scientist.engine.idempotency",
+              "version": "1.0.0",
+              "git": null
+            },
+            "env": null,
+            "governance": null,
+            "tenant_context": null,
+            "same_input_closure": null,
+            "authority": null,
+            "integrity": {
+              "sha256": "1801e87da40d8bbccf91c0d7fbc2e93b1ffe733a526af234928fe3452b506ba5",
+              "optional": null
+            },
+            "warnings": []
+          },
+          "native_apply_params": {
+            "seed": 29,
+            "step1": 1,
+            "unrelated": "current",
+            "right": 2
+          }
+        }
+      ],
+      "trace_hits": [
+        {
+          "ts": "2026-10-06T10:09:36Z",
+          "run_id": "R_b73_failure_policy_fail_fast",
+          "phase": "scientist.node.left",
+          "event": "NODE_CACHE_HIT",
+          "refs": {
+            "inputs": [],
+            "outputs": []
+          },
+          "metrics": {
+            "duration_ms": 3,
+            "cache_hit": 1
+          },
+          "warnings": [],
+          "errors": []
+        }
+      ]
+    }
+  ],
+  "not_observed": "after_head_before_history and continue loop iterations were not reached after original assertions failed"
+}

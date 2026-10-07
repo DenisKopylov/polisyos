@@ -1,0 +1,98 @@
+{
+  "target_sha": "2456205c9845042ee94bae4d7c35df7939ca3bd2",
+  "scope": "All .py files recursively under policy-engine/src and policy-engine/tools; tests/docs excluded; literal import/call/definition census, no reflection/alias-universal claim",
+  "files": 3144,
+  "parse_errors": [],
+  "records": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c",
+      "hits": [
+        {
+          "kind": "import_from",
+          "line": 17,
+          "module": "cas_integrity_report",
+          "name": "build_cas_integrity_report",
+          "alias": null
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+      "hits": [
+        {
+          "kind": "import_from",
+          "line": 11,
+          "module": "protocol",
+          "name": "VerifiedSnapshotArtifactStore",
+          "alias": null
+        },
+        {
+          "kind": "definition",
+          "line": 35,
+          "name": "build_cas_integrity_report"
+        },
+        {
+          "kind": "call",
+          "line": 49,
+          "name": "get_verified_snapshot"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+      "hits": [
+        {
+          "kind": "import_from",
+          "line": 21,
+          "module": "_integrity_ops",
+          "name": "VerifiedArtifactSnapshot",
+          "alias": null
+        },
+        {
+          "kind": "definition",
+          "line": 93,
+          "name": "get_verified_snapshot"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+      "hits": [
+        {
+          "kind": "import_from",
+          "line": 44,
+          "module": "_integrity_ops",
+          "name": "VerifiedArtifactSnapshot",
+          "alias": "_VerifiedArtifactSnapshot"
+        },
+        {
+          "kind": "definition",
+          "line": 2515,
+          "name": "get_verified_snapshot"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_artifact_surface_safety.py",
+      "sha256": "57d5eaed359901cc5e1b434bfa57bf6ec17c61ace3269e5b5f0da7cb07f299a8",
+      "hits": [
+        {
+          "kind": "import_from",
+          "line": 326,
+          "module": "polisyos.core.artifacts",
+          "name": "build_cas_integrity_report",
+          "alias": null
+        },
+        {
+          "kind": "call",
+          "line": 375,
+          "name": "build_cas_integrity_report"
+        }
+      ]
+    }
+  ]
+}

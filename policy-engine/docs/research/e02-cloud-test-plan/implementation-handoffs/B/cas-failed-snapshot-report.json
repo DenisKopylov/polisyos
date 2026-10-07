@@ -1,0 +1,760 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-failed-snapshot-report",
+  "closure_ids": [],
+  "proposed_criterion_ids": [
+    "B152"
+  ],
+  "bundle_ids": [
+    "CAS-03"
+  ],
+  "slice_base_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+  "implementation_commits": [
+    "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+    "643c0e06a4121d29836d7bda4626c7c60cb61797"
+  ],
+  "candidate_tree_sha": "61131b3ad72f643407b80b5e07c8350c741360a3",
+  "evidence_commit": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-cas-failed-snapshot-report.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+    "policy-engine/src/polisyos/core/artifacts/store.py",
+    "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F02-P052",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "source_receipt_locator": "received/F02.txt:180",
+      "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt@7949854dc26204c41286ef1b6919166bb53660a0",
+      "qualification": "Full source-reported transferred metadata/profile/config/command/input-closure context was resolved; raw archives missing, semantic adequacy not_established. Historical PASS is navigation only, never repair evidence."
+    },
+    {
+      "cell_id": "F08-P055",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "source_receipt_locator": "received/F08.txt:178",
+      "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@7949854dc26204c41286ef1b6919166bb53660a0",
+      "qualification": "Full source-reported transferred metadata/profile/config/command/input-closure context was resolved; raw archives missing, semantic adequacy not_established. Historical PASS is navigation only, never repair evidence."
+    },
+    {
+      "cell_id": "F13-P060",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "state": "PASS",
+      "source_receipt_locator": "received/F13.txt:187",
+      "environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@7949854dc26204c41286ef1b6919166bb53660a0",
+      "qualification": "Full source-reported transferred metadata/profile/config/command/input-closure context was resolved; raw archives missing, semantic adequacy not_established. Historical PASS is navigation only, never repair evidence."
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline-probe",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/reproduce.py",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/baseline-cas"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+      "target_tree": "80c237125c05266ee4e992f3626ed42c04b48fde",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual clean slice-base checkout, exact3 real filesystem cases and refusal/proof consumers; exact literal driver retained in instrument-custody.json. No source/test overlay. Defining local measurements assertion FAIL while boolean false/refusal proxy PASS.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.4560686210024869,
+      "exact_child_maxrss_kib": 52264,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1242,
+        "sha256": "6d092c6736b277a4781cca41eadd79452ff09b4be5b07b025207eed35c454cc1"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 7227,
+        "sha256": "9c9007bd371836d408a7e76c22018e67aa38750b8477e5290e5f141b1c8859f9"
+      }
+    },
+    {
+      "name": "baseline-native",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/phase0/test_artifact_store.py::test_corruption_detection",
+        "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/baseline-native-pytest",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/baseline-native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+      "target_tree": "80c237125c05266ee4e992f3626ed42c04b48fde",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual source at slice-base with newly authored uncommitted test overlay. Exact pre-format overlay bytes were not retained as an immutable source artifact; this diagnostic observation is not a clean pinned-test baseline or acceptance proof. Full12FAIL/1PASS retained; first newfixtures had additional premise gaps later corrected.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 27.43530096199538,
+      "exact_child_maxrss_kib": 883228,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1659,
+        "sha256": "4cdffa543afa996de1aa40c62ac5bafe0b4e142d984773fc757ac44323d1f9ec"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 48719,
+        "sha256": "338aae22ffe4aa06e76ba120de5f05cec90843da810f32805efeb4307990c073"
+      },
+      "actual_cases": 13,
+      "failed": 12,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.xml",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 57558,
+        "sha256": "5ef975890f029fab5d79956eecb1e4caa50bc3fd7b68bd4da3381cca12008c32"
+      }
+    },
+    {
+      "name": "focused-native",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/phase0/test_artifact_store.py",
+        "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/focused-native-pytest",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/focused-native.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+      "target_tree": "80c237125c05266ee4e992f3626ed42c04b48fde",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual checkoutHEAD slice-base plus production overlay subsequently committed unchanged in ad55562b60dcc7b449c9bc7962e2430632b578fb and a new-test overlay. Exact pre-correction test bytes were not retained immutable; diagnostic21PASS/2newfixture premiseFAIL, not frozen-candidate acceptance.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 27.29304696500185,
+      "exact_child_maxrss_kib": 883608,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1628,
+        "sha256": "08a97a0391b175151f1c95d311772d4435942cc2deb0e09faf089326e8e3c320"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 11766,
+        "sha256": "2ed995628011fd80a8d8783e6d404c561c35cf562c9ca1a41496b02c84193b30"
+      },
+      "actual_cases": 23,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 21,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.xml",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 11946,
+        "sha256": "85161de72e2532170f046f498f5e70e4f000740a2759ceed630a2b69c59c9671"
+      }
+    },
+    {
+      "name": "frozen-defining",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining-pytest",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+      "target_tree": "b15be892aa450d36427b41a9c5577431fa462b47",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual frozen ad55562b60dcc7b449c9bc7962e2430632b578fb checkout. Full12cases11PASS/1oracle premiseFAIL: byte_size is excluded from the canonical selected profile, so changing only size reached the correct byte-size guard. Test-only643 changes kind to genuinely change the profile. OriginalFAIL retained.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 26.8114866620017,
+      "exact_child_maxrss_kib": 883828,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1576,
+        "sha256": "4684be48ae42b79902c4e13283b5d612ee419fcd92fc759b41007340ae0241a3"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 7978,
+        "sha256": "0d929c8eed5d3377a214bc1517f14f64bdbc4a5bbdb4809359fd851053990326"
+      },
+      "actual_cases": 12,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 11,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.xml",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 7525,
+        "sha256": "f13d3290805b4f78dff34cdf10225d299ab96532dfb5e7f31df3bce0703b0a34"
+      }
+    },
+    {
+      "name": "failed-whole-phase0",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/phase0",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_signed_evidence.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/runtime/quality/test_chronology_proof.py",
+        "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/failed-whole-phase0-pytest",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/failed-whole-phase0.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "7949854dc26204c41286ef1b6919166bb53660a0",
+      "target_tree": "80c237125c05266ee4e992f3626ed42c04b48fde",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Label is historical harness filename, not expected state. Actual checkoutHEAD slice-base with production overlay subsequently committed unchanged as ad555; actual250PASS. This is source-byte projection with precommit overlay, not execution from frozen ad555 checkout. Replaced for acceptance by final-affected262 frozen643.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 44.625249040997005,
+      "exact_child_maxrss_kib": 868336,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1933,
+        "sha256": "d31764d7c5de044e0681fd56a244ab4b14f50cc5a8b95f3918ea03e8af6f5a63"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 35075,
+        "sha256": "8d5a905ce9b5d0175e234d4861da7d996d1aefe2899b5550bbf0baead097e1cc"
+      },
+      "actual_cases": 250,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 250,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.xml",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 37215,
+        "sha256": "bedfc9a44cda1624f78f754d71171079c95b32ea8625f0daf569b587facec2ab"
+      }
+    },
+    {
+      "name": "final-affected",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/core/phase0",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_signed_evidence.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/runtime/quality/test_chronology_proof.py",
+        "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected-pytest",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/final-affected.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+      "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual frozen643 checkout and tracked whole native file/directory selectors, exact native pytest defaults, own src:project PYTHONPATH. Complete262cases including all12new controls pass. No property-removal patch, quarantine, optional-file exclusion, cap or sync. Declared test/config/changed-source hashes are in input-custody.json. A full dynamic transitive import-read census was not measured.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 44.328664597996976,
+      "exact_child_maxrss_kib": 908368,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1991,
+        "sha256": "14b67f2ec69108f4b4778657a90f8683a28d708680beab310289fbfaad135387"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 37165,
+        "sha256": "4f7224e948a40af54b394cf437cc5028e1a6ec7c0fce2b0a12bafc66bf5d6c55"
+      },
+      "actual_cases": 262,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 262,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.xml",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 39622,
+        "sha256": "6755c272015681630ea57f010a138061a8b55ff42126d37663972d57bc665da1"
+      }
+    },
+    {
+      "name": "witness-removal",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/removal.py",
+        "-vv",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest",
+        "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+      "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual frozen643 source plus the exact literal removal.py driver patch in instrument-custody.json: only failed-report actual_sha256_hex and byte_size emissions are replaced withNone. Original falseok, errors, manifest hashes/profiles and get/signature refusal paths remain intact. Same12 native controls produce11definingFAIL/1missing-controlPASS; this intentionalFAIL distinguishes the measured quantity.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 27.904996515004314,
+      "exact_child_maxrss_kib": 887396,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1663,
+        "sha256": "d6a38af2817b0ba44ab10397d63e01e3aa7136064a8ca1a9c77c26afb0a27c07"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 50726,
+        "sha256": "9069c392de60d927976ec33ce71c9cef1fbce69f959eafa68ba26712b7c8332a"
+      },
+      "actual_cases": 12,
+      "failed": 11,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.xml",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 61132,
+        "sha256": "db7796524110306393a7bf0c8ccfcd453823e7c90e0b6b071c422a597b5a92b6"
+      }
+    },
+    {
+      "name": "mypy-final",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+      "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual frozen643, native mypy on both changed canonical source paths, without rule disabling. Full7diagnosticFAIL retained. Changed inputs include store.py, so P41 inherited/disjoint exemption is NOT_ESTABLISHED. No new capture-result line diagnostic appears; this does not make the whole type gate green.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.38070310799230356,
+      "exact_child_maxrss_kib": 64024,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 732,
+        "sha256": "7c2f0c25ff4f4d07617ea1898bc69d38520b643218122d300add7bc45eff3327"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 1458,
+        "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+      }
+    },
+    {
+      "name": "ruff",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+      "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual frozen643; whole both changed canonical source files plus the new defining test file; PASS.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.04355394899903331,
+      "exact_child_maxrss_kib": 22720,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 815,
+        "sha256": "f3d6fe3cf02e809cf8ac19b9314a2dc5d5f49440d52c3971a4d3738d185df2c8"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "name": "format",
+      "command_argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/store.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+      ],
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "643c0e06a4121d29836d7bda4626c7c60cb61797",
+      "target_tree": "61131b3ad72f643407b80b5e07c8350c741360a3",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "numerical_caps": "all6absent"
+      },
+      "input_closure": "Actual frozen643; whole both changed canonical source files plus the new defining test file; PASS.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.04258698099874891,
+      "exact_child_maxrss_kib": 23264,
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.json",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 833,
+        "sha256": "30399b30de8d0a6a4e72e7d496c3bf27f5573f9ccfb1abd89d340da7ca6c514f"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.txt",
+        "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Every filesystemCAS report derives digest, size and acquired metadata from its single locally captured byte read, including validation failures. Failure measurements do not admit an artifact; verified bytes/proofs/signatures preserve original refusal. No filesystem access or blob rehash recovers fields after failure.",
+    "bucket": "SAME B152 snapshot quantity one level deeper: failure-report emission lost the acquired witness. The shared live/private-stage captured result widens that quantity across all validation failures.",
+    "runtime_path": [
+      "actual FileSystemCAS.put_bytes fixture producer",
+      "real regular CAS blob and exact selected manifest paths",
+      "one owned no-follow/nonblocking descriptor read and local content hash before metadata validation",
+      "immutable _ArtifactSnapshotReadResult projects invalid VerificationReport or require_verified raises original exception",
+      "public verify and private-stage transfer report; actual ChronologyProofArtifactReader.load_and_verify consumes failure digest as rejected/store_integrity_mismatch; get_bytes, signature verification and CAS integrity proof refuse invalid input"
+    ],
+    "proxy_divergence": "On real11-byte tampered blob, baseline okFalse and get/proof refusal were already correct while actual_sha256_hex/byte_size wereNone. The actual chronology reader consequently classified observed corruption as not_established. Current report carries measured digest/size and consumer rejects; removing only those emissions restores that false missing classification and fails11defining tests while the cheap refusal proxy and metadata remain.",
+    "negative_controls": [
+      "same-size and changed-size corrupt physical blobs",
+      "wrong-size manifest with same canonical selected profile",
+      "different-kind metadata genuinely changes selected profile",
+      "malformed manifest, wrong integrity binding and wrong reference type after safe byte read",
+      "blob repaired after its sole safe read: public and private-stage reports retain the damaged snapshot digest/size",
+      "missing blob before safe read: no invented measurements",
+      "actual valid Ed25519 signature over wrong-size selected metadata remains refused by CAS",
+      "actual chronology reader projects observed corruption to typed rejected mismatch",
+      "property removal clears only failed report digest/size fields:11FAIL/1missing-controlPASS"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_filesystem_failure_witness_repaired;independent_review_and_combined_root_acceptance_separate",
+  "finding_dispositions": [
+    {
+      "finding_id": "B152",
+      "status": "limited_concrete_filesystem_snapshot_repair;proposed_acceptance_pending_root_G",
+      "evidence": [
+        "checks[0]clean-base actual3case failure discriminator",
+        "checks[5]frozen262PASS/all12new controls",
+        "checks[6]same12 property-removal11FAIL1PASS",
+        "checks[7]native2source mypy7FAIL explicit"
+      ],
+      "residual": "Finite local safe-read profile, not all-backend conformance or globally frozen CAS history. Root/G owns final semantic acceptance after independent source review and the repaired combined frozen cohort."
+    }
+  ],
+  "other_cas_findings_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1659,
+      "sha256": "4cdffa543afa996de1aa40c62ac5bafe0b4e142d984773fc757ac44323d1f9ec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 48719,
+      "sha256": "338aae22ffe4aa06e76ba120de5f05cec90843da810f32805efeb4307990c073"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-native.xml",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 57558,
+      "sha256": "5ef975890f029fab5d79956eecb1e4caa50bc3fd7b68bd4da3381cca12008c32"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1242,
+      "sha256": "6d092c6736b277a4781cca41eadd79452ff09b4be5b07b025207eed35c454cc1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/baseline-probe.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 7227,
+      "sha256": "9c9007bd371836d408a7e76c22018e67aa38750b8477e5290e5f141b1c8859f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/environment.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 13253,
+      "sha256": "1a77077226eb91ad4332a283ee2b567a8af637f846b94ff37d200756a35eebe6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1933,
+      "sha256": "d31764d7c5de044e0681fd56a244ab4b14f50cc5a8b95f3918ea03e8af6f5a63"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 35075,
+      "sha256": "8d5a905ce9b5d0175e234d4861da7d996d1aefe2899b5550bbf0baead097e1cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/failed-whole-phase0.xml",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 37215,
+      "sha256": "bedfc9a44cda1624f78f754d71171079c95b32ea8625f0daf569b587facec2ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1991,
+      "sha256": "14b67f2ec69108f4b4778657a90f8683a28d708680beab310289fbfaad135387"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 37165,
+      "sha256": "4f7224e948a40af54b394cf437cc5028e1a6ec7c0fce2b0a12bafc66bf5d6c55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/final-affected.xml",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 39622,
+      "sha256": "6755c272015681630ea57f010a138061a8b55ff42126d37663972d57bc665da1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1628,
+      "sha256": "08a97a0391b175151f1c95d311772d4435942cc2deb0e09faf089326e8e3c320"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 11766,
+      "sha256": "2ed995628011fd80a8d8783e6d404c561c35cf562c9ca1a41496b02c84193b30"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/focused-native.xml",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 11946,
+      "sha256": "85161de72e2532170f046f498f5e70e4f000740a2759ceed630a2b69c59c9671"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 833,
+      "sha256": "30399b30de8d0a6a4e72e7d496c3bf27f5573f9ccfb1abd89d340da7ca6c514f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/format.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1576,
+      "sha256": "4684be48ae42b79902c4e13283b5d612ee419fcd92fc759b41007340ae0241a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 7978,
+      "sha256": "0d929c8eed5d3377a214bc1517f14f64bdbc4a5bbdb4809359fd851053990326"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/frozen-defining.xml",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 7525,
+      "sha256": "f13d3290805b4f78dff34cdf10225d299ab96532dfb5e7f31df3bce0703b0a34"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/initial-mypy-harness-stdout.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1458,
+      "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/input-custody.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 10164,
+      "sha256": "d9017f5985158bf69d830fc7d7736e848f083b5b4c620b0a076ffda19a28011d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/instrument-custody.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 8373,
+      "sha256": "32f89b7fd35d5e627e5179142db4f4d3e8dc6aa8395948d7d4f7f764666e2cde"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 732,
+      "sha256": "7c2f0c25ff4f4d07617ea1898bc69d38520b643218122d300add7bc45eff3327"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/mypy-final.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1458,
+      "sha256": "d7dfc109b0553a3cf702c9eb21e71b5e895db47c78936c9a8ca2e52feb74287f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 815,
+      "sha256": "f3d6fe3cf02e809cf8ac19b9314a2dc5d5f49440d52c3971a4d3738d185df2c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/ruff.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.json",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 1663,
+      "sha256": "d6a38af2817b0ba44ab10397d63e01e3aa7136064a8ca1a9c77c26afb0a27c07"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.txt",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 50726,
+      "sha256": "9069c392de60d927976ec33ce71c9cef1fbce69f959eafa68ba26712b7c8332a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failure-snapshot-evidence/witness-removal.xml",
+      "source_sha": "ff86b2a74b29c058501077e9203d44b43e1cb589",
+      "bytes": 61132,
+      "sha256": "db7796524110306393a7bf0c8ccfcd453823e7c90e0b6b071c422a597b5a92b6"
+    }
+  ],
+  "source_context": {
+    "original_root_failed_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+    "original_root_failed_tree": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+    "source_scope": "Own admitted checkout source at794 has the same affected CAS owner bytes as original root4e. The own whole checkout and repaired643 are not claimed identical to root4e. Root must integrate and run its final combined candidate.",
+    "canonical_discriminator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B152",
+    "decision": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md@7949854dc26204c41286ef1b6919166bb53660a0#B152"
+  },
+  "compatibility": {
+    "public_schema": "VerificationReport unchanged; no fields/arguments or public facade exported.",
+    "normalization": "Existing canonical _normalize_verification_error reused. Invalid manifest is identified separately; get/proof/signature consumers rethrow or project the original underlying refusal.",
+    "measured_not_verified": "Invalid report digests/profile/raw-manifest digest describe acquired bytes only, never verified artifact authority.",
+    "documentation": "Narrow artifactsREADME paragraph and release fragment included; root75c4 shared companion additions must remain during integration."
+  },
+  "limitations_and_next_owner": [
+    "Original root4e full-cohortFAIL and unique forensic fixture bytes remain untouched. Leaf262PASS does not erase that run; root owns the repaired frozen whole-B candidate wave.",
+    "Closure IDs intentionally empty; B152 acceptance proposed only. Other7CAS decisions remain in prior canonical receipt, including B148held owner-law recommendation and B154missing A all-signature publisher.",
+    "Mypy7FAIL is retained; no P41 inheritance waiver and no type-rule disabling. Initial mypy metadata wrapper failed after completing output because a Path replaced its child variable; exact stdout retained, corrected frozen native type invocation reports7FAIL.",
+    "Precommit/native diagnostic test overlays are qualified explicitly. Only final frozen643262PASS and exact removal are acceptance proof.",
+    "Permission/cancellation/ownership and safe descriptor admission are unchanged. Failure before safe blob acquisition omits unavailable fields; partial or unsafe bytes are not invented as measurements.",
+    "No full production dataset needed for this local byte witness. No power-loss, hostile-filesystem/parent mutation, multihost or other-backend claim.",
+    "Final environment census is custody after checks, not historical source execution identity; all current children used the actual isolated environment executable with own sourcePYTHONPATH and all6numeric caps absent."
+  ]
+}

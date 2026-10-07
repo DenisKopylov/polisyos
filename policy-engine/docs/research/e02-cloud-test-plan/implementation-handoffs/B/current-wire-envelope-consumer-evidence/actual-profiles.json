@@ -1,0 +1,902 @@
+{
+  "schema": "e02.wire.actual_native_and_removal_profiles.v1",
+  "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "input_driver": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+    "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+    "bytes": 6669
+  },
+  "profiles": [
+    {
+      "mode": "native",
+      "suite_attributes": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "119",
+          "time": "15.010",
+          "timestamp": "2026-10-06T15:02:47.186108+00:00",
+          "hostname": "b878f4efbdfc"
+        }
+      ],
+      "case_counts": {
+        "PASS": 119
+      },
+      "actual_cases": [
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_typed_state_round_trip_preserves_decimal_and_bytes[native-plain]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_typed_state_round_trip_preserves_decimal_and_bytes[native-safe]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_typed_state_round_trip_preserves_decimal_and_bytes[native-outcome]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_typed_state_round_trip_preserves_decimal_and_bytes[stdlib-plain]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_typed_state_round_trip_preserves_decimal_and_bytes[stdlib-safe]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_typed_state_round_trip_preserves_decimal_and_bytes[stdlib-outcome]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_user_mapping_with_reserved_type_key_is_escaped[native]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_user_mapping_with_reserved_type_key_is_escaped[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_decimal_budget_strings_reject_non_finite_values[native-NaN]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_decimal_budget_strings_reject_non_finite_values[native-Infinity]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_decimal_budget_strings_reject_non_finite_values[native--Infinity]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_decimal_budget_strings_reject_non_finite_values[stdlib-NaN]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_decimal_budget_strings_reject_non_finite_values[stdlib-Infinity]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_decimal_budget_strings_reject_non_finite_values[stdlib--Infinity]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_outcome_budget_strings_reject_non_finite_values[native-NaN]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_outcome_budget_strings_reject_non_finite_values[native-Infinity]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_outcome_budget_strings_reject_non_finite_values[stdlib-NaN]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_outcome_budget_strings_reject_non_finite_values[stdlib-Infinity]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-plain-nan]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-plain-inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-plain--inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-safe-nan]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-safe-inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-safe--inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-outcome-nan]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-outcome-inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[native-outcome--inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-plain-nan]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-plain-inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-plain--inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-safe-nan]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-safe-inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-safe--inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-outcome-nan]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-outcome-inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_non_finite_values_are_rejected[stdlib-outcome--inf]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_unsupported_values_are_rejected[native-plain]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_unsupported_values_are_rejected[native-safe]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_unsupported_values_are_rejected[native-outcome]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_unsupported_values_are_rejected[stdlib-plain]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_unsupported_values_are_rejected[stdlib-safe]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_nested_unsupported_values_are_rejected[stdlib-outcome]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_safe_digest_binds_the_exact_typed_wire_bytes[native]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_safe_digest_binds_the_exact_typed_wire_bytes[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_legacy_v0_and_v1_readers_remain_compatible",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_real_artifact_ref_and_output_aware_outcome_round_trip[native]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_real_artifact_ref_and_output_aware_outcome_round_trip[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-current-v2]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-v0]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-framed-v1]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-current-v2]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-v0]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-framed-v1]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_naive_datetime_tag_normalizes_to_utc[native]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_naive_datetime_tag_normalizes_to_utc[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeState",
+          "name": "test_round_trip_preserves_run_id",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeState",
+          "name": "test_round_trip_preserves_all_defaults",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeState",
+          "name": "test_round_trip_with_params",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeState",
+          "name": "test_deserialize_state_accepts_list_encoded_wire_payload",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_round_trip_preserves_status_and_state",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_journaled_outcome_round_trip_preserves_same_value_and_delete_ops",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_journaled_outcome_decoder_rejects_invalid_mutation_fields[extra]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_journaled_outcome_decoder_rejects_invalid_mutation_fields[foreign_path]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_round_trip_preserves_empty_collections",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_round_trip_skip_status",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeOutcome",
+          "name": "test_deserialize_outcome_accepts_list_encoded_wire_payload",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_extracts_depth",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_extracts_run_metadata",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_run_without_tenant_and_cell",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_extracts_registry_bundle_workflow_and_runner",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_uses_run_manifest_for_real_run_context",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_extracts_trace_ids_when_present",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta",
+          "name": "test_current_trace_ids_records_degraded_path_on_runtime_error",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSafeSerialisation",
+          "name": "test_round_trip_safe",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSafeSerialisation",
+          "name": "test_version_mismatch_raises",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSafeSerialisation",
+          "name": "test_integrity_failure_raises",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSafeSerialisation",
+          "name": "test_truncated_payload_raises",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSafeSerialisation",
+          "name": "test_deserialize_state_auto_detects_v1",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSafeSerialisation",
+          "name": "test_deserialize_state_handles_legacy_v0",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_public_deserializer_preserves_complete_outcome",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_reader_refuses_incomplete_subtype[outcome_schema_version-absent]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_reader_refuses_incomplete_subtype[outcome_schema_version-null]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_reader_refuses_incomplete_subtype[outcome_schema_version-malformed]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_reader_refuses_incomplete_subtype[supporting_artifacts-absent]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_reader_refuses_incomplete_subtype[supporting_artifacts-null]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_reader_refuses_incomplete_subtype[supporting_artifacts-malformed]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization",
+          "name": "test_output_aware_decoder_preserves_ordinary_wire_and_live_identity",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_actual_state_roundtrip_cold_and_warm_preserves_decimal_type[stdlib-False]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_actual_state_roundtrip_cold_and_warm_preserves_decimal_type[stdlib-True]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_actual_state_roundtrip_cold_and_warm_preserves_decimal_type[orjson-False]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_actual_state_roundtrip_cold_and_warm_preserves_decimal_type[orjson-True]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_any_nested_decimal_and_typed_artifact_ref_survive_actual_outcome[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_any_nested_decimal_and_typed_artifact_ref_survive_actual_outcome[orjson]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_output_aware_outcome_remains_typed[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_output_aware_outcome_remains_typed[orjson]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[stdlib-0.1_0]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[stdlib-0.1_1]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[stdlib-True]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[stdlib-None]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[stdlib-replacement4]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[orjson-0.1_0]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[orjson-0.1_1]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[orjson-True]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[orjson-None]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_version_rejects_untyped_decimal_budget[orjson-replacement4]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_outcome_rejects_untyped_nested_budget[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_current_outcome_rejects_untyped_nested_budget[orjson]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_legacy_numeric_budget_read_remains_explicitly_compatible[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_legacy_numeric_budget_read_remains_explicitly_compatible[orjson]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_nonfinite_decimal_writer_refuses[stdlib-bad0]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_nonfinite_decimal_writer_refuses[stdlib-bad1]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_nonfinite_decimal_writer_refuses[stdlib-bad2]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_nonfinite_decimal_writer_refuses[orjson-bad0]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_nonfinite_decimal_writer_refuses[orjson-bad1]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_nonfinite_decimal_writer_refuses[orjson-bad2]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_safe_hash_tamper_refuses_before_typed_decode[stdlib]",
+          "state": "PASS",
+          "message": null
+        },
+        {
+          "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+          "name": "test_safe_hash_tamper_refuses_before_typed_decode[orjson]",
+          "state": "PASS",
+          "message": null
+        }
+      ],
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "--repo",
+          "/workspace/e02-B-current-adapters",
+          "--output",
+          "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+          "--mode",
+          "native",
+          "--child"
+        ],
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "target_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+        "head_after": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "mode": "native",
+        "actual_child_exit": 0,
+        "wall_s": 16.57170449401019,
+        "maxrss_kib": 655920,
+        "stdout": {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4/native.txt",
+          "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c",
+          "bytes": 18996
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+        },
+        "profile": "native pytest.main -vv, isolated filesystem fixtures/cache; no marker exclusions or process/worker/thread quotas",
+        "input_overlay": "none"
+      },
+      "deciding_inputs": [
+        {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.txt",
+          "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c",
+          "bytes": 18996
+        },
+        {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.xml",
+          "sha256": "8e5621923e0526a34bd3f56ff65bccd837443bda3ae0495939bff5003891aec6",
+          "bytes": 19801
+        },
+        {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.json",
+          "sha256": "07f5d8959cda2be985680ed64f5b8daadb7026d5038e2c8f2a1b212824e5307c",
+          "bytes": 1549
+        }
+      ]
+    },
+    {
+      "mode": "remove",
+      "suite_attributes": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "6",
+          "skipped": "0",
+          "tests": "6",
+          "time": "0.252",
+          "timestamp": "2026-10-06T15:02:56.867405+00:00",
+          "hostname": "b878f4efbdfc"
+        }
+      ],
+      "case_counts": {
+        "FAIL": 6
+      },
+      "actual_cases": [
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-current-v2]",
+          "state": "FAIL",
+          "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-v0]",
+          "state": "FAIL",
+          "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[native-legacy-framed-v1]",
+          "state": "FAIL",
+          "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-current-v2]",
+          "state": "FAIL",
+          "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-v0]",
+          "state": "FAIL",
+          "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+        },
+        {
+          "classname": "tests.unit.remediation.test_wire_01",
+          "name": "test_artifact_ref_and_artifact_id_tags_are_compatible[stdlib-legacy-framed-v1]",
+          "state": "FAIL",
+          "message": "polisyos.scientist.orchestration.engine.runner.serialization.DeserializationError: Unsupported runner wire type tag: 'model'"
+        }
+      ],
+      "wrapper": {
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "--repo",
+          "/workspace/e02-B-current-adapters",
+          "--output",
+          "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+          "--mode",
+          "remove",
+          "--child"
+        ],
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "target_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+        "head_after": "a4dd3b25c369be19c80727395c689a121950fc64",
+        "mode": "remove",
+        "actual_child_exit": 1,
+        "wall_s": 1.7285352799954126,
+        "maxrss_kib": 105404,
+        "stdout": {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4/remove.txt",
+          "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae",
+          "bytes": 28865
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+          "POLISYOS_METRICS_PORT": "0",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+        },
+        "profile": "native pytest.main -vv, isolated filesystem fixtures/cache; no marker exclusions or process/worker/thread quotas",
+        "input_overlay": "isolated interpreter removes exactly _decode_wire_tag model branch; module file bytes stay frozen"
+      },
+      "deciding_inputs": [
+        {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.txt",
+          "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae",
+          "bytes": 28865
+        },
+        {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.xml",
+          "sha256": "d2d6a834de9b1eb5433f2862a9f8019d5921fc08f94c093204f60daa29cbe84e",
+          "bytes": 26086
+        },
+        {
+          "path": "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.json",
+          "sha256": "63c96b9f9b5e8867dda04c3912211d72b716d39af37a45dcde751e47ba76eaa2",
+          "bytes": 1643
+        }
+      ]
+    }
+  ],
+  "no_case_count_from_path_existence": true
+}

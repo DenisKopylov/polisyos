@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="16" time="8.281" timestamp="2026-10-06T21:22:40.226990+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-False]" time="1.741" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[False-True]" time="1.399" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-False]" time="1.323" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]" time="1.403" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_explicit_numerical_warmup_is_separate_from_preparation_and_future_seeds" time="0.659" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_reopened_plan_keeps_independent_real_branches_parallel[async]" time="0.110" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_reopened_plan_keeps_independent_real_branches_parallel[auto]" time="0.104" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[sequential]" time="0.050"><failure message="polisyos.foundry.methods.exceptions.MethodNotFoundError: Method not found: tests.independent_preparation.draw@1.0.0">tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-3849170cd3eb/pytest/test_canonical_plan_cas_reopen0')
+mode = 'sequential'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -&gt; None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+            restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+            assert calls == {"draw": 0, "reduce": 0}
+        assert tuple(restored.execution_order) == (producer.id, reducer.id)
+        assert restored.dag.edges == {}
+        assert restored.get_node(producer.id).static_params == producer.static_params
+        params = {producer.id: {"seed": 23}, reducer.id: {"offset": 0.75}}
+        observed_order = list(restored.execution_order)
+        if mode.startswith("compiled"):
+            executor = MethodCompiler(registry=registry, cache=CompilationCache()).compile_chain(
+                restored, state, jit=mode == "compiled-jit", infer_shapes=True
+            )
+            result = executor(state, params)
+        else:
+&gt;           execution = restored.execute_heterogeneous(
+                state=state, params_per_node=params, registry=registry, executor_mode=mode
+            )
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:427: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/components/composer.py:965: in execute_heterogeneous
+    return execute_heterogeneous_chain(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:668: in execute_heterogeneous_chain
+    return _execute_sequential_chain(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:923: in _execute_sequential_chain
+    result = disp.dispatch(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/jax_runner.py:61: in execute
+    compiled = self._compiler.compile(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py:596: in compile
+    method_class = self._registry.get(method_name)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;MethodRegistry methods=0&gt;
+name = 'tests.independent_preparation.draw@1.0.0', version = None
+
+    def get(
+        self,
+        name: str,
+        version: str | None = None,
+        *,
+        policy: ResolutionPolicy | None = None,
+        constraint: VersionConstraint | None = None,
+    ) -&gt; type[FoundryMethod]:
+        """
+        Get a method by name with version resolution.
+    
+        This is the primary retrieval method. It supports:
+        - Direct FQN lookup (O(1))
+        - Short name lookup with version resolution
+        - Base name (namespace.name) with version resolution
+        """
+        policy = policy or self.get_default_policy()
+    
+        if "@" in name:
+            with self._reg_lock:
+                entry = self._entries.get(name)
+            if entry is None:
+&gt;               raise MethodNotFoundError(name)
+E               polisyos.foundry.methods.exceptions.MethodNotFoundError: Method not found: tests.independent_preparation.draw@1.0.0
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/selection/registry.py:702: MethodNotFoundError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]" time="0.039"><failure message="polisyos.foundry.methods.backends.async_chain_executor.AsyncChainExecutionError: 1 node(s) failed:&#10;  [tests.independent_preparation.draw@1.0.0] MethodNotFoundError: Method not found: tests.independent_preparation.draw@1.0.0">chain = CompiledMethodChain(methods=2, bindings=0, warnings=0)
+
+    def _execute_async_chain(
+        chain: Any,
+        *,
+        state: Any,
+        params_per_node: Mapping[UUID, Mapping[str, Any]] | None = None,
+        seed: int = 0,
+        registry: MethodRegistry | None = None,
+        dispatcher: MethodDispatcher | None = None,
+        fx_rate_provider: FxRateProvider | None = None,
+        async_node_timeout_sec: float | None = None,
+    ) -&gt; ChainExecutionResult:
+        from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
+    
+        params_per_node = params_per_node or {}
+        reg = registry or MethodRegistry.get_instance()
+        disp = dispatcher or MethodDispatcher.get_instance()
+        executor = AsyncChainExecutor(registry=reg, dispatcher=disp)
+        try:
+&gt;           asyncio.get_running_loop()
+E           RuntimeError: no running event loop
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:979: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-3849170cd3eb/pytest/test_canonical_plan_cas_reopen1')
+mode = 'async'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -&gt; None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+            restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+            assert calls == {"draw": 0, "reduce": 0}
+        assert tuple(restored.execution_order) == (producer.id, reducer.id)
+        assert restored.dag.edges == {}
+        assert restored.get_node(producer.id).static_params == producer.static_params
+        params = {producer.id: {"seed": 23}, reducer.id: {"offset": 0.75}}
+        observed_order = list(restored.execution_order)
+        if mode.startswith("compiled"):
+            executor = MethodCompiler(registry=registry, cache=CompilationCache()).compile_chain(
+                restored, state, jit=mode == "compiled-jit", infer_shapes=True
+            )
+            result = executor(state, params)
+        else:
+&gt;           execution = restored.execute_heterogeneous(
+                state=state, params_per_node=params, registry=registry, executor_mode=mode
+            )
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:427: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/components/composer.py:965: in execute_heterogeneous
+    return execute_heterogeneous_chain(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:678: in execute_heterogeneous_chain
+    return _execute_async_chain(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:981: in _execute_async_chain
+    return asyncio.run(
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.foundry.methods.backends.async_chain_executor.AsyncChainExecutor object at 0x7f826877a0d0&gt;
+chain = CompiledMethodChain(methods=2, bindings=0, warnings=0)
+initial_state = _State(values=Array([ 1. , -2. ,  0.5,  3. ], dtype=float32), draws=Array([0., 0., 0., 0.], dtype=float32), total=Array(0., dtype=float32))
+params_map = {UUID('3dcbd7f5-4ac9-4463-ab64-4bfbc2d66a99'): {'seed': 23}, UUID('9fe3c6e7-c47c-4f69-8528-46b34856cd89'): {'offset': 0.75}}
+
+    async def execute(
+        self,
+        chain: Any,  # CompiledMethodChain — avoid circular import
+        initial_state: Any,
+        params_map: Mapping[UUID, Mapping[str, Any]] | None = None,
+        *,
+        fx_rate_provider: Any | None = None,
+        timeout_per_node: float | None = None,
+        seed: int = 0,
+    ) -&gt; ChainExecutionResult:
+        """
+        Execute *chain* with level-wise parallelism.
+    
+        Parameters
+        ----------
+        chain:
+            A ``CompiledMethodChain`` produced by ``MethodComposer.build()``.
+        initial_state:
+            Initial state dict passed to the first level.
+        params_map:
+            Mapping from node UUID to parameter dict.  Nodes not in the
+            map receive an empty parameter dict.
+        timeout_per_node:
+            Per-node wall-clock timeout in seconds.  ``None`` = no timeout.
+        seed:
+            Random seed threaded through for reproducibility.
+    
+        Returns
+        -------
+        ChainExecutionResult
+            Aggregated results including final state and per-node timing.
+    
+        Raises
+        ------
+        AsyncChainExecutionError
+            If any node raises an exception.  The exception retains the
+            completed ``ChainExecutionResult`` in ``partial_result`` while
+            preserving the terminal failure and exact ``node_errors``.
+        """
+        reg = self._registry or get_registry()
+        disp = self._dispatcher or MethodDispatcher.get_instance()
+        params_map = params_map or {}
+    
+        # Get parallel levels from the DAG
+        levels: list[list[UUID]] = chain.dag.compute_parallel_levels()
+        total_nodes = sum(len(lvl) for lvl in levels)
+    
+        _log.info("chain_start", total_levels=len(levels), total_nodes=total_nodes)
+        chain_t0 = time.perf_counter()
+    
+        state: Any = dict(initial_state) if isinstance(initial_state, dict) else initial_state
+        all_node_results: list[tuple[UUID, MethodResult]] = []
+        node_slot_outputs: dict[UUID, dict[str, Any]] = {}
+    
+        for level_idx, level in enumerate(levels):
+            _log.debug("chain_level_start", level_idx=level_idx, level_size=len(level))
+            level_t0 = time.perf_counter()
+    
+            level_execution = await self._execute_level(
+                level=level,
+                chain=chain,
+                state=state,
+                params_map=params_map,
+                slot_outputs=node_slot_outputs,
+                fx_rate_provider=fx_rate_provider,
+                timeout_per_node=timeout_per_node,
+                registry=reg,
+                dispatcher=disp,
+                seed=seed,
+            )
+            state = self._merge_level_results(
+                level_results=level_execution.results,
+                state=state,
+                node_slot_outputs=node_slot_outputs,
+                all_node_results=all_node_results,
+            )
+    
+            if level_execution.errors:
+                partial_result = ChainExecutionResult(
+                    final_state=state,
+                    node_results=tuple(all_node_results),
+                    reproducibility_contract=_build_level_parallel_reproducibility_contract(
+                        levels,
+                        all_node_results,
+                    ),
+                )
+                blocked_node_ids = tuple(
+                    node_id
+                    for remaining_level in levels[level_idx + 1 :]
+                    for node_id in remaining_level
+                )
+&gt;               raise AsyncChainExecutionError(
+                    list(level_execution.errors),
+                    partial_result=partial_result,
+                    failed_level_index=level_idx,
+                    blocked_node_ids=blocked_node_ids,
+                )
+E               polisyos.foundry.methods.backends.async_chain_executor.AsyncChainExecutionError: 1 node(s) failed:
+E                 [tests.independent_preparation.draw@1.0.0] MethodNotFoundError: Method not found: tests.independent_preparation.draw@1.0.0
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py:241: AsyncChainExecutionError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[auto]" time="0.037"><failure message="polisyos.foundry.methods.exceptions.MethodNotFoundError: Method not found: tests.independent_preparation.draw@1.0.0">tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-3849170cd3eb/pytest/test_canonical_plan_cas_reopen2')
+mode = 'auto'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -&gt; None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+            restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+            assert calls == {"draw": 0, "reduce": 0}
+        assert tuple(restored.execution_order) == (producer.id, reducer.id)
+        assert restored.dag.edges == {}
+        assert restored.get_node(producer.id).static_params == producer.static_params
+        params = {producer.id: {"seed": 23}, reducer.id: {"offset": 0.75}}
+        observed_order = list(restored.execution_order)
+        if mode.startswith("compiled"):
+            executor = MethodCompiler(registry=registry, cache=CompilationCache()).compile_chain(
+                restored, state, jit=mode == "compiled-jit", infer_shapes=True
+            )
+            result = executor(state, params)
+        else:
+&gt;           execution = restored.execute_heterogeneous(
+                state=state, params_per_node=params, registry=registry, executor_mode=mode
+            )
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:427: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/components/composer.py:965: in execute_heterogeneous
+    return execute_heterogeneous_chain(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:668: in execute_heterogeneous_chain
+    return _execute_sequential_chain(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py:923: in _execute_sequential_chain
+    result = disp.dispatch(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/jax_runner.py:61: in execute
+    compiled = self._compiler.compile(
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py:596: in compile
+    method_class = self._registry.get(method_name)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;MethodRegistry methods=0&gt;
+name = 'tests.independent_preparation.draw@1.0.0', version = None
+
+    def get(
+        self,
+        name: str,
+        version: str | None = None,
+        *,
+        policy: ResolutionPolicy | None = None,
+        constraint: VersionConstraint | None = None,
+    ) -&gt; type[FoundryMethod]:
+        """
+        Get a method by name with version resolution.
+    
+        This is the primary retrieval method. It supports:
+        - Direct FQN lookup (O(1))
+        - Short name lookup with version resolution
+        - Base name (namespace.name) with version resolution
+        """
+        policy = policy or self.get_default_policy()
+    
+        if "@" in name:
+            with self._reg_lock:
+                entry = self._entries.get(name)
+            if entry is None:
+&gt;               raise MethodNotFoundError(name)
+E               polisyos.foundry.methods.exceptions.MethodNotFoundError: Method not found: tests.independent_preparation.draw@1.0.0
+
+../../e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/selection/registry.py:702: MethodNotFoundError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled]" time="0.149" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[compiled-jit]" time="0.241" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-edge]" time="0.026" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[required-node]" time="0.022" /><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_reopened_plan_refuses_damaged_effective_graph_before_scientific_bodies[cycle]" time="0.020" /><testcase classname="tests.unit.remediation.test_jit_01" name="test_chain_shape_inference_refuses_unknown_data_dependent_shape" time="0.121" /></testsuite></testsuites>

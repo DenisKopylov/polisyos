@@ -1,0 +1,50 @@
+"""Literal wait4 capture; no product source mutation or execution quota."""
+import hashlib
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import time
+
+OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/evidence')
+REPO = pathlib.Path('/workspace/e02-B-current-execution-state')
+PYTHON = '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python'
+SHA = 'c0431c5b0e8dd71f758ec956b4de271910cef19a'
+CHILD = OUT / 'child.source.txt'
+ARGV = [PYTHON, '-I', '-B', str(CHILD)]
+ENV = dict(os.environ)
+ENV['PYTHONPATH'] = str(REPO / 'policy-engine/src') + ':' + str(REPO / 'policy-engine')
+ENV['POLISYOS_METRICS_PORT'] = '0'
+ENV['E02_EXPECTED_SOURCE'] = SHA
+ENV['E02_PRODUCT_ROOT'] = str(REPO)
+HEAD_BEFORE = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
+assert HEAD_BEFORE == SHA
+assert not subprocess.check_output(['git', 'status', '--porcelain'], cwd=REPO)
+profile = {'command': ARGV, 'cwd': str(REPO / 'policy-engine'), 'target_sha': SHA,
+           'environment': {k: ENV[k] for k in ['PYTHONPATH', 'POLISYOS_METRICS_PORT', 'E02_EXPECTED_SOURCE', 'E02_PRODUCT_ROOT']},
+           'python_lexical': PYTHON, 'no_process_cpu_worker_caps': True}
+(OUT / 'profile.json').write_text(json.dumps(profile, indent=2) + '\n')
+fd = os.open(OUT / 'native.txt', os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+started = time.monotonic_ns()
+pid = os.fork()
+if pid == 0:
+    os.dup2(fd, 1)
+    os.dup2(fd, 2)
+    os.close(fd)
+    os.chdir(REPO / 'policy-engine')
+    os.execve(PYTHON, ARGV, ENV)
+os.close(fd)
+waited_pid, status, usage = os.wait4(pid, 0)
+finished = time.monotonic_ns()
+head_after = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip()
+payload = (OUT / 'native.txt').read_bytes()
+wrapper = {**profile, 'waited_pid': waited_pid, 'exit_code': os.waitstatus_to_exitcode(status),
+           'wall_seconds': (finished-started)/1e9, 'max_rss_kib': usage.ru_maxrss,
+           'source_head_before': HEAD_BEFORE, 'source_head_after': head_after,
+           'source_clean_after': not bool(subprocess.check_output(['git','status','--porcelain'],cwd=REPO)),
+           'stdout': {'path': str(OUT / 'native.txt'), 'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()},
+           'xml': str(OUT / 'native.xml')}
+(OUT / 'wrapper.json').write_text(json.dumps(wrapper, indent=2) + '\n')
+print(json.dumps(wrapper, indent=2))
+sys.exit(wrapper['exit_code'])

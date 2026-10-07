@@ -1,0 +1,44 @@
+{
+  "kind": "data_only_parser_invocation",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "--inventory",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-inventory.json",
+    "--junit",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+    "--wrapper",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+    "--stdout",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+    "--profile",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+    "--selectors",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector.json",
+    "--source-sha",
+    "456f34938731b1ef11555d8333d011d3552574ec",
+    "--repo",
+    "/workspace/e02-B-current-adapters",
+    "--output",
+    "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters",
+  "parser_source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "parser_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+  "target_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "actual_exit_code": 0,
+  "wall_seconds": 0.591421895995154,
+  "peak_rss_kib": 88928,
+  "outputs": [
+    {
+      "path": "/tmp/e02-B-current-adapters-456-audit/actual-parser-retry-inside.txt",
+      "size_bytes": 2168,
+      "sha256": "962755172bc9a57167be5b19004437ec380f78a1acfb7de01be55240751c32aa"
+    },
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+      "size_bytes": 6907511,
+      "sha256": "5f648ded17057e7c8339aaf045faa1334351d82bef5da033f2a638ba1868aee4"
+    }
+  ]
+}

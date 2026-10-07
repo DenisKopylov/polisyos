@@ -1,0 +1,6 @@
+fbc5fb8dc fix(runtime): own worker descriptors from first setup acquisition
+ .../unreleased/e02-current-runtime-process.toml    |   2 +-
+ .../scientist/orchestration/engine/retry.py        | 134 ++++++++++++---------
+ .../orchestration/engine/_retry_setup_probe.py     |  83 +++++++++++++
+ .../scientist/orchestration/engine/test_retry.py   |  32 +++++
+ 4 files changed, 191 insertions(+), 60 deletions(-)

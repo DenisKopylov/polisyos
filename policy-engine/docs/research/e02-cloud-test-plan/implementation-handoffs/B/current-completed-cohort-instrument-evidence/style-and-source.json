@@ -1,0 +1,39 @@
+{
+  "target_sha": "1176dc2acb586d65ff4f71698ba5c0682e9c6774",
+  "target_tree": "38c3aab678e5cab30e0d19943ef9925e50b5c882",
+  "source_instrument_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+  "source_bytes_equal": true,
+  "instrument_sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+  "foreign_review_sha": "020ff5599a1089110f0b0a42fd5649f66e719559",
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "output": "All checks passed!\n"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25,
+      "output": "1 file already formatted\n"
+    }
+  ],
+  "runtime_outcome": "UNRUN"
+}

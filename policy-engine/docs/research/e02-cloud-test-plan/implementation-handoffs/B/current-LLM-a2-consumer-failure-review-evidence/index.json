@@ -1,0 +1,107 @@
+{
+  "objects_excluding_index": 20,
+  "bytes_excluding_index": 2812463,
+  "entries": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/actual-files/test_expired_suppressed_produc0/budget.json",
+      "bytes": 4773,
+      "sha256": "cd32fe1cae46d0bcd5b3a9daad39691086d82f10672c49a133b1971ff9a0b873"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/actual-files/test_expired_suppressed_produc0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/child.source.txt",
+      "bytes": 2828,
+      "sha256": "2e148db5dae620191415bed7ce11b8d9161456f096e015ed8959615efc2fdf9d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/native.json",
+      "bytes": 3022,
+      "sha256": "966d4abb92cca12e6f6442d2d0eb39b65f60d48a93e3332f38b3147f5b282f3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/native.txt",
+      "bytes": 3143,
+      "sha256": "1aaca1fbc2a76bbcd5ebcacf28235a7986e6c77b1308ad9effb0b1c86c328261"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/native.xml",
+      "bytes": 1041,
+      "sha256": "2e203c07da0bb398cd9bbbf988ad8606a21419e9d5fced3f6402bf6b96b03d90"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/reviewed-case-join.json",
+      "bytes": 837,
+      "sha256": "80ed17bc099dfefc6bb552992c724e7deae87700073184b6e8bfe8f8bde8df58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/reviewed-source-closure.json",
+      "bytes": 55359,
+      "sha256": "1f64d609ecc5d925fa1d8db4d72c959b7c1a8761786fbc5ebf7302da152e60b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/run-native.source.txt",
+      "bytes": 4047,
+      "sha256": "abcf5d14c254ae695cf958d1f997f256f7200b87242a4e589ef5e8b80ecfb7af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-observational-flight/source-context.json",
+      "bytes": 27691,
+      "sha256": "4b93227dd5caca510983ea799d426ef8683a21c7b121acee16c8df567b119bac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/child.source.txt",
+      "bytes": 1171,
+      "sha256": "c07ee0a84f8146765a6844050cb74068a91186c1aec67846b9c88f64a5bd6b16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/native.json",
+      "bytes": 140137,
+      "sha256": "3ac103c5b27d157f288308381ef8b4e63c24bd9ef5f574539950262b4fde930e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/native.txt",
+      "bytes": 817630,
+      "sha256": "5d4bc265a0d9dfac20ab47099b1b2298a61667d20ac8e8f849b740a8b28c0a08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/native.xml",
+      "bytes": 114490,
+      "sha256": "c3d81dd1359e346618c8ace2138c94f5a0d1958c10a046d1165e6098fc9dc27f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/reviewed-case-join.json",
+      "bytes": 4329,
+      "sha256": "ed275e5cd404ad0445066e27644cad98c33e0abe41fb9a9e070611a4eece433d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/reviewed-source-closure.json",
+      "bytes": 960799,
+      "sha256": "3e309b1d04de23e75acbb16aeea9332ea3c79672bb6d7eed97bebb7e939fab20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/run-native.source.txt",
+      "bytes": 4072,
+      "sha256": "1a22e904965654ea4f28b91483305b7cf6a37450c2a8a04a6643599880ec3882"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/author-whole34/source-context.json",
+      "bytes": 483134,
+      "sha256": "7852a5c71c7161e3cc6f34f7fcaedc2d192a1e666013c4eb0a0e243a55475e87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/review-data.source.txt",
+      "bytes": 11060,
+      "sha256": "b3310788718675c1aefaad744aa1eeb1f30debe6617e073b05bb9372be97761c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-LLM-a2-consumer-failure-review-evidence/review.json",
+      "bytes": 172900,
+      "sha256": "64e646bec42e22aab0e5f8264ff5b578172b30d501a3150ee35744a47b1f6c2a"
+    }
+  ],
+  "retention_reason": "Complete deciding authorwhole34 stdout/JUnit/wrapper/origins and actualoneflight observational driver/log/ledger; no shortened deciding data or future custody. Reviewer no native execution."
+}

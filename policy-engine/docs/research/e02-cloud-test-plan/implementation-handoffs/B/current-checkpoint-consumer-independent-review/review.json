@@ -1,0 +1,360 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-checkpoint-consumer-independent-review",
+  "reviewer": "RUN writer /root/run_writer; foreign EXE checkpoint consumer compatibility source census only",
+  "author": "EXE is sole upcoming checkpoint/async_executor writer; DUR owns realFS oracle; CMP owns independent patch review",
+  "slice_base_sha": "7cbde21de57765c37af5384cb80b85267119a4f5",
+  "implementation_commits": [
+    "45d86a8a967e3fa906c27f079d7682b3c01bb702"
+  ],
+  "candidate_tree_sha": "f9a677cd9cffcd3f6c25a1ef9aeccc5c5e2b2a1a",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "closure_ids": [],
+  "finding_ids": [
+    "B40",
+    "B52"
+  ],
+  "bundle_ids": [
+    "RUN-01",
+    "EXE-01"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/ruff.txt"
+  ],
+  "candidate_production_changed_paths": [],
+  "candidate_tests_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_qualification": "This is a new finite source compatibility census, not a baseline-cell replay or new runtime/finding closure. Prior B40/B52 evidence remains attributed to its immutable source and input. No baseline summary is used as proof of this source change.",
+  "reviewed_product_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "reviewed_product_source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "source_refs": [
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "git_blob": "a6a5b6cb483abe855225bdbf3860ef8475a7134a",
+      "bytes": 87102,
+      "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21",
+      "reviewed_lines": [
+        [
+          330,
+          386
+        ],
+        [
+          635,
+          1054
+        ],
+        [
+          1060,
+          1095
+        ],
+        [
+          1501,
+          1645
+        ]
+      ]
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "git_blob": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+      "bytes": 102653,
+      "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+      "reviewed_lines": [
+        [
+          195,
+          256
+        ],
+        [
+          700,
+          718
+        ],
+        [
+          2057,
+          2208
+        ],
+        [
+          2270,
+          2318
+        ]
+      ]
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "git_blob": "abcede045da1496a8338f8206f960b0a06155709",
+      "bytes": 77010,
+      "sha256": "7dd103dcaf4deed17d3f5612d96f3b0283991096922518cbf929bd91e3e6c520",
+      "reviewed_lines": [
+        [
+          1640,
+          1684
+        ]
+      ]
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/distributed_tier.py",
+      "git_blob": "287035cb935b873f5fd66e6c40f44bff09436aaf",
+      "bytes": 12654,
+      "sha256": "794a7aec8002275d486ea2022f0a020d48981be2ed8e44705523bc56dbb8364f",
+      "reviewed_lines": [
+        [
+          245,
+          294
+        ]
+      ]
+    },
+    {
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "git_blob": "82a92d8923e0db8ec8717b410f74cb42591e5451",
+      "bytes": 68820,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2",
+      "reviewed_lines": [
+        [
+          655,
+          695
+        ]
+      ]
+    }
+  ],
+  "evidence_companions": [
+    {
+      "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/capture.json",
+      "git_blob": "86f5422189368d7c694fe45f88f5c05b01f1c887",
+      "bytes": 3145,
+      "sha256": "38ffdaf41c0ca7b0a5ae9ee9cc5098e861591254b7640de0b77a5e88cfc0326d"
+    },
+    {
+      "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.json",
+      "git_blob": "a02f2ad36a942520cde4e174db03d53059293534",
+      "bytes": 25831,
+      "sha256": "49c86ab45bcd75baf1c1a722349144692769b8f85ce2d0542f4e6ff4301d294b"
+    },
+    {
+      "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+      "git_blob": "c175539e7b662052e7d595d46bc6126de98ca281",
+      "bytes": 5492,
+      "sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+    },
+    {
+      "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/format.txt",
+      "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/ruff.txt",
+      "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "checks": [
+    {
+      "id": "literal-census-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "target_tree": "f9a677cd9cffcd3f6c25a1ef9aeccc5c5e2b2a1a",
+      "environment": "Shared Python3.14.2; metadata stdlib Git/AST census and installed Ruff only; no product imports, pytest, collection, native runtime or gates. Exact interpreter/argv and original execution 7cb attachment captured in capture.json.",
+      "input_closure": {
+        "execution_checkout": "7cbde21de57765c37af5384cb80b85267119a4f5",
+        "driver_and_complete_output_custody": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+        "driver": {
+          "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+          "git_blob": "c175539e7b662052e7d595d46bc6126de98ca281",
+          "bytes": 5492,
+          "sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+        },
+        "git_source_target": "456f34938731b1ef11555d8333d011d3552574ec",
+        "git_source_target_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+        "source_scope": "Complete declared tracked Python filename corpus and literal hook surface; not an external distribution, computed method lookup, dynamic third-party implementation or runtime reachability proof. Files without a literal hook token are not AST-parsed; signature compatibility is bounded by the declared Protocol rather than inferred from zero external matches."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.04250124799727928,
+      "output": {
+        "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "id": "literal-census-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "target_tree": "f9a677cd9cffcd3f6c25a1ef9aeccc5c5e2b2a1a",
+      "environment": "Shared Python3.14.2; metadata stdlib Git/AST census and installed Ruff only; no product imports, pytest, collection, native runtime or gates. Exact interpreter/argv and original execution 7cb attachment captured in capture.json.",
+      "input_closure": {
+        "execution_checkout": "7cbde21de57765c37af5384cb80b85267119a4f5",
+        "driver_and_complete_output_custody": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+        "driver": {
+          "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+          "git_blob": "c175539e7b662052e7d595d46bc6126de98ca281",
+          "bytes": 5492,
+          "sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+        },
+        "git_source_target": "456f34938731b1ef11555d8333d011d3552574ec",
+        "git_source_target_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+        "source_scope": "Complete declared tracked Python filename corpus and literal hook surface; not an external distribution, computed method lookup, dynamic third-party implementation or runtime reachability proof. Files without a literal hook token are not AST-parsed; signature compatibility is bounded by the declared Protocol rather than inferred from zero external matches."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.05654532599146478,
+      "output": {
+        "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/format.txt",
+        "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    },
+    {
+      "id": "git-ast-census",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+      "target_tree": "f9a677cd9cffcd3f6c25a1ef9aeccc5c5e2b2a1a",
+      "environment": "Shared Python3.14.2; metadata stdlib Git/AST census and installed Ruff only; no product imports, pytest, collection, native runtime or gates. Exact interpreter/argv and original execution 7cb attachment captured in capture.json.",
+      "input_closure": {
+        "execution_checkout": "7cbde21de57765c37af5384cb80b85267119a4f5",
+        "driver_and_complete_output_custody": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+        "driver": {
+          "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+          "git_blob": "c175539e7b662052e7d595d46bc6126de98ca281",
+          "bytes": 5492,
+          "sha256": "9c5aec9d016c6cf0455fdb76ae286dcf0842b64b9e5b4e51e1f828087a8885df"
+        },
+        "git_source_target": "456f34938731b1ef11555d8333d011d3552574ec",
+        "git_source_target_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+        "source_scope": "Complete declared tracked Python filename corpus and literal hook surface; not an external distribution, computed method lookup, dynamic third-party implementation or runtime reachability proof. Files without a literal hook token are not AST-parsed; signature compatibility is bounded by the declared Protocol rather than inferred from zero external matches."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 15.703736310999375,
+      "output": {
+        "source_sha": "45d86a8a967e3fa906c27f079d7682b3c01bb702",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.json",
+        "git_blob": "a02f2ad36a942520cde4e174db03d53059293534",
+        "bytes": 25831,
+        "sha256": "49c86ab45bcd75baf1c1a722349144692769b8f85ce2d0542f4e6ff4301d294b"
+      }
+    }
+  ],
+  "denominator": {
+    "complete_tracked_python_paths": 6602,
+    "literal_hook_token_matching_files": 16,
+    "parsed_matching_files": 16,
+    "matching_definitions": 20,
+    "literal_direct_calls_or_getattr_hooks": 28
+  },
+  "classification": "PASS finite metadata census; existing canonical checkpoint helper cap is source-visible, upcoming fix and consumer runtime remain UNRUN in this review.",
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "B40/B52 LIMITED pending canonical producer change and real consumer negative; no closure inferred.",
+  "runtime_execution_by_reviewer": false,
+  "product_and_tests_zero_diff": [],
+  "property": {
+    "statement": "The async workflow original publication deadline and cancellation owner must cover canonical checkpoint artifact, mutable head and GC phases while fixed legacy checkpoint hook signatures and overrides retain their behavior.",
+    "runtime_path": [
+      "AsyncWorkflowExecutor.execute captures original WorkflowTask/cancelling baseline and one monotonic workflow deadline",
+      "Node/tier hook dispatch preguard and outer owner wait/postguard",
+      "CASCheckpointHook checkpoint artifact via AsyncArtifactStore, mutable update_checkpoint_head via run_blocking_async, posthead local bookkeeping and GC",
+      "Typed checkpoint return/admission of last_checkpoint_ref, CHECKPOINT_CREATED, later producers/finalize"
+    ],
+    "proxy_divergence": "A workflow timeout alone does not establish an equal budget in nested canonical operations: source456 ensure_async_artifact_store at checkpoint.py662 plus run_blocking_async head809 and GC875 each inherit helperdefault30, even for an owner budget60 or intentionallyunbounded. A new budgetedmethod lookup alone would miss the tracked legacy-only wrapper delegating the real CAS owner. This divergence is source tracing, not a new measured runtime reproducer.",
+    "negative_controls": [
+      "UNRUN proposed real AsyncWorkflowExecutor→legacy-only _NodeOnlyCASCheckpointHook→canonical CAS sufficient-budget control: lower actual helperdefault and delay real artifact/head/GC beyond default but below original total deadline; verify real artifact/head/history and local admission.",
+      "UNRUN proposed actual original WorkflowTask cancel after gated head worker entry, release worker and inspect physical mutable head independently; postawait local ACK/finalize/nextproducer must remain denied, entered mutable publication may remain unknown.",
+      "UNRUN proposed fixed-signature _StopAfterTierCheckpoint override delegates canonical durable head then raises intentional _SimulatedWorkerStopError; no added kwargs or bypass.",
+      "UNRUN proposed legacy exact sync/async custom hooks without new capability preserve fixed signatures under original outerwait/postguard; no invented external distribution zero-match claim."
+    ],
+    "authority_purpose": "Operational deadline/cancellation ownership only; no institutional, tenant, data or billing authority."
+  },
+  "source_review_findings": [
+    {
+      "id": "canonical-helper-default-cap",
+      "state": "source_visible",
+      "refs": [
+        "checkpoint.py662",
+        "checkpoint.py809",
+        "checkpoint.py875"
+      ],
+      "trace": "Each legacy canonical bridge has independent default finite timeout; outerworkflow60/None does not propagate automatically. EXE owns additive original budget mechanism."
+    },
+    {
+      "id": "fixed-signature-override",
+      "state": "source_verified_compatibility_requirement",
+      "ref": "test_checkpoint_resume.py661–681",
+      "trace": "_StopAfterTierCheckpoint defines exact fixed async tier kwargs, delegates super then raises afterdurablehead. Typed budget wrapper must preserve virtual dispatch; globally forwarding new kwargs would break allowed hooks."
+    },
+    {
+      "id": "legacy-only-actual-CAS-delegate",
+      "state": "source_verified_compatibility_requirement",
+      "ref": "test_checkpoint_resume.py684–693",
+      "trace": "_NodeOnlyCASCheckpointHook exposes only legacy async node callback, delegates actualCAS, has no budgetedmethod. EXE accepted source inference and plans ContextVar binding around all hook dispatch; not claimed implemented/tested here."
+    },
+    {
+      "id": "remote-time-role",
+      "state": "bounded_source_requirement",
+      "ref": "checkpoint.py1060–1095",
+      "trace": "Runtime metadata is portable configuration/ref state; monotonic absolute clock belongs to local ownerprocess. No serialization of local deadline across restart/remote worker inferred."
+    }
+  ],
+  "P37_qualification": {
+    "source_and_inputs": "Complete trackedfilename denominator6602, only16 literal-token files ASTparsed; full20definitions+28direct/getattr sites in census.json, including docs evidence instruments and tests. Tokenmatch is not caller authority/runtime reachability. Aliascall routes were manually traced through actual dispatch, not counted by name alone.",
+    "external_boundary": "No installed thirdparty/distribution/computedhook corpus scanned. Fixed Protocol is compatibility contract; zero external evidence not inferred.",
+    "execution_origin": "Driver/stylechecks actually executed from own7cb attached lane beforefirstmetadata commit; 45d supplies immutable driver/output custody, source456 accessed only via Git. Capture scope distinguishes ownexecution checkout from reviewedproduct tree."
+  },
+  "P38_qualification": {
+    "actual_outputs": "Three metadata/style checks PASS only; no product behavior or cancellation/native closure witnessed by reviewer.",
+    "planned_controls": "All proposed consumer negatives above are UNRUN in this packet; EXE/DUR author source/test/evidence will own actual runtime. Existing first456 rootwave remains historical, not proof of upcoming source."
+  },
+  "upcoming_contract_coordination": {
+    "status": "source proposal messages only, no future SHA or source identity",
+    "api": "EXE plans frozen CheckpointPublicationBudget and additive BudgetedAsyncCheckpointHook; existing CheckpointHook/AsyncCheckpointHook signatures unchanged. Module-local ContextVar bound around all executor hook dispatch, reset finally; canonical internals and delegated legacy CAS read budget; opaque hooks remain outerwait/postguard.",
+    "original_owner": "Frozen originalTask/cancelling baseline and token, no mutable executorfield reread inside predicate.",
+    "budget": "One original absolute deadline propagated artifact→head→GC; intentionalNone explicitunbounded. Once mutable head replacement enters, remainingfsync/history maycomplete and external outcome is unknown on cancellation."
+  },
+  "limitations_and_next_owner": [
+    "EXE: publish exact additive canonical hook source and real legacy wrapper/fixedoverride controls; CMP reviews foreign producer patch; DUR supplies actualFS fault/cancellation oracle.",
+    "ROOT: retain first456 complete rootwave exact outcomes and profile as historical; new source requires fresh frozen consumer acceptance, no new tests/gates by this reviewer.",
+    "ROOT/G: full production history/data-dependent or platform assertions require exact local candidate; this finite cloudmetadata census does not establish them.",
+    "Root nextgenericselector freeze must include this NEW tracked Python metadata driver as incidental absence/UNRUN if it has no native testroute, distinct from14 canonical missingpaths; never hardcode controlledexamples."
+  ],
+  "candidate_scope_qualification": "Implementation SHA/tree freezes the metadata driver/output bytes; checks actually executed with attached7cb beforecommit and exact recorded untrackeddriverSHA. This is custody of matched bytes, not a claim that the future metadata commit or whole456 product checkout ran."
+}

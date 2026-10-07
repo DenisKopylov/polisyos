@@ -1235,7 +1235,7 @@ def _assert_constructor_contract(
             "_build_live_payload_in_verification_namespace",
             "polisyos.runtime.quality.promotion_sequence."
             "CanonicalN9PromotionPort._for_verification",
-            frozenset({"confidence_ledger_session", "repo_root"}),
+            frozenset({"confidence_ledger_session_factory", "repo_root"}),
             None,
         ),
         (

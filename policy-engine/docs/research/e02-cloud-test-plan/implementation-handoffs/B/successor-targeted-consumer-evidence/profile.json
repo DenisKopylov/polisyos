@@ -1,0 +1,145 @@
+{
+  "sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+  "tree": "b75980daba837e15d8664785107e12d759101b82",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/integration/scientist/test_checkpoint_resume.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+    "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+    "tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "tests/unit/core/artifacts/test_import_admission_noop.py",
+    "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+    "--basetemp",
+    "/tmp/e02-B-successor-targeted-0fd/pytest",
+    "-o",
+    "cache_dir=/tmp/e02-B-successor-targeted-0fd/cache",
+    "--junitxml",
+    "/tmp/e02-B-successor-targeted-0fd/native.xml"
+  ],
+  "files": [
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/integration/scientist/test_checkpoint_resume.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+    "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+    "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+    "tests/unit/core/artifacts/test_put_integrity_retry.py",
+    "tests/unit/core/artifacts/test_import_admission_noop.py",
+    "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "tests/unit/core/artifacts/test_cas_integrity_report.py",
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+  ],
+  "file_count": 18,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine"
+  },
+  "numeric_caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  },
+  "native_file_identities": [
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+      "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+      "sha256": "c283ee687bd7722b02d4e02793daac83504410f6f816cd21a8fc9b9641f24ee9"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c"
+    },
+    {
+      "path": "tests/integration/scientist/test_checkpoint_resume.py",
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58"
+    },
+    {
+      "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+    },
+    {
+      "path": "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+      "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7"
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+      "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_import_admission_noop.py",
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+      "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_cas_integrity_report.py",
+      "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "sha256": "43c39a7064b161649c2a4cf65c1363ec4f2c02555f09523ebe47dc7a0ad36065"
+    },
+    {
+      "path": "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+      "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+    }
+  ]
+}

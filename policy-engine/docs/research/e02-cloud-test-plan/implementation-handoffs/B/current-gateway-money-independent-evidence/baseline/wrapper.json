@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+    "--basetemp=/tmp/e02-B-gateway-exact-money-baseline/qualified-595",
+    "--junitxml=/tmp/e02-B-gateway-exact-money-baseline/qualified-595.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "head": "595a2595316e3bd2aa791f2769b12f1180beba62",
+  "tree": "4f9469c7f7b6b0ecbb3931c64ef0732cef2d23a4",
+  "head_after": "595a2595316e3bd2aa791f2769b12f1180beba62",
+  "wall_s": 148.8961999809835,
+  "process_rusage_maxrss_kib": 600800,
+  "exit_code": 1,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-independent-baseline-qualified-595.txt",
+  "output_sha256": "f5ce589095c5c2ee4cdf11773feaaf94e8dc08e6b6dd8d930f28045f78ea5bac",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

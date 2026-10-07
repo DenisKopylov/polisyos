@@ -1,0 +1,27 @@
+import hashlib,json,os,pathlib,subprocess,sys,time,tomllib
+from tools.devx.architecture import guardrails
+ROOT=pathlib.Path('/workspace/e02-B-current-coordination'); SHA='1862c021df74a5c5815bc5cd21a20e61b30132b6'; RECORD=pathlib.Path('/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74'); SOURCE=pathlib.Path('/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source'); ENV=RECORD/'environment'; CACHE=pathlib.Path('/home/agent/.cache/uv'); UV=pathlib.Path('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv')
+CAPS=('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS')
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args],text=True).strip()
+def identity(path):
+ data=path.read_bytes();return {'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+assert git('rev-parse','HEAD')==SHA and not git('status','--porcelain')
+assert not ENV.exists()
+env=guardrails._isolated_probe_environment(SOURCE,uv_cache_dir=CACHE,offline=False)
+env.pop('UV_OFFLINE',None)
+for k in CAPS:env.pop(k,None)
+env['UV_PROJECT_ENVIRONMENT']=str(ENV);env['PATH']=str(ENV/'bin')+os.pathsep+str(UV.parent)+os.pathsep+os.environ['PATH']
+registry=(ROOT/'policy-engine/architecture/generated_artifacts.toml').read_bytes(); rows=tomllib.loads(registry.decode())['family']; api=next(row for row in rows if row['id']=='runtime-openapi-snapshot')
+assert '--extra runtime --extra ml' in api['regenerate_commands'][0]
+locked=tomllib.loads((SOURCE/'uv.lock').read_text()); lifelines=next(p for p in locked['package'] if p['name']=='lifelines' and p['version']=='0.30.3')
+profile={'source_sha':SHA,'source_tree':git('rev-parse','HEAD^{tree}'),'source_copy_reused_readonly':str(SOURCE),'source_copy_role':'Prior canonical cache-preparation source only; neither first nor retry architecture measurement workspace is modified. Fresh explicit UV_PROJECT_ENVIRONMENT overrides that copied project .venv link.','private_environment':str(ENV),'cache_root':str(CACHE),'cache_owner':'existing shared cache; exact-locked restoration explicitly authorized','registered_recipe':api,'registry':identity(ROOT/'policy-engine/architecture/generated_artifacts.toml'),'lock':identity(SOURCE/'uv.lock'),'locked_lifelines':lifelines,'canonical_cli':identity(ROOT/'policy-engine/tools/devx/architecture/guardrails.py'),'all_six_thread_caps_absent':all(k not in env for k in CAPS),'mode':'Online prerequisite preparation for exact registered runtime+ml profile; deciding architecture remains offline and source unchanged.','environment':{k:env[k] for k in ('UV_FROZEN','UV_PROJECT','UV_PROJECT_ENVIRONMENT','UV_CACHE_DIR','UV_WORKING_DIR','UV_PYTHON','UV_NO_ENV_FILE','PYTHONPATH','PYTHONDONTWRITEBYTECODE','PYTHONNOUSERSITE','PATH')},'steps':[]}
+(RECORD/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+for name,argv in [('venv',[str(UV),'venv','--python',sys.executable,str(ENV)]),('sync',[str(UV),'sync','--frozen','--extra','runtime','--extra','ml'])]:
+ start=time.monotonic()
+ with (RECORD/(name+'.txt')).open('xb') as output: child=subprocess.run(argv,cwd=SOURCE,env=env,stdout=output,stderr=subprocess.STDOUT,check=False)
+ row={'argv':argv,'cwd':str(SOURCE),'exit_code':child.returncode,'wall_seconds':time.monotonic()-start,'source_before_after':SHA,'head_after':git('rev-parse','HEAD'),'clean_after':not git('status','--porcelain'),'output':identity(RECORD/(name+'.txt'))}
+ (RECORD/(name+'.json')).write_text(json.dumps(row,indent=2)+'\n');profile['steps'].append(row);(RECORD/'profile.json').write_text(json.dumps(profile,indent=2)+'\n');print(json.dumps(row),flush=True)
+ if child.returncode:raise SystemExit(child.returncode)
+guardrails._verify_isolated_python_import_origins(SOURCE,python_executable=ENV/'bin/python',environment=env)
+argv=[str(ENV/'bin/python'),'-B','-c','import importlib.metadata,json,polisyos,tools; print(json.dumps({"polisyos_origin":polisyos.__file__,"tools_origin":tools.__file__,"installed":[{"name":d.metadata["Name"],"version":d.version} for d in sorted(importlib.metadata.distributions(),key=lambda d:d.metadata["Name"].lower())]},indent=2))']
+out=subprocess.check_output(argv,cwd=SOURCE,env=env);(RECORD/'private-imports-and-packages.json').write_bytes(out);profile['origin_preflight']='PASS canonical isolated-origin check';profile['package_read_argv']=argv;profile['packages']=identity(RECORD/'private-imports-and-packages.json');(RECORD/'profile.json').write_text(json.dumps(profile,indent=2)+'\n');print(json.dumps({'ready':'exact registered runtime+ml frozen profile provisioned; no generated-family verdict','packages':profile['packages']}),flush=True)

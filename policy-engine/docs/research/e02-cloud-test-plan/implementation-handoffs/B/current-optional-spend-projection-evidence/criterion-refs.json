@@ -1,0 +1,18 @@
+{
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+  "lines": [
+    1669,
+    1708
+  ],
+  "bytes": 8910,
+  "sha256": "1e536a5bdcccd7e0f847328de1ac8e6dc740becfc20453435ffe9c0bb80b9f0d",
+  "finding_ids": [
+    "B65",
+    "B66"
+  ],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "scope": "B66 explicit unknown network cost cannot be nulled; B65 required/optional accounting boundary. This new A/G helper observation gives no cache-reuse/expiry or mandatory accounting closure."
+}

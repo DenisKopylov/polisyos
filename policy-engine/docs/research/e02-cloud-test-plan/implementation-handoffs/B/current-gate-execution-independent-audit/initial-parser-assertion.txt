@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-gate-execution-audit/audit.py", line 167, in <module>
+    main()
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-gate-execution-audit/audit.py", line 111, in main
+    assert "unadjudicated: 21" in suffix
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,30 @@
+# C/E carry-versus-new delta review
+
+Read-only delta review on G `codex/e02-integration` at `ff277db7798fc312654704fa51c52e00f53f10f4`. Compared current C/E receipts and source identities with the prior C review and root-reviewed E assembly; no code, tests, refs, or tracked files changed and no tests were run.
+
+## Decision
+
+**GO for bounded byte/evidence carry into the already-reviewed candidate sources; no finding closure or G integration acceptance is implied.** C's new tip is evidence-only relative to the prior `552c7d9` review: `552c7d9` is an ancestor of `fe15a360`; the 30-path delta contains no source or test paths (29 additions, one handoff update). E's component source candidates are ancestors of root-reviewed `a9f78817` / tree `c02e043c`. Carry only the exact witnesses below and retain the limitations/statuses.
+
+## C migrations — bounded new LA-050 evidence
+
+- `fe15a360` adds the LA-050 local-input audit after `d3e058f`; it does not alter the migration implementation. The receipt binds its source freeze to `004ae11f` / tree `5369c016`; the separate 004ae root-resolution audit remains supplemental to the parsed `migrations.json`, not a replacement for it or for the previously reviewed migration slice.
+- The local audit found 19 manifest-named JSON candidates under its one documented production-data root; four matched current DatasetManifest shape and all were schema 1.0. Installed CLI conversion/readback ran on private copies; originals were only hash-checked and remained unchanged. Its no-historical-0.9 result is limited to this filename/root census. It does not supply a historical 0.9 artifact or mapping, and LA-050 stays limited/partial (`bridge_missing`).
+- Retain canonical ownership: Fabric owns DatasetManifest conversion; Runtime owns version-neutral RunManifest path normalization; Common and IR remain distinct linear profiles (callback mutation/error/version/no-op semantics); DataForge's branching SchemaMigrationRegistry is untouched. No authority/status/time claim was added. Public CLI filesystem is in scope; API/dashboard are explicitly out of scope.
+- The installed 0.9→1.0 proof uses a tracked synthetic fixture; it is not historical production lineage. The current production-shaped inputs were 1.0→1.0. DuckDB evidence is a dry-run with an unusable DSN that returns before driver import/connect; there is no listener/socket observation or live PostgreSQL migration proof. Do not widen this receipt into database-port or live migration claims. The 24 indexed capture files match their declared hashes/bytes; private input/output paths remain local.
+- Next owner: C updates LA-050 only if it can bind an actual historical artifact and mapping/lineage; preserve LA-047/048/050 partial statuses until each criterion owner refreshes its closure record. The Common shim still needs a complete caller/compatibility-window census before retirement.
+
+## E — carry to root-reviewed a9, with three slice-specific qualifications
+
+- **DDM:** implementation `4c5afb1d` / tree `1a029606` is an ancestor of a9. All six code/schema/test paths in the DDM receipt match a9 byte-for-byte. The release fragment differs: a9 carries the later explicit persisted-artifact-format / compatible-with-migration entry and team-scientist ownership. Use a9's release bytes, not the earlier component version. The exact `a2276d5a` receipt's 19 declared output refs match path, size, and SHA. Keep v1 strict-reader compatibility and v2 versioned output distinct; read/migration does not grant authority. LA-054/055/056 remain partial pending served feed, purpose/R2 signoff, or accountable API-owner evidence.
+- **Finite Monte Carlo law:** source `d69d2fad` / tree `e7891ec2` is an ancestor of a9. Four of the five declared source/test/release paths match a9. The one real delta is `sampling_admission.py`: a9 adds generic real-number validation before float64 coercion and rejects nonzero support that collapses to zero. This strengthens the finite-float64 contract; the d69 receipt alone is not evidence for that delta. The a9 deciding index records 122 PASS sampling-admission cases and 45 PASS finite-empirical-law cases on exact a9; the component `c4e8092d` artifact manifest's 14 file references validate. Keep factual law/issuer limits (B188/B192 limited), B194 and B201/B202 held. The demonstrated upstream IR round-to-12 loss of tiny mass is a separate IR precision/semantic-owner decision, not closed by this sampler.
+- **PCL:** source `ffd23ae3` / tree `bc60af14` is an ancestor of a9. All six declared changed paths and all 10 framed source inputs match a9 blobs. The `ee6f2fb6` output/source-reference paths I checked match declared hashes and sizes. Its actual NumPy MethodRunner → configured CAS → fresh-reader recomputation and removal control support the bounded synthetic persistence property; the fixture does not establish production authority and the reader remains `gate_eligible=false`. LA-052 still needs PCL owner adjudication; LA-053 still needs Calibration/Scientist/Architecture's approved alias compatibility window.
+
+The root E assembly remains the 54-finding result already reviewed: 49 limited/partial proposals, four held (B194/B197/B201/B202), one prior closed regression (B198); 1,441 PASS and four FAIL in its 1,445-case wave, with global gates still failing. These component carry decisions do not upgrade those findings or turn the full package into accepted/closed work.
+
+## Next owner actions
+
+C: preserve bounded local evidence and seek actual historical 0.9 lineage only for LA-050; do not infer global absence from the 19-file census. E: use a9's final DDM release metadata and MC coercion guard; request only the named external/owner inputs above for closure. G: if later admitting code, bind to exact source/tree and reviewed a9 witnesses; do not transfer source acceptance or closure by adjacency.
+
+
+Publication scope: this is a pinned review observation/recommendation. A bounded GO here is not an integrated commit or formal finding closure. The root decisions in the eighth-wave README and newer per-unit audit take precedence for later heads.

@@ -1,0 +1,1386 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-composition-final",
+  "closure_ids": [],
+  "finding_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B53",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "criterion_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B53",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "owned_finding_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B53",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "JIT-01",
+    "RES-03",
+    "RES-04"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+  "candidate_tree_sha": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+  "production_source_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+  "production_source_tree_sha": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+  "implementation_commits": [
+    "e10a81470275e41ebffd3324412c47707aa7dafd",
+    "53e80d5d1022cc2c6375c5d364c69f058eca714a",
+    "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "ec36f1cbb39f89b7f95f962713182b57b52ebd53",
+    "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+    "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+    "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a",
+    "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76"
+  ],
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-dur-driver-061.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-dur-driver-061.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-source-replacement-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-source-replacement-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-alias-runtime-frozen-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-environment-actual.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-environment-actual.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-frozen-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-native-frozen-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-readonly-c639.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-readonly-c639.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-unchanged-driver-frozen.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit-unchanged-driver-frozen.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/history-provenance-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/invocation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red-input.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/payload-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/setup-pnpm.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/setup-pnpm.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-consumer-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-consumer-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-consumer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-red-input.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/mapping-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/process-reader-0-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/process-writer-1-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/process-writer-2-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/roots-red-input.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/roots-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/roots-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots/roots-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_after_pointer-2-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_after_pointer-2-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_before_pointer-2-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-kill_before_pointer-2-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-reader-0-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-reader-0-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-reader-0-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-1-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-1-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-1-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-2-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-2-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/process-writer-2-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red-input.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/publication-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication/run-checks.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/4d/4e/4d4e98b85f96e4f3284142bde38dfc4ad82e2ee5ea6017c5796d44843f0d46fe.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/5f/2f/5f2fd12b8a50f624798acd43d4bd24f1edc7932c0d2eaf53c0bf73b5b227c86f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/74/3e/743e24e1453caaa44af85b737c046adb42115b3cb1d711b1a2ec7cd0360e0dae.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/7c/b5/7cb5dd9a375f6cc66edc7d6882382afc4d482cb6659965ea4964db97c2c5efee.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/8a/bd/8abdf35716afbe8e555574079a562758b82b9ad99be6f3a0f6faa5d6a3cdebeb.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/artifacts/sha256/d3/7a/d37aac12e6e58955ba950440a9cfcfb24d1987d0288aaad2778fe1d1130b67fa.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local-cloud-preflight.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03-artifact-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03-artifact-custody.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/trace.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/independent-net02-943-5f9.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/owner-baseline-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/independent-net02-review/review-net02.py.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-generations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-identity.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-payload.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-inputs.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-dag-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-local-git-provenance.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-manifest-profile-seam.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/__init__.py",
+    "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+    "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+    "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+    "policy-engine/src/polisyos/foundry/methods/exceptions.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+    "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+    "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+    "policy-engine/tests/unit/foundry/methods/test_linker.py",
+    "policy-engine/tests/unit/remediation/test_jit_01.py",
+    "policy-engine/tests/unit/remediation/test_res_04.py"
+  ],
+  "source_footprint": {
+    "scope": "Complete Git delta for this admitted lane BASE\u2192implementation SHA, all file types. Mandatory source/tests/README/release companions and previous committed evidence are included in changed_paths; no omitted owner changes.",
+    "production_bytes_after_source_freeze_changed_paths": [
+      "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py"
+    ],
+    "generated_surface_owner": "root final generator; no own generated surface edits",
+    "shared_owner_exclusions": [
+      "Scientist EXE executor/cache/state files",
+      "runtime shared async_tools/retry",
+      "A generation_cycle.py/run_lifecycle.py",
+      "C streaming.py",
+      "root shared engine/runner READMEs"
+    ],
+    "production_delta_qualification": "54ef\u2192d71 production Python delta is only the _fingerprint.py private fixed-Git S603 reason/comment; entire file AST exactly equals54ef. Source bytes/file provenance hashes can differ; no claim old whole native outputs ran on d71. All other production Python bytes are54ef; mandatory README/release and test-only append accompany final source point."
+  },
+  "prior_ordered_receipts": {
+    "payload": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload.json@c31e69958ba1d639db6d739ec42f6595add88234",
+    "generation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots.json@2e42b6bd057b501988dc0a61f2e74aa1a79f4496",
+    "identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json@612351236667277f0f73573a19da9692d045e579",
+    "jit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json@6e217365951ab6d61910ae84714ca1f6d3abf33c",
+    "res03": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json@b4d5b969b725259e75d34120f3976ce61cfb6630"
+  },
+  "baseline_context": {
+    "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload/baseline-input-closure.json@c31e69958ba1d639db6d739ec42f6595add88234",
+    "sha256": "72074203c19fb69b2c21cf42438eef708f3afc7d63652b4c4afa22e29ef684b8",
+    "denominator": {
+      "unique_cells": 28,
+      "finding_routes": 74,
+      "owned_finding_ids": 14,
+      "source_job_contexts": 11
+    },
+    "qualification": "Source-reported baseline event locators/SHA/ref/environment/config input closure only; absent original raw archives do not prove new patch. Complete routed set has14finding IDs and11source-job contexts. Original source statuses allpartial preserved.",
+    "deduplication": "Full28cellobjects and74routes are stored once in referenced baseline-input-closure.json; baseline_cells deliberately empty here to avoid duplicating canonical baseline bytes."
+  },
+  "test_oracle_correction": {
+    "original_full_wave": "composition-final18 on b4d5b969b725259e75d34120f3976ce61cfb6630, actual341PASS1FAIL; all complete outputs retained",
+    "classification": "missing pending-follower scheduling premise; neither inherited FAIL nor demonstrated product failure",
+    "distinguishing_real_probe": "jit-late-arrival-oracle on original cleanb4 forces actual cache publication before followerget, proves1actualnativecompile/1readyhit and originaloracle assertion rejects this legitimate schedule",
+    "correction": "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a,3test-onlyinsertions establish actual _wait_for_flight entry BEFORE release_compile; production bytes remain54ef",
+    "affected_check": "jit-pending-oracle-fixed whole3files; exact actual result in checks",
+    "no_false_full_green": "No rerun or claimed342PASS whole18 on c8; completed corrected whole3filecheck supplements preserved original18. Root final whole-cohort remains pending."
+  },
+  "checks": [
+    {
+      "name": "composition-admission-git-red",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-admission-git-red-cache",
+        "-q",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-admission-git-red-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-admission-git-red.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+      "target_tree_sha": "e23d844935680b86efb027ac478a8c0570ef9634",
+      "source_after": {
+        "sha": "59468d2245b700322a0c1a00e2dd8de5d55b64f8",
+        "tree": "e23d844935680b86efb027ac478a8c0570ef9634",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 2.454813292992185,
+      "max_rss_kib": 175196,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-admission-git-red.json",
+          "sha256": "005bacf3dd48ed1c342a6c2d471675ae400eb0f63378971259d0b75b323fbe86",
+          "bytes": 1459
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-admission-git-red.txt",
+          "sha256": "4e3e6252c15a5244fc7f01a06749613be8def0915b6c32933792ae13aff45ef9",
+          "bytes": 52654
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-admission-git-red.xml",
+          "sha256": "20a07986e1f7bfc75744705add855e4a50c3555cc3e8fc21292c4f5f8f49adf8",
+          "bytes": 50462
+        }
+      ],
+      "actual_junit_counts": {
+        "testcases": 10,
+        "passed": 0,
+        "failed": 10,
+        "error": 0,
+        "skipped": 0
+      },
+      "full_test_files": [
+        "tests/unit/foundry/methods/components/test_composition_e02.py"
+      ],
+      "input_closure": "Actual complete argv test files and native fixtures at target SHA, isolated cache/basetemp/JUnit, cwd/absolute Python/src selection recorded. No complete per-test import history is asserted; separate actual environment child is explicitly qualified."
+    },
+    {
+      "name": "composition-matching-git-red",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-matching-git-red-cache",
+        "-q",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-matching-git-red-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-matching-git-red.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "61528a96e81083e830107f099c97df4c96c6b48e",
+      "target_tree_sha": "e8c90324428e5250ceebacb19ccc9203fa19c937",
+      "source_after": {
+        "sha": "61528a96e81083e830107f099c97df4c96c6b48e",
+        "tree": "e8c90324428e5250ceebacb19ccc9203fa19c937",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 3.0104177610046463,
+      "max_rss_kib": 173412,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-matching-git-red.json",
+          "sha256": "7fefc16a7ae6155acc108ada0ab1a575dcc16575d6ead0697cd4a58224a514c9",
+          "bytes": 1457
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-matching-git-red.txt",
+          "sha256": "ddc5f2232e8593d7ce842bd441e0da35c0c8bdc986feecbdc4fab0c6dd86c4b1",
+          "bytes": 11445
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-matching-git-red.xml",
+          "sha256": "efec30192f12ef3eef3b75b3bdd69fd2ccc1015bf2a6ac0ff320f4eef66f5e98",
+          "bytes": 6340
+        }
+      ],
+      "actual_junit_counts": {
+        "testcases": 17,
+        "passed": 15,
+        "failed": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "full_test_files": [
+        "tests/unit/foundry/methods/components/test_composition_e02.py"
+      ],
+      "input_closure": "Actual complete argv test files and native fixtures at target SHA, isolated cache/basetemp/JUnit, cwd/absolute Python/src selection recorded. No complete per-test import history is asserted; separate actual environment child is explicitly qualified."
+    },
+    {
+      "name": "composition-final18",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-final18-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/foundry/methods/test_semantic_validator.py",
+        "tests/unit/foundry/mirror_contracts/test_specialization.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/remediation/test_cmp_02.py",
+        "tests/unit/remediation/test_cmp_03.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_res_03.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-final18-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-final18.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "b4d5b969b725259e75d34120f3976ce61cfb6630",
+      "target_tree_sha": "4c70583df23533c5d45acf754e53b39b5df7908c",
+      "source_after": {
+        "sha": "b4d5b969b725259e75d34120f3976ce61cfb6630",
+        "tree": "4c70583df23533c5d45acf754e53b39b5df7908c",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 31.654169394998462,
+      "max_rss_kib": 283880,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final18.json",
+          "sha256": "e5bf11e295e949e74a9377935ddd9177532853397ada9607669328c8c20528ee",
+          "bytes": 2357
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final18.txt",
+          "sha256": "ec0d4130b3abb5a11a3854d16c74718b80c21e647317afad9a7613b772052ec5",
+          "bytes": 5126
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final18.xml",
+          "sha256": "2e90225069f9e59787cd5edb2af571a46b7fe5cec124441c2c952f1e8823c560",
+          "bytes": 56512
+        }
+      ],
+      "actual_junit_counts": {
+        "testcases": 342,
+        "passed": 341,
+        "failed": 1,
+        "error": 0,
+        "skipped": 0
+      },
+      "full_test_files": [
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/foundry/methods/test_semantic_validator.py",
+        "tests/unit/foundry/mirror_contracts/test_specialization.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/remediation/test_cmp_02.py",
+        "tests/unit/remediation/test_cmp_03.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_res_03.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/test_composer_hardening.py",
+        "tests/unit/foundry/methods/test_artifacts.py"
+      ],
+      "input_closure": "Actual complete argv test files and native fixtures at target SHA, isolated cache/basetemp/JUnit, cwd/absolute Python/src selection recorded. No complete per-test import history is asserted; separate actual environment child is explicitly qualified."
+    },
+    {
+      "name": "composition-environment-actual",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-B-current-composition/composition_environment.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "b4d5b969b725259e75d34120f3976ce61cfb6630",
+      "target_tree_sha": "4c70583df23533c5d45acf754e53b39b5df7908c",
+      "source_after": {
+        "sha": "b4d5b969b725259e75d34120f3976ce61cfb6630",
+        "tree": "4c70583df23533c5d45acf754e53b39b5df7908c",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 1.707890354009578,
+      "max_rss_kib": 135556,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-actual.json",
+          "sha256": "aae11114005f480bdc10d7f5df4d522bf5bd9dc9f48e173431fbd3d48e9d08b6",
+          "bytes": 966
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-actual.txt",
+          "sha256": "adeb48c05b544039b16c136b291f08fa8169866a9cb133d2fb38b457de26dd4a",
+          "bytes": 79104
+        }
+      ],
+      "input_closure": "Actual complete argv test files and native fixtures at target SHA, isolated cache/basetemp/JUnit, cwd/absolute Python/src selection recorded. No complete per-test import history is asserted; separate actual environment child is explicitly qualified."
+    },
+    {
+      "name": "jit-late-arrival-oracle",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=_build/e02-B-current-composition/raw/jit-late-arrival-oracle-cache",
+        "-q",
+        "-s",
+        "_build/e02-B-current-composition/test_jit_late_arrival_oracle.py",
+        "--basetemp=_build/e02-B-current-composition/raw/jit-late-arrival-oracle-tmp",
+        "--junitxml=_build/e02-B-current-composition/raw/jit-late-arrival-oracle.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "b4d5b969b725259e75d34120f3976ce61cfb6630",
+      "target_tree_sha": "4c70583df23533c5d45acf754e53b39b5df7908c",
+      "source_after": {
+        "sha": "b4d5b969b725259e75d34120f3976ce61cfb6630",
+        "tree": "4c70583df23533c5d45acf754e53b39b5df7908c",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 4.203700634010602,
+      "max_rss_kib": 188372,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-late-arrival-oracle.json",
+          "sha256": "980dd57a8456d108afa6556dc0bd683c22bd3b164e6e36e6ecaf9164b056c5b7",
+          "bytes": 1301
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-late-arrival-oracle.txt",
+          "sha256": "516b75c931f35b4d7083f2b8dfdd10c4f96277774737f0c292087f89a41f94ac",
+          "bytes": 4860
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-late-arrival-oracle.xml",
+          "sha256": "2da6719322f3a9bca5a6f72af34e080e65a7bd6a43153c571e5ed15d1a12c2bd",
+          "bytes": 409
+        }
+      ],
+      "actual_junit_counts": {
+        "testcases": 1,
+        "passed": 1,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "full_test_files": [],
+      "input_closure": "Actual complete argv test files and native fixtures at target SHA, isolated cache/basetemp/JUnit, cwd/absolute Python/src selection recorded. No complete per-test import history is asserted; separate actual environment child is explicitly qualified."
+    },
+    {
+      "name": "jit-pending-oracle-fixed",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-pending-oracle-fixed-cache",
+        "-q",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-pending-oracle-fixed-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/jit-pending-oracle-fixed.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a",
+      "target_tree_sha": "a5b1decba3d074b88978bc24d59d0ee6b9c7fde3",
+      "source_after": {
+        "sha": "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a",
+        "tree": "a5b1decba3d074b88978bc24d59d0ee6b9c7fde3",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 6.686593097008881,
+      "max_rss_kib": 264800,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-pending-oracle-fixed.json",
+          "sha256": "eb01137aa737f932932ee46b1a84fef7ef0f651694b0724708fa7ce3e3be3de5",
+          "bytes": 1526
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-pending-oracle-fixed.txt",
+          "sha256": "fe4c2b4fc8fd1500edb29716948b8fc25ef302a93f78b1f5539ba6744f7a5766",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-pending-oracle-fixed.xml",
+          "sha256": "e44c097e887d77b8e295903c62c4dedbaba5fae1350bde16ef810d4a183691b1",
+          "bytes": 9506
+        }
+      ],
+      "actual_junit_counts": {
+        "testcases": 67,
+        "passed": 67,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "full_test_files": [
+        "tests/unit/foundry/methods/test_compiler.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py"
+      ],
+      "input_closure": "Actual complete argv test files and native fixtures at target SHA, isolated cache/basetemp/JUnit, cwd/absolute Python/src selection recorded. No complete per-test import history is asserted; separate actual environment child is explicitly qualified."
+    },
+    {
+      "name": "composition-final-ruff-actual",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-B-current-composition/ruff_delta.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a",
+      "target_tree_sha": "a5b1decba3d074b88978bc24d59d0ee6b9c7fde3",
+      "source_before": {
+        "sha": "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a",
+        "tree": "a5b1decba3d074b88978bc24d59d0ee6b9c7fde3",
+        "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "c8e90bdfb2dccbe3ffcb5308931cae9ec95ddf6a",
+        "tree": "a5b1decba3d074b88978bc24d59d0ee6b9c7fde3",
+        "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 0.07922647400118876,
+      "max_rss_kib": 19200,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-actual.json",
+          "sha256": "5fa7f2b86ad7d1b2c41130159e4ebb5190fa8b6dd70d67e1139b0997cb37d6c7",
+          "bytes": 1396
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-actual.txt",
+          "sha256": "40711553796ff1675fc7d4368ac7c82dcbfa728a2679468c9bb46f984fd63ab1",
+          "bytes": 3065
+        }
+      ],
+      "input_closure": "Corrected Ruff22 whole changedPython source/test denominator walked from repo root with assertnonempty; private Git annotation source point and qualified final environment child actual loaded-module origins. Only untracked handoff files during these read-only checks; tracked source unchanged."
+    },
+    {
+      "name": "composition-final-ruff-fixed",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-B-current-composition/ruff_delta.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+      "target_tree_sha": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+      "source_before": {
+        "sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+        "tree": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+        "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+        "tree": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+        "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.13892803000635467,
+      "max_rss_kib": 19328,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-fixed.json",
+          "sha256": "43275f9b50c6b2258be028e9f71df2300cdd4ff67f029a2604ad60771e788caf",
+          "bytes": 1396
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-fixed.txt",
+          "sha256": "9a05d7381ad71735153a735534b5da5d4e31e6bb66ad9a930121bd2cb9abcc7f",
+          "bytes": 4062
+        }
+      ],
+      "input_closure": "Corrected Ruff22 whole changedPython source/test denominator walked from repo root with assertnonempty; private Git annotation source point and qualified final environment child actual loaded-module origins. Only untracked handoff files during these read-only checks; tracked source unchanged."
+    },
+    {
+      "name": "composition-environment-final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/e02-B-current-composition/composition_environment.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "target_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+      "target_tree_sha": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+      "source_before": {
+        "sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+        "tree": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+        "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+        "tree": "98ac2f4e411f18c33547c46bb05041c78172e1ed",
+        "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 1.6709120989980875,
+      "max_rss_kib": 135448,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-final.json",
+          "sha256": "8e53ed7b0c07de7d58ff9f637129666f96035986fb445b14838083c339620d5e",
+          "bytes": 1409
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-final.txt",
+          "sha256": "98afde5348b93eb9115fd6e67afbf800f787b339598be87b165e421fb88b3db7",
+          "bytes": 79325
+        }
+      ],
+      "input_closure": "Corrected Ruff22 whole changedPython source/test denominator walked from repo root with assertnonempty; private Git annotation source point and qualified final environment child actual loaded-module origins. Only untracked handoff files during these read-only checks; tracked source unchanged."
+    }
+  ],
+  "deciding_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-admission-git-red.json",
+      "sha256": "005bacf3dd48ed1c342a6c2d471675ae400eb0f63378971259d0b75b323fbe86",
+      "bytes": 1459
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-admission-git-red.txt",
+      "sha256": "4e3e6252c15a5244fc7f01a06749613be8def0915b6c32933792ae13aff45ef9",
+      "bytes": 52654
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-admission-git-red.xml",
+      "sha256": "20a07986e1f7bfc75744705add855e4a50c3555cc3e8fc21292c4f5f8f49adf8",
+      "bytes": 50462
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-matching-git-red.json",
+      "sha256": "7fefc16a7ae6155acc108ada0ab1a575dcc16575d6ead0697cd4a58224a514c9",
+      "bytes": 1457
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-matching-git-red.txt",
+      "sha256": "ddc5f2232e8593d7ce842bd441e0da35c0c8bdc986feecbdc4fab0c6dd86c4b1",
+      "bytes": 11445
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-matching-git-red.xml",
+      "sha256": "efec30192f12ef3eef3b75b3bdd69fd2ccc1015bf2a6ac0ff320f4eef66f5e98",
+      "bytes": 6340
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final18.json",
+      "sha256": "e5bf11e295e949e74a9377935ddd9177532853397ada9607669328c8c20528ee",
+      "bytes": 2357
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final18.txt",
+      "sha256": "ec0d4130b3abb5a11a3854d16c74718b80c21e647317afad9a7613b772052ec5",
+      "bytes": 5126
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final18.xml",
+      "sha256": "2e90225069f9e59787cd5edb2af571a46b7fe5cec124441c2c952f1e8823c560",
+      "bytes": 56512
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-actual.json",
+      "sha256": "aae11114005f480bdc10d7f5df4d522bf5bd9dc9f48e173431fbd3d48e9d08b6",
+      "bytes": 966
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-actual.txt",
+      "sha256": "adeb48c05b544039b16c136b291f08fa8169866a9cb133d2fb38b457de26dd4a",
+      "bytes": 79104
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-late-arrival-oracle.json",
+      "sha256": "980dd57a8456d108afa6556dc0bd683c22bd3b164e6e36e6ecaf9164b056c5b7",
+      "bytes": 1301
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-late-arrival-oracle.txt",
+      "sha256": "516b75c931f35b4d7083f2b8dfdd10c4f96277774737f0c292087f89a41f94ac",
+      "bytes": 4860
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-late-arrival-oracle.xml",
+      "sha256": "2da6719322f3a9bca5a6f72af34e080e65a7bd6a43153c571e5ed15d1a12c2bd",
+      "bytes": 409
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-pending-oracle-fixed.json",
+      "sha256": "eb01137aa737f932932ee46b1a84fef7ef0f651694b0724708fa7ce3e3be3de5",
+      "bytes": 1526
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-pending-oracle-fixed.txt",
+      "sha256": "fe4c2b4fc8fd1500edb29716948b8fc25ef302a93f78b1f5539ba6744f7a5766",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/jit-pending-oracle-fixed.xml",
+      "sha256": "e44c097e887d77b8e295903c62c4dedbaba5fae1350bde16ef810d4a183691b1",
+      "bytes": 9506
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_checks.py",
+      "sha256": "ce4721c25c5389e9d992ed1967b9300e12163dc658933dc1981a3d2979f25273",
+      "bytes": 2072
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_command.py",
+      "sha256": "a7f267bce62145508b5be5f63f73923417d0dd2b957e5a8ae32731bfd7c610da",
+      "bytes": 1895
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition_environment.py",
+      "sha256": "41647d99b0fcf1cfb9b22da1dfab3398bd4b18b09048eec019fda5dff3fbde39",
+      "bytes": 2443
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/test_jit_late_arrival_oracle.py",
+      "sha256": "93ca0ee08758bd5b5132e822684c1cbcd0e865e56fc02801688cdf4487506118",
+      "bytes": 2275
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-actual.json",
+      "sha256": "5fa7f2b86ad7d1b2c41130159e4ebb5190fa8b6dd70d67e1139b0997cb37d6c7",
+      "bytes": 1396
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-actual.txt",
+      "sha256": "40711553796ff1675fc7d4368ac7c82dcbfa728a2679468c9bb46f984fd63ab1",
+      "bytes": 3065
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-fixed.json",
+      "sha256": "43275f9b50c6b2258be028e9f71df2300cdd4ff67f029a2604ad60771e788caf",
+      "bytes": 1396
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-final-ruff-fixed.txt",
+      "sha256": "9a05d7381ad71735153a735534b5da5d4e31e6bb66ad9a930121bd2cb9abcc7f",
+      "bytes": 4062
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-final.json",
+      "sha256": "8e53ed7b0c07de7d58ff9f637129666f96035986fb445b14838083c339620d5e",
+      "bytes": 1409
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition-environment-final.txt",
+      "sha256": "98afde5348b93eb9115fd6e67afbf800f787b339598be87b165e421fb88b3db7",
+      "bytes": 79325
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/ruff_delta.py",
+      "sha256": "a20ee0fb22ceb064c76185c44d7f73bcb0165422c712a18579a5b496ea130167",
+      "bytes": 896
+    }
+  ],
+  "independent_review": {
+    "jit_source_only_ec36": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-independent-jit-review.json@aeac6a2b3ceb7b6a947da56c0236ce66e57a87a5",
+    "b74_runtime": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-review.json@8495fe40a4c8655b7b9c76a6e6008d275d9697b2",
+    "composition_initial_countercases": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json@755155f9fe20b80614a397ed8be00823f0f16660",
+    "composition_054_actual15": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+    "matching_54_actual_and_exhaustive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f"
+  },
+  "root_review_qualification": {
+    "source_only": "Root full source54 solver delta and preceding054/061/ec36 owner changes reviewed nonblocking in parent messages. Root accepts DUR independent2560+realconsumer+15PASS; exact immutable DUR/CAS packets cited separately. No fabricated future root receipt SHA.",
+    "oracle_delta": "Root explicitly approved3test-onlypendingwaitentryinsertions after preserved341PASS1FAIL; review approval is source-only parent message, not an independent runtime PASS.",
+    "pending": "Root actual unchanged ambiguity witness with disclosed targetmetadata adjustment and final integrated whole B native/architecture/generator checks are not attested here.",
+    "git_probe_scope": "Root requested inspection/minimal justified single-call S603 annotation. All3 module-local private argv callers fixed Git subcommands, -- separates ls-tree relpath; no shell/algorithmchange. Configured Git executable/repository remain environment premises. Companion README/release committedd71; no broad Ruff waiver."
+  },
+  "formal_e02_closure": false,
+  "capability_state_or_finding_state": "bounded real canonical composition/compiled/checkpoint mechanisms verified and source-reviewed; B13 served consumer missing local production input; formal criterion closure remains G decision",
+  "property": {
+    "statement": "Actual supported producer/DAG/payload/materialized compiler/checkpoint consumers use canonical contracts and reject distinguishing ambiguity/stale source/incomplete history/coherence violations.",
+    "runtime_path": [
+      "registry MethodComposer build\u2192effective frozen DAG and canonical SlotLinker",
+      "shared payload/materializer\u2192sequential/async/compiled numeric body",
+      "real local checkpoint generation publication\u2192fresh guarded resume/history consumption",
+      "strict supplied scoped CAS lineage ref\u2192selected bytes/manifest verification",
+      "real simulation workflow artifact\u2192served TestClient startup missing production catalog stop"
+    ],
+    "proxy_divergence": [
+      "Source/FQN/signature markers unchanged but helper replacement cold10 versus accepted stale7 (oldc639 negative); shared source graph now refuses.",
+      "Same complete matching/warnings retained but neutral labels formerly selected actual2010 versus1020 (root054 negative); equivalent weighted assignments now typed-refuse before bodies.",
+      "Full known history rows with false/missing completeness header formerly could be treated complete; explicit incomplete provenance is now retained.",
+      "Atomic helper presence did not prevent root/history sidecar collision or rollback publication race; real filesystem generation protocol is tested.",
+      "Async/JIT preparation metadata is not actual alias numeric execution; real compiled body produces7 and dtype-reconciled kernel from actual producer."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "structural_slot_and_whole_DAG_admission": "recomputed from actual signatures, existing checker, occurrence DAG and full incoming bindings; independent public numeric consumers reconcile it",
+    "matching_cardinality_score_ambiguity": "recomputed using fixed canonical candidate utilities, independent2560 exhaustive reference and actual consumer controls",
+    "implementation_identity": "recomputed finite inspectable descriptor/function/immutable-capture graph; module/runtime versions are bounded identities, not arbitrary external contents",
+    "strict_declared_ref_content_and_selected_manifest": "independently_reconciled with real guarded ArtifactStore bytes/manifest and scoped full ref; supplied ref declaration itself is consumer_asserted lineage premise only, not authority",
+    "checkpoint_history_generation": "recomputed from actual per-node history/incomplete provenance and content-bound immutable filesystem snapshot; real consumer/process/fault controls independently reconcile",
+    "scientific_semantic_truth_and_permission": "not_established; existing named semantic/compatibility contract is an operational candidate premise and cannot certify scientific authority",
+    "B13_served_consumer": "not_established in cloud; exact production catalog missing before actual HTTP consumer; retained real artifact custody does not attest downstream authority"
+  },
+  "finding_classification": {
+    "B13": {
+      "source_status": "partial",
+      "bundle_id": "RES-03",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "real_producer_verified_served_consumer_cloud_blocked",
+      "criterion": "Earlier successful persisted candidate remains available after true later workflow failure and is honestly consumed through served route.",
+      "basis": "Real simulation producer/artifact/workflow prefix and actual CAS readback pass; whole served route FAIL stops at unreadable production catalog before HTTP consumption.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json@b4d5b969b725259e75d34120f3976ce61cfb6630",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json@612351236667277f0f73573a19da9692d045e579"
+      ],
+      "limitation": "Cloud has no native production catalog/acquisition overlay; served consumer and all15 named typed HTTP integrity/tenant/ref negatives UNRUN. Actual fixture refs lack selected-profile digest; default manifest readback is limited lineage custody.",
+      "falsifier": "Actual later failure makes served consumer lose/misbind earlier successful artifact or promote candidate to authority.",
+      "next_owner": "A owns lifecycle/generation consumer; local G replays exact readonly catalog-bound command in current-composition-res03 receipt.",
+      "criterion_basis": "Canonical B13 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B42": {
+      "source_status": "partial",
+      "bundle_id": "CMP-01",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Both fresh import orders invoke common async wrapper over real built two-node registry chain; internal import failure stays diagnostic.",
+      "basis": "Independent actual fresh process consumers and missing-module negative pass; wrapper imports lazily, preserving genuine required dependency error.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Finite default registry fixture/import profile; no complete production dependency import history or optional backend attestation.",
+      "falsifier": "Reverse import order causes unavailable common wrapper or missing dependency is silently converted to unavailability.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B42 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B43": {
+      "source_status": "partial",
+      "bundle_id": "CMP-01",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "One effective frozen DAG includes requires ordering-only dependencies, parallel levels, cycle refusal and executable plan.",
+      "basis": "Requires chooses concrete unambiguous explicit ancestor, nearest earlier occurrence, or sole future occurrence; ambiguous choices typed-refuse. Actual sequence/order/parallel controls and true31 consumer pass.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json@755155f9fe20b80614a397ed8be00823f0f16660",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Finite configured chain plan and native executor modes; dependency-only root input remains explicit caller-context premise. No separate compiled async/checkpoint executor claimed.",
+      "falsifier": "Supported requires edge disappears on freeze/serialize, dependent runs before actual prerequisite, or unrelated nodes become forced sequential.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B43 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B44": {
+      "source_status": "partial",
+      "bundle_id": "CMP-01",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Actual static\u2192dynamic\u2192per-call override payload is shared by sequential, async, checkpoint/resume and compiled materialization; seed remains dispatcher runtime input.",
+      "basis": "Real numerical registry chain consumes nondefault static payload without redundant params_map; unknown parameter refuses; compiled occurrence overrides/dtype actual inputs and checkpoint bound slots use canonical owner helper.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload.json@c31e69958ba1d639db6d739ec42f6595add88234",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json@6e217365951ab6d61910ae84714ca1f6d3abf33c",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Supported declared parameter/materialize_input protocol; no arbitrary scientific DTO decoder or all optional backends.",
+      "falsifier": "Same real node silently uses default in one executor mode or same permitted override differs across native consumers.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B44 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B45": {
+      "source_status": "partial",
+      "bundle_id": "CMP-02",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Duplicate target producer is visible in WARN and refused in STRICT; distinct target inputs and actual explicit merge work independently of UUID.",
+      "basis": "Canonical existing chain-level duplicate checks are used; actual distinct left10/right20\u219230 merge and duplicate negative pass.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "WARN is an explicitly diagnostic candidate profile, not unambiguous or authority-grade execution. No newly invented merge semantics.",
+      "falsifier": "Strict duplicate binding executes a body or UUID determines silently accepted single-slot producer.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B45 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B46": {
+      "source_status": "partial",
+      "bundle_id": "CMP-02",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Concrete occurrence ordering accepts estimate1\u2192sensitivity\u2192estimate2 and does not mask invalid early dependent with later valid occurrence.",
+      "basis": "Existing occurrence semantic validator remains canonical; real requires resolution no longer adds all repeated FQN nodes as future predecessors; true31 and earlier/future ambiguity negatives pass.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json@755155f9fe20b80614a397ed8be00823f0f16660",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Named ordering/tag oracle is existing operational rule, not universal scientific law. Root/dependency-only inputs require actual caller context.",
+      "falsifier": "Later same-FQN estimate changes earlier valid prerequisite to cycle or later dependent masks unsupported early dependent.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B46 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B47": {
+      "source_status": "partial",
+      "bundle_id": "CMP-03",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Maximize compatible assignment cardinality, then existing nonlex aggregate score; require explicit mapping for equivalent optimal assignments.",
+      "basis": "Canonical weighted augmenting-path solver and same-utility selected-edge exclusion detect equal-optimal alternatives. Independent512 graphs\u00d75 profiles=2560 exhaustive comparisons and actual two-node typed refusal/explicit7111107/exact-name711 pass.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Existing structural/named semantic compatibility and score preferences are finite operational inputs; equal-score refusal does not prove scientific coupling. No lexical tie is granted semantic warrant.",
+      "falsifier": "Neutral relabeling makes an unresolved equivalent mapping execute and change numeric result, or greedy choice misses an available higher-cardinality admissible assignment.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B47 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B48": {
+      "source_status": "partial",
+      "bundle_id": "CMP-03",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Manual/automatic candidate pairs use identical mandatory structural/named semantic checks and final whole incoming DAG completeness.",
+      "basis": "Shared pair predicate filters real type/unit/shape/contract/semantic candidates; composer alone defers pair completeness until whole incoming build; direct strict linker retains full-pair gate. True left10/right20\u219230 and incomplete both-mode before-body controls pass.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/receipt.json@755155f9fe20b80614a397ed8be00823f0f16660",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor-054-review.json@cff9f2b684be4a7a938389caae8febd5525335a3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver-54ef-review.json@16b1b982471508feef149eefc70203562c6a2a6f",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Unknown named semantic adequacy remains declared unknown candidate premise. Compatibility/refusal is not scientific authority or permission.",
+      "falsifier": "Auto accepts same forbidden pair manual refuses, partial DAG executes under strict completeness, or legitimate multi-source union is refused edge-by-edge.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B48 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B49": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified",
+      "deciding_checks": [
+        "jit-frozen-native",
+        "jit-unchanged-driver-frozen"
+      ],
+      "basis": "Finite source graph, ABI/static/shape/dtype/backend source-bound kernel with current dynamic defaults; already traced immutable JAX handles preserved.",
+      "falsifier": "Supported source helper changes actual cold result but same source-bound warm cache emits old result, or bound dynamic defaults mutate another handle.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "bundle_id": "JIT-01",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json@6e217365951ab6d61910ae84714ca1f6d3abf33c",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "criterion": "Supported source/ABI/static/shape/dtype/backend changes cannot reuse stale kernel; dynamic bound defaults stay immutable.",
+      "limitation": "Finite configured implementation graph only; versioned imported modules/builtins do not prove mutable contents/reflection/external effects. Already traced old JAX handle retains old math; untraced drift refuses. Low-level empty implementation_hash is an explicitly unbound profile.",
+      "criterion_basis": "Canonical B49 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B50": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified",
+      "deciding_checks": [
+        "jit-frozen-native",
+        "jit-unchanged-driver-frozen"
+      ],
+      "basis": "Generation publication, follower terminal result and miss\u2192claim recheck hold under actual concurrent compiler; existing error/cancel/deadline controls pass.",
+      "falsifier": "Two owners build one unchanged ready specialization after real intervening publication, or a terminal generation error leaves a follower blocked.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "bundle_id": "JIT-01",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json@6e217365951ab6d61910ae84714ca1f6d3abf33c",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "criterion": "Concurrent compilation has one terminal flight per current specialization/generation; errors/cancel/deadline/invalidation unblock genuine followers and publication recheck avoids duplicate work.",
+      "limitation": "Cooperative follower wait cancellation does not physically cancel leader compilation. Original final18 one FAIL is preserved as an oracle scheduling-premise issue, with exact corrective affected-file result separately bound; no inherited-red claim.",
+      "criterion_basis": "Canonical B50 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B53": {
+      "source_status": "partial",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified",
+      "deciding_checks": [
+        "jit-frozen-native",
+        "jit-unchanged-driver-frozen"
+      ],
+      "basis": "Declared shapes propagate along occurrence-bound aliases without body execution; actual runtime materialization supplies static+dynamic inputs and dtype-correct kernel.",
+      "falsifier": "Preparation executes the scientific body, loses a required alias, or a stale provisional dtype selects the actual execution kernel incorrectly.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "bundle_id": "JIT-01",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit.json@6e217365951ab6d61910ae84714ca1f6d3abf33c",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "criterion": "Compile preparation does not execute scientific method body; declared shapes and real occurrence-bound payload drive actual cached runtime kernels.",
+      "limitation": "Unknown data-dependent output shape refuses; explicit numerical warmup is distinct from preparation. Compiled executor adds no async DAG/checkpoint resume/retry/exactly-once external-effect mode.",
+      "criterion_basis": "Canonical B53 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B74": {
+      "source_status": "partial",
+      "bundle_id": "RES-04",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Strict checkpoint admission independently binds current supported source/helper graph/compiled requirements ABI, effective request, exact provided selected refs and scoped manifests to one generation.",
+      "basis": "Real source/ref-view/tenant/cell/origin/config/dependency/cache negatives and unchanged positive pass. Original independent static helper stale-prefix7\u2192cold10/resume7 FAIL is retained; unchanged successor driver now rejects before suffix and pointer mutation.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json@612351236667277f0f73573a19da9692d045e579",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-review.json@8495fe40a4c8655b7b9c76a6e6008d275d9697b2",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "CheckpointArtifactContext provided refs are lineage premises, not authority/publication permission or decoded cache materialization. Finite inspectable Python graph; strict unsupported mutable/custom descriptors fail. Versioned modules/builtins, record methods/external mutable code/data and context=None are explicitly bounded.",
+      "falsifier": "Supported helper/source/ABI or exact selected ref changes cold arithmetic/scope while strict resume admits stale prefix/history as complete.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B74 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B75": {
+      "source_status": "partial",
+      "bundle_id": "RES-04",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Restore original per-node history, keeping absent rows and explicit incomplete provenance incomplete; required bound predecessor missing row refuses before suffix.",
+      "basis": "Actual checkpoint fresh consumer restores native output/metadata/warnings; false/missing/unknown header with full rows and warning stays incomplete through result/re-persist. Actual slot missing negative typed-refuses; unbound suffix may proceed incomplete.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-payload.json@c31e69958ba1d639db6d739ec42f6595add88234",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json@612351236667277f0f73573a19da9692d045e579",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Foundry history only; no fabricated original metadata or Scientist journal restoration, no general exactly-once effects. Legacy incomplete state stays candidate/incomplete.",
+      "falsifier": "Continuation manufactures missing row, removes prior incomplete warning/false header, marks unknown history complete, or runs bound suffix without restored producer output.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B75 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    },
+    "B76": {
+      "source_status": "partial",
+      "bundle_id": "RES-04",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "candidate_status": "bounded_runtime_verified_source_reviewed",
+      "criterion": "Acknowledged local-filesystem checkpoint publishes one coherent immutable N+1 generation of state/frontier/history/arrays/request identity under actual writer lock.",
+      "basis": "Actual multiprocess writer/read/restart/fault controls and namespace collisions/removal controls pass. Snapshot root+structural path encoding rejects unsupported mapping keys/reserved tag before pointer publication; rollback remains locked; post-publication parent fsync error retains visible data and typed uncertainty.",
+      "deciding_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-publication-roots.json@2e42b6bd057b501988dc0a61f2e74aa1a79f4496",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity.json@612351236667277f0f73573a19da9692d045e579",
+        "composition-final18 and completed corrected affected whole-file check where explicitly recorded; see checks with exact source and actual counts"
+      ],
+      "limitation": "Finite JSON string-key/non-object NumPy codec, cooperative local flock/rename/fsync filesystem; no hostile symlink actor, physical power-loss proof or generation GC. Unpublished orphan generation possible; post-publication durability failure remains unacknowledged.",
+      "falsifier": "Two actual writers/readers observe state/history sidecar mismatch, prior rollback removes another live generation, SIGKILL corrupts acknowledged pointer, or false save success ignores durability failure.",
+      "next_owner": "G integrates exact published source and runs supported final B union; source-only approval does not attest all backends, scientific validity or public policy authority.",
+      "criterion_basis": "Canonical B76 source card at pinned69780761ae091d8fcc6ab8778c7f5f7227eeef0b and current operational owner contract; all6 exact card hashes in payload receipt@c31."
+    }
+  },
+  "limitations_and_next_owner": [
+    "All14 IDs retain sourcepartial and formal_closurefalse; strict limited states describe actual finite checked profiles, not automatic E02 criterion closure. No finding remains merely pending in this lane; explicit upstream/G constraints are listed per ID.",
+    "Full native18 wave actual outcome/counts retained. Any corrected affected native file is a separately executed source-bound check, not a fabricated prior full green.",
+    "B13 exact A/G downstream readonly local replay and15 named UNRUN typed negatives are committed in current-composition-res03 receipt; full dataset never copied to cloud.",
+    "Separate environment child imports15selected modules and records all160actual file-backed modules (157repository+3numeric), all observed repository bytes matched Git; this is not per-test/nested-process import history.174distribution-name versions captured without numerical env quotas.",
+    "Production invocation scanner84 actualexit3partial remains bounded earlier attempt; no scanner completion or final whole architecture gate asserted. Root owns supported final generated surface/architecture/full B union.",
+    "No inherited FAIL attribution without exact slice-base replay/input-disjoint proof; original material negatives remain deciding evidence for each subsequent class fix."
+  ],
+  "finding_ledger_precedence": "This complete14finding_classification map supersedes earlier pending_in_this_lane dispositions only. Earlier checks, materialFAILs, bounded input/output identities and formal false statuses remain historical evidence; no old output is relabelled PASS.",
+  "independent_review_digests": {
+    "b74_runtime": "15644470220cc8e45ff2886a2c0a43b2168bc5cec8f7d77c433ce15799c7389a",
+    "composition_initial_countercases": "dfe296c15c6506851d294c419cbdb07fbcda1cd1b82a7150bc1c982bb9301969",
+    "composition_054_actual15": "76e6e3be8fb0c511b5404bc4206c6b6e8bc34b727f37169b2fb705527a36324c",
+    "matching_54_actual_and_exhaustive": "ff1b963c1e34648fa2c52f7278856cae516c6eb97e9576dec8b4512979ea4b38",
+    "jit_source_only_ec36": "9aa2bc52f1830a64d1425ea7fb3e3479cdd25e535b3ec44e5ed8047db373250b"
+  },
+  "B13_exact_candidate_binding": {
+    "source_candidate_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+    "production_source_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+    "producer_route_execution_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "route_test_sha256": "38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d",
+    "local_packet_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03.json@b4d5b969b725259e75d34120f3976ce61cfb6630",
+    "qualification": "All producer/served source and canonical route test are unchanged54ef/061; only unrelated fixed-Git provenance comment differs in src Python. Local wrapper requires exact integrated G --sha and readonly actual catalog/optional overlay beforeafter identity. No fresh served startup/HTTP run attested."
+  },
+  "harness_attempt_not_deciding": {
+    "outcome": "ERROR",
+    "name": "composition-environment",
+    "actual_exit": 1,
+    "reason": "Scratch environment selector used nonexistent components.dag; owner CompositionDAG is in composer. Corrected selector imports actual base module; later complete environment capture PASS. No production edit/failure attribution.",
+    "raw": [
+      {
+        "path": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-environment.json",
+        "sha256": "605031ec331f6c7daefc38cef132a56ba7627c4278c2a20ce395dfd966b4c5bb",
+        "bytes": 966
+      },
+      {
+        "path": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-environment.txt",
+        "sha256": "9d3c83db28d30099e85693cd84bcc3657bf053821a354912c2651a5208541f00",
+        "bytes": 847
+      }
+    ],
+    "input_limit": "Initial mutable ignored selector bytes not retained separately; complete stderr/wrapper retained, not a deciding product probe.",
+    "additional_ruff_empty_selector": {
+      "actual_outcome": "FAIL",
+      "actual_exit": 1,
+      "reason": "Initial mutable scratch used Git pathspec relative to policy-engine cwd and empty list accidentally invoked whole-repository Ruff; actual9505diagnostics observed. Corrected selector uses repo cwd and asserts nonempty. No inherited/product attribution or full-repository green.",
+      "raw": [
+        {
+          "path": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-final-ruff.json",
+          "sha256": "b4d72fa017e33b74de236c080d2518403ea23a9d443fe9803ceb33a2948f9fd8",
+          "bytes": 1395
+        },
+        {
+          "path": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/composition-final-ruff.txt",
+          "sha256": "89b5fd1ef07d11be8e81974112120c3b3c52de7ea2482f49e729cc2eac19ce71",
+          "bytes": 5158221
+        },
+        {
+          "path": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/ruff_delta-empty-selector.py",
+          "sha256": "a97d870c9a640ef43f80c842591d194f5d063150a413f4a829e31bec07961090",
+          "bytes": 800
+        }
+      ]
+    }
+  },
+  "production_algorithm_checkpoint_sha": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+  "final_environment_summary": {
+    "target_sha": "d71be6cbfcd34ca95e0763bc41d565f47d7d8d76",
+    "selected_imports": 15,
+    "all_observed_file_backed_modules": 160,
+    "observed_repository_modules": 157,
+    "all_observed_repository_bytes_match_git": true,
+    "distribution_name_denominator": 174,
+    "scope": "Separate completed environment child: all file-backed polisyos modules actually loaded by selected imports plus three numeric modules; not a per-test/nested-process import history."
+  },
+  "pattern_pass": {
+    "patterns": [
+      "P01",
+      "P05",
+      "P10",
+      "P14",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_classes": "Actual code-identity helper graph, one-generation namespace/rollback, effective occurrence plan/wholeincoming completeness, weighted ambiguity quantity; class widened after independent escapes. Real consumer/probes and original material negatives retained.",
+    "remaining_capability": "B13 bridge/served consumer verification missing local production input; optional backend/scientific authority/full external effect proof outside finite claims.",
+    "acceptance_signal": "Source-reviewed canonical owner changes and exact native defining outputs, independent mathematical/real consumer checks; final integrated whole root/G gates pending."
+  },
+  "baseline_cells": [],
+  "canonical_source_cards": {
+    "CMP-01": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e"
+    },
+    "CMP-02": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "c5f35cc8c2239918750118ab56f58ff6c0013360e0766f41e50906628389f509"
+    },
+    "CMP-03": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "db8b0d2e0032c94c377e44b931b6920b54e88bb76223fb62d9b7d028305b0016"
+    },
+    "RES-03": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "508bb623d91c7addea54b2006b296660212770eeef9f3a2dd0b09e91f8be3ccf"
+    },
+    "RES-04": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+    },
+    "JIT-01": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "075aa27a93cbc77e98aa4376cb882ff218f432b2851f1aaba4773a94be487e71"
+    }
+  },
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+}

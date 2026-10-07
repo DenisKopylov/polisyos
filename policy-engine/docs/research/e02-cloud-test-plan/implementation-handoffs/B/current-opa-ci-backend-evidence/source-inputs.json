@@ -1,0 +1,706 @@
+{
+  "source_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+  "tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+  "inputs": [
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+        "git_blob": "45f0439672073a02e9a6f3fb8465c791f0a31bf8",
+        "bytes": 30427,
+        "sha256": "a3ba4ad43b7e2b09811a2815406bf9c8cac9207c758844578142c5baee55994a"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+        "git_blob": "45f0439672073a02e9a6f3fb8465c791f0a31bf8",
+        "bytes": 30427,
+        "sha256": "a3ba4ad43b7e2b09811a2815406bf9c8cac9207c758844578142c5baee55994a"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+        "git_blob": "8684faf80bb3ff389a6496c3e5b4783c57848a60",
+        "bytes": 133813,
+        "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+        "git_blob": "8684faf80bb3ff389a6496c3e5b4783c57848a60",
+        "bytes": 133813,
+        "sha256": "420a9579e15d894a1d342305b3ae660dbdaff56690d5202933331c8d522972d4"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/unit/runtime/http/conftest.py",
+        "git_blob": "1ad9ada96b7a081059ce11785e70b8cb55b1b923",
+        "bytes": 74,
+        "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/unit/runtime/http/conftest.py",
+        "git_blob": "1ad9ada96b7a081059ce11785e70b8cb55b1b923",
+        "bytes": 74,
+        "sha256": "917f1f86d2cb56cf32cdad790b71fb08fd9511cd5616c0e4414b2e9b9a7b50ce"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/conftest.py",
+        "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/conftest.py",
+        "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/_helpers/runtime_http.py",
+        "git_blob": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+        "bytes": 56431,
+        "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/_helpers/runtime_http.py",
+        "git_blob": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+        "bytes": 56431,
+        "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/_helpers/artifacts.py",
+        "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+        "bytes": 9046,
+        "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/_helpers/artifacts.py",
+        "git_blob": "7bbf2cd7ef2d8b97455788aa3560bed5cd19d664",
+        "bytes": 9046,
+        "sha256": "0c50d082c6861b08aa8d8d0c9f0753bac567204b6bb7fd69457be6700ec7fecf"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/_helpers/observability.py",
+        "git_blob": "745c3fd6f8531f6f76339b153a9b6667e230ee55",
+        "bytes": 2392,
+        "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/_helpers/observability.py",
+        "git_blob": "745c3fd6f8531f6f76339b153a9b6667e230ee55",
+        "bytes": 2392,
+        "sha256": "612a617513e52f310e81fc48dc930c0c6bb95ca091ab66c81779075618a48ff8"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/tests/quarantine.toml",
+        "git_blob": "44e45aa1996ab5fc1c57330b237dd5f562347b33",
+        "bytes": 492,
+        "sha256": "3cd9b583ef697b890efbb764933eaa4125bd0ce328426c83777492b1a7d5b5e1"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/tests/quarantine.toml",
+        "git_blob": "44e45aa1996ab5fc1c57330b237dd5f562347b33",
+        "bytes": 492,
+        "sha256": "3cd9b583ef697b890efbb764933eaa4125bd0ce328426c83777492b1a7d5b5e1"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/runtime/http/permissions.py",
+        "git_blob": "925cbb8087a7768690916a5d3ccac783c9947316",
+        "bytes": 10408,
+        "sha256": "a198692f8f40c1fe1375960f62a15c38f852631f0ee8611c32c745934a14fa1e"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/runtime/http/permissions.py",
+        "git_blob": "925cbb8087a7768690916a5d3ccac783c9947316",
+        "bytes": 10408,
+        "sha256": "a198692f8f40c1fe1375960f62a15c38f852631f0ee8611c32c745934a14fa1e"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/runtime/http/opa_input.py",
+        "git_blob": "f008efda8f1704e383ca94e267f4a2bcd8c23d74",
+        "bytes": 496,
+        "sha256": "fe8a195a6f1a2f737c7e88479a251f905a5ee45417c141c758e7a7d7fbaae769"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/runtime/http/opa_input.py",
+        "git_blob": "f008efda8f1704e383ca94e267f4a2bcd8c23d74",
+        "bytes": 496,
+        "sha256": "fe8a195a6f1a2f737c7e88479a251f905a5ee45417c141c758e7a7d7fbaae769"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/runtime/http/authorization.py",
+        "git_blob": "30c48f9910bb0d566590a66ccefbd3907ebb6be1",
+        "bytes": 38746,
+        "sha256": "51272edbbe3561987c108ddf02b6a19e150aaa471af13db8cfd5c3f5780c68e2"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/runtime/http/authorization.py",
+        "git_blob": "30c48f9910bb0d566590a66ccefbd3907ebb6be1",
+        "bytes": 38746,
+        "sha256": "51272edbbe3561987c108ddf02b6a19e150aaa471af13db8cfd5c3f5780c68e2"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/runtime/http/resource_binding.py",
+        "git_blob": "51dfc8f10b5061329320572dda078334b03257d4",
+        "bytes": 65239,
+        "sha256": "42a71605604f77929568a3801598e7111f8d67b2207f35ec9e9f391e159d1f2b"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/runtime/http/resource_binding.py",
+        "git_blob": "51dfc8f10b5061329320572dda078334b03257d4",
+        "bytes": 65239,
+        "sha256": "42a71605604f77929568a3801598e7111f8d67b2207f35ec9e9f391e159d1f2b"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/runtime/http/security.py",
+        "git_blob": "3714f9965716e93b3359a93bc5ef33dea92097f6",
+        "bytes": 5141,
+        "sha256": "fe901a1d61a932a9ff897a54447fb2c7d9c258ea097599d4dfde7a938b5271bc"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/runtime/http/security.py",
+        "git_blob": "3714f9965716e93b3359a93bc5ef33dea92097f6",
+        "bytes": 5141,
+        "sha256": "fe901a1d61a932a9ff897a54447fb2c7d9c258ea097599d4dfde7a938b5271bc"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/core/security/access_scope.py",
+        "git_blob": "817c95dd9901b7b7a9c996a5052d4cf5abbd15dd",
+        "bytes": 3696,
+        "sha256": "55633d848a8dc258a7a28d00ebd69d267ca605992af330269ba5d3398a32fb12"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/core/security/access_scope.py",
+        "git_blob": "817c95dd9901b7b7a9c996a5052d4cf5abbd15dd",
+        "bytes": 3696,
+        "sha256": "55633d848a8dc258a7a28d00ebd69d267ca605992af330269ba5d3398a32fb12"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/core/security/authz.py",
+        "git_blob": "d04561f6007172f5cf457d4438d6c6b77aad61b2",
+        "bytes": 13268,
+        "sha256": "633082a3fe56352f6180d8b514b295fe5f24029250fc1a3f6dac047a08d7efd8"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/core/security/authz.py",
+        "git_blob": "d04561f6007172f5cf457d4438d6c6b77aad61b2",
+        "bytes": 13268,
+        "sha256": "633082a3fe56352f6180d8b514b295fe5f24029250fc1a3f6dac047a08d7efd8"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/core/security/identity.py",
+        "git_blob": "e4066055a1a2b2c46788c6af668673407ed8045f",
+        "bytes": 22441,
+        "sha256": "3b9891de3ab17fb03c49223a459dcd6e04d6155b12cce058ff4b21f3b1fdccb5"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/core/security/identity.py",
+        "git_blob": "e4066055a1a2b2c46788c6af668673407ed8045f",
+        "bytes": 22441,
+        "sha256": "3b9891de3ab17fb03c49223a459dcd6e04d6155b12cce058ff4b21f3b1fdccb5"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+        "git_blob": "1f037ef49a940c80dd5592eac5e4bb5655699329",
+        "bytes": 42587,
+        "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+        "git_blob": "1f037ef49a940c80dd5592eac5e4bb5655699329",
+        "bytes": 42587,
+        "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+        "bytes": 3729,
+        "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+        "bytes": 3729,
+        "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/ci/templates/workflows/repository-hygiene.yml",
+        "git_blob": "3932fedf90a452579b70ba5fa6df3576c844554f",
+        "bytes": 1810,
+        "sha256": "083dc1dc0bc33fb69c65036a1a1aa613f152802298ca7960027ca8f0c38b7f27"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/ci/templates/workflows/repository-hygiene.yml",
+        "git_blob": "3932fedf90a452579b70ba5fa6df3576c844554f",
+        "bytes": 1810,
+        "sha256": "083dc1dc0bc33fb69c65036a1a1aa613f152802298ca7960027ca8f0c38b7f27"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/README.md",
+        "git_blob": "4ddb23d3a4e26de8e7c39acf9400803cfa1b1108",
+        "bytes": 2289,
+        "sha256": "0d2b4cbfdf40ef31be2a93f03b418717c317722799ee7b1fa49a3074bb3602f1"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/README.md",
+        "git_blob": "4ddb23d3a4e26de8e7c39acf9400803cfa1b1108",
+        "bytes": 2289,
+        "sha256": "0d2b4cbfdf40ef31be2a93f03b418717c317722799ee7b1fa49a3074bb3602f1"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/action_permission.rego",
+        "git_blob": "418225c4b5a457d314db8b5dd0f885348ce08fff",
+        "bytes": 11670,
+        "sha256": "637437d132bc45de4bc7346510a84bf4eaf9ea48e7cda7972fa1a66656572807"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/action_permission.rego",
+        "git_blob": "418225c4b5a457d314db8b5dd0f885348ce08fff",
+        "bytes": 11670,
+        "sha256": "637437d132bc45de4bc7346510a84bf4eaf9ea48e7cda7972fa1a66656572807"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/action_permission_test.rego",
+        "git_blob": "8fe82520dc4c11f1705f98e3d0bd972c7bc314d9",
+        "bytes": 5746,
+        "sha256": "01d4a468c4f3572aaca75777eca3ae9e9706382e4cee5deb72beb6129f41a139"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/action_permission_test.rego",
+        "git_blob": "8fe82520dc4c11f1705f98e3d0bd972c7bc314d9",
+        "bytes": 5746,
+        "sha256": "01d4a468c4f3572aaca75777eca3ae9e9706382e4cee5deb72beb6129f41a139"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/data_classification.rego",
+        "git_blob": "c9d44b20666f5bece7332b936a5736018e8fb079",
+        "bytes": 1738,
+        "sha256": "c746c2650c1c996860ee767fe87c04cd5d0278d339083d0002309e189b822cbc"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/data_classification.rego",
+        "git_blob": "c9d44b20666f5bece7332b936a5736018e8fb079",
+        "bytes": 1738,
+        "sha256": "c746c2650c1c996860ee767fe87c04cd5d0278d339083d0002309e189b822cbc"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/data_classification_test.rego",
+        "git_blob": "fa8b237f45da9ad0628f69e0e41792c425173de9",
+        "bytes": 1115,
+        "sha256": "8d1dabcac703e12dde703cf34980c4b52a61148a0d0e26e4018a15dd295f649e"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/data_classification_test.rego",
+        "git_blob": "fa8b237f45da9ad0628f69e0e41792c425173de9",
+        "bytes": 1115,
+        "sha256": "8d1dabcac703e12dde703cf34980c4b52a61148a0d0e26e4018a15dd295f649e"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/decision.rego",
+        "git_blob": "d7e4d823a622ddb4da13b93afca7b19334af182a",
+        "bytes": 3264,
+        "sha256": "0ababab184b74416d7e9fcc8cd4fc6f1254a0f14346ae325dc6a21d123a626a7"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/decision.rego",
+        "git_blob": "d7e4d823a622ddb4da13b93afca7b19334af182a",
+        "bytes": 3264,
+        "sha256": "0ababab184b74416d7e9fcc8cd4fc6f1254a0f14346ae325dc6a21d123a626a7"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/decision_test.rego",
+        "git_blob": "17e6dc1bc3415eae249ff77da940e456afe1b2a9",
+        "bytes": 3868,
+        "sha256": "ef035783e5129a6688b1c8b95788e06ce65ab84d481d94b3942fe910801ee696"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/decision_test.rego",
+        "git_blob": "17e6dc1bc3415eae249ff77da940e456afe1b2a9",
+        "bytes": 3868,
+        "sha256": "ef035783e5129a6688b1c8b95788e06ce65ab84d481d94b3942fe910801ee696"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/delegation_guard.rego",
+        "git_blob": "d9248b2e43cdf1877f93e4468cd8e672f5e62dcb",
+        "bytes": 867,
+        "sha256": "6bc6796f1d6099f3f146a0ce2ed982680b6a529bf51c57dcc8581890dd1ff9c1"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/delegation_guard.rego",
+        "git_blob": "d9248b2e43cdf1877f93e4468cd8e672f5e62dcb",
+        "bytes": 867,
+        "sha256": "6bc6796f1d6099f3f146a0ce2ed982680b6a529bf51c57dcc8581890dd1ff9c1"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/delegation_guard_test.rego",
+        "git_blob": "0c1e4a6443e39fff917335c5a2013d2c4f878b4c",
+        "bytes": 512,
+        "sha256": "df3cd5149e3a2c9011fbbba36f3f193d54168aed2c08248eb578b5801ebd8a22"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/delegation_guard_test.rego",
+        "git_blob": "0c1e4a6443e39fff917335c5a2013d2c4f878b4c",
+        "bytes": 512,
+        "sha256": "df3cd5149e3a2c9011fbbba36f3f193d54168aed2c08248eb578b5801ebd8a22"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/deploy.rego",
+        "git_blob": "a729aebb0f7a0463db65077244442edd225d5a22",
+        "bytes": 524,
+        "sha256": "6739a2ded7441d5dab9d0b957a1c72548e065f1504d8e84d7d19cef9c914a2a4"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/deploy.rego",
+        "git_blob": "a729aebb0f7a0463db65077244442edd225d5a22",
+        "bytes": 524,
+        "sha256": "6739a2ded7441d5dab9d0b957a1c72548e065f1504d8e84d7d19cef9c914a2a4"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/deploy_test.rego",
+        "git_blob": "78f0fe3091e4606bea034bec60ca0ac82b9eb440",
+        "bytes": 419,
+        "sha256": "1c50f77aa7fd84e7ad1012b3efd719cf509596ea7dc7ef26ee8f3232b7ca5f5e"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/deploy_test.rego",
+        "git_blob": "78f0fe3091e4606bea034bec60ca0ac82b9eb440",
+        "bytes": 419,
+        "sha256": "1c50f77aa7fd84e7ad1012b3efd719cf509596ea7dc7ef26ee8f3232b7ca5f5e"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/role_access.rego",
+        "git_blob": "9df93aa099e2150bff09b0d7317ed885bae37291",
+        "bytes": 1502,
+        "sha256": "9aa3d50a283e00c2f567f9bdddb7ed43aecd0f0f4d39415736f6c0211c7b3fb2"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/role_access.rego",
+        "git_blob": "9df93aa099e2150bff09b0d7317ed885bae37291",
+        "bytes": 1502,
+        "sha256": "9aa3d50a283e00c2f567f9bdddb7ed43aecd0f0f4d39415736f6c0211c7b3fb2"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/role_access_test.rego",
+        "git_blob": "fe50449b55b502aa7d54f1e83bd01dc1b5cdc4c0",
+        "bytes": 725,
+        "sha256": "f03d6aa88041a6316ad72467a7886ae3f52976359ae2cc601ab45ef7c14cca08"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/role_access_test.rego",
+        "git_blob": "fe50449b55b502aa7d54f1e83bd01dc1b5cdc4c0",
+        "bytes": 725,
+        "sha256": "f03d6aa88041a6316ad72467a7886ae3f52976359ae2cc601ab45ef7c14cca08"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/tenant_boundary.rego",
+        "git_blob": "70adeb886e27bd94f8e8615f463621e7694afa63",
+        "bytes": 805,
+        "sha256": "678f20cb2bbe3881554156bdfa3984c80de3e51e5178b31bbc44319e6f0fa441"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/tenant_boundary.rego",
+        "git_blob": "70adeb886e27bd94f8e8615f463621e7694afa63",
+        "bytes": 805,
+        "sha256": "678f20cb2bbe3881554156bdfa3984c80de3e51e5178b31bbc44319e6f0fa441"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/tenant_boundary_test.rego",
+        "git_blob": "87de29ef79e5929d4cffe8fcae4b97bb838e17e3",
+        "bytes": 761,
+        "sha256": "22a7b3ca0b28894619722a84a345c55ff17802e681f9caf4162cbdd0850c5330"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/tenant_boundary_test.rego",
+        "git_blob": "87de29ef79e5929d4cffe8fcae4b97bb838e17e3",
+        "bytes": 761,
+        "sha256": "22a7b3ca0b28894619722a84a345c55ff17802e681f9caf4162cbdd0850c5330"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/vulnerability.rego",
+        "git_blob": "6593cd21356ccd8e5ba0d401bbaa3af7e99850e6",
+        "bytes": 1776,
+        "sha256": "176a9a9e1d1f3ba55b9ac150667db0b48bc7b676edceea4e3967bcb3305780d0"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/vulnerability.rego",
+        "git_blob": "6593cd21356ccd8e5ba0d401bbaa3af7e99850e6",
+        "bytes": 1776,
+        "sha256": "176a9a9e1d1f3ba55b9ac150667db0b48bc7b676edceea4e3967bcb3305780d0"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    },
+    {
+      "candidate": {
+        "source_ref": "8142b14162f6417045ccbc560588da4341ac93ce:policy-engine/ops/policy/policies/vulnerability_test.rego",
+        "git_blob": "624bb16683a1b4e094ec81b2fb7527d639031f47",
+        "bytes": 1370,
+        "sha256": "f14e4869b72fde3954db1b84e6314337334e4d151456746e419d02ccccb21c48"
+      },
+      "old_dd": {
+        "source_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/ops/policy/policies/vulnerability_test.rego",
+        "git_blob": "624bb16683a1b4e094ec81b2fb7527d639031f47",
+        "bytes": 1370,
+        "sha256": "f14e4869b72fde3954db1b84e6314337334e4d151456746e419d02ccccb21c48"
+      },
+      "byte_equal_dd": true,
+      "actual_postread_byte_equal_candidate": true,
+      "read_state": "READ_COMPLETE_BYTES",
+      "role": "Bound tracked explicit producer/test/config/fixture/policy input; not an observed complete Python import graph"
+    }
+  ],
+  "policy_rego_count": 16,
+  "all_policy_rego_v1": true,
+  "initial_source_admission": "Actual root HEAD/tree/clean verified before child launch",
+  "head_before_after": true,
+  "concurrent_generated_overlay": {
+    "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+    "actual_output_bytes": 2812414,
+    "actual_output_sha256": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3",
+    "basis": "Root generation owner reports actual output overlay; post-child git diff names observed exactly this path",
+    "qualification": "Root whole checkout is not claimed clean after check; explicit38 selected source/test/config/policy files actual bytes matched immutable8142 after child; no module-import census"
+  },
+  "limitations": [
+    "Source filenames/full bytes/config are tracked and bound, no runtime sys.modules origin capture in this native profile",
+    "Seven tests use configured synthetic principal/ownership fields; actual institutional grants/source law not established",
+    "Exact sixteen setup errors refer to absent local production catalog; no source data synthesized"
+  ]
+}

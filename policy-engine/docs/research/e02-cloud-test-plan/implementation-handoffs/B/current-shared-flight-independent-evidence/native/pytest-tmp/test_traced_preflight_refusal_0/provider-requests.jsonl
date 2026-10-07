@@ -1,0 +1,2 @@
+{"attempt": 1, "request": {"max_tokens": 4, "user": "actual request"}}
+{"attempt": 2, "request": {"max_tokens": 4, "user": "actual request"}}

@@ -1,0 +1,30 @@
+{
+  "target_sha": "bc958e8efface67193a1347e867cc7567dbfc8bc",
+  "order": "checkpoint-first",
+  "object_identity": {
+    "AsyncArtifactStoreAdapter": true,
+    "AsyncFileSystemArtifactStore": true,
+    "ensure_async_artifact_store": true
+  },
+  "origins": {
+    "polisyos.scientist.orchestration.engine.checkpoint": {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "sha256": "4c47817a7c9df15450ba3269b66672f8c4d588bafc8345efb1bdb8dba5d4c9f6"
+    },
+    "polisyos.core.artifacts": {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c"
+    },
+    "polisyos.core.artifacts.async_store": {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    }
+  },
+  "budget_annotations": {
+    "deadline_monotonic": "float | None",
+    "owner_is_current": "collections.abc.Callable[[], bool]",
+    "caller_cancelled": "collections.abc.Callable[[], bool]"
+  },
+  "fixed_legacy_node_signature": "(self, *, state: 'ExperimentState', alias: 'str', node_id: 'str', completed_nodes: 'list[str]', workflow_id: 'str', workflow_fingerprint: 'str', cache_entry_ref: 'ArtifactRef | None') -> 'CheckpointWriteResult | None'",
+  "import_cycle_observed": false
+}

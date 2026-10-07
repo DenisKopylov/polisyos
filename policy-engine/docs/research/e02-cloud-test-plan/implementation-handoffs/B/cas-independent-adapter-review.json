@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "B CAS leaf /root/cas_probe",
+  "mode": "read-only source delta; no runtime tests or source modifications",
+  "base_sha": "0f7bdc9233af49c63874ac72e463aedeba7b2fb7",
+  "target_sha": "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+  "target_tree_sha": "5716f7efd27ecade6735a1cc5fd69b27cd22cae0",
+  "complete_delta_paths_command": "git diff --name-only 0f7bdc9233af49c63874ac72e463aedeba7b2fb7 c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+  "scope": "All8 changed source/test/README/release paths read in full delta; current prompt_cache generate/_produce/constructor/admission owner source read in context. Existing trusted completion/factory/ACK review5f9 carried only as prior source context.",
+  "verdict": "bounded source review PASS: no new blocker in supplied delta",
+  "observations": [
+    {
+      "property": "Late cache-read revocation refuses reusable result",
+      "source_ref": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py@c0c7b6f815096dc4642c093b9ef6f4bf27b649ac",
+      "path": "generate actual hit after cache.get invokes _require_emission_admission before returning; follower repeats same check after cache.get.",
+      "native_negative_ref": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py@c0c7b6f815096dc4642c093b9ef6f4bf27b649ac#test_cached_emission_rechecks_actual_owner_after_cache_read",
+      "review_result": "Closes previously reported actual get→return source escape. Tests inspected, independently not rerun."
+    },
+    {
+      "property": "No late publication after deadline or owner revocation",
+      "path": "_produce absolute producer deadline covers provider+completion; trusted admission_check executes under InMemoryPromptCache._lock after freeze/lock wait and before _store mutation; admission checks deadline before and after current owner query.",
+      "native_negative_refs": [
+        "test_deadline_covers_mandatory_completion_and_actual_cache_lock",
+        "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh"
+      ],
+      "review_result": "Observed completed provider response settles before admission refusal; TimeoutError never converted into cache row. No claim physical cancellation is bounded."
+    },
+    {
+      "property": "Unknown settlement ACK retains primary evidence and blocks reuse",
+      "path": "Completion executes before result admission; its LLMAccountingError escapes while finally releases flight. No timeout masking catch covers unknown ACK.",
+      "native_negative_ref": "test_expired_response_unknown_ack_remains_primary_and_retains_actual_event"
+    },
+    {
+      "property": "Cancel/follower ownership preserved",
+      "path": "_ProducerFlight owns shared deadline; follower shield awaits producer; producer finally removes only its matching task. Deadline failure prevents reuse of fallback detached response."
+    },
+    {
+      "property": "Finite rate inputs",
+      "path": "config/base constructor/adjust_rate/acquire/cooldown reject nonfinite before mutation/provider; positive fractional rate path preserved.",
+      "native_negative_ref": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py@c0c7b6f815096dc4642c093b9ef6f4bf27b649ac"
+    }
+  ],
+  "limitations": [
+    "inspect.signature.bind proves only custom-cache callback parameter admission; it is not proof the foreign backend invokes that callback atomically. README/release explicitly require separate conformance evidence.",
+    "Owner authorization remains injected deployment evidence; no semantic/atomic epoch rule invented.",
+    "Provider/accounting/cache locks can physically outlive logical deadline; source denies late admission but does not forcibly stop uncooperative work.",
+    "Source review is not an independent execution verdict. Root/author runtime receipts remain separate."
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "exe_state_writer",
+  "author": "run_writer",
+  "reviewed_source_sha": "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+  "reviewed_tree_sha": "240221be0d4ea654bab67cda6cb4973a97311363",
+  "source_delta_reviewed": "Only first-resource setup lifetime and channel constructor remainder cleanup; previous3f fullsource review retained at8458ecc12b499b975be35b6b8915301b29499566.",
+  "classification": "BOUNDED_SETUP_CLOSURE_ACCEPTED",
+  "property": "Same actual sync/async cold Event import EMFILE preserves primary OSError while all owned result Pipe FDs close before caller sees exception, even with retained traceback.",
+  "actual": {
+    "sync_new_fds": [],
+    "async_new_fds": [],
+    "body_entered": false
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/current-execution-state/run-review-3f/setup_probe_fbc.py",
+        "--mode",
+        "sync"
+      ],
+      "target_sha": "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2",
+        "platform": "Linux"
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+          "sha256": "cf627837cb10fcf9157d2fa69c61db278fd46f8426145f0e8c3ba145510c6085",
+          "bytes": 2865
+        },
+        "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "source_sha256": "c4de7e6cd725cb3094b14da6a82cd69e0088e2e628c09aefe5b13c998c922f36",
+        "fault": "Exactly original isolated subprocess cold RLIMIT_NOFILE max(existing_fds)+3; original exception retained"
+      },
+      "outcome": "PASS: original OSError unchanged; new_fds=[]; physical body=false",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-sync.txt",
+        "sha256": "a269abef9d72395a2c6939c41a6870abc97cf5c4de7ee2f67b88d06ba08ee5de",
+        "bytes": 2243
+      },
+      "structured_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-sync.json",
+        "sha256": "9d3bbbc9ea5e4ede76296d3151b76508381bd5a83049b4d0a7c83ab985f34d22",
+        "bytes": 962
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "_build/current-execution-state/run-review-3f/setup_probe_fbc.py",
+        "--mode",
+        "async"
+      ],
+      "target_sha": "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "python": "3.14.2",
+        "platform": "Linux"
+      },
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+          "sha256": "cf627837cb10fcf9157d2fa69c61db278fd46f8426145f0e8c3ba145510c6085",
+          "bytes": 2865
+        },
+        "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "source_sha256": "c4de7e6cd725cb3094b14da6a82cd69e0088e2e628c09aefe5b13c998c922f36",
+        "fault": "Exactly original isolated subprocess cold RLIMIT_NOFILE max(existing_fds)+3; original exception retained"
+      },
+      "outcome": "PASS: original OSError unchanged; new_fds=[]; physical body=false",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-async.txt",
+        "sha256": "1e5c980dcfae9bd2160b376153e9d45df2448ac689fdf8123f29cb1bf46ac01a",
+        "bytes": 2637
+      },
+      "structured_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-async.json",
+        "sha256": "e58f88f38ee28b76adc084153a866c5c581a253cd6cf9a1975b9af8f7233c1f1",
+        "bytes": 1006
+      }
+    }
+  ],
+  "limitations": [
+    "Focused immutable Git-pinned retry source; relevant dependency module bytes are unchanged from previous independent review. No new worktree and no claim of independently replaying author95 native cases.",
+    "Linux/procfs/libc prctl+pidfd boundary and prior uncooperative/thread/coroutine/non-Linux/global retry deadline limits remain."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+      "sha256": "cf627837cb10fcf9157d2fa69c61db278fd46f8426145f0e8c3ba145510c6085",
+      "bytes": 2865
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-sync.txt",
+      "sha256": "a269abef9d72395a2c6939c41a6870abc97cf5c4de7ee2f67b88d06ba08ee5de",
+      "bytes": 2243
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-sync.json",
+      "sha256": "9d3bbbc9ea5e4ede76296d3151b76508381bd5a83049b4d0a7c83ab985f34d22",
+      "bytes": 962
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-async.txt",
+      "sha256": "1e5c980dcfae9bd2160b376153e9d45df2448ac689fdf8123f29cb1bf46ac01a",
+      "bytes": 2637
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup-probe-fbc-async.json",
+      "sha256": "e58f88f38ee28b76adc084153a866c5c581a253cd6cf9a1975b9af8f7233c1f1",
+      "bytes": 1006
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+CHECKPOINT_BUDGET_ORACLE={"budget_seconds": 60, "delay_seconds": 35, "elapsed_physical_complete": 35.116192914996645, "elapsed_to_return": 30.13921097200364, "entered": true, "error_message": "Workflow deadline_oracle exceeded timeout of 60s", "error_type": "WorkflowTimeoutError", "head_at_return": false, "physical_complete_at_return": false, "physical_workers_at_return": 1, "producer_calls": 1, "reopened_answer": 7, "reopened_checkpoint_verified": true, "reopened_completed_nodes": ["answer"], "reserved_jobs_at_return": 1, "result_status": null, "sources": {"polisyos.common.async_tools": {"path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/async_tools.py", "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"}, "polisyos.core.artifacts.async_store": {"path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/async_store.py", "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"}, "polisyos.scientist.orchestration.engine.async_executor": {"path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"}, "polisyos.scientist.orchestration.engine.checkpoint": {"path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py", "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21"}}}
+F
+=================================== FAILURES ===================================
+______ test_real_atomic_head_35_seconds_fits_original_60_second_workflow _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/base456-actual/pytest-scratch-first/test_real_atomic_head_35_secon0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb83dd2ad70>
+
+    @pytest.mark.asyncio
+    async def test_real_atomic_head_35_seconds_fits_original_60_second_workflow(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The real replace waits 35s; the owner permits it for 60s, not 30s."""
+        sources = _source_observation()
+        store, run_dir, node, executor, workflow = _execution(tmp_path, deadline=60)
+        entered, completed = threading.Event(), threading.Event()
+        original_replace = os.replace
+        observed: dict[str, object] = {"sources": sources, "delay_seconds": 35, "budget_seconds": 60}
+    
+        def delayed_real_replace(source: str | Path, destination: str | Path) -> None:
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                entered.set()
+                # Real filesystem latency is injected at the actual atomic operation.
+                # Its delegated replacement, fsync and history write remain canonical.
+                threading.Event().wait(35)
+            original_replace(source, destination)
+            if Path(destination) == run_dir / "checkpoint_head.json":
+                completed.set()
+    
+        monkeypatch.setattr(os, "replace", delayed_real_replace)
+        started = time.perf_counter()
+        result = None
+        error: BaseException | None = None
+        try:
+            result = await executor.execute(workflow, ExperimentState(run_id="R_budget"))
+        except BaseException as exc:
+            error = exc
+        observed.update(
+            elapsed_to_return=time.perf_counter() - started,
+            entered=entered.is_set(),
+            physical_complete_at_return=completed.is_set(),
+            error_type=type(error).__name__ if error is not None else None,
+            error_message=str(error) if error is not None else None,
+            head_at_return=load_checkpoint_head(run_dir) is not None,
+            physical_workers_at_return=async_tools.get_shared_executor()._physical_workers,
+            reserved_jobs_at_return=async_tools.get_shared_executor()._outstanding_jobs,
+            result_status=result.report.status if result is not None else None,
+        )
+        # Finish the actual entered I/O before teardown; late physical completion
+        # remains a separate observation from an accepted workflow frontier.
+        await _wait_event(completed, timeout=40)
+        await asyncio.sleep(0)
+        reopened = FileSystemCAS(store.root)
+        resolved = resolve_latest_checkpoint(reopened, "R_budget", run_dir=run_dir)
+        assert resolved is not None
+        assert resolved[1].state is not None
+        observed.update(
+            elapsed_physical_complete=time.perf_counter() - started,
+            reopened_checkpoint_verified=reopened.verify(resolved[0].checkpoint_ref).ok,
+            reopened_completed_nodes=resolved[1].metadata.completed_nodes,
+            reopened_answer=resolved[1].state["params"]["answer"],
+            producer_calls=node.calls,
+        )
+        print("CHECKPOINT_BUDGET_ORACLE=" + json.dumps(observed, sort_keys=True), flush=True)
+>       assert error is None, observed
+E       AssertionError: {'budget_seconds': 60, 'delay_seconds': 35, 'elapsed_physical_complete': 35.116192914996645, 'elapsed_to_return': 30.13921097200364, ...}
+E       assert WorkflowTimeoutError('Workflow deadline_oracle exceeded timeout of 60s') is None
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:166: AssertionError
+=========================== short test summary info ============================
+FAILED ::test_real_atomic_head_35_seconds_fits_original_60_second_workflow - ...
+1 failed in 42.60s

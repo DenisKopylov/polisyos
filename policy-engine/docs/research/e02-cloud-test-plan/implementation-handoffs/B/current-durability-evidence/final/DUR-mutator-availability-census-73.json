@@ -1,0 +1,1816 @@
+{
+  "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+  "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6",
+  "denominator": {
+    "native_files": 10,
+    "actual_cases": 378
+  },
+  "counts": {
+    "PASS": 103,
+    "FAIL": 17,
+    "ERROR": 252,
+    "SKIP": 6
+  },
+  "all_case_outcomes": [
+    {
+      "case": "tests.unit.runtime.http.test_human_decision_guarded_timeout::test_guarded_ds9_timeout_retains_fence_until_late_signed_commit",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_vocabulary_includes_human_decision_as_a_distinct_class",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_human_decision_openapi_projects_distinct_step_up_class",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_human_decision_requires_fresh_single_use_step_up",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_router_and_openapi_high_stakes_denominators_agree",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_routes_have_exactly_one_distinct_step_up_dependency",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_live_app_passes_high_stakes_step_up_contract",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_replaced_route_app_cannot_bypass_executable_step_up_dependency",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_openapi_projects_exact_high_stakes_step_up_classes",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_step_up_contract_rejects_invalid_declaration[missing]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_step_up_contract_rejects_invalid_declaration[duplicate]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_step_up_contract_rejects_invalid_declaration[mismatched]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_step_up_contract_rejects_invalid_declaration[marker_only]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_step_up_contract_rejects_invalid_declaration[misordered]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_dependency_cannot_replace_action_permission_dependency",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_runtime_app_construction_executes_high_stakes_step_up_gate",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_high_stakes_action_permission_without_step_up_is_denied",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_missing_step_up_verifier_fails_closed",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_missing_step_up_replay_store_fails_closed",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_collaborator_failures_deny_before_mutation[verifier_exception-step_up_verifier_failed]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_collaborator_failures_deny_before_mutation[invalid_verifier_proof-step_up_verifier_contract_invalid]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_collaborator_failures_deny_before_mutation[replay_store_exception-step_up_replay_store_failed]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_user_without_base_mfa_cannot_satisfy_human_step_up_class",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_production_profile_requires_configured_step_up_verifier",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_valid_signed_step_up_assertion_verifies_exact_context",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[invalid_signature-claim_overrides0-different-ds20-step-up-signing-key-at-least-32-bytes-step_up_signature_invalid]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[wrong_issuer-claim_overrides1-ds20-test-step-up-key-with-at-least-32-bytes-step_up_signature_invalid]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[wrong_audience-claim_overrides2-ds20-test-step-up-key-with-at-least-32-bytes-step_up_signature_invalid]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[multi_audience_expected_first-claim_overrides3-ds20-test-step-up-key-with-at-least-32-bytes-step_up_signature_invalid]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[multi_audience_expected_second-claim_overrides4-ds20-test-step-up-key-with-at-least-32-bytes-step_up_signature_invalid]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[mfa_not_verified-claim_overrides5-ds20-test-step-up-key-with-at-least-32-bytes-step_up_assurance_required]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[assurance_missing-claim_overrides6-ds20-test-step-up-key-with-at-least-32-bytes-step_up_assurance_required]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_fails_closed_for_invalid_authenticity_or_assurance[expired-claim_overrides7-ds20-test-step-up-key-with-at-least-32-bytes-step_up_expired]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[sub-different-subject]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[tenant_id-different-tenant]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[method-DELETE]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[route-/api/v1/different-route]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[permission-runs.launch]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[resource_id-urn:polisyos:different-resource]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[resource_digest-sha256:9999999999999999999999999999999999999999999999999999999999999999]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[resource_kind-runtime.different-kind]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[binding_authority-request_composite]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[body_sha256-sha256:8888888888888888888888888888888888888888888888888888888888888888]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_step_up_assertion_denies_every_mismatched_request_binding[step_up_class-publication]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_production_approval_denies_each_mismatched_input_binding[scorecard_ref]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_production_approval_denies_each_mismatched_input_binding[scorecard_sha256]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_production_approval_denies_each_mismatched_input_binding[production_basis_ref]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_production_approval_denies_each_mismatched_input_binding[production_basis_sha256]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_production_approval_denies_each_mismatched_input_binding[human_decision_record_ref]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_signed_production_approval_denies_each_mismatched_input_binding[human_decision_record_sha256]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_assertion_with_wrong_action_or_resource_is_denied[action]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_step_up_assertion_with_wrong_action_or_resource_is_denied[resource]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_stale_step_up_assertion_is_denied",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_future_step_up_assertion_is_denied",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_not_before_step_up_assertion_is_denied",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_not_before_step_up_assertion_rejects_invalid_claim_or_window[non-integer]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_not_before_step_up_assertion_rejects_invalid_claim_or_window[expires-at-not-before]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_not_before_step_up_assertion_accepts_exact_clock_skew_boundary",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_replayed_step_up_assertion_is_denied",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_production_approval_binds_persisted_scorecard_in_step_up",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_production_approval_step_up_binds_all_three_input_digests",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_concurrent_replay_allows_exactly_one_step_up_consumer",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_late_high_stakes_route_without_step_up_fails_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_production_approval_override_identity_must_equal_verified_subject",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_production_approval_rejects_client_asserted_signature",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_step_up_authz::test_service_principal_cannot_satisfy_human_step_up_class",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_authorization_allow_is_appended_to_existing_access_audit_trail",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_authorization_deny_is_appended_to_existing_access_audit_trail",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.case_inspection]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.run_paper]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_acquisition_get_rego_denies_same_permission_proxy_before_projection[runtime.governed_projection.depth_n_cycle_board]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_invalid_delegation_denial_emits_one_terminal_audit",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_dependency_override_denial_emits_one_terminal_audit",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_unbound_resource_denial_emits_one_terminal_audit",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_missing_identity_denial_is_appended_without_unbound_authority_claims",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_opa_denial_is_appended_once",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_opa_timeout_is_appended_once",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_resource_binding_denial_is_appended_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_step_up_denial_is_appended_without_token_material",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_denied_mutation_remains_denied_when_access_audit_append_fails",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_opa_unavailable_is_appended_once",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_lower_stakes_action_denies_when_access_audit_append_fails",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_high_stakes_action_denies_when_access_audit_append_fails",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_handler_cannot_mutate_sealed_authorization_state[replace-binding]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_handler_cannot_mutate_sealed_authorization_state[mutate-resource]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_handler_cannot_mutate_sealed_authorization_state[base-dict-mutator]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_handler_cannot_mutate_sealed_authorization_state[base-state-dict-mutator]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_handler_cannot_mutate_sealed_authorization_state[clear-state]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_blocking_authorization_resolver_does_not_stall_event_loop",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_human_decision_exposure_is_a_top_level_completed_event",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_signature_failure_leaves_no_completed_row",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_replay_race_has_one_durable_completed_winner",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_reservation_waits_for_the_cross_process_file_lock",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_reservation_can_complete_only_once_when_quota_exceeds_one",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_reservation_fails_closed_on_truncated_audit_row",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_raw_completed_append_rejects_forged_receipt",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_partial_or_cancelled_send_never_emits_completed_receipt",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_authorization_access_audit::test_exposure_altered_final_frame_never_emits_completed_receipt",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_epoch_evidence_owner_is_deployment_attested_and_not_shared",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_epoch_privileged_source_ports_are_captured_and_attested",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_deployment_security_config_is_strict_and_typed",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_typed_unavailable_when_unconfigured",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_rejects_private_public_key_mismatch",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[component]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[signer]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[verifier]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[trust_policy]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[strict_identity]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[signer_build_statement]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_is_part_of_factory_attestation[trusted_key_map]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_signs_and_strictly_verifies_exact_cas",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_human_decision_custody_rejects_revoked_active_signer",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_runtime_deployment_security_cannot_mix_collaborators_across_documents",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_and_probe_reject_object_new_forged_bundle",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_and_probe_reject_replaced_factory_component",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_factory_attestation_rejects_post_factory_config_mutation",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[identity_method]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[principal_grants]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[opa_method]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[cell_method]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[step_up_method]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[identity_jwks_cache]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[step_up_jwks_client]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[opa_decision_cache]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[opa_session]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_perimeter_objects_before_bypass[identity_public_paths]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_perimeter_objects_before_bypass[authorization_enforcement]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_perimeter_objects_before_bypass[delegation_manager]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_perimeter_objects_before_bypass[step_up_replay_store]",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_review_socket_rejects_removed_deployment_installation",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_request_revalidates_authority_after_entry_before_mutation",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_unknown_service_principal_permission_is_rejected",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_service_principal_resolution_requires_every_identity_dimension",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_duplicate_exact_service_principal_is_rejected",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_verifier_configuration_rejects_implicit_or_untrusted_key_policy",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_deployment_identity_provider_rejects_algorithm_outside_declared_set",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_deployment_identity_provider_rejects_multi_audience_token[audience0]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_deployment_identity_provider_rejects_multi_audience_token[audience1]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_from_env_reads_grants_path_without_absorbing_bearer_secret",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_protocol_shaped_test_verifier",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_requires_exact_deployment_security_bundle",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_direct_authority_injections[step_up_replay_store-injection0]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_direct_authority_injections[delegation_manager-injection1]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_direct_authority_injections[trusted_delegators-injection2]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_direct_authority_injections[service_spiffe_id-injection3]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_direct_authority_injections[authz_enforce-injection4]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_direct_authority_injections[authz_shadow_mode-injection5]",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_bootstrap_rejects_runtime_container_override",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_managed_principal_grants_deny_claim_and_effective_cell_mismatch",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_action_dependency_uses_exact_service_grant_instead_of_admin_role",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_action_dependency_denies_managed_admin_when_effective_cell_differs_from_claim",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_deployment_security::test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_postgres_linearizability::test_postgres_step_up_one_use_has_exactly_one_winner_across_store_instances",
+      "outcome": "SKIP",
+      "message": "environment_blocked: POLISYOS_TEST_PG_DSN is absent; POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_postgres_linearizability::test_human_decision_concurrent_reservation_has_one_postgres_winner",
+      "outcome": "SKIP",
+      "message": "environment_blocked: POLISYOS_TEST_PG_DSN is absent; POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_postgres_linearizability::test_human_decision_later_generation_postgres_loser_returns_typed_overlap",
+      "outcome": "SKIP",
+      "message": "environment_blocked: POLISYOS_TEST_PG_DSN is absent; POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_postgres_linearizability::test_postgres_scenario_cas_two_apps_allows_one_mutation_and_one_conflict",
+      "outcome": "SKIP",
+      "message": "environment_blocked: POLISYOS_TEST_PG_DSN is absent; POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_postgres_linearizability::test_postgres_corrupted_scenario_head_is_denied_before_opa",
+      "outcome": "SKIP",
+      "message": "environment_blocked: POLISYOS_TEST_PG_DSN is absent; POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_postgres_linearizability::test_postgres_fresh_app_ignores_unheaded_scenario_candidate_artifact",
+      "outcome": "SKIP",
+      "message": "environment_blocked: POLISYOS_TEST_PG_DSN is absent; POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[analyze-attractors]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[persist-basin-map]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[persist-continuation-branch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[analyze-lyapunov]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[get-artifact-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[render-bureaucratic-artifact]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[estimate-causal-frontier-sae]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[search-capabilities]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[discover-data-sources]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[ingest-data]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[preview-fetch-plan]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[approve-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[reject-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[resolve-data-needs]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[admit-epoch-validity-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[publish-decision-validity-event]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[search-lex-graph]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[trigger-lex-pipeline]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[launch-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[launch-nl-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[evaluate-run-feedback]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[submit-normative-evidence]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[reissue-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[analyze-fabric-impact]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[get-fabric-quality-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[get-fabric-trust-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[get-lineage-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[compute-mobility-bounds]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[estimate-mobility]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[get-runs-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[request-run-acquisition-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[execute-run-acquisition-route]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[create-run-human-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[create-run-production-approval]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[issue-public-verification-record]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_permission_is_denied_403[create-run-scenario]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[analyze-attractors]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[persist-basin-map]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[persist-continuation-branch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[analyze-lyapunov]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[get-artifact-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[render-bureaucratic-artifact]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[estimate-causal-frontier-sae]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[search-capabilities]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[discover-data-sources]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[ingest-data]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[preview-fetch-plan]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[approve-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[reject-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[resolve-data-needs]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[admit-epoch-validity-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[publish-decision-validity-event]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[search-lex-graph]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[trigger-lex-pipeline]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[launch-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[launch-nl-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[evaluate-run-feedback]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[submit-normative-evidence]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[reissue-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[analyze-fabric-impact]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[get-fabric-quality-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[get-fabric-trust-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[get-lineage-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[compute-mobility-bounds]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[estimate-mobility]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[get-runs-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[request-run-acquisition-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[execute-run-acquisition-route]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[create-run-human-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[create-run-production-approval]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[issue-public-verification-record]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_without_identity_is_denied_401[create-run-scenario]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[analyze-attractors]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[persist-basin-map]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[persist-continuation-branch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[analyze-lyapunov]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[get-artifact-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[render-bureaucratic-artifact]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[estimate-causal-frontier-sae]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[search-capabilities]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[discover-data-sources]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[ingest-data]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[preview-fetch-plan]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[approve-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[reject-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[resolve-data-needs]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[admit-epoch-validity-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[publish-decision-validity-event]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[search-lex-graph]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[trigger-lex-pipeline]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[launch-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[launch-nl-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[evaluate-run-feedback]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[submit-normative-evidence]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[reissue-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[analyze-fabric-impact]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[get-fabric-quality-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[get-fabric-trust-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[get-lineage-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[compute-mobility-bounds]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[estimate-mobility]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[get-runs-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[request-run-acquisition-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[execute-run-acquisition-route]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[create-run-human-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[create-run-production-approval]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[issue-public-verification-record]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_operation_authorized_request_reaches_handler[create-run-scenario]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[ingest-data]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[approve-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[reject-data-promotion]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[publish-decision-validity-event]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[admit-epoch-validity-batch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[reissue-run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[request-run-acquisition-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[execute-run-acquisition-route]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[create-run-human-decision]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_high_stakes_mutating_operation_without_step_up_is_denied[create-run-production-approval]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_routes_have_exactly_one_action_permission_dependency",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_openapi_mutating_denominator_matches_live_router",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_each_mutating_operation_projects_action_permission_extension",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_capability_search_routes_share_one_safe_dependency_and_deny_before_handler",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_resource_binding_contract_projects_required_selector_and_parent_invariants",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_binding_spec_rejects_required_selector_outside_declared_selectors",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_new_sibling_mutating_route_is_automatically_in_denominator",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_route_marker_without_executable_dependency_fails_app_contract",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_route_without_action_permission_fails_app_contract",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_guarded_safe_route_requires_explicit_empty_body_contract",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_mutating_route_with_duplicate_action_permissions_fails_app_contract",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_route_requirement_rejects_unknown_permission",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_action_permission_dependency_is_load_bearing",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_owned_run_batch_is_bound_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_owned_batch_binding_is_order_independent_and_checks_every_id",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_authorization_resource_binds_query_semantics",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_authorization_body_is_replayed_byte_identically",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_malformed_or_encoded_authorization_body_denies_before_opa[duplicate-key]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_malformed_or_encoded_authorization_body_denies_before_opa[invalid-utf8]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_malformed_or_encoded_authorization_body_denies_before_opa[encoded-body]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_oversized_authorization_body_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_cross_run_scorecard_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_scorecard_without_run_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_invalid_scorecard_schema_denies_before_opa_and_persistence[absent]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_invalid_scorecard_schema_denies_before_opa_and_persistence[wrong]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_wrong_artifact_kind_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_ignores_client_overlay_output_path",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_production_approval_never_executes_persisted_scorecard_output_path",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_scenario_id_collision_across_runs_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_scenario_write_rechecks_authorized_revision",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_scenario_mutation_without_durable_head_store_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_scenario_authorization_binding_two_apps_same_revision_allows_one_mutation",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_persisted_default_scenario_head_wins_list_projection",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_scenario_head_content_mismatch_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_scenario_head_change_during_binding_denies_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_unheaded_scenario_candidate_artifact_is_never_selected",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_resolved_promotion_selector_never_claims_caller_tenant",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_missing_alternative_resource_selectors_are_denied_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_guarded_human_decision_get_binds_owned_run_and_exact_path_before_opa",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_all_human_decision_gets_declare_exact_owned_run_bindings",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_late_unguarded_mutation_is_denied_before_opa_and_handler",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_unsafe_mutation_cannot_shadow_or_disable_opa_deny[enforcement-disabled]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_unsafe_mutation_cannot_shadow_or_disable_opa_deny[shadow-mode]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_delegated_effective_scope_governs_binding_and_execution_policy",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_handler_cannot_replace_frozen_authorization_resource",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_allows_tenant_scoped_access",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_denies_cross_tenant_run_access",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_authz_deny_blocks_endpoint",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_authz_timeout_returns_gateway_timeout",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_denies_cross_tenant_artifact_access",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_denies_unscoped_artifact_access",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_rejects_missing_claims_fail_closed",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_auth_me_requires_claims_without_explicit_fixture_flag",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_api_cross_tenant_compare_requires_explicit_capability",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_runtime_security_middleware_order_guard_detects_reordering",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_review_websocket_rejects_anonymous_connect",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_runtime_api_authz::test_review_websocket_rechecks_message_authorization",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"ValueError: catalog_fetch_source_unreadable\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_control_worker_custody::test_worker_clears_ambient_identity_for_fenced_and_generic_handlers",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_control_worker_custody::test_worker_diagnostic_scope_ignores_progress_identity",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_control_worker_maintenance::test_control_worker_runs_maintenance_without_a_request_at_a_bounded_interval",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_post_source_signature_advances_both_current_job_readers",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[schema_version]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[job_id]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[run_id]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[compiled_run_ref]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[previous_head_ref]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[disposition_ref]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[evidence]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[evaluated_at]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[strangle_receipt]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[missing_cas]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier[manifest_epoch]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_current_head_survives_shared_progress_copy_and_refuses_owned_source_rebind",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_evidence_intake::test_terminal_candidate_publication_reuses_owned_source_and_refuses_replacement",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_compiled_payload_is_controlled_profile_candidate_n5",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_silent_default_cannot_cross_leaf_and_composition_emission[silent_equal_weight]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_silent_default_cannot_cross_leaf_and_composition_emission[historical_prior]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_silent_default_cannot_cross_leaf_and_composition_emission[proxy_as_priority]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_compiled_owner_rejects_leaf_graft_even_when_s8_leaf_is_valid",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_same_display_ids_do_not_bind_another_current_compiled_source",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_complete_composition_identity_and_projection_are_recomputed[source_node]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_complete_composition_identity_and_projection_are_recomputed[disposition_node]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_complete_composition_identity_and_projection_are_recomputed[front]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_complete_composition_identity_and_projection_are_recomputed[status]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_malformed_evidence_is_persisted_refusal_not_ignored[raw0]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_malformed_evidence_is_persisted_refusal_not_ignored[invalid]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_malformed_evidence_is_persisted_refusal_not_ignored[raw2]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_current_permission_expiry_overrides_persisted_green",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_current_signature_corruption_revokes_recommendation",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_signed_frontier_must_bind_actual_source_not_same_candidate_names",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_legacy_v1_composition_replays_without_currentness_or_authority",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_outer_v1_replay_rejects_noncanonical_bytes_and_manifest_schema",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_missing_or_unresolved_sidecar_preserves_current_source_fronts[None]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_missing_or_unresolved_sidecar_preserves_current_source_fronts[sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_every_current_job_reader_replays_persisted_authority[get_job_status]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_every_current_job_reader_replays_persisted_authority[get_latest_job_for_run]",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_data_only_leaf_growth_preserves_complete_source_identity_sets",
+      "outcome": "ERROR",
+      "message": "failed on setup with \"polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest\""
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_runtime_cas_adapter_preserves_guarded_owner_and_rejects_impostor",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_s8_rejects_post_v1_field_from_raw_persisted_n6_bytes",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_app_factory_passes_typed_deployment_trust_to_default_service",
+      "outcome": "FAIL",
+      "message": "ValueError: catalog_fetch_source_unreadable"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_historical_v1_leaf_replays_without_a_live_source_checkout",
+      "outcome": "PASS"
+    },
+    {
+      "case": "tests.unit.runtime.http.test_normative_generation_bridge::test_outer_v1_wire_reader_checks_exact_bytes_and_manifest_profile",
+      "outcome": "PASS"
+    }
+  ],
+  "classification": "Actual availability census, not inherited-red attribution and not runtime PASS for blocked cases. Missing catalogue232, missing L6 artifacts37, PG DSN absent6. Generic POSIX/SQLite DUR controls do not require these production inputs.",
+  "complete_raw": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR-mutator-consumers-73.txt",
+      "sha256": "edcd4598b68a4a74e9da6d85af5256d94de18871aecd913f26469fcc8504dc92",
+      "bytes": 934674
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/DUR-mutator-consumers-73.xml",
+      "sha256": "c4b58c93d2f57b7a222b5b00d526837dff31dbde9d605d9c5080d40c36ecf6a4",
+      "bytes": 981716
+    }
+  ]
+}

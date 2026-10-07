@@ -1,0 +1,103 @@
+"""Reconcile every actual native case/phase with the completed PostgreSQL JUnit."""
+
+from __future__ import annotations
+
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+OUT = Path('/dev/shm/e02-B-final-pg1862-20261006')
+
+
+def read(name):
+    return json.loads((OUT / name).read_text())
+
+
+observer = read('native-observer.json')
+wrapper = read('wrapper.json')
+after = read('source-after.json')
+assert observer['state'] == 'session_finished'
+assert wrapper['harness_state'] == 'EXECUTED' and wrapper['setup_failure'] is None
+cases = list(ET.parse(OUT / 'native.xml').iter('testcase'))
+xml_by_name = {case.attrib['name']: case for case in cases}
+assert len(xml_by_name) == len(cases)
+items = observer['items']
+assert len({item['nodeid'] for item in items}) == len(items)
+rows = []
+for item in items:
+    name = item['nodeid'].split('::')[-1]
+    case = xml_by_name.pop(name)
+    phases = [row for row in observer['phase_reports'] if row['nodeid'] == item['nodeid']]
+    counts = Counter(row['when'] for row in phases)
+    assert all(counts[phase] <= 1 for phase in ('setup', 'call', 'teardown'))
+    failed_error = any(row['outcome'] == 'failed' and row['when'] != 'call' for row in phases)
+    failed_call = any(row['outcome'] == 'failed' and row['when'] == 'call' for row in phases)
+    missing = any(counts[phase] == 0 for phase in ('setup', 'call', 'teardown'))
+    skipped = any(row['outcome'] == 'skipped' for row in phases)
+    xfail = any(row.get('wasxfail') for row in phases)
+    status = ('ERROR' if failed_error else 'FAIL' if failed_call else 'UNRUN' if missing
+              else 'XFAIL' if skipped and xfail else 'SKIP' if skipped else 'PASS')
+    xml_status = ('ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None
+                  else 'SKIP' if case.find('skipped') is not None else 'PASS')
+    assert status == xml_status, (item['nodeid'], status, xml_status)
+    properties = {node.attrib['name']: node.attrib['value']
+                  for node in case.findall('./properties/property')}
+    rows.append({'nodeid': item['nodeid'], 'collection_path': item['collection_path'],
+                 'definition_location': item['definition_location'], 'status': status,
+                 'junit': dict(case.attrib), 'native_properties': properties,
+                 'phases': [{'when': row['when'], 'outcome': row['outcome'],
+                             'duration': row['duration'], 'wasxfail': row['wasxfail']}
+                            for row in phases]})
+assert not xml_by_name
+counts = Counter(row['status'] for row in rows)
+stale = [row for row in rows if 'stale_rejected_inlets' in row['native_properties']]
+all_tables = {row['nodeid']: json.loads(row['native_properties']['table_denominator']) for row in rows}
+stale_inlets = {row['nodeid']: json.loads(row['native_properties']['stale_rejected_inlets']) for row in stale}
+for row in stale:
+    assert row['native_properties']['unchanged_rows_after_each_rejection'] == 'True'
+artifacts = {}
+for name in ('native.txt', 'native.xml', 'native-observer.json', 'wrapper.json',
+             'source-before.json', 'source-after.json', 'environment.json',
+             'retained-schema-readback.json', 'origin-summary.json', 'tool-executables.json',
+             'capture_pg.source.txt', 'readback_pg.source.txt', 'derive_pg.source.txt'):
+    data = (OUT / name).read_bytes()
+    artifacts[name] = {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
+value = {
+    'schema': 'policyos.e02.final_postgres_native_reconciliation.v1',
+    'runtime_source_sha': wrapper['source_before']['head'],
+    'runtime_source_tree': wrapper['source_before']['tree'],
+    'actual_collected_case_count': len(rows), 'junit_case_count': len(cases),
+    'unique_case_status_counts': {key: counts.get(key, 0) for key in ('PASS', 'FAIL', 'ERROR', 'SKIP', 'XFAIL', 'UNRUN')},
+    'phase_count': len(observer['phase_reports']),
+    'phase_outcomes': {phase: dict(Counter(row['outcome'] for row in observer['phase_reports']
+                                        if row['when'] == phase))
+                       for phase in ('setup', 'call', 'teardown')},
+    'collection_errors': [row for row in observer['collection_reports'] if row['outcome'] == 'failed'],
+    'collection_skips': [row for row in observer['collection_reports'] if row['outcome'] == 'skipped'],
+    'actual_child_exit': wrapper['actual_exit_code'],
+    'pytest_sessionfinish_argument': observer['sessionfinish_exit_argument'],
+    'pytest_main_return': observer['pytest_main_return'],
+    'wall_s': wrapper['wall_s'], 'rss_kib': wrapper['max_rss_kib'],
+    'source_after_clean_same_sha_tree': after['identity']['matched_expected_clean'],
+    'declared_source_bytes_stable': after['declared_bytes_stable'],
+    'selected_family_tracked_module_bytes_match': after['loaded_tracked_bytes_match'],
+    'every_native_table_denominator': all_tables, 'actual_stale_rejected_inlets': stale_inlets,
+    'cases': rows, 'input_artifacts': artifacts,
+    'finite_scope': ['real PostgreSQL owner/attempt/lease stale-write fencing',
+                     'actual ControlWorker A and fresh-process B consumer',
+                     'coherent current terminal job/event/outbox generation',
+                     'actual SQL-trigger fault transaction rollback'],
+    'limitations': ['No B78 handover/reconciliation decision or external exactly-once proof.',
+                    'No hard process-kill/database-crash or production workload proof.',
+                    'Actual child worker origin assertions plus frozen parent source custody do not establish a universal child import/resource readset.',
+                    'Observer records completed wholefile cases; counts are measured outputs, not a future fixed quota or stop criterion.',
+                    'No automatic finding closure or global gate acceptance.'],
+}
+data = (json.dumps(value, indent=2, ensure_ascii=True) + '\n').encode()
+with (OUT / 'deciding-reconciliation.json').open('xb') as stream:
+    stream.write(data)
+print(json.dumps({'actual_unique_cases': len(rows), 'phase_count': len(observer['phase_reports']),
+                  'case_status_counts': value['unique_case_status_counts'],
+                  'reconciliation_sha256': hashlib.sha256(data).hexdigest()}))

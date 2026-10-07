@@ -1,0 +1,23 @@
+{
+  "peer": "e6f947151a4837578e5263aca5ab2fd2dab2876d",
+  "before": "acd8bed1b07504086edf9873fcffa998410be46a",
+  "merge_base": "6b0e917207af2001754d6fe352ec75ac47485461",
+  "after": "9622bb2590598225224f61051a3f229aed4c4521",
+  "after_tree": "c8f866ade1adeb1b9027bd3eebec9a4012343cd2",
+  "paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/artifact-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit-full-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/cost-input-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/individual-costs-1024.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/individual-costs-65536.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/judgment.json"
+  ],
+  "non_handoff_paths": [],
+  "full_stdout": "Merge made by the 'ort' strategy.\n .../current-foreign-final-adjudication-review.json |  193 ++\n .../README.md                                      |   53 +\n .../artifact-index.json                            |   48 +\n .../audit-full-stdout.txt                          |  104 +\n .../audit.json                                     | 3154 ++++++++++++++++++++\n .../audit.py.txt                                   |  272 ++\n .../cost-input-custody.json                        |   16 +\n .../individual-costs-1024.json                     | 1875 ++++++++++++\n .../individual-costs-65536.json                    | 2050 +++++++++++++\n .../judgment.json                                  |  111 +\n 10 files changed, 7876 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/README.md\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/artifact-index.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit-full-stdout.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/audit.py.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/cost-input-custody.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/individual-costs-1024.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/individual-costs-65536.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-foreign-final-adjudication-review/judgment.json\n",
+  "full_stderr": "",
+  "exit_code": 0
+}

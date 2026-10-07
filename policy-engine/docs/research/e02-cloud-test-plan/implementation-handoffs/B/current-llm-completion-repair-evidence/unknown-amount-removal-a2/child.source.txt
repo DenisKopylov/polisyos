@@ -1,0 +1,30 @@
+import hashlib, json, os, subprocess, sys
+from pathlib import Path
+import pytest
+root=Path(os.environ["E02_B66_TARGET_ROOT"])
+sha=os.environ["E02_B66_TARGET_SHA"]
+from types import FunctionType
+from polisyos.core.llm import settlement
+original = FunctionType(settlement._completion_amount.__code__, settlement.__dict__)
+settlement._e02_original_completion = original
+exec("def removed(data, model):\n    amount, origin = _e02_original_completion(data, model)\n    return (Decimal(0), 'estimated') if amount is None else (amount, origin)\n", settlement.__dict__)
+settlement._completion_amount.__code__ = settlement.__dict__["removed"].__code__
+print("E02_REMOVAL unknown_amount_admission: in-memory shared function code only; actual source bytes, usage/cost status markers, parser, ledger, cache and tests unchanged", flush=True)
+exit_code=pytest.main(sys.argv[1:])
+rows=[]
+for name,module in sorted(tuple(sys.modules.items())):
+    if not name.startswith("polisyos"):
+        continue
+    filename=getattr(module,"__file__",None)
+    if not filename:
+        continue
+    path=Path(filename).resolve()
+    if not path.is_file():
+        continue
+    data=path.read_bytes()
+    assert path.is_relative_to(root/"policy-engine/src"),(name,str(path))
+    expected=subprocess.check_output(["git","-C",str(root),"show",f"{sha}:{path.relative_to(root)}"])
+    assert data==expected,(name,str(path))
+    rows.append({"module":name,"path":str(path),"sha256":hashlib.sha256(data).hexdigest(),"candidate_git_byte_match":True})
+Path(os.environ["E02_B65_CONTEXT"]).write_text(json.dumps({"source_sha":sha,"python_version":sys.version,"pytest_version":pytest.__version__,"origins":rows,"boundary":"File-backed loaded concrete polisyos modules at pytest.main return; no universal import or resource readset claim."},indent=2)+"\n")
+sys.exit(exit_code)

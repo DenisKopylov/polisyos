@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-I",
+    "-B",
+    "/tmp/e02-B52-cache-cost-c043/removal/child.source.txt"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "E02_EXPECTED_SOURCE": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+    "E02_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state"
+  },
+  "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "no_process_cpu_worker_caps": true
+}

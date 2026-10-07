@@ -1,0 +1,50 @@
+{
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "pytest_version": "9.0.2",
+  "pytest_origin": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest/__init__.py",
+  "psycopg_version": "3.3.2",
+  "psycopg_origin": "/tmp/e02-B38-pg-profile/psycopg/__init__.py",
+  "psycopg_binary_version": "3.3.2",
+  "pq_implementation": "binary",
+  "libpq_version": 180000,
+  "sys_path": [
+    "/dev/shm/e02-B-final-pg1862-20261006",
+    "/tmp/e02-B38-pg-profile",
+    "/workspace/e02-B-current-coordination/policy-engine/src",
+    "/workspace/e02-B-current-coordination/policy-engine",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python314.zip",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14",
+    "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages"
+  ],
+  "quota_env_at_child_entry": {
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "secret_input": {
+    "path": "/tmp/e02-B38-pg-evidence/postgres-dsn",
+    "mode": "0o600",
+    "bytes": 107,
+    "value": "omitted; authorized private runtime input"
+  },
+  "actual_pytest_argv": [
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+    "-vv",
+    "-s",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-B-final-pg1862-20261006/fixtures",
+    "--junitxml",
+    "/dev/shm/e02-B-final-pg1862-20261006/native.xml"
+  ]
+}

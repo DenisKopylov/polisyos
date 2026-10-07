@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+    "bytes": 4445184,
+    "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+    "storage": "ignored raw; original bytes preserved",
+    "receiver_availability": "not_established; rerun exact instruments if original artifact transfer unavailable",
+    "claim_boundary": "Complete stdout/XML/selected250 source list and full collection-nodeid projection are committed separately; this locator is not a terminal native partition or universal import/resource read set."
+  },
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+    "bytes": 9437835,
+    "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+    "storage": "ignored raw; original bytes preserved",
+    "receiver_availability": "not_established; rerun exact instruments if original artifact transfer unavailable",
+    "claim_boundary": "Complete stdout/XML/selected250 source list and full collection-nodeid projection are committed separately; this locator is not a terminal native partition or universal import/resource read set."
+  },
+  {
+    "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector-lineage.json",
+    "bytes": 63775375,
+    "sha256": "eb53f9d22ffc54b0a4d9de694011eb9fa5a9dbe62ad3bcb03a66b8a3102e3347",
+    "storage": "ignored raw; original bytes preserved",
+    "receiver_availability": "not_established; rerun exact instruments if original artifact transfer unavailable",
+    "claim_boundary": "Complete stdout/XML/selected250 source list and full collection-nodeid projection are committed separately; this locator is not a terminal native partition or universal import/resource read set."
+  }
+]

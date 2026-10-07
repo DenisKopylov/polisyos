@@ -1,0 +1,17 @@
+{
+  "peer": "df945de549d9d31ca56c5b3b7fab6a1e29d09361",
+  "before": "9d7b2529d5e7662323882ddb92d7429283740ee1",
+  "merge_base": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+  "after": "acd8bed1b07504086edf9873fcffa998410be46a",
+  "after_tree": "4bd2832cb42daaa2ccf1d8d7dd4ab374cac0fc1e",
+  "paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent.json"
+  ],
+  "non_handoff_paths": [],
+  "full_stdout": "Merge made by the 'ort' strategy.\n .../custody-audit.json                             | 2469 ++++++++++++++++++++\n .../custody-audit.source.txt                       |  219 ++\n .../review.json                                    | 1858 +++++++++++++++\n ...rrent-dur-llm-net-final-status-independent.json | 1577 +++++++++++++\n 4 files changed, 6123 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.source.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent.json\n",
+  "full_stderr": "",
+  "exit_code": 0
+}

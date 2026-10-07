@@ -1,0 +1,66 @@
+import hashlib,json,shutil,subprocess,sys,xml.etree.ElementTree as ET
+from pathlib import Path
+root=Path('/workspace/e02-B-current-execution-state')
+out=root/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence'
+out.mkdir()
+rows=[]
+def copy(source,relative):
+ p=Path(source);q=out/relative;q.parent.mkdir(parents=True,exist_ok=True)
+ data=p.read_bytes();q.write_bytes(data)
+ assert q.read_bytes()==data
+ rows.append({'path':str(q.relative_to(root)),'source_absolute':str(p),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+ return str(q.relative_to(root))
+runs=[
+ ('baseline-original','/workspace/e02-B-current-execution-state','money-independent-baseline-384','/tmp/e02-B-gateway-exact-money-baseline/full',384),
+ ('candidate-parent-absent','/workspace/e02-B-current-adapters','money-independent-candidate-e7','/tmp/e02-B-gateway-exact-money-candidate/full',384),
+ ('candidate-original','/workspace/e02-B-current-adapters','money-independent-candidate-qualified-e7','/tmp/e02-B-gateway-exact-money-candidate/qualified-full',384),
+ ('baseline','/workspace/e02-B-current-execution-state','money-independent-baseline-qualified-595','/tmp/e02-B-gateway-exact-money-baseline/qualified-595',595),
+ ('candidate','/workspace/e02-B-current-adapters','money-independent-candidate-595-e7','/tmp/e02-B-gateway-exact-money-candidate/qualified-595',595),
+ ('removal','/workspace/e02-B-current-adapters','money-independent-removal-595-e7','/tmp/e02-B-gateway-exact-money-candidate/removal-595',595)]
+reconciled=[]
+for label,source,tag,fixture,version in runs:
+ raw=Path(source)/'.polisyos/e02-B-current/raw/review'
+ log=copy(raw/(tag+'.txt'),label+'/native.txt')
+ wrapper=copy(raw/(tag+'.json'),label+'/wrapper.json')
+ xml=Path(fixture+'.xml')
+ if label=='candidate-parent-absent': xml=Path('/tmp/e02-B-gateway-exact-money-candidate/full.xml')
+ if label=='baseline-original': xml=Path('/tmp/e02-B-gateway-exact-money-baseline/full.xml')
+ xml_ref=copy(xml,label+'/native.xml')
+ cases=list(ET.fromstring(xml.read_bytes()).iter('testcase'))
+ counts={'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0}
+ for case in cases:
+  state='ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+  counts[state]+=1
+ records=[]
+ for p in sorted(Path(fixture).glob('test_*')):
+  if not p.is_dir() or p.is_symlink(): continue
+  obs=p/'observations.json'
+  if not obs.exists(): continue
+  d=json.loads(obs.read_text())
+  for name in ('budget.json','response.bin','http-work.jsonl','fresh-reader.stderr.txt'):
+   copy(p/name,label+'/actual-files/'+p.name+'/'+name)
+  obligations=d['snapshot']['completion_obligations']
+  checks={
+   'fresh_snapshot_equal':d['snapshot']==d['fresh']['snapshot'],
+   'one_actual_http_work':len(d['http_requests'])==1,
+   'fresh_pid_distinct':d['parent_pid']!=d['fresh']['pid'],
+   'unknown_actual_phase_amount':all(x['phase']=='cost_unknown' and x['event_payload']['amount'] is None and x['event_payload']['cost_origin']=='unknown' and not x['known_receipt_ids'] for x in obligations.values()) if obligations else None,
+   'fresh_d_three_exact_modules':{x['module'] for x in d['fresh']['d_source']}=={'polisyos.common.serialization','polisyos.scientist.methods.search.objective','polisyos.scientist.methods.search.stopping'},
+  }
+  records.append({'lexeme':d['lexeme'],'independent_decimal':d['independent_decimal'],'result_error':d['result_error'],'cost_status':d['cost_status'],'receipt_count':len(d['snapshot']['spend_receipts']),'fresh_admission_error':d['fresh']['admission_error'],'d_should_stop':d['fresh']['should_stop'],'d_budget_available':d['fresh']['details']['budget_available'],'checks':checks,'physical_ledger_hash':hashlib.sha256((p/'budget.json').read_bytes()).hexdigest()})
+ w=json.loads((raw/(tag+'.json')).read_bytes())
+ assert hashlib.sha256((raw/(tag+'.txt')).read_bytes()).hexdigest()==w['output_sha256']
+ reconciled.append({'name':label,'source_sha':w['head'],'source_tree':w['tree'],'test_version':version,'wrapper':wrapper,'log':log,'xml':xml_ref,'counts':counts,'head_unchanged':w['head']==w['head_after'],'harness_state':w['harness_state'],'exit_code':w['exit_code'],'wall_s':w['wall_s'],'rss_kib':w['process_rusage_maxrss_kib'],'command':w['command'],'environment':w['source_environment'],'actual_cases':records})
+for name in ('http-baseline.py','http-baseline.txt','remove_exact_decode.py','package_evidence.py'):
+ copy('/tmp/e02-B-gateway-exact-money-source/'+name,'inputs/'+(name+'.source.txt' if name.endswith('.py') else name))
+for name in ('premise.txt','premise-qualified.txt'):
+ copy('/tmp/e02-B-gateway-exact-money-baseline/'+name,'initial-premises/'+name)
+source_records=[]
+for id in ('B120','B66'):
+ q=json.loads(Path('/tmp/e02-B-gateway-exact-money-source/'+id+'-query.json').read_bytes())
+ source_records.append({'finding_id':id,'finding_basis':q['finding_basis'],'cells':q['cells'],'job_context_locators':q['job_dictionary_or_context_blocks'],'source_grade':q['grade'],'raw_archives_received':q['raw_archives_received']})
+context={'schema':'policyos.e02.B.gateway_money_independent_observation.v1','test_sha':'595a2595316e3bd2aa791f2769b12f1180beba62','test_tree':'4f9469c7f7b6b0ecbb3931c64ef0732cef2d23a4','baseline_production_sha':'f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1','candidate_production_sha':'e7c5182bf9d37f62a87e1effd003ee9732c20c32','d_reader_sha':'8f58d7349edefebbac7e7f21e6859f8daa075c1d','runs':reconciled,'baseline_navigation':source_records,'source_review':{'state':'NONBLOCKING_FINITE_PROFILE','delta':'One successful-completion json.loads parse_float=Decimal; existing normalized float/None monetary admission, all other decoders unchanged. Exact raw fractional values are Decimal; README/release explicitly change this diagnostic profile.','read_full_paths':['policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py','policy-engine/src/polisyos/core/llm/response.py','policy-engine/src/polisyos/core/llm/settlement.py'],'consumer_review':['Actual embedded tool argument int/float controls passed in every case.','Canonical prompt cache _serialize_payload uses to_python_data(unsupported=string), retaining Decimal raw values as exact strings.','Sanitization restore_payload recursively leaves non-string scalars intact.'],'unresolved_by_construction':['Dynamic/untracked external raw JSON consumers are not established.','External D controller default snapshot projection is not established by this pre_check-gated composition.','No institutional financial invoice amount or arbitrary-precision monetary ABI is asserted.']}}
+(out/'observations.json').write_text(json.dumps(context,indent=2)+'\n')
+rows.append({'path':str((out/'observations.json').relative_to(root)),'bytes':(out/'observations.json').stat().st_size,'sha256':hashlib.sha256((out/'observations.json').read_bytes()).hexdigest()})
+(out/'index.json').write_text(json.dumps({'artifacts':rows,'artifact_count':len(rows),'payload_bytes':sum(x['bytes'] for x in rows)},indent=2)+'\n')
+print(json.dumps({'artifact_count':len(rows),'payload_bytes':sum(x['bytes'] for x in rows),'runs':[{k:v for k,v in r.items() if k in ('name','counts','wall_s','exit_code')} for r in reconciled]}))

@@ -5,6 +5,7 @@ Unit tests for Slot Linker and Compatibility Checker.
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -13,16 +14,16 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
-from polisyos.foundry.methods.exceptions import (
-    ShapeMismatchError,
-    SlotConnectionError,
-    UnitMismatchError,
-)
 from polisyos.foundry.methods.components.linker import (
     LinkerConfig,
     SlotLinker,
     check_linkable,
     link_methods,
+)
+from polisyos.foundry.methods.exceptions import (
+    ShapeMismatchError,
+    SlotConnectionError,
+    UnitMismatchError,
 )
 from polisyos.foundry.methods.types.checker import (
     IncompatibilityReason,
@@ -580,7 +581,7 @@ class TestSlotLinkerAuto:
         assert result.binding_count == 1
         assert result.bindings[0].source_slot == "a_usd"
 
-    def test_auto_deterministic_tiebreak(self, units):
+    def test_auto_equivalent_tiebreak_requires_explicit_mapping(self, units):
         producer = make_signature(
             "producer",
             outputs=[
@@ -595,9 +596,9 @@ class TestSlotLinkerAuto:
 
         config = LinkerConfig(prefer_exact_names=False)
         linker = SlotLinker(config)
-        result = linker.link(producer, consumer)
-
-        assert result.binding_count == 1
+        with pytest.raises(SlotConnectionError, match="Ambiguous automatic bindings"):
+            linker.link(producer, consumer)
+        result = linker.link(producer, consumer, explicit_mapping={"a_usd": "income"})
         assert result.bindings[0].source_slot == "a_usd"
 
     def test_auto_prefers_type_over_exact_name_when_disabled(self, units):

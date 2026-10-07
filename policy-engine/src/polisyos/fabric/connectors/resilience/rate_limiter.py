@@ -11,22 +11,23 @@ Implements adaptive rate limiting with:
 from __future__ import annotations
 
 import asyncio
+import math
 import threading
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import wraps
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode, Tracer
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
 )
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -46,6 +47,16 @@ def _default_metrics() -> MetricsRegistry:
 
 def _monotonic() -> float:
     return time.monotonic()
+
+
+def _require_positive_finite(value: float, name: str) -> None:
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be finite and > 0")
+
+
+def _require_finite_cooldown(value: float | None) -> None:
+    if value is not None and not math.isfinite(value):
+        raise ValueError("retry_after_seconds must be finite")
 
 
 @dataclass
@@ -69,8 +80,7 @@ class RateLimiterConfig:
 
     def __post_init__(self) -> None:
         """Validate and set defaults."""
-        if self.rate_limit_rps <= 0:
-            raise ValueError("rate_limit_rps must be > 0")
+        _require_positive_finite(self.rate_limit_rps, "rate_limit_rps")
 
         if self.burst_size is None:
             self.burst_size = max(1.0, self.rate_limit_rps)
@@ -81,10 +91,9 @@ class RateLimiterConfig:
         if self.max_rate_rps is None:
             self.max_rate_rps = self.rate_limit_rps
 
-        if self.burst_size <= 0:
-            raise ValueError("burst_size must be > 0")
-        if self.min_rate_rps <= 0:
-            raise ValueError("min_rate_rps must be > 0")
+        _require_positive_finite(self.burst_size, "burst_size")
+        _require_positive_finite(self.min_rate_rps, "min_rate_rps")
+        _require_positive_finite(self.max_rate_rps, "max_rate_rps")
         if self.max_rate_rps < self.min_rate_rps:
             raise ValueError("max_rate_rps must be >= min_rate_rps")
 
@@ -105,6 +114,9 @@ class RateLimiter:
         metrics: MetricsRegistry | None = None,
         tracer: Tracer | None = None,
     ) -> None:
+        _require_positive_finite(rate_limit_rps, "rate_limit_rps")
+        if burst_size is not None:
+            _require_positive_finite(burst_size, "burst_size")
         self.rate_limit_rps = rate_limit_rps
         self.burst_size = max(1.0, rate_limit_rps) if burst_size is None else burst_size
         self.limiter_id = limiter_id
@@ -158,6 +170,7 @@ class RateLimiter:
         self._last_refill = now
 
     def _set_blocked_until(self, retry_after_seconds: float | None) -> None:
+        _require_finite_cooldown(retry_after_seconds)
         if retry_after_seconds is None or retry_after_seconds <= 0:
             return
         with self._lock:
@@ -186,8 +199,7 @@ class RateLimiter:
 
     async def acquire(self, tokens: float = 1.0) -> None:
         """Acquire tokens, waiting if necessary."""
-        if tokens <= 0:
-            raise ValueError("tokens must be > 0")
+        _require_positive_finite(tokens, "tokens")
         if tokens > self.burst_size:
             raise ValueError("tokens must be <= burst_size")
 
@@ -353,8 +365,7 @@ class AdaptiveRateLimiter(RateLimiter):
             return self.rate_limit_rps == self.config.rate_limit_rps and self._success_count == 0
 
     def adjust_rate(self, new_rate: float) -> None:
-        if new_rate <= 0:
-            raise ValueError("new_rate must be > 0")
+        _require_positive_finite(new_rate, "new_rate")
 
         min_rate = self.config.min_rate_rps or (self.config.rate_limit_rps / 10.0)
         max_rate = self.config.max_rate_rps or self.config.rate_limit_rps
@@ -389,6 +400,7 @@ class AdaptiveRateLimiter(RateLimiter):
             self.adjust_rate(new_rate)
 
     def record_rate_limit(self, retry_after_seconds: float | None = None) -> None:
+        _require_finite_cooldown(retry_after_seconds)
         if not self.config.adaptive:
             super().record_rate_limit(retry_after_seconds)
             return
@@ -462,29 +474,26 @@ def with_rate_limit(
                 return f"{base}:{domain}"
             return base
 
-        def _get_limiter(args: tuple[Any, ...], kwargs: dict[str, Any]) -> RateLimiter:
+        def _get_limiter(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Any:
             limiter_id = _default_limiter_id(args, kwargs)
-            return cast(
-                "RateLimiter",
-                limiters.get_or_create(
-                    limiter_id,
-                    lambda: (
-                        AdaptiveRateLimiter(
-                            initial_rate_rps=rate_limit_rps,
-                            config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
-                            limiter_id=limiter_id,
-                        )
-                        if adaptive
-                        else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
-                    ),
+            return limiters.lease(
+                limiter_id,
+                lambda: (
+                    AdaptiveRateLimiter(
+                        initial_rate_rps=rate_limit_rps,
+                        config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
+                        limiter_id=limiter_id,
+                    )
+                    if adaptive
+                    else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
                 ),
             )
 
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
-            limiter = _get_limiter(args, kwargs)
-            await limiter.acquire()
-            return await func(*args, **kwargs)
+            with _get_limiter(args, kwargs) as limiter:
+                await limiter.acquire()
+                return await func(*args, **kwargs)
 
         wrapper._rate_limiters = limiters  # type: ignore[attr-defined]
         return wrapper

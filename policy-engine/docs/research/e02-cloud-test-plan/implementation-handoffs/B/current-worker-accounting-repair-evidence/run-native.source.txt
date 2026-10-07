@@ -1,0 +1,41 @@
+import argparse, datetime, hashlib, json, os, pathlib, subprocess, time
+parser=argparse.ArgumentParser()
+parser.add_argument('--source-root',required=True)
+parser.add_argument('--source-sha',required=True)
+parser.add_argument('--test-sha',required=True)
+parser.add_argument('--output',required=True)
+parser.add_argument('--removal',choices=['durable_admission','accounting_error_propagation'])
+args=parser.parse_args()
+root=pathlib.Path(args.source_root).resolve()
+sha=args.source_sha
+own=pathlib.Path('/workspace/e02-B-current-durability')
+test=own/'policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py'
+out=pathlib.Path(args.output);out.mkdir()
+env=dict(os.environ);removed={}
+for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS'):
+ removed[key]=env.pop(key,None)
+env.update(PYTHONPATH=str(root/'policy-engine/src')+':'+str(root/'policy-engine'),E02_WORKER_ACCOUNTING_ROOT=str(root),E02_WORKER_ACCOUNTING_SHA=sha,PYTHONDONTWRITEBYTECODE='1',POLISYOS_METRICS_PORT='0',TIKTOKEN_CACHE_DIR='/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache')
+python='/workspace/polisyos/policy-engine/.venv/bin/python'
+def git(*argv):return subprocess.check_output(['git','-C',str(root),*argv],text=True).strip()
+def state():
+ return {'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'tracked_status':git('status','--porcelain','--untracked-files=no'),'test_sha256':hashlib.sha256(test.read_bytes()).hexdigest()}
+tokenizer=pathlib.Path(env['TIKTOKEN_CACHE_DIR'])/'9b5ad71b2ce5302211f9c61530b329a4922fc6a4'
+assert hashlib.sha256(tokenizer.read_bytes()).hexdigest()=='223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7'
+assert test.read_bytes()==subprocess.check_output(['git','-C',str(own),'show',args.test_sha+':'+str(test.relative_to(own))])
+before=state();assert before['head']==sha and before['tracked_status']==''
+pytestargv=['-vv','-s','--noconftest','-c',str(root/'policy-engine/pyproject.toml'),str(test),'--basetemp',str(out/'pytest'),'-o','cache_dir='+str(out/'cache'),'--junitxml='+str(out/'native.xml')]
+if args.removal:
+ driver=pathlib.Path(__file__).with_name('removal.source.txt')
+ env.update(E02_WORKER_REMOVAL=args.removal,E02_WORKER_PYTEST_CONFIG=str(root/'policy-engine/pyproject.toml'),E02_WORKER_TEST_PATH=str(test),E02_WORKER_BASETEMP=str(out/'pytest'),E02_WORKER_CACHE=str(out/'cache'),E02_WORKER_XML=str(out/'native.xml'))
+ argv=[python,str(driver)]
+else:argv=[python,'-m','pytest',*pytestargv]
+start=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.monotonic()
+with (out/'native.txt').open('wb') as stream:
+ proc=subprocess.Popen(argv,cwd=str(own/'policy-engine'),env=env,stdout=stream,stderr=subprocess.STDOUT)
+ _,status,usage=os.wait4(proc.pid,0)
+ code=os.waitstatus_to_exitcode(status);proc.returncode=code
+wall=time.monotonic()-t
+record={'argv':argv,'pytest_argv':pytestargv,'cwd':str(own/'policy-engine'),'target_sha':sha,'source_before':before,'source_after':state(),'test_input_sha':args.test_sha,'start':start,'end':datetime.datetime.now(datetime.timezone.utc).isoformat(),'wall_seconds':wall,'exit_code':code,'raw_wait_status':status,'maxrss_kib':usage.ru_maxrss,'actual_python':python,'environment':{k:env.get(k) for k in ('PYTHONPATH','E02_WORKER_ACCOUNTING_ROOT','E02_WORKER_ACCOUNTING_SHA','PYTHONDONTWRITEBYTECODE','POLISYOS_METRICS_PORT','TIKTOKEN_CACHE_DIR')},'ambient_numeric_caps_removed':removed,'tokenizer_input':{'path':str(tokenizer),'bytes':tokenizer.stat().st_size,'sha256':hashlib.sha256(tokenizer.read_bytes()).hexdigest()},'declared_in_memory_source_overlay':args.removal,'tmp_scope':'Actual fsynced SDK-boundary work and actual FileBudgetLedger; no powerloss claim'}
+record['outputs']={n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ('native.txt','native.xml') if (out/n).exists()}
+(out/'wrapper.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'output':str(out),'wall':wall,'exit':code,'rss':usage.ru_maxrss,'before':before,'after':record['source_after']}))

@@ -1,0 +1,475 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "B EXE leaf; foreign RUN instrument, no author mechanism verdict",
+  "target_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+  "target_tree": "72b126a050dbe8e7fa8de46c0c8e9998debd2315",
+  "stock_context_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+  "stock_context_tree": "08e5732fcec9901706471cc88c2bc33e7f11bdc1",
+  "verdict": "NONBLOCKING_WITH_DECLARED_FINAL_ROOT_INPUT_AND_AUDIT_PREMISES",
+  "predicate_basis": "independently_reconciled",
+  "closure_ids": [],
+  "execution": "Source-only full405-line launcher +63-line README; Git reads and stdlib AST/TOML census executed; launcher/factory/generator/project import/pytest/collection/gates/backend/wheel build UNRUN",
+  "full_target_delta": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/completed-quality-README.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+  ],
+  "source_inputs": [
+    {
+      "source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "bytes": 16407,
+      "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e",
+      "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+      "AST_parse": "PASS"
+    },
+    {
+      "source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/completed-quality-README.md",
+      "bytes": 3837,
+      "sha256": "744fc581d2e30c9dc9e4de318314c4069c14cd89e255006b108def9bf3125c03",
+      "git_blob": "9485e72180105010c45340e19ad6086e193d1ed4"
+    },
+    {
+      "source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "git_blob": "a0928fffdad2d96d6030fc23584801beac45b560",
+      "TOML_parse": "PASS"
+    },
+    {
+      "source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607",
+      "git_blob": "b4e4d47dc80dbd45234e806f44073fd575ebf56d",
+      "TOML_parse": "PASS"
+    },
+    {
+      "source_sha": "36957513b0b2d58c3010cf3db9b268ba13881898",
+      "path": "policy-engine/mypy.ini",
+      "bytes": 328,
+      "sha256": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538",
+      "git_blob": "594ab4d060735c68b3d135f836908b096874801d"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "bytes": 14010,
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "git_blob": "0e7b6618f2273a48cecb8000c23678e40e013540",
+      "AST_parse": "PASS",
+      "byte_equal_prior_review_4703": true,
+      "exists_in_author_target": false
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+      "AST_parse": "PASS",
+      "byte_equal_prior_review_4703": true,
+      "exists_in_author_target": false
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+      "bytes": 9651,
+      "sha256": "e214ad4b56b01e4e700803d46c57ed81f806e2bf04b2687d62ac0cf5b0794cc4",
+      "git_blob": "76e4feff9c39b5a1fb6363e426fe9fe993369419",
+      "AST_parse": "PASS",
+      "byte_equal_prior_review_4703": true,
+      "exists_in_author_target": false
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "TOML_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "TOML_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "AST_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da",
+      "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "AST_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "AST_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "bytes": 146612,
+      "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5",
+      "git_blob": "10f480737d31baf3d0141bc529cb66e5ffabc2cb",
+      "AST_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/devx/foundry/generate_stubs.py",
+      "bytes": 5393,
+      "sha256": "e3d0c110837c051dcc77c655d1faeb0eff11c21dfb1181f3a34440c78c5a587b",
+      "git_blob": "25628737a83266129402d2eefff59d15d066ec6d",
+      "AST_parse": "PASS"
+    },
+    {
+      "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+      "path": "policy-engine/tools/registry.py",
+      "bytes": 20579,
+      "sha256": "88fc4372642ddc5bd45416a4a5e6a114b348f8f965f12c05d8e03c81b806a197",
+      "git_blob": "19bc7590ceb7b5ebf3b5c2a234b87f3040c807d6",
+      "AST_parse": "PASS"
+    }
+  ],
+  "properties": [
+    {
+      "name": "source admission",
+      "basis": "independently_reconciled",
+      "finding": "Exact40lowercase SHA must equal currentHEAD; attached coordination branch/clean checkout/198ancestry; tree retained. Required regular tracked launcher/capture/admission/config bytes compare actual file\u2192Git. Executing launcher bytes equal admitted root path. Source is rechecked before execution and after capture."
+    },
+    {
+      "name": "style denominator",
+      "basis": "independently_reconciled",
+      "finding": "Full repository198\u2192candidate diff --no-renames/-z; all .py and .pyi suffixes, present objects bound individually, deletions disclosed; no policy-engine/source/test/research exclusion. Ruff receives explicit paths, no-cache check; format --check. This is filename+byte completeness; existing canonical per-file ignores remain, no new waiver. Config parse has no force-exclude/exclude override; no actual Ruff execution by reviewer."
+    },
+    {
+      "name": "proper type input",
+      "basis": "independently_reconciled",
+      "finding": "12declared canonical targets, fivegroups; --follow-imports=silent and actual repository strict plugin config, new scratchcache. Full tracked .pyi/py.typed inventory byte-bound. This is not a measured mypy import graph or global repository typing verdict; no skipimport/Any waiver added."
+    },
+    {
+      "name": "command plan",
+      "basis": "independently_reconciled",
+      "finding": "Exactly8quality choices from AST constants; separate root170 cohort produces total9future tags. Stock architecture/runtime-api argv; production-invocation base198 fullreceipt in scratch is static only. Complete verify/parity canonical constituent projection, expected-source exact, cap removal disclosed. Verify/parity need serialization for shared last-mile/pnpm outputs, not resource quota."
+    },
+    {
+      "name": "stock installed/backend inputs",
+      "basis": "independently_reconciled",
+      "finding": "Only verify/parity call stock bind_verification_inputs. It requires supplied seven-field exactcurrent wheel/source/test binding +owner-only nonempty DSN file +task driverroot, prepends task driver and sets both PG env routes+DS9 REQUIRE. No public credential value emitted. Source-level named input policy is not actual server/distribution/invoice authority proof; direct architecture/runtime-api do not need wheel/PG."
+    },
+    {
+      "name": "fresh capture",
+      "basis": "independently_reconciled",
+      "finding": "Unused absolute scratch outside root, existing/symlink profile/stdout/wrapper paths refused, exclusive profile and stock parent O_EXCL log/wrapper. Tag completed-final-GATE-SHA12 separates prior DD/successor outputs. Capture syscall setup signal separates UNRUN exec from real gate exit, complete combined stdout/wait4 status. Source/tree/argv/exit/outputpath/hash reconciled; source finalcleanliness required. Interrupted prewrapper attempts remain partial/UNRUN, not PASS."
+    },
+    {
+      "name": "environment scope",
+      "basis": "independently_reconciled",
+      "finding": "Same lexical root194 Python/uv, actual tool bytes recorded; six ambient numeric caps removed. Recorded env values/names plus named omitted secret-values boundary. Other ambient variables/plugins/config/service reads may influence gate; no universal allreadset/profile guarantee."
+    }
+  ],
+  "premises": [
+    {
+      "name": "stock dependencies in final merge",
+      "basis": "not_established",
+      "detail": "run_successor/capture/projection absent in author369 branch. Reviewed exactroota942 copies byteequal prior4703, runtime tracked_read refuses missing/different finalroot inputs. Root must merge reviewed launcher into actualcomplete root and reconcile stock blobs there; no standalone369execution claim."
+    },
+    {
+      "name": "fresh final input closure",
+      "basis": "not_established",
+      "detail": "Future mergedroot SHA/tree/config/generated artifacts/installed wheel/private PG/profile/actual outputs unavailable in this review. Declared namespace/selfmetadata is not a future gate PASS."
+    },
+    {
+      "name": "nine-tag audit",
+      "basis": "not_established",
+      "detail": "Previous a464/DD8-tag reader hardcodes oldlauncher shape and prefixes; it is insufficient directly for new8quality+cohort9tags with SHA12. Root final reader must enumerate actual new instrument plan, preserve all9results or namedUNRUN and constituent remainder; no reduce-to8 adaptation."
+    },
+    {
+      "name": "source mutation by gate",
+      "basis": "independently_reconciled",
+      "detail": "Stock checks may write ignored/private output; launcher finalrequire_source rejects tracked/untracked source mutations. Capture fulloutput retained even if postcheck raises; does not reinterpret gate green."
+    }
+  ],
+  "required_next_owner": {
+    "root": "After allmerges/gen companions, freeze exactroot; independently reconcile actual new selector/hash/full25/60 and fresh wheel/PG; execute eachquality onlyonce and fullcohort once; record actualalloutcomes. Adapt final readonlyaudit to9tagshape. G owns finalcriterion/productiondataset proof."
+  },
+  "initial_census_failure": {
+    "outcome": "HARNESS_NOT_ESTABLISHED",
+    "exit": 1,
+    "reason": "Reviewer literal source-census used manifest key families; canonical key is family. Initial full source/stderr/emptystdout retained. Corrected exactone-key input reads same Git objects, source-census exit0. Neither attempt ran project/gates."
+  },
+  "generated_public_readiness": {
+    "source_sha": "a942342a6724d200bde8b8cfddbe4bb88260815f",
+    "basis": "independently_reconciled",
+    "runtime": "UNRUN",
+    "public_sync": {
+      "command": "uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline",
+      "writes": [
+        "architecture/public_surface/inventory.json",
+        "docs/reference/public-surface.md",
+        "docs/reference/generated-artifacts.md"
+      ],
+      "does_not_establish": "No output generators or required-freshness measurement run. Deep import baseline is skipped intentionally; no schema/client/stub regeneration."
+    },
+    "default_required_families": [
+      {
+        "id": "runtime-openapi-snapshot",
+        "label": "Runtime OpenAPI snapshot",
+        "owner": "team-polisyos",
+        "approval_owner": "team-polisyos",
+        "lifecycle": "generated_committed",
+        "generator": "canonical generator declared in regenerate_commands",
+        "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+        "promotion_target": "registered committed outputs listed in outputs",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples",
+        "outputs": [
+          "schemas/runtime_api_v1.openapi.json"
+        ],
+        "regenerate_commands": [
+          "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.",
+        "compatibility_class": "schema-openapi-abi",
+        "version_owner": "team-runtime",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "schema-openapi-abi",
+        "compatibility_promise": "Runtime OpenAPI changes declare additive, compatible-breaking, or breaking behavior and generated-client impact.",
+        "drift_gate": "automated",
+        "workflow": "ops/ci/templates/workflows/arch.yml",
+        "check_cwd": ".",
+        "check_command": [
+          "uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py",
+          "--skip-client-drift"
+        ],
+        "default_freshness_check": true,
+        "output_probe_command": [
+          "env",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "PYTHONNOUSERSITE=1",
+          "PYTHONHASHSEED=0",
+          "JAX_PLATFORMS=cpu",
+          "PYTHONPATH=src:.",
+          "uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/export_runtime_openapi.py",
+          "--output",
+          "{output_root}/schemas/runtime_api_v1.openapi.json"
+        ]
+      },
+      {
+        "id": "runtime-api-client",
+        "label": "Generated runtime API client",
+        "owner": "team-polisyos",
+        "approval_owner": "team-polisyos",
+        "lifecycle": "generated_committed",
+        "generator": "canonical generator declared in regenerate_commands",
+        "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+        "promotion_target": "registered committed outputs listed in outputs",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "schemas/runtime_api_v1.openapi.json",
+        "outputs": [
+          "packages/runtime-api-client/types.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+        ],
+        "regenerate_commands": [
+          "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate and commit whenever the runtime OpenAPI snapshot changes.",
+        "compatibility_class": "js-package-api",
+        "version_owner": "team-frontend",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "js-package-api",
+        "generated_client_compatibility": "required: declare compatibility in structured release fragments whenever this generated client changes.",
+        "drift_gate": "automated",
+        "workflow": "ops/ci/templates/workflows/arch.yml",
+        "check_cwd": ".",
+        "check_command": [
+          "uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "default_freshness_check": true,
+        "output_probe_command": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-api-client",
+          "run",
+          "generate",
+          "--",
+          "--openapi",
+          "schemas/runtime_api_v1.openapi.json",
+          "--output-root",
+          "{output_root}"
+        ]
+      },
+      {
+        "id": "runtime-dashboard-api-types",
+        "label": "Runtime dashboard generated API types",
+        "owner": "team-polisyos",
+        "approval_owner": "team-polisyos",
+        "lifecycle": "generated_committed",
+        "generator": "canonical generator declared in regenerate_commands",
+        "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+        "promotion_target": "registered committed outputs listed in outputs",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "schemas/runtime_api_v1.openapi.json",
+        "outputs": [
+          "apps/runtime-dashboard/src/api/types.ts"
+        ],
+        "regenerate_commands": [
+          "corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate and commit whenever runtime OpenAPI changes affect dashboard-facing types.",
+        "compatibility_class": "js-package-api",
+        "version_owner": "team-frontend",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "js-package-api",
+        "generated_client_compatibility": "required: declare dashboard generated-type compatibility in structured release fragments whenever runtime OpenAPI changes affect this family.",
+        "drift_gate": "automated",
+        "workflow": "ops/ci/templates/workflows/arch.yml",
+        "check_cwd": "apps/runtime-dashboard",
+        "check_command": [
+          "corepack",
+          "pnpm",
+          "run",
+          "generate:api"
+        ],
+        "check_git_diff_paths": [
+          "src/api/types.ts"
+        ],
+        "default_freshness_check": true,
+        "output_probe_command": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-dashboard",
+          "run",
+          "generate:api",
+          "--",
+          "--openapi",
+          "schemas/runtime_api_v1.openapi.json",
+          "--output-root",
+          "{output_root}"
+        ]
+      },
+      {
+        "id": "trust-claim-posture-register",
+        "label": "Trust claim posture register",
+        "owner": "team-architecture",
+        "approval_owner": "team-architecture",
+        "lifecycle": "generated_committed",
+        "generator": "DS11 trust claim posture compiler write mode",
+        "verifier": "DS11 trust claim posture checker and architecture guardrails",
+        "promotion_target": "static trust posture artifact consumed by the public /trust surface",
+        "stale_output_behavior": "fail",
+        "source_of_truth": "tracked posture sources, ratified identity boundary, content-bound accessibility document, and historical page-a11y receipt",
+        "outputs": [
+          "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+        ],
+        "regenerate_commands": [
+          "uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --write-generated-reference"
+        ],
+        "commit_policy": "committed",
+        "freshness_rule": "Regenerate whenever an admitted posture source, rule, projection index, or historical accessibility receipt changes.",
+        "drift_gate": "automated",
+        "workflow": "tools/quality/validation/check_trust_claim_posture.py",
+        "check_cwd": ".",
+        "check_command": [
+          "uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_trust_claim_posture.py",
+          "--repo-root",
+          ".",
+          "--check"
+        ],
+        "default_freshness_check": true,
+        "output_probe_command": [
+          "env",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "python",
+          "tools/quality/validation/check_trust_claim_posture.py",
+          "--repo-root",
+          ".",
+          "--write",
+          "--output-root",
+          "{output_root}"
+        ]
+      }
+    ],
+    "output_footprint": {
+      "runtime_openapi": [
+        "schemas/runtime_api_v1.openapi.json"
+      ],
+      "runtime_client": [
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "dashboard_types": [
+        "apps/runtime-dashboard/src/api/types.ts"
+      ],
+      "trust_register": [
+        "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+      ],
+      "trust_write_generated_reference_additional": [
+        "docs/reference/generated-artifacts.md"
+      ]
+    },
+    "foundry_stub_command": {
+      "command": "uv run polisyos-tools foundry generate-stubs",
+      "writes": [
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "qualifier": "base/component composer include private declarations through canonicalstubgen; AST parsed before atomicallywriting. No generated output/profile result was measured byreviewer."
+    },
+    "freshness_profile": {
+      "command": "uv run --no-sync polisyos-tools architecture guardrails check",
+      "private_workspace": "Guard copies source excluding caches/env/node_modules/production_data; links actual frontend node_modules; separate uvlocked privateenv and optionaloffline retainedcache; isolatedenv strips shared UV settings. Exactrequired output probes and emitted filecensus compared bytewise; code attempts all4families, generator failure is typedUNRUN not stalePASS.",
+      "runtime_openapi_probe": "env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output {output_root}/schemas/runtime_api_v1.openapi.json"
+    },
+    "direct_vs_private": "Direct runtime-api builds current app with defaultCAS; exporter uses freshscratchCAS. Different sourceimport/uv environment/hashseed/JAX/CAS/consultedbasis premise must be resolved from actualsame-input generated byte/profile evidence. Publicsync or olddirectPASS cannot prove privatearchitecturefreshness. Causal source of historical drift remains not_established; no freshgenerator output or universalinherited waiver."
+  }
+}

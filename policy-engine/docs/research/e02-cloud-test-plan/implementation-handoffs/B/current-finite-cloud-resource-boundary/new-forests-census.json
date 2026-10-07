@@ -1,0 +1,4227 @@
+{
+  "utc_before": "2026-10-06T23:01:37.082544+00:00",
+  "utc_after": "2026-10-06T23:01:38.783170+00:00",
+  "roots": [
+    "/dev/shm/e02-B-completed-affected-1862c021df74",
+    "/dev/shm/e02-B-completed-affected-1862c021df74-bound",
+    "/dev/shm/e02-B-completed-architecture-1862c021df74",
+    "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+    "/dev/shm/e02-B-completed-final-1862c021df74",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-architecture",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-format",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-mypy",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-parity-uncapped",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-ruff",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-runtime-api",
+    "/dev/shm/e02-B-completed-quality-1862c021df74-verify-uncapped"
+  ],
+  "forests": [
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74",
+      "file_count": 1,
+      "logical_bytes": 2917,
+      "allocated_bytes": 4096,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {
+        ".args": [
+          1,
+          2917,
+          4096
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound",
+      "file_count": 1590,
+      "logical_bytes": 5313390,
+      "allocated_bytes": 8728576,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {
+        ".xml": [
+          1,
+          151979,
+          155648
+        ],
+        ".args": [
+          1,
+          2917,
+          4096
+        ],
+        ".TAG": [
+          1,
+          191,
+          4096
+        ],
+        "<none>": [
+          3,
+          112760,
+          122880
+        ],
+        ".md": [
+          1,
+          302,
+          4096
+        ],
+        ".jsonl": [
+          255,
+          318530,
+          1208320
+        ],
+        ".json": [
+          678,
+          1272275,
+          3309568
+        ],
+        ".lock": [
+          471,
+          0,
+          0
+        ],
+        ".blob": [
+          159,
+          3428000,
+          3837952
+        ],
+        ".tmp-8mm3xkh5": [
+          1,
+          911,
+          4096
+        ],
+        ".tmp-jk_5c854": [
+          1,
+          1657,
+          4096
+        ],
+        ".baseline": [
+          18,
+          23868,
+          73728
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74",
+      "file_count": 16998,
+      "logical_bytes": 522097206,
+      "allocated_bytes": 561344512,
+      "duckdb_count": 4,
+      "duckdb_allocated_bytes": 16384,
+      "by_suffix": {
+        "<none>": [
+          28,
+          33326,
+          126976
+        ],
+        ".cfg": [
+          2,
+          439,
+          8192
+        ],
+        ".TAG": [
+          1,
+          43,
+          4096
+        ],
+        ".pth": [
+          1,
+          18,
+          4096
+        ],
+        ".py": [
+          6632,
+          102790577,
+          117731328
+        ],
+        ".bat": [
+          3,
+          5642,
+          12288
+        ],
+        ".ps1": [
+          1,
+          2762,
+          4096
+        ],
+        ".nu": [
+          1,
+          3787,
+          4096
+        ],
+        ".fish": [
+          1,
+          4217,
+          8192
+        ],
+        ".csh": [
+          1,
+          2645,
+          4096
+        ],
+        ".md": [
+          2159,
+          68028762,
+          72982528
+        ],
+        ".yaml": [
+          85,
+          834217,
+          1097728
+        ],
+        ".toml": [
+          295,
+          1856496,
+          2555904
+        ],
+        ".ini": [
+          11,
+          74930,
+          106496
+        ],
+        ".reproducible": [
+          1,
+          3494,
+          4096
+        ],
+        ".example": [
+          3,
+          1597,
+          12288
+        ],
+        ".jsonc": [
+          1,
+          572,
+          4096
+        ],
+        ".json": [
+          4422,
+          260167482,
+          270336000
+        ],
+        ".yml": [
+          54,
+          148663,
+          303104
+        ],
+        ".lock": [
+          196,
+          779204,
+          782336
+        ],
+        ".sh": [
+          45,
+          145469,
+          270336
+        ],
+        ".rego": [
+          23,
+          45771,
+          106496
+        ],
+        ".sql": [
+          6,
+          24179,
+          40960
+        ],
+        ".tf": [
+          1,
+          1675,
+          4096
+        ],
+        ".tpl": [
+          1,
+          729,
+          4096
+        ],
+        ".txt": [
+          910,
+          23115763,
+          25587712
+        ],
+        ".mjs": [
+          40,
+          388632,
+          471040
+        ],
+        ".tmpl": [
+          7,
+          6551,
+          28672
+        ],
+        ".ts": [
+          519,
+          4818317,
+          6074368
+        ],
+        ".jsonl": [
+          237,
+          6999927,
+          7696384
+        ],
+        ".blob": [
+          95,
+          387031,
+          647168
+        ],
+        ".typed": [
+          2,
+          1,
+          4096
+        ],
+        ".cypher": [
+          2,
+          734,
+          8192
+        ],
+        ".pyi": [
+          5,
+          21902,
+          36864
+        ],
+        ".csv": [
+          15,
+          537790,
+          573440
+        ],
+        ".retired": [
+          1,
+          345,
+          4096
+        ],
+        ".pkl": [
+          2,
+          2311,
+          8192
+        ],
+        ".duckdb": [
+          4,
+          169,
+          16384
+        ],
+        ".fixture": [
+          2,
+          45905,
+          49152
+        ],
+        ".css": [
+          17,
+          119644,
+          163840
+        ],
+        ".tsv": [
+          6,
+          772852,
+          790528
+        ],
+        ".html": [
+          3,
+          36093,
+          45056
+        ],
+        ".xml": [
+          258,
+          9213111,
+          9764864
+        ],
+        ".sqlite-wal": [
+          2,
+          255504,
+          262144
+        ],
+        ".sqlite": [
+          2,
+          8192,
+          8192
+        ],
+        ".png": [
+          42,
+          16371092,
+          16437248
+        ],
+        ".zip": [
+          8,
+          14826464,
+          14848000
+        ],
+        ".webm": [
+          6,
+          2533664,
+          2543616
+        ],
+        ".sha256": [
+          2,
+          3079,
+          8192
+        ],
+        ".patch": [
+          3,
+          5759,
+          12288
+        ],
+        ".log": [
+          63,
+          2748817,
+          2908160
+        ],
+        ".docx": [
+          1,
+          112216,
+          114688
+        ],
+        ".args": [
+          1,
+          6260,
+          8192
+        ],
+        ".diff": [
+          12,
+          113514,
+          143360
+        ],
+        ".cjs": [
+          11,
+          34869,
+          61440
+        ],
+        ".wal": [
+          2,
+          45926,
+          49152
+        ],
+        ".whl": [
+          1,
+          162367,
+          163840
+        ],
+        ".js": [
+          4,
+          42139,
+          53248
+        ],
+        ".tsx": [
+          720,
+          3393028,
+          5156864
+        ],
+        ".svg": [
+          18,
+          8775,
+          73728
+        ],
+        ".mdc": [
+          1,
+          1767,
+          4096
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+      "file_count": 31361,
+      "logical_bytes": 1575358719,
+      "allocated_bytes": 1649201152,
+      "duckdb_count": 4,
+      "duckdb_allocated_bytes": 16384,
+      "by_suffix": {
+        "<none>": [
+          2187,
+          5173238,
+          11563008
+        ],
+        ".cfg": [
+          4,
+          4742,
+          20480
+        ],
+        ".TAG": [
+          1,
+          43,
+          4096
+        ],
+        ".1": [
+          13,
+          73164,
+          106496
+        ],
+        ".py": [
+          16034,
+          231296465,
+          267804672
+        ],
+        ".so": [
+          299,
+          715505093,
+          716120064
+        ],
+        ".pth": [
+          2,
+          161,
+          8192
+        ],
+        ".txt": [
+          1084,
+          25874811,
+          28930048
+        ],
+        ".typed": [
+          118,
+          391,
+          69632
+        ],
+        ".pyi": [
+          560,
+          2604349,
+          4042752
+        ],
+        ".cpp": [
+          8,
+          7034419,
+          7049216
+        ],
+        ".rst": [
+          9,
+          16185,
+          45056
+        ],
+        ".pxd": [
+          80,
+          718864,
+          933888
+        ],
+        ".2200": [
+          10,
+          125868616,
+          125886464
+        ],
+        ".pyx": [
+          68,
+          2619386,
+          2756608
+        ],
+        ".pxi": [
+          20,
+          826239,
+          868352
+        ],
+        ".h": [
+          552,
+          5677369,
+          6852608
+        ],
+        ".0": [
+          18,
+          16080959,
+          16117760
+        ],
+        ".cc": [
+          24,
+          421054,
+          466944
+        ],
+        ".cmake": [
+          1,
+          855,
+          4096
+        ],
+        ".orc": [
+          4,
+          49512,
+          57344
+        ],
+        ".gz": [
+          9,
+          392469,
+          421888
+        ],
+        ".md": [
+          2175,
+          68070379,
+          73068544
+        ],
+        ".feather": [
+          1,
+          594,
+          4096
+        ],
+        ".parquet": [
+          4,
+          14340,
+          20480
+        ],
+        ".hpp": [
+          3,
+          121696,
+          122880
+        ],
+        ".json": [
+          4454,
+          262819955,
+          273088512
+        ],
+        ".pem": [
+          2,
+          548372,
+          552960
+        ],
+        ".c": [
+          42,
+          5839719,
+          5935104
+        ],
+        ".csv": [
+          49,
+          2006924,
+          2080768
+        ],
+        ".10": [
+          1,
+          16434,
+          20480
+        ],
+        ".xz": [
+          2,
+          25292,
+          28672
+        ],
+        ".dat": [
+          29,
+          1859387,
+          1941504
+        ],
+        ".toml": [
+          297,
+          1919794,
+          2625536
+        ],
+        ".tpl": [
+          8,
+          9215,
+          32768
+        ],
+        ".APACHE": [
+          2,
+          21534,
+          24576
+        ],
+        ".BSD": [
+          2,
+          2876,
+          8192
+        ],
+        ".lua": [
+          1,
+          139,
+          4096
+        ],
+        ".jpg": [
+          1,
+          61306,
+          61440
+        ],
+        ".png": [
+          66,
+          16424974,
+          16568320
+        ],
+        ".npz": [
+          25,
+          3832754,
+          3887104
+        ],
+        ".xrc": [
+          1,
+          2186,
+          4096
+        ],
+        ".npy": [
+          12,
+          458025,
+          487424
+        ],
+        ".css": [
+          22,
+          126962,
+          184320
+        ],
+        ".svg": [
+          37,
+          107254,
+          217088
+        ],
+        ".pdf": [
+          11,
+          42319,
+          69632
+        ],
+        ".afm": [
+          60,
+          1353784,
+          1474560
+        ],
+        ".ttf": [
+          38,
+          6913276,
+          6975488
+        ],
+        ".mplstyle": [
+          29,
+          38349,
+          143360
+        ],
+        ".html": [
+          6,
+          40514,
+          57344
+        ],
+        ".js": [
+          9,
+          111340,
+          131072
+        ],
+        ".build": [
+          6,
+          6948,
+          24576
+        ],
+        ".arff": [
+          16,
+          210323,
+          266240
+        ],
+        ".wav": [
+          22,
+          72226,
+          143360
+        ],
+        ".sav": [
+          47,
+          211903,
+          294912
+        ],
+        ".nc": [
+          3,
+          3432,
+          12288
+        ],
+        ".ani": [
+          1,
+          4362,
+          8192
+        ],
+        ".mat": [
+          110,
+          70153,
+          475136
+        ],
+        ".eigen": [
+          1,
+          16726,
+          20480
+        ],
+        ".lark": [
+          5,
+          15905,
+          28672
+        ],
+        ".2": [
+          3,
+          5313883,
+          5320704
+        ],
+        ".7": [
+          1,
+          1800497,
+          1802240
+        ],
+        ".3": [
+          1,
+          266369,
+          270336
+        ],
+        ".4": [
+          1,
+          585849,
+          589824
+        ],
+        ".6": [
+          1,
+          1467713,
+          1470464
+        ],
+        ".17": [
+          1,
+          33553,
+          36864
+        ],
+        ".19": [
+          1,
+          519257,
+          520192
+        ],
+        ".external": [
+          1,
+          20022,
+          20480
+        ],
+        ".zi": [
+          2,
+          214912,
+          221184
+        ],
+        ".tab": [
+          8,
+          98564,
+          114688
+        ],
+        ".fits": [
+          1,
+          8640,
+          12288
+        ],
+        ".pkl": [
+          3,
+          3027,
+          12288
+        ],
+        ".a": [
+          2,
+          126110,
+          131072
+        ],
+        ".pc": [
+          1,
+          191,
+          4096
+        ],
+        ".ini": [
+          14,
+          75683,
+          118784
+        ],
+        ".f": [
+          24,
+          10848,
+          98304
+        ],
+        ".f90": [
+          61,
+          29346,
+          249856
+        ],
+        ".pyf": [
+          7,
+          2357,
+          28672
+        ],
+        ".f95": [
+          1,
+          139,
+          4096
+        ],
+        ".inc": [
+          1,
+          16,
+          4096
+        ],
+        ".template": [
+          1,
+          1599,
+          4096
+        ],
+        ".hash": [
+          8,
+          1000,
+          32768
+        ],
+        ".proto": [
+          63,
+          322132,
+          442368
+        ],
+        ".python": [
+          1,
+          14688,
+          16384
+        ],
+        ".sh": [
+          46,
+          146415,
+          274432
+        ],
+        ".cff": [
+          1,
+          1847,
+          4096
+        ],
+        ".MIT": [
+          1,
+          1046,
+          4096
+        ],
+        ".APACHE2": [
+          1,
+          11358,
+          12288
+        ],
+        ".test-benchmark": [
+          1,
+          372,
+          4096
+        ],
+        ".test": [
+          1,
+          374,
+          4096
+        ],
+        ".bat": [
+          3,
+          5654,
+          12288
+        ],
+        ".ps1": [
+          1,
+          2762,
+          4096
+        ],
+        ".nu": [
+          1,
+          3799,
+          4096
+        ],
+        ".fish": [
+          1,
+          4229,
+          8192
+        ],
+        ".csh": [
+          1,
+          2657,
+          4096
+        ],
+        ".yaml": [
+          85,
+          834217,
+          1097728
+        ],
+        ".reproducible": [
+          1,
+          3494,
+          4096
+        ],
+        ".example": [
+          3,
+          1597,
+          12288
+        ],
+        ".jsonc": [
+          1,
+          572,
+          4096
+        ],
+        ".yml": [
+          54,
+          148663,
+          303104
+        ],
+        ".lock": [
+          201,
+          779204,
+          782336
+        ],
+        ".rego": [
+          23,
+          45771,
+          106496
+        ],
+        ".sql": [
+          6,
+          24179,
+          40960
+        ],
+        ".tf": [
+          1,
+          1675,
+          4096
+        ],
+        ".mjs": [
+          40,
+          388632,
+          471040
+        ],
+        ".tmpl": [
+          7,
+          6551,
+          28672
+        ],
+        ".ts": [
+          522,
+          6669657,
+          7933952
+        ],
+        ".jsonl": [
+          237,
+          7000879,
+          7696384
+        ],
+        ".blob": [
+          100,
+          409160,
+          679936
+        ],
+        ".cypher": [
+          2,
+          734,
+          8192
+        ],
+        ".retired": [
+          1,
+          345,
+          4096
+        ],
+        ".duckdb": [
+          4,
+          169,
+          16384
+        ],
+        ".fixture": [
+          2,
+          45905,
+          49152
+        ],
+        ".tsv": [
+          6,
+          772852,
+          790528
+        ],
+        ".xml": [
+          258,
+          9213111,
+          9764864
+        ],
+        ".sqlite-wal": [
+          2,
+          255504,
+          262144
+        ],
+        ".sqlite": [
+          2,
+          8192,
+          8192
+        ],
+        ".zip": [
+          8,
+          14826464,
+          14848000
+        ],
+        ".webm": [
+          6,
+          2533664,
+          2543616
+        ],
+        ".sha256": [
+          2,
+          3079,
+          8192
+        ],
+        ".patch": [
+          3,
+          5759,
+          12288
+        ],
+        ".log": [
+          63,
+          2748817,
+          2908160
+        ],
+        ".docx": [
+          1,
+          112216,
+          114688
+        ],
+        ".args": [
+          1,
+          6260,
+          8192
+        ],
+        ".diff": [
+          12,
+          113514,
+          143360
+        ],
+        ".cjs": [
+          11,
+          34869,
+          61440
+        ],
+        ".wal": [
+          3,
+          68889,
+          73728
+        ],
+        ".whl": [
+          1,
+          162367,
+          163840
+        ],
+        ".tsx": [
+          720,
+          3393028,
+          5156864
+        ],
+        ".mdc": [
+          1,
+          1767,
+          4096
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74",
+      "file_count": 20983,
+      "logical_bytes": 333413874,
+      "allocated_bytes": 383369216,
+      "duckdb_count": 59,
+      "duckdb_allocated_bytes": 268599296,
+      "by_suffix": {
+        ".args": [
+          1,
+          14447,
+          16384
+        ],
+        ".npy": [
+          205,
+          27888,
+          839680
+        ],
+        ".json": [
+          11328,
+          38404127,
+          72441856
+        ],
+        ".blob": [
+          3783,
+          10976096,
+          21983232
+        ],
+        ".lock": [
+          4319,
+          3095,
+          81920
+        ],
+        ".duckdb": [
+          59,
+          268599296,
+          268599296
+        ],
+        ".sqlite3": [
+          92,
+          13934592,
+          13934592
+        ],
+        ".jsonl": [
+          158,
+          495986,
+          954368
+        ],
+        ".sig": [
+          144,
+          130757,
+          589824
+        ],
+        ".gz": [
+          62,
+          125486,
+          323584
+        ],
+        ".txt": [
+          18,
+          8032,
+          65536
+        ],
+        ".done": [
+          2,
+          8,
+          8192
+        ],
+        "<none>": [
+          425,
+          38101,
+          1740800
+        ],
+        ".sample": [
+          350,
+          645675,
+          1638400
+        ],
+        ".pub": [
+          13,
+          1469,
+          53248
+        ],
+        ".pem": [
+          5,
+          595,
+          20480
+        ],
+        ".previous-urki7sdc": [
+          1,
+          732,
+          4096
+        ],
+        ".previous-b4bzzus2": [
+          1,
+          732,
+          4096
+        ],
+        ".previous-byrt6z58": [
+          1,
+          732,
+          4096
+        ],
+        ".previous-h9b_11ne": [
+          1,
+          732,
+          4096
+        ],
+        ".previous-jix21osm": [
+          1,
+          732,
+          4096
+        ],
+        ".previous-9c0ygqr1": [
+          1,
+          731,
+          4096
+        ],
+        ".previous-uwq__vqy": [
+          1,
+          731,
+          4096
+        ],
+        ".bin": [
+          2,
+          43,
+          8192
+        ],
+        ".stage": [
+          7,
+          1577,
+          28672
+        ],
+        ".xml": [
+          1,
+          989,
+          4096
+        ],
+        ".TAG": [
+          1,
+          191,
+          4096
+        ],
+        ".md": [
+          1,
+          302,
+          4096
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-architecture",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-format",
+      "file_count": 39,
+      "logical_bytes": 13112,
+      "allocated_bytes": 159744,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {
+        "<none>": [
+          38,
+          13069,
+          155648
+        ],
+        ".TAG": [
+          1,
+          43,
+          4096
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-mypy",
+      "file_count": 7658,
+      "logical_bytes": 227109780,
+      "allocated_bytes": 244805632,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {
+        "<none>": [
+          2,
+          221,
+          8192
+        ],
+        ".TAG": [
+          1,
+          190,
+          4096
+        ],
+        ".json": [
+          7655,
+          227109369,
+          244793344
+        ]
+      }
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-parity-uncapped",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-production-invocation-retry",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-ruff",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-runtime-api",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-quality-1862c021df74-verify-uncapped",
+      "file_count": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0,
+      "duckdb_count": 0,
+      "duckdb_allocated_bytes": 0,
+      "by_suffix": {}
+    }
+  ],
+  "candidates": [
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74/source/tests/_data/data_forge/non_lex_split/catalog/graph/dataset_catalog.duckdb",
+      "identity_before": [
+        26,
+        73816,
+        28,
+        1791278804691885582,
+        1791326348385611269,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          28
+        ]
+      ],
+      "sha256": "f2de23b2c7e811722fb165c07837b013682b2641840e247f0b73eae13e1e8460",
+      "bytes_read": 28,
+      "identity_after": [
+        26,
+        73816,
+        28,
+        1791278804691885582,
+        1791326348385611269,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        73816,
+        28,
+        1791278804691885582,
+        1791326348385611269,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74/source/tests/_data/data_forge/non_lex_split/catalog_candidate/graph/dataset_catalog.duckdb",
+      "identity_before": [
+        26,
+        73805,
+        59,
+        1791278804692313236,
+        1791326348382901255,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          59
+        ]
+      ],
+      "sha256": "f2928d2d7a9eeaa27479a93702f3c8afc398954051295c822d545977ab47d70b",
+      "bytes_read": 59,
+      "identity_after": [
+        26,
+        73805,
+        59,
+        1791278804692313236,
+        1791326348382901255,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        73805,
+        59,
+        1791278804692313236,
+        1791326348382901255,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74/source/tests/_data/data_forge/non_lex_split/academic_candidate/graph/scholar_knowledge.duckdb",
+      "identity_before": [
+        26,
+        73795,
+        53,
+        1791278804691495639,
+        1791326348380314062,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          53
+        ]
+      ],
+      "sha256": "4dfb269ad116a9e33938686949340c0201f62dc5094309d97686f943f4f4f1ae",
+      "bytes_read": 53,
+      "identity_after": [
+        26,
+        73795,
+        53,
+        1791278804691495639,
+        1791326348380314062,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        73795,
+        53,
+        1791278804691495639,
+        1791326348380314062,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74/source/tests/_data/data_forge/non_lex_split/academic/graph/scholar_knowledge.duckdb",
+      "identity_before": [
+        26,
+        73785,
+        29,
+        1791278804691074357,
+        1791326348377541931,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          29
+        ]
+      ],
+      "sha256": "edafc7ebf17a902f5fc5f250a02bf5548f9b659f2b9cbe9ec96d910bda0a9a9b",
+      "bytes_read": 29,
+      "identity_after": [
+        26,
+        73785,
+        29,
+        1791278804691074357,
+        1791326348377541931,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        73785,
+        29,
+        1791278804691074357,
+        1791326348377541931,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/source/tests/_data/data_forge/non_lex_split/catalog/graph/dataset_catalog.duckdb",
+      "identity_before": [
+        26,
+        192158,
+        28,
+        1791278804691885582,
+        1791326986643913176,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          28
+        ]
+      ],
+      "sha256": "f2de23b2c7e811722fb165c07837b013682b2641840e247f0b73eae13e1e8460",
+      "bytes_read": 28,
+      "identity_after": [
+        26,
+        192158,
+        28,
+        1791278804691885582,
+        1791326986643913176,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        192158,
+        28,
+        1791278804691885582,
+        1791326986643913176,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/source/tests/_data/data_forge/non_lex_split/catalog_candidate/graph/dataset_catalog.duckdb",
+      "identity_before": [
+        26,
+        192147,
+        59,
+        1791278804692313236,
+        1791326986641690638,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          59
+        ]
+      ],
+      "sha256": "f2928d2d7a9eeaa27479a93702f3c8afc398954051295c822d545977ab47d70b",
+      "bytes_read": 59,
+      "identity_after": [
+        26,
+        192147,
+        59,
+        1791278804692313236,
+        1791326986641690638,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        192147,
+        59,
+        1791278804692313236,
+        1791326986641690638,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/source/tests/_data/data_forge/non_lex_split/academic_candidate/graph/scholar_knowledge.duckdb",
+      "identity_before": [
+        26,
+        192137,
+        53,
+        1791278804691495639,
+        1791326986639898008,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          53
+        ]
+      ],
+      "sha256": "4dfb269ad116a9e33938686949340c0201f62dc5094309d97686f943f4f4f1ae",
+      "bytes_read": 53,
+      "identity_after": [
+        26,
+        192137,
+        53,
+        1791278804691495639,
+        1791326986639898008,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        192137,
+        53,
+        1791278804691495639,
+        1791326986639898008,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/source/tests/_data/data_forge/non_lex_split/academic/graph/scholar_knowledge.duckdb",
+      "identity_before": [
+        26,
+        192127,
+        29,
+        1791278804691074357,
+        1791326986637906317,
+        8
+      ],
+      "allocated_bytes": 4096,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 0,
+      "data_extents": [
+        [
+          0,
+          29
+        ]
+      ],
+      "sha256": "edafc7ebf17a902f5fc5f250a02bf5548f9b659f2b9cbe9ec96d910bda0a9a9b",
+      "bytes_read": 29,
+      "identity_after": [
+        26,
+        192127,
+        29,
+        1791278804691074357,
+        1791326986637906317,
+        8
+      ],
+      "path_identity_after": [
+        26,
+        192127,
+        29,
+        1791278804691074357,
+        1791326986637906317,
+        8
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_public_principal_is_denie1/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        168394,
+        6303744,
+        1791326862604966133,
+        1791326862604966133,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "4ac120239073d11e9797e43f566e3ad6037a523d9e7072b67f602a07bc05a53d",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        168394,
+        6303744,
+        1791326862604966133,
+        1791326862604966133,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        168394,
+        6303744,
+        1791326862604966133,
+        1791326862604966133,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_public_principal_is_denie0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        161331,
+        6303744,
+        1791326861676321405,
+        1791326861676321405,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "868bb43cd884c98587b6a2782b0f548f172aedd3495e0e490def31ad817d0449",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        161331,
+        6303744,
+        1791326861676321405,
+        1791326861676321405,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        161331,
+        6303744,
+        1791326861676321405,
+        1791326861676321405,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_authority_values_endpoint0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        160818,
+        6303744,
+        1791326860520824268,
+        1791326860520824268,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "96d51f7ef749c1bc5a909448d1d41236f1db664f83ba0613e1272bd327a64b62",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        160818,
+        6303744,
+        1791326860520824268,
+        1791326860520824268,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        160818,
+        6303744,
+        1791326860520824268,
+        1791326860520824268,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_get_auth_me_returns_front0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        160292,
+        6303744,
+        1791326859659621041,
+        1791326859659621041,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "b4617eda5a3c0718365f58af70d79dae0c421d38b6b18dcea43bc5d10d904c08",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        160292,
+        6303744,
+        1791326859659621041,
+        1791326859659621041,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        160292,
+        6303744,
+        1791326859659621041,
+        1791326859659621041,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_lineage_routes_block_clea0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        159779,
+        6303744,
+        1791326858309099074,
+        1791326858309099074,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "2bc385d2c98e80f49211141c48647acdc5b4e367d9c06c5c3c439413a79c9304",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        159779,
+        6303744,
+        1791326858309099074,
+        1791326858309099074,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        159779,
+        6303744,
+        1791326858309099074,
+        1791326858309099074,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_composed_gate_blocks_s12_0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        159716,
+        6303744,
+        1791326857401084430,
+        1791326857401084430,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "cccea654493c2a64e1cbce6f2b7d152d3fc0ccd08281de89daf4d5a726e646d9",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        159716,
+        6303744,
+        1791326857401084430,
+        1791326857401084430,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        159716,
+        6303744,
+        1791326857401084430,
+        1791326857401084430,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_composed_gate_blocks_decl0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        159653,
+        6303744,
+        1791326856501069915,
+        1791326856501069915,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "42eb1d44d9b7141e9741cb13ad5cb19de9d8d53b930c0322fda4e27acfda408f",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        159653,
+        6303744,
+        1791326856501069915,
+        1791326856501069915,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        159653,
+        6303744,
+        1791326856501069915,
+        1791326856501069915,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_raw_and_manifest_artifact0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        159590,
+        6303744,
+        1791326855597055336,
+        1791326855597055336,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "6ef6b6aa4a29ac1392b916a66de25ab327ed7c9a5e549b3274ef00a58d714edf",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        159590,
+        6303744,
+        1791326855597055336,
+        1791326855597055336,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        159590,
+        6303744,
+        1791326855597055336,
+        1791326855597055336,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_lineage_and_sche0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        159461,
+        6303744,
+        1791326854985045466,
+        1791326854985045466,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "1b05cf7cdcaf10fb04f7851b675bb45a5ad4c18c974f01c0d09bec04b1e0a156",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        159461,
+        6303744,
+        1791326854985045466,
+        1791326854985045466,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        159461,
+        6303744,
+        1791326854985045466,
+        1791326854985045466,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_content_preview_0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        158946,
+        6303744,
+        1791326854137031790,
+        1791326854137031790,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "0ba76d8b439ac5ac1fd8d5ae9b1435f5ad76fdda72f478f9077dad8ca0e99dd1",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        158946,
+        6303744,
+        1791326854137031790,
+        1791326854137031790,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        158946,
+        6303744,
+        1791326854137031790,
+        1791326854137031790,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_manifest_endpoin0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        158433,
+        6303744,
+        1791326853293018178,
+        1791326853293018178,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "f19d9b1fbdf0cefac4c4fe0037005352e69b7765cc6e0871813ad3baca73945d",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        158433,
+        6303744,
+        1791326853293018178,
+        1791326853293018178,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        158433,
+        6303744,
+        1791326853293018178,
+        1791326853293018178,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_eval_safety_projection_is0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        157923,
+        6303744,
+        1791326852405003835,
+        1791326852405003835,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "a85b75671fec5458d823c9f73fbdcb7eaa09cf0c6f71f4cff4e0c9e6d0b3d02d",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        157923,
+        6303744,
+        1791326852405003835,
+        1791326852405003835,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        157923,
+        6303744,
+        1791326852405003835,
+        1791326852405003835,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runtime_container_and_con0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        157393,
+        6303744,
+        1791326851536989819,
+        1791326851536989819,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "431a3d64ade65a1fbab5470a11f897727b75a73f651c0dee8eee618f16eb8e6c",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        157393,
+        6303744,
+        1791326851536989819,
+        1791326851536989819,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        157393,
+        6303744,
+        1791326851536989819,
+        1791326851536989819,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runtime_container_lifecyc0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        156881,
+        6303744,
+        1791326850652975558,
+        1791326850652975558,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "33404f22e4b893b150f37ea434091c90bdaf220206cf2b50cc3957f4fc76be07",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        156881,
+        6303744,
+        1791326850652975558,
+        1791326850652975558,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        156881,
+        6303744,
+        1791326850652975558,
+        1791326850652975558,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runs_live_endpoint_advert0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        156357,
+        6303744,
+        1791326844680879215,
+        1791326844680879215,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "5deae516a72dffe93a7a34f54b50181e6f38f8c4541191d6c64b28f07ef12039",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        156357,
+        6303744,
+        1791326844680879215,
+        1791326844680879215,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        156357,
+        6303744,
+        1791326844680879215,
+        1791326844680879215,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_api_version_headers_surfa0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        155847,
+        6303744,
+        1791326843816865203,
+        1791326843816865203,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "9fa53e59e37b15d85a247153375afe260c8a3b0b44611299534e5ba4883bbc34",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        155847,
+        6303744,
+        1791326843816865203,
+        1791326843816865203,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        155847,
+        6303744,
+        1791326843816865203,
+        1791326843816865203,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runtime_lifecycle_health_0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        154039,
+        6303744,
+        1791326843000192436,
+        1791326843000192436,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "2c29f2108e0e25fb61aa7a00f14aeaeb63d5a64393f36ab074b88a70c234ffc7",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        154039,
+        6303744,
+        1791326843000192436,
+        1791326843000192436,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        154039,
+        6303744,
+        1791326843000192436,
+        1791326843000192436,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runtime_security_middlewa0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        149985,
+        6303744,
+        1791326842304181313,
+        1791326842304181313,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "3c8c144b0422a9ff3fd9603ba4ad8bd8e0419b0e4ae21ebff0bbaf2e958503fa",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        149985,
+        6303744,
+        1791326842304181313,
+        1791326842304181313,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        149985,
+        6303744,
+        1791326842304181313,
+        1791326842304181313,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runtime_container_accepts0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        148161,
+        6303744,
+        1791326841866172064,
+        1791326841866172064,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "30949c96f54a7aec87579621d7864e6cff2d966174bd19788995cd7c1876ea39",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        148161,
+        6303744,
+        1791326841866172064,
+        1791326841866172064,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        148161,
+        6303744,
+        1791326841866172064,
+        1791326841866172064,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_run_detail_endpoint_emits0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        144913,
+        6303744,
+        1791326840997798728,
+        1791326840997798728,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "e6c812e91bba82e5f5a6b0ad3fa855ac011edc66d9dc883b1950ba39a400b804",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        144913,
+        6303744,
+        1791326840997798728,
+        1791326840997798728,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        144913,
+        6303744,
+        1791326840997798728,
+        1791326840997798728,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_runs_batch_endpoint_retur0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        141910,
+        6303744,
+        1791326840111486726,
+        1791326840111486726,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "2bc3aa193acb6321d569102024b1e7e5419bde1913e4e9bdb95930f6dc3d3b57",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        141910,
+        6303744,
+        1791326840111486726,
+        1791326840111486726,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        141910,
+        6303744,
+        1791326840111486726,
+        1791326840111486726,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_batch_endpoint_a0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        137308,
+        6303744,
+        1791326839000787069,
+        1791326839000787069,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "7d80a6bf426e6555959d993027272a532b633a8aa64cde5a0fa4012d2d75f728",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        137308,
+        6303744,
+        1791326839000787069,
+        1791326839000787069,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        137308,
+        6303744,
+        1791326839000787069,
+        1791326839000787069,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_download_endpoin0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        133833,
+        6303744,
+        1791326838202622123,
+        1791326838202622123,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "dc921c2a73dabb7d65b0bc1594b74e9490c9a3f5de8c29ee51034bf3edf92314",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        133833,
+        6303744,
+        1791326838202622123,
+        1791326838202622123,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        133833,
+        6303744,
+        1791326838202622123,
+        1791326838202622123,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_content_negotiat0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        133247,
+        6303744,
+        1791326837400761112,
+        1791326837400761112,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "ffc5ba4833827835a0c114002dc2563b4d1c8633f1d263ccfdf44e9c99500265",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        133247,
+        6303744,
+        1791326837400761112,
+        1791326837400761112,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        133247,
+        6303744,
+        1791326837400761112,
+        1791326837400761112,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_artifact_endpoints_emit_i0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        132737,
+        6303744,
+        1791326836620748457,
+        1791326836620748457,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "5dd29f027fd6c2d286997819e2c18efa02c8bdc7d2ad5dcbe1cc799b5b82fea8",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        132737,
+        6303744,
+        1791326836620748457,
+        1791326836620748457,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        132737,
+        6303744,
+        1791326836620748457,
+        1791326836620748457,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_continuation_branch_route0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        132225,
+        6303744,
+        1791326835857024568,
+        1791326835857024568,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "443bd7524dac416fa7ac048d3650320a18d6db20b7a4b7287c7de237f3e5a0e2",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        132225,
+        6303744,
+        1791326835857024568,
+        1791326835857024568,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        132225,
+        6303744,
+        1791326835857024568,
+        1791326835857024568,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_attractor_analysis_route_1/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        131713,
+        6303744,
+        1791326835072723347,
+        1791326835072723347,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "f4d07c02d8fe53292f3546c78bc3561fa338d655fc4c50debb897278e541d2a2",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        131713,
+        6303744,
+        1791326835072723347,
+        1791326835072723347,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        131713,
+        6303744,
+        1791326835072723347,
+        1791326835072723347,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_attractor_analysis_route_0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        131200,
+        6303744,
+        1791326834288710617,
+        1791326834288710617,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "adb2818538e0a1b66d6de8283180ed79a324ff397bb6871852a305cd3a9fba84",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        131200,
+        6303744,
+        1791326834288710617,
+        1791326834288710617,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        131200,
+        6303744,
+        1791326834288710617,
+        1791326834288710617,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_acquisition_mutations_are0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        130675,
+        6303744,
+        1791326832988689310,
+        1791326832988689310,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "d556edafe8be2cf1d3e5e51f9cc14d052b8ade51cec9ad5f5a0965ff8e0ed917",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        130675,
+        6303744,
+        1791326832988689310,
+        1791326832988689310,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        130675,
+        6303744,
+        1791326832988689310,
+        1791326832988689310,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_acquisition_routes_have_e0/runtime-http-cache/catalog-graphs/a857f3f4611c8f439526dbd07359efd7/catalog.duckdb",
+      "identity_before": [
+        26,
+        130163,
+        6303744,
+        1791326832136675345,
+        1791326832136675345,
+        12312
+      ],
+      "allocated_bytes": 6303744,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 5419008,
+      "data_extents": [
+        [
+          0,
+          6303744
+        ]
+      ],
+      "sha256": "b9ba71e665f260913961473770166ecca50aab73e11756b2c0beeb11ab7600c6",
+      "bytes_read": 6303744,
+      "identity_after": [
+        26,
+        130163,
+        6303744,
+        1791326832136675345,
+        1791326832136675345,
+        12312
+      ],
+      "path_identity_after": [
+        26,
+        130163,
+        6303744,
+        1791326832136675345,
+        1791326832136675345,
+        12312
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_prepared_read_uses_source0/source.duckdb",
+      "identity_before": [
+        26,
+        99980,
+        2633728,
+        1791326535331866194,
+        1791326535331866194,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "dcc89e470eeaefb78dd94ce3998b318a4f3bf376f5eb941076692c510e4034d6",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99980,
+        2633728,
+        1791326535331866194,
+        1791326535331866194,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99980,
+        2633728,
+        1791326535331866194,
+        1791326535331866194,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_prepared_read_static_help0/other-owner.duckdb",
+      "identity_before": [
+        26,
+        99976,
+        2633728,
+        1791326535099862455,
+        1791326535099862455,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "286de315463d4e2e747232a871a2d0d31c3c0152ae6a72a03edb27fc53761874",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99976,
+        2633728,
+        1791326535099862455,
+        1791326535099862455,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99976,
+        2633728,
+        1791326535099862455,
+        1791326535099862455,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_prepared_read_static_help0/prepared-owner.duckdb",
+      "identity_before": [
+        26,
+        99974,
+        2633728,
+        1791326535071862003,
+        1791326535071862003,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "d7e34d09003c263d9d3f2fbd0e98a2f850c378c232ecbfd31808e18d362b4000",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99974,
+        2633728,
+        1791326535071862003,
+        1791326535071862003,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99974,
+        2633728,
+        1791326535071862003,
+        1791326535071862003,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_prepared_read_binding_tra0/unrelated-row.duckdb",
+      "identity_before": [
+        26,
+        99968,
+        3420160,
+        1791326535016153441,
+        1791326535016153441,
+        6680
+      ],
+      "allocated_bytes": 3420160,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2793472,
+      "data_extents": [
+        [
+          0,
+          3420160
+        ]
+      ],
+      "sha256": "8b964f1ebfdd2fc0686557b72da3d48b91c480e8ca4aed9705d9915f38eb8b2c",
+      "bytes_read": 3420160,
+      "identity_after": [
+        26,
+        99968,
+        3420160,
+        1791326535016153441,
+        1791326535016153441,
+        6680
+      ],
+      "path_identity_after": [
+        26,
+        99968,
+        3420160,
+        1791326535016153441,
+        1791326535016153441,
+        6680
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_prepared_read_tracks_sour0/prepared-skg.duckdb",
+      "identity_before": [
+        26,
+        99962,
+        3158016,
+        1791326534732538957,
+        1791326534732538957,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2535424,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "1bdd9dc4664401beac2fb55d4756068447f7127853ddc4db520484e991df83ca",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99962,
+        3158016,
+        1791326534732538957,
+        1791326534732538957,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99962,
+        3158016,
+        1791326534732538957,
+        1791326534732538957,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_edge_transport_read0/skg.duckdb",
+      "identity_before": [
+        26,
+        99957,
+        3158016,
+        1791326534447851947,
+        1791326534447851947,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "027a1b52aa065523f12c8b1c3399dbb643a070d6bd8c516542d897391eac864c",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99957,
+        3158016,
+        1791326534447851947,
+        1791326534447851947,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99957,
+        3158016,
+        1791326534447851947,
+        1791326534447851947,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_hybrid_ignor0/skg.duckdb",
+      "identity_before": [
+        26,
+        99952,
+        3420160,
+        1791326534360786620,
+        1791326534360786620,
+        6680
+      ],
+      "allocated_bytes": 3420160,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2797568,
+      "data_extents": [
+        [
+          0,
+          3420160
+        ]
+      ],
+      "sha256": "4325badcd2d0a18b849b20c9bee0a2251b7e66d01c870a3bd467726febcf1a54",
+      "bytes_read": 3420160,
+      "identity_after": [
+        26,
+        99952,
+        3420160,
+        1791326534360786620,
+        1791326534360786620,
+        6680
+      ],
+      "path_identity_after": [
+        26,
+        99952,
+        3420160,
+        1791326534360786620,
+        1791326534360786620,
+        6680
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_edge_support_pairs_0/skg.duckdb",
+      "identity_before": [
+        26,
+        99947,
+        3158016,
+        1791326534283643389,
+        1791326534283643389,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2543616,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "22faa045eb6db87d85cd9ebb5601929042a25d4935b76ae4196046eab663f443",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99947,
+        3158016,
+        1791326534283643389,
+        1791326534283643389,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99947,
+        3158016,
+        1791326534283643389,
+        1791326534283643389,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_decodes_pers0/skg.duckdb",
+      "identity_before": [
+        26,
+        99942,
+        3158016,
+        1791326534187847757,
+        1791326534187847757,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2543616,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "22faa045eb6db87d85cd9ebb5601929042a25d4935b76ae4196046eab663f443",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99942,
+        3158016,
+        1791326534187847757,
+        1791326534187847757,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99942,
+        3158016,
+        1791326534187847757,
+        1791326534187847757,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_edge_summary0/skg.duckdb",
+      "identity_before": [
+        26,
+        99937,
+        3158016,
+        1791326534107846468,
+        1791326534107846468,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2543616,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "fca81b4e5668c64b710381989b12cff3c10cbecc11125850824d2d6b64ebc807",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99937,
+        3158016,
+        1791326534107846468,
+        1791326534107846468,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99937,
+        3158016,
+        1791326534107846468,
+        1791326534107846468,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_hybrid_prese0/skg.duckdb",
+      "identity_before": [
+        26,
+        99932,
+        3420160,
+        1791326534023845114,
+        1791326534023845114,
+        6680
+      ],
+      "allocated_bytes": 3420160,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2797568,
+      "data_extents": [
+        [
+          0,
+          3420160
+        ]
+      ],
+      "sha256": "36fe2eef73f40203d8545786abc38c57d66f2ae0b4dd7e3e740805456f221acb",
+      "bytes_read": 3420160,
+      "identity_after": [
+        26,
+        99932,
+        3420160,
+        1791326534023845114,
+        1791326534023845114,
+        6680
+      ],
+      "path_identity_after": [
+        26,
+        99932,
+        3420160,
+        1791326534023845114,
+        1791326534023845114,
+        6680
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_family_summa0/skg.duckdb",
+      "identity_before": [
+        26,
+        99927,
+        3158016,
+        1791326533947843889,
+        1791326533947843889,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "ec65ca82459addde50c18df85eaa96c5156e1315c0c08b65c4fdce7e466b7760",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99927,
+        3158016,
+        1791326533947843889,
+        1791326533947843889,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99927,
+        3158016,
+        1791326533947843889,
+        1791326533947843889,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_exact_legacy0/skg.duckdb",
+      "identity_before": [
+        26,
+        99923,
+        2633728,
+        1791326533871842665,
+        1791326533871842665,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "0c81cc03d3bd0e9b128b89639086cc1232e22e1be0e61cc1816f07b7e1e6f03b",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99923,
+        2633728,
+        1791326533871842665,
+        1791326533871842665,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99923,
+        2633728,
+        1791326533871842665,
+        1791326533871842665,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_claims_supports_con0/skg.duckdb",
+      "identity_before": [
+        26,
+        99918,
+        3158016,
+        1791326533812760195,
+        1791326533812760195,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "2946baad6b03a7eedc7ebfb144aa5d70b2d7d546492b43c96fc04b323948a7af",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99918,
+        3158016,
+        1791326533812760195,
+        1791326533812760195,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99918,
+        3158016,
+        1791326533812760195,
+        1791326533812760195,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_edge_support_prefer0/skg.duckdb",
+      "identity_before": [
+        26,
+        99913,
+        3158016,
+        1791326533736905316,
+        1791326533736905316,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "51153ec78a89b60212509edf2ffdcbf5d0234806293f938bbcc3b869caea190e",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99913,
+        3158016,
+        1791326533736905316,
+        1791326533736905316,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99913,
+        3158016,
+        1791326533736905316,
+        1791326533736905316,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_edge_support_can_br0/skg.duckdb",
+      "identity_before": [
+        26,
+        99908,
+        3420160,
+        1791326533475836282,
+        1791326533475836282,
+        6680
+      ],
+      "allocated_bytes": 3420160,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2764800,
+      "data_extents": [
+        [
+          0,
+          3420160
+        ]
+      ],
+      "sha256": "9ca0d51120181b6c34dbe36b518842ee1cf17348b84c7d2a51660cda25c800d9",
+      "bytes_read": 3420160,
+      "identity_after": [
+        26,
+        99908,
+        3420160,
+        1791326533475836282,
+        1791326533475836282,
+        6680
+      ],
+      "path_identity_after": [
+        26,
+        99908,
+        3420160,
+        1791326533475836282,
+        1791326533475836282,
+        6680
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_edge_support_uses_f0/skg.duckdb",
+      "identity_before": [
+        26,
+        99903,
+        3158016,
+        1791326533391834929,
+        1791326533391834929,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "14c9ade8f32d8edc19e9675ec3a3a26a74b1a0a98c2e2927014170c06526513d",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99903,
+        3158016,
+        1791326533391834929,
+        1791326533391834929,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99903,
+        3158016,
+        1791326533391834929,
+        1791326533391834929,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_prior_for_variables1/skg.duckdb",
+      "identity_before": [
+        26,
+        99898,
+        3158016,
+        1791326533155831126,
+        1791326533155831126,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "37e8657ac0f8b423e347e5009d50b940dbf80c32c46b5cbbd57d69e0a14373e9",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99898,
+        3158016,
+        1791326533155831126,
+        1791326533155831126,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99898,
+        3158016,
+        1791326533155831126,
+        1791326533155831126,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_parameters_prefers_0/skg.duckdb",
+      "identity_before": [
+        26,
+        99893,
+        3158016,
+        1791326532923827387,
+        1791326532923827387,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2539520,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "4b04da0692da8f5afd5bffe196c086319bdef0bf324ee7ad71f84bedb42bcd7a",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99893,
+        3158016,
+        1791326532923827387,
+        1791326532923827387,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99893,
+        3158016,
+        1791326532923827387,
+        1791326532923827387,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_parameters_can_brid0/skg.duckdb",
+      "identity_before": [
+        26,
+        99888,
+        3420160,
+        1791326532659823132,
+        1791326532659823132,
+        6680
+      ],
+      "allocated_bytes": 3420160,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2764800,
+      "data_extents": [
+        [
+          0,
+          3420160
+        ]
+      ],
+      "sha256": "db90b5af477ab5bdb1b6dbeafd8f2ed8783a12f720adc780c72d24d3b953231c",
+      "bytes_read": 3420160,
+      "identity_after": [
+        26,
+        99888,
+        3420160,
+        1791326532659823132,
+        1791326532659823132,
+        6680
+      ],
+      "path_identity_after": [
+        26,
+        99888,
+        3420160,
+        1791326532659823132,
+        1791326532659823132,
+        6680
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_parameters_resolves0/skg.duckdb",
+      "identity_before": [
+        26,
+        99883,
+        3158016,
+        1791326532403819007,
+        1791326532403819007,
+        6168
+      ],
+      "allocated_bytes": 3158016,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2519040,
+      "data_extents": [
+        [
+          0,
+          3158016
+        ]
+      ],
+      "sha256": "361a24f8a47c228c2c4ee84523c300d268be1d2d497e8d4ec8f363a0d5583670",
+      "bytes_read": 3158016,
+      "identity_after": [
+        26,
+        99883,
+        3158016,
+        1791326532403819007,
+        1791326532403819007,
+        6168
+      ],
+      "path_identity_after": [
+        26,
+        99883,
+        3158016,
+        1791326532403819007,
+        1791326532403819007,
+        6168
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_parameters_enriches0/skg.duckdb",
+      "identity_before": [
+        26,
+        99878,
+        3420160,
+        1791326532168202723,
+        1791326532168202723,
+        6680
+      ],
+      "allocated_bytes": 3420160,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2797568,
+      "data_extents": [
+        [
+          0,
+          3420160
+        ]
+      ],
+      "sha256": "2cfffd01466114dc39c31fdc0b4a03d7c48725e84bd3b99983e9ba76aad4a3b3",
+      "bytes_read": 3420160,
+      "identity_after": [
+        26,
+        99878,
+        3420160,
+        1791326532168202723,
+        1791326532168202723,
+        6680
+      ],
+      "path_identity_after": [
+        26,
+        99878,
+        3420160,
+        1791326532168202723,
+        1791326532168202723,
+        6680
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_parameters_parses_p0/skg.duckdb",
+      "identity_before": [
+        26,
+        99874,
+        2633728,
+        1791326531923811271,
+        1791326531923811271,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "0c81cc03d3bd0e9b128b89639086cc1232e22e1be0e61cc1816f07b7e1e6f03b",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99874,
+        2633728,
+        1791326531923811271,
+        1791326531923811271,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99874,
+        2633728,
+        1791326531923811271,
+        1791326531923811271,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_skg_query_resolves_existi0/skg.duckdb",
+      "identity_before": [
+        26,
+        99870,
+        2633728,
+        1791326531883810627,
+        1791326531883810627,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "0c81cc03d3bd0e9b128b89639086cc1232e22e1be0e61cc1816f07b7e1e6f03b",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99870,
+        2633728,
+        1791326531883810627,
+        1791326531883810627,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99870,
+        2633728,
+        1791326531883810627,
+        1791326531883810627,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_latest_version_and_snapsh0/skg.duckdb",
+      "identity_before": [
+        26,
+        99866,
+        2633728,
+        1791326531843809983,
+        1791326531843809983,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "0c81cc03d3bd0e9b128b89639086cc1232e22e1be0e61cc1816f07b7e1e6f03b",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99866,
+        2633728,
+        1791326531843809983,
+        1791326531843809983,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99866,
+        2633728,
+        1791326531843809983,
+        1791326531843809983,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/pytest/test_query_prior_for_variables0/skg.duckdb",
+      "identity_before": [
+        26,
+        99862,
+        2633728,
+        1791326531627806502,
+        1791326531627806502,
+        5144
+      ],
+      "allocated_bytes": 2633728,
+      "fd_or_map_before": false,
+      "allocated_zero_page_bytes": 2306048,
+      "data_extents": [
+        [
+          0,
+          2633728
+        ]
+      ],
+      "sha256": "0c81cc03d3bd0e9b128b89639086cc1232e22e1be0e61cc1816f07b7e1e6f03b",
+      "bytes_read": 2633728,
+      "identity_after": [
+        26,
+        99862,
+        2633728,
+        1791326531627806502,
+        1791326531627806502,
+        5144
+      ],
+      "path_identity_after": [
+        26,
+        99862,
+        2633728,
+        1791326531627806502,
+        1791326531627806502,
+        5144
+      ],
+      "state": "stable_read",
+      "fd_or_map_after": false
+    }
+  ],
+  "process_before": {
+    "states": {
+      "S": 18,
+      "Z": 1347,
+      "R": 2
+    },
+    "active": [
+      {
+        "pid": 1,
+        "name": "tail",
+        "rss": "868 kB",
+        "anon": "120 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 2,
+        "name": "caas-prefix-tra",
+        "rss": "248 kB",
+        "anon": "52 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 199,
+        "name": "dockerd",
+        "rss": "41304 kB",
+        "anon": "15632 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 249,
+        "name": "containerd",
+        "rss": "22160 kB",
+        "anon": "8964 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 514,
+        "name": "codex",
+        "rss": "39440 kB",
+        "anon": "16208 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 381902,
+        "name": "ld-musl-x86_64.",
+        "rss": "27680 kB",
+        "anon": "1948 kB",
+        "shmem": "25728 kB"
+      },
+      {
+        "pid": 381903,
+        "name": "ld-musl-x86_64.",
+        "rss": "20168 kB",
+        "anon": "2224 kB",
+        "shmem": "17940 kB"
+      },
+      {
+        "pid": 381904,
+        "name": "ld-musl-x86_64.",
+        "rss": "7492 kB",
+        "anon": "2028 kB",
+        "shmem": "5460 kB"
+      },
+      {
+        "pid": 381906,
+        "name": "ld-musl-x86_64.",
+        "rss": "9476 kB",
+        "anon": "2020 kB",
+        "shmem": "7452 kB"
+      },
+      {
+        "pid": 381907,
+        "name": "ld-musl-x86_64.",
+        "rss": "8036 kB",
+        "anon": "2328 kB",
+        "shmem": "5704 kB"
+      },
+      {
+        "pid": 381908,
+        "name": "ld-musl-x86_64.",
+        "rss": "7240 kB",
+        "anon": "2304 kB",
+        "shmem": "4932 kB"
+      },
+      {
+        "pid": 613468,
+        "name": "bash",
+        "rss": "1876 kB",
+        "anon": "336 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613471,
+        "name": "python3",
+        "rss": "10376 kB",
+        "anon": "5948 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613494,
+        "name": "python",
+        "rss": "14084 kB",
+        "anon": "8784 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613497,
+        "name": "uv",
+        "rss": "26168 kB",
+        "anon": "5724 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613500,
+        "name": "polisyos-tools",
+        "rss": "71384 kB",
+        "anon": "65224 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614047,
+        "name": "uv",
+        "rss": "43076 kB",
+        "anon": "14568 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614054,
+        "name": "python3",
+        "rss": "765124 kB",
+        "anon": "579096 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614108,
+        "name": "bash",
+        "rss": "1844 kB",
+        "anon": "308 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614111,
+        "name": "python3",
+        "rss": "10792 kB",
+        "anon": "6400 kB",
+        "shmem": "0 kB"
+      }
+    ],
+    "errors": [
+      {
+        "pid": 199,
+        "errno": 13
+      },
+      {
+        "pid": 249,
+        "errno": 13
+      }
+    ]
+  },
+  "process_after": {
+    "states": {
+      "S": 18,
+      "Z": 1347,
+      "R": 2
+    },
+    "active": [
+      {
+        "pid": 1,
+        "name": "tail",
+        "rss": "868 kB",
+        "anon": "120 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 2,
+        "name": "caas-prefix-tra",
+        "rss": "248 kB",
+        "anon": "52 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 199,
+        "name": "dockerd",
+        "rss": "41304 kB",
+        "anon": "15632 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 249,
+        "name": "containerd",
+        "rss": "22160 kB",
+        "anon": "8964 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 514,
+        "name": "codex",
+        "rss": "39464 kB",
+        "anon": "16232 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 381902,
+        "name": "ld-musl-x86_64.",
+        "rss": "27680 kB",
+        "anon": "1948 kB",
+        "shmem": "25728 kB"
+      },
+      {
+        "pid": 381903,
+        "name": "ld-musl-x86_64.",
+        "rss": "20168 kB",
+        "anon": "2224 kB",
+        "shmem": "17940 kB"
+      },
+      {
+        "pid": 381904,
+        "name": "ld-musl-x86_64.",
+        "rss": "7492 kB",
+        "anon": "2028 kB",
+        "shmem": "5460 kB"
+      },
+      {
+        "pid": 381906,
+        "name": "ld-musl-x86_64.",
+        "rss": "9476 kB",
+        "anon": "2020 kB",
+        "shmem": "7452 kB"
+      },
+      {
+        "pid": 381907,
+        "name": "ld-musl-x86_64.",
+        "rss": "8036 kB",
+        "anon": "2328 kB",
+        "shmem": "5704 kB"
+      },
+      {
+        "pid": 381908,
+        "name": "ld-musl-x86_64.",
+        "rss": "7240 kB",
+        "anon": "2304 kB",
+        "shmem": "4932 kB"
+      },
+      {
+        "pid": 613468,
+        "name": "bash",
+        "rss": "1876 kB",
+        "anon": "336 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613471,
+        "name": "python3",
+        "rss": "10376 kB",
+        "anon": "5948 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613494,
+        "name": "python",
+        "rss": "14084 kB",
+        "anon": "8784 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613497,
+        "name": "uv",
+        "rss": "26168 kB",
+        "anon": "5724 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 613500,
+        "name": "polisyos-tools",
+        "rss": "71324 kB",
+        "anon": "65224 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614047,
+        "name": "uv",
+        "rss": "43056 kB",
+        "anon": "14568 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614054,
+        "name": "python3",
+        "rss": "765124 kB",
+        "anon": "579096 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614108,
+        "name": "bash",
+        "rss": "1844 kB",
+        "anon": "308 kB",
+        "shmem": "0 kB"
+      },
+      {
+        "pid": 614111,
+        "name": "python3",
+        "rss": "11908 kB",
+        "anon": "7468 kB",
+        "shmem": "0 kB"
+      }
+    ],
+    "errors": [
+      {
+        "pid": 199,
+        "errno": 13
+      },
+      {
+        "pid": 249,
+        "errno": 13
+      }
+    ]
+  },
+  "errors": [],
+  "summary": {
+    "candidate_count": 64,
+    "stable_inactive_candidates": 64,
+    "allocated_bytes": 268632064,
+    "allocated_zero_page_bytes": 228196352
+  }
+}

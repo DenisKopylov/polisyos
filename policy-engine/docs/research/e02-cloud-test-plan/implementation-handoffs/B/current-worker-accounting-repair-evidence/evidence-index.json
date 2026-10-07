@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "scope": "Complete moderate native/removal outputs and concrete real filesystem records. No pytest-current aliases or source dumps.",
+  "artifact_count": 29,
+  "artifact_bytes": 397115,
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a0/actual-worker-budget.json",
+      "bytes": 2635,
+      "sha256": "adf1ca70d37b0cd4f79666c2b535043f36e20e88183cd13ab7f919d69690a478"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a0/physical-provider-work.jsonl",
+      "bytes": 727,
+      "sha256": "4fed664616f2c1fda9f44634929c43e663aac6effd86a5ad12b6ab666a0ab5a7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a1/actual-worker-budget.json",
+      "bytes": 2809,
+      "sha256": "3870c0dcf28f5d837fd3969a22c4e5cf32d641fc3c3e0740f82d2253c2458c13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a1/physical-provider-work.jsonl",
+      "bytes": 4058,
+      "sha256": "d67a8b586f5c2ccc569a990aee7f606484bd38b7446637810d4726306402753e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a10/physical-provider-work.jsonl",
+      "bytes": 1528,
+      "sha256": "4c3a27a80a307eb64960f44c2efa212fe4cd5d44c7a2a64068d01cce216d0264"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a11/physical-provider-work.jsonl",
+      "bytes": 8190,
+      "sha256": "99fdddf2e43e271577c2fe25ada10003932add013878eeb06c192d16ed824c38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a2/actual-worker-budget.json",
+      "bytes": 6034,
+      "sha256": "d103609fe20ebc6b9023d6726a0a6ad0938b61c10da07c69e28bbede075274bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a2/physical-provider-work.jsonl",
+      "bytes": 1454,
+      "sha256": "967c39c2919de9350354138a573d50ea47cef880572907192faffb9e4c54a77d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a3/actual-worker-budget.json",
+      "bytes": 8793,
+      "sha256": "2378b8a0d9deb4e6716d68c7ead9182a62256c2f2f83dd4ed97022d6868a68d1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a3/physical-provider-work.jsonl",
+      "bytes": 8116,
+      "sha256": "97dad80e6cae46f4ca3ee8bf3b71213a5724096416e19d60d33b5458e6345efa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a6/actual-worker-budget.json",
+      "bytes": 942,
+      "sha256": "fdc6ce516f1709a0c2904f5d4f404a4946f1b9ac685cb68b49d1766085ae8cd5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/filesystem/test_actual_worker_preserves_a7/actual-worker-budget.json",
+      "bytes": 1038,
+      "sha256": "2a3cb148922b04cbd6851b3bf912d69878004389cff18fc84905aeafbbe2611e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.txt",
+      "bytes": 137301,
+      "sha256": "6a9151b4e7a43cfa4d28126738d748f6a358f9ef5ece734daa4f5e53951b7d74"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.xml",
+      "bytes": 2182,
+      "sha256": "7a62a7ca067bd5aed4de7bddd6d904d1adef617d9d4e8c23b2e06998a87314f5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/wrapper.json",
+      "bytes": 3431,
+      "sha256": "1f97384bcbadf33981be9118b8d8cd0e20b6166c47f6f0bc8a6cf6b86fb91468"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/removal.source.txt",
+      "bytes": 3153,
+      "sha256": "74bbfc17cc4dd575b220904b76af9908fec88bf4b158cee7402c3ceed30e2d05"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/filesystem/test_actual_worker_preserves_a0/physical-provider-work.jsonl",
+      "bytes": 1454,
+      "sha256": "967c39c2919de9350354138a573d50ea47cef880572907192faffb9e4c54a77d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/filesystem/test_actual_worker_preserves_a1/physical-provider-work.jsonl",
+      "bytes": 8116,
+      "sha256": "e252fa42ed67fa9dda51c62f54cdd7a4b2db0f56dedfed4986da84372e6c2419"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.txt",
+      "bytes": 54870,
+      "sha256": "07fb92d9def8e9870624c80794a0544e049fef5ead81752da5ecb5bef285ea16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.xml",
+      "bytes": 31056,
+      "sha256": "9deafbbfadfcd0d8642f0a04c79d330a82675532c174dd085ce5508d18a647b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/wrapper.json",
+      "bytes": 3066,
+      "sha256": "ca8bde6bc1031f418e0c5ea5217007f90357f1d615a09329eda12758488222da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a0/actual-worker-budget.json",
+      "bytes": 2635,
+      "sha256": "678dfc5b9dadc0daf767a6775344dbc41df1a19d4c62dc389383f3f7b00452cd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a0/physical-provider-work.jsonl",
+      "bytes": 727,
+      "sha256": "4fed664616f2c1fda9f44634929c43e663aac6effd86a5ad12b6ab666a0ab5a7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a1/actual-worker-budget.json",
+      "bytes": 2809,
+      "sha256": "8971f4a9e7e4fc04aa3c6712bfde020a8ee7802bb56a3c995d022447a1ade3a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/filesystem/test_actual_worker_preserves_a1/physical-provider-work.jsonl",
+      "bytes": 4058,
+      "sha256": "f18941251306431b04b136e4d335f64c7f13e8885ab6ee1db4cd96a4754dbd88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.txt",
+      "bytes": 57283,
+      "sha256": "e218c8ec3181ad2a09ba4170a761f831d1914bec4d92f8eb2d5dd9aef3a523bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.xml",
+      "bytes": 31390,
+      "sha256": "b99053406197f80c546182da668802575ba9d9bdf9e9248aad43f93ef985584e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/wrapper.json",
+      "bytes": 3083,
+      "sha256": "2425510fe7e801b04f19e5b405138b95cb890d06622a30a1c790b710c2efa9b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/run-native.source.txt",
+      "bytes": 4177,
+      "sha256": "9ff2f665146389f9693e808f235280694d0a15ee24c2054d78f05df4695143e2"
+    }
+  ]
+}

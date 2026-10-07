@@ -1,0 +1,33 @@
+{
+  "target_sha": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+  "target_tree": "b669fc934ab8515baba8b64490cfde892c1560f5",
+  "delta_base_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "complete_delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/settlement.py",
+    "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+  ],
+  "reviewer": "RUN independent of ADAPTER mechanism author; no canonical production edits",
+  "verdict": "NONBLOCKING_SOURCE_REVIEW_AND_BOUNDED_7_CASE_NATIVE_PASS",
+  "read_scope": "Complete four production-file delta, changed author test, two README deltas and release fragment at exact target; surrounding Traced readiness/settlement/receiver paths and initialized lower ledger abort/retain contracts inspected. This is the complete eight-path delta, not a source-token sample.",
+  "observations": [
+    "Actual configured Cache emitter owns an opaque identity registration before dispatch/join; every terminal receiver claim rechecks registered scope/request/key/producer and receiver attempts/derived role. No response field, request kwarg, bool, serialized object or exception category grants no-dispatch authority.",
+    "The retained physical flight records actual completion/settlement/error before reusable-emission admission. Direct canonical Cache composition receives the same Core physical completion callback; a joined logical receiver may abort only its own undispatched intent.",
+    "Constructor-bound Traced instance reports preflight before readiness/argument work and delegated immediately before the real delegate call on generate/invoke/ainvoke. Readiness refusal preserves the old pending error/response/known receipt without manufacturing a new monetary event from that response. Foreign entered providers retain unknown unless actual completion evidence exists.",
+    "Per-reservation unknown/audit ownership replaces the old global nonempty-map proxy when retiring an undispatched intent; unrelated physical pending work cannot justify retaining a fictitious joined monetary event.",
+    "Three author lost-ACK controls now arm actual constructor-owned settlement and actual replace/directory-fsync syscalls; their old original-middleware monkeypatch failures remain historical premise-not-established evidence at current-LLM-a2-consumer-failure-independent-review.json@79094b7f05c88c0a494b295cd905594ca4cce8f4. No author runtime acceptance is inferred here."
+  ],
+  "P40": "Same physical-flight/logical receiver completion identity class, widened quantity plus exact Traced entry boundary. No per-exception zero-cost rule or ladder patch accepted.",
+  "source_design_limitations": [
+    "In-process configured-emitter membership is not external institutional or invoice authority; registrations are deliberately nonserializable.",
+    "Canonical actual Cache and Traced instances are supported. Dynamic foreign wrappers/providers require their own entered/completed-effect contract; no constructor-compatible blanket law is claimed.",
+    "Native known .02 is explicitly reported synthetic provider fixture data; actual filesystem operations and internal ledger effect are measured, not real remote vendor billing.",
+    "No task/process crash, power-loss or full production dataset replay occurred in this slice; all seven new cases ran once on exact b138. Existing seventeen audit cases and previous raw failures remain unmodified."
+  ],
+  "author_test_metadata_boundary": "The b138 author unknown-control state.spent[key] sparse-dictionary fixture assertion was subsequently reported by its author. This reviewer does not rewrite or rerun that author result; the independent unknown case asserts original amount=None, no receipt, and one original pending physical record with its exact positive reserve."
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:independent-completion-consumer",
+  "revision": 1,
+  "updated_at": "2026-10-06T20:44:39.079466Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:454720:ledger.json",
+    "pid": 454720
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:454720:ledger.json",
+        "pid": 454720
+      },
+      "committed_at": "2026-10-06T20:44:39.076525Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:454720:ledger.json",
+        "pid": 454720
+      },
+      "committed_at": "2026-10-06T20:44:39.079458Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {
+      "run": "0.00004"
+    }
+  },
+  "spend_receipts": {},
+  "completion_obligations": {
+    "llm-producer:86f93fc53d0f4942ac524215dab5fa14": {
+      "obligation_id": "llm-producer:86f93fc53d0f4942ac524215dab5fa14",
+      "event_payload": {
+        "event_id": "llm-producer:86f93fc53d0f4942ac524215dab5fa14",
+        "kind": "provider_intent",
+        "amount": null,
+        "request_digest": "sha256:6920c40e7bba157c5c1cce732366fcd7970265a9d32b7c88f1b55b23c5bffaf0"
+      },
+      "event_digest": "sha256:c12479d0cee0c076ea40cd54999f29b261cfc246501ef92172ec2aab7e13febf",
+      "run_id": "independent-completion-run",
+      "owner_epoch": "454720:645382b0cc1046ad88940f6b56a36e88",
+      "budget_keys": [
+        "run"
+      ],
+      "reserved_amounts": {
+        "run": "0.00004"
+      },
+      "phase": "provider_in_flight",
+      "known_receipt_ids": []
+    }
+  }
+}

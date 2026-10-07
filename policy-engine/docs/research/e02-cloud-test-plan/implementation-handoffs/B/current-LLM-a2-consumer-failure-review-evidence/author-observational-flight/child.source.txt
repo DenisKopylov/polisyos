@@ -1,0 +1,47 @@
+import hashlib, json, os, subprocess, sys
+from pathlib import Path
+import pytest
+root=Path(os.environ["E02_B66_TARGET_ROOT"])
+sha=os.environ["E02_B66_TARGET_SHA"]
+import asyncio
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+observed_owners=[]
+actual_init=LLMBudgetEnforcer.__init__
+def observe_init(self, *args, **kwargs):
+    actual_init(self,*args,**kwargs)
+    observed_owners.append(self)
+LLMBudgetEnforcer.__init__=observe_init
+actual_gather=asyncio.gather
+def observe_gather(*args,**kwargs):
+    future=actual_gather(*args,**kwargs)
+    if kwargs.get("return_exceptions"):
+        def recorded(done):
+            if not done.cancelled():
+                try:
+                    results=done.result()
+                    print("E02_ACTUAL_FLIGHT_RESULTS "+json.dumps([{"type":type(value).__name__,"message":str(value),"event":repr(getattr(value,"event",None)),"response":repr(getattr(value,"response",None))} for value in results]),flush=True)
+                except BaseException as error:
+                    print("E02_DIAGNOSTIC_CALLBACK_ERROR "+repr(error),flush=True)
+        future.add_done_callback(recorded)
+    return future
+asyncio.gather=observe_gather
+exit_code=pytest.main(sys.argv[1:])
+for owner in observed_owners:
+    print("E02_ACTUAL_FLIGHT_OWNER "+json.dumps({"state":owner.budget_state.model_dump(mode="json"),"unknown_events":[{"event":repr(event),"reserved":{key:str(value) for key,value in reservation.reserved_amounts.items()},"attempt_id":reservation.attempt_id} for event,reservation in owner._unknown_settlements.values()],"persisted":[record.model_dump(mode="json") for record in owner._budget_middleware.list_completion_obligations_safe(owner._budget_keys)],"gateway_calls":owner._client._client._client.calls,"cache_size":owner._client._client._cache.size},default=str),flush=True)
+rows=[]
+for name,module in sorted(tuple(sys.modules.items())):
+    if not name.startswith("polisyos"):
+        continue
+    filename=getattr(module,"__file__",None)
+    if not filename:
+        continue
+    path=Path(filename).resolve()
+    if not path.is_file():
+        continue
+    data=path.read_bytes()
+    assert path.is_relative_to(root/"policy-engine/src"),(name,str(path))
+    expected=subprocess.check_output(["git","-C",str(root),"show",f"{sha}:{path.relative_to(root)}"])
+    assert data==expected,(name,str(path))
+    rows.append({"module":name,"path":str(path),"sha256":hashlib.sha256(data).hexdigest(),"candidate_git_byte_match":True})
+Path(os.environ["E02_B65_CONTEXT"]).write_text(json.dumps({"source_sha":sha,"python_version":sys.version,"pytest_version":pytest.__version__,"origins":rows,"boundary":"File-backed loaded concrete polisyos modules at pytest.main return; no universal import or resource readset claim."},indent=2)+"\n")
+sys.exit(exit_code)

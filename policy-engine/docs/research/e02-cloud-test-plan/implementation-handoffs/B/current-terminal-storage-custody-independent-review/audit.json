@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.read_only_storage_receipt_audit.v1",
+  "target_sha": "95b73332091f593a5f2698fc7908be81e3f36aaf",
+  "target_tree": "1b2e2de6b8165854d50c15d285b6b1f7bb187089",
+  "execution_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "verdict": "ACCEPT_BOUNDED_CUSTODY_WITH_CURRENT_DEPENDENCY_APPEND",
+  "checks": "Every18 declared committed companion, every29 source-machine custody artifact, every9 preserved pair/two ledger states, all8 wrapper/profile identities and own/peer native counts checked. No raw copies, source/runtime/gate invocation or deletion.",
+  "committed_companion_count": 18,
+  "committed_companion_bytes": 265762,
+  "source_machine_artifact_count": 29,
+  "preserved_original_path_count": 9,
+  "preserved_bytes": 637116324,
+  "ledger_record_count": 18,
+  "wrapper_profiles": [
+    {
+      "gate": "terminal-final-B-cohort.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-all-changed-format.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-all-changed-ruff.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-architecture.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-parity-uncapped.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-production-invocation.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-runtime-api.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    },
+    {
+      "gate": "terminal-final-verify-uncapped.json",
+      "wrapper_command_profile_match": true,
+      "state": "EXECUTED",
+      "exit_code": 1,
+      "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+      "numeric_cap_absence_is_declared_original_profile": true
+    }
+  ],
+  "native_counts": {
+    "cases": 3578,
+    "PASS": 2177,
+    "FAIL": 85,
+    "ERROR": 1314,
+    "SKIP": 2,
+    "XFAIL": 0,
+    "UNRUN": 0
+  },
+  "peer_parser_check_count": 27,
+  "peer_partition_receipt": {
+    "commit": "7c97faeb8149b52237c7cc64a5ab93e1f4af5791",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal-final-case-partition.json",
+    "bytes": 30683,
+    "sha256": "6a71b2bb561f80aa99df58e1d96ebd333b29360e1e826345f778db139be31b33"
+  },
+  "own_native_audit_receipt": {
+    "commit": "0bd0f9d201d513538eb802640be47939dbad16c7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-terminal-predecessor-consumer-audit.json",
+    "bytes": 18030,
+    "sha256": "023037a2fa4f1aeeedbeed90d46ec8498a1b2feca73e9c116fcb37aae1c380b9"
+  },
+  "root_receipt_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-custody.json",
+    "bytes": 5374,
+    "sha256": "ff609d6090e0cd6a477b9f67f8a799b1505743627723711a1db244316ddc67fe"
+  },
+  "custody_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/terminal456-storage-evidence/custody.json",
+    "bytes": 10761,
+    "sha256": "9d0800f5bbf85da3ac70948200320f990d9b2770eff3e901c6514d8cb0951a70"
+  },
+  "qualifications_and_next_owner": [
+    {
+      "kind": "current_qualification",
+      "detail": "Current alias/preserved byte custody verified; past copy/fsync/order observations remain ledger-reported source-machine events, not independently replayed execution or power-loss durability."
+    },
+    {
+      "kind": "append_published_dependency",
+      "detail": "At95 native_ownership_and_error_audit was truthfully pending (own0bd and peer7c committed later). Before final closeout append exact own0bd receipt and peer7c receipt pins; independent_receipts.partition currently names parser3cd implementation, which contains no canonical partition receipt. partition_instrument3cd itself is correct."
+    },
+    {
+      "kind": "bounded_availability",
+      "detail": "Large original raw verified on source VM only. Receiver availability remains not_established; /tmp tmpfs is session custody, not filesystem durability. Historical456 FAIL/ERROR do not carry successor closure."
+    }
+  ],
+  "input_boundary": "Immutable Git receipts/companions and current literal source-machine file bytes; no claim of transitive runtime read-set, fixture execution or receiver access."
+}

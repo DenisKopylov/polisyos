@@ -1,0 +1,24 @@
+{
+  "target_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "run",
+    "--no-sync",
+    "python",
+    "tools/devx/architecture/guardrails.py",
+    "sync",
+    "--skip-deep-import-baseline"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "wall_s": 12.442381999993813,
+  "exit_code": 0,
+  "full_stdout_sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+  "output": "Architecture guardrail inventories updated.\n",
+  "input_profile": {
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "git_status_after": " M policy-engine/docs/reference/generated-artifacts.md\n"
+}

@@ -1,0 +1,166 @@
+{
+  "schema": "policyos.e02.llm-affected-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "test_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+  "test_sha256": "d374fd3b01165efd691fb8620e75da5a063c90c59e7645825cfe6b2e25a292ea",
+  "whole_test_input": {
+    "source_sha": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+    "whole_files": [
+      "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+    ]
+  },
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-workers-native-4b368/child.source.txt",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/dev/shm/e02-B-workers-native-4b368/fixtures",
+    "--junitxml",
+    "/dev/shm/e02-B-workers-native-4b368/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+    "E02_B65_CONTEXT": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added.",
+  "actual_exit": 1,
+  "wall_seconds": 19.92573846099549,
+  "max_rss_kib": 762392,
+  "source_head_before_after": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "test_head_before_after": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "actual_cases": [
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_raw_state_cannot_replace_or_join_actual_initialized_owner[raw-adversary]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_raw_state_cannot_replace_or_join_actual_initialized_owner[raw-translator]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_raw_state_cannot_replace_or_join_actual_initialized_owner[mixed-adversary]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_raw_state_cannot_replace_or_join_actual_initialized_owner[mixed-translator]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_raw_state_cannot_replace_or_join_actual_initialized_owner[mixed-same-state-adversary]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_raw_state_cannot_replace_or_join_actual_initialized_owner[mixed-same-state-translator]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_current_owner_read_is_required_after_worker_construction[missing-adversary]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_current_owner_read_is_required_after_worker_construction[missing-translator]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_current_owner_read_is_required_after_worker_construction[corrupt-adversary]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_current_owner_read_is_required_after_worker_construction[corrupt-translator]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_ledgerless_middleware_cannot_claim_worker_accounting_owner[adversary]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_worker_accounting_admission_e02",
+      "name": "test_ledgerless_middleware_cannot_claim_worker_accounting_owner[translator]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_translator_falls_back_deterministically_without_gateway",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_translator_gateway_parses_think_prefixed_json",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_translator_surfaces_degraded_evidence_channels",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_translator_compliance_flags_all_anti_spin_invariants",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_constraint_critic_surfaces_budget_and_not_assessed_findings",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_scenario_adversary_fallback_and_execution",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.scientist.policy_design.test_phase_b_policy_workers",
+      "name": "test_scenario_adversary_gateway_parses_think_prefixed_json",
+      "outcome": "PASS"
+    }
+  ],
+  "outcomes": {
+    "PASS": 18,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-B-workers-native-4b368/native.txt",
+      "bytes": 2344,
+      "sha256": "71bd86ddc99ef5edd6395f5b7fad918b027faa84150de637506e0ac3c7e859d9"
+    },
+    {
+      "path": "/dev/shm/e02-B-workers-native-4b368/native.xml",
+      "bytes": 5618,
+      "sha256": "fcec9fb6a8947a676d51c55879ae32ab2f95648f640ca5775d7ebd839243a242"
+    },
+    {
+      "path": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+      "bytes": 1049048,
+      "sha256": "355b9ec4434484f399426c0a76162b7d739bd35d463d9723e5166286d5bfe216"
+    }
+  ],
+  "closure_ids": []
+}

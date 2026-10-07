@@ -1,0 +1,15 @@
+{
+  "scopes": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest",
+    "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-pytest"
+  ],
+  "elapsed_seconds": 34.50578448100714,
+  "files": 1074,
+  "logical_bytes": 6770221056,
+  "allocated_before": 6764806144,
+  "allocated_after": 951824384,
+  "failures": 0,
+  "byte_mismatches": 0,
+  "saved_physical_bytes": 5812981760,
+  "data_disposition": "Every fixture retains original bytes/path/inode/size; no deletion or move; no production/PG/code/env data touched."
+}

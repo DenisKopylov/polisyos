@@ -1,0 +1,374 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-cohort-partition-source-review",
+  "reviewer": "RUN writer",
+  "author": "ADAPTER writer",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "reviewed_source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+  "reviewed_tree_sha": "c62e48e50a505bd35fbf3b4e1a97383a561870fd",
+  "initial_source_sha": "f600d4cfeffabe36b7ecdaa86596383fcfaecaa4",
+  "initial_tree_sha": "db4127b27d133c5d5162232b19b2f26d70c99c1a",
+  "intermediate_source_sha": "c81c1f1087dc7aed1edc505116c9faadfda3010a",
+  "related_finding_ids": [],
+  "bundle_ids": [],
+  "closure_ids": [],
+  "formal_finding_closure": false,
+  "read_only_product_tests": true,
+  "runtime_verdict": "UNRUN_BY_THIS_REVIEWER",
+  "verdict": "NO_SOURCE_BLOCKER_WITH_DECLARED_PLAIN_PYTEST9_PROFILE_AND_SOURCE_CUSTODY_LIMITS",
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Complete initialparser541L/fullguide22293B/priorCMP277L source read, bothimmutable delta diffs read fully, pinned nativepytest9 source byte contracts inspected and same stdlib-only ASTliteraldiscriminator. No product/pytest collection/inventory/fullcohort parser invocation by this reviewer.",
+  "source_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+      "bytes": 23529,
+      "sha256": "2e1c4068ceeda898f5f7ec0fda9e30827ca19991743ee9d61ec761823426c507",
+      "source_sha": "f600d4cfeffabe36b7ecdaa86596383fcfaecaa4",
+      "git_blob": "576058d1073972830bd56a203e2d14c2e75762dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+      "bytes": 26216,
+      "sha256": "dd078fd28541f0a613785727a75893be24a2b728091e7f04dbc9f3bb14f187b0",
+      "source_sha": "c81c1f1087dc7aed1edc505116c9faadfda3010a",
+      "git_blob": "bfe725d72e32ed89b7bb99947487dad13d862c67"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+      "bytes": 27053,
+      "sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+      "source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "git_blob": "e091803f72a16130bd41f8f2c859151db7cf2b9f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-consumer-guide.json",
+      "bytes": 22293,
+      "sha256": "a98693e2dfeedc16f4ca34624c0ace0411d6c86cc7ed4cdbf96a1ad6c3226f13",
+      "source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "git_blob": "f7550be5c9b82ed16b3b2bbea25c08e2c4efe5bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+      "bytes": 20488,
+      "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+      "source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "git_blob": "1359fec9c8f652a76ad9129636b5fb90aef45417"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory-source-review.json",
+      "bytes": 20574,
+      "sha256": "a6d09fbba039c52502d7b9e59abd40a1fbb4bfd02028d66cbe1630c846663d3c",
+      "source_sha": "8d01c7b07976ae1b500c8c07e73a120fdebb82dd",
+      "git_blob": "89733e98510811ab3995e4277fcc4c7e915d0517"
+    }
+  ],
+  "pytest_source_bindings": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/junitxml.py",
+      "distribution": "pytest",
+      "version": "9.0.2",
+      "bytes": 25522,
+      "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+      "read_kind": "source bytes only; no import or runtime invocation",
+      "used_for": "mangle_test_address, bin_xml_escape, NodeReporter, LogXML per-phase and collection emission; duplicate call-failure/teardown-error XML representations",
+      "observed_bytes_match": true,
+      "inspection_role": "Relevant producer source contracts read; complete backing file bytes hashed. No pytest import, hook, test or collection invocation."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/runner.py",
+      "distribution": "pytest",
+      "version": "9.0.2",
+      "bytes": 19785,
+      "sha256": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4",
+      "read_kind": "source bytes only; no import or runtime invocation",
+      "used_for": "actual setup/call/teardown protocol and final session fixture teardown",
+      "observed_bytes_match": true,
+      "inspection_role": "Relevant producer source contracts read; complete backing file bytes hashed. No pytest import, hook, test or collection invocation."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/skipping.py",
+      "distribution": "pytest",
+      "version": "9.0.2",
+      "bytes": 10810,
+      "sha256": "5824731d5a311780f418eac9a094e7cf1fd63a82d3b0cd5e9e5498cc6ecd127c",
+      "read_kind": "source bytes only; no import or runtime invocation",
+      "used_for": "evaluated xfail stash, wasxfail, nonstrict XPASS and strict XPASS raw outcomes",
+      "observed_bytes_match": true,
+      "inspection_role": "Relevant producer source contracts read; complete backing file bytes hashed. No pytest import, hook, test or collection invocation."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/main.py",
+      "distribution": "pytest",
+      "version": "9.0.2",
+      "bytes": 42435,
+      "sha256": "7ca2b20cc41fbfc2761bcb231eecb26967d553651035c40000f44d70e174b693",
+      "read_kind": "source bytes only; no import or runtime invocation",
+      "used_for": "wrap_session hook argument versus returned process status; Session.testsfailed counts failed reports, including collection",
+      "observed_bytes_match": true,
+      "inspection_role": "Relevant producer source contracts read; complete backing file bytes hashed. No pytest import, hook, test or collection invocation."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/terminal.py",
+      "distribution": "pytest",
+      "version": "9.0.2",
+      "bytes": 64444,
+      "sha256": "e2fe406f930e795d09026746e8209a9a7142ac704fc0a0200af9e4f74d2104d0",
+      "read_kind": "source bytes only; no import or runtime invocation",
+      "used_for": "sessionfinish wrapper emits summary after inner hooks; terminal phase counters are not distinct-case counters",
+      "observed_bytes_match": true,
+      "inspection_role": "Relevant producer source contracts read; complete backing file bytes hashed. No pytest import, hook, test or collection invocation."
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/_pytest/hookspec.py",
+      "distribution": "pytest",
+      "version": "9.0.2",
+      "bytes": 43019,
+      "sha256": "bb1c4432b56a49fe4fe327308fb4c454e7df55666d1708548cdd392c5102ffc1",
+      "read_kind": "source bytes only; no import or runtime invocation",
+      "used_for": "pytest9 hook signatures and lifecycle declaration",
+      "observed_bytes_match": true,
+      "inspection_role": "Relevant producer source contracts read; complete backing file bytes hashed. No pytest import, hook, test or collection invocation."
+    }
+  ],
+  "complete_source_read": {
+    "initial_parser_lines": 541,
+    "final_source_read_by_complete_base_plus_delta": true,
+    "unchanged_functions_AST_reconciled": [
+      "_object",
+      "_objects",
+      "_input",
+      "_json_input",
+      "_phase",
+      "_case",
+      "_xml_key",
+      "_junit",
+      "_result_tag",
+      "_xml_agreement",
+      "_prefix",
+      "main"
+    ],
+    "changed_functions": [
+      "old _partition→dualfilegroups",
+      "old _xml_name→actualnative9literal",
+      "old _origins→nativeJUnitbackingprofile"
+    ]
+  },
+  "scope": "Interpretation source only. Root owns completedwave inventory/rawphase/JUnit/wrapper/stdout+source/environment/selectoradmission and actualpartition; this review cannot assert2253/6501 or any actualcase states merely from parentnumbers. Parserguide/hashes not behavioralcriterionauthority.",
+  "property": {
+    "statement": "Each uniquely admitted normalpytestcase gets one primary state from actual phase reports, with collector/JUnit/process/file-origin denominators preserved separately and explicit incomplete/ambiguous boundaries.",
+    "runtime_path": [
+      "completed observer inventory of realrootinvocation",
+      "wrapper/profile/fullselector/rawstdout/nativeJUnit inputs boundtogether",
+      "phasevector perunique nodeid andnativeXMLforward mapping",
+      "exclusive counts plusallcase/event/collector/XML/source-origin details writtenfreshignoredoutput"
+    ],
+    "proxy_divergence": "JUnit rows are notcasecount: one callfail+teardownerror yields2representations/oneERRORcase. Hookargument is notactualwait4. item.location definition is notitem.path collectionfile. Native9regex literal differs from nominalcorrectUnicodeastralrange; oldsourcehelper wrongly leftliteralnonBMP whileactualsourceescapes. Final exposesdualpaths andusesactualsource/hash.",
+    "negative_controls": [
+      "No realrootwave execution/collection or actualpartition invoked to create reviewevidence.",
+      "Exact initial/source regex literals fourstdinputs: old2agree2differ→final4agree0differ; originalnegative packets retained.",
+      "No author/guide/nativecase counts promoted as independently observed currentcriterionclosure.",
+      "Unsupported repeated/xdist/subtest/unknown/custom profiles preserveevents/UNRUN/unresolved insteadlastrow/allPASS."
+    ]
+  },
+  "review_matrix": [
+    {
+      "property": "Exclusive native case denominator",
+      "refs": [
+        "_case",
+        "_partition"
+      ],
+      "conclusion": "Complete ordered session items retained in original inventory; unique nodeid index creates one case row per admitted identity. Duplicate nodeids set structural ambiguity and fail uniqueness binding; raw phase/event/item entries and duplicate counts retained, no last-attempt overwrite. Exclusive counts sum unique IDs.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "State precedence and incomplete attempts",
+      "refs": [
+        "_phase",
+        "_case"
+      ],
+      "conclusion": "Structural ambiguity first becomes UNRUN with all raw phase facts. For uniquely assigned normal profile: setup/teardown ERROR > callFAIL > incompleteUNRUN > ordinarySKIP > evaluatedXFAIL > all-raw-passedPASS. Known ERROR/FAIL persists if later phase missing. Completed requires one setup/teardown and call iff setup passed; setupfailed/skipped legitimately lacks call.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Expected/unexpected success classification",
+      "refs": [
+        "_phase",
+        "_case",
+        "_result_tag",
+        "_pytest/skipping.py:277",
+        "current-cohort-inventory.py:394"
+      ],
+      "conclusion": "Actual observer evaluated pytest9 state/classification and raw reports drive result. Nonstrict XPASS remains rawPASS with qualifier; strictXPASS is rawfailed call→FAIL. Actual wasxfail governs native JUnit skipped types. No marker-name or error-text guessing. Contradictory/custom profiles remain outside claimed native profile.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Native JUnit mapping and duplicate representations",
+      "refs": [
+        "_xml_key",
+        "_xml_name",
+        "_junit",
+        "_xml_agreement",
+        "_pytest/junitxml.py:116",
+        "_pytest/junitxml.py:447",
+        "_pytest/junitxml.py:531"
+      ],
+      "conclusion": "Exact forward nodeid address transform preserves first bracket/parameter suffix and class segments, explicit argv prefix, native visual XML escaping. Exact keys detect collisions; all same unambiguouscase XML indexes retained. Native callfailure+teardownerror yields two XML representations but onecaseERROR with callFAILsecondary; Counter of result elements plus expected row count reconciles everycase. No rows→PASS inference.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Collector and synthetic XML separation",
+      "refs": [
+        "_junit",
+        "_xml_agreement",
+        "_partition",
+        "_pytest/junitxml.py:623"
+      ],
+      "conclusion": "Collection reports are separate events, not plannedcase denominator. Failed/skipped collectors map to native error/skipped rows separately; synthetic pytest/internal is sessionevent. Missing selectors/cardinality unknown; orphans/unmapped/ambiguousrows retained and fail bindings. No cases fabricated for uncollected files.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Collection file versus defining source path",
+      "refs": [
+        "f600→c81 diff",
+        "_partition"
+      ],
+      "conclusion": "Initial definitionlocation[0] grouping was ambiguously named actualitemfiles. Final computes independentcollection item.path anddefinition location[0] states/types/denominators, allpaircounts+complete mismatchcaseindices; aggregategroup totals sum everycase without110/inputfilename assumption. Lexical root-relative normalization is explicitly not physical inode/symlink/read-set proof.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Actual process exit and hook-time source boundary",
+      "refs": [
+        "_partition",
+        "_origins",
+        "_pytest/main.py:349",
+        "current-cohort-inventory.py:451"
+      ],
+      "conclusion": "Observer sessionfinish argument retained alongside wrapper actualwait4 exit withmatchflag; hook argument never substituted as finalprocessstatus. Module/backend origin census remains hooktime currentprocessfilebytes, not child/loaderreadset/finalization/resources. Origin mismatch rows stay visible; no full source purity/closure inference from parseCOMPLETE.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Frozen transport/source bindings and failclosed output",
+      "refs": [
+        "_partition",
+        "main"
+      ],
+      "conclusion": "Requires session_finished schema and plainprocess/versionannotation profile; exactsourcehead/tree wrapper/profile/selectors/start/finish, command/cwd/stdout+selector hash/list/nodeid/event/JUnit mapping bindings checked. COMPLETE denotes reconciled observedreport interpretation, not allPASS or criterionpermission. Ignoredfreshabsoluteinside-repo output usesO_EXCL/fsync; malformed/incomplete/cross-profile input cannot silently manufacture successfuloutput.",
+      "runtime": "UNRUN_BY_THIS_REVIEWER"
+    },
+    {
+      "property": "Native source regex parity",
+      "refs": [
+        "_xml_name",
+        "_origins",
+        "native_junit_source_profile"
+      ],
+      "conclusion": "Oldf600/c81 used normative astralregex differing pinned actualpytest9 PythonASTliteral. Direct stdlib literalcomparisonASCII/C0agree but twoastralexamplesdiffer; final3cd same executable4/4agree. Final additionally requires exactd711 observed _pytest.junitxml backing hash+stable-read beforeCOMPLETE. This is source-level semantic parity witness, not actualrootJUnitparse or pytesttest.",
+      "runtime": "STDLIB_SOURCE_LITERAL_ONLY"
+    }
+  ],
+  "checks": [
+    {
+      "kind": "independent_manual_source_review",
+      "target_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+      "outcome": "PASS",
+      "qualification": "SOURCE ONLY on declaredprofile. Actualcomplete raw rootinputs+partition remain separate root/ADAPTER custody."
+    },
+    {
+      "kind": "unchanged_stdlib_AST_literal_discriminator",
+      "command_argv": [
+        "python3",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+        "--source-sha",
+        "3cd679570eb1b0b83a0f7f4e3ffe599282815af3"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "environment": "stdlib source inspection only; no import of pytest or parser/product module",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+          "bytes": 2579,
+          "sha256": "a544fc4259261848775fd10ec0becd762ba93843132725546a123fa68e4d90af"
+        },
+        "parser": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+          "bytes": 27053,
+          "sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+          "source_sha": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+          "git_blob": "e091803f72a16130bd41f8f2c859151db7cf2b9f"
+        },
+        "actualpytestjunit_source": {
+          "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/junitxml.py",
+          "bytes": 25522,
+          "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a"
+        }
+      },
+      "outcome": "4SOURCE_COMPARISONS_EQUAL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-3cd.json",
+        "bytes": 1860,
+        "sha256": "cd1b9a26fe96190d6b5c6ed48d539d383da2adc24691f28d9dd7cc9d16e1e091"
+      },
+      "historical_controls": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-f600.json",
+          "bytes": 1863,
+          "sha256": "da957083764fa1ac2a30b3676603d93c8f7b07cecbf83b4f1838c074e6f7fb77"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-c81.json",
+          "bytes": 1863,
+          "sha256": "acf394f3bfda9124b67d1f38c4d6b2ca2af84a03568a08031701bff911050d55"
+        }
+      ]
+    },
+    {
+      "kind": "actualroot_inventory_junit_partition_tests_collection",
+      "outcome": "UNRUN_BY_THIS_REVIEWER",
+      "reason": "Source-only task; root/ADAPTER own existing realcompletedwave and actualparser invocation. No newtestwave or collection."
+    }
+  ],
+  "P37_qualification": "Native source/module literal identity and static derivation recomputed/reconciled, not a declaration of runtimeprofile adequacy or criterionpermission. Actualsource/input/wrapper/phasebindings belong to realrootparserinputs; source reviewdoesnotmakeunknowninputs empty.",
+  "P38_qualification": "Separate item/phase/collector/XML/definitioncollectionfile/processstatus/hookorigins for what measured. Exact nativeUnicode lexer semantics confirmed source-level; fourliteral examples are not fabricated testcases or actualrootcounts.",
+  "limitations_and_next_owner": [
+    "Root/ADAPTER must actually read completedfrozenwave fullinventory/JUnit/wrapper/profile/stdout/selectorinputs, publish exclusivetotal, allchecks/orphans/duplicates/unmatchedcase/eventscope. Thisreview hasno actualrootpartitionverdict.",
+    "Only plain unique normalnativepytest9.0.2 profile; rerun/subtest/xdist-each/customphase or identityrequiresphysicalattempt evidence; no genericarbitraryplugininterpretation.",
+    "Explicit argvprefix helper is limited to disclosed invocation/config. Any actualunmatched/customJUnitmapping orchangedsourceprofile failsbinding; no unseenoption/readsetclosure.",
+    "parse_state COMPLETE is evidence interpretation grade, notprocesssuccess/allPASS/sourcepurity/findingpermission. Keep actualwait4 andeachorigin mismatch/unknownseparate.",
+    "Hook-timefileback bytes/hash notactualloaderchildresources/service readset, finalization census or in-memory substitution proof.",
+    "No product/source/test edit, no otherhelpers/checkouts/nativewave, no findingsclosed or cloudfullproductioncriterionclaim."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+      "bytes": 2579,
+      "sha256": "a544fc4259261848775fd10ec0becd762ba93843132725546a123fa68e4d90af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-f600.json",
+      "bytes": 1863,
+      "sha256": "da957083764fa1ac2a30b3676603d93c8f7b07cecbf83b4f1838c074e6f7fb77"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-c81.json",
+      "bytes": 1863,
+      "sha256": "acf394f3bfda9124b67d1f38c4d6b2ca2af84a03568a08031701bff911050d55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-3cd.json",
+      "bytes": 1860,
+      "sha256": "cd1b9a26fe96190d6b5c6ed48d539d383da2adc24691f28d9dd7cc9d16e1e091"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-f600-c81.diff",
+      "bytes": 5658,
+      "sha256": "dea7534cf90f9656e20cf6252b81d61f67dd08c2637cb6cf1015ddd4cb80ead1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-c81-3cd.diff",
+      "bytes": 3065,
+      "sha256": "c40028b6ee8ab4b1ab388c253fd5ba4b3720ffbdf62f1ab72d670d14b6855068"
+    }
+  ]
+}

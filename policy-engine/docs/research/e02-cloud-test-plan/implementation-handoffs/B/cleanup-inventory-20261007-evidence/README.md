@@ -1,0 +1,7 @@
+This is a read-only metadata inventory, not a cleanup grant. Every listed path remains preserved. The 25 named fixture directories are candidates for later ownership/custody review only; no eligibility, consumer release or deletion is established. Mixed raw roots, unique logs/ledgers/CAS/backend data, registered worktrees and declared 194/PG/wheel inputs must remain retained.
+
+`inventory.json` contains all 602 exact selected path rows, individual namespace byte counts, skipped protected subtrees and purpose/uniqueness qualifications. `symlink-sharing.json` contains all 5,898 observed links and 27 equal-declared-target groups. `stdout.txt` is the complete literal metadata traversal output. No secret contents were read.
+
+These are interval observations. Parent/child rows overlap; hardlinks and symlinks share underlying files. Do not sum rows or namespace totals as globally unique physical storage or freeable space. Sizes marked incomplete exclude protected subtrees and non-followed link targets. The 25.5 MB detailed inode view remains in ignored scratch with exact hash; it is unnecessary for the preserved/noneligible decision and its portability is not established.
+
+The archived legacy inventory script is navigation only. Its historical nativeTrash sentence is superseded by the current prohibition on moves, deletion and Trash. This task ran no tests, gates, services or dependency setup.

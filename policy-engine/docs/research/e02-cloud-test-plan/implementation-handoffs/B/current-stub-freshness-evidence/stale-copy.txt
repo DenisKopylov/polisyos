@@ -1,0 +1,2 @@
+usage: stale_copy.py [-h] [--dry-run] [--verbose]
+stale_copy.py: error: unrecognized arguments: --check

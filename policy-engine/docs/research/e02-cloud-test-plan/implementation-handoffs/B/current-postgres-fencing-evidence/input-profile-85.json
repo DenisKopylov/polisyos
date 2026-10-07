@@ -1,0 +1,60 @@
+{
+  "head": "85f2417187396d40ef0a41e9d7f6651286f55754",
+  "tree": "db6c4b2ee718809b80fc77c78105ba1a057ccd27",
+  "clean": true,
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+      "bytes": 209996,
+      "git_blob": "e78a69642d69c21827bd73d688533ad40ca18295"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+      "bytes": 13613,
+      "git_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "sha256": "3dcdfcf21cc08a181c04073872efc3d8a32221e1dab5325d004990c032151f77",
+      "bytes": 16646,
+      "git_blob": "a9d229f0c74ef6831bc259e866aa2061f62ff8e6"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664,
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168"
+    }
+  ],
+  "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "target_distributions": [
+    {
+      "name": "psycopg",
+      "version": "3.3.2",
+      "path": "/tmp/e02-B38-pg-profile/psycopg-3.3.2.dist-info"
+    },
+    {
+      "name": "psycopg-binary",
+      "version": "3.3.2",
+      "path": "/tmp/e02-B38-pg-profile/psycopg_binary-3.3.2.dist-info"
+    }
+  ],
+  "dsn_environment": "E02_B38_POSTGRES_DSN; value omitted/private task fixture",
+  "metrics_port": "0",
+  "cpu_or_worker_quota": null,
+  "native_source_no_new_production_delta": ""
+}

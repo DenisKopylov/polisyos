@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.026" timestamp="2026-10-06T21:25:51.329618+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.test_compiled_preparation_consumer_oracle" name="test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]" time="0.527"><failure message="assert 0.0 == 17.144009055176273 ± 1.7e-05&#10;  &#10;  comparison failed&#10;  Obtained: 0.0&#10;  Expected: 17.144009055176273 ± 1.7e-05">tmp_path = PosixPath('/tmp/e02-B-reopened-compiled-plan-61c1037763cd/pytest/test_canonical_plan_cas_reopen0')
+mode = 'async'
+
+    @pytest.mark.parametrize("mode", ["sequential", "async", "auto", "compiled", "compiled-jit"])
+    def test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution(
+        tmp_path: Path, mode: str
+    ) -&gt; None:
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.foundry.methods.artifacts import (
+            CompiledChainPlan,
+            load_compiled_chain_plan,
+            store_compiled_chain_plan,
+        )
+    
+        registry, chain, producer, reducer = _ordering_owner()
+        state = _state()
+        with _body_observer() as calls:
+            assert chain.dag.edges == {}
+            plan = CompiledChainPlan.from_chain(chain)
+            cas = FileSystemCAS(tmp_path / "cas")
+            ref = store_compiled_chain_plan(cas, plan)
+            reopened = FileSystemCAS(tmp_path / "cas")
+            wire = reopened.get_bytes(ref)
+            assert wire == plan.to_canonical_bytes()
+            restored = load_compiled_chain_plan(reopened, ref, registry=registry)
+            assert calls == {"draw": 0, "reduce": 0}
+        assert tuple(restored.execution_order) == (producer.id, reducer.id)
+        assert restored.dag.edges == {}
+        assert restored.get_node(producer.id).static_params == producer.static_params
+        params = {producer.id: {"seed": 23}, reducer.id: {"offset": 0.75}}
+        observed_order = list(restored.execution_order)
+        if mode.startswith("compiled"):
+            executor = MethodCompiler(registry=registry, cache=CompilationCache()).compile_chain(
+                restored, state, jit=mode == "compiled-jit", infer_shapes=True
+            )
+            result = executor(state, params)
+        else:
+            from polisyos.foundry.methods.backends.chain_executor import execute_heterogeneous_chain
+            from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+            from polisyos.foundry.methods.backends.jax_runner import JaxRunner
+    
+            # The real JAX runner owns its compiler. Bind the same explicit registry
+            # used to restore this plan instead of relying on an unrelated singleton.
+            dispatcher = MethodDispatcher()
+            dispatcher.register_runner(JaxRunner(MethodCompiler(registry=registry)))
+            execution = execute_heterogeneous_chain(
+                restored,
+                state=state,
+                params_per_node=params,
+                registry=registry,
+                dispatcher=dispatcher,
+                executor_mode=mode,
+            )
+            observed_order = [node_id for node_id, _ in execution.node_results]
+            result = execution.final_state
+        result.total.block_until_ready()
+        expected_draws, expected_total = _oracle(state, 23, 0.5, 0.75)
+        (tmp_path / "reopened-plan-observations.json").write_text(
+            json.dumps(
+                {
+                    "mode": mode,
+                    "ref": ref.model_dump(mode="json"),
+                    "wire_sha256": hashlib.sha256(wire).hexdigest(),
+                    "execution_order": [str(value) for value in restored.execution_order],
+                    "actual_node_result_order": [str(value) for value in observed_order],
+                    "predecessors": {
+                        str(key): sorted(str(value) for value in values)
+                        for key, values in restored.dag.predecessors.items()
+                    },
+                    "data_flow_edge_count": len(restored.dag.edges),
+                    "seed": 23,
+                    "offset": 0.75,
+                    "draws": np.asarray(result.draws).tolist(),
+                    "total": float(result.total),
+                    "oracle_total": expected_total,
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+        np.testing.assert_allclose(np.asarray(result.draws), expected_draws, rtol=1e-6, atol=1e-7)
+&gt;       assert float(result.total) == pytest.approx(expected_total, rel=1e-6)
+E       assert 0.0 == 17.144009055176273 ± 1.7e-05
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: 17.144009055176273 ± 1.7e-05
+
+tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py:471: AssertionError</failure></testcase></testsuite></testsuites>

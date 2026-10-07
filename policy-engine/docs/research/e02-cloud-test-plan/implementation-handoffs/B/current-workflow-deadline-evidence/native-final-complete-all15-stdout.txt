@@ -1,0 +1,1889 @@
+.........................................F..FF..........F............... [ 23%]
+........................................................................ [ 46%]
+.......................................................................F [ 69%]
+FFFFF.FFFF..................................F........................... [ 92%]
+......................                                                   [100%]
+=================================== FAILURES ===================================
+____ TestParallelStateIsolation.test_parallel_nodes_get_independent_copies _____
+
+self = <engine.test_async_executor_hardening.TestParallelStateIsolation object at 0x7f2e18063d90>
+
+    @pytest.mark.asyncio
+    async def test_parallel_nodes_get_independent_copies(self):
+        """Parallel nodes should not mutate each other's state."""
+        mutations = {}
+    
+        class MutatingNode:
+            def __init__(self, name: str, nid: str):
+                self._name = name
+                self.spec = _node_spec(nid)
+    
+            def execute(self, ctx, state):
+                state.params[f"mutated_by_{self._name}"] = True
+                mutations[self._name] = dict(state.params)
+                return NodeOutcome(status="ok", state=state)
+    
+        node_a = MutatingNode("a", "test.a@1.0.0")
+        node_b = MutatingNode("b", "test.b@1.0.0")
+    
+        registry = _make_registry(
+            ("test.a@1.0.0", node_a),
+            ("test.b@1.0.0", node_b),
+        )
+        ctx = _make_ctx()
+        state = ExperimentState(run_id="iso-test")
+    
+        workflow = _make_workflow(
+            NodeInvocation(alias="a", node_id="test.a@1.0.0"),
+            NodeInvocation(alias="b", node_id="test.b@1.0.0"),
+        )
+    
+        executor = AsyncWorkflowExecutor(ctx, registry, max_parallelism=2)
+        await executor.execute(workflow, state)
+    
+        # Each node's mutations should be independent
+>       assert "mutated_by_a" in mutations["a"]
+                                 ^^^^^^^^^^^^^^
+E       KeyError: 'a'
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py:138: KeyError
+_______________ TestTierSavepoints.test_tier_rollback_on_failure _______________
+
+self = <engine.test_async_executor_hardening.TestTierSavepoints object at 0x7f2e17d94050>
+
+    @pytest.mark.asyncio
+    async def test_tier_rollback_on_failure(self):
+        """On fail_fast, state should revert to tier savepoint."""
+    
+        def mutating_ok(state):
+            state.params["tier1_done"] = True
+            return NodeOutcome(status="ok", state=state)
+    
+        def failing(state):
+            state.params["tier2_mutation"] = True
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="node.exception", message="boom", details={}),
+            )
+    
+        node_a = _make_node(mutating_ok, node_id="test.a@1.0.0")
+        node_b = _make_node(failing, node_id="test.b@1.0.0")
+    
+        registry = _make_registry(
+            ("test.a@1.0.0", node_a),
+            ("test.b@1.0.0", node_b),
+        )
+        ctx = _make_ctx()
+        state = ExperimentState(run_id="rollback-test")
+    
+        workflow = _make_workflow(
+            NodeInvocation(alias="a", node_id="test.a@1.0.0"),
+            NodeInvocation(alias="b", node_id="test.b@1.0.0", depends_on=["a"]),
+            error_policy="fail_fast",
+        )
+    
+        executor = AsyncWorkflowExecutor(ctx, registry)
+        result = await executor.execute(workflow, state)
+    
+        # tier1 should have completed
+>       assert result.state.params.get("tier1_done") is True
+E       AssertionError: assert None is True
+E        +  where None = <built-in method get of dict object at 0x7f2e142d2c00>('tier1_done')
+E        +    where <built-in method get of dict object at 0x7f2e142d2c00> = {}.get
+E        +      where {} = _JournaledExperimentState(schema_version='1.3', run_id='rollback-test', inputs={}, artifacts_index={}, reports_index={...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None).params
+E        +        where _JournaledExperimentState(schema_version='1.3', run_id='rollback-test', inputs={}, artifacts_index={}, reports_index={...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None) = WorkflowExecutionResult(state=_JournaledExperimentState(schema_version='1.3', run_id='rollback-test', inputs={}, artif...datetime.datetime(2026, 10, 6, 13, 32, 55, tzinfo=datetime.timezone.utc)))]), run_ref=<MagicMock id='139835883808352'>).state
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py:241: AssertionError
+_ TestTierSavepoints.test_rollback_compensation_hook_receives_fail_fast_event __
+
+self = <engine.test_async_executor_hardening.TestTierSavepoints object at 0x7f2e17d94190>
+
+    @pytest.mark.asyncio
+    async def test_rollback_compensation_hook_receives_fail_fast_event(self):
+        def ok(state):
+            state.params["tier1_done"] = True
+            return NodeOutcome(status="ok", state=state)
+    
+        def fail(state):
+            state.params["tier2_mutation"] = True
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="node.exception", message="boom", details={}),
+            )
+    
+        events = []
+    
+        class Hook:
+            def on_tier_rollback(self, *, event, restored_state):
+                events.append((event, restored_state.model_dump(mode="python")))
+    
+        registry = _make_registry(
+            ("test.ok@1.0.0", _make_node(ok, node_id="test.ok@1.0.0")),
+            ("test.fail@1.0.0", _make_node(fail, node_id="test.fail@1.0.0")),
+        )
+        ctx = _make_ctx()
+        workflow = _make_workflow(
+            NodeInvocation(alias="ok", node_id="test.ok@1.0.0"),
+            NodeInvocation(alias="fail", node_id="test.fail@1.0.0", depends_on=["ok"]),
+            error_policy="fail_fast",
+        )
+    
+        executor = AsyncWorkflowExecutor(
+            ctx,
+            registry,
+            compensation_hook=Hook(),
+        )
+        await executor.execute(workflow, ExperimentState(run_id="rollback-hook"))
+    
+        assert len(events) == 1
+        event, restored_state = events[0]
+        assert event.reason == "single_node_fail_fast"
+>       assert event.failed_aliases == ("fail",)
+E       AssertionError: assert ('ok',) == ('fail',)
+E         
+E         At index 0 diff: 'ok' != 'fail'
+E         Use -v to get more diff
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py:286: AssertionError
+______ test_executor_reexecutes_when_cached_replay_target_is_incompatible ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_executor_reexecutes_when_0')
+
+    def test_executor_reexecutes_when_cached_replay_target_is_incompatible(tmp_path) -> None:
+        InvalidReplayNode.calls = 0
+        store = FileSystemCAS(tmp_path)
+        workflow = WorkflowSpec(
+            workflow_id="invalid_replay_target",
+            nodes=[
+                NodeInvocation(
+                    alias="invalid_replay",
+                    node_id=ComponentId.parse("scientist.node_invalid_replay@1.0.0"),
+                ),
+            ],
+        )
+    
+        ctx_a, registry_a = _build_context(store, "R_invalid_replay_target")
+        result_a = WorkflowExecutor(ctx_a, registry_a).execute(
+            workflow,
+            ExperimentState(
+                run_id="R_invalid_replay_target",
+                params={"seed": 7, "items": ["cached", "removed"]},
+            ),
+        )
+        assert result_a.report.status == "ok"
+        assert result_a.state.params["items"] == ["cached"]
+    
+        ctx_b, registry_b = _build_context(store, "R_invalid_replay_target")
+        result_b = WorkflowExecutor(ctx_b, registry_b).execute(
+            workflow,
+            ExperimentState(
+                run_id="R_invalid_replay_target",
+                params={"seed": 7, "items": {}},
+            ),
+        )
+    
+>       assert result_b.report.status == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:366: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  idempotency_test:executor.py:1273 Node invalid_replay cache replay bypassed: state.replay_incompatible: params.items: operation target kind changed from 'list' to 'dict'
+ERROR    idempotency_test:executor.py:1413 Node invalid_replay failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py", line 1370, in execute
+    raw_outcome = execute_with_retry_sync(
+        node,
+    ...<4 lines>...
+        alias=alias,
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1163, in execute_with_retry_sync
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py", line 171, in execute
+    new_state.params["reexecuted"] = True
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.reexecuted']
+________ test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated ________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_uses_checkpoint_ca0')
+
+    def test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated(tmp_path: Path) -> None:
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_resume"
+    
+        ctx, bundle_ref = _context(store, run_id)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 7},
+        )
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    
+        first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+        assert first.report.status == "fail"
+        assert StepOneNode.calls == 1
+>       assert StepTwoNode.calls == 1
+E       assert 0 == 1
+E        +  where 0 = StepTwoNode.calls
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:332: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    checkpoint_resume_test:executor.py:1413 Node step1 failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py", line 1370, in execute
+    raw_outcome = execute_with_retry_sync(
+        node,
+    ...<4 lines>...
+        alias=alias,
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1163, in execute_with_retry_sync
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 98, in execute
+    new_state.params["step1"] = 1
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.step1']
+_ test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-b-cell-a] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_rejects_mismatched0')
+resume_tenant_id = 'tenant-b', resume_cell_id = 'cell-a'
+
+    @pytest.mark.parametrize(
+        ("resume_tenant_id", "resume_cell_id"),
+        [("tenant-b", "cell-a"), ("tenant-a", "cell-b")],
+    )
+    def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
+        tmp_path: Path,
+        resume_tenant_id: str,
+        resume_cell_id: str,
+    ) -> None:
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_tenant_scope"
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            ctx, bundle_ref = _context(
+                store,
+                run_id,
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+            )
+            state = ExperimentState(
+                run_id=run_id,
+                inputs={"registry_bundle_ref": bundle_ref},
+                params={"seed": 13},
+            )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=tmp_path / "runs" / run_id,
+                checkpoint_policy="strict",
+            )
+            first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+    
+        assert first.report.status == "fail"
+        protected_calls_before = (
+            StepOneNode.calls,
+            StepTwoNode.calls,
+            FlakyFinalNode.calls,
+        )
+        trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
+        trace_before = trace_path.read_bytes()
+    
+        with (
+            tenant_scope(None, tenant_id=resume_tenant_id, cell_id=resume_cell_id),
+            pytest.raises(CheckpointError, match="scope mismatch"),
+        ):
+>           resume_from_checkpoint(
+                store,
+                run_id,
+                workflow=workflow,
+                registry=_registry(),
+                registry_bundle_ref=bundle_ref,
+                checkpoint_policy="strict",
+            )
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:412: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f2e14192d50>
+run_id = 'R_checkpoint_tenant_scope'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+>               raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointNotFoundError: no checkpoint found for run_id=R_checkpoint_tenant_scope
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2142: CheckpointNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_rejects_mismatched0')
+resume_tenant_id = 'tenant-b', resume_cell_id = 'cell-a'
+
+    @pytest.mark.parametrize(
+        ("resume_tenant_id", "resume_cell_id"),
+        [("tenant-b", "cell-a"), ("tenant-a", "cell-b")],
+    )
+    def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
+        tmp_path: Path,
+        resume_tenant_id: str,
+        resume_cell_id: str,
+    ) -> None:
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_tenant_scope"
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            ctx, bundle_ref = _context(
+                store,
+                run_id,
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+            )
+            state = ExperimentState(
+                run_id=run_id,
+                inputs={"registry_bundle_ref": bundle_ref},
+                params={"seed": 13},
+            )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=tmp_path / "runs" / run_id,
+                checkpoint_policy="strict",
+            )
+            first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+    
+        assert first.report.status == "fail"
+        protected_calls_before = (
+            StepOneNode.calls,
+            StepTwoNode.calls,
+            FlakyFinalNode.calls,
+        )
+        trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
+        trace_before = trace_path.read_bytes()
+    
+        with (
+            tenant_scope(None, tenant_id=resume_tenant_id, cell_id=resume_cell_id),
+>           pytest.raises(CheckpointError, match="scope mismatch"),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'scope mismatch'
+E         Actual message: 'no checkpoint found for run_id=R_checkpoint_tenant_scope'
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:410: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    checkpoint_resume_test:executor.py:1413 Node step1 failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py", line 1370, in execute
+    raw_outcome = execute_with_retry_sync(
+        node,
+    ...<4 lines>...
+        alias=alias,
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1163, in execute_with_retry_sync
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 98, in execute
+    new_state.params["step1"] = 1
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.step1']
+_ test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-a-cell-b] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_rejects_mismatched1')
+resume_tenant_id = 'tenant-a', resume_cell_id = 'cell-b'
+
+    @pytest.mark.parametrize(
+        ("resume_tenant_id", "resume_cell_id"),
+        [("tenant-b", "cell-a"), ("tenant-a", "cell-b")],
+    )
+    def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
+        tmp_path: Path,
+        resume_tenant_id: str,
+        resume_cell_id: str,
+    ) -> None:
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_tenant_scope"
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            ctx, bundle_ref = _context(
+                store,
+                run_id,
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+            )
+            state = ExperimentState(
+                run_id=run_id,
+                inputs={"registry_bundle_ref": bundle_ref},
+                params={"seed": 13},
+            )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=tmp_path / "runs" / run_id,
+                checkpoint_policy="strict",
+            )
+            first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+    
+        assert first.report.status == "fail"
+        protected_calls_before = (
+            StepOneNode.calls,
+            StepTwoNode.calls,
+            FlakyFinalNode.calls,
+        )
+        trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
+        trace_before = trace_path.read_bytes()
+    
+        with (
+            tenant_scope(None, tenant_id=resume_tenant_id, cell_id=resume_cell_id),
+            pytest.raises(CheckpointError, match="scope mismatch"),
+        ):
+>           resume_from_checkpoint(
+                store,
+                run_id,
+                workflow=workflow,
+                registry=_registry(),
+                registry_bundle_ref=bundle_ref,
+                checkpoint_policy="strict",
+            )
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:412: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f2e14191c50>
+run_id = 'R_checkpoint_tenant_scope'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+>               raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointNotFoundError: no checkpoint found for run_id=R_checkpoint_tenant_scope
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2142: CheckpointNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_rejects_mismatched1')
+resume_tenant_id = 'tenant-a', resume_cell_id = 'cell-b'
+
+    @pytest.mark.parametrize(
+        ("resume_tenant_id", "resume_cell_id"),
+        [("tenant-b", "cell-a"), ("tenant-a", "cell-b")],
+    )
+    def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
+        tmp_path: Path,
+        resume_tenant_id: str,
+        resume_cell_id: str,
+    ) -> None:
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_tenant_scope"
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            ctx, bundle_ref = _context(
+                store,
+                run_id,
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+            )
+            state = ExperimentState(
+                run_id=run_id,
+                inputs={"registry_bundle_ref": bundle_ref},
+                params={"seed": 13},
+            )
+            hook = CASCheckpointHook(
+                store=store,
+                run_dir=tmp_path / "runs" / run_id,
+                checkpoint_policy="strict",
+            )
+            first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+    
+        assert first.report.status == "fail"
+        protected_calls_before = (
+            StepOneNode.calls,
+            StepTwoNode.calls,
+            FlakyFinalNode.calls,
+        )
+        trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
+        trace_before = trace_path.read_bytes()
+    
+        with (
+            tenant_scope(None, tenant_id=resume_tenant_id, cell_id=resume_cell_id),
+>           pytest.raises(CheckpointError, match="scope mismatch"),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'scope mismatch'
+E         Actual message: 'no checkpoint found for run_id=R_checkpoint_tenant_scope'
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:410: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    checkpoint_resume_test:executor.py:1413 Node step1 failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py", line 1370, in execute
+    raw_outcome = execute_with_retry_sync(
+        node,
+    ...<4 lines>...
+        alias=alias,
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1163, in execute_with_retry_sync
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 98, in execute
+    new_state.params["step1"] = 1
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.step1']
+_ test_resume_falls_back_to_local_runner_when_distributed_backend_is_configured _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_falls_back_to_loca0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2e16ee10f0>
+
+    def test_resume_falls_back_to_local_runner_when_distributed_backend_is_configured(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "temporal")
+    
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_resume_temporal_config"
+    
+        ctx, bundle_ref = _context(store, run_id)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 11},
+        )
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    
+        first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+        assert first.report.status == "fail"
+        assert StepOneNode.calls == 1
+>       assert StepTwoNode.calls == 1
+E       assert 0 == 1
+E        +  where 0 = StepTwoNode.calls
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:475: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    checkpoint_resume_test:executor.py:1413 Node step1 failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py", line 1370, in execute
+    raw_outcome = execute_with_retry_sync(
+        node,
+    ...<4 lines>...
+        alias=alias,
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1163, in execute_with_retry_sync
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 98, in execute
+    new_state.params["step1"] = 1
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.step1']
+_____ test_resume_uses_configured_distributed_runner_with_pruned_workflow ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_resume_uses_configured_di0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2e16ee02f0>
+
+    def test_resume_uses_configured_distributed_runner_with_pruned_workflow(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "temporal")
+        monkeypatch.setenv("POLISYOS_TEMPORAL_SERVER_URL", "grpc://unused")
+    
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_checkpoint_resume_distributed_pruned"
+    
+        ctx, bundle_ref = _context(store, run_id)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 17},
+        )
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    
+        first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+        assert first.report.status == "fail"
+        assert StepOneNode.calls == 1
+>       assert StepTwoNode.calls == 1
+E       assert 0 == 1
+E        +  where 0 = StepTwoNode.calls
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:528: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    checkpoint_resume_test:executor.py:1413 Node step1 failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py", line 1370, in execute
+    raw_outcome = execute_with_retry_sync(
+        node,
+    ...<4 lines>...
+        alias=alias,
+    )
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 1163, in execute_with_retry_sync
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 98, in execute
+    new_state.params["step1"] = 1
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.step1']
+_ test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_truncated _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_async_executor_resume_use0')
+
+    @pytest.mark.asyncio
+    async def test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_truncated(
+        tmp_path: Path,
+    ) -> None:
+        StepOneNode.calls = 0
+        StepTwoNode.calls = 0
+        FlakyFinalNode.calls = 0
+        FlakyFinalNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _workflow()
+        run_id = "R_async_checkpoint_resume"
+    
+        ctx, bundle_ref = _context(store, run_id)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 7},
+        )
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    
+        first = await AsyncWorkflowExecutor(
+            ctx,
+            _registry(),
+            checkpoint_hook=hook,
+        ).execute(workflow, state)
+        assert first.report.status == "fail"
+        assert StepOneNode.calls == 1
+>       assert StepTwoNode.calls == 1
+E       assert 0 == 1
+E        +  where 0 = StepTwoNode.calls
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:623: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    checkpoint_resume_test:async_executor.py:1885 Node step1 failed
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1842, in _execute_node
+    raw_outcome = await execute_with_retry_async(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+    )
+    ^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 2075, in execute_with_retry_async
+    raise exc.error from None
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 908, in _execute_capture_failure
+    return node.execute(ctx, state)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 98, in execute
+    new_state.params["step1"] = 1
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+        f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
+    )
+ValueError: undeclared state_writes at live paths: ['params.step1']
+___ test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_parallel_tier_checkpoint_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2e167527b0>
+
+    @pytest.mark.asyncio
+    async def test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        ParallelLeftNode.calls = 0
+        ParallelRightNode.calls = 0
+        FlakyAfterParallelNode.calls = 0
+        FlakyAfterParallelNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _parallel_workflow()
+        run_id = "R_async_parallel_stop_after_tier_checkpoint"
+        ctx, bundle_ref = _context(store, run_id)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 29},
+        )
+        hook = _StopAfterTierCheckpoint(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    
+        with pytest.raises(_SimulatedWorkerStopError):
+            await LocalWorkflowRunner(max_parallelism=2).execute_workflow(
+                workflow,
+                state,
+                ctx,
+                _parallel_registry(),
+                checkpoint_hook=hook,
+            )
+    
+        assert ParallelLeftNode.calls == 1
+        assert ParallelRightNode.calls == 1
+        assert FlakyAfterParallelNode.calls == 0
+    
+        assert isinstance(bundle_ref, ArtifactRef)
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        process_context = multiprocessing.get_context("spawn")
+        result_queue = process_context.Queue()
+        child = process_context.Process(
+            target=_resume_parallel_tier_in_fresh_process,
+            args=(str(tmp_path), run_id, bundle_ref.model_dump(mode="json"), result_queue),
+        )
+        try:
+            child.start()
+            child.join(timeout=60)
+            assert child.exitcode == 0
+            observed = result_queue.get(timeout=5)
+        finally:
+            if child.is_alive():
+                child.terminate()
+                child.join(timeout=5)
+            result_queue.close()
+    
+        assert observed["pid"] != os.getpid()
+        assert observed["completed_nodes"] == ["left", "right"]
+        assert observed["checkpoint_params"] == {"seed": 29, "left": 1, "right": 2}
+        assert observed["sequence_number"] == 1
+>       assert observed["report_status"] == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:834: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-06 13:33:15.809 | INFO     | polisyos.common.logger:_call:120 - Recovered 2 cached node outcomes
+2026-10-06 13:33:15.811 | ERROR    | polisyos.common.logger:_call:120 - Node final failed
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 4
+               │     └ 24
+               └ <function _main at 0x7f4bc4687cc0>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 4
+           │    └ <function BaseProcess._bootstrap at 0x7f4bc476f060>
+           └ <SpawnProcess name='SpawnProcess-2' parent=222681 started>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x7f4bc476e400>
+    └ <SpawnProcess name='SpawnProcess-2' parent=222681 started>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-2' parent=222681 started>
+    │    │        │    └ ('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_parallel_tier_...
+    │    │        └ <SpawnProcess name='SpawnProcess-2' parent=222681 started>
+    │    └ <function _resume_parallel_tier_in_fresh_process at 0x7f4b6861be20>
+    └ <SpawnProcess name='SpawnProcess-2' parent=222681 started>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 710, in _resume_parallel_tier_in_fresh_process
+    resumed = resume_from_checkpoint(
+              └ <function resume_from_checkpoint at 0x7f4bc1b52e50>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py", line 2313, in resume_from_checkpoint
+    return asyncio.run(execution_coro)
+           │       │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f4b6864f4c0>
+           │       └ <function run at 0x7f4bc30097a0>
+           └ <module 'asyncio' from '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/__init...
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           │      │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f4b6864f4c0>
+           │      └ <function Runner.run at 0x7f4bc3009d20>
+           └ <asyncio.runners.Runner object at 0x7f4b6864f620>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<LocalWorkflowRunner.execute_workflow() running at /workspace/e02-B-current-execution-state/...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7f4bc3001fe0>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7f4b6864f620>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7f4bc3001f30>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7f4bc30080f0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 2046, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7f4bc316f950>
+    └ <Handle Task.task_wakeup()>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup()>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py", line 77, in execute_workflow
+    return await executor.execute(workflow, state)
+                 │        │       │         └ ExperimentState(schema_version='1.3', run_id='R_async_parallel_stop_after_tier_checkpoint', inputs={'registry_bundle_ref': Ar...
+                 │        │       └ WorkflowSpec(schema_version='1.0', workflow_id='wf_parallel_checkpoint_resume', nodes=[NodeInvocation(alias='final', node_id=...
+                 │        └ <function AsyncWorkflowExecutor.execute at 0x7f4b685ede80>
+                 └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f4b67ad01a0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 718, in execute
+    await execution_body()
+          └ <function AsyncWorkflowExecutor.execute.<locals>._execute_tiers at 0x7f4b67ae05c0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 373, in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+            │                          │    └ <function AsyncWorkflowExecutor._run_single_node at 0x7f4b685ef320>
+            │                          └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f4b67ad01a0>
+            └ ExperimentState(schema_version='1.3', run_id='R_async_parallel_stop_after_tier_checkpoint', inputs={'registry_bundle_ref': Ar...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1204, in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+                                                              │    └ <function AsyncWorkflowExecutor._execute_node at 0x7f4b685f0040>
+                                                              └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f4b67ad01a0>
+
+> File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1842, in _execute_node
+    raw_outcome = await execute_with_retry_async(
+                        └ <function execute_with_retry_async at 0x7f4b685ae560>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 2075, in execute_with_retry_async
+    raise exc.error from None
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 908, in _execute_capture_failure
+    return node.execute(ctx, state)
+           │    │       │    └ _JournaledExperimentState(schema_version='1.3', run_id='R_async_parallel_stop_after_tier_checkpoint', inputs={'registry_bundl...
+           │    │       └ ClaimCapableExecutionContext(store=<polisyos.scientist.orchestration.engine.retry._AttemptFacade object at 0x7f4b67ad16a0>, r...
+           │    └ <function FlakyAfterParallelNode.execute at 0x7f4b6861aa30>
+           └ <tests.integration.scientist.test_checkpoint_resume.FlakyAfterParallelNode object at 0x7f4b68763e00>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 206, in execute
+    new_state.params["final"] = True
+    │         └ {'left': 1, 'right': 2, 'seed': 29}
+    └ _JournaledExperimentState(schema_version='1.3', run_id='R_async_parallel_stop_after_tier_checkpoint', inputs={'registry_bundl...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    │                             │                    └ 'final'
+    │                             └ {'left': 1, 'right': 2, 'seed': 29}
+    └ <function _authorize_container_mutation at 0x7f4b68745010>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+
+ValueError: undeclared state_writes at live paths: ['params.final']
+____ test_async_executor_parallel_tier_checkpoints_merged_state_for_resume _____
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_async_executor_parallel_t0')
+
+    @pytest.mark.asyncio
+    async def test_async_executor_parallel_tier_checkpoints_merged_state_for_resume(
+        tmp_path: Path,
+    ) -> None:
+        ParallelLeftNode.calls = 0
+        ParallelRightNode.calls = 0
+        FlakyAfterParallelNode.calls = 0
+        FlakyAfterParallelNode.fail_once = True
+    
+        store = FileSystemCAS(tmp_path)
+        workflow = _parallel_workflow()
+        run_id = "R_async_parallel_resume"
+    
+        ctx, bundle_ref = _context(store, run_id)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 3},
+        )
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    
+        first = await AsyncWorkflowExecutor(
+            ctx,
+            _parallel_registry(),
+            checkpoint_hook=hook,
+            max_parallelism=2,
+        ).execute(workflow, state)
+        assert first.report.status == "fail"
+        assert ParallelLeftNode.calls == 1
+        assert ParallelRightNode.calls == 1
+        assert FlakyAfterParallelNode.calls == 1
+    
+        resolved = resolve_latest_checkpoint(store, run_id)
+        assert resolved is not None
+        head, checkpoint_artifact = resolved
+        assert head.sequence_number == 1
+        assert checkpoint_artifact.metadata.completed_nodes == ["left", "right"]
+        assert checkpoint_artifact.state is not None
+        assert checkpoint_artifact.state["params"]["left"] == 1
+        assert checkpoint_artifact.state["params"]["right"] == 2
+        assert "final" not in checkpoint_artifact.state["params"]
+        assert len(checkpoint_artifact.metadata.cache_entry_refs) >= 2
+    
+        trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
+        _truncate_trace_without_cache_stores(trace_path)
+    
+        resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=_parallel_registry(),
+            registry_bundle_ref=bundle_ref,
+            checkpoint_policy="strict",
+        )
+    
+>       assert resumed.report.status == "ok"
+E       AssertionError: assert 'fail' == 'ok'
+E         
+E         - ok
+E         + fail
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:907: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:33:18.220 | ERROR    | polisyos.common.logger:_call:120 - Node final failed
+Traceback (most recent call last):
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1044, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7f2e74a5ba00>
+    └ <Thread(polisyos-run-coro-sync_2, started 139835904235200)>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    │    │        │   │    └ <function Thread.run at 0x7f2e74a5b690>
+    │    │        │   └ <Thread(polisyos-run-coro-sync_2, started 139835904235200)>
+    │    │        └ <method 'run' of '_contextvars.Context' objects>
+    │    └ <_contextvars.Context object at 0x7f2e168b6640>
+    └ <Thread(polisyos-run-coro-sync_2, started 139835904235200)>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(polisyos-run-coro-sync_2, started 139835904235200)>
+    │    │        │    └ (<weakref at 0x7f2e16aed120; to 'polisyos.common.async_tools._SharedExecutor' at 0x7f2e1666cd70>, <concurrent.futures.thread....
+    │    │        └ <Thread(polisyos-run-coro-sync_2, started 139835904235200)>
+    │    └ <function _worker at 0x7f2e62b2dd20>
+    └ <Thread(polisyos-run-coro-sync_2, started 139835904235200)>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py", line 119, in _worker
+    work_item.run(ctx)
+    │         │   └ <concurrent.futures.thread.WorkerContext object at 0x7f2e16eb8d10>
+    │         └ <function _WorkItem.run at 0x7f2e62b2e1f0>
+    └ <concurrent.futures.thread._WorkItem object at 0x7f2e16c77e30>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+             │   │   │    └ (<function _SharedExecutor.submit.<locals>.run at 0x7f2e40ceec40>, (), {})
+             │   │   └ <concurrent.futures.thread._WorkItem object at 0x7f2e16c77e30>
+             │   └ <function WorkerContext.run at 0x7f2e62b2e090>
+             └ <concurrent.futures.thread.WorkerContext object at 0x7f2e16eb8d10>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+           │   │       └ {}
+           │   └ ()
+           └ <function _SharedExecutor.submit.<locals>.run at 0x7f2e40ceec40>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py", line 149, in run
+    context.run(invoke)
+    │       │   └ <function _SharedExecutor.submit.<locals>.invoke at 0x7f2e40cef1c0>
+    │       └ <method 'run' of '_contextvars.Context' objects>
+    └ <_contextvars.Context object at 0x7f2e16db1300>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py", line 137, in invoke
+    result = fn(*args, **kwargs)
+             │   │       └ {}
+             │   └ (functools.partial(<function _run_coro_in_fresh_loop at 0x7f2e60a22fb0>, <coroutine object LocalWorkflowRunner.execute_workfl...
+             └ <built-in method run of _contextvars.Context object at 0x7f2e16f0d4c0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py", line 221, in _run_coro_in_fresh_loop
+    return loop.run_until_complete(asyncio.wait_for(task, timeout=timeout_seconds))
+           │    │                  │       │        │             └ 30.0
+           │    │                  │       │        └ <Task pending name='Task-365' coro=<_await_awaitable() running at /workspace/e02-B-current-execution-state/policy-engine/src/...
+           │    │                  │       └ <function wait_for at 0x7f2e73c6d4e0>
+           │    │                  └ <module 'asyncio' from '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/__init...
+           │    └ <function BaseEventLoop.run_until_complete at 0x7f2e73c71e80>
+           └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7f2e73c71dd0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7f2e73c73ed0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 2046, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7f2e73d737f0>
+    └ <Handle Task.task_wakeup()>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup()>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py", line 211, in _await_awaitable
+    return await awaitable
+                 └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f2e143c8ac0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py", line 77, in execute_workflow
+    return await executor.execute(workflow, state)
+                 │        │       │         └ ExperimentState(schema_version='1.3', run_id='R_async_parallel_resume', inputs={'registry_bundle_ref': ArtifactRef(artifact_i...
+                 │        │       └ WorkflowSpec(schema_version='1.0', workflow_id='wf_parallel_checkpoint_resume', nodes=[NodeInvocation(alias='final', node_id=...
+                 │        └ <function AsyncWorkflowExecutor.execute at 0x7f2e17edf530>
+                 └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f2e1465f050>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 718, in execute
+    await execution_body()
+          └ <function AsyncWorkflowExecutor.execute.<locals>._execute_tiers at 0x7f2e40ced2d0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 373, in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+            │                          │    └ <function AsyncWorkflowExecutor._run_single_node at 0x7f2e17ee4a90>
+            │                          └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f2e1465f050>
+            └ ExperimentState(schema_version='1.3', run_id='R_async_parallel_resume', inputs={'registry_bundle_ref': ArtifactRef(artifact_i...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1204, in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+                                                              │    └ <function AsyncWorkflowExecutor._execute_node at 0x7f2e17ee56f0>
+                                                              └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f2e1465f050>
+
+> File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1842, in _execute_node
+    raw_outcome = await execute_with_retry_async(
+                        └ <function execute_with_retry_async at 0x7f2e17eabc10>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 2075, in execute_with_retry_async
+    raise exc.error from None
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 908, in _execute_capture_failure
+    return node.execute(ctx, state)
+           │    │       │    └ _JournaledExperimentState(schema_version='1.3', run_id='R_async_parallel_resume', inputs={'registry_bundle_ref': ArtifactRef(...
+           │    │       └ ClaimCapableExecutionContext(store=<polisyos.scientist.orchestration.engine.retry._AttemptFacade object at 0x7f2e16c77470>, r...
+           │    └ <function FlakyAfterParallelNode.execute at 0x7f2e1683cca0>
+           └ <tests.integration.scientist.test_checkpoint_resume.FlakyAfterParallelNode object at 0x7f2e143a4d60>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 206, in execute
+    new_state.params["final"] = True
+    │         └ {'left': 1, 'right': 2, 'seed': 3}
+    └ _JournaledExperimentState(schema_version='1.3', run_id='R_async_parallel_resume', inputs={'registry_bundle_ref': ArtifactRef(...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    │                             │                    └ 'final'
+    │                             └ {'left': 1, 'right': 2, 'seed': 3}
+    └ <function _authorize_container_mutation at 0x7f2e1804e6c0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+
+ValueError: undeclared state_writes at live paths: ['params.final']
+
+___ test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_seeded_checkpoint_publica0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2e16fec1a0>
+
+    def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A fresh reader follows only the atomic head's committed tier frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+        for cut in ("after_artifact_before_head", "after_head_before_history"):
+            store = FileSystemCAS(tmp_path / cut)
+            workflow = _seeded_parallel_workflow()
+            run_id = f"R_b73_seeded_publication_cut_{cut}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            run_dir = Path(store.root) / "runs" / run_id
+            seed_head = load_checkpoint_head(run_dir)
+            assert seed_head is not None
+            seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+            seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+            assert seed_completed_nodes == ["seed"]
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=seed_completed_nodes,
+                )
+            )
+            phase_queue = process_context.Queue()
+            release_event = process_context.Event()
+            writer = process_context.Process(
+                target=_b73_pause_writer_at_owner_phase,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    cut,
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head",
+                    phase_queue,
+                    release_event,
+                ),
+            )
+            try:
+                writer.start()
+                observed = phase_queue.get(timeout=60)
+                assert observed["phase"] == cut
+                remove_left_for_cut = (
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head"
+                )
+                if remove_left_for_cut:
+                    assert observed["mutation_receipt"] == {
+                        "source_sha256": (
+                            "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"
+                        ),
+                        "method": "AsyncWorkflowExecutor.execute",
+                        "original_expression": "completed_nodes.extend(tier_completed)",
+                        "mutated_expression": (
+                            "completed_nodes.extend(("
+                            "b73_frontier_alias for b73_frontier_alias "
+                            "in tier_completed if b73_frontier_alias != 'left'))"
+                        ),
+                        "mutant_installed": True,
+                    }
+                else:
+                    assert observed["mutation_receipt"] is None
+                assert observed["left_calls"] == 1
+                assert observed["right_calls"] == 1
+                assert observed["final_calls"] == 0
+    
+                observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+                history = load_checkpoint_history(run_dir)
+                history_refs = (
+                    []
+                    if history is None
+                    else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+                )
+                if cut == "after_artifact_before_head":
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head == seed_head
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    uncommitted = load_checkpoint(store, observed_ref)
+                    uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                    assert (
+                        uncommitted.metadata.completed_node_status_contract == "native_node_outcome_v1"
+                    )
+                    assert uncommitted_state["params"] == {
+                        "seed": 29,
+                        "step1": 1,
+                        "left": 1,
+                        "right": 2,
+                    }
+                    _assert_tier_cache_entries_bind_node_identity_and_content(
+                        store,
+                        run_id=run_id,
+                        workflow=workflow,
+                        completed_nodes=["seed", "left", "right"],
+                        checkpoint_state=uncommitted_state,
+                        cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                    )
+                    assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
+                    expected_before_resume = ["seed"]
+                    # The killed writer already published both verified cache journals.
+                    # The old durable frontier still rolls back, while the fresh executor replays them.
+                    expected_peer_calls = [0, 0]
+                else:
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head is not None
+                    assert current_head.checkpoint_ref == observed_ref
+                    assert current_head.sequence_number == observed["sequence_number"]
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    expected_before_resume = ["seed", "left", "right"]
+                    expected_peer_calls = [0, 0]
+    
+                writer.terminate()
+                writer.join(timeout=5)
+                assert not writer.is_alive()
+                assert writer.exitcode != 0
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                phase_queue.close()
+    
+            result_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_fresh_reader_then_resume,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    result_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                result = result_queue.get(timeout=5)
+                assert reader.exitcode == 0, result
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                result_queue.close()
+    
+            assert result["pid"] != os.getpid()
+            assert result["before_resume"]["origin_workflow_fingerprint"] == (
+                expected_origin_fingerprint
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if cut == "after_artifact_before_head"
+                else expected_residual_fingerprint
+            )
+            assert result["before_resume"]["workflow_fingerprint"] == (expected_current_fingerprint)
+            assert result["before_resume"]["completed_nodes"] == expected_before_resume
+            if cut == "after_head_before_history":
+                assert result["before_resume"]["params"] == {
+                    "seed": 29,
+                    "step1": 1,
+                    "left": 1,
+                    "right": 2,
+                }
+                assert result["before_resume"]["cache_aliases"] == ["left", "right"]
+            else:
+                assert result["before_resume"]["params"] == {"seed": 29, "step1": 1}
+                assert result["before_resume"]["cache_entry_refs"] == []
+                assert result["before_resume"]["cache_aliases"] == []
+>           assert result["report_status"] == "ok"
+E           AssertionError: assert 'fail' == 'ok'
+E             
+E             - ok
+E             + fail
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1621: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-06 13:33:32.731 | INFO     | polisyos.common.logger:_call:120 - Recovered 2 cached node outcomes
+2026-10-06 13:33:32.768 | ERROR    | polisyos.common.logger:_call:120 - Node final failed
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 4
+               │     └ 29
+               └ <function _main at 0x7fee767ebcc0>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 4
+           │    └ <function BaseProcess._bootstrap at 0x7fee768d3060>
+           └ <SpawnProcess name='SpawnProcess-4' parent=222681 started>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x7fee768d2400>
+    └ <SpawnProcess name='SpawnProcess-4' parent=222681 started>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-4' parent=222681 started>
+    │    │        │    └ ('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_seeded_checkpo...
+    │    │        └ <SpawnProcess name='SpawnProcess-4' parent=222681 started>
+    │    └ <function _b73_fresh_reader_then_resume at 0x7fee1a771220>
+    └ <SpawnProcess name='SpawnProcess-4' parent=222681 started>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 1431, in _b73_fresh_reader_then_resume
+    resumed = resume_from_checkpoint(
+              └ <function resume_from_checkpoint at 0x7fee73cbacf0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py", line 2313, in resume_from_checkpoint
+    return asyncio.run(execution_coro)
+           │       │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7fee1a79f610>
+           │       └ <function run at 0x7fee75359640>
+           └ <module 'asyncio' from '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/__init...
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           │      │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7fee1a79f610>
+           │      └ <function Runner.run at 0x7fee75359bc0>
+           └ <asyncio.runners.Runner object at 0x7fee1a79f770>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<LocalWorkflowRunner.execute_workflow() running at /workspace/e02-B-current-execution-state/...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7fee75351e80>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7fee1a79f770>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7fee75351dd0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7fee75353ed0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 2046, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7fee752c37f0>
+    └ <Handle Task.task_wakeup()>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup()>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py", line 77, in execute_workflow
+    return await executor.execute(workflow, state)
+                 │        │       │         └ ExperimentState(schema_version='1.3', run_id='R_b73_seeded_publication_cut_after_artifact_before_head', inputs={'registry_bun...
+                 │        │       └ WorkflowSpec(schema_version='1.0', workflow_id='wf_seeded_parallel_checkpoint_resume', nodes=[NodeInvocation(alias='left', no...
+                 │        └ <function AsyncWorkflowExecutor.execute at 0x7fee1a741d20>
+                 └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7fee19c342f0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 718, in execute
+    await execution_body()
+          └ <function AsyncWorkflowExecutor.execute.<locals>._execute_tiers at 0x7fee19c50510>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 373, in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+            │                          │    └ <function AsyncWorkflowExecutor._run_single_node at 0x7fee1a7431c0>
+            │                          └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7fee19c342f0>
+            └ _JournaledExperimentState(schema_version='1.3', run_id='R_b73_seeded_publication_cut_after_artifact_before_head', inputs={'re...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1204, in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+                                                              │    └ <function AsyncWorkflowExecutor._execute_node at 0x7fee1a743e20>
+                                                              └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7fee19c342f0>
+
+> File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1842, in _execute_node
+    raw_outcome = await execute_with_retry_async(
+                        └ <function execute_with_retry_async at 0x7fee1a6fa400>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 2075, in execute_with_retry_async
+    raise exc.error from None
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 908, in _execute_capture_failure
+    return node.execute(ctx, state)
+           │    │       │    └ _JournaledExperimentState(schema_version='1.3', run_id='R_b73_seeded_publication_cut_after_artifact_before_head', inputs={'re...
+           │    │       └ ClaimCapableExecutionContext(store=<polisyos.scientist.orchestration.engine.retry._AttemptFacade object at 0x7fee19c35550>, r...
+           │    └ <function FlakyAfterParallelNode.execute at 0x7fee1a76a8d0>
+           └ <tests.integration.scientist.test_checkpoint_resume.FlakyAfterParallelNode object at 0x7fee19dbc050>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 206, in execute
+    new_state.params["final"] = True
+    │         └ {'seed': 29, 'step1': 1, 'left': 1, 'right': 2}
+    └ _JournaledExperimentState(schema_version='1.3', run_id='R_b73_seeded_publication_cut_after_artifact_before_head', inputs={'re...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    │                             │                    └ 'final'
+    │                             └ {'seed': 29, 'step1': 1, 'left': 1, 'right': 2}
+    └ <function _authorize_container_mutation at 0x7fee1a894eb0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+
+ValueError: undeclared state_writes at live paths: ['params.final']
+_ test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_parallel_resume_fail_fast0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2e17253cb0>
+
+    def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Fresh readers retry only the peers absent from the durable frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+    
+        error_policies: tuple[Literal["fail_fast", "continue"], ...] = ("fail_fast", "continue")
+        for error_policy in error_policies:
+            store = FileSystemCAS(tmp_path / error_policy)
+            workflow = _seeded_parallel_workflow(error_policy=error_policy)
+            run_id = f"R_b73_failure_policy_{error_policy}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            seed = resolve_latest_checkpoint(store, run_id)
+            assert seed is not None
+            _, seed_checkpoint = seed
+            assert seed_checkpoint.state is not None
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=list(seed_checkpoint.metadata.completed_nodes),
+                )
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if error_policy == "fail_fast"
+                else expected_residual_fingerprint
+            )
+    
+            writer_queue = process_context.Queue()
+            writer = process_context.Process(
+                target=_b73_failure_policy_writer,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    writer_queue,
+                ),
+            )
+            try:
+                writer.start()
+                writer.join(timeout=60)
+                assert writer.exitcode == 0
+                first = writer_queue.get(timeout=5)
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                writer_queue.close()
+    
+            assert first["pid"] != os.getpid()
+            assert first["report_status"] == "fail"
+            assert first["peer_calls"] == [1, 1]
+            if error_policy == "fail_fast":
+                assert first["completed_nodes"] == ["seed"]
+                assert first["params"] == {"seed": 29, "step1": 1}
+                assert first["cache_entry_refs"] == []
+            else:
+                assert first["completed_nodes"] == ["seed", "left"]
+                assert first["params"] == {"seed": 29, "step1": 1, "left": 1}
+                assert len(first["cache_entry_refs"]) == 1
+    
+            reader_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_failure_policy_fresh_reader,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    expected_current_fingerprint,
+                    False,
+                    reader_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                assert reader.exitcode == 0
+                retried = reader_queue.get(timeout=5)
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                reader_queue.close()
+    
+            assert retried["pid"] != first["pid"]
+            before = retried["before_resume"]
+            assert before["origin_workflow_fingerprint"] == expected_origin_fingerprint
+            assert before["workflow_fingerprint"] == expected_current_fingerprint
+>           assert retried["report_status"] == "ok"
+E           AssertionError: assert 'fail' == 'ok'
+E             
+E             - ok
+E             + fail
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1871: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-06 13:33:50.067 | INFO     | polisyos.common.logger:_call:120 - Recovered 1 cached node outcomes
+2026-10-06 13:33:50.132 | ERROR    | polisyos.common.logger:_call:120 - Node final failed
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 4
+               │     └ 33
+               └ <function _main at 0x7f0629f07c10>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 4
+           │    └ <function BaseProcess._bootstrap at 0x7f0629feefb0>
+           └ <SpawnProcess name='SpawnProcess-6' parent=222681 started>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x7f0629fee350>
+    └ <SpawnProcess name='SpawnProcess-6' parent=222681 started>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-6' parent=222681 started>
+    │    │        │    └ ('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_parallel_resum...
+    │    │        └ <SpawnProcess name='SpawnProcess-6' parent=222681 started>
+    │    └ <function _b73_failure_policy_fresh_reader at 0x7f05cdce9590>
+    └ <SpawnProcess name='SpawnProcess-6' parent=222681 started>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 1736, in _b73_failure_policy_fresh_reader
+    resumed = resume_from_checkpoint(
+              └ <function resume_from_checkpoint at 0x7f062740ac40>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py", line 2313, in resume_from_checkpoint
+    return asyncio.run(execution_coro)
+           │       │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f05cdd13760>
+           │       └ <function run at 0x7f06288a1590>
+           └ <module 'asyncio' from '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/__init...
+
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           │      │   └ <coroutine object LocalWorkflowRunner.execute_workflow at 0x7f05cdd13760>
+           │      └ <function Runner.run at 0x7f06288a1b10>
+           └ <asyncio.runners.Runner object at 0x7f05cdd138c0>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<LocalWorkflowRunner.execute_workflow() running at /workspace/e02-B-current-execution-state/...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7f0628899dd0>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7f05cdd138c0>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7f0628899d20>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7f062889be20>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 2046, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7f0628a07740>
+    └ <Handle Task.task_wakeup()>
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup()>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py", line 77, in execute_workflow
+    return await executor.execute(workflow, state)
+                 │        │       │         └ ExperimentState(schema_version='1.3', run_id='R_b73_failure_policy_fail_fast', inputs={'registry_bundle_ref': ArtifactRef(art...
+                 │        │       └ WorkflowSpec(schema_version='1.0', workflow_id='wf_seeded_parallel_checkpoint_resume', nodes=[NodeInvocation(alias='left', no...
+                 │        └ <function AsyncWorkflowExecutor.execute at 0x7f05cdeb9c70>
+                 └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f05cd3b4440>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 718, in execute
+    await execution_body()
+          └ <function AsyncWorkflowExecutor.execute.<locals>._execute_tiers at 0x7f05cd3afd70>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 373, in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+            │                          │    └ <function AsyncWorkflowExecutor._run_single_node at 0x7f05cdebb110>
+            │                          └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f05cd3b4440>
+            └ _JournaledExperimentState(schema_version='1.3', run_id='R_b73_failure_policy_fail_fast', inputs={'registry_bundle_ref': Artif...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1204, in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+                                                              │    └ <function AsyncWorkflowExecutor._execute_node at 0x7f05cdebbd70>
+                                                              └ <polisyos.scientist.orchestration.engine.async_executor.AsyncWorkflowExecutor object at 0x7f05cd3b4440>
+
+> File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py", line 1842, in _execute_node
+    raw_outcome = await execute_with_retry_async(
+                        └ <function execute_with_retry_async at 0x7f05cde72350>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 2075, in execute_with_retry_async
+    raise exc.error from None
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py", line 908, in _execute_capture_failure
+    return node.execute(ctx, state)
+           │    │       │    └ _JournaledExperimentState(schema_version='1.3', run_id='R_b73_failure_policy_fail_fast', inputs={'registry_bundle_ref': Artif...
+           │    │       └ ClaimCapableExecutionContext(store=<polisyos.scientist.orchestration.engine.retry._AttemptFacade object at 0x7f05cd337a80>, r...
+           │    └ <function FlakyAfterParallelNode.execute at 0x7f05cdce2820>
+           └ <tests.integration.scientist.test_checkpoint_resume.FlakyAfterParallelNode object at 0x7f05cde1fed0>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/tests/integration/scientist/test_checkpoint_resume.py", line 206, in execute
+    new_state.params["final"] = True
+    │         └ {'seed': 29, 'step1': 1, 'left': 1, 'right': 2}
+    └ _JournaledExperimentState(schema_version='1.3', run_id='R_b73_failure_policy_fail_fast', inputs={'registry_bundle_ref': Artif...
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 630, in __setitem__
+    _authorize_container_mutation(self, suffixes=((str(key),),))
+    │                             │                    └ 'final'
+    │                             └ {'seed': 29, 'step1': 1, 'left': 1, 'right': 2}
+    └ <function _authorize_container_mutation at 0x7f05cde0ce00>
+
+  File "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py", line 1037, in _authorize_container_mutation
+    raise ValueError(
+
+ValueError: undeclared state_writes at live paths: ['params.final']
+_ test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-complete-all15/tmp/test_five_distinct_presence_in0')
+
+    @pytest.mark.asyncio
+    async def test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result(tmp_path):
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle_ref = build_default_registry_bundle(store).bundle_ref
+        node = _PresenceNode()
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="native_presence",
+            nodes=[NodeInvocation(alias="consume", node_id=node.spec.metadata.component_id)],
+        )
+        inputs = [{}, {"threshold": None}, {"threshold": 0}, {"threshold": False}, {"threshold": []}]
+        for ordinal, params in enumerate(inputs, start=1):
+            expected = {
+                "present": "threshold" in params,
+                "type": type(params["threshold"]).__name__ if "threshold" in params else None,
+                "value": params.get("threshold"),
+            }
+            for warm in (False, True):
+                reopened = FileSystemCAS(root)
+                run = RunContext.start(reopened, bundle_ref, run_id="R_presence")
+                ctx = ExecutionContext(
+                    store=reopened, run=run, logger=logging.getLogger("presence-consumer")
+                )
+                state = ExperimentState(
+                    run_id="R_presence",
+                    params={**params, "unrelated": "warm-current" if warm else "cold-original"},
+                )
+                result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, state)
+                assert result.report.status == "ok"
+>               assert result.state.params["observed"] == expected
+E               AssertionError: assert {'present': T..., 'value': []} == {'present': T..., 'value': []}
+E                 
+E                 Omitting 2 identical items, use -vv to show
+E                 Differing items:
+E                 {'type': '_TrackedList'} != {'type': 'list'}
+E                 Use -v to get more diff
+
+policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py:91: AssertionError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=222681) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestParallelStateIsolation::test_parallel_nodes_get_independent_copies
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_tier_rollback_on_failure
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_rollback_compensation_hook_receives_fail_fast_event
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_reexecutes_when_cached_replay_target_is_incompatible
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-b-cell-a]
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-a-cell-b]
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_resume_falls_back_to_local_runner_when_distributed_backend_is_configured
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_resume_uses_configured_distributed_runner_with_pruned_workflow
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_truncated
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_async_executor_parallel_tier_checkpoints_merged_state_for_resume
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer
+FAILED policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py::test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result

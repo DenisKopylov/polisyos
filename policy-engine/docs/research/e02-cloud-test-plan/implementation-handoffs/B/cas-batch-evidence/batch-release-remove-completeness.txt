@@ -1,0 +1,52 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_____________ test_real_full_batch_all_confirmations_are_required ______________
+tests/unit/core/artifacts/test_batch_completion_admission.py:62: in test_real_full_batch_all_confirmations_are_required
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+___ test_local_corruption_preserves_full_typed_results_and_refuses_admission ___
+tests/unit/core/artifacts/test_batch_completion_admission.py:75: in test_local_corruption_preserves_full_typed_results_and_refuses_admission
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_cancel_preserves_actual_finished_item_and_explicit_abort _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:99: in test_cancel_preserves_actual_finished_item_and_explicit_abort
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_deadline_stops_lazy_inventory_before_more_real_verification _______
+tests/unit/core/artifacts/test_batch_completion_admission.py:127: in test_deadline_stops_lazy_inventory_before_more_real_verification
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_________ test_actual_import_publisher_refuses_unbound_per_item_report _________
+tests/unit/core/artifacts/test_batch_completion_admission.py:148: in test_actual_import_publisher_refuses_unbound_per_item_report
+    assert report.imported_files == 0 and report.verification_failed
+E   AssertionError: assert (4 == 0)
+E    +  where 4 = ImportReport(imported_files=4, imported_artifacts=2, total_bytes=674, source=PosixPath('/workspace/e02-B-current-cas-g...832696de6b969d', manifest_profile_sha256='sha256:078f033007c51d47785d127e97e059ae29dbc0df03b8b06f257aad917ec7ccc6'))])).imported_files
+___________ test_global_basis_loss_preserves_finished_row_and_aborts ___________
+tests/unit/core/artifacts/test_batch_completion_admission.py:167: in test_global_basis_loss_preserves_finished_row_and_aborts
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______________ test_cancel_interrupts_actual_default_name_census _______________
+tests/unit/core/artifacts/test_batch_completion_admission.py:188: in test_cancel_interrupts_actual_default_name_census
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______ test_selected_and_default_same_blob_remain_two_exact_confirmations ______
+tests/unit/core/artifacts/test_batch_completion_admission.py:205: in test_selected_and_default_same_blob_remain_two_exact_confirmations
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_real_full_batch_all_confirmations_are_required
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_local_corruption_preserves_full_typed_results_and_refuses_admission
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_preserves_actual_finished_item_and_explicit_abort
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_deadline_stops_lazy_inventory_before_more_real_verification
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_actual_import_publisher_refuses_unbound_per_item_report
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_global_basis_loss_preserves_finished_row_and_aborts
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_cancel_interrupts_actual_default_name_census
+FAILED tests/unit/core/artifacts/test_batch_completion_admission.py::test_selected_and_default_same_blob_remain_two_exact_confirmations
+8 failed in 0.92s

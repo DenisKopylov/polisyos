@@ -1,0 +1,83 @@
+{
+  "outcome": "PASS_DATA_ONLY_AUDIT",
+  "native_case_denominator": 7,
+  "actual_native_PASS": 7,
+  "all_loaded_concrete_polisyos_module_denominator": 92,
+  "all_origins_exact_target_git_bytes": true,
+  "runtime_regular_file_denominator": 36,
+  "runtime_regular_bytes": 141012,
+  "final_physical_fixture_quantities": [
+    {
+      "fixture": "test_known_physical_completion0",
+      "physical_requests": 2,
+      "physical_completions": 2,
+      "receipt_count": 2,
+      "spent": "0.04",
+      "reserved": "0",
+      "unresolved_completion_records": 0
+    },
+    {
+      "fixture": "test_known_physical_completion1",
+      "physical_requests": 2,
+      "physical_completions": 2,
+      "receipt_count": 2,
+      "spent": "0.04",
+      "reserved": "0",
+      "unresolved_completion_records": 0
+    },
+    {
+      "fixture": "test_shared_unknown_keeps_only0",
+      "physical_requests": 1,
+      "physical_completions": 1,
+      "receipt_count": 0,
+      "spent": "0",
+      "reserved": "0.12291",
+      "unresolved_completion_records": 1
+    },
+    {
+      "fixture": "test_traced_preflight_refusal_0",
+      "physical_requests": 2,
+      "physical_completions": 2,
+      "receipt_count": 2,
+      "spent": "0.04",
+      "reserved": "0",
+      "unresolved_completion_records": 0
+    },
+    {
+      "fixture": "test_traced_preflight_refusal_1",
+      "physical_requests": 2,
+      "physical_completions": 2,
+      "receipt_count": 2,
+      "spent": "0.04",
+      "reserved": "0",
+      "unresolved_completion_records": 0
+    },
+    {
+      "fixture": "test_traced_preflight_refusal_2",
+      "physical_requests": 2,
+      "physical_completions": 2,
+      "receipt_count": 2,
+      "spent": "0.04",
+      "reserved": "0",
+      "unresolved_completion_records": 0
+    },
+    {
+      "fixture": "test_wrong_genuine_join_proof_0",
+      "physical_requests": 1,
+      "physical_completions": 1,
+      "receipt_count": 1,
+      "spent": "0.02",
+      "reserved": "0",
+      "unresolved_completion_records": 0
+    }
+  ],
+  "wrong_genuine_proof_fields": [
+    "owner",
+    "request_digest",
+    "scope_key",
+    "receiver_attempt_id",
+    "producer_attempt_id"
+  ],
+  "runtime_by_reviewer": "Only the one exact seven-case whole-file run recorded in wrapper; this audit performs no native or collection invocation",
+  "authority_qualification": "Reported synthetic .02 is supplied fixture data; real local operations and ledger quantities are recomputed. Configured emitter trust remains a finite composition premise, not external billing/institutional authority."
+}

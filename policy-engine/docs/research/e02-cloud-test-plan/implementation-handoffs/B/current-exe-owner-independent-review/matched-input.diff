@@ -1,0 +1,19 @@
+--- negative-probe.py
++++ candidate-probe.py
+@@ -1,6 +1,6 @@
+ import asyncio, hashlib, json, pathlib, subprocess, sys, types
+ root=pathlib.Path('/workspace/e02-B-current-execution-state')
+-sha='ff6d86f56948dc49780e5034d4ec2a3f619df8c6'
++sha='1bd1fd11b683bbade5411a71b02706ea206b149d'
+ paths=['policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py','policy-engine/src/polisyos/core/artifacts/async_store.py','policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py']
+ identities={}
+ for path in paths:
+@@ -11,7 +11,7 @@
+ exec(compile(raw,sha+':'+paths[-1],'exec'),module.__dict__)
+ from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook,resolve_latest_checkpoint
+ from polisyos.scientist.orchestration.engine.state import ExperimentState
+-out=pathlib.Path('/workspace/e02-B-current-runtime/_build/e02-current-runtime/exe-ff6d-cancel')
++out=pathlib.Path('/workspace/e02-B-current-runtime/_build/e02-current-runtime/exe-1bd1-cancel')
+ out.mkdir(parents=True,exist_ok=True)
+ async def probe():
+  store=module.FileSystemCAS(out/'cas')

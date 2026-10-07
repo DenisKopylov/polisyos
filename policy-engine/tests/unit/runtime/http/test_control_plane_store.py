@@ -1620,6 +1620,7 @@ def test_completed_proof_publication_preserves_progress_and_journals_exact_attem
     guarded: bool,
 ) -> None:
     raw = _make_store(tmp_path)
+    admin = _make_store(tmp_path)  # Independent unbound sibling/admin writer on the same DB.
     store = guard_runtime_control_store(raw) if guarded else raw
     job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
     with _fence_leased_execution(store, job=job):
@@ -1641,7 +1642,10 @@ def test_completed_proof_publication_preserves_progress_and_journals_exact_attem
             "observed_job_state": "completed",
             "control_store_state_transitions": store.list_job_state_transitions(job.job_id),
         }
-        raw.upsert_progress(
+        with pytest.raises(ControlJobLeaseLostError):
+            raw.upsert_progress(job_id=job.job_id, progress={"forbidden_bound_write": True})
+        assert raw.get_job(job.job_id) == completed
+        admin.upsert_progress(
             job_id=job.job_id,
             progress={**completed.progress, "sibling_update": {"retained": True}},
         )
@@ -1704,6 +1708,7 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
     mutation: str,
 ) -> None:
     raw = _make_store(tmp_path)
+    admin = _make_store(tmp_path)  # Independent unbound sibling/admin writer on the same DB.
     store = guard_runtime_control_store(raw) if guarded else raw
     job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
     with _fence_leased_execution(store, job=job):
@@ -1713,7 +1718,7 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
         )
         completed = store.current_execution_completed_job_record()
         if mutation == "completion_owner":
-            raw.append_event(
+            admin.append_event(
                 job_id=job.job_id,
                 event_type="job_completed",
                 payload={
@@ -1723,38 +1728,38 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
                 },
             )
         elif mutation == "attempt":
-            raw._execute(
+            admin._execute(
                 "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
             )
         elif mutation == "restarted":
-            raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+            admin.mark_running(job_id=job.job_id, worker_id="replacement-worker")
         elif mutation == "lease_owner":
-            raw._execute(
+            admin._execute(
                 "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
                 ("foreign-worker", job.job_id),
             )
         elif mutation == "lease_expiry":
-            raw._execute(
+            admin._execute(
                 "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
                 ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
             )
         elif mutation == "proof_basis":
-            raw.upsert_progress(
+            admin.upsert_progress(
                 job_id=job.job_id,
                 progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
             )
         elif mutation == "proof_basis_primitive_type":
-            raw.upsert_progress(
+            admin.upsert_progress(
                 job_id=job.job_id,
                 progress={**completed.progress, "search_exit_contract": {"verified": 1}},
             )
         elif mutation == "proof_basis_key_presence":
-            raw.upsert_progress(
+            admin.upsert_progress(
                 job_id=job.job_id,
                 progress={**completed.progress, "authority_path": None},
             )
         else:
-            raw.append_event(
+            admin.append_event(
                 job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
             )
         before = raw.get_job(job.job_id)

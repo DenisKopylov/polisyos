@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "/workspace/e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+    "--basetemp=/tmp/e02-B-gateway-exact-money-candidate/qualified-full",
+    "--junitxml=/tmp/e02-B-gateway-exact-money-candidate/qualified-full.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "head": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "tree": "bd3d76242c3c222b0bee7dd2c81bc73c2ecb374f",
+  "head_after": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "wall_s": 116.39054657801171,
+  "process_rusage_maxrss_kib": 600376,
+  "exit_code": 1,
+  "exec_setup_error": null,
+  "harness_state": "EXECUTED",
+  "output_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-qualified-e7.txt",
+  "output_sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_NO_SYNC": null,
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "limitations": [
+    "Combined stdout/stderr; no separate stream-count claim.",
+    "Source boundary is HEAD identity; the launcher checks initial cleanliness.",
+    "RSS is wait4 child rusage, not an aggregate of independently concurrent gates."
+  ]
+}

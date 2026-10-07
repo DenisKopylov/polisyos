@@ -1,0 +1,275 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:b3866434b316cb5b",
+  "revision": 16,
+  "updated_at": "2026-10-06T22:12:18.371212Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+    "pid": 567265
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.281933Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.288106Z"
+    },
+    {
+      "revision": 2,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.294094Z"
+    },
+    {
+      "revision": 3,
+      "operation": "settle_spend",
+      "key": "policy_translator",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.296388Z"
+    },
+    {
+      "revision": 4,
+      "operation": "settle_spend",
+      "key": "policy_briefing",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.299042Z"
+    },
+    {
+      "revision": 5,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.304166Z"
+    },
+    {
+      "revision": 6,
+      "operation": "release",
+      "key": "policy_translator",
+      "amount": "0.06245",
+      "applied_amount": "0.06245",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.307658Z"
+    },
+    {
+      "revision": 7,
+      "operation": "release",
+      "key": "policy_briefing",
+      "amount": "0.06245",
+      "applied_amount": "0.06245",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.310088Z"
+    },
+    {
+      "revision": 8,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.312909Z"
+    },
+    {
+      "revision": 9,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.329759Z"
+    },
+    {
+      "revision": 10,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.340338Z"
+    },
+    {
+      "revision": 11,
+      "operation": "settle_spend",
+      "key": "policy_translator",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.344720Z"
+    },
+    {
+      "revision": 12,
+      "operation": "settle_spend",
+      "key": "policy_briefing",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.349396Z"
+    },
+    {
+      "revision": 13,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.357915Z"
+    },
+    {
+      "revision": 14,
+      "operation": "release",
+      "key": "policy_translator",
+      "amount": "0.06245",
+      "applied_amount": "0.06245",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.363258Z"
+    },
+    {
+      "revision": 15,
+      "operation": "release",
+      "key": "policy_briefing",
+      "amount": "0.06245",
+      "applied_amount": "0.06245",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.367012Z"
+    },
+    {
+      "revision": 16,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.371206Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "policy_translator": {
+        "key": "policy_translator",
+        "max_usd": "10"
+      },
+      "policy_briefing": {
+        "key": "policy_briefing",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "policy_translator": "0.04",
+      "policy_briefing": "0.04"
+    },
+    "provider_spent": {
+      "actual-sdk-boundary-fixture": "0.08"
+    },
+    "reserved": {
+      "policy_translator": "0",
+      "policy_briefing": "0"
+    }
+  },
+  "spend_receipts": {
+    "llm-producer:f95ee7f7ef5549c58e524707bf124fc3:budget:a858f91dca506cef023b387a83e3ce2128bc08e6385290798b787716d70c3b65": {
+      "event_id": "llm-producer:f95ee7f7ef5549c58e524707bf124fc3:budget:a858f91dca506cef023b387a83e3ce2128bc08e6385290798b787716d70c3b65",
+      "payload_digest": "019e658f5648c1048ab36c1774a86bb866b76086ccedcf07df5f948d01d51e41",
+      "key": "policy_translator",
+      "amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "revision": 3,
+      "committed_at": "2026-10-06T22:12:18.295725Z"
+    },
+    "llm-producer:f95ee7f7ef5549c58e524707bf124fc3:budget:f320581f08c0d696913987e119bf0fc1d5e12a233239c0db7ffecd3379c08302": {
+      "event_id": "llm-producer:f95ee7f7ef5549c58e524707bf124fc3:budget:f320581f08c0d696913987e119bf0fc1d5e12a233239c0db7ffecd3379c08302",
+      "payload_digest": "22201f037ac518fa0158b61830bc387c79ccc0e0c528b223a8930e7de2911f9f",
+      "key": "policy_briefing",
+      "amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "revision": 4,
+      "committed_at": "2026-10-06T22:12:18.298248Z"
+    },
+    "llm-producer:d7414ed2bbb74439a507136d374796be:budget:a858f91dca506cef023b387a83e3ce2128bc08e6385290798b787716d70c3b65": {
+      "event_id": "llm-producer:d7414ed2bbb74439a507136d374796be:budget:a858f91dca506cef023b387a83e3ce2128bc08e6385290798b787716d70c3b65",
+      "payload_digest": "4ee7d9030f6cd26d006a5a974880e40ecbe12b860957ec1d3730527b32bbe755",
+      "key": "policy_translator",
+      "amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "revision": 11,
+      "committed_at": "2026-10-06T22:12:18.343413Z"
+    },
+    "llm-producer:d7414ed2bbb74439a507136d374796be:budget:f320581f08c0d696913987e119bf0fc1d5e12a233239c0db7ffecd3379c08302": {
+      "event_id": "llm-producer:d7414ed2bbb74439a507136d374796be:budget:f320581f08c0d696913987e119bf0fc1d5e12a233239c0db7ffecd3379c08302",
+      "payload_digest": "ac2b1726933e0a728c1ca2cfc62cceee1c9c5b401b7f36d8a1c64a35c4c45910",
+      "key": "policy_briefing",
+      "amount": "0.02",
+      "provider": "actual-sdk-boundary-fixture",
+      "revision": 12,
+      "committed_at": "2026-10-06T22:12:18.347926Z"
+    }
+  },
+  "completion_obligations": {}
+}

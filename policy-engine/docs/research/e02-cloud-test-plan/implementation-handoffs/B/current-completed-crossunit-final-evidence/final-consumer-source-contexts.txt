@@ -1,0 +1,1241 @@
+policy-engine/src/polisyos/fabric/data_plane/streaming.py@1862c021df74a5c5815bc5cd21a20e61b30132b6 FULL_SHA256=aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3
+
+243:     async def create(
+
+244:         cls,
+
+245:         *,
+
+246:         connector_id: str,
+
+247:         dataset_id: str,
+
+248:         connection_config: ConnectionConfig | dict[str, Any] | None = None,
+
+249:         request: FetchRequest | None = None,
+
+250:         partition_key: str = "default",
+
+251:         registry: ConnectorRegistry | None = None,
+
+252:         registry_provider: ConnectorRegistryProvider | None = None,
+
+253:     ) -> StreamingSourceSession:
+
+254:         resolved_registry = _resolve_connector_registry(
+
+255:             registry=registry,
+
+256:             registry_provider=registry_provider,
+
+257:         )
+
+258:         entry = resolved_registry.get_entry(connector_id)
+
+259:         config = normalize_connection_config(connection_config) or entry.default_config
+
+260:         if config is None:
+
+261:             raise ValueError(f"No connection config available for {connector_id!r}")
+
+262:         pool = ConnectionPool(
+
+263:             connector_factory=entry.factory,
+
+264:             config=config,
+
+265:             pool_config=PoolConfig(max_size=max(1, int(config.max_connections or 1))),
+
+266:             pool_id=f"stream-{connector_id}-{dataset_id}",
+
+267:         )
+
+268:         session = cls(
+
+269:             connector_id=connector_id,
+
+270:             dataset_id=dataset_id,
+
+271:             pool=pool,
+
+272:             request=request or FetchRequest(dataset_id=dataset_id),
+
+273:             partition_key=partition_key,
+
+274:         )
+
+275:         try:
+
+276:             await session.subscribe()
+
+277:         except BaseException as exc:
+
+278:             try:
+
+279:                 await session.close()
+
+280:             except BaseException as cleanup_exc:
+
+281:                 # Startup owns this session until cleanup succeeds.  A second
+
+282:                 # physical cleanup failure is deliberately fail-closed: the
+
+283:                 # original startup error remains authoritative and the note
+
+284:                 # records that the pool owner is still pending.
+
+285:                 exc.add_note(
+
+286:                     "stream session startup cleanup remains pending after retry: "
+
+287:                     f"{cleanup_exc!r}"
+
+288:                 )
+
+289:             if session._cleanup_pending or session.handle is not None:
+
+290:                 retain_pending_cleanup = getattr(
+
+291:                     resolved_registry,
+
+292:                     "_retain_pending_startup_cleanup",
+
+293:                     None,
+
+294:                 )
+
+295:                 if callable(retain_pending_cleanup):
+
+296:                     try:
+
+297:                         retain_pending_cleanup(connector_id, session.pool)
+
+298:                     except BaseException as transfer_exc:
+
+299:                         exc.add_note(
+
+300:                             "stream session startup owner transfer failed: "
+
+301:                             f"{transfer_exc!r}"
+
+302:                         )
+
+303:             raise
+
+304:         return session
+
+305: 
+
+494:     async def close(self) -> None:
+
+495:         """Release the current stream handle and close owned pool resources."""
+
+496:         async with self._close_lock:
+
+497:             if self._closed and not self._cleanup_pending:
+
+498:                 return
+
+499:             if (
+
+500:                 self.connector is not None
+
+501:                 and self.handle is not None
+
+502:                 and hasattr(
+
+503:                     self.connector,
+
+504:                     "close_stream",
+
+505:                 )
+
+506:                 and not self._stream_close_complete
+
+507:                 and not self._cleanup_pending
+
+508:             ):
+
+509:                 await self.connector.close_stream(self.handle)
+
+510:                 self._stream_close_complete = True
+
+511: 
+
+512:             if self.handle is not None:
+
+513:                 await self.pool.release(self.handle)
+
+514:                 self.connector = None
+
+515:                 self.handle = None
+
+516:             await self.pool.close_all()
+
+517:             self._closed = True
+
+518:             self._cleanup_pending = False
+
+519:             self.connector = None
+
+520:             self.handle = None
+
+521:             self._generator = None
+
+522:             self._subscription = None
+
+523: 
+
+524:     async def _reconnect(self) -> None:
+
+525:         if self.handle is not None:
+
+526:             await self.pool.release(self.handle)
+
+1848:                 )
+
+1849:                 latest_cursor = await async_cursor_store.find_latest_cursor(
+
+1850:                     connector_id,
+
+1851:                     dataset_id,
+
+1852:                     partition_key=options.partition_key,
+
+1853:                 )
+
+1854:             # Let source rewind/reconnect failures remain the primary evidence
+
+1855:             # for a broken source lease.  State validation follows only after
+
+1856:             # the source has accepted the requested recovery position.
+
+1857:             await session.rewind(latest_checkpoint)
+
+1858:             if frontier_intent is None:
+
+1859:                 latest_cursor = await async_cursor_store.find_latest_cursor(
+
+1860:                     connector_id,
+
+1861:                     dataset_id,
+
+1862:                     partition_key=options.partition_key,
+
+1863:                 )
+
+1864:             # The deque is the persisted bounded horizon.  Rebuild membership
+
+1865:             # from the retained deque after maxlen clips any oversized or old
+
+1866:             # checkpoint rather than reviving evicted keys on restart.
+
+1867:             dedupe_keys.extend(latest_checkpoint.dedupe_keys)
+
+1868:             dedupe_seen.update(dedupe_keys)
+
+1869:             operator_state = latest_checkpoint.metadata.get("operator_state")
+
+1870:             if operator_state is None:
+
+1871:                 # Checkpoints produced before ING-02 did not carry operator
+
+1872:                 # state.  They remain resumable only when the record proves an
+
+1873:                 # empty active frontier.  PAUSED/CLOSED lifecycle, a nonzero
+
+1874:                 # offset, dedupe keys, observed offset/token, or output counts
+
+1875:                 # are evidence that restoring an empty operator would lose
+
+1876:                 # state, so recovery fails closed.
+
+1877:                 has_frontier_evidence = (
+
+1878:                     latest_checkpoint.offset > 0
+
+1879:                     or bool(latest_checkpoint.dedupe_keys)
+
+1880:                     or latest_checkpoint.lifecycle_state
+
+1881:                     != StreamLifecycleState.ACTIVE
+
+1882:                     or any(
+
+1883:                         latest_checkpoint.metadata.get(name)
+
+1884:                         for name in (
+
+1885:                             "observed_offset",
+
+1886:                             "observed_resume_token",
+
+1887:                             "rows_emitted",
+
+1888:                             "window_count",
+
+1889:                             "cdc_event_count",
+
+1890:                         )
+
+1891:                     )
+
+1892:                 )
+
+1893:                 if latest_checkpoint.metadata.get("operator_state_required") or (
+
+1894:                     has_frontier_evidence
+
+1895:                 ):
+
+1896:                     raise CursorStoreError(
+
+1897:                         "missing stream operator state for a non-empty checkpoint"
+
+1898:                     )
+
+1899:             else:
+
+1900:                 _restore_stream_operator_state(
+
+1901:                     operator_state,
+
+1902:                     accumulator=accumulator,
+
+1903:                     ordering_state=ordering_state,
+
+1904:                 )
+
+1905:             committed_checkpoint = latest_checkpoint
+
+1906:             committed_cursor = latest_cursor
+
+1907: 
+
+1908:         if schema_binding is not None:
+
+1909:             previous_schema = tuple(sorted(schema_binding.schema.field_names()))
+
+1910:         elif latest_checkpoint is not None:
+
+1911:             previous_schema = tuple(
+
+1912:                 str(field) for field in latest_checkpoint.metadata.get("schema_fields", ())
+
+1913:             )
+
+1914:         visible_schema = (
+
+1915:             tuple(str(field) for field in latest_checkpoint.metadata.get("visible_fields", ()))
+
+1916:             if latest_checkpoint is not None
+
+1917:             else None
+
+1918:         )
+
+1919: 
+
+1920:         while True:
+
+1921:             buffered_rows = accumulator.buffered_rows()
+
+1922:             buffered_bytes = accumulator.buffered_bytes()
+
+1923:             if buffered_rows >= processing_contract.backpressure.max_buffered_rows or (
+
+1924:                 buffered_bytes >= processing_contract.backpressure.max_buffered_bytes
+
+1925:             ):
+
+1926:                 result.backpressure_events += 1
+
+1927:                 max_backpressure_events = (
+
+1928:                     processing_contract.backpressure.max_backpressure_events
+
+1929:                 )
+
+1930:                 if (
+
+1931:                     max_backpressure_events is not None
+
+1932:                     and result.backpressure_events > max_backpressure_events
+
+1933:                 ):
+
+1934:                     raise RuntimeError("stream backpressure event budget exceeded")
+
+1935:                 if (
+
+1936:                     processing_contract.backpressure.strategy
+
+1937:                     == BackpressureStrategy.FAIL_CLOSED
+
+1938:                 ):
+
+1939:                     raise RuntimeError("stream backpressure contract failed closed")
+
+1940:                 if (
+
+1941:                     processing_contract.backpressure.strategy
+
+1942:                     == BackpressureStrategy.SPILL_TO_DISK
+
+1943:                 ):
+
+1944:                     # This runtime has no spill-segment consumer yet.  Continuing
+
+1945:                     # through the pause path would only defer the same unbounded
+
+1946:                     # accumulator growth until the next poll, so refuse the
+
+1947:                     # unsupported capacity explicitly instead of claiming spill.
+
+1948:                     raise RuntimeError(
+
+1949:                         "spill_to_disk backpressure is unsupported without a "
+
+1950:                         "spill consumer; refusing to exceed the stream window "
+
+1951:                         f"capacity rows={buffered_rows} bytes={buffered_bytes}"
+
+1952:                     )
+
+1953:                 await session.pause(
+
+1954:                     reason=(
+
+1955:                         "window buffer above threshold "
+
+1956:                         f"rows={buffered_rows} bytes={buffered_bytes}"
+
+1957:                     )
+
+1958:                 )
+
+1959:                 await asyncio.sleep(processing_contract.backpressure.pause_seconds)
+
+1960:                 await session.resume()
+
+1961: 
+
+1962:             chunk = await session.poll()
+
+1963:             if chunk is None:
+
+1964:                 break
+
+2378:             checkpoint_ref = await async_cursor_store.save_stream_checkpoint(checkpoint)
+
+2379:             result.final_checkpoint = checkpoint
+
+2380:             result.final_checkpoint_ref = str(checkpoint_ref.artifact_id)
+
+2381:         raise
+
+2382:     finally:
+
+2383:         primary_exc = sys.exc_info()[1]
+
+2384:         try:
+
+2385:             await session.close()
+
+2386:         except BaseException as cleanup_exc:
+
+2387:             if primary_exc is None:
+
+2388:                 raise
+
+2389:             primary_exc.add_note(
+
+2390:                 f"stream session final cleanup failed: {cleanup_exc!r}"
+
+2391:             )
+
+2392: 
+
+2393: 
+
+policy-engine/src/polisyos/fabric/connectors/pool.py@1862c021df74a5c5815bc5cd21a20e61b30132b6 FULL_SHA256=0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35
+
+347:     def _require_acquire_budget(self, deadline: float, cancellation_count: int) -> None:
+
+348:         if asyncio.get_running_loop().time() >= deadline:
+
+349:             raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
+
+350:         task = asyncio.current_task()
+
+351:         if task is not None and task.cancelling() > cancellation_count:
+
+352:             raise asyncio.CancelledError
+
+353: 
+
+354:     async def _acquire_owned(
+
+355:         self,
+
+356:         *,
+
+357:         live_acquire_permit: object | None = None,
+
+358:         live_connector_id: str | None = None,
+
+359:         live_dataset_id: str | None = None,
+
+360:     ) -> tuple[SourceConnector, ConnectionHandle]:
+
+361:         """Use one monotonic budget through final handle publication."""
+
+362:         deadline = asyncio.get_running_loop().time() + self._config.acquire_timeout_seconds
+
+363:         task = asyncio.current_task()
+
+364:         cancellation_count = task.cancelling() if task is not None else 0
+
+365:         async with asyncio.timeout_at(deadline) as acquisition_timer:
+
+366:             try:
+
+367:                 return await self._acquire_owned_before_deadline(
+
+368:                     deadline=deadline,
+
+369:                     cancellation_count=cancellation_count,
+
+370:                     live_acquire_permit=live_acquire_permit,
+
+371:                     live_connector_id=live_connector_id,
+
+372:                     live_dataset_id=live_dataset_id,
+
+373:                 )
+
+374:             except asyncio.CancelledError as exc:
+
+375:                 if acquisition_timer.expired():
+
+376:                     raise PoolExhaustedError(
+
+377:                         self._pool_id, self._config.acquire_timeout_seconds
+
+378:                     ) from exc
+
+379:                 raise
+
+380: 
+
+381:     async def _acquire_owned_before_deadline(
+
+382:         self,
+
+383:         *,
+
+485:                         pooled = None
+
+486:                         cleanup_attempted = False
+
+487:                         continue
+
+488: 
+
+489:                 async with self._lock:
+
+490:                     self._require_acquire_budget(deadline, cancellation_count)
+
+491:                     if not self._closed and generation == self._generation:
+
+492:                         pooled.mark_used()
+
+493:                         self._in_use[pooled.handle.session_id] = pooled
+
+494:                         self._pending_cleanup.pop(pooled.handle.session_id, None)
+
+495:                         pooled.pending_permit = False
+
+496:                         self._released_session_ids.pop(pooled.handle.session_id, None)
+
+497: 
+
+498:                         with self._stats_lock:
+
+499:                             self._total_acquires += 1
+
+500:                             elapsed = datetime.now(UTC) - start_time
+
+501:                             self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
+
+502: 
+
+503:                         logger.debug(
+
+504:                             "Connection acquired",
+
+505:                             pool_id=self._pool_id,
+
+506:                             session_id=pooled.handle.session_id,
+
+507:                             idle_count=len(self._idle),
+
+508:                             in_use_count=len(self._in_use),
+
+509:                         )
+
+510:                         # Publication and registration retirement are one commit.
+
+511:                         # There is no suspension point after a successful commit.
+
+512:                         self._active_acquires -= 1
+
+513:                         registered = False
+
+514:                         if self._active_acquires == 0:
+
+515:                             self._active_acquires_done.set()
+
+516:                         published = True
+
+517:                         return pooled.connector, pooled.handle
+
+518: 
+
+519:                 # close_all won the generation race. The handle remains owned by this
+
+520:                 # transition until its physical disconnect succeeds.
+
+521:                 cleanup_attempted = True
+
+522:                 if not await self._cleanup_pooled(pooled):
+
+523:                     raise RuntimeError("Connection cleanup is pending for the closed pool")
+
+524:                 pooled = None
+
+525:                 permit_release = True
+
+526:                 raise PoolClosedError(self._pool_id)
+
+527:         except BaseException as exc:
+
+528:             if pooled is not None and not published:
+
+529:                 cleanup = asyncio.create_task(
+
+530:                     self._settle_failed_acquire(pooled, cleanup_attempted, exc)
+
+531:                 )
+
+532:                 permit_release = await self._wait_owned_settlement(cleanup)
+
+533:             elif not published:
+
+534:                 permit_release = True
+
+535:             raise
+
+536:         finally:
+
+537:             if registered or (permit_acquired and not published and permit_release):
+
+538:                 retirement = asyncio.create_task(
+
+539:                     self._retire_failed_acquire(
+
+540:                         registered=registered,
+
+541:                         release_permit=permit_acquired and not published and permit_release,
+
+542:                     )
+
+543:                 )
+
+544:                 await self._wait_owned_settlement(retirement)
+
+545: 
+
+546:     async def _settle_failed_acquire(
+
+547:         self, pooled: PooledConnection, cleanup_attempted: bool, primary: BaseException
+
+708:     def _register_pending_cleanup(self, pooled: PooledConnection, *, pending_permit: bool) -> None:
+
+709:         """Publish a physical owner before connector cleanup or close can await."""
+
+710:         session_id = pooled.handle.session_id
+
+711:         existing = self._pending_cleanup.get(session_id)
+
+712:         if existing is None:
+
+713:             self._pending_cleanup[session_id] = pooled
+
+714:         pooled.pending_permit = pooled.pending_permit or pending_permit
+
+715: 
+
+716:     def _clear_pending_cleanup(self, pooled: PooledConnection) -> None:
+
+717:         """Forget an owner only after its physical disconnect succeeds."""
+
+718:         self._pending_cleanup.pop(pooled.handle.session_id, None)
+
+719: 
+
+720:     async def _cleanup_pooled(self, pooled: PooledConnection) -> bool:
+
+721:         """Run one shared cleanup task and retain the owner when it remains unresolved."""
+
+722:         async with self._lock:
+
+723:             self._register_pending_cleanup(pooled, pending_permit=pooled.pending_permit)
+
+724:             if pooled.closed:
+
+725:                 self._clear_pending_cleanup(pooled)
+
+726:                 return True
+
+727:             cleanup_task = pooled.cleanup_task
+
+728:             if cleanup_task is None or cleanup_task.done():
+
+729:                 cleanup_task = asyncio.create_task(self._close_connection(pooled))
+
+730:                 pooled.cleanup_task = cleanup_task
+
+731: 
+
+732:         cancelled = False
+
+733:         while True:
+
+734:             try:
+
+735:                 await asyncio.shield(cleanup_task)
+
+736:                 break
+
+737:             except asyncio.CancelledError:
+
+738:                 cancelled = True
+
+739: 
+
+740:         try:
+
+741:             cleaned = bool(cleanup_task.result())
+
+742:         except BaseException:
+
+743:             cleaned = False
+
+744: 
+
+745:         async with self._lock:
+
+746:             if cleaned:
+
+747:                 self._clear_pending_cleanup(pooled)
+
+748:             elif pooled.cleanup_task is cleanup_task:
+
+939:                 self._total_closes += 1
+
+940:         return True
+
+941: 
+
+942:     async def close_all(self) -> None:
+
+943:         """
+
+944:         Close all connections and mark pool as closed.
+
+945: 
+
+946:         After calling this, the pool cannot be used.
+
+947:         """
+
+948:         async with self._lock:
+
+949:             if not self._closed:
+
+950:                 self._closed = True
+
+951:                 self._generation += 1
+
+952:                 while self._idle:
+
+953:                     pooled = self._idle.popleft()
+
+954:                     self._register_pending_cleanup(pooled, pending_permit=False)
+
+955: 
+
+956:                 for pooled in list(self._in_use.values()):
+
+957:                     pooled.pending_permit = True
+
+958:                     self._pending_cleanup[pooled.handle.session_id] = pooled
+
+959:                     self._remember_session_id(
+
+960:                         self._released_session_ids,
+
+961:                         pooled.handle.session_id,
+
+962:                     )
+
+963:                 self._in_use.clear()
+
+964:             active_acquires_done = self._active_acquires_done
+
+965: 
+
+966:         cancelled = False
+
+967:         try:
+
+968:             await asyncio.shield(active_acquires_done.wait())
+
+969:         except asyncio.CancelledError:
+
+970:             cancelled = True
+
+971:             await asyncio.shield(active_acquires_done.wait())
+
+972: 
+
+973:         async with self._lock:
+
+974:             cleanup_items = list(self._pending_cleanup.values())
+
+975: 
+
+976:         cleanup_failed = False
+
+977:         for pooled in cleanup_items:
+
+978:             try:
+
+979:                 cleaned = await self._cleanup_pooled(pooled)
+
+980:             except asyncio.CancelledError:
+
+policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py@1862c021df74a5c5815bc5cd21a20e61b30132b6 FULL_SHA256=50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31
+
+320:             logger.debug(
+
+321:                 "Default config bootstrap from profiles skipped",
+
+322:                 error=str(exc),
+
+323:                 error_type=type(exc).__name__,
+
+324:             )
+
+325: 
+
+326:     # =========================================================================
+
+327:     # Registration
+
+328:     # =========================================================================
+
+329: 
+
+330:     @staticmethod
+
+331:     def _has_running_loop() -> bool:
+
+332:         try:
+
+333:             asyncio.get_running_loop()
+
+334:             return True
+
+335:         except RuntimeError:
+
+336:             return False
+
+337: 
+
+338:     def _close_pools_sync(self, pools: list[ConnectionPool]) -> None:
+
+339:         if not pools:
+
+340:             return
+
+341:         if RegistryLifecycleMixin._has_running_loop():
+
+342:             raise RuntimeError(
+
+343:                 "ConnectorRegistry synchronous cleanup cannot close pools while an "
+
+344:                 "event loop is running; use unregister_async() or shutdown_async()."
+
+345:             )
+
+346: 
+
+347:         async def _close_all() -> None:
+
+348:             await self._close_pools_async(pools)
+
+349: 
+
+350:         asyncio.run(_close_all())
+
+351: 
+
+352:     async def _close_pools_async(self, pools: list[ConnectionPool]) -> None:
+
+353:         if not pools:
+
+354:             return
+
+355: 
+
+356:         unique_pools: list[ConnectionPool] = []
+
+357:         seen: set[int] = set()
+
+358:         for pool in pools:
+
+359:             pool_identity = id(pool)
+
+360:             if pool_identity in seen:
+
+361:                 continue
+
+362:             seen.add(pool_identity)
+
+363:             unique_pools.append(pool)
+
+364: 
+
+365:         failures: list[BaseException] = []
+
+366: 
+
+367:         async def _close_one(pool: ConnectionPool) -> None:
+
+368:             try:
+
+369:                 await pool.close_all()
+
+370:             except BaseException as exc:
+
+371:                 failures.append(exc)
+
+372:                 return
+
+373:             with self._instance_lock:
+
+374:                 pending = self._pending_startup_cleanup.get(id(pool))
+
+375:                 if pending is not None and pending[1] is pool:
+
+590:         return True
+
+591: 
+
+592:     async def shutdown_async(self) -> None:
+
+593:         """Unregister runtime wrappers and close all connection pools deterministically."""
+
+594:         with self._instance_lock:
+
+595:             pools_to_close = []
+
+596:             for pool_key, pool in self._connection_pools.items():
+
+597:                 self._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
+
+598:                 pools_to_close.append(pool)
+
+599:             self._connection_pools.clear()
+
+600:             pools_to_close.extend(
+
+601:                 pool for _fqid, pool in self._pending_startup_cleanup.values()
+
+602:             )
+
+603:             self._cache_wrappers.clear()
+
+604:             self._contract_wrappers.clear()
+
+605:             self._schema_invalidation_callback_registered = False
+
+606:         await self._close_pools_async(pools_to_close)
+
+607: 
+
+608:     def shutdown(self) -> None:
+
+609:         """Synchronous shutdown bridge for contexts without a running event loop."""
+
+610:         with self._instance_lock:
+
+611:             pools_to_close = []
+
+612:             for pool_key, pool in self._connection_pools.items():
+
+613:                 self._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
+
+614:                 pools_to_close.append(pool)
+
+615:             pools_to_close.extend(
+
+616:                 pool for _fqid, pool in self._pending_startup_cleanup.values()
+
+617:             )
+
+618:             if pools_to_close and self._has_running_loop():
+
+619:                 raise RuntimeError(
+
+620:                     "ConnectorRegistry.shutdown() cannot close pools while an event "
+
+621:                     "loop is running; use shutdown_async()."
+
+622:                 )
+
+623:             self._connection_pools.clear()
+
+624:             self._cache_wrappers.clear()
+
+625:             self._contract_wrappers.clear()
+
+626:             self._schema_invalidation_callback_registered = False
+
+627:         self._close_pools_sync(pools_to_close)
+
+628: 
+
+629:     # =========================================================================
+
+630:     # Wrappers (resilience, contract validation, SLO metrics)
+
+policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py@1862c021df74a5c5815bc5cd21a20e61b30132b6 FULL_SHA256=b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b
+
+36: def _sum_call_events(events: list[dict[str, Any]]) -> dict[str, float]:
+
+37:     prompt_tokens = 0.0
+
+38:     completion_tokens = 0.0
+
+39:     latency_ms = 0.0
+
+40:     cost_usd = 0.0
+
+41:     estimated_cost_usd = 0.0
+
+42:     cost_delta_usd = 0.0
+
+43:     for event in events:
+
+44:         prompt_tokens += float(event.get("prompt_tokens") or 0)
+
+45:         completion_tokens += float(event.get("completion_tokens") or 0)
+
+46:         latency_ms += float(event.get("latency_ms") or 0)
+
+47:         cost_usd += float(event.get("cost_usd") or 0.0)
+
+48:         estimated_cost_usd += float(event.get("estimated_cost_usd") or 0.0)
+
+49:         cost_delta_usd += float(event.get("cost_delta_usd") or 0.0)
+
+50:     return {
+
+51:         "prompt_tokens": prompt_tokens,
+
+52:         "completion_tokens": completion_tokens,
+
+53:         "latency_ms": latency_ms,
+
+54:         "cost_usd": cost_usd,
+
+55:         "estimated_cost_usd": estimated_cost_usd,
+
+56:         "cost_delta_usd": cost_delta_usd,
+
+57:     }
+
+58: 
+
+59: 
+
+60: def _delta_usage(
+
+61:     before: dict[str, float],
+
+62:     after: dict[str, float],
+
+63: ) -> tuple[int, int, int, float]:
+
+64:     prompt = max(0, int(after["prompt_tokens"] - before["prompt_tokens"]))
+
+65:     completion = max(0, int(after["completion_tokens"] - before["completion_tokens"]))
+
+66:     latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
+
+67:     cost = max(0.0, float(after["cost_usd"] - before["cost_usd"]))
+
+68:     return prompt, completion, latency, cost
+
+69: 
+
+70: 
+
+policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@1862c021df74a5c5815bc5cd21a20e61b30132b6 FULL_SHA256=e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd
+
+4988:                 )
+
+4989: 
+
+4990:                 if model_name:
+
+4991:                     llm_client = create_traced_gateway_client(
+
+4992:                         model_name=model_name,
+
+4993:                         run_id=run_id,
+
+4994:                         model_variant_id=variant_id,
+
+4995:                         call_observer=call_events.append,
+
+4996:                         tracer=self._tracer,
+
+4997:                         metrics=self._metrics,
+
+4998:                     )
+
+4999:                     if llm_client is None:
+
+5000:                         if allow_mock_fallback:
+
+5001:                             notes.append("gateway_not_configured_contract_testing_mock")
+
+5002:                         if allow_mock_fallback and callable(capability_manifest_updater):
+
+5003:                             current_capability_manifest_ref = capability_manifest_updater(
+
+5004:                                 ["gateway_not_configured_contract_testing_mock"]
+
+5005:                             )
+
+5006:                     else:
+
+5007:                         provider = "gateway"
+
+5008:                     _emit_job_progress(
+
+6430:             else:
+
+6431:                 run_budget_spent = 0.0
+
+6432:                 run_budget_stop = False
+
+6433:                 sem = asyncio.Semaphore(max(1, min(max_parallel_models, len(models_to_run))))
+
+6434:                 budget_lock = asyncio.Lock()
+
+6435: 
+
+6436:                 async def _run_with_limits(idx: int, model_name: str) -> dict[str, Any]:
+
+6437:                     nonlocal run_budget_spent, run_budget_stop
+
+6438:                     async with sem:
+
+6439:                         async with budget_lock:
+
+6440:                             if run_budget_stop:
+
+6441:                                 return {
+
+6442:                                     "model_variant_id": _normalize_model_variant_id(
+
+6443:                                         model_name, idx
+
+6444:                                     ),
+
+6445:                                     "model": model_name,
+
+6446:                                     "provider": "gateway",
+
+6447:                                     "status": "skipped_budget_guard",
+
+6448:                                     "verdict": None,
+
+6449:                                     "issue_count": 0,
+
+6450:                                     "prompt_tokens": 0,
+
+6451:                                     "completion_tokens": 0,
+
+6452:                                     "total_tokens": 0,
+
+6453:                                     "latency_ms": 0,
+
+6454:                                     "cost_usd": 0.0,
+
+6455:                                     "started_at": None,
+
+6456:                                     "finished_at": None,
+
+6457:                                     "steps": [],
+
+6458:                                     "notes": ["run_budget_guard_prevented_start"],
+
+6459:                                     "schema_healing": [],
+
+6460:                                     "schema_healing_count": 0,
+
+6461:                                     "_bundle": None,
+
+6462:                                 }
+
+6463:                         variant = await _run_variant(model_name, idx)
+
+6464:                         async with budget_lock:
+
+6465:                             run_budget_spent += float(variant.get("cost_usd") or 0.0)
+
+6466:                             if run_budget_usd is not None and run_budget_spent >= float(
+
+6467:                                 run_budget_usd
+
+6468:                             ):
+
+6469:                                 run_budget_stop = True
+
+6470:                         return variant
+
+6471: 
+
+6472:                 tasks = [
+
+6473:                     asyncio.create_task(_run_with_limits(index, model_name))
+
+6474:                     for index, model_name in enumerate(models_to_run)
+
+6475:                 ]
+
+6476:                 variants = await asyncio.gather(*tasks)
+
+6477: 
+
+6478:             for item in variants:
+
+6479:                 variant_id_value = str(
+
+6480:                     item.get("model_variant_id") or item.get("model") or "unknown_variant"

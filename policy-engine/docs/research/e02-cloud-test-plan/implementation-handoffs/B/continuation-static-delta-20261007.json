@@ -1,0 +1,658 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-static-delta-20261007",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_ids": [],
+  "slice_base_sha": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+  "implementation_commits": [
+    "982ff9b141bc0cb33885e35f70a5d4abe810326a"
+  ],
+  "candidate_sha": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+  "candidate_tree_sha": "855f7efcada23f3d2ba997bbe29beb61b112f9d7",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/ast.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/classify_global.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "exit_code": 0,
+      "wall_s": 0.0717049390077591,
+      "stdout": {
+        "path": "/tmp/e02-B-gateway-import-style-20261007/continuation-eight-ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": "PASS",
+      "id": "exact_continuation_ruff",
+      "target_tree_sha": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "ruff_version": "ruff 0.14.10",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "RUFF_CACHE_DIR": "/tmp/e02-B-gateway-import-style-20261007/ruff-cache",
+        "no_source_mutation": true,
+        "no_native_or_dependency_setup": true
+      },
+      "input_closure": {
+        "literal_instrument": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt",
+          "bytes": 4224,
+          "sha256": "f625e99b06e37d770ef369bce759d105c3c1ca8cb144fe7bc13924d53fa87b49"
+        },
+        "source_identity": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+          "bytes": 8566,
+          "sha256": "5cc50a02fa05bdcf53e39bf605780a8ce6ce684203b0e99344b83d2c7436957c"
+        },
+        "sources": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "bytes": 14990,
+            "sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+            "bytes": 28025,
+            "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+            "bytes": 11096,
+            "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 14768,
+            "sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+            "bytes": 7886,
+            "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+            "bytes": 13157,
+            "sha256": "cfd4fcc24702ab87c8411f91dd83c5a5d520f279888559024b5325af67d912b7"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+            "bytes": 12567,
+            "sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+            "bytes": 6760,
+            "sha256": "8fee28dddb578b3be74cc7bb51b4320778a01dff960468381e51352f00d08a11"
+          }
+        ],
+        "configuration_inputs": [
+          {
+            "path": "policy-engine/ruff.toml",
+            "bytes": 247,
+            "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+          },
+          {
+            "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+            "bytes": 26782,
+            "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+          }
+        ],
+        "delta_base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "delta_python_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+          "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+          "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+          "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "output": {
+        "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "qualification": "Static check of exact two production and six test files only; no source mutation or native execution. stdout/stderr bytes copied losslessly."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "exit_code": 0,
+      "wall_s": 0.04661021800711751,
+      "stdout": {
+        "path": "/tmp/e02-B-gateway-import-style-20261007/continuation-eight-format.stdout.txt",
+        "bytes": 26,
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+      },
+      "stderr": {
+        "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": "PASS",
+      "id": "exact_continuation_format",
+      "target_tree_sha": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "environment": {
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "ruff_version": "ruff 0.14.10",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "RUFF_CACHE_DIR": "/tmp/e02-B-gateway-import-style-20261007/ruff-cache",
+        "no_source_mutation": true,
+        "no_native_or_dependency_setup": true
+      },
+      "input_closure": {
+        "literal_instrument": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt",
+          "bytes": 4224,
+          "sha256": "f625e99b06e37d770ef369bce759d105c3c1ca8cb144fe7bc13924d53fa87b49"
+        },
+        "source_identity": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+          "bytes": 8566,
+          "sha256": "5cc50a02fa05bdcf53e39bf605780a8ce6ce684203b0e99344b83d2c7436957c"
+        },
+        "sources": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+            "bytes": 14990,
+            "sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+            "bytes": 28025,
+            "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+            "bytes": 11096,
+            "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 14768,
+            "sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+            "bytes": 7886,
+            "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+            "bytes": 13157,
+            "sha256": "cfd4fcc24702ab87c8411f91dd83c5a5d520f279888559024b5325af67d912b7"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+            "bytes": 12567,
+            "sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+            "bytes": 6760,
+            "sha256": "8fee28dddb578b3be74cc7bb51b4320778a01dff960468381e51352f00d08a11"
+          }
+        ],
+        "configuration_inputs": [
+          {
+            "path": "policy-engine/ruff.toml",
+            "bytes": 247,
+            "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+          },
+          {
+            "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+            "bytes": 26782,
+            "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+          }
+        ],
+        "delta_base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "delta_python_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+          "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+          "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+          "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+          "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+          "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "output": {
+        "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stdout.txt",
+        "bytes": 26,
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+      },
+      "qualification": "Static check of exact two production and six test files only; no source mutation or native execution. stdout/stderr bytes copied losslessly."
+    },
+    {
+      "id": "full_global_diagnostic_reconciliation",
+      "command": [
+        "python3",
+        "/tmp/e02-B-gateway-import-style-20261007/classify_global.py"
+      ],
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree_sha": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "python": "stdlib python3",
+        "mode": "Read full actual Ruff stdout and wrapper; Git read-only delta; no Ruff/global gate rerun."
+      },
+      "input_closure": {
+        "literal_instrument": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/classify_global.py.source.txt",
+          "bytes": 4619,
+          "sha256": "2101b99c1fb0fcf715092a69e3c7f83242b7edb0af883abec123e20c2a7a6b69"
+        },
+        "raw_stdout": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+          "bytes": 2915042,
+          "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac",
+          "portable_state": "Root-owned fullglobal output; notduplicated in this compact peerreceipt; commitcustody pendingrootowner"
+        },
+        "raw_wrapper": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.json",
+          "bytes": 28807,
+          "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea"
+        },
+        "actual_global_argv_environment_and_all_106_path_code_aggregates": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+          "bytes": 86612,
+          "sha256": "98fc7482039d4ab64ceac194968379ee7173edfea23a3cde90e361b492d5ecf8"
+        },
+        "continuation_delta": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+          "bytes": 8566,
+          "sha256": "5cc50a02fa05bdcf53e39bf605780a8ce6ce684203b0e99344b83d2c7436957c"
+        },
+        "global_source_input_path_count": 286
+      },
+      "outcome": "PASS",
+      "output": {
+        "committed_reconciliation": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+          "bytes": 86612,
+          "sha256": "98fc7482039d4ab64ceac194968379ee7173edfea23a3cde90e361b492d5ecf8"
+        },
+        "complete_concise_command_result": {
+          "diagnostics": 4444,
+          "paths": 106,
+          "memberships": {
+            "outside_continuation_path_delta": 4444
+          },
+          "new_eight": 0,
+          "own_exact_money": 0,
+          "global_outcome": "FAIL",
+          "no_inherited_claim": true
+        }
+      },
+      "qualification": "PASS means the full actual 4444-diagnostic output was reconciled; the global executed gate remains exit1/FAIL. No full-gate slice-base replay or P41 proof exists. Root owns full stdout custody; no portable receiver readback is claimed for that log."
+    },
+    {
+      "id": "remote_implementation_byte_and_footprint_readback",
+      "command": [
+        "GitHubMCP github_fetch_blob(each of exact11 blob SHA1 objects)",
+        "GitHubMCP github_compare_commits(c383,982ff9b)",
+        "GitHubMCP github_fetch(git/commits/982ff9b and topic ref)"
+      ],
+      "target_sha": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+      "target_tree_sha": "855f7efcada23f3d2ba997bbe29beb61b112f9d7",
+      "environment": {
+        "repository": "DenisKopylov/polisyos",
+        "transport": "Installed authorized GitHub connector",
+        "mode": "Read-only remote Git object content comparison; publication uses force=false with exact expected prior branch head."
+      },
+      "input_closure": {
+        "index": {
+          "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/index.json",
+          "bytes": 3558,
+          "sha256": "d7c80315a454c3b48303067761881af1ba45fabd2ed0bbe60869eca9206eb754"
+        },
+        "all_objects": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/README.md",
+            "bytes": 1130,
+            "sha256": "8d5ddbc44ecdbc2f84c6e59c15844115bbc2d07bedde905724a8634d3ad0de8d",
+            "git_blob_sha1": "abc3a595529aa64ad8110cc767b1666a77ae31cb"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/ast.json",
+            "bytes": 465,
+            "sha256": "1c96aed9c5b92d9e62d6ef7cbc24a3125ba2ce28e1c16a2b47e42c8e25c29695",
+            "git_blob_sha1": "c95694a85f9afc78a5b4e1d57df317e8babc1e9e"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/classify_global.py.source.txt",
+            "bytes": 4619,
+            "sha256": "2101b99c1fb0fcf715092a69e3c7f83242b7edb0af883abec123e20c2a7a6b69",
+            "git_blob_sha1": "93e31db8062273581d3a0375af82486de5f92914"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stdout.txt",
+            "bytes": 26,
+            "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+            "git_blob_sha1": "bca3ee507c1d69eaf29c54fa12b2bfe1ae507dcc"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stdout.txt",
+            "bytes": 19,
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "git_blob_sha1": "1f5f344d054fae10f39140fb7199c99321d9190a"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+            "bytes": 8566,
+            "sha256": "5cc50a02fa05bdcf53e39bf605780a8ce6ce684203b0e99344b83d2c7436957c",
+            "git_blob_sha1": "61cce05d4f16c68bb74e243b98515ba7d2be64b4"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+            "bytes": 86612,
+            "sha256": "98fc7482039d4ab64ceac194968379ee7173edfea23a3cde90e361b492d5ecf8",
+            "git_blob_sha1": "2d4c289dfd3749b0ae980202a82deea50ae3f18b"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/index.json",
+            "bytes": 3558,
+            "sha256": "d7c80315a454c3b48303067761881af1ba45fabd2ed0bbe60869eca9206eb754",
+            "git_blob_sha1": "82bf84bfffcef9c23c6086b9446727b4653a561d"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt",
+            "bytes": 4224,
+            "sha256": "f625e99b06e37d770ef369bce759d105c3c1ca8cb144fe7bc13924d53fa87b49",
+            "git_blob_sha1": "8efe810945f049d69425a47efd77946990442b6b"
+          }
+        ],
+        "base_sha": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+        "base_tree": "0f2e9cdc17655723a08b09f3714c7d44f6c2569d"
+      },
+      "outcome": "PASS",
+      "output": {
+        "implementation_sha": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+        "tree": "855f7efcada23f3d2ba997bbe29beb61b112f9d7",
+        "base": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+        "blob_count": 11,
+        "payload_count": 10,
+        "all_bytes": 109219,
+        "mismatches": 0,
+        "remote_blob_readbacks": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/README.md",
+            "bytes": 1130,
+            "sha256": "8d5ddbc44ecdbc2f84c6e59c15844115bbc2d07bedde905724a8634d3ad0de8d",
+            "git_blob_sha1": "abc3a595529aa64ad8110cc767b1666a77ae31cb",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/ast.json",
+            "bytes": 465,
+            "sha256": "1c96aed9c5b92d9e62d6ef7cbc24a3125ba2ce28e1c16a2b47e42c8e25c29695",
+            "git_blob_sha1": "c95694a85f9afc78a5b4e1d57df317e8babc1e9e",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/classify_global.py.source.txt",
+            "bytes": 4619,
+            "sha256": "2101b99c1fb0fcf715092a69e3c7f83242b7edb0af883abec123e20c2a7a6b69",
+            "git_blob_sha1": "93e31db8062273581d3a0375af82486de5f92914",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stdout.txt",
+            "bytes": 26,
+            "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+            "git_blob_sha1": "bca3ee507c1d69eaf29c54fa12b2bfe1ae507dcc",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stdout.txt",
+            "bytes": 19,
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "git_blob_sha1": "1f5f344d054fae10f39140fb7199c99321d9190a",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+            "bytes": 8566,
+            "sha256": "5cc50a02fa05bdcf53e39bf605780a8ce6ce684203b0e99344b83d2c7436957c",
+            "git_blob_sha1": "61cce05d4f16c68bb74e243b98515ba7d2be64b4",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+            "bytes": 86612,
+            "sha256": "98fc7482039d4ab64ceac194968379ee7173edfea23a3cde90e361b492d5ecf8",
+            "git_blob_sha1": "2d4c289dfd3749b0ae980202a82deea50ae3f18b",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/index.json",
+            "bytes": 3558,
+            "sha256": "d7c80315a454c3b48303067761881af1ba45fabd2ed0bbe60869eca9206eb754",
+            "git_blob_sha1": "82bf84bfffcef9c23c6086b9446727b4653a561d",
+            "remote_content_equal": true
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt",
+            "bytes": 4224,
+            "sha256": "f625e99b06e37d770ef369bce759d105c3c1ca8cb144fe7bc13924d53fa87b49",
+            "git_blob_sha1": "8efe810945f049d69425a47efd77946990442b6b",
+            "remote_content_equal": true
+          }
+        ],
+        "compare": {
+          "status": "ahead",
+          "ahead_by": 1,
+          "behind_by": 0,
+          "merge_base": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+          "paths": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/README.md",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/ast.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/classify_global.py.source.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stderr.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-format.stdout.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stderr.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/continuation-eight-ruff.stdout.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/delta-checks.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/global-summary.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/index.json",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/run_delta.py.source.txt"
+          ],
+          "production_test_config_delta": []
+        },
+        "publication": {
+          "method": "installed GitHub Git API",
+          "force": false,
+          "expected_prior_head": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+          "local_checkout_head_remains": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+          "local_overlay_ENOSPC": true
+        }
+      },
+      "qualification": "All11 remote blob full text values equal prepared UTF8 bytes, hence their pinned lengths/SHA256; compare lists exactly11 handoff-only additions and merge-basec383. Local checkout remains c383 because overlay was full. No later metadata head is assigned 6fa runtime results."
+    }
+  ],
+  "property": {
+    "statement": "Report exact frozen continuation static results and reconcile every actual global Ruff diagnostic without changing source or turning a narrow PASS into a global/inherited waiver.",
+    "runtime_path": [
+      "Frozen root6fa Git source and two production/six new test bytes",
+      "Actual Ruff check and format check",
+      "Full root global Ruff stdout/wrapper",
+      "Literal stdlib diagnostic parser and complete path/code aggregates",
+      "Portable exact implementation Git blobs for G/root review"
+    ],
+    "proxy_divergence": "The initially alleged own test I001 is absent from actual global output and the exact file passes unchanged. The two actual old test I001 paths and 4444 global diagnostics persist. Eight-file PASS and unchanged diagnostic paths alone do not establish a green global gate or P41 inheritance.",
+    "negative_controls": [
+      "Exact own test12567 bytes/SHA256 and entire AST equal c383; no import change was needed or made. Actual global stdout mentions zero diagnostics on it despite including it in argv.",
+      "All4444 actual diagnostics parsed, reported count4444 matched, all106 paths included in full global input argv; zero checked-eight diagnostics. Global EXECUTED/setupnull exit1 remains FAIL.",
+      "All11 remote blobs read back losslessly; compare reports only11 handoff paths, no production/test/config changes and no rewritten history.",
+      "No native test, collection, service, dependency installation or gate replay was run. No move/delete/Trash action performed to work around ENOSPC.",
+      "P41 inherited attribution is not_established without exact full-gate baseline replay plus full-input nonintersection; no blanket waiver assigned."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_labels": {
+    "narrow_static_command_results": "recomputed",
+    "full_diagnostic_count_path_reconciliation": "recomputed",
+    "remote_git_byte_footprint_custody": "independently_reconciled",
+    "technical_native_or_formal_closure": "not_established",
+    "global_P41_inheritance": "not_established",
+    "portable_global_stdout_receiver_custody": "not_established"
+  },
+  "capability_state_or_finding_state": "Exact continuation two production/six test Ruff+format PASS; full global Ruff FAIL4444 on106 paths; B criteria and all formal closures unchanged.",
+  "source_and_evidence": {
+    "index": {
+      "commit": "982ff9b141bc0cb33885e35f70a5d4abe810326a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-static-delta-20261007-evidence/index.json",
+      "bytes": 3558,
+      "sha256": "d7c80315a454c3b48303067761881af1ba45fabd2ed0bbe60869eca9206eb754"
+    },
+    "artifact_payload_bytes": 105661,
+    "executed_root_source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "executed_root_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "root_head_before_after_unchanged": true,
+    "source_test_files_unchanged": true,
+    "own_ast_no_edit": {
+      "base_sha": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+      "root_frozen_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "source_path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+      "source_bytes": 12567,
+      "source_sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015",
+      "base_current_bytes_equal": true,
+      "whole_AST_equal": true,
+      "no_import_change": true,
+      "runtime_rerun": false
+    },
+    "raw_global_stdout": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+      "bytes": 2915042,
+      "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac",
+      "portable_state": "Root-owned fullglobal output; notduplicated in this compact peerreceipt; commitcustody pendingrootowner"
+    },
+    "raw_global_wrapper": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.json",
+      "bytes": 28807,
+      "sha256": "999f98dba01a9ee832d24b58b0847e50537c4c250ad69d7eb7d2a100cd8422ea"
+    },
+    "full_derived_diagnostics": {
+      "path": "/tmp/e02-B-gateway-import-style-20261007/global-diagnostics.json",
+      "bytes": 2673703,
+      "sha256": "4a185a55ae57515f5905301c7c8b36198cb5b2e1266c55f128e8bc1072a873ac",
+      "transfer_state": "Ignored derived view; exact parser and compact full106-path classification committed. Fullroot actualstdout custody separate."
+    },
+    "existing_admitted_checkout": "/workspace/e02-B-current-execution-state",
+    "local_checkout_head": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+    "publication_method": "Append-only existing topic via installed GitHub Git API; local mkdir failed ENOSPC before creating a commit. force=false, exact expected-head lease, independent fullblob/ref/commit compare readbacks."
+  },
+  "limitations_and_next_owner": [
+    "Global Ruff remains actual FAIL4444. No fullglobal gate replay and no inherited P41 classification. Root/G owns final global-quality decision and portable fullstdout custody.",
+    "This metadata slice does not accept implementation behavior or any B finding criterion; baseline cells are empty because no baseline runtime conclusion is made. Previous native sources/evidence and closure_ids[] remain unchanged.",
+    "Root6fa is the exact static command target; these outcomes are not execution on a later metadata commit/tree. Own/root source and tests were unchanged during this task.",
+    "Full4444-row derived view is ignored path@SHA; exact parser and full106-path/code aggregates are portable. Root-owned full2.915MB globalstdout has pinned raw path/hash but transfer to an independent remote receiver remains not_established in this packet.",
+    "Local overlay was full. No cleanup/move/delete/Trash, fixture/env mutation, numerical quota or shared dependency setup occurred. Local checkout remains clean c383 until a later ordinary fetch/FF can resume safely; remote commits alone carry this compact delivery."
+  ]
+}

@@ -1,0 +1,36 @@
+import hashlib, json, shutil, subprocess, xml.etree.ElementTree as ET
+from pathlib import Path
+from datetime import datetime, timezone
+OWN=Path('/workspace/e02-B-current-cas-generation')
+DEST=OWN/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/completion-admission-consumer-oracle-evidence'
+DEST.mkdir(exist_ok=True)
+RUNS={'native':Path('/tmp/e02-B-completion-consumer-a391-f838d5837d24'),'initial-nondistinguishing-removal':Path('/tmp/e02-B-completion-consumer-removal-a391-b2ecbf77cb67'),'defining-removal':Path('/tmp/e02-B-completion-consumer-removal2-a391-b98c1250eb70')}
+HERE=Path(__file__).resolve().parent
+
+def h(path):
+ d=path.read_bytes();return {'path':str(path.relative_to(OWN)),'bytes':len(d),'sha256':hashlib.sha256(d).hexdigest()}
+transfers=[];summaries={}
+for label,root in RUNS.items():
+ dest=DEST/label;dest.mkdir(exist_ok=True)
+ for src in sorted(root.rglob('*')):
+  if src.is_symlink() or not src.is_file() or 'cache' in src.relative_to(root).parts:continue
+  rel=src.relative_to(root);target=dest/rel;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,target)
+  row=h(target);row['original_path']=str(src);row['copy_is_exact']=src.read_bytes()==target.read_bytes();transfers.append(row)
+ cases=[]
+ for c in ET.parse(root/'native.xml').getroot().iter('testcase'):
+  cases.append({'id':c.attrib['classname']+'::'+c.attrib['name'],'seconds':c.attrib.get('time'),'status':'FAIL' if c.find('failure') is not None else 'ERROR' if c.find('error') is not None else 'SKIP' if c.find('skipped') is not None else 'PASS'})
+ fixtures=[]
+ for directory in sorted((root/'pytest').iterdir()):
+  if directory.is_symlink() or not directory.is_dir():continue
+  observations=directory/'child-observations.jsonl'
+  if not observations.exists():continue
+  childrows=[]
+  for raw in observations.read_text().splitlines():
+   observed=json.loads(raw);child=json.loads(observed['stdout'].splitlines()[-1]);childrows.append({'argv':observed['argv'],'returncode':observed['returncode'],'status':child['status'],'pid':child['pid'],'owner_epoch':child['owner_epoch'],'physical_effect_count':len(child['physical_effects']),'completion_count':len(child['snapshot']['completion_obligations']),'faulted_staged_snapshot_count':len(child.get('faulted_staged_snapshots',[])),'same_live_sibling':child.get('same_live_sibling'),'ledger_sha256':child['ledger_sha256']})
+  fixtures.append({'original_fixture':str(directory),'committed_child_observations':str((dest/directory.relative_to(root)/'child-observations.jsonl').relative_to(OWN)),'children':childrows})
+ summaries[label]={'result':json.loads((root/'result.json').read_text()),'cases':cases,'fixtures':fixtures,'unique_child_count':sum(len(f['children']) for f in fixtures),'fixture_aliases_excluded':sorted(str(p) for p in (root/'pytest').iterdir() if p.is_symlink())}
+for name in ('run.py','origin_guard.py','removal-run.py','removal_guard.py','removal2-run.py','removal_guard2.py','publish-evidence.py'):
+ src=HERE/name;target=DEST/'instruments'/(name+'.txt');target.parent.mkdir(exist_ok=True);shutil.copy2(src,target);transfers.append(h(target)|{'original_path':str(src),'copy_is_exact':True})
+audit={'schema':'policyos.e02.independent_completion_consumer_observations.v1','created_at_utc':datetime.now(timezone.utc).isoformat(),'predicate_basis':'recomputed','claim_grade':'Independent consumer-oracle author measured actual bounded filesystem/process effects; canonical producer implementation is owned by DUR/ADAPTER and requires their separate independent review/root integration decision.','production_source_sha':'a391e0c1f5bec81e6033675e4d48dd1cbe8e194d','production_source_tree':'da24b5d33dad29e7d23ad953e687b73d99c5265e','test_overlay_sha':'619e3834cb56a8109460d07cd5d18fcde1fedc49','test_overlay_tree':'9fa61d024b3231b598416b89148f621640650a09','runs':summaries,'method_qualification':['The original source checkout and own test/config overlay are separate immutable projections. Own conftest source insertion is prevented by explicitly listing frozenSrc:ownSrc; all loaded parent polisyos module origins remain under frozenSrc. Child PYTHONPATH derives actual frozen ledger module origin and uses runpy on the pinned test overlay.','All tracked frozen production files match Git source bytes before/after each execution. No canonical source edits or numerical process/thread quota.','21 unique baseline child invocations exclude pytest current-directory symlink aliases. Same-live concurrent two calls intentionally share one child/runtime owner.','The first removal is NONDISTINGUISHING: broad pending projection bypassed first transition lookup and no staged completion fault was observed. It remains actual FAIL, not property-removal proof.','The deciding removal activates only after the genuine first transition staged snapshot fault and only while subsequent sibling pre_check runs. Original actual read/DTO/reserve/publish/settlement and old intent remain. It creates a second real append/fsync effect, accepts the sibling, and fails the original refusal assertion.','No external provider status/invoice, physical powerloss, multihost, all-OS or full governed publication/authority claim. Prepublication staged-file fsync and before-replace boundaries only.','Original DD full native/global gates FAIL and B148 held/B154 A all-confirmations publisher missing remain separate; these tests establish no full60 formal closure.'],'transfer_manifest':transfers,'formal_closure_ids':[]}
+(DEST/'observations.json').write_text(json.dumps(audit,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'evidence_path':str(DEST),'transfers':len(transfers),'bytes':sum(t['bytes'] for t in transfers),'runs':{k:{'counts':v['result']['counts'],'unique_children':v['unique_child_count']} for k,v in summaries.items()},'observations':h(DEST/'observations.json')},indent=2))

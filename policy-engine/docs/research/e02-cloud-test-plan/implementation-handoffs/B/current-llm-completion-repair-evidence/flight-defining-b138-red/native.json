@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.llm-affected-native.v1",
+  "harness_state": "EXECUTED",
+  "target_source_sha": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+  "test_sha": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+  "test_path": "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+  "test_sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+  "whole_test_input": {
+    "actual_selectors": [
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_direct_cache_consumer_settles_actual_provider_before_reusable_emission",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh"
+    ],
+    "scope": "Five new body cases, three corrected actual syscall fault cases, and unchanged distinguishing expiry regression; this is not the full affected cohort."
+  },
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-flight-defining-b138/child.source.txt",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_direct_cache_consumer_settles_actual_provider_before_reusable_emission",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_join_retires_only_undispatched_intent_after_terminal_failure",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp",
+    "/dev/shm/e02-B-flight-defining-b138/fixtures",
+    "--junitxml",
+    "/dev/shm/e02-B-flight-defining-b138/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "explicit_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_B66_TARGET_SHA": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+    "E02_B65_CONTEXT": "/dev/shm/e02-B-flight-defining-b138/source-context.json",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "fixture_profile": "Unique actual /dev/shm filesystem/provider/ledger; temporary memory filesystem does not prove production storage durability. No live TCP/API/external financial authority or numerical/process/thread/CPU quota added.",
+  "actual_exit": 1,
+  "wall_seconds": 2.7333110210020095,
+  "max_rss_kib": 114016,
+  "source_head_before_after": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+  "test_head_before_after": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+  "actual_cases": [
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_direct_cache_consumer_settles_actual_provider_before_reusable_emission",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-False]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_actual_join_retires_only_undispatched_intent_after_terminal_failure[known-after-expiry-True]",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_actual_join_retires_only_undispatched_intent_after_terminal_failure[unknown-False]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_actual_join_retires_only_undispatched_intent_after_terminal_failure[unknown-True]",
+      "outcome": "FAIL"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+      "name": "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+      "outcome": "PASS"
+    }
+  ],
+  "outcomes": {
+    "PASS": 7,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "outputs": [
+    {
+      "path": "/dev/shm/e02-B-flight-defining-b138/native.txt",
+      "bytes": 1741,
+      "sha256": "d1f2614bf13482c700fe929b596ea434171454a193f22fe373bed2f5347801f5"
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-defining-b138/native.xml",
+      "bytes": 2582,
+      "sha256": "6b7cf8f40135b2085517e629ad696a4d625a7e25776b7b0e6fae117b17e01eb2"
+    },
+    {
+      "path": "/dev/shm/e02-B-flight-defining-b138/source-context.json",
+      "bytes": 27691,
+      "sha256": "6af5e57134bae0e0abcd0b53f0ecee8c8802802b5b3d663a3b3687c9126afe29"
+    }
+  ],
+  "closure_ids": []
+}

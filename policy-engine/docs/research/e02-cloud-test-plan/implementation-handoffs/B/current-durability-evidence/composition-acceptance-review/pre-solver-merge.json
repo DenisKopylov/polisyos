@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-06T12:39:51.882593+00:00",
+  "branch": "codex/e02-B-current-durability",
+  "sha": "cff9f2b684be4a7a938389caae8febd5525335a3",
+  "tree": "c9be30581930cf316836322836324d9bc11ff036",
+  "status": "",
+  "source_to_merge": "54efb24d87ef9b50beba0e9e8d2ca5bef6bbb96f",
+  "admission": "existing root-admitted durability lane; normal append-only merge, no newcheckout/helper/source edits"
+}

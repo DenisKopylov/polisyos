@@ -1,0 +1,240 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "cas-root-consumer-contract-audit",
+  "closure_ids": [],
+  "proposed_criterion_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03"
+  ],
+  "slice_base_sha": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+  "implementation_commits": [
+    "15ac0ee29acd88e0dc549101fbcb759f3d0e1e60"
+  ],
+  "candidate_tree_sha": "1c65372c33fc709e9d03ee7f1bd73536ce3e58b6",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/instrument.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/source-custody-stdout.json"
+  ],
+  "baseline_cells": [],
+  "audit_target": {
+    "source_sha": "d3a3df91804fa4205681703c3346041eda743836",
+    "tree_sha": "3641bb432d7a973398a5f0851926b0dbce235e78",
+    "own_source_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+    "own_source_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+    "own_publication_sha": "e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9",
+    "qualification": "Metadata source-only transfer audit. Canonical product sources, tests, root checkout/HEAD and retained runtime fixtures were not modified."
+  },
+  "checks": [
+    {
+      "command": "python3 .polisyos/e02-B-current/raw/root-cas-contract-audit/audit.py > .polisyos/e02-B-current/raw/root-cas-contract-audit/stdout.json",
+      "target_sha": "d3a3df91804fa4205681703c3346041eda743836",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/instrument.json@15ac0ee29acd88e0dc549101fbcb759f3d0e1e60::execution",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/instrument.json@15ac0ee29acd88e0dc549101fbcb759f3d0e1e60::code_utf8 fixes all Git selectors/refs and the unchanged original root4e deciding log bytes",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/source-custody-stdout.json",
+        "source_sha": "15ac0ee29acd88e0dc549101fbcb759f3d0e1e60",
+        "bytes": 21814,
+        "sha256": "b97e0bc17086f9e4569954a9e02b71987748c05391366bfb32b6d806405701a1"
+      },
+      "purpose": "Recompute complete scoped tree identity and source-point locators; resolve existing two exact access_audit FAIL blocks. This is not a new product runtime execution."
+    },
+    {
+      "command": "Product/native/cohort/gates are not invoked in this read-only task",
+      "target_sha": "d3a3df91804fa4205681703c3346041eda743836",
+      "environment": "not_executed",
+      "input_closure": "Final root cohort source and data are owned by root; source equality does not supply runtime evidence",
+      "outcome": "UNRUN",
+      "output": "No candidate runtime PASS or closure claim from this audit."
+    }
+  ],
+  "property": {
+    "statement": "Root integration preserves all own CAS failure-witness, transfer, admission, selected-view, signing/batch and native-test bytes except the explicitly additive shared-owner README companion; source transfer never substitutes for defining runtime/authority evidence.",
+    "runtime_path": [
+      "actual FileSystemCAS typed intake/publication/verified read",
+      "exact manifest/blob/signature and typed reports",
+      "existing cache/import/CLI/chronology/capture/index consumers",
+      "A-owned human-decision exposure producer and authority writer attestation consumer"
+    ],
+    "proxy_divergence": "Whole tree equality or aggregate cohort PASS cannot establish typed failure digest/size preservation, full signature all-confirmations publication, exact scope identity, or the intended downstream access_audit assertions. Original two access_audit cases refuse at producer attestation cell mismatch before their intended positive/completion and negative signature predicates.",
+    "negative_controls": [
+      "No new runtime removal executed here. Existing final field-removal14 and capture-operation2 controls remain pinned by e8 followup receipt and independent CMP965; original access_audit FAILs retained without guard relaxation."
+    ]
+  },
+  "consumer_contract_matrix": [
+    {
+      "finding_id": "B148",
+      "source_owner": "CAS-02",
+      "state": "held_semantic_owner; bounded scoped recommendation retained",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS._admit_import_members",
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS._require_bound_context_for_owner"
+      ],
+      "actual_consumers": [
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "Under actual artifact lease, foreign/unbound scoped import refuses before stage/intent/claims; claimed exact same tenant/cell/view/profile/signature/bytes is true no-op. Passive unscoped cache is a separate existing path. Public cross-tenant meaning remains held."
+    },
+    {
+      "finding_id": "B149",
+      "source_owner": "CAS-02",
+      "state": "limited_linux_atomic_generation; darwin_unrun",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@d3a3df91804fa4205681703c3346041eda743836::export_subgraph"
+      ],
+      "actual_consumers": [
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@d3a3df91804fa4205681703c3346041eda743836::import_subgraph",
+        "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "Exact inventory and complete generation publication preserve previous directory/history generation; archive publication privately stages then fsync/replace. Supplied archive paths are descriptor-pinned regular paths. Existing supported Linux exchange profile does not establish Darwin, power loss, hostile parent mutation, ACL/ownership or multihost guarantees."
+    },
+    {
+      "finding_id": "B150",
+      "source_owner": "CAS-01",
+      "state": "historical_regression_preserved; exact concrete cache consumer retained",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py@d3a3df91804fa4205681703c3346041eda743836::CachingArtifactStore._cache_remote_view"
+      ],
+      "actual_consumers": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS.import_exact_view",
+        "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "Cache transfers actual owner bytes/selected manifest for the full remote ref while preserving the preexisting local first-writer default manifest. Static source equality does not infer current runtime PASS or new closure."
+    },
+    {
+      "finding_id": "B151",
+      "source_owner": "CAS-01",
+      "state": "bounded direct filesystem put controls retained; root acceptance separate",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS.put_bytes",
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS._put_blob_and_manifest_once"
+      ],
+      "actual_consumers": [
+        "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py@d3a3df91804fa4205681703c3346041eda743836",
+        "policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "Existing damaged blob or wrong selected manifest.byte_size refuses direct put before publication; retained operator repair permits exact retry then fresh get_bytes/verify. Missing correct sidecar may be reconstructed. The added independently authored root oracle uses a separate OS consumer, and its removal deletes both real persisted-blob digest checks while preserving other manifest/owner checks. No new run here."
+    },
+    {
+      "finding_id": "B152",
+      "source_owner": "CAS-03",
+      "state": "proposed finite local failure-witness/capture repair acceptance; independent CMP965 remains deciding review",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS._snapshot_read_result_from_paths",
+        "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "actual_consumers": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS.verify",
+        "policy-engine/src/polisyos/runtime/quality/chronology_proof.py@d3a3df91804fa4205681703c3346041eda743836::ChronologyProofArtifactReader.load_and_verify",
+        "policy-engine/src/polisyos/core/contracts/chronology.py@d3a3df91804fa4205681703c3346041eda743836::ChronologyPredicatePolicyArtifacts._verified_bytes",
+        "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "One safely acquired byte snapshot supplies success/failure digest and size; failures after acquisition retain actual evidence, pre-safe-read refusals invent none. Public verify reports invalid while get/signature verified ports rethrow original refusal. Existing verified-loader transaction decorator remains the public capture boundary; private result reader is undecorated. Capture tests establish actual scoped owner-index record/reload, not full authorize-governed replay or GovernedPublicRecord publication."
+    },
+    {
+      "finding_id": "B153",
+      "source_owner": "CAS-01",
+      "state": "historical regression preserved; cooperating local lease bound",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/ownership.py@d3a3df91804fa4205681703c3346041eda743836",
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS._admit_import_members"
+      ],
+      "actual_consumers": [
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@d3a3df91804fa4205681703c3346041eda743836::test_import_keeps_its_actual_artifact_lease_through_staging_and_publication"
+      ],
+      "contract": "Cooperating local artifact lease covers actual admission/staging/publication; striped locks and same-key writer serialization retained. No arbitrary filesystem writer or multihost fencing claim."
+    },
+    {
+      "finding_id": "B154",
+      "source_owner": "CAS-03",
+      "state": "consumer_missing_external_A_signature_all_confirmations_publisher",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/signing.py@d3a3df91804fa4205681703c3346041eda743836::BulkVerificationReport.require_complete_valid",
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@d3a3df91804fa4205681703c3346041eda743836::TransferVerificationBatch.require_complete_valid"
+      ],
+      "actual_consumers": [
+        "policy-engine/src/polisyos/core/components/_cli_crypto.py@d3a3df91804fa4205681703c3346041eda743836::_cmd_verify",
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py@d3a3df91804fa4205681703c3346041eda743836::import_subgraph",
+        "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "Typed complete/aborted per-item signature reports and exact required-ref completeness exist. Actual crypto CLI is not publication, and actual import integrity publication is not signature trust admission. Tracked existing A/G contract still requires an appointed all-confirmations signature publisher with real population/trust/time fences; unsigned legacy behavior remains preserved. No institutional signature policy is invented."
+    },
+    {
+      "finding_id": "B155",
+      "source_owner": "CAS-03",
+      "state": "limited bounded supplied-input and pending admission; physical next/callback/census boundaries retained",
+      "intake": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::_iter_batch_input_items",
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::_iter_canonical_artifact_ids",
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::_iter_canonical_artifact_references"
+      ],
+      "actual_consumers": [
+        "policy-engine/src/polisyos/core/artifacts/store.py@d3a3df91804fa4205681703c3346041eda743836::FileSystemCAS.verify_all_signatures",
+        "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@d3a3df91804fa4205681703c3346041eda743836"
+      ],
+      "contract": "Cancellation/deadline checks encompass every supplied advancement including duplicate dedup and exhaustion; actual pending window admits bounded work. One arbitrary blocking user next/iter/filesystem syscall or already running callback cannot be preempted; default census/report memory is O(N). No artificial cloud process quota introduced."
+    }
+  ],
+  "access_audit_boundary": {
+    "outcome": "Retained original actual FAIL, current source-only contract mismatch; no d3 execution attribution",
+    "deciding_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/source-custody-stdout.json@15ac0ee29acd88e0dc549101fbcb759f3d0e1e60::existing_failure_evidence includes complete-log SHA/bytes and exact two case blocks",
+    "source_chain": [
+      "access_audit._exposure_authority_write_inputs sets authority_fields.cell_id=None and same_input_closure.cell_id=None",
+      "prepare_human_decision_exposure_event and through_sink use those fields",
+      "control/artifacts._persist_cas_writer_attestation calls put_json with _cas_writer_attestation_write_options",
+      "_tenant_context copies explicit tenant_id/cell_id unchanged",
+      "CAS _require_bound_context_for_owner compares declared bound cell exactly with current scoped write owner before intent/claims"
+    ],
+    "observed_identity": {
+      "producer_declared_tenant": "tenant-a",
+      "producer_declared_cell": null,
+      "actual_scoped_write_tenant": "tenant-a",
+      "actual_scoped_write_cell": "cell-a"
+    },
+    "P40_bucket": "Consumer producer/write-owner identity coupling; not a deeper CAS admission guard escape and not an authority-rule ratification.",
+    "next_owner": "A/G owns human exposure/authority producer context or truthful refusal and actual affected consumer verification. B cannot substitute cell=None as wildcard, weaken explicit bound identity checks, edit A-owned publisher files or invent event/cell/schema authority. Ordinary put with absent tenant_context is separate from this explicitly bound mismatching attestation.",
+    "positive_and_negative_contract": "Under the already appointed same scoped owner, every attestation/envelope/payload/closure declaration must bind the same concrete identity or refuse before publication. Any explicit foreign/mismatched cell remains rejected. A/G must resolve the real source identity and intended lawful positive premise rather than merely changing a guard or test marker."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "source_transfer_and_consumer_contract_custody_verified; runtime_and_final_acceptance_not_established_by_this_audit",
+  "canonical_decisions": {
+    "owner_rows": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/source-custody-stdout.json@15ac0ee29acd88e0dc549101fbcb759f3d0e1e60::canonical_ownership",
+    "per_ID_rules": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md@d3a3df91804fa4205681703c3346041eda743836::B148-B155",
+    "prior_all8_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-completion.json@ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+    "current_failure_witness_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-failed-snapshot-report-followup.json@e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9"
+  },
+  "independent_review": {
+    "reviewer": "/root/cmp_res_probe",
+    "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-failure-snapshot-successor-review.json@965744100e645a39f0ecc19558656aa8c0878496",
+    "bytes": 164275,
+    "sha256": "23e9311986789da0977bdcecf40f708ca447ef1bcc13bab844d6de3686cf8b84",
+    "qualification": "Own CAS author performs transfer/consumer input audit only; CMP965 remains independent repair source/evidence review. No reviewer runtime is inferred."
+  },
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/instrument.json",
+      "source_sha": "15ac0ee29acd88e0dc549101fbcb759f3d0e1e60",
+      "bytes": 13391,
+      "sha256": "d0940eae2526dd06fd77417e8791b9a2aa7349afe3f48416fc641035aceade08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-root-consumer-audit-evidence/source-custody-stdout.json",
+      "source_sha": "15ac0ee29acd88e0dc549101fbcb759f3d0e1e60",
+      "bytes": 21814,
+      "sha256": "b97e0bc17086f9e4569954a9e02b71987748c05391366bfb32b6d806405701a1"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Final frozen root cohort results must be reviewed per actual B152 failure-witness14/B151/B150/B153/capture consumers and relevant criterion; no aggregate PASS promotes closure. No final cohort data inspected or replayed in this source-only task.",
+    "Original root4e two access_audit FAILs remain FAIL; P41 inherited/disjoint provenance is not_established, source denominator intersects actual CAS changes and no zero complete-input proof is supplied.",
+    "B148 public cross-tenant normative meaning remains HELD; B154 actual A all-confirmations signature publisher remains consumer_missing.",
+    "Existing final witness receipt retains native mypy7FAIL and broader unresolved root gates without waiver.",
+    "Linux-only native generation profile, finite local safely acquired byte snapshot, cooperating local locks and explicit iterator/callback/filesystem syscall/census boundaries remain unchanged.",
+    "No new source/test rewrite, runtime, broad gate, process admission, checkout, helper, cleanup, source-owner review substitution, authority schema or production-data claim."
+  ]
+}

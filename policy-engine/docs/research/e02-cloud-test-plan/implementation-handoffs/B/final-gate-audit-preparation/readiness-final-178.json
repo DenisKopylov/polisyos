@@ -1,0 +1,310 @@
+{
+  "schema": "policyos.e02.gate_execution_independent_audit.v2",
+  "audit_utc": "2026-10-06T15:25:30.851095+00:00",
+  "target_source_sha": "17836910dfbf83f6b54550253a298e1a1fb68b2a",
+  "target_tree_sha": "678b8933a7d38858b914fdc1df8c58b929a2acbc",
+  "observed_head": "48e1f7170b04f1362e9b7e1d9b74eb9763151830",
+  "reader_environment": {
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  },
+  "selector": {
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py@17836910dfbf83f6b54550253a298e1a1fb68b2a",
+    "prefix": "repaired-final",
+    "tags": [
+      "repaired-final-B-cohort",
+      "repaired-final-all-changed-format",
+      "repaired-final-all-changed-ruff",
+      "repaired-final-architecture",
+      "repaired-final-parity-uncapped",
+      "repaired-final-production-invocation",
+      "repaired-final-runtime-api",
+      "repaired-final-verify-uncapped"
+    ],
+    "denominator": 8
+  },
+  "source_universe": {
+    "command": [
+      "git",
+      "ls-tree",
+      "-r",
+      "--name-only",
+      "17836910dfbf83f6b54550253a298e1a1fb68b2a"
+    ],
+    "count": 14866,
+    "by_suffix": {
+      "<none>": 29,
+      ".md": 2148,
+      ".yml": 71,
+      ".json": 3436,
+      ".py": 6590,
+      ".sh": 46,
+      ".toml": 287,
+      ".mdc": 1,
+      ".example": 3,
+      ".jsonc": 1,
+      ".yaml": 85,
+      ".reproducible": 1,
+      ".mjs": 40,
+      ".ts": 519,
+      ".tsx": 720,
+      ".png": 42,
+      ".cjs": 11,
+      ".html": 3,
+      ".js": 4,
+      ".svg": 18,
+      ".css": 17,
+      ".txt": 393,
+      ".blob": 36,
+      ".jsonl": 16,
+      ".ini": 11,
+      ".zip": 8,
+      ".docx": 1,
+      ".webm": 6,
+      ".tsv": 6,
+      ".xml": 161,
+      ".log": 63,
+      ".diff": 12,
+      ".sqlite": 2,
+      ".sqlite-wal": 2,
+      ".sha256": 1,
+      ".patch": 2,
+      ".cfg": 1,
+      ".rego": 23,
+      ".tpl": 1,
+      ".tf": 1,
+      ".sql": 6,
+      ".csv": 15,
+      ".typed": 2,
+      ".cypher": 2,
+      ".pyi": 5,
+      ".retired": 1,
+      ".pkl": 2,
+      ".duckdb": 4,
+      ".fixture": 2,
+      ".tmpl": 7,
+      ".lock": 1,
+      ".whl": 1
+    },
+    "not_dynamic_read_set": true
+  },
+  "gates": [
+    {
+      "tag": "repaired-final-B-cohort",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-all-changed-format",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-all-changed-ruff",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-architecture",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-parity-uncapped",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-production-invocation",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-runtime-api",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "tag": "repaired-final-verify-uncapped",
+      "outcome": "UNRUN",
+      "accounting_state": "UNRUN",
+      "audit_boundary": "FileNotFoundError(2, 'No such file or directory')"
+    }
+  ],
+  "gate_counts": {
+    "UNRUN": 8
+  },
+  "explicit_reads": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+      "bytes": 19404,
+      "sha256": "4140d5996c7563eb3cd40d58eeed0e122d2d011b19808f1f0c1eddfe7968e7ed"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-B-current-coordination",
+        "rev-parse",
+        "17836910dfbf83f6b54550253a298e1a1fb68b2a^{tree}"
+      ],
+      "bytes": 41,
+      "sha256": "690243851285b0777ba969729417b016dd7bae276c5a983e0b92dfbc573ad340"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-B-current-coordination",
+        "show",
+        "17836910dfbf83f6b54550253a298e1a1fb68b2a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py"
+      ],
+      "bytes": 9337,
+      "sha256": "6533812049c947e20c5eaa0dd8baa46575acd2c38c91dd8b85ff946120c3269e"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-B-current-coordination",
+        "show",
+        "17836910dfbf83f6b54550253a298e1a1fb68b2a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py"
+      ],
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-B-current-coordination",
+        "ls-tree",
+        "-r",
+        "--name-only",
+        "17836910dfbf83f6b54550253a298e1a1fb68b2a"
+      ],
+      "bytes": 1213369,
+      "sha256": "5868218f542d53441ade35debcaba7cd0cc500c6f6204336e37dab64646053cb"
+    },
+    {
+      "command": [
+        "/usr/bin/git",
+        "--no-optional-locks",
+        "-C",
+        "/workspace/e02-B-current-coordination",
+        "rev-parse",
+        "HEAD"
+      ],
+      "bytes": 41,
+      "sha256": "dab3b46666077d3b44da24fe45648ca5d1e24e95e1ceb9a43efa07c5d90ab7ce"
+    }
+  ],
+  "unresolved_by_construction": [
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-B-cohort-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-B-cohort",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-format-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-all-changed-format",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-all-changed-ruff-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-all-changed-ruff",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-architecture-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-architecture",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-parity-uncapped-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-parity-uncapped",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-production-invocation-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-production-invocation",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-runtime-api-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-runtime-api",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "unreadable_file",
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/repaired-final-verify-uncapped-profile.json",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "gate_accounting_not_established",
+      "tag": "repaired-final-verify-uncapped",
+      "error": "FileNotFoundError(2, 'No such file or directory')"
+    },
+    {
+      "class": "dynamic_gate_read_set",
+      "property": "Complete runtime imports, installed binary content, service and backend reads were not reconstructed."
+    },
+    {
+      "class": "inherited_failure_attribution",
+      "property": "No slice-base same-command replay or zero input overlap proof; P41 waiver not established."
+    },
+    {
+      "class": "product_acceptance",
+      "property": "Execution accounting does not independently accept the author's production mechanism or served production."
+    }
+  ],
+  "measurement": "Explicit existing-file/Git reads only; no gate, pytest, product import, environment sync, or source edits.",
+  "rss_qualification": "wait4 child rusage, not an aggregate of concurrent gates.",
+  "closure_ids": []
+}

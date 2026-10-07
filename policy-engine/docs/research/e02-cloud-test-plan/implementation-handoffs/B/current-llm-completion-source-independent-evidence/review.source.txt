@@ -1,0 +1,140 @@
+"""Capture immutable Git inputs for an independent source review.
+
+This stdlib instrument imports no product module and executes no pytest,
+collection, provider, ledger, audit resolver, or gate. AST rows are navigation,
+not runtime evidence. The source verdict is the separate human review notes.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+UPPER = "c0f31b203c44bed9390913a53ceb5aa5dccacf8b"
+UPPER_BASE = "d56c0218592ed9539e114cdcf5686a57c6b65d75"
+LOWER = "9f2a31c8869525ecf55fa55d0f5b08027c09a988"
+LOWER_BASE = "3602e00ceba7dc7fd4b6ed014180a314fe063612"
+DD = "dd9584728bd96f204983615216efdbc58117e713"
+PREFIX = "policy-engine/"
+CONTEXT = (
+    "src/polisyos/scientist/orchestration/llm/factory.py",
+    "src/polisyos/core/observability/pricing.py",
+    "src/polisyos/core/security/audit_protocol.py",
+    "src/polisyos/core/security/audit_log_adapter.py",
+    "src/polisyos/core/security/audit_sink.py",
+    "src/polisyos/core/security/audit_models.py",
+    "src/polisyos/core/security/audit_verifier.py",
+    "src/polisyos/scientist/orchestration/engine/budget.py",
+    "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+
+    def git(*argv: str) -> bytes:
+        return subprocess.check_output(["git", "-C", str(args.repo), *argv])
+
+    def ref(sha: str, path: str) -> dict:
+        data = git("show", f"{sha}:{path}")
+        row = {
+            "source_sha": sha,
+            "repository_path": path,
+            "git_blob": git("rev-parse", f"{sha}:{path}").decode().strip(),
+            "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+        if path.endswith(".py"):
+            tree = ast.parse(data, filename=path)
+            row["ast_definition_locators"] = [
+                {"name": node.name, "line": node.lineno, "kind": type(node).__name__}
+                for node in ast.walk(tree)
+                if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+            ]
+        return row
+
+    before = git("rev-parse", "HEAD").decode().strip()
+    checkpoints = []
+    for role, base, target in (("upper", UPPER_BASE, UPPER), ("lower", LOWER_BASE, LOWER)):
+        paths = git("diff", "--name-only", base, target).decode().splitlines()
+        checkpoints.append(
+            {
+                "role": role,
+                "base_sha": base,
+                "target_sha": target,
+                "target_tree": git("rev-parse", f"{target}^{{tree}}").decode().strip(),
+                "full_delta_paths": paths,
+                "refs": [ref(target, path) for path in paths],
+                "diff_sha256": hashlib.sha256(git("diff", base, target, "--", *paths)).hexdigest(),
+            }
+        )
+    context = [ref(DD, PREFIX + path) for path in CONTEXT]
+    unchanged_context = []
+    for row in context:
+        path = row["repository_path"]
+        for target in (UPPER, LOWER):
+            unchanged_context.append(
+                {
+                    "path": path,
+                    "target_sha": target,
+                    "byte_equal_to_DD": git("show", f"{target}:{path}")
+                    == git("show", f"{DD}:{path}"),
+                }
+            )
+    after = git("rev-parse", "HEAD").decode().strip()
+    if before != after:
+        raise RuntimeError("reviewer's checkpoint changed during immutable source capture")
+    report = {
+        "schema": "policyos.e02.independent_source_input_capture.v1",
+        "captured_at": datetime.now(UTC).isoformat(),
+        "argv": sys.argv,
+        "python_executable": sys.executable,
+        "python_version": sys.version,
+        "platform": platform.platform(),
+        "git_version": git("--version").decode().strip(),
+        "reviewer_head_before": before,
+        "reviewer_head_after": after,
+        "source_read_mechanism": "immutable Git show; no foreign working-tree/import custody claim",
+        "checkpoints": checkpoints,
+        "canonical_context_refs": context,
+        "context_byte_equivalence": unchanged_context,
+        "runtime": "UNRUN",
+        "collection": "UNRUN",
+        "product_imports": "UNRUN",
+        "gate_execution": "UNRUN",
+        "predicate_basis": "recomputed",
+        "predicate_scope": "source object identities, full diff footprint and AST locators only",
+        "composed_source": "not_established; upper and lower are independently pinned source checkpoints",
+    }
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    with args.out.open("x", encoding="utf-8") as stream:
+        json.dump(report, stream, indent=2, ensure_ascii=False)
+        stream.write("\n")
+    print(
+        json.dumps(
+            {
+                "source_capture": "PASS",
+                "upper_paths": len(checkpoints[0]["refs"]),
+                "lower_paths": len(checkpoints[1]["refs"]),
+                "context_paths": len(context),
+                "runtime": "UNRUN",
+                "output": str(args.out),
+            }
+        )
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

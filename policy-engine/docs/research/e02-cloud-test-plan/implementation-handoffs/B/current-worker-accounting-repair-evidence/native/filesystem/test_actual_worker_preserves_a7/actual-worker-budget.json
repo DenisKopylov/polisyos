@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:078d03ed8a838c69",
+  "revision": 0,
+  "updated_at": "2026-10-06T22:12:18.536555Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+    "pid": 567265
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567265:actual-worker-budget.json",
+        "pid": 567265
+      },
+      "committed_at": "2026-10-06T22:12:18.536549Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "policy_translator": {
+        "key": "policy_translator",
+        "max_usd": "10"
+      },
+      "policy_briefing": {
+        "key": "policy_briefing",
+        "max_usd": "10"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {}
+  },
+  "spend_receipts": {},
+  "completion_obligations": {}
+}

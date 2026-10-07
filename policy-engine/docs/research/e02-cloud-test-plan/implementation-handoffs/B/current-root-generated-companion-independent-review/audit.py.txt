@@ -1,0 +1,104 @@
+"""Independent immutable Git/source/evidence audit; no product imports or generator execution."""
+import hashlib,json,subprocess,tomllib,urllib.parse
+from pathlib import Path
+ROOT=Path('/workspace/e02-B-current-cas-generation')
+BASE='e6766fe089013a621895c23a0584632509e3f5a5'
+REGISTRY='b4dbcfb261f7cf46085de4063050c486cb8551ad'
+DOCS='9618ea5f90b7ac98b1992f5dc64646d1011fd489'
+EXEC='8142b14162f6417045ccbc560588da4341ac93ce'
+IMPL='59760f76c2c087931dede4c3f6039b6154ace9c8'
+RECEIPT='3b950d63d9a1187c548a1d4f22aba1e12b4054db'
+B='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+E=B+'current-completed-generated-evidence/'
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def read(s,p):return git('show',s+':'+p)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def obj(s,p):
+ b=read(s,p);return {'commit':s,'path':p,'bytes':len(b),'sha256':sha(b)}
+def js(s,p):return json.loads(read(s,p))
+receipt=js(RECEIPT,B+'current-completed-generated-companions.json')
+required='schema unit slice closure_ids bundle_ids slice_base_sha implementation_commits candidate_tree_sha branch pull_request changed_paths baseline_cells checks property predicate_basis capability_state_or_finding_state limitations_and_next_owner'.split()
+assert all(k in receipt for k in required)
+assert receipt['predicate_basis'] in ['recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established']
+assert all(all(k in c for k in 'command target_sha environment input_closure outcome output'.split()) for c in receipt['checks'])
+assert all(k in receipt['property'] for k in 'statement runtime_path proxy_divergence negative_controls'.split())
+assert receipt['candidate_tree_sha']==git('rev-parse',IMPL+'^{tree}').decode().strip()
+changed=set()
+for commit in receipt['implementation_commits']:
+ changed.update(git('diff','--name-only','--no-renames',commit+'^',commit).decode().splitlines())
+assert changed==set(receipt['changed_paths']) and len(changed)==26
+index=js(IMPL,E+'index.json'); total=0
+for row in index['files']:
+ b=read(IMPL,row['path']);assert len(b)==row['bytes'] and sha(b)==row['sha256'];total+=len(b)
+assert len(index['files'])==20 and total==index['bytes']==43535
+assert obj(IMPL,E+'index.json')['sha256']==receipt['evidence_index']['sha256']
+registry_path='policy-engine/architecture/generated_artifacts.toml'
+o=tomllib.loads(read(BASE,registry_path).decode());n=tomllib.loads(read(REGISTRY,registry_path).decode())
+old={f['id']:f for f in o['family']};new={f['id']:f for f in n['family']}
+added=sorted(set(new)-set(old));assert added==['foundry-method-type-stubs'] and len(old)==110 and len(new)==111
+assert all(new[k]==v for k,v in old.items())
+old_defaults=sorted(k for k,v in old.items() if v.get('default_freshness_check'));new_defaults=sorted(k for k,v in new.items() if v.get('default_freshness_check'));assert old_defaults==new_defaults and len(new_defaults)==4
+family=new[added[0]];expected=['src/polisyos/foundry/methods/base.pyi','src/polisyos/foundry/methods/registry.pyi','src/polisyos/foundry/methods/composer.pyi','src/polisyos/foundry/methods/components/composer.pyi'];assert family['outputs']==expected
+assert family['compatibility_class']=='internal-python-typing' and family['stale_output_behavior']=='fail'
+identity=js(IMPL,E+'public-sync-and-lifecycle-identity.json');ids=[]
+for row in identity['files']:
+ after=obj(DOCS,row['path']); before=obj(REGISTRY,row['path']);assert after['sha256']==row['sha256'] and after['bytes']==row['bytes']
+ ids.append({'path':row['path'],'source_sha':REGISTRY,'committed_output_sha':DOCS,'bytes':row['bytes'],'sha256':row['sha256'],'same_as_execution_source':before['sha256']==after['sha256'],'role':'produced_reference_output' if row['path']=='policy-engine/docs/reference/generated-artifacts.md' else 'unchanged_execution_source'})
+assert [r['path'] for r in ids if not r['same_as_execution_source']]==['policy-engine/docs/reference/generated-artifacts.md']
+sync=js(IMPL,E+'public-sync.json');sync_out=read(IMPL,E+'public-sync.txt');assert sync_out==b'Architecture guardrail inventories updated.\n' and sha(sync_out)==sync['full_stdout_sha256'] and sync['target_sha']==REGISTRY and sync['exit_code']==0
+cases=[]
+for label in ['stub-check',*[f'generator-step{i}' for i in range(5)]]:
+ w=js(IMPL,E+label+'.json');b=read(IMPL,E+label+'.txt');assert w['exit_code']==0 and w['exec_setup_error'] is None and w['harness_state']=='EXECUTED' and w['head']==w['head_after'] and sha(b)==w['output_sha256']
+ c=next(c for c in receipt['checks'] if c['name']==label);assert c['command']==w['command'] and c['target_sha']==w['head'] and c['environment']==w['source_environment'] and c['outcome']=='PASS'
+ cases.append({'label':label,'execution_source_sha':w['head'],'tree':w['tree'],'actual_command':w['command'],'actual_exit':w['exit_code'],'stdout':obj(IMPL,E+label+'.txt'),'wrapper':obj(IMPL,E+label+'.json'),'wall_s':w['wall_s']})
+case=cases[0];assert case['execution_source_sha']=='e511ccd9b73697788a711cfdf64b562792ae2511'
+stub_projection=[]
+for p in ['policy-engine/tools/devx/foundry/generate_stubs.py','policy-engine/ruff.toml',*['policy-engine/'+p for p in expected]]:
+ a=read('b7d966af6551fc0ff63d3a830c70fe300c320967',p);b=read(case['execution_source_sha'],p);assert a==b;stub_projection.append(obj(case['execution_source_sha'],p))
+assert all(c['execution_source_sha']==EXEC for c in cases[1:])
+profile=js(IMPL,E+'driver-profile.json');result=js(IMPL,E+'driver-result.json');assert profile['source_sha']==result['source_sha']==EXEC
+assert [c['actual_command'] for c in cases[1:]]==profile['commands']==result['commands']
+assert profile['driver_sha256']==sha(read(IMPL,E+'registered-generator-launch.source.txt'))
+recipe_path=B+'successor-generated-companion.json';recipe=js(EXEC,recipe_path)
+assert profile['recipe_source_sha256']==sha(read(EXEC,recipe_path))
+projected=[]
+for c in recipe['checks'][1:6]:projected.append([v.replace('/tmp/e02-B-successor-openapi-02ff',profile['scratch']).replace('/tmp/e02-B-successor-client-421',profile['scratch']) for v in c['command']])
+assert projected==profile['commands']
+client_script='policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh'
+canonical=read(EXEC,client_script).decode()
+for name in ['openapi-typescript','normalize-recursive-openapi-types.mjs','generate_runtime_client.py','canonicalize-runtime-client.mjs']:
+ assert name in canonical and any(name in v for c in projected for v in c)
+openapi='policy-engine/schemas/runtime_api_v1.openapi.json';before_bytes=read(EXEC,openapi);after_bytes=read(IMPL,openapi);before=json.loads(before_bytes);after=json.loads(after_bytes);diff=[]
+def walk(a,b,p):
+ if type(a)!=type(b):diff.append({'path':p,'old':a,'new':b})
+ elif isinstance(a,dict):
+  assert set(a)==set(b)
+  for k in sorted(a):walk(a[k],b[k],p+'.'+k)
+ elif isinstance(a,list):
+  assert len(a)==len(b)
+  for i,(x,y) in enumerate(zip(a,b)):walk(x,y,p+'.'+str(i))
+ elif a!=b:diff.append({'path':p,'old':a,'new':b})
+walk(before,after,'$')
+assert diff==js(IMPL,E+'full-recursive-diff.json')['scalar_deltas'] and len(diff)==9
+prefix='$.paths./api/v1/exports/governed-projections/confidence-ledger-risk-spend.get.responses.200.content.application/json.examples.default.value.'
+assert all(row['path'].startswith(prefix) for row in diff)
+def strip_examples(d):
+ if isinstance(d,dict):return {k:strip_examples(v) for k,v in d.items() if k not in ('example','examples')}
+ if isinstance(d,list):return [strip_examples(v) for v in d]
+ return d
+assert strip_examples(before)==strip_examples(after)
+ops=lambda d:sum(k in ('get','put','post','delete','options','head','patch','trace') for v in d['paths'].values() for k in v)
+assert len(before['components']['schemas'])==len(after['components']['schemas'])==573 and len(before['paths'])==len(after['paths'])==111 and ops(before)==ops(after)==113
+ex=after['paths']['/api/v1/exports/governed-projections/confidence-ledger-risk-spend']['get']['responses']['200']['content']['application/json']['examples']['default']['value']
+query=urllib.parse.parse_qs(urllib.parse.urlsplit(ex['replay_address']).query)
+for k in ['projection_hash','source_dependency_hash']:assert ex[k]==ex['replay_pins'][k]==query[k][0]
+assert ex['worker_validation_receipt_hash']==ex['source']['validation']['worker_validation_receipt_hash'] and ex['worker_validation_receipt_ref']=='owner-validation:'+ex['worker_validation_receipt_hash']
+overlay=js(IMPL,E+'actual-output-overlay-and-client-custody.json');assert overlay['OpenAPI_input_before']['sha256']==sha(before_bytes) and overlay['OpenAPI_produced_output_and_client_input']['sha256']==sha(after_bytes)
+assert result['before_outputs'][openapi]==sha(before_bytes) and result['after_outputs'][openapi]==sha(after_bytes)
+clients=[]
+for row in overlay['client_output_objects']:
+ a=read(EXEC,row['path']);b=read(IMPL,row['path']);assert a==b and sha(b)==row['sha256'] and len(b)==row['bytes'] and result['before_outputs'][row['path']]==result['after_outputs'][row['path']]==sha(b);clients.append(obj(IMPL,row['path']))
+assert len(clients)==3
+release_path='policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml';release=tomllib.loads(read(IMPL,release_path).decode());assert release['change_class']=='schema-openapi-abi' and release['generated_client_compatibility']=='requires_regeneration'
+assert all(subprocess.run(['git','-C',str(ROOT),'cat-file','-e',IMPL+':policy-engine/'+p],capture_output=True).returncode==0 for p in release['migration_docs']+release['runbook_docs']+release['evidence'])
+print(json.dumps({'schema':'policyos.e02.foreign_generated_companion_audit.v1','verdict':'NONBLOCKING finite source/metadata/evidence correspondence','reviewed_receipt':obj(RECEIPT,B+'current-completed-generated-companions.json'),'reviewed_implementation_sha':IMPL,'reviewed_implementation_tree':receipt['candidate_tree_sha'],'implementation_footprint':{'exact_union_of_four_declared_commit_deltas':True,'paths':26,'SELF_excluded':True,'not_full_interleaved_checkout_diff':True},'evidence_index':obj(IMPL,E+'index.json'),'full_indexed_object_readback':{'objects_excluding_index':20,'bytes_excluding_index':43535,'hash_or_byte_mismatches':0},'registry':{'source_sha':REGISTRY,'old_families':110,'new_families':111,'old_families_all_equal':True,'added':added,'critical_default_checks_unchanged':new_defaults,'new_family_exact_outputs':expected},'public_sync':{'source':REGISTRY,'output_commit':DOCS,'stdout':obj(IMPL,E+'public-sync.txt'),'wrapper':obj(IMPL,E+'public-sync.json'),'actual_command':sync['command'],'actual_exit':0,'identities':ids},'actual_six_execution_evidence_joins':cases,'stub_reviewed_source_projection':stub_projection,'fresh_generator_recipe':{'execution_source':EXEC,'canonical_script':obj(EXEC,client_script),'argv_recipe_source':obj(EXEC,recipe_path),'literal_driver':obj(IMPL,E+'registered-generator-launch.source.txt'),'all_five_commands_reconciled':True,'qualified_deltas':['UV --no-sync / existing isolated interpreter instead of hardcoded .venv','retained fresh scratch instead of destructive cleanup trap','produced OpenAPI output overlay used by all client steps']},'OpenAPI':{'old':obj(EXEC,openapi),'new':obj(IMPL,openapi),'complete_recursive_scalar_deltas':9,'all_confined_to_one_existing_example':True,'full_nonexample_json_equal':True,'schemas':573,'paths':111,'operations':113,'replay_and_worker_reference_pins_consistent':True,'cause_of_fingerprint_delta':'not_established'},'three_complete_client_output_objects':clients,'mandatory_release':obj(IMPL,release_path),'claim_grade':'Foreign source/evidence review only. Root command effects are already executed, independently reconciled here; reviewer did not execute generators, tests, gates, import product, or accept own CAS code. No final source/global-gate/finding closure.','limitations':['Architecture private locked/hashseed0 freshness profile and dashboard generation are not executed by this packet.','Four registered client constituents are projected transparently; the original script itself is not claimed executed.','Worker receipt payload/dependency map and normative authorization are not independently recomputed from the example.','Historical genuine stale-copy control remains prior source-bound evidence, not a fresh root counterfactual.']},indent=2))

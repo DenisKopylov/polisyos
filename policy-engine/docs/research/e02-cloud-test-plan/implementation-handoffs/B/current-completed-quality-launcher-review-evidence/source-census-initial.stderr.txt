@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-launcher-review-evidence/source-census-initial.source.txt", line 61, in <module>
+    families = manifest["families"]
+               ~~~~~~~~^^^^^^^^^^^^
+KeyError: 'families'

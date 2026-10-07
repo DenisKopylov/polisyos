@@ -1,0 +1,19 @@
+from pathlib import Path
+import os,subprocess,json,hashlib,time
+root=Path('/workspace/e02-B-current-coordination');p=root/'policy-engine';s=root/'.polisyos/e02-B-current';h=p/'docs/research/e02-cloud-test-plan/implementation-handoffs/B';raw=Path('/tmp/e02-B-successor-client-421');raw.mkdir(exist_ok=False)
+sha='42172721bbe1fdb27f6e37fc8acccdd30464380d'
+def git(*a):return subprocess.check_output(['git','-C',str(root),*a],text=True).strip()
+assert git('rev-parse','HEAD')==sha and git('status','--porcelain')==''
+env=dict(os.environ)
+for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)
+env.update(PYTHONPATH=str(p/'src')+':'+str(p),UV_PROJECT_ENVIRONMENT=str(s/'environment'),UV_NO_SYNC='1',POLISYOS_METRICS_PORT='0')
+env['PATH']='/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:'+str(s/'environment/bin')+':'+env['PATH']
+commands=[['corepack','pnpm','--dir',str(p/'packages/runtime-api-client'),'exec','openapi-typescript',str(p/'schemas/runtime_api_v1.openapi.json'),'-o',str(p/'packages/runtime-api-client/types.ts')],['node','packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs','--types',str(p/'packages/runtime-api-client/types.ts')],[str(s/'environment/bin/python'),'tools/ops_runners/runtime/generate_runtime_client.py','--openapi',str(p/'schemas/runtime_api_v1.openapi.json'),'--out-ts',str(raw/'runtimeApiClient.ts'),'--out-js',str(raw/'runtimeApiClient.js')],['node','packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs','--openapi',str(p/'schemas/runtime_api_v1.openapi.json'),'--client',str(raw/'runtimeApiClient.ts'),'--out-ts',str(p/'packages/runtime-api-client/canonicalRuntimeApiClient.ts'),'--runtime-js',str(raw/'runtimeApiClient.js'),'--out-js',str(p/'packages/runtime-api-client/canonicalRuntimeApiClient.js')]]
+for i,argv in enumerate(commands):
+ code=subprocess.run([str(s/'environment/bin/python'),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag',f'successor-prefreeze-client-421-step{i}','--',*argv],cwd=root,env=env).returncode
+ if code:raise SystemExit(code)
+rows=[]
+for name in ['types.ts','canonicalRuntimeApiClient.ts','canonicalRuntimeApiClient.js']:
+ path='policy-engine/packages/runtime-api-client/'+name;b=(root/path).read_bytes();before=subprocess.check_output(['git','-C',str(root),'show',sha+':'+path]);rows.append({'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'byte_equal_full_source_candidate':b==before})
+record={'source_sha':sha,'source_tree':git('rev-parse',sha+'^{tree}'),'head_after':git('rev-parse','HEAD'),'status_after':git('status','--porcelain'),'commands':commands,'qualification':'Registered shell generator constituent argv, in declared order; own194 Python replaces hardcoded .venv interpreter, explicit task scratch retained rather than original EXIT rm -rf. Same scripts and product options; no root source edit/no result relabel.','outputs':rows,'scratch_root':str(raw),'scratch_cleanup':'No nativeTrash: retain exact candidate; no permanent deletion.'}
+(raw/'result.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2));assert all(x['byte_equal_full_source_candidate'] for x in rows) and record['status_after']==''

@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-producer-native-preparation",
+  "closure_ids": [],
+  "bundle_ids": [
+    "STA-01",
+    "EXE-01",
+    "EXE-02"
+  ],
+  "slice_base_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+  "implementation_commits": [
+    "11e99e1dbc1285f43acf08576a40736b79a794ff",
+    "06d557073d14588c3185ba9505c8a4fd444db106"
+  ],
+  "candidate_tree_sha": "1bdfc128e5200cff977af20259d57c51ebede81f",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "mcp__codex_apps__github_fetch GET https://api.github.com/repos/DenisKopylov/polisyos/git/commits/0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "executor": "GitHub connector read-only",
+        "cloud_runtime_executed": false
+      },
+      "input_closure": {
+        "commit": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+        "expected_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106 (Git blob863b3387d31c47755629fbdc88d45885bc820d0b,11000 bytes); exact published commit/tree and ordered ancestry read; not a runtime result"
+    },
+    {
+      "command": "mcp__codex_apps__github_fetch GET contents/policy-engine/tests/unit/scientist/orchestration/engine and contents/policy-engine/tests/unit/scientist/orchestration/engine/runner with ref=0bf788ac2e57533b08be9172d64c19705a3af30d; mcp__codex_apps__github_fetch_file full defining source",
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "executor": "GitHub connector read-only",
+        "pytest_imported": false,
+        "collection_executed": false
+      },
+      "input_closure": {
+        "source_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+        "wholefile_module_count": 14,
+        "complete_path_blob_byte_inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106",
+        "inventory_git_blob": "863b3387d31c47755629fbdc88d45885bc820d0b",
+        "inventory_bytes": 11000,
+        "defining_source_parametrization": "15+18+8+18=59; literal source, no collection/native"
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106 (Git blob863b3387d31c47755629fbdc88d45885bc820d0b,11000 bytes); all14 exact published path/blob/byte identities available.59 is a literal source parametrization, not an observed collected/runtime count."
+    },
+    {
+      "command": "mcp__codex_apps__github_compare_commits d18fe09b5bc0367c966011144a5418f836b9a4b7...06d557073d14588c3185ba9505c8a4fd444db106; mcp__codex_apps__github_fetch_file exact published input-plan.json content readback",
+      "target_sha": "06d557073d14588c3185ba9505c8a4fd444db106",
+      "environment": {
+        "executor": "GitHub connector read-only",
+        "cloud_runtime_executed": false
+      },
+      "input_closure": {
+        "base": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+        "candidate": "06d557073d14588c3185ba9505c8a4fd444db106",
+        "tree": "1bdfc128e5200cff977af20259d57c51ebede81f",
+        "expected_changed_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json"
+        ],
+        "blob": "863b3387d31c47755629fbdc88d45885bc820d0b",
+        "bytes": 11000
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106 (Git blob863b3387d31c47755629fbdc88d45885bc820d0b,11000 bytes); exact full content equality, one added224-line JSON path, two append-only commits; no source/test/config edits."
+    },
+    {
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -q --basetemp=/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57/pytest --junitxml=/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57/native.xml tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py tests/unit/scientist/orchestration/engine/test_state_branching.py tests/unit/scientist/orchestration/engine/test_state_merge.py tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py tests/unit/scientist/orchestration/engine/test_idempotency.py tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py tests/unit/scientist/orchestration/engine/test_async_executor.py tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py tests/unit/scientist/orchestration/engine/runner/test_serialization.py tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "required_python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "expected_previous_python_version": "3.14.2; current profile not reobserved",
+        "current_cloud_observation": {
+          "observed_at_utc": "2026-10-07 14:03:17 UTC",
+          "observations_current": true,
+          "observed_phase": "pending",
+          "connectivity": "offline",
+          "spec_revision": "76",
+          "failure": null,
+          "network_policy_state": "unknown"
+        },
+        "required_metrics_port": "0",
+        "inherited_caps": "not_observed; planned full census and artificial cap removal recorded before spawn",
+        "cpu_worker_thread_process_quotas": "none requested",
+        "required_cwd": "Root-supplied full tracked Git archive projection/policy-engine; path/archive not supplied"
+      },
+      "input_closure": {
+        "published_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+        "complete_planned14inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106",
+        "full_archive_and_projection": "not_established",
+        "runtime_origins": "not_established",
+        "output_namespace": "/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57"
+      },
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106 (Git blob863b3387d31c47755629fbdc88d45885bc820d0b,11000 bytes); no pytest import, collection, native report or future PASS.14wholefile inputs ready; actual case denominator will come from future JUnit/phase observations."
+    },
+    {
+      "command": "UNAVAILABLE: final-source matched AST overlay has not been materialized/executed; selective _wrap_mutable_value BaseModel branch removal plus genuine scope/completion/typed-ref controls are planned in input-plan.json",
+      "target_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "environment": {
+        "executor": "none",
+        "cloud_connectivity": "offline",
+        "pytest_imported": false
+      },
+      "input_closure": {
+        "published_source": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+        "overlay_script": "not_established",
+        "source_hash_before_after": "not_established",
+        "same_real_CAS_inputs": "planned only"
+      },
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json@06d557073d14588c3185ba9505c8a4fd444db106 (Git blob863b3387d31c47755629fbdc88d45885bc820d0b,11000 bytes); candidate removal controls remain unexecuted. Older06ef controls and2be observed failure are not adopted as candidate outcomes."
+    }
+  ],
+  "property": {
+    "statement": "Prepare exact published inputs and a concrete output namespace for one author defining59-combination file plus13affected wholefiles without promoting source presence, old outcomes or collection to behavioral acceptance.",
+    "runtime_path": [
+      "Published root0bf788 source/tree and14test Git identities",
+      "Full tracked root-owned archive/projection admission (pending)",
+      "Actual Sequential/Async/shared serialized worker producer grants and typed model graph (UNRUN)",
+      "Real filesystemCAS artifact/cache journal and reopened current-state merge consumer (UNRUN)"
+    ],
+    "proxy_divergence": "Git source existence and literal59parametrization cannot establish runtime mutation prevention, current-state journal replay or neutral completion. The old ec898 partial projection passed archive identity but omitted tracked dependency inputs and stopped before product execution; it is retained as setupERROR/productUNRUN.",
+    "negative_controls": [
+      "Selective _wrap_mutable_value BaseModel branch removal retaining class-profile preflight, original producer grants, ordinary containers, cache and completion: material readonly model mutation or lost real reopened current-state journal intent.",
+      "Existing generic container admission removal with true live alias distinguishes mutation before physical observation; hash-bound overlay must be rerun on final cut.",
+      "Existing _completed_producer_state removal with genuine local producer completion/public view records separate worker wire boundary.",
+      "Typed IR-ref normalization removal on genuine producer artifact consumer; no ArtifactRef.kind instance patch."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": {
+    "scope": "input readiness only; not own EXE mechanism acceptance or criterion closure",
+    "metadata_input_identity": "consumer_asserted",
+    "native_candidate": "UNRUN",
+    "candidate_matched_removal": "UNRUN",
+    "formal_closure_ids": [],
+    "finding_dispositions_changed": false,
+    "declared_profile": "Finite ordinary BaseModel/RootModel field and JSON graph protocols; custom runtime/class/copy/schema hooks, undeclared extra/private names, cycles and reflective mutation remain governed by exact source admission/limitations. Behavior not reestablished by this receipt."
+  },
+  "limitations_and_next_owner": [
+    "Root must supply a new immutable FULL tracked Git archive/projection for exact0bf source before any native. Preserve old ec898 archive/projection and source-guard outcome unchanged; do not narrow its failed closure guard or reuse it.",
+    "Cloud status observed2026-10-07T14:03:17UTC: spec76/current, pending/offline, failure null, network policy state unknown. No new runtime environment accessibility or cap values have been observed.",
+    "The priority complete2be30-case original stdout/XML/15physical observations/literal driver remain on inaccessible VM. Their deciding bytes are not established for a portable receiver by this preparation metadata, and no summaries were substituted.",
+    "Root owns exact merged-source release and future broad integration/cohort. Author performs only prepared defining+13affected wave and matched controls after input release; CAS/CMP independently review source and real consumers.",
+    "Independent CAS finite source-only review587eda2d11a2193123a6d862fb6fcea6539cfc4e references d18/d4faa; runtimeUNRUN and closure[] remain explicit. It is not imported as candidate runtimePASS.",
+    "No artifacts deleted, no new checkout/helper/service/dependency profile, no production/test/config writes or gates/native/collection. Only two metadata append commits are in this slice footprint."
+  ],
+  "metadata_scope": {
+    "prepared_runtime_source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+    "prepared_runtime_source_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+    "author_source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+    "author_source_tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+    "canonical_source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "canonical_source_blob": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+    "separate_source_vs_metadata_candidates": true,
+    "source_implementation_commits": [
+      "3bd353d42e06c5c879c580b2a6c61a00226ee5a2",
+      "f787362607db0feacc380975bf81efbb63dd1b65",
+      "d5d5414bf74c57a2e49b4ece2b19c005f1a2299f",
+      "70a7f01f8513a45f3264ff1a7f7971d3bf8da53d",
+      "86ae8e065e5f28ad5fbb9e9cf2c6ed84a44b22ec",
+      "d18fe09b5bc0367c966011144a5418f836b9a4b7"
+    ]
+  }
+}

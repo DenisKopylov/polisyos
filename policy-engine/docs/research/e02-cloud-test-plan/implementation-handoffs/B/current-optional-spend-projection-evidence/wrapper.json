@@ -1,0 +1,58 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-c",
+    "/dev/null",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/cache",
+    "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/tmp",
+    "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/native.xml",
+    "-vv",
+    "-s",
+    "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "E02_OPTIONAL_SPEND_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+    "E02_OPTIONAL_SPEND_SOURCE_SHA": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9"
+  },
+  "removed_numeric_cap_names": [],
+  "all_six_numeric_cap_names_absent": true,
+  "source_projection_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "before": {
+    "actual_target_head": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+    "actual_target_tree": "f5fb536b70b7d8d57b19c78570b3addd798083dd",
+    "target_status": ""
+  },
+  "after": {
+    "actual_target_head": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+    "actual_target_tree": "f5fb536b70b7d8d57b19c78570b3addd798083dd",
+    "target_status": ""
+  },
+  "own_test_commit": "4f3cfcc78d6185e4d407ed1aa7a8477e2960bd6d",
+  "test_sha256": "5ccda8945edba376e1acab693c0042de704883abff7bb9d26f9a7264aa9fe3dc",
+  "test_bytes": 4969,
+  "started_utc": "2026-10-06T20:54:55.584232+00:00",
+  "ended_utc": "2026-10-06T20:55:22.175716+00:00",
+  "wall_seconds": 26.5914707310003,
+  "actual_exit": 1,
+  "wait4_resource": {
+    "utime": 25.334266,
+    "stime": 1.640386,
+    "maxrss_kib_linux": 725644
+  },
+  "python_version": "Python 3.14.2",
+  "full_stdout": {
+    "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/native.txt",
+    "bytes": 11137,
+    "sha256": "ed71e0fc4e3cb2e0dc5a7703b7f0fed90c2e48c94f8588953d09266cc4c4a36a"
+  },
+  "closure": "Four actually imported producer/helper module origins are asserted against Git before/after each case; synthetic physical filesystem provider and concrete observer events. No full served route, dataset, vendor billing, all module/resource/network/child readset, or mandatory ledger/audit profile claim."
+}

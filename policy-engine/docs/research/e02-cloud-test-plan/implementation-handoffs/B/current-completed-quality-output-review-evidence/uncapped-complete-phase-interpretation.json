@@ -1,0 +1,1684 @@
+{
+  "verify-uncapped": {
+    "planned_top_level": 15,
+    "planned_expanded": 15,
+    "actual_started_count": 2,
+    "actual_started": [
+      "doctor",
+      "lint imports"
+    ],
+    "remaining_unrun_count": 13,
+    "remaining_unrun_complete_commands": [
+      {
+        "index": 2,
+        "label": "check package import gates (shell-package closure)",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-package-import-gates",
+          "--fail-closed",
+          "--json-output",
+          "_build/.tmp/last-mile/package-import-gates.json"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 3,
+        "label": "lint foundry",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "-m",
+          "tools.quality.lint.lint_foundry",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 4,
+        "label": "check state reads",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 5,
+        "label": "check scholar imports",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 6,
+        "label": "check connector contracts",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "polisyos-tools",
+          "connectors",
+          "check-contracts",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 7,
+        "label": "check schema freshness",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "ml",
+          "python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 8,
+        "label": "check runtime API contract",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 9,
+        "label": "check last-mile inventory baseline",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "--json-output",
+          "_build/.tmp/last-mile/inventory.json",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 10,
+        "label": "build honest diagnostics coverage dashboard",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "--repo-root",
+          ".",
+          "--output-dir",
+          "_build/honest-diagnostics/coverage"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 11,
+        "label": "check honest diagnostics substrate drift",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_substrate_drift.py",
+          "--repo-root",
+          ".",
+          "--require-passing"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 12,
+        "label": "check extension example contract coverage",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py",
+          "--skip-install",
+          "--skip-discovery",
+          "--skip-pytest"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 13,
+        "label": "check schemas pure-data closure",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "-c",
+          "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 14,
+        "label": "pytest fast backend gate",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "pytest",
+          "-m",
+          "not integration",
+          "--ignore=tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1"
+        },
+        "uncapped_environment_overlay": {}
+      }
+    ],
+    "complete_actual_plan": {
+      "schema": "policyos.e02.uncapped_gate_plan.v1",
+      "config_source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "target_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "canonical_uv_binding": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "version": "uv 0.9.21"
+      },
+      "suite": "verify",
+      "canonical_flags": [
+        "--backend-only"
+      ],
+      "execute": true,
+      "factory_paths": [
+        "policy-engine/tools/devx/workspace/verify.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "policy-engine/tools/devx/workspace/ci_parity.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "policy-engine/tools/devx/workspace/_common.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022"
+      ],
+      "original_top_level_commands": 15,
+      "expanded_commands": 15,
+      "environment_delta": {
+        "omit": [
+          "BLIS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS"
+        ],
+        "ambient_names_present": []
+      },
+      "additional_argv_projection": null,
+      "numerical_cap_option_exists": false,
+      "commands": [
+        {
+          "index": 0,
+          "label": "doctor",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "-m",
+            "tools.devx.workspace.doctor",
+            "--skip-contract-checks"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 1,
+          "label": "lint imports",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/lint/lint_imports.py",
+            "--policy",
+            "architecture/imports/policy.toml",
+            "--exceptions",
+            "architecture/imports/exceptions.toml"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 2,
+          "label": "check package import gates (shell-package closure)",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "_build/.tmp/last-mile/package-import-gates.json"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 3,
+          "label": "lint foundry",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "-m",
+            "tools.quality.lint.lint_foundry",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 4,
+          "label": "check state reads",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/diagnostics/check_state_reads.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 5,
+          "label": "check scholar imports",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/lint/check_scholar_imports.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 6,
+          "label": "check connector contracts",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "polisyos-tools",
+            "connectors",
+            "check-contracts",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 7,
+          "label": "check schema freshness",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 8,
+          "label": "check runtime API contract",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "python",
+            "tools/ops_runners/runtime/check_runtime_api_contract.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 9,
+          "label": "check last-mile inventory baseline",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 10,
+          "label": "build honest diagnostics coverage dashboard",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/build_honest_diagnostics_coverage.py",
+            "--repo-root",
+            ".",
+            "--output-dir",
+            "_build/honest-diagnostics/coverage"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 11,
+          "label": "check honest diagnostics substrate drift",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_substrate_drift.py",
+            "--repo-root",
+            ".",
+            "--require-passing"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 12,
+          "label": "check extension example contract coverage",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_extension_examples.py",
+            "--skip-install",
+            "--skip-discovery",
+            "--skip-pytest"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 13,
+          "label": "check schemas pure-data closure",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "-c",
+            "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 14,
+          "label": "pytest fast backend gate",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "pytest",
+            "-m",
+            "not integration",
+            "--ignore=tests/unit/runtime/http"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "BLIS_NUM_THREADS": "1"
+          },
+          "uncapped_environment_overlay": {}
+        }
+      ]
+    },
+    "configuration_source_role": "Pinned factory source, whole-byte equal to actual target for all four config inputs; not previous gate evidence",
+    "configuration_target_byte_checks": [
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/tools/devx/workspace/verify.py",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/workspace/verify.py",
+        "bytes": 12277,
+        "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+        "whole_byte_equal": true
+      },
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/tools/devx/workspace/ci_parity.py",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/workspace/ci_parity.py",
+        "bytes": 11939,
+        "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+        "whole_byte_equal": true
+      },
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/tools/devx/workspace/_common.py",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/workspace/_common.py",
+        "bytes": 7324,
+        "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+        "whole_byte_equal": true
+      },
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/apps/runtime-dashboard/package.json",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/package.json",
+        "bytes": 11599,
+        "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+        "whole_byte_equal": true
+      }
+    ],
+    "fail_fast_consumer_source": {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+      "lines": "main executes each actual spec with subprocess.run(check=True); first failed constituent prevents later commands."
+    }
+  },
+  "parity-uncapped": {
+    "planned_top_level": 21,
+    "planned_expanded": 35,
+    "actual_started_count": 1,
+    "actual_started": [
+      "doctor"
+    ],
+    "remaining_unrun_count": 34,
+    "remaining_unrun_complete_commands": [
+      {
+        "index": 1,
+        "label": "lint imports",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/lint_imports.py",
+          "--policy",
+          "architecture/imports/policy.toml",
+          "--exceptions",
+          "architecture/imports/exceptions.toml"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 2,
+        "label": "check package import gates (shell-package closure)",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-package-import-gates",
+          "--fail-closed",
+          "--json-output",
+          "_build/.tmp/last-mile/package-import-gates.json"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 3,
+        "label": "lint foundry",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "-m",
+          "tools.quality.lint.lint_foundry",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 4,
+        "label": "check state reads",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 5,
+        "label": "check scholar imports",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 6,
+        "label": "check connector contracts",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "polisyos-tools",
+          "connectors",
+          "check-contracts",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 7,
+        "label": "check schema freshness",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "ml",
+          "python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 8,
+        "label": "check runtime API contract",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 9,
+        "label": "check last-mile inventory baseline",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "--json-output",
+          "_build/.tmp/last-mile/inventory.json",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 10,
+        "label": "build honest diagnostics coverage dashboard",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "--repo-root",
+          ".",
+          "--output-dir",
+          "_build/honest-diagnostics/coverage"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 11,
+        "label": "check honest diagnostics substrate drift",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_substrate_drift.py",
+          "--repo-root",
+          ".",
+          "--require-passing"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 12,
+        "label": "check extension example contract coverage",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py",
+          "--skip-install",
+          "--skip-discovery",
+          "--skip-pytest"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 13,
+        "label": "check schemas pure-data closure",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "-c",
+          "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 14,
+        "label": "pytest fast backend gate",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "pytest",
+          "-m",
+          "not integration",
+          "--ignore=tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1"
+        },
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 15,
+        "label": "pytest runtime/http",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "pytest",
+          "tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 16,
+        "label": "check directory health ratchet",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/directory_health.py",
+          "--repo-root",
+          ".",
+          "--json-output",
+          "_build/.tmp/last-mile/directory-health.json",
+          "--markdown-output",
+          "_build/.tmp/last-mile/directory-health.md",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 17,
+        "label": "check test ratchets and helper topology",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/testing/report_test_ratchets.py",
+          "--format",
+          "json",
+          "--output",
+          "_build/.tmp/last-mile/test-ratchets.json",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 18,
+        "label": "check architecture phase6-1 report-only contracts",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "phase6-1",
+          "--json-output",
+          "_build/.tmp/last-mile/architecture-phase6-1.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 19,
+        "label": "check validator module-size budget",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "module-size",
+          "--json-output",
+          "_build/.tmp/last-mile/module-size.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 20,
+        "label": "report debt ledger reconciliation",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_debt_ledger.py",
+          "--check",
+          "--report-only"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 21,
+        "label": "check extension example installability",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 22,
+        "label": "check ADR thematic index freshness",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/generate_adr_index.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 23,
+        "label": "check docs accuracy",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docs_accuracy.py",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 24,
+        "label": "build docs in strict mode",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 25,
+        "label": "check semantic docstring quality",
+        "argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docstring_quality.py",
+          "--repo-root",
+          ".",
+          "--allowlist",
+          "tools/quality/validation/docstring_quality_allowlist.txt",
+          "--coverage-scope",
+          "public-surface",
+          "--minimum-coverage",
+          "85"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 26,
+        "label": "npm typecheck",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 27,
+        "label": "npm lint",
+        "argv": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 28,
+        "label": "npm format check",
+        "argv": [
+          "npm",
+          "run",
+          "format:check"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 29,
+        "label": "npm architecture check",
+        "argv": [
+          "npm",
+          "run",
+          "check:architecture"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 30,
+        "label": "npm contract fixtures",
+        "argv": [
+          "npm",
+          "run",
+          "contracts:verify"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 31,
+        "label": "actual Vitest coverage without worker cap",
+        "argv": [
+          "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard/node_modules/.bin/vitest",
+          "run",
+          "--coverage",
+          "--testTimeout=20000",
+          "--hookTimeout=20000"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 32,
+        "label": "unchanged successful-coverage ratchet",
+        "argv": [
+          "node",
+          "./scripts/check-coverage-ratchet.mjs"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 33,
+        "label": "npm build",
+        "argv": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      },
+      {
+        "index": 34,
+        "label": "npm build-storybook",
+        "argv": [
+          "npm",
+          "run",
+          "build-storybook"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "canonical_environment_overlay": {},
+        "uncapped_environment_overlay": {}
+      }
+    ],
+    "complete_actual_plan": {
+      "schema": "policyos.e02.uncapped_gate_plan.v1",
+      "config_source_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "target_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "target_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+      "canonical_uv_binding": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "version": "uv 0.9.21"
+      },
+      "suite": "ci-parity",
+      "canonical_flags": [
+        "--skip-browser"
+      ],
+      "execute": true,
+      "factory_paths": [
+        "policy-engine/tools/devx/workspace/verify.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "policy-engine/tools/devx/workspace/ci_parity.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "policy-engine/tools/devx/workspace/_common.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022"
+      ],
+      "original_top_level_commands": 21,
+      "expanded_commands": 35,
+      "environment_delta": {
+        "omit": [
+          "BLIS_NUM_THREADS",
+          "MKL_NUM_THREADS",
+          "NUMEXPR_NUM_THREADS",
+          "OMP_NUM_THREADS",
+          "OPENBLAS_NUM_THREADS",
+          "VECLIB_MAXIMUM_THREADS"
+        ],
+        "ambient_names_present": []
+      },
+      "additional_argv_projection": {
+        "original_argv": [
+          "npm",
+          "run",
+          "test:coverage"
+        ],
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+        "source": "policy-engine/apps/runtime-dashboard/package.json@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "removed_vitest_argument": "--maxWorkers=1",
+        "expanded_indices": [
+          31,
+          32
+        ],
+        "success_condition": "second command runs only after first succeeds",
+        "environment_qualification": "direct leaf execution inherits the same top-level environment; npm-generated lifecycle metadata is not reproduced"
+      },
+      "numerical_cap_option_exists": false,
+      "commands": [
+        {
+          "index": 0,
+          "label": "doctor",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+            "-m",
+            "tools.devx.workspace.doctor"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 1,
+          "label": "lint imports",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/lint/lint_imports.py",
+            "--policy",
+            "architecture/imports/policy.toml",
+            "--exceptions",
+            "architecture/imports/exceptions.toml"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 2,
+          "label": "check package import gates (shell-package closure)",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "_build/.tmp/last-mile/package-import-gates.json"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 3,
+          "label": "lint foundry",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "-m",
+            "tools.quality.lint.lint_foundry",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 4,
+          "label": "check state reads",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/diagnostics/check_state_reads.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 5,
+          "label": "check scholar imports",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/lint/check_scholar_imports.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 6,
+          "label": "check connector contracts",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "polisyos-tools",
+            "connectors",
+            "check-contracts",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 7,
+          "label": "check schema freshness",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 8,
+          "label": "check runtime API contract",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "python",
+            "tools/ops_runners/runtime/check_runtime_api_contract.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 9,
+          "label": "check last-mile inventory baseline",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 10,
+          "label": "build honest diagnostics coverage dashboard",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/build_honest_diagnostics_coverage.py",
+            "--repo-root",
+            ".",
+            "--output-dir",
+            "_build/honest-diagnostics/coverage"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 11,
+          "label": "check honest diagnostics substrate drift",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_substrate_drift.py",
+            "--repo-root",
+            ".",
+            "--require-passing"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 12,
+          "label": "check extension example contract coverage",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_extension_examples.py",
+            "--skip-install",
+            "--skip-discovery",
+            "--skip-pytest"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 13,
+          "label": "check schemas pure-data closure",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "-c",
+            "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 14,
+          "label": "pytest fast backend gate",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "pytest",
+            "-m",
+            "not integration",
+            "--ignore=tests/unit/runtime/http"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "BLIS_NUM_THREADS": "1"
+          },
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 15,
+          "label": "pytest runtime/http",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "pytest",
+            "tests/unit/runtime/http"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 16,
+          "label": "check directory health ratchet",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/directory_health.py",
+            "--repo-root",
+            ".",
+            "--json-output",
+            "_build/.tmp/last-mile/directory-health.json",
+            "--markdown-output",
+            "_build/.tmp/last-mile/directory-health.md",
+            "--fail-on-regression"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 17,
+          "label": "check test ratchets and helper topology",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/testing/report_test_ratchets.py",
+            "--format",
+            "json",
+            "--output",
+            "_build/.tmp/last-mile/test-ratchets.json",
+            "--fail-on-regression"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 18,
+          "label": "check architecture phase6-1 report-only contracts",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "phase6-1",
+            "--json-output",
+            "_build/.tmp/last-mile/architecture-phase6-1.json",
+            "--fail-on-contract-errors"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 19,
+          "label": "check validator module-size budget",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "module-size",
+            "--json-output",
+            "_build/.tmp/last-mile/module-size.json",
+            "--fail-on-contract-errors"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 20,
+          "label": "report debt ledger reconciliation",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_debt_ledger.py",
+            "--check",
+            "--report-only"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 21,
+          "label": "check extension example installability",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_extension_examples.py"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 22,
+          "label": "check ADR thematic index freshness",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/generate_adr_index.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 23,
+          "label": "check docs accuracy",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docs_accuracy.py",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 24,
+          "label": "build docs in strict mode",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "docs",
+            "python",
+            "-m",
+            "mkdocs",
+            "build",
+            "--strict"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 25,
+          "label": "check semantic docstring quality",
+          "argv": [
+            "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+            "run",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docstring_quality.py",
+            "--repo-root",
+            ".",
+            "--allowlist",
+            "tools/quality/validation/docstring_quality_allowlist.txt",
+            "--coverage-scope",
+            "public-surface",
+            "--minimum-coverage",
+            "85"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 26,
+          "label": "npm typecheck",
+          "argv": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 27,
+          "label": "npm lint",
+          "argv": [
+            "npm",
+            "run",
+            "lint"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 28,
+          "label": "npm format check",
+          "argv": [
+            "npm",
+            "run",
+            "format:check"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 29,
+          "label": "npm architecture check",
+          "argv": [
+            "npm",
+            "run",
+            "check:architecture"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 30,
+          "label": "npm contract fixtures",
+          "argv": [
+            "npm",
+            "run",
+            "contracts:verify"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 31,
+          "label": "actual Vitest coverage without worker cap",
+          "argv": [
+            "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard/node_modules/.bin/vitest",
+            "run",
+            "--coverage",
+            "--testTimeout=20000",
+            "--hookTimeout=20000"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 32,
+          "label": "unchanged successful-coverage ratchet",
+          "argv": [
+            "node",
+            "./scripts/check-coverage-ratchet.mjs"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 33,
+          "label": "npm build",
+          "argv": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        },
+        {
+          "index": 34,
+          "label": "npm build-storybook",
+          "argv": [
+            "npm",
+            "run",
+            "build-storybook"
+          ],
+          "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+          "canonical_environment_overlay": {},
+          "uncapped_environment_overlay": {}
+        }
+      ]
+    },
+    "configuration_source_role": "Pinned factory source, whole-byte equal to actual target for all four config inputs; not previous gate evidence",
+    "configuration_target_byte_checks": [
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/tools/devx/workspace/verify.py",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/workspace/verify.py",
+        "bytes": 12277,
+        "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+        "whole_byte_equal": true
+      },
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/tools/devx/workspace/ci_parity.py",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/workspace/ci_parity.py",
+        "bytes": 11939,
+        "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+        "whole_byte_equal": true
+      },
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/tools/devx/workspace/_common.py",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/tools/devx/workspace/_common.py",
+        "bytes": 7324,
+        "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+        "whole_byte_equal": true
+      },
+      {
+        "configuration_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022:policy-engine/apps/runtime-dashboard/package.json",
+        "candidate_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/package.json",
+        "bytes": 11599,
+        "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+        "whole_byte_equal": true
+      }
+    ],
+    "fail_fast_consumer_source": {
+      "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+      "lines": "main executes each actual spec with subprocess.run(check=True); first failed constituent prevents later commands."
+    }
+  }
+}

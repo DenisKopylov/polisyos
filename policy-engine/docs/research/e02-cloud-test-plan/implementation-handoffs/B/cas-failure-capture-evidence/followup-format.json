@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/core/artifacts/_integrity_ops.py",
+    "src/polisyos/core/artifacts/store.py",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "4638f03a0fc308101185975b562ae7ef7a0ca0d4",
+  "target_tree": "4e9c65a495510758671596d3bf84a0ce236452af",
+  "exit_code": 0,
+  "wall_s": 0.04148947801149916,
+  "maxrss_kib": 22696,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "stdout": {
+    "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/followup-format.txt",
+    "bytes": 26,
+    "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+  }
+}

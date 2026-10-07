@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="42.434" timestamp="2026-10-06T17:12:28.719550+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_real_atomic_head_35_seconds_fits_original_60_second_workflow" time="35.421" /></testsuite></testsuites>

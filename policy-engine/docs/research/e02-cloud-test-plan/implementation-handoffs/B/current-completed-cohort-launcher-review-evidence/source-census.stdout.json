@@ -1,0 +1,82 @@
+{
+  "target_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+  "target_tree": "9b24f0f90ef3de157f81ae2e4f847ca1339ea4a2",
+  "source_diff_paths": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py"
+  ],
+  "source_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_cohort.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 6709,
+      "sha256": "7fa5eadfa31bf2187e9a52188e2c299ce24e3b3e2bcc4ad8900453e38cf09288",
+      "git_blob": "58572b058b9a9327937ae755e632d3e15271b04e",
+      "AST_parse": "PASS",
+      "parent_byte_equal": "NEW_FILE"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 14010,
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "git_blob": "0e7b6618f2273a48cecb8000c23678e40e013540",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 3729,
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "git_blob": "25061d0273e6a973758b3878dd34040986edc4fc",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 20488,
+      "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802",
+      "git_blob": "1359fec9c8f652a76ad9129636b5fb90aef45417",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+      "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 9973,
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+      "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 16407,
+      "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80",
+      "git_blob": "0993916d9cc5b7db21170147af8c3c3a5614fac2",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "source_sha": "4703d19296998d93bac94bfcafc0934a37901126",
+      "bytes": 17894,
+      "sha256": "2a96232af95ccc1068d79c860b142cb72bd956ecf6f7de79ad451558ede8bbfa",
+      "git_blob": "f43d9cc1d434698e9950e2ca7fd760ebe1dcbbfa",
+      "AST_parse": "PASS",
+      "parent_byte_equal": true
+    }
+  ],
+  "execution": "Git-only reads and stdlib AST parsing; launcher/capture/admission/observer/pytest imports or execution UNRUN"
+}

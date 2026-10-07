@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "_build/e02-B-current-composition/res03_artifact_custody.py",
+    "_build/e02-B-current-composition/raw/res03-real-route-061-tmp/test_res_03_real_simulation_la0/cas",
+    "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "_build/e02-B-current-composition/raw/res03-artifact-custody-fixture"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+    "tree": "02eebccaf5fee51f2c19de3d6ab7e1c26697a354",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T12:25:10.048248+00:00",
+  "exit_code": 0,
+  "wall_seconds": 0.7268374710110947,
+  "max_rss_kib": 59028,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+    "tree": "02eebccaf5fee51f2c19de3d6ab7e1c26697a354",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T12:25:10.831096+00:00"
+}

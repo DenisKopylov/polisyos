@@ -1,0 +1,13 @@
+diff --git a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
+index 8a19b1fe7..22b3f59a4 100644
+--- a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
++++ b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
+@@ -253,7 +253,7 @@ class _RequiredAuditResolver:
+         if (
+             entry.compute_hash() != entry.entry_hash
+             or entry.chain_id != "B65:retained-owner"
+-            or entry.actor.id != obligation.actor
++            or entry.actor.identity != obligation.actor
+             or entry.resource.id != obligation.run_id
+             or entry.correlation.run_id != obligation.run_id
+             or json.dumps(actual_payload, sort_keys=True)

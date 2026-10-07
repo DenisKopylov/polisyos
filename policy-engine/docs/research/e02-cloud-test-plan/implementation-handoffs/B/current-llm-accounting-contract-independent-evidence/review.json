@@ -1,0 +1,1926 @@
+{
+  "schema": "policyos.e02.readonly_llm_contract_review.v1",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "reviewer_runtime": "UNRUN; complete source and existing actual input/output inspection only",
+  "predicate_basis": "independently_reconciled",
+  "source_before": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "source_after": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  },
+  "canonical_criteria": {
+    "B65": "B_r19_original.md lines1669-1688 mandatory persistence/reconciliation and next-action restriction",
+    "B66": "B_r19_original.md lines1689-1708 missing raw does not prove zero network cost"
+  },
+  "source_refs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/settlement.py",
+      "bytes": 8687,
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "repository_path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "c2c631442a3ecf7587425445565d723598eaba81"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/response.py",
+      "bytes": 7635,
+      "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af",
+      "repository_path": "policy-engine/src/polisyos/core/llm/response.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/traced_client.py",
+      "bytes": 35161,
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+      "repository_path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "da043259222ebeccf48e4fa8270a56fd2aa9bd62"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/pricing.py",
+      "bytes": 2148,
+      "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+      "repository_path": "policy-engine/src/polisyos/core/observability/pricing.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "bytes": 37271,
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "b1e91052c288df38bfa451cdee6a0436d4836b35"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "bytes": 28432,
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "4dcf43321044bd9bf9a0c579417af8ba29344945"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "repository_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_protocol.py",
+      "bytes": 997,
+      "sha256": "af87aaf57f6fecf097efaa131e49cb97d93a7692e4d098d11ec4e1ca7bd50a66",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_protocol.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "8376a3e476272b649c02d39b57ca1e62ef0d0a12"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_log_adapter.py",
+      "bytes": 2917,
+      "sha256": "e2f1a1ddafa681bdfda7f151e5c3603be2fd29bf58084f642b7cbf004ffc6f14",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "18b74346ce1bd3313526f260deabfaa10ef1d37d"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/audit_sink.py",
+      "bytes": 14861,
+      "sha256": "edbd457fe7da614834767484b350c906b7f37f531ed0b38fcf153e280415b576",
+      "repository_path": "policy-engine/src/polisyos/core/security/audit_sink.py",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "7ca64fc28be8e36edc3c6ad46d9c4ac8ec6e9fac"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "bytes": 1336380,
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "repository_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "bytes": 33768,
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "git_blob": "58267726b4fb3a390c421c68130c788a0c6e90ee"
+    }
+  ],
+  "historical_navigation": [
+    {
+      "finding_id": "B65",
+      "command": [
+        "python3",
+        "docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B65",
+        "--details",
+        "--job-context",
+        "--limit",
+        "30",
+        "--block-limit",
+        "3"
+      ],
+      "output": {
+        "path": "/tmp/e02-B-llm-contract-review-exe/B65-query.json",
+        "bytes": 51374,
+        "sha256": "c2d92ead320b511f27f756bedd29d827f29106cb3537ed4c28d7bd8cd44cc8c3"
+      },
+      "top_level_fields": [
+        "available_job_context_blocks",
+        "cells",
+        "displayed_cells",
+        "finding_basis",
+        "finding_routes",
+        "grade",
+        "job_dictionary_or_context_blocks",
+        "limitations",
+        "matching_cells",
+        "matching_route_cells",
+        "matching_source_blocks",
+        "raw_archives_received",
+        "referenced_messages",
+        "source_blocks",
+        "states",
+        "unrouted_findings"
+      ],
+      "cells": [
+        {
+          "id": "F01-P026",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "24",
+          "calls": "24",
+          "call_pass": "24",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.81",
+          "rss_kib": "98192",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "143",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F03-P066",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "state": "PASS",
+          "collected": "13",
+          "calls": "13",
+          "call_pass": "13",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.08",
+          "rss_kib": "89096.0",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F03.txt",
+          "source_line": "196",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F03-P091",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.35",
+          "rss_kib": "96640.0",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F03.txt",
+          "source_line": "221",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F05-P047",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "16",
+          "calls": "16",
+          "call_pass": "16",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.6",
+          "rss_kib": "110596",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F05.txt",
+          "source_line": "457",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F07-P027",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "24",
+          "calls": "24",
+          "call_pass": "24",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.668851613998413",
+          "rss_kib": "110980.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "33",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F07-P084",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.569864273071289",
+          "rss_kib": "111512.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "90",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F10-P031",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "16",
+          "calls": "16",
+          "call_pass": "16",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "3.69",
+          "rss_kib": "120512",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F10.txt",
+          "source_line": "151",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F13-P104",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.3",
+          "rss_kib": "118468",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "231",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F15-P032",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "24",
+          "calls": "24",
+          "call_pass": "24",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.53",
+          "rss_kib": "112148",
+          "receipt_status": "valid",
+          "source_file": "received/F15.txt",
+          "source_line": "187",
+          "extra_json": "{\"reason\":\"null\"}"
+        }
+      ],
+      "finding_routes": [
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F01-P026",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F03-P066",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F03-P091",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F05-P047",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F07-P027",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F07-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F10-P031",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F13-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        },
+        {
+          "finding_id": "B65",
+          "unit": "B",
+          "cell_id": "F15-P032",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B65"
+        }
+      ],
+      "qualification": "Historical source-reported navigation only; PASS summaries do not prove DD or the new repair."
+    },
+    {
+      "finding_id": "B66",
+      "command": [
+        "python3",
+        "docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B66",
+        "--details",
+        "--job-context",
+        "--limit",
+        "30",
+        "--block-limit",
+        "3"
+      ],
+      "output": {
+        "path": "/tmp/e02-B-llm-contract-review-exe/B66-query.json",
+        "bytes": 51374,
+        "sha256": "f56d305a1984d66c51d3bbf2afa340fda5067eaa4b94e5ff1e26cafcfbbaa277"
+      },
+      "top_level_fields": [
+        "available_job_context_blocks",
+        "cells",
+        "displayed_cells",
+        "finding_basis",
+        "finding_routes",
+        "grade",
+        "job_dictionary_or_context_blocks",
+        "limitations",
+        "matching_cells",
+        "matching_route_cells",
+        "matching_source_blocks",
+        "raw_archives_received",
+        "referenced_messages",
+        "source_blocks",
+        "states",
+        "unrouted_findings"
+      ],
+      "cells": [
+        {
+          "id": "F01-P026",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "24",
+          "calls": "24",
+          "call_pass": "24",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.81",
+          "rss_kib": "98192",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "143",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F03-P066",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+          "state": "PASS",
+          "collected": "13",
+          "calls": "13",
+          "call_pass": "13",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.08",
+          "rss_kib": "89096.0",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F03.txt",
+          "source_line": "196",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F03-P091",
+          "job": "F03",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.35",
+          "rss_kib": "96640.0",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F03.txt",
+          "source_line": "221",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F05-P047",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "16",
+          "calls": "16",
+          "call_pass": "16",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.6",
+          "rss_kib": "110596",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F05.txt",
+          "source_line": "457",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F07-P027",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "24",
+          "calls": "24",
+          "call_pass": "24",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.668851613998413",
+          "rss_kib": "110980.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "33",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F07-P084",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.569864273071289",
+          "rss_kib": "111512.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "90",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F10-P031",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "16",
+          "calls": "16",
+          "call_pass": "16",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "3.69",
+          "rss_kib": "120512",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F10.txt",
+          "source_line": "151",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F13-P104",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.3",
+          "rss_kib": "118468",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "231",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F15-P032",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "state": "PASS",
+          "collected": "24",
+          "calls": "24",
+          "call_pass": "24",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "1.53",
+          "rss_kib": "112148",
+          "receipt_status": "valid",
+          "source_file": "received/F15.txt",
+          "source_line": "187",
+          "extra_json": "{\"reason\":\"null\"}"
+        }
+      ],
+      "finding_routes": [
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F01-P026",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F03-P066",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F03-P091",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F05-P047",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F07-P027",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F07-P084",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F10-P031",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F13-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        },
+        {
+          "finding_id": "B66",
+          "unit": "B",
+          "cell_id": "F15-P032",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B66"
+        }
+      ],
+      "qualification": "Historical source-reported navigation only; PASS summaries do not prove DD or the new repair."
+    }
+  ],
+  "actual_native_inputs": {
+    "B65": {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_sha": "9c76d54cf10255ab5b926dfd961dcb3e07711ff4",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "\nfrom pathlib import Path\nimport hashlib, importlib, importlib.metadata, json, subprocess, sys\nROOT=Path(sys.argv[1]); OUT=Path(sys.argv[2]); TEST=Path(sys.argv[3]); SOURCE=sys.argv[4]\nmodules=['polisyos.core.llm.response','polisyos.core.llm.traced_client','polisyos.core.llm.settlement','polisyos.core.security.audit_log_adapter','polisyos.core.security.audit_protocol','polisyos.core.security.audit_sink','polisyos.core.security.audit_models','polisyos.core.security.audit_verifier','polisyos.scientist.orchestration.engine.budget','polisyos.scientist.orchestration.engine.budget_ledger','polisyos.scientist.orchestration.engine.budget_middleware','polisyos.scientist.orchestration.llm.budget_enforcer','polisyos.scientist.orchestration.llm.gateway_client']\ndef ref(path):\n raw=path.read_bytes(); rel=path.relative_to(ROOT).as_posix(); expected=subprocess.check_output(['git','show',f'{SOURCE}:{rel}'],cwd=ROOT)\n assert raw==expected, rel\n return {'path':rel,'actual_origin':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',f'{SOURCE}:{rel}'],cwd=ROOT,text=True).strip(),'source_sha':SOURCE}\norigins=[]\nfor name in modules:\n m=importlib.import_module(name); row=ref(Path(m.__file__).resolve());row['module']=name;origins.append(row)\nprint('B65_EXACT_SOURCE_ORIGINS '+json.dumps(origins), flush=True)\nimport pytest\nargs=[str(TEST),'-c',str(ROOT/'policy-engine/pyproject.toml'),'--noconftest','-p','no:cacheprovider','-s','-ra',f'--basetemp={OUT}/pytest-tmp',f'--junitxml={OUT}/native.xml']\nprint('B65_NATIVE_ARGUMENTS '+json.dumps(args),flush=True)\nresult=pytest.main(args)\nall_origins=[]\nfor name,m in sorted(sys.modules.items()):\n if name=='polisyos' or name.startswith('polisyos.'):\n  f=getattr(m,'__file__',None)\n  if f:\n   path=Path(f).resolve()\n   if path.is_relative_to(ROOT/'policy-engine/src'):\n    row=ref(path);row['module']=name;all_origins.append(row)\n   else:raise AssertionError(f'foreign source module {name}: {f}')\nversions={n:importlib.metadata.version(n) for n in ['pytest','pydantic','aiohttp','ruff','numpy']}\n(OUT/'source-context.json').write_text(json.dumps({'source_sha':SOURCE,'explicit_source_origins':origins,'complete_loaded_polisyos_module_denominator':len(all_origins),'all_loaded_polisyos_origins':all_origins,'python_executable':sys.executable,'python_version':sys.version,'observed_versions':versions,'pytest_args':args,'pytest_result':int(result)},indent=2)+'\\n')\nraise SystemExit(int(result))\n",
+        "/workspace/e02-B-current-coordination",
+        "/tmp/e02-B65-protected-audit-qualified",
+        "/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+        "dd9584728bd96f204983615216efdbc58117e713"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "actual_exit": 1,
+      "observed_cases": 4,
+      "outcomes": {
+        "PASS": 2,
+        "FAIL": 2
+      },
+      "cases": [
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]",
+          "outcome": "FAIL"
+        }
+      ]
+    },
+    "B66": {
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "test_sha": "882b543ed7e9127abd777753811ff7a3a9c0857c",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-adapters/policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp",
+        "/tmp/e02-b66-unknown-dd-7jdlujt1/fixtures",
+        "--junitxml",
+        "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "E02_B66_TARGET_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_B66_TARGET_SHA": "dd9584728bd96f204983615216efdbc58117e713",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "actual_exit": 1,
+      "observed_cases": 16,
+      "outcomes": {
+        "FAIL": 8,
+        "PASS": 8
+      },
+      "cases": [
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-missing-usage]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-sdk-invalid-usage]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-raw-none-default-usage]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[False-none-response]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-missing-usage]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-sdk-invalid-usage]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-raw-none-default-usage]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_unknown_usage_cannot_publish_zero_ack_after_actual_provider[True-none-response]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-positive]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-reported-zero]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-known-usage]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[False-priced-free-usage]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-positive]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-reported-zero]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-known-usage]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_known_usage_and_price_preserve_legitimate_charge_controls[True-priced-free-usage]",
+          "outcome": "PASS"
+        }
+      ]
+    }
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-B65-protected-audit-qualified/native.txt",
+      "bytes": 78759,
+      "sha256": "2b32c24941f6e798970d2aee67b9d7bc7c012d4ccb5622738edd1710c5143e86"
+    },
+    {
+      "path": "/tmp/e02-B65-protected-audit-qualified/native.xml",
+      "bytes": 11955,
+      "sha256": "81ff734fdb7d12d3eca87e2bcc8e5fc4fa3101ab0bd7030db0f6c30a4cd38dad"
+    },
+    {
+      "path": "/tmp/e02-B65-protected-audit-qualified/wrapper.json",
+      "bytes": 4721,
+      "sha256": "180a22f615d53adf66a398b72a1274880548d10e56bd6f54d17f8ce08a393a5f"
+    },
+    {
+      "path": "/tmp/e02-B65-protected-audit-qualified/source-context.json",
+      "bytes": 52196,
+      "sha256": "343fd56d1465d00c6aca20ae3b33bcb495ad7c316e1c4ee7e18eb7e580c8bf1b"
+    },
+    {
+      "path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.txt",
+      "bytes": 99500,
+      "sha256": "21fad5970ce6ec686940cd991b3af355ac3dba93464d33ee83cd759af2fe06cf"
+    },
+    {
+      "path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.xml",
+      "bytes": 12769,
+      "sha256": "efc7904e572dde884ecee7d6c3b49711d9c1efaa8a936710127e79fc24a41ae6"
+    },
+    {
+      "path": "/tmp/e02-b66-unknown-dd-7jdlujt1/native.json",
+      "bytes": 4927,
+      "sha256": "4fa1a14b859d9baad597b283b007c1ec0053e98cee7ac4d84fbaff6ba2e586c8"
+    }
+  ],
+  "B65_actual_observations": [
+    {
+      "route": "sync-invoke",
+      "fault": false,
+      "physical_provider_count": 2,
+      "spent": {
+        "run": "0.04"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 2,
+      "protected_committed_records": 2,
+      "audit_chain": {
+        "total_entries": 8,
+        "valid_entries": 8,
+        "tampered_entries": [],
+        "missing_entries": [],
+        "chain_intact": true,
+        "first_tampered_sequence": null
+      },
+      "second_error_type": null,
+      "first_error_cause": null
+    },
+    {
+      "route": "async-generate",
+      "fault": false,
+      "physical_provider_count": 2,
+      "spent": {
+        "run": "0.04"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 2,
+      "protected_committed_records": 2,
+      "audit_chain": {
+        "total_entries": 8,
+        "valid_entries": 8,
+        "tampered_entries": [],
+        "missing_entries": [],
+        "chain_intact": true,
+        "first_tampered_sequence": null
+      },
+      "second_error_type": null,
+      "first_error_cause": null
+    },
+    {
+      "route": "sync-invoke",
+      "fault": true,
+      "physical_provider_count": 2,
+      "spent": {
+        "run": "0.04"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 2,
+      "protected_committed_records": 1,
+      "audit_chain": {
+        "total_entries": 7,
+        "valid_entries": 6,
+        "tampered_entries": [
+          4
+        ],
+        "missing_entries": [
+          3
+        ],
+        "chain_intact": false,
+        "first_tampered_sequence": 4
+      },
+      "second_error_type": null,
+      "first_error_cause": "IsADirectoryError"
+    },
+    {
+      "route": "async-generate",
+      "fault": true,
+      "physical_provider_count": 2,
+      "spent": {
+        "run": "0.04"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 2,
+      "protected_committed_records": 1,
+      "audit_chain": {
+        "total_entries": 7,
+        "valid_entries": 6,
+        "tampered_entries": [
+          4
+        ],
+        "missing_entries": [
+          3
+        ],
+        "chain_intact": false,
+        "first_tampered_sequence": 4
+      },
+      "second_error_type": null,
+      "first_error_cause": "IsADirectoryError"
+    }
+  ],
+  "B66_actual_observations": [
+    {
+      "profile": "sdk-missing-usage",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169",
+          "kind": "provider",
+          "payload_digest": "sha256:ff02bb86489653ae2dddb78abe0a487da436173462c4adfa9f788475fa29b57b"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.294241Z",
+              "event_id": "llm-producer:b63c06f80ba645c7b5970f55258bc169:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "1908f1dacc7bf7a7fc036e15778b0b0e44fedef19c309ed20a236c8b8365aa4f",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "sdk-invalid-usage",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c",
+          "kind": "provider",
+          "payload_digest": "sha256:e8c3cece1cf529efe41cd1ba894d2560356ee92621bfc7c5c9349c6478b2009d"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.343806Z",
+              "event_id": "llm-producer:30439d460fa74afc9d1fcc986fd9295c:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "3818419abd93fb74e2ce00d365a30fd53fcf12ec2508e88581fff7f4d88117fb",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "raw-none-default-usage",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7",
+          "kind": "provider",
+          "payload_digest": "sha256:83eac39eaaa01d3834939788591a85de307c07e5ace3ff52e823eb42e852ca77"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.375071Z",
+              "event_id": "llm-producer:a8e2a5b5ed2f4e12adae70b6070163b7:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "c0334de36854e63afbfd01c687759ddb362b4dfe956912323cb21d9e54944ee7",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "none-response",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "NoneType"
+      },
+      "result_exception": "AttributeError",
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e",
+          "kind": "provider",
+          "payload_digest": "sha256:875e15c7cbcc07781c5cd8ba7d119c64983c225dc258153503dbdeadb7103a1d"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.405575Z",
+              "event_id": "llm-producer:06ce751645574e6db1be09167b7fbd2e:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "8b8e4cb8df9b2eb7ada805c8d057c721c2c3a8264a6e22a514230812a7eb8383",
+              "provider": "unknown",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 0,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "sdk-missing-usage",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff",
+          "kind": "provider",
+          "payload_digest": "sha256:55a3b373ca01b53546f6d4e49db2591e6f4022fc3297c7bd2b013ae43710216c"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.435368Z",
+              "event_id": "llm-producer:50ebfdc11b57469b858cd0d9570609ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "29eceae44698b6c0e2781ac13c47d029d4beb0d6ec07b556fcdea25ba6c72772",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "sdk-invalid-usage",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a",
+          "kind": "provider",
+          "payload_digest": "sha256:e9a0e9423618c517e10f7361084ad13ea6ec91e7504a85e3165abfec428492c2"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.467518Z",
+              "event_id": "llm-producer:4d4812f8a5cb48a59a0191165587641a:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "fda640ae50c399460de6c32074e3571f1a424ce60078ed59c54e708f89e2b0ec",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "raw-none-default-usage",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:136825346226422f82d491c25c77b65d",
+          "kind": "provider",
+          "payload_digest": "sha256:ca19c2beb6ed79017b926a64f4cb4d348e240948ea3c721de06349206dd3002b"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:136825346226422f82d491c25c77b65d",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.498248Z",
+              "event_id": "llm-producer:136825346226422f82d491c25c77b65d:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "8de374e04b5ed70cb32dd07ecfe59aa7e7dcce9b0925e288d8e1e54cdc2945b0",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "none-response",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": null,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "NoneType"
+      },
+      "result_exception": "AttributeError",
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207",
+          "kind": "provider",
+          "payload_digest": "sha256:ac549921e6bd8aa36b131eba0503aec0f9fc184d3a9f0adc9afba080ad4602d8"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.528093Z",
+              "event_id": "llm-producer:0a9bddd8344c40cb982713f229aba207:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "ec614c44b63fc711137122f9e671eae9dd1d994d52e78795d7341b1133684206",
+              "provider": "unknown",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 0,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "reported-positive",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": 0.02,
+        "prompt_tokens": 7,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.02",
+          "cost_origin": "reported",
+          "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26",
+          "kind": "provider",
+          "payload_digest": "sha256:2c23cdc13853444970ca74858fba76b9abc24bae9bd80293348c8900d0be8366"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26",
+          "receipts": [
+            {
+              "amount": "0.02",
+              "committed_at": "2026-10-06T19:44:40.560323Z",
+              "event_id": "llm-producer:d89c9588b66a41c0aec405f8bd0a6c26:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "fe6706e9c0eb80db89eb6e13b94d6614f29464c9e9251aef2ef7a03a81396529",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.02"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "reported-zero",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": 0.0,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "reported",
+          "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05",
+          "kind": "provider",
+          "payload_digest": "sha256:935f2e20bc0a8595a0367afa48d576b88757eb9bc5ab3ce1a1517a2aa09e681e"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.586498Z",
+              "event_id": "llm-producer:605ce6b43e73415399d3e2d8f7ff5d05:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "ec1cec5b34688ac1a3b97601dba2f7ba72363993c4733655f6d694b6e5262e18",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "priced-known-usage",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0000475",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a",
+          "kind": "provider",
+          "payload_digest": "sha256:d3a477761087abdaf9c2ac39797ac4dfa4cede54959bdf10f1d36070ebdfc535"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a",
+          "receipts": [
+            {
+              "amount": "0.0000475",
+              "committed_at": "2026-10-06T19:44:40.612636Z",
+              "event_id": "llm-producer:84884a2f312340e39d238a9d7664762a:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "ea0873517e229bf4b364a847f2664fd8f215f23803a51380a69865ea181d6251",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0000475"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "priced-free-usage",
+      "caller_cancelled": false,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe",
+          "kind": "provider",
+          "payload_digest": "sha256:632eab854d7b85c19a88e3141a877d4ac6baef8da03afb2a11632e99bc114974"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.638694Z",
+              "event_id": "llm-producer:5712564c709340b4ad64f703d393b2fe:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "ab97d9f8385815db2a7956be14a8f374fa1cc270f542ec91368fe6e739aebf94",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0.0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "reported-positive",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": 0.02,
+        "prompt_tokens": 7,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.02",
+          "cost_origin": "reported",
+          "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2",
+          "kind": "provider",
+          "payload_digest": "sha256:011c58ca161018f6ae2ff1584641794b7d00ca18543e54ab056cae9ed2a076d1"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2",
+          "receipts": [
+            {
+              "amount": "0.02",
+              "committed_at": "2026-10-06T19:44:40.664736Z",
+              "event_id": "llm-producer:3452f64a712846e1aaa8705501763cb2:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "d4cd8e393fcb4f75cdacf6c8fa6a4cc5004a5d853641834f53625b6c64cc61b9",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.02"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "reported-zero",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 0,
+        "cost_usd": 0.0,
+        "prompt_tokens": 0,
+        "raw_is_none": true,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "reported",
+          "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925",
+          "kind": "provider",
+          "payload_digest": "sha256:61bb7032e225aeed75b9c083300db5fa7dacf581b847e0db664361326931a09c"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.690981Z",
+              "event_id": "llm-producer:b1838730b60c47e2810aee84e4229925:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "699087b03cf2ce9b1111a06cefe6a149cfe2a7428c102ff311a1b9979acdacd4",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "priced-known-usage",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0000475",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93",
+          "kind": "provider",
+          "payload_digest": "sha256:dcc0705fba3926944438b5b14d70459b60c5e8906f4f988e7d92343795ff0308"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93",
+          "receipts": [
+            {
+              "amount": "0.0000475",
+              "committed_at": "2026-10-06T19:44:40.717075Z",
+              "event_id": "llm-producer:2a1261edd94841d3884a6e1c728cad93:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "6c93471aa8e5d3a9c5a15ffb22503d6e7eec6f5624c7f9ab71b1c1a9f51c946b",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0000475"
+      },
+      "reserved": {
+        "run": "0"
+      },
+      "receipt_count": 1
+    },
+    {
+      "profile": "priced-free-usage",
+      "caller_cancelled": true,
+      "physical_provider_count": 1,
+      "input_normalization": {
+        "completion_tokens": 3,
+        "cost_usd": null,
+        "prompt_tokens": 7,
+        "raw_is_none": false,
+        "response_type": "GatewayLLMResponse"
+      },
+      "result_exception": null,
+      "observed_events": [
+        {
+          "amount": "0.0",
+          "cost_origin": "estimated",
+          "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa",
+          "kind": "provider",
+          "payload_digest": "sha256:7980b3022b0a4e75746e9b383ae505fcb2c4eb66f11f98637bec80cd8f38834a"
+        }
+      ],
+      "actual_acks": [
+        {
+          "durability": "ledger",
+          "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa",
+          "receipts": [
+            {
+              "amount": "0.0",
+              "committed_at": "2026-10-06T19:44:40.742800Z",
+              "event_id": "llm-producer:e36476fad0ed453ab6f6667e7d2a39fa:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+              "key": "run",
+              "payload_digest": "19bd0cf480d62b87560bdbb907456c7cf34718d594160a9f5c84dcebf487b225",
+              "provider": "synthetic-operation",
+              "revision": 2
+            }
+          ],
+          "status": "committed"
+        }
+      ],
+      "cache_entries": 1,
+      "spent": {
+        "run": "0.0"
+      },
+      "reserved": {
+        "run": "0.0"
+      },
+      "receipt_count": 1
+    }
+  ],
+  "source_path": [
+    "Factory raw provider -> CachingLLMClient -> TracedLLMClient; enforcer is composed separately by real consumers.",
+    "Owned producer completion runs before cache put and calls exact settlement-owner callback.",
+    "Normalizer missing/invalid usage yields numeric token0 + costNone; trace prices token0 and mints estimated Decimal0 event.",
+    "Enforcer settles that amount into actual FileBudgetLedger; its exact receipt is real although amount knowledge was absent.",
+    "Protected BUDGET_COMMITTED audit runs after reservation release and pending-event removal; failure leaves next action unblocked.",
+    "FileBudgetLedger resolve/retry is exact-event idempotent. AuditLog.append has no equivalent exact-ID ACK/readback API."
+  ],
+  "three_distinct_states": {
+    "cost_knowledge_unknown": "Provider operation/result exists, amount evidence absent/invalid; no numeric0 receipt/cache admission. Retain exact request/response/model/attempt identity and reservation; hold later spend.",
+    "durable_ack_unknown": "Amount evidence known, exact ledger delivery may have happened; resolve/retry SAME event+charge through existing ledger, never new producer/event or guessed zero.",
+    "protected_audit_unknown": "Known amount and ledger receipts may be committed, mandatory protected act not acknowledged. Keep separate audit blocker; never repeat charge/provider to reconcile audit."
+  },
+  "minimal_owner_contract": [
+    "Add explicit usage/cost knowledge to normalized response and producer completion; missing/invalid is distinct from reported0 and known priced/free usage.",
+    "Retain one producer-owned exact completion identity before monetary settlement. Unknown amount requires a typed pending event/amountNone, not an LLMProducerEvent requiring Decimal0.",
+    "Retain typed obligation phases cost/ledger/protected_audit with immutable owner scope/event/payload/response and original receipt/reservation identities.",
+    "Next provider admission stays blocked while any mandatory phase unresolved, including all cancellation-completion routes. Optional metrics remain independent.",
+    "Known ledger receipt permits reservation release without declaring audit complete. Overall committed/cache-admissible ACK requires every configured mandatory owner phase acknowledged.",
+    "Existing ledger reconciliation resolves/retries the same known event only. Protected audit reconciliation must bind the exact event+payload to trusted owner evidence/ACK, not caller assertion or a fresh provider.",
+    "A live ChainedAuditSink advances sequence before physical append; blind redelivery after missing/ambiguous write cannot guarantee chain recovery. Without an exact protected-owner recovery/ACK capability, remain blocked and expose unresolved phase."
+  ],
+  "negative_input_qualifications": [
+    "B65 IsADirectoryError is a definite local append refusal after true known .02 ledger ACK; not a demonstrated fsync fault or remote replica failure.",
+    "B65 original c181 tokenizer-download 4FAIL did not reach provider/audit; property not_established, preserved by RUN separately.",
+    "B66 physical synthetic provider actual operation + canonical normalizer/trace/cache/FileBudgetLedger consumer; no real vendor invoice/cost authority claimed.",
+    "B66 caller cancellation is independently varied on all four unknown and four known profiles."
+  ],
+  "remaining_review": "ADAPTER proposed/frozen repair not yet inspected; no repair acceptance or criterion closure inferred.",
+  "closure_ids": [],
+  "next_owner": "ADAPTER canonical LLM writer; RUN protected-audit oracle; root integration/criterion adjudication"
+}

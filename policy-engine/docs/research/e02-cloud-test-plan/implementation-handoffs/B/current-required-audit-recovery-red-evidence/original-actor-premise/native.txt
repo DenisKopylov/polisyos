@@ -1,0 +1,1273 @@
+B65_EXACT_SOURCE_ORIGINS [{"path": "policy-engine/src/polisyos/core/llm/response.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "bytes": 8621, "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581", "git_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.llm.response"}, {"path": "policy-engine/src/polisyos/core/llm/traced_client.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py", "bytes": 36972, "sha256": "fcd09cee45b49a42be8cc4e86c0b9e9ec34033a6903adf4d8e4cf30731a2f01b", "git_blob": "0bdb572f7893617e037e0be5abdcd1332274d006", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.llm.traced_client"}, {"path": "policy-engine/src/polisyos/core/llm/settlement.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "bytes": 13529, "sha256": "14bab0fd9071359c5172a12cb386b72e84685b1b30d9545d813dc6fa38330d25", "git_blob": "ffe401ee6a81b2abd803b952b097674443ed8e37", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.llm.settlement"}, {"path": "policy-engine/src/polisyos/core/security/audit_log_adapter.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/security/audit_log_adapter.py", "bytes": 2917, "sha256": "e2f1a1ddafa681bdfda7f151e5c3603be2fd29bf58084f642b7cbf004ffc6f14", "git_blob": "18b74346ce1bd3313526f260deabfaa10ef1d37d", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.security.audit_log_adapter"}, {"path": "policy-engine/src/polisyos/core/security/audit_protocol.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/security/audit_protocol.py", "bytes": 997, "sha256": "af87aaf57f6fecf097efaa131e49cb97d93a7692e4d098d11ec4e1ca7bd50a66", "git_blob": "8376a3e476272b649c02d39b57ca1e62ef0d0a12", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.security.audit_protocol"}, {"path": "policy-engine/src/polisyos/core/security/audit_sink.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/security/audit_sink.py", "bytes": 14861, "sha256": "edbd457fe7da614834767484b350c906b7f37f531ed0b38fcf153e280415b576", "git_blob": "7ca64fc28be8e36edc3c6ad46d9c4ac8ec6e9fac", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.security.audit_sink"}, {"path": "policy-engine/src/polisyos/core/security/audit_models.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/security/audit_models.py", "bytes": 4287, "sha256": "c9006d8058ab735ef95283007e09358138826f894faa617dccfdc8481b0d4dc5", "git_blob": "4396c884f267cbbb70eb49eda5d56200ca7d89fa", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.security.audit_models"}, {"path": "policy-engine/src/polisyos/core/security/audit_verifier.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/security/audit_verifier.py", "bytes": 3243, "sha256": "a48f8e4eadfa8deefe842518dd7e13b5480a86921f39cf5ccafc02e084e0ab55", "git_blob": "203795297cbad90dfa64d78015b246b9c6f31f6c", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.core.security.audit_verifier"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py", "bytes": 6159, "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516", "git_blob": "1a2fbb73bb87d60674d168791a214f882e79347f", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.scientist.orchestration.engine.budget"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py", "bytes": 59381, "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe", "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.scientist.orchestration.engine.budget_ledger"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py", "bytes": 10751, "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8", "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.scientist.orchestration.engine.budget_middleware"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py", "bytes": 52922, "sha256": "ee1fe542209afbb8506c1d2dfbe1a0132e40358101b958252d2327b2f98691de", "git_blob": "2c936750b0d6129094ea64528b51d6384980c474", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.scientist.orchestration.llm.budget_enforcer"}, {"path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "actual_origin": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py", "bytes": 27838, "sha256": "56b327209d659ca5aec50e49c27fbfa431880f04ae60cb8535d4bd615c857cee", "git_blob": "337af929388eac4355c0b4431dde5cc6bef00f45", "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "module": "polisyos.scientist.orchestration.llm.gateway_client"}]
+B65_NATIVE_ARGUMENTS ["/workspace/e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py", "-c", "/workspace/e02-B-current-adapters/policy-engine/pyproject.toml", "--noconftest", "-p", "no:cacheprovider", "-s", "-ra", "--basetemp=/tmp/e02-B65-recovery-a391-native/pytest-tmp", "--junitxml=/tmp/e02-B65-recovery-a391-native/native.xml"]
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /workspace/e02-B-current-adapters/policy-engine
+configfile: pyproject.toml
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 13 items
+
+. B65_FIRST {"route": "sync-invoke", "fault": false, "provider_requests": [{"max_tokens": 4, "prompt": "nonempty physical request"}], "fresh_reopened_snapshot": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:f2a09163072463bc", "revision": 9, "updated_at": "2026-10-06T20:39:17.706650Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.671966Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.674965Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.676733Z"}, {"revision": 3, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.692989Z"}, {"revision": 4, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.694658Z"}, {"revision": 5, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.696929Z"}, {"revision": 6, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.700426Z"}, {"revision": 7, "operation": "settle_spend", "key": "run", "amount": "0.02", "applied_amount": "0.02", "provider": "physical-test-provider", "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.702086Z"}, {"revision": 8, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.704744Z"}, {"revision": 9, "operation": "release", "key": "run", "amount": "0.00015000000000000001", "applied_amount": "0.00015000000000000001", "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.706644Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {"run": "0.02"}, "provider_spent": {"physical-test-provider": "0.02"}, "reserved": {"run": "0"}}, "spend_receipts": {"llm-producer:7a7c6e418ce34298b1a36446004a7ba8:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {"event_id": "llm-producer:7a7c6e418ce34298b1a36446004a7ba8:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be", "payload_digest": "51cfa3c6a88553d2959a16df7b56727a243e2ac3b98fb5c112d23f032115b526", "key": "run", "amount": "0.02", "provider": "physical-test-provider", "revision": 7, "committed_at": "2026-10-06T20:39:17.701639Z"}}, "completion_obligations": {"llm-producer:7a7c6e418ce34298b1a36446004a7ba8": {"obligation_id": "llm-producer:7a7c6e418ce34298b1a36446004a7ba8", "event_payload": {"event_id": "llm-producer:7a7c6e418ce34298b1a36446004a7ba8", "request_digest": "sha256:d27a94b1e7ba83b4e3b0e586b8bc542faf5505ca1d1a7f203e97a60ccc345449", "response_digest": "sha256:a5dd705888f6f033388e6990c099123811c0543c13bdc6283de6048e7b8ca71b", "model": "default", "provider": "physical-test-provider", "amount": "0.02", "cost_origin": "reported", "kind": "provider", "origin_event_id": null}, "event_digest": "sha256:9cb2085cb928aaa8b5e48f8299be0d2388738d8ca50a88d2f53e84bb1964e294", "run_id": "B65-real-audit", "owner_epoch": "448437:b21ed95deded456ab17b175a75b5eb5c", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": ["llm-producer:7a7c6e418ce34298b1a36446004a7ba8:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be"], "required_action": {"run_id": "B65-real-audit", "actor": "budget_enforcer", "action": "BUDGET_COMMITTED", "metadata": {"producer_event_id": "llm-producer:7a7c6e418ce34298b1a36446004a7ba8", "payload_digest": "sha256:9cb2085cb928aaa8b5e48f8299be0d2388738d8ca50a88d2f53e84bb1964e294", "actual_cost_usd": "0.02", "settlement_status": "committed"}}}}}, "audit_entries": [{"entry_id": "803f8349-c3ab-54c6-a275-a2b1bf193b21", "chain_id": "B65:protected-local", "sequence_number": 0, "timestamp": "2026-10-06T20:39:17.677940Z", "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "entry_hash": "9ef6dff12957646e97a034bcb74228468c79074ec27a7f9e0a55a4c23d954c77", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_RESERVED", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}, {"entry_id": "5703f3df-a973-5128-ba32-d972399d2c26", "chain_id": "B65:protected-local", "sequence_number": 1, "timestamp": "2026-10-06T20:39:17.695853Z", "prev_hash": "9ef6dff12957646e97a034bcb74228468c79074ec27a7f9e0a55a4c23d954c77", "entry_hash": "4536f56d42a53f7fd5645f97e74b2baffebca1b70f703ba63f96ed9f7e7d0d81", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_CHECK", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}], "audit_chain": {"total_entries": 2, "valid_entries": 2, "tampered_entries": [], "missing_entries": [], "chain_intact": true, "first_tampered_sequence": null}}
+FB65_FIRST {"route": "async-generate", "fault": false, "provider_requests": [{"max_tokens": 4, "user": "nonempty physical request"}], "fresh_reopened_snapshot": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:ff5ad18f3de3a9cc", "revision": 9, "updated_at": "2026-10-06T20:39:17.772482Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.754156Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.756393Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.758134Z"}, {"revision": 3, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.760104Z"}, {"revision": 4, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.761721Z"}, {"revision": 5, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.763951Z"}, {"revision": 6, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.766533Z"}, {"revision": 7, "operation": "settle_spend", "key": "run", "amount": "0.02", "applied_amount": "0.02", "provider": "physical-test-provider", "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.768003Z"}, {"revision": 8, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.770683Z"}, {"revision": 9, "operation": "release", "key": "run", "amount": "0.00015000000000000001", "applied_amount": "0.00015000000000000001", "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.772476Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {"run": "0.02"}, "provider_spent": {"physical-test-provider": "0.02"}, "reserved": {"run": "0"}}, "spend_receipts": {"llm-producer:42c7d6a6a0674de2ad5db1995ed066a9:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {"event_id": "llm-producer:42c7d6a6a0674de2ad5db1995ed066a9:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be", "payload_digest": "ae00f60e28438ce5bab979064beb2e6b4d1165bbbbd0533f39e178940ec2d57b", "key": "run", "amount": "0.02", "provider": "physical-test-provider", "revision": 7, "committed_at": "2026-10-06T20:39:17.767571Z"}}, "completion_obligations": {"llm-producer:42c7d6a6a0674de2ad5db1995ed066a9": {"obligation_id": "llm-producer:42c7d6a6a0674de2ad5db1995ed066a9", "event_payload": {"event_id": "llm-producer:42c7d6a6a0674de2ad5db1995ed066a9", "request_digest": "sha256:29aa300271dbefbef4590b889b6989eb228842693ff5bbc99226b657b245c322", "response_digest": "sha256:a5dd705888f6f033388e6990c099123811c0543c13bdc6283de6048e7b8ca71b", "model": "default", "provider": "physical-test-provider", "amount": "0.02", "cost_origin": "reported", "kind": "provider", "origin_event_id": null}, "event_digest": "sha256:030251266c515b9625e8442cc7d97381a9775931e58a0f04f6bbbdb3ad6de9bb", "run_id": "B65-real-audit", "owner_epoch": "448437:b67a70ac6d8d4cc0a32a3216a69911ab", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": ["llm-producer:42c7d6a6a0674de2ad5db1995ed066a9:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be"], "required_action": {"run_id": "B65-real-audit", "actor": "budget_enforcer", "action": "BUDGET_COMMITTED", "metadata": {"producer_event_id": "llm-producer:42c7d6a6a0674de2ad5db1995ed066a9", "payload_digest": "sha256:030251266c515b9625e8442cc7d97381a9775931e58a0f04f6bbbdb3ad6de9bb", "actual_cost_usd": "0.02", "settlement_status": "committed"}}}}}, "audit_entries": [{"entry_id": "803f8349-c3ab-54c6-a275-a2b1bf193b21", "chain_id": "B65:protected-local", "sequence_number": 0, "timestamp": "2026-10-06T20:39:17.759157Z", "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "entry_hash": "d8b449e39af271530fb56c2c3494bc8c65d12840113825a79ea727a76e5ab44a", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_RESERVED", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}, {"entry_id": "5703f3df-a973-5128-ba32-d972399d2c26", "chain_id": "B65:protected-local", "sequence_number": 1, "timestamp": "2026-10-06T20:39:17.763000Z", "prev_hash": "d8b449e39af271530fb56c2c3494bc8c65d12840113825a79ea727a76e5ab44a", "entry_hash": "8d128ea92a8be9417fd8c5fae05ac704fa9361d182e5ecbaeea8b20ba0cdbb27", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_CHECK", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}], "audit_chain": {"total_entries": 2, "valid_entries": 2, "tampered_entries": [], "missing_entries": [], "chain_intact": true, "first_tampered_sequence": null}}
+FB65_FIRST {"route": "sync-invoke", "fault": true, "provider_requests": [{"max_tokens": 4, "prompt": "nonempty physical request"}], "fresh_reopened_snapshot": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:29bf0ccbb6475ffe", "revision": 9, "updated_at": "2026-10-06T20:39:17.806793Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.789421Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.791245Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.792843Z"}, {"revision": 3, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.794794Z"}, {"revision": 4, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.796373Z"}, {"revision": 5, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.798453Z"}, {"revision": 6, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.800867Z"}, {"revision": 7, "operation": "settle_spend", "key": "run", "amount": "0.02", "applied_amount": "0.02", "provider": "physical-test-provider", "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.802402Z"}, {"revision": 8, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.805022Z"}, {"revision": 9, "operation": "release", "key": "run", "amount": "0.00015000000000000001", "applied_amount": "0.00015000000000000001", "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.806788Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {"run": "0.02"}, "provider_spent": {"physical-test-provider": "0.02"}, "reserved": {"run": "0"}}, "spend_receipts": {"llm-producer:2e83643d7041477ca12f8523c92175ea:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {"event_id": "llm-producer:2e83643d7041477ca12f8523c92175ea:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be", "payload_digest": "6b3199f493b35ff2b0404125194c46bfe8a3db3773473ca4fc57e6397bb7d77c", "key": "run", "amount": "0.02", "provider": "physical-test-provider", "revision": 7, "committed_at": "2026-10-06T20:39:17.801986Z"}}, "completion_obligations": {"llm-producer:2e83643d7041477ca12f8523c92175ea": {"obligation_id": "llm-producer:2e83643d7041477ca12f8523c92175ea", "event_payload": {"event_id": "llm-producer:2e83643d7041477ca12f8523c92175ea", "request_digest": "sha256:d27a94b1e7ba83b4e3b0e586b8bc542faf5505ca1d1a7f203e97a60ccc345449", "response_digest": "sha256:a5dd705888f6f033388e6990c099123811c0543c13bdc6283de6048e7b8ca71b", "model": "default", "provider": "physical-test-provider", "amount": "0.02", "cost_origin": "reported", "kind": "provider", "origin_event_id": null}, "event_digest": "sha256:2805d64fc3d1b0a40d8916359ed91de60342b7a38f892e07733af233487c0717", "run_id": "B65-real-audit", "owner_epoch": "448437:1c263e96422740d0ad665208a2fda403", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": ["llm-producer:2e83643d7041477ca12f8523c92175ea:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be"], "required_action": {"run_id": "B65-real-audit", "actor": "budget_enforcer", "action": "BUDGET_COMMITTED", "metadata": {"producer_event_id": "llm-producer:2e83643d7041477ca12f8523c92175ea", "payload_digest": "sha256:2805d64fc3d1b0a40d8916359ed91de60342b7a38f892e07733af233487c0717", "actual_cost_usd": "0.02", "settlement_status": "committed"}}}}}, "audit_entries": [{"entry_id": "803f8349-c3ab-54c6-a275-a2b1bf193b21", "chain_id": "B65:protected-local", "sequence_number": 0, "timestamp": "2026-10-06T20:39:17.793941Z", "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "entry_hash": "af6b84f5c2c6e695769624227b07ea65e5826cca29af18be8e766fe8e9eb8f4f", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_RESERVED", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}, {"entry_id": "5703f3df-a973-5128-ba32-d972399d2c26", "chain_id": "B65:protected-local", "sequence_number": 1, "timestamp": "2026-10-06T20:39:17.797529Z", "prev_hash": "af6b84f5c2c6e695769624227b07ea65e5826cca29af18be8e766fe8e9eb8f4f", "entry_hash": "189c08e5382cc0c799279e833c18fc5f75bf3c0b4d08df423487cf94c38f988a", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_CHECK", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}], "audit_chain": {"total_entries": 2, "valid_entries": 2, "tampered_entries": [], "missing_entries": [], "chain_intact": true, "first_tampered_sequence": null}}
+FB65_FIRST {"route": "async-generate", "fault": true, "provider_requests": [{"max_tokens": 4, "user": "nonempty physical request"}], "fresh_reopened_snapshot": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:19573e57b5226650", "revision": 9, "updated_at": "2026-10-06T20:39:17.840982Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.823137Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.825310Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.826971Z"}, {"revision": 3, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.829006Z"}, {"revision": 4, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.830610Z"}, {"revision": 5, "operation": "complete_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.832621Z"}, {"revision": 6, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.835122Z"}, {"revision": 7, "operation": "settle_spend", "key": "run", "amount": "0.02", "applied_amount": "0.02", "provider": "physical-test-provider", "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.836522Z"}, {"revision": 8, "operation": "transition_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.839216Z"}, {"revision": 9, "operation": "release", "key": "run", "amount": "0.00015000000000000001", "applied_amount": "0.00015000000000000001", "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.840977Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {"run": "0.02"}, "provider_spent": {"physical-test-provider": "0.02"}, "reserved": {"run": "0"}}, "spend_receipts": {"llm-producer:702a556fd67d48af88124014a6794bd9:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {"event_id": "llm-producer:702a556fd67d48af88124014a6794bd9:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be", "payload_digest": "bc92ebee81877f6e7c0d3be07e8d07fc55bc015b365ddfca5378dd031051f8d4", "key": "run", "amount": "0.02", "provider": "physical-test-provider", "revision": 7, "committed_at": "2026-10-06T20:39:17.836140Z"}}, "completion_obligations": {"llm-producer:702a556fd67d48af88124014a6794bd9": {"obligation_id": "llm-producer:702a556fd67d48af88124014a6794bd9", "event_payload": {"event_id": "llm-producer:702a556fd67d48af88124014a6794bd9", "request_digest": "sha256:29aa300271dbefbef4590b889b6989eb228842693ff5bbc99226b657b245c322", "response_digest": "sha256:a5dd705888f6f033388e6990c099123811c0543c13bdc6283de6048e7b8ca71b", "model": "default", "provider": "physical-test-provider", "amount": "0.02", "cost_origin": "reported", "kind": "provider", "origin_event_id": null}, "event_digest": "sha256:450b0250af03c85d292913ef542ac1b8c4f48055d06189eeadb606172c172f39", "run_id": "B65-real-audit", "owner_epoch": "448437:ea04201ecfca4823a6beec4f2004c5f1", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": ["llm-producer:702a556fd67d48af88124014a6794bd9:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be"], "required_action": {"run_id": "B65-real-audit", "actor": "budget_enforcer", "action": "BUDGET_COMMITTED", "metadata": {"producer_event_id": "llm-producer:702a556fd67d48af88124014a6794bd9", "payload_digest": "sha256:450b0250af03c85d292913ef542ac1b8c4f48055d06189eeadb606172c172f39", "actual_cost_usd": "0.02", "settlement_status": "committed"}}}}}, "audit_entries": [{"entry_id": "803f8349-c3ab-54c6-a275-a2b1bf193b21", "chain_id": "B65:protected-local", "sequence_number": 0, "timestamp": "2026-10-06T20:39:17.828101Z", "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "entry_hash": "f8db29348160ebb9bb258832688105fe0dfaea53aa660d415d937d8f0a93479c", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_RESERVED", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}, {"entry_id": "5703f3df-a973-5128-ba32-d972399d2c26", "chain_id": "B65:protected-local", "sequence_number": 1, "timestamp": "2026-10-06T20:39:17.831720Z", "prev_hash": "f8db29348160ebb9bb258832688105fe0dfaea53aa660d415d937d8f0a93479c", "entry_hash": "fc8b642e1b845477a61a0db189d1cdc935dd6dae33b5504cff81f2d4f9dee9c3", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-real-audit", "artifact_id": ""}, "payload": {"action": "BUDGET_CHECK", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-real-audit", "span_id": "", "trace_id": ""}}], "audit_chain": {"total_entries": 2, "valid_entries": 2, "tampered_entries": [], "missing_entries": [], "chain_intact": true, "first_tampered_sequence": null}}
+FB65_PENDING {"route": "sync-invoke", "action": "BUDGET_RESERVED", "act_id": "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf", "obligation_digest": "sha256:a51f61e09c15428ef2730de52fddd5bc1afffb5310cd5d97ee0067e1e90f7806", "provider_calls": 0, "original_cause": "IsADirectoryError", "settlement_status": "unmanaged", "captured_entry": {"entry_id": "632fe05e-f9ea-566e-b595-af45c1d447da", "chain_id": "B65:retained-owner", "sequence_number": 0, "timestamp": "2026-10-06T20:39:17.862095Z", "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "entry_hash": "e7ceb0191dc8c919d2a5dc305d1e037a52542392f452d3df05031e1c99562b91", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-owner-recovery", "artifact_id": ""}, "payload": {"action": "BUDGET_RESERVED", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-owner-recovery", "span_id": "", "trace_id": ""}}, "fresh_ledger": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:addd053c1f5e27cb", "revision": 2, "updated_at": "2026-10-06T20:39:17.860986Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.857649Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.859293Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.860981Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {}, "provider_spent": {}, "reserved": {"run": "0.00015000000000000001"}}, "spend_receipts": {}, "completion_obligations": {"llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b": {"obligation_id": "llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b", "event_payload": {"event_id": "llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b", "kind": "provider_intent", "amount": null, "request_digest": "sha256:d27a94b1e7ba83b4e3b0e586b8bc542faf5505ca1d1a7f203e97a60ccc345449"}, "event_digest": "sha256:6f343ff5166dfac55e3fc7381114f371adb54f7b9eed1334f69196534e82741a", "run_id": "B65-owner-recovery", "owner_epoch": "448437:e51daaffc7d44bf48ba4e396d51bf157", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "provider_in_flight", "known_receipt_ids": [], "required_action": null}, "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf": {"obligation_id": "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf", "event_payload": {"event_id": "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf", "kind": "budget_audit", "amount": null, "action": "BUDGET_RESERVED", "run_id": "B65-owner-recovery", "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}, "event_digest": "sha256:1515d7dab22261bf8d101772bd625e01aba47f869dbd6fffc0fb2723ae4df823", "run_id": "B65-owner-recovery", "owner_epoch": "448437:e51daaffc7d44bf48ba4e396d51bf157", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": [], "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}}}}
+B65_DETACHED_METADATA {"route": "sync-invoke", "action": "BUDGET_RESERVED", "original_metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "mutated_caller_view": {"budget_keys": ["run", "different-caller-key"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "retained_metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "original_digest": "sha256:a51f61e09c15428ef2730de52fddd5bc1afffb5310cd5d97ee0067e1e90f7806", "retained_digest": "sha256:a51f61e09c15428ef2730de52fddd5bc1afffb5310cd5d97ee0067e1e90f7806"}
+B65_REOPENED_PENDING {"route": "sync-invoke", "action": "BUDGET_RESERVED", "provider_calls": 0, "retained_completion": {"obligation_id": "llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b", "event_payload": {"event_id": "llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b", "kind": "provider_intent", "amount": null, "request_digest": "sha256:d27a94b1e7ba83b4e3b0e586b8bc542faf5505ca1d1a7f203e97a60ccc345449"}, "event_digest": "sha256:6f343ff5166dfac55e3fc7381114f371adb54f7b9eed1334f69196534e82741a", "run_id": "B65-owner-recovery", "owner_epoch": "448437:e51daaffc7d44bf48ba4e396d51bf157", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "provider_in_flight", "known_receipt_ids": [], "required_action": null}, "audit_bytes_unchanged": true, "ledger_bytes_unchanged": true, "fresh_ledger": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:addd053c1f5e27cb", "revision": 2, "updated_at": "2026-10-06T20:39:17.860986Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.857649Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.859293Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.860981Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {}, "provider_spent": {}, "reserved": {"run": "0.00015000000000000001"}}, "spend_receipts": {}, "completion_obligations": {"llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b": {"obligation_id": "llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b", "event_payload": {"event_id": "llm-producer:d29a1fcaa3a2497f9c50f10b8c6fe26b", "kind": "provider_intent", "amount": null, "request_digest": "sha256:d27a94b1e7ba83b4e3b0e586b8bc542faf5505ca1d1a7f203e97a60ccc345449"}, "event_digest": "sha256:6f343ff5166dfac55e3fc7381114f371adb54f7b9eed1334f69196534e82741a", "run_id": "B65-owner-recovery", "owner_epoch": "448437:e51daaffc7d44bf48ba4e396d51bf157", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "provider_in_flight", "known_receipt_ids": [], "required_action": null}, "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf": {"obligation_id": "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf", "event_payload": {"event_id": "budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf", "kind": "budget_audit", "amount": null, "action": "BUDGET_RESERVED", "run_id": "B65-owner-recovery", "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}, "event_digest": "sha256:1515d7dab22261bf8d101772bd625e01aba47f869dbd6fffc0fb2723ae4df823", "run_id": "B65-owner-recovery", "owner_epoch": "448437:e51daaffc7d44bf48ba4e396d51bf157", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": [], "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}}}}
+FB65_PENDING {"route": "async-generate", "action": "BUDGET_RESERVED", "act_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3", "obligation_digest": "sha256:01c09e312f46dc46217c0b5eec46c0567a6b5c2874210ec0479c4e74887bd307", "provider_calls": 0, "original_cause": "IsADirectoryError", "settlement_status": "unmanaged", "captured_entry": {"entry_id": "632fe05e-f9ea-566e-b595-af45c1d447da", "chain_id": "B65:retained-owner", "sequence_number": 0, "timestamp": "2026-10-06T20:39:17.921043Z", "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "entry_hash": "6af9489ab6bc45c372a2273a6b128c051132a30bbe138d8b290ab674f6d4f330", "event_type": "AUDIT_ACTION", "actor": {"identity": "budget_enforcer", "spiffe_id": "", "tenant_id": "", "roles": []}, "resource": {"type": "run", "id": "B65-owner-recovery", "artifact_id": ""}, "payload": {"action": "BUDGET_RESERVED", "budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "correlation": {"run_id": "B65-owner-recovery", "span_id": "", "trace_id": ""}}, "fresh_ledger": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:d04dd92bf0e9b7ff", "revision": 2, "updated_at": "2026-10-06T20:39:17.919932Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.916158Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.918280Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.919927Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {}, "provider_spent": {}, "reserved": {"run": "0.00015000000000000001"}}, "spend_receipts": {}, "completion_obligations": {"llm-producer:9f3c18f42d0d45879df58d423702644b": {"obligation_id": "llm-producer:9f3c18f42d0d45879df58d423702644b", "event_payload": {"event_id": "llm-producer:9f3c18f42d0d45879df58d423702644b", "kind": "provider_intent", "amount": null, "request_digest": "sha256:29aa300271dbefbef4590b889b6989eb228842693ff5bbc99226b657b245c322"}, "event_digest": "sha256:23df456e0d341ea9fa75748b80ef251195f25a5badf0511de8ae416329f9a5d9", "run_id": "B65-owner-recovery", "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "provider_in_flight", "known_receipt_ids": [], "required_action": null}, "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3": {"obligation_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3", "event_payload": {"event_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3", "kind": "budget_audit", "amount": null, "action": "BUDGET_RESERVED", "run_id": "B65-owner-recovery", "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}, "event_digest": "sha256:c927c3360abf68b8085f8f94a08dd47e8024296877f68b55ecb4540b74b0b9c7", "run_id": "B65-owner-recovery", "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": [], "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}}}}
+B65_DETACHED_METADATA {"route": "async-generate", "action": "BUDGET_RESERVED", "original_metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "mutated_caller_view": {"budget_keys": ["run", "different-caller-key"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "retained_metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}, "original_digest": "sha256:01c09e312f46dc46217c0b5eec46c0567a6b5c2874210ec0479c4e74887bd307", "retained_digest": "sha256:01c09e312f46dc46217c0b5eec46c0567a6b5c2874210ec0479c4e74887bd307"}
+B65_REOPENED_PENDING {"route": "async-generate", "action": "BUDGET_RESERVED", "provider_calls": 0, "retained_completion": {"obligation_id": "llm-producer:9f3c18f42d0d45879df58d423702644b", "event_payload": {"event_id": "llm-producer:9f3c18f42d0d45879df58d423702644b", "kind": "provider_intent", "amount": null, "request_digest": "sha256:29aa300271dbefbef4590b889b6989eb228842693ff5bbc99226b657b245c322"}, "event_digest": "sha256:23df456e0d341ea9fa75748b80ef251195f25a5badf0511de8ae416329f9a5d9", "run_id": "B65-owner-recovery", "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "provider_in_flight", "known_receipt_ids": [], "required_action": null}, "audit_bytes_unchanged": true, "ledger_bytes_unchanged": true, "fresh_ledger": {"schema_version": "1.2", "canonical_contract": "scientist.multi_host_budget_ledger.v1", "coordination_mode": "shared_posix_file_lock", "ledger_id": "ledger:d04dd92bf0e9b7ff", "revision": 2, "updated_at": "2026-10-06T20:39:17.919932Z", "last_writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "recent_mutations": [{"revision": 0, "operation": "bootstrap", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.916158Z"}, {"revision": 1, "operation": "admit_provider_intent", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.918280Z"}, {"revision": 2, "operation": "retain_completion", "key": null, "amount": null, "applied_amount": null, "provider": null, "reserved": null, "writer": {"host_id": "b878f4efbdfc", "writer_id": "b878f4efbdfc:448437:original-ledger.json", "pid": 448437}, "committed_at": "2026-10-06T20:39:17.919927Z"}], "state": {"limits": {"run": {"key": "run", "max_usd": "10", "soft_limit_usd": null}}, "spent": {}, "provider_spent": {}, "reserved": {"run": "0.00015000000000000001"}}, "spend_receipts": {}, "completion_obligations": {"llm-producer:9f3c18f42d0d45879df58d423702644b": {"obligation_id": "llm-producer:9f3c18f42d0d45879df58d423702644b", "event_payload": {"event_id": "llm-producer:9f3c18f42d0d45879df58d423702644b", "kind": "provider_intent", "amount": null, "request_digest": "sha256:29aa300271dbefbef4590b889b6989eb228842693ff5bbc99226b657b245c322"}, "event_digest": "sha256:23df456e0d341ea9fa75748b80ef251195f25a5badf0511de8ae416329f9a5d9", "run_id": "B65-owner-recovery", "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "provider_in_flight", "known_receipt_ids": [], "required_action": null}, "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3": {"obligation_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3", "event_payload": {"event_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3", "kind": "budget_audit", "amount": null, "action": "BUDGET_RESERVED", "run_id": "B65-owner-recovery", "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}, "event_digest": "sha256:c927c3360abf68b8085f8f94a08dd47e8024296877f68b55ecb4540b74b0b9c7", "run_id": "B65-owner-recovery", "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81", "budget_keys": ["run"], "reserved_amounts": {"run": "0.00015000000000000001"}, "phase": "protected_audit_pending", "known_receipt_ids": [], "required_action": {"run_id": "B65-owner-recovery", "actor": "budget_enforcer", "action": "BUDGET_RESERVED", "metadata": {"budget_keys": ["run"], "estimated_cost_usd": "0.00015000000000000001", "model": "default"}}}}}}
+FFFFFFFF
+
+=================================== FAILURES ===================================
+_ test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_protected_audit_reconcili0')
+route = 'sync-invoke', fail_commit = False
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+>           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError
+_ test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_protected_audit_reconcili1')
+route = 'async-generate', fail_commit = False
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+>           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError
+_ test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_protected_audit_reconcili2')
+route = 'sync-invoke', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+>           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError
+_ test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_protected_audit_reconcili3')
+route = 'async-generate', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -> None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+>           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError
+_ test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke] _
+
+self = <llm.test_required_audit_settlement_e02._RequiredAuditResolver object at 0x7f7e10e59550>
+obligation = LLMAuditObligation(event=None, run_id='B65-owner-recovery', scope_key=('ledger:addd053c1f5e27cb', 'scientist.multi_hos...actor='budget_enforcer', action='BUDGET_RESERVED', act_id='budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf')
+
+    def __call__(self, obligation: Any) -> Any:
+        from polisyos.core.llm.settlement import LLMAuditResolution
+    
+        self.calls += 1
+        entry = self.entry_override or self.sink.failed_entry
+        if entry is None:
+            raise ValueError("original owner did not retain an observed failed entry")
+        expected_payload = json.loads(
+            json.dumps({"action": obligation.action, **dict(obligation.metadata)})
+        )
+        actual_payload = json.loads(entry.model_dump_json())["payload"]
+        # JSON bytes preserve false/zero, null and nested types. Merely equal
+        # Python objects, a nonempty string, or matching action names do not bind
+        # the original protected act.
+        if (
+            entry.compute_hash() != entry.entry_hash
+            or entry.chain_id != "B65:retained-owner"
+>           or entry.actor.id != obligation.actor
+               ^^^^^^^^^^^^^^
+            or entry.resource.id != obligation.run_id
+            or entry.correlation.run_id != obligation.run_id
+            or json.dumps(actual_payload, sort_keys=True)
+            != json.dumps(expected_payload, sort_keys=True)
+        ):
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AuditActor(identity='budget_enforcer', spiffe_id='', tenant_id='', roles=[])
+item = 'id'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AuditActor' object has no attribute 'id'
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_same_protected_owner_repl0')
+route = 'sync-invoke', action = 'BUDGET_RESERVED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -> None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "obligation_digest": obligation.payload_digest,
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+            assert error.event["required_audit_status"] == "pending"
+            assert obligation.action == action
+            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+            original_digest = obligation.payload_digest
+            detached_metadata = dict(obligation.metadata)
+            if "budget_keys" in detached_metadata:
+                detached_metadata["budget_keys"].append("different-caller-key")
+            else:
+                detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+            print(
+                "B65_DETACHED_METADATA "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "original_metadata": json.loads(original_metadata),
+                        "mutated_caller_view": detached_metadata,
+                        "retained_metadata": dict(obligation.metadata),
+                        "original_digest": original_digest,
+                        "retained_digest": obligation.payload_digest,
+                    }
+                )
+            )
+            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+            assert obligation.payload_digest == original_digest
+            initial_calls = len(provider.responses)
+            assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+            if initial_calls:
+                assert error.response is provider.responses[0]
+                assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+                assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+                assert error.event["settlement_status"] == "committed"
+                assert before.state.spent["run"] == Decimal("0.02")
+            else:
+                assert error.response is None and obligation.event is None
+                assert obligation.charge_ack is None
+                assert not before.spend_receipts
+                assert before.state.reserved["run"] > Decimal("0")
+            assert before.completion_obligations
+            with pytest.raises(LLMAccountingError):
+                _call(enforcer, route)
+            assert len(provider.responses) == initial_calls
+            # A new constructor reopens the actual ledger with a distinct live
+            # owner epoch. It must discover the persisted obligation, even though
+            # this owner has never seen the original in-memory accounting error.
+            reopened_initial = BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}
+            )
+            reopened = LLMBudgetEnforcer(
+                client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+                budget_state=reopened_initial,
+                budget_keys=["run"],
+                budget_middleware=BudgetMiddleware(
+                    reopened_initial, ledger=FileBudgetLedger(ledger_path)
+                ),
+                audit_log=audit,
+                audit_reconciler=resolver,
+                run_id="B65-owner-recovery",
+            )
+            ledger_before_reopened_call = ledger_path.read_bytes()
+            audit_before_reopened_call = audit_path.read_bytes()
+            with pytest.raises(LLMAccountingError) as reopened_error:
+                _call(reopened, route)
+            retained = reopened_error.value.event["completion_obligation"]
+            print(
+                "B65_REOPENED_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "provider_calls": len(provider.responses),
+                        "retained_completion": retained.model_dump(mode="json"),
+                        "audit_bytes_unchanged": audit_path.read_bytes() == audit_before_reopened_call,
+                        "ledger_bytes_unchanged": ledger_path.read_bytes()
+                        == ledger_before_reopened_call,
+                        "fresh_ledger": FileBudgetLedger(ledger_path)
+                        .snapshot()
+                        .model_dump(mode="json"),
+                    }
+                )
+            )
+            assert retained.obligation_id in before.completion_obligations
+            assert audit_path.read_bytes() == audit_before_reopened_call
+            assert ledger_path.read_bytes() == ledger_before_reopened_call
+            assert len(provider.responses) == initial_calls
+>           ack = enforcer.reconcile_required_audit(obligation.act_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:434: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7f7e104989d0>
+act_id = 'budget-audit:llm-producer:5d3c238d363a4358a5b37a36161561bf'
+
+    def reconcile_required_audit(self, act_id: str) -> LLMSettlementAck:
+        """Resolve only a retained act through this constructor's trusted audit owner.
+    
+        No provider request, monetary charge, or automatic audit append is issued.
+        The resolver verifies the original durable act, including ambiguous effects.
+        A diagnostic evidence reference alone cannot resolve an obligation.
+        """
+        obligation, response = self._pending_audits[act_id]
+        resolved = self._completed_audits.get(act_id)
+        if resolved is None and self._audit_reconciler is None:
+            raise self._audit_error(
+                obligation, response, RuntimeError("audit owner is unavailable")
+            )
+        try:
+            if resolved is None:
+                resolved = self._audit_reconciler(obligation)
+            if not isinstance(resolved, LLMAuditResolution) or (
+                resolved.obligation_digest != obligation.payload_digest
+                or resolved.status != "committed"
+                or not resolved.evidence_ref
+            ):
+                raise RuntimeError("audit owner did not verify the exact original obligation")
+            self._completed_audits[act_id] = resolved
+            if obligation.event is None:
+                self._abort_unstarted_intent(self._audit_reservations[act_id], obligation.run_id)
+            self._complete_record(act_id, resolved.evidence_ref)
+        except Exception as exc:
+>           raise self._audit_error(obligation, response, exc) from exc
+E           polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 'AuditActor' object has no attribute 'id'
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:826: LLMAccountingError
+_ test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate] _
+
+self = <llm.test_required_audit_settlement_e02._RequiredAuditResolver object at 0x7f7e10fd1310>
+obligation = LLMAuditObligation(event=None, run_id='B65-owner-recovery', scope_key=('ledger:d04dd92bf0e9b7ff', 'scientist.multi_hos...actor='budget_enforcer', action='BUDGET_RESERVED', act_id='budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3')
+
+    def __call__(self, obligation: Any) -> Any:
+        from polisyos.core.llm.settlement import LLMAuditResolution
+    
+        self.calls += 1
+        entry = self.entry_override or self.sink.failed_entry
+        if entry is None:
+            raise ValueError("original owner did not retain an observed failed entry")
+        expected_payload = json.loads(
+            json.dumps({"action": obligation.action, **dict(obligation.metadata)})
+        )
+        actual_payload = json.loads(entry.model_dump_json())["payload"]
+        # JSON bytes preserve false/zero, null and nested types. Merely equal
+        # Python objects, a nonempty string, or matching action names do not bind
+        # the original protected act.
+        if (
+            entry.compute_hash() != entry.entry_hash
+            or entry.chain_id != "B65:retained-owner"
+>           or entry.actor.id != obligation.actor
+               ^^^^^^^^^^^^^^
+            or entry.resource.id != obligation.run_id
+            or entry.correlation.run_id != obligation.run_id
+            or json.dumps(actual_payload, sort_keys=True)
+            != json.dumps(expected_payload, sort_keys=True)
+        ):
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AuditActor(identity='budget_enforcer', spiffe_id='', tenant_id='', roles=[])
+item = 'id'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AuditActor' object has no attribute 'id'
+
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:1026: AttributeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_same_protected_owner_repl1')
+route = 'async-generate', action = 'BUDGET_RESERVED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -> None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "obligation_digest": obligation.payload_digest,
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+            assert error.event["required_audit_status"] == "pending"
+            assert obligation.action == action
+            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+            original_digest = obligation.payload_digest
+            detached_metadata = dict(obligation.metadata)
+            if "budget_keys" in detached_metadata:
+                detached_metadata["budget_keys"].append("different-caller-key")
+            else:
+                detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+            print(
+                "B65_DETACHED_METADATA "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "original_metadata": json.loads(original_metadata),
+                        "mutated_caller_view": detached_metadata,
+                        "retained_metadata": dict(obligation.metadata),
+                        "original_digest": original_digest,
+                        "retained_digest": obligation.payload_digest,
+                    }
+                )
+            )
+            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+            assert obligation.payload_digest == original_digest
+            initial_calls = len(provider.responses)
+            assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+            if initial_calls:
+                assert error.response is provider.responses[0]
+                assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+                assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+                assert error.event["settlement_status"] == "committed"
+                assert before.state.spent["run"] == Decimal("0.02")
+            else:
+                assert error.response is None and obligation.event is None
+                assert obligation.charge_ack is None
+                assert not before.spend_receipts
+                assert before.state.reserved["run"] > Decimal("0")
+            assert before.completion_obligations
+            with pytest.raises(LLMAccountingError):
+                _call(enforcer, route)
+            assert len(provider.responses) == initial_calls
+            # A new constructor reopens the actual ledger with a distinct live
+            # owner epoch. It must discover the persisted obligation, even though
+            # this owner has never seen the original in-memory accounting error.
+            reopened_initial = BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}
+            )
+            reopened = LLMBudgetEnforcer(
+                client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+                budget_state=reopened_initial,
+                budget_keys=["run"],
+                budget_middleware=BudgetMiddleware(
+                    reopened_initial, ledger=FileBudgetLedger(ledger_path)
+                ),
+                audit_log=audit,
+                audit_reconciler=resolver,
+                run_id="B65-owner-recovery",
+            )
+            ledger_before_reopened_call = ledger_path.read_bytes()
+            audit_before_reopened_call = audit_path.read_bytes()
+            with pytest.raises(LLMAccountingError) as reopened_error:
+                _call(reopened, route)
+            retained = reopened_error.value.event["completion_obligation"]
+            print(
+                "B65_REOPENED_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "provider_calls": len(provider.responses),
+                        "retained_completion": retained.model_dump(mode="json"),
+                        "audit_bytes_unchanged": audit_path.read_bytes() == audit_before_reopened_call,
+                        "ledger_bytes_unchanged": ledger_path.read_bytes()
+                        == ledger_before_reopened_call,
+                        "fresh_ledger": FileBudgetLedger(ledger_path)
+                        .snapshot()
+                        .model_dump(mode="json"),
+                    }
+                )
+            )
+            assert retained.obligation_id in before.completion_obligations
+            assert audit_path.read_bytes() == audit_before_reopened_call
+            assert ledger_path.read_bytes() == ledger_before_reopened_call
+            assert len(provider.responses) == initial_calls
+>           ack = enforcer.reconcile_required_audit(obligation.act_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:434: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7f7e10f83460>
+act_id = 'budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3'
+
+    def reconcile_required_audit(self, act_id: str) -> LLMSettlementAck:
+        """Resolve only a retained act through this constructor's trusted audit owner.
+    
+        No provider request, monetary charge, or automatic audit append is issued.
+        The resolver verifies the original durable act, including ambiguous effects.
+        A diagnostic evidence reference alone cannot resolve an obligation.
+        """
+        obligation, response = self._pending_audits[act_id]
+        resolved = self._completed_audits.get(act_id)
+        if resolved is None and self._audit_reconciler is None:
+            raise self._audit_error(
+                obligation, response, RuntimeError("audit owner is unavailable")
+            )
+        try:
+            if resolved is None:
+                resolved = self._audit_reconciler(obligation)
+            if not isinstance(resolved, LLMAuditResolution) or (
+                resolved.obligation_digest != obligation.payload_digest
+                or resolved.status != "committed"
+                or not resolved.evidence_ref
+            ):
+                raise RuntimeError("audit owner did not verify the exact original obligation")
+            self._completed_audits[act_id] = resolved
+            if obligation.event is None:
+                self._abort_unstarted_intent(self._audit_reservations[act_id], obligation.run_id)
+            self._complete_record(act_id, resolved.evidence_ref)
+        except Exception as exc:
+>           raise self._audit_error(obligation, response, exc) from exc
+E           polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 'AuditActor' object has no attribute 'id'
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:826: LLMAccountingError
+_ test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_same_protected_owner_repl2')
+route = 'sync-invoke', action = 'BUDGET_RELEASED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -> None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+>                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.common.serialization.JsonDataVisitor object at 0x7f7e10f872f0>
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -> Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+>           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError
+_ test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_same_protected_owner_repl3')
+route = 'async-generate', action = 'BUDGET_RELEASED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -> None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+>                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.common.serialization.JsonDataVisitor object at 0x7f7e0afe09b0>
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -> Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+>           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError
+_ test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_same_protected_owner_repl4')
+route = 'sync-invoke', action = 'BUDGET_COMMITTED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -> None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+>                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.common.serialization.JsonDataVisitor object at 0x7f7e0afe0410>
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -> Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+>           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError
+_ test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_same_protected_owner_repl5')
+route = 'async-generate', action = 'BUDGET_COMMITTED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -> None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+>                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.common.serialization.JsonDataVisitor object at 0x7f7e10429e50>
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -> Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+>           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError
+_ test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_retained_protected_act_wr0')
+mismatch = 'event-id'
+
+    @pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+    def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+        tmp_path: Path, mismatch: str
+    ) -> None:
+        enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, "BUDGET_COMMITTED"
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, "async-generate")
+            obligation = first.value.event["audit_obligation"]
+            entry = sink.failed_entry
+>           assert entry is not None
+E           assert None is not None
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:498: AssertionError
+_ test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_retained_protected_act_wr1')
+mismatch = 'payload'
+
+    @pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+    def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+        tmp_path: Path, mismatch: str
+    ) -> None:
+        enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, "BUDGET_COMMITTED"
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, "async-generate")
+            obligation = first.value.event["audit_obligation"]
+            entry = sink.failed_entry
+>           assert entry is not None
+E           assert None is not None
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:498: AssertionError
+_ test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner] _
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-native/pytest-tmp/test_retained_protected_act_wr2')
+mismatch = 'log-owner'
+
+    @pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+    def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+        tmp_path: Path, mismatch: str
+    ) -> None:
+        enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, "BUDGET_COMMITTED"
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, "async-generate")
+            obligation = first.value.event["audit_obligation"]
+            entry = sink.failed_entry
+>           assert entry is not None
+E           assert None is not None
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:498: AssertionError
+------- generated xml file: /tmp/e02-B65-recovery-a391-native/native.xml -------
+=========================== short test summary info ============================
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]
+FAILED ::test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]
+FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]
+FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]
+FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]
+FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]
+FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]
+FAILED ::test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]
+FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]
+FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]
+FAILED ::test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]
+============================== 13 failed in 0.86s ==============================

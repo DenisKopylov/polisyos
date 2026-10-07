@@ -1,0 +1,48 @@
+{
+  "kind": "SOURCE_LITERAL_DISCRIMINATOR_ONLY",
+  "product_tests_collection_or_actual_partition_executed": false,
+  "source_sha": "f600d4cfeffabe36b7ecdaa86596383fcfaecaa4",
+  "source_tree": "db4127b27d133c5d5162232b19b2f26d70c99c1a",
+  "parser": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+    "bytes": 23529,
+    "sha256": "2e1c4068ceeda898f5f7ec0fda9e30827ca19991743ee9d61ec761823426c507"
+  },
+  "pytest_source": {
+    "path": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/junitxml.py",
+    "bytes": 25522,
+    "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a"
+  },
+  "patterns_identical": false,
+  "native_pattern_repr": "'[^\\t\\n\\r -~\\x80-\\ud7ff\\ue000-�က0-ჿff]'",
+  "parser_pattern_repr": "'[^\\t\\n\\r -~\\x80-\\ud7ff\\ue000-�𐀀-\\U0010ffff]'",
+  "cases": [
+    {
+      "value": "test_case[ascii]",
+      "pytest9_literal_regexp_result": "test_case[ascii]",
+      "partition_literal_regexp_result": "test_case[ascii]",
+      "equal": true
+    },
+    {
+      "value": "test_case[\u0007]",
+      "pytest9_literal_regexp_result": "test_case[#x07]",
+      "partition_literal_regexp_result": "test_case[#x07]",
+      "equal": true
+    },
+    {
+      "value": "test_case[😀]",
+      "pytest9_literal_regexp_result": "test_case[#x1F600]",
+      "partition_literal_regexp_result": "test_case[😀]",
+      "equal": false
+    },
+    {
+      "value": "test_case[𝄞]",
+      "pytest9_literal_regexp_result": "test_case[#x1D11E]",
+      "partition_literal_regexp_result": "test_case[𝄞]",
+      "equal": false
+    }
+  ],
+  "equal_cases": 2,
+  "different_cases": 2,
+  "scope": "A definite pinned native9 source forward-map difference, not an actual rootwave affected-case count or parser acceptance run."
+}

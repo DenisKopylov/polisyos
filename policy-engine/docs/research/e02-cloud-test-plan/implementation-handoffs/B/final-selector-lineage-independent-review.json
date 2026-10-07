@@ -1,0 +1,251 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "final-selector-lineage-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "finding_dispositions": [],
+  "slice_base_sha": "a460b44c1966c7efbe9addbdefa09a358afd4dad",
+  "implementation_commits": [
+    "ba1737fb14e6df8207642f1514c495b93ea40030",
+    "ab272ca48920c468a8e439b6826724283dd932c9"
+  ],
+  "candidate_tree_sha": "e5ca60e10da7d82e11aaa38c9c1f4159cb217677",
+  "candidate_sha": "ab272ca48920c468a8e439b6826724283dd932c9",
+  "reviewed_root_sha": "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+  "reviewed_root_tree": "a03b766a9662abee10750103477c73746fac6934",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-observed-driver.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-source-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/ff54-controls.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--target",
+        "c1d031ed48134a2c084b937f0275884aeb40971c",
+        "--out",
+        "/workspace/e02-B-current-execution-state/_build/e02-current-execution-state/selector-c1-trace/attempt1"
+      ],
+      "target_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "execution": "stdlib observer + unchanged immutable Git-reading main; no pytest/gates"
+      },
+      "input_closure": {
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py@c1d031ed48134a2c084b937f0275884aeb40971c",
+        "root_tree": "d09913b83338767e0e063739f97f583a19390e12",
+        "observed_driver_archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-observed-driver.txt",
+        "observed_driver_sha256": "377858ae8950f2ae0b4d2a139e0e640c70e7c5b75b3a0b820cee87ac3677108d",
+        "equivalence_map": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json@c1d031ed48134a2c084b937f0275884aeb40971c",
+        "full_read_protocol": "Canonical source reads tracked paths using git show@c1. Full roots/lineage algorithm and pinned tree are replayable; independent trace stores deciding missing/command origins, not a claim of a separate complete dynamic OS readset."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt",
+        "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+        "bytes": 67087,
+        "sha256": "cc0d22685c5f32e4cc5d856bcef78d2b2d5fb8f2a2235fa32abdc92179dc74a2"
+      },
+      "actual_observer_exit_code": 0,
+      "actual_instrument_error": "ValueError Every absent selector needs a reviewed map or explicit UNRUN",
+      "measured_denominator": {
+        "existing_files": 229,
+        "missing_names": 18,
+        "canonical_planned_missing": 14,
+        "incidental_missing": 4,
+        "unmapped_missing": 4,
+        "all_missing_already_UNRUN": true,
+        "native_lineage_rows": 1401,
+        "all_commands": 11476,
+        "scripts": 114,
+        "top_receipts": 64
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--input",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt"
+      ],
+      "target_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "execution": "stdlib/Git reads only"
+      },
+      "input_closure": "Complete preserved original trace plus longest exact source locator prefix in the full c1 tracked path set. Original markdown reference_route annotation is nondeciding and explicitly qualified; original source_refs/membership/counts unchanged.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-source-origins.json",
+        "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+        "bytes": 9300,
+        "sha256": "6188f96e3c6d0d164fc674481cfadcd3b89f64770a41a9329b7c71472a4c6cf8"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--base",
+        "c1d031ed48134a2c084b937f0275884aeb40971c",
+        "--target",
+        "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad"
+      ],
+      "target_sha": "ff54ac55b1f3e4a0186319e8f18aadb56856d0ad",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "execution": "stdlib AST execution, no pytest/collection/product modules/live registry/gates"
+      },
+      "input_closure": {
+        "base_sha": "c1d031ed48134a2c084b937f0275884aeb40971c",
+        "target_tree": "a03b766a9662abee10750103477c73746fac6934",
+        "source_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/pytest-cli-option-profile.json"
+        ],
+        "controlled_metadata": "Full four mapping subsets over one planned/one incidental absent path and one genuinely present controlled AST definition; invalid exact body negative. Complete two-path diff; complete launcher literal namespace and normalized AST comparison.",
+        "historical_grammar": "19 original d3 stdlib grammar controls at a460, no new runtime claim; option helper AST and profile byte equal across c1→ff54."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/ff54-controls.json",
+        "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+        "bytes": 13036,
+        "sha256": "a51e6499240c655b3ef69a375f854c0abebd28bf8159b4982828f35c5e202985"
+      },
+      "actual_control_count": 5,
+      "pytest_cases_executed": 0
+    },
+    {
+      "command": [
+        [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py"
+        ],
+        [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py"
+        ]
+      ],
+      "target_sha": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state"
+      },
+      "input_closure": "Exactly three current committed observer/reconciliation/review Python modules; archived observed negative driver is a .txt artifact with its actual bytes preserved. Initial own-helper style errors were corrected; no root whole-gate verdict.",
+      "outcome": "PASS",
+      "output": "All checks passed!\n3 files already formatted\n"
+    }
+  ],
+  "property": {
+    "statement": "Static missing-reference accounting preserves explicit UNRUN independently of plan membership or mapping availability; source metadata mentions do not silently become executed inputs or satisfy canonical criteria.",
+    "runtime_path": [
+      "Committed owner/independent receipt",
+      "recursive JSON source reference",
+      "immutable driver source descriptor",
+      "static selector admission/classification",
+      "root-owned eventual native whole-file argv"
+    ],
+    "proxy_divergence": "c1 source regex treated metadata discriminator constants as missing static descriptors and universal map-membership guard rejected them despite existing explicit UNRUN. Complete actual four incidental paths have no canonical plan/bundle, solely static driver kind; every canonical14 had a map. Root ff54 now preserves all origins and separates required-by-plan/map existence, with optional mapping and explicit UNRUN.",
+    "negative_controls": [
+      "Four complete empty/partial/full map subsets preserve both missing rows and execution UNRUN.",
+      "Invalid selected body still refuses exact-one-source-definition guard.",
+      "Complete launcher namespace replacement leaves normalized operation AST equal.",
+      "No prefix exclusion, per-name equivalence map, unknown file execution or criterion satisfaction introduced."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Independent source/stdlib metadata review PASS within explicit finite profile; actual c1 static derivation FAIL preserved; product/runtime finding closure and final root cohort UNRUN by reviewer.",
+  "limitations_and_next_owner": [
+    "Root sole writer applies final source freeze and derives complete final native inputs once. No reviewer pytest/collection/gate invocation or product acceptance.",
+    "Mapped/unmapped planned or incidental names remain UNRUN; real collected case denominator comes only from root native inventory/JUnit.",
+    "The static metadata scanner retains incidental source mentions, not a semantic executor/metadata type ABI. No absence or execution verdict is inferred from descriptor shape or path prefix.",
+    "Unknown pytest/custom option/argsfile grammar remains explicit unresolved. Historical19 grammar PASS is not re-executed by this delta review.",
+    "Initial c1 markdown origin annotation suffix error retained unchanged and qualified; generic normalized source_ref locators are provided separately.",
+    "Original c1 full actual root failure capture and all six gate outputs remain separately owned by root. No inherited P41 waiver.",
+    "Production/tests/tools/config own delta from slice base is empty."
+  ],
+  "evidence_objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/README.md",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 3118,
+      "sha256": "91727869d30204505dd34a8813bdd2c8043a81bef5b89d1061b14d7cd1c7f4ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-full-output.txt",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 67087,
+      "sha256": "cc0d22685c5f32e4cc5d856bcef78d2b2d5fb8f2a2235fa32abdc92179dc74a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-observed-driver.txt",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 7658,
+      "sha256": "377858ae8950f2ae0b4d2a139e0e640c70e7c5b75b3a0b820cee87ac3677108d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/c1-source-origins.json",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 9300,
+      "sha256": "6188f96e3c6d0d164fc674481cfadcd3b89f64770a41a9329b7c71472a4c6cf8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/ff54-controls.json",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 13036,
+      "sha256": "a51e6499240c655b3ef69a375f854c0abebd28bf8159b4982828f35c5e202985"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 2825,
+      "sha256": "dbeebe40aa379cde02b54801bc1e3f55532908b1612ff81573d076b731492ca0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 8269,
+      "sha256": "10f1ae0e4cd389dd44f58af6fd033374476df9243ab594310518d6ecd6b149b2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+      "commit": "ab272ca48920c468a8e439b6826724283dd932c9",
+      "bytes": 8242,
+      "sha256": "773b0e102e328be25d856cd5589687bea6533ea948d52f4eafd94b9a3d544801"
+    }
+  ],
+  "source_only_no_self_product_review": true
+}

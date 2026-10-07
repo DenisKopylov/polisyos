@@ -1,0 +1,61 @@
+{
+  "payload_count": 11,
+  "payload_bytes": 167836,
+  "files": [
+    {
+      "path": "cache-ready-profile.json",
+      "bytes": 2641,
+      "sha256": "668631aeb78a30bcb94d9f173c61fa23ab5dc302e7df00411d93b70c04c84c80"
+    },
+    {
+      "path": "cache-ready.json",
+      "bytes": 2625,
+      "sha256": "a5a4682a07ca031bb267ab959a88a5d6070b3b0a43df0c3223a756131ab51fc6"
+    },
+    {
+      "path": "cache-ready.txt",
+      "bytes": 129485,
+      "sha256": "c5c954983c24ea9ea43a96c3b46687e20001442cd40cfe942a177d5a06f49e78"
+    },
+    {
+      "path": "interpretation.json",
+      "bytes": 2796,
+      "sha256": "6f5e93884e5fa164a9cd9cdbf2152ed57c6c4f3d4e7b8230b0a05d17d2fa7eb0"
+    },
+    {
+      "path": "runtime-ml-prepare.source.txt",
+      "bytes": 4715,
+      "sha256": "ee7df5a10c4b249626d01a8638d491bd0ee09934dba8bf22abcefd54b8d46e2e"
+    },
+    {
+      "path": "runtime-ml-private-imports-and-packages.json",
+      "bytes": 10793,
+      "sha256": "7d2a4604a91ee91ceea112f3e085c1abdaf7f514fd2066766fa67740eeb9cc1a"
+    },
+    {
+      "path": "runtime-ml-profile.json",
+      "bytes": 8870,
+      "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69"
+    },
+    {
+      "path": "runtime-ml-sync.json",
+      "bytes": 673,
+      "sha256": "b3b371742ba93ae2d053f3e4989d2c39fd62bcd67ae9c5dfefc789a66ed491b9"
+    },
+    {
+      "path": "runtime-ml-sync.txt",
+      "bytes": 4116,
+      "sha256": "e526eb8c56335d507e2e7406146d1f72be574ea82f32af3a4955ff1b7d2c5b9a"
+    },
+    {
+      "path": "runtime-ml-venv.json",
+      "bytes": 790,
+      "sha256": "40f1cfb413ba412777e3eacd1929798d8e58952a776c2af6bb5875fd6fb6b895"
+    },
+    {
+      "path": "runtime-ml-venv.txt",
+      "bytes": 332,
+      "sha256": "cb3601dce81390b7599d1c271512222db1cee469053c4febc7bc045516839ff2"
+    }
+  ]
+}

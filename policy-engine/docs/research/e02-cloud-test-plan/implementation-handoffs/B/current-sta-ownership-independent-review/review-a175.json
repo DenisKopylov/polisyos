@@ -1,0 +1,1031 @@
+{
+  "schema": "e02.implementation-handoff.v1",
+  "unit": "B",
+  "reviewer": "RUN writer independent EXE reviewer",
+  "author": "EXE writer",
+  "slice": "current-sta-a175-independent",
+  "reviewed_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+  "reviewed_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+  "prior_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "read_only_source_tests": true,
+  "reviewed_production_paths": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py"
+  ],
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B57",
+    "B58",
+    "B62",
+    "B70"
+  ],
+  "bundle_ids": [
+    "STA-01",
+    "STA-02",
+    "RES-01"
+  ],
+  "classification": "SAME_JOURNAL_OWNERSHIP_CLASS_DEEPER_GROUP_READER_INPUT_VALIDATION",
+  "capability_state_or_finding_state": "measured graph/native/current-target/presence/resume profiles PASS; typed group malformed-reader countercase OPEN on a175; no whole finding closure",
+  "property": {
+    "statement": "Finite actual JSON ownership graph, current-target mutation intent, producer grant lifetime, typed legacy cache admission and original resume identity must survive actual provider\u2192journal\u2192typedCAS\u2192warm/reopen\u2192native merge/public completion consumers. A proved grouped artifact must have canonically identical typed event intent across group paths.",
+    "runtime_path": [
+      "actual typed ExperimentState alias establishment after constructor",
+      "owned branch real writes and actual native AsyncWorkflowExecutor provider entries",
+      "NodeOutcome\u2192NodeResultCache.put\u2192typed proof/canonical artifact",
+      "FileSystemCAS readback/load_entry/get\u2192warm/reopened merge\u2192physical persisted result",
+      "native checkpoint/residual two-resume provider/trace consumer"
+    ],
+    "proxy_divergence": "Historical raw constructor alias83a9 premise was false and qualified NOT_ESTABLISHED. Qualified true typed alias and real node-entry old sources expose ownership faults; a175 passes those measured effects. All verified cache bytes/proofs can remain sound while Python equality accepts malformed False/0 samegroup; actual reader load/get proves this independent gap, beyond constructor/marker proxies.",
+    "negative_controls": [
+      "Committed2c true old1.0/1.1 aliases remain exactly same serialized bytes; malformed old graphs refuse and safe direct scalar works.",
+      "3b actual additive shared/split current layouts with extra current rows fail4; a175 same executable passes4.",
+      "29 actual native nested widening/False release and public completion fail; a175 same4 cases pass.",
+      "Healthy grouped all-False and native original refs positive distinguish correct proof setup from malformed typed group acceptance.",
+      "Failed invalid-proof fixture is preserved as nondeciding because its healthy control rejects."
+    ]
+  },
+  "predicate_basis": "Exact full canonical criteria/sourcecards read before independent checks; bounded finite consumer witnesses, not baseline summary or author aggregate native counts.",
+  "baseline_cells": [
+    "F01-P093",
+    "F01-P113",
+    "F02-P019",
+    "F02-P025",
+    "F02-P033",
+    "F02-P085",
+    "F03-P022",
+    "F03-P104",
+    "F04-P025",
+    "F04-P094",
+    "F05-P043",
+    "F05-P110",
+    "F05-P111",
+    "F05-P121",
+    "F05-P128",
+    "F06-P034",
+    "F06-P040",
+    "F06-P044",
+    "F06-P053",
+    "F07-P106",
+    "F08-P033",
+    "F08-P040",
+    "F08-P087",
+    "F08-P095",
+    "F09-P026",
+    "F09-P031",
+    "F09-P033",
+    "F09-P096",
+    "F09-P106",
+    "F10-P026",
+    "F10-P029",
+    "F10-P085",
+    "F10-P094",
+    "F11-P026",
+    "F11-P090",
+    "F12-P033",
+    "F12-P041",
+    "F12-P104",
+    "F13-P026",
+    "F13-P029",
+    "F13-P098",
+    "F13-P107",
+    "F13-P121",
+    "F13-P133",
+    "F14-P030",
+    "F15-P022",
+    "F15-P040",
+    "F15-P109"
+  ],
+  "baseline_navigation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/baseline-navigation.json",
+    "sha256": "bc28269508d00f90e467bbf2a576d34e725c12695c2d2d930261f5813e2c9d80",
+    "bytes": 118475
+  },
+  "baseline_qualification": "All48 unique cells/15 source SHA/tree/ref/environment/input contexts are source-reported compact transfer navigation. Routes candidate_unverified and semantic_adequacy not_established remain. Original raw archives unavailable; baseline-green totals are not candidate evidence.",
+  "canonical_criteria": {
+    "B57": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1543,
+      "excerpt_sha256": "311733b6c5a5bb6907ebc0142a728a0381d0d1e80e9e0c9d9dffbca33a9676f2",
+      "full_criterion_read": true
+    },
+    "B58": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1559,
+      "excerpt_sha256": "a4b3f09edf7d6a97bcac413cddd8335f3f83f654d823c5561b4c06b826b9838e",
+      "full_criterion_read": true
+    },
+    "B62": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1615,
+      "excerpt_sha256": "b8cf6da156cbaf10ecf2a7d84383b3cbbe9502e7055fafd345667f7be48288ef",
+      "full_criterion_read": true
+    },
+    "B70": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "line": 1873,
+      "excerpt_sha256": "f963622d49c8de3af543f00c4f93ee30bfdb540c6b20a123dab65009f63ae0d0",
+      "full_criterion_read": true
+    }
+  },
+  "source_review": {
+    "complete_diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/source-3b81-a175.diff",
+      "sha256": "908594d6d064efb4a7c124d3a7420917540836a5ea6f70efaf2d7ab1e1cb551f",
+      "bytes": 34491
+    },
+    "full_read": true,
+    "lines": 794,
+    "finding": "Ownership/multiowner graph, producer/public profiles, operation_group current physical target dedup and conservative legacy whitelist coherent on measured finite profile. Actual malformed group reader escapes typed consistency through dict equality; narrowed fix requested. No assertion broad arbitrary object/cycle or production dataset support.",
+    "protected_foreign_scope": "No A generation_cycle/run_lifecycle or C streaming edits by this reviewer; docs-only own publication."
+  },
+  "checks": [
+    {
+      "id": "graph_final_old11",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-graph_final_old11",
+        "--legacy-packet",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.json"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+          "sha256": "709b7270c2f7049d33012209d3bb62a2489db88df5eb6998c246e41a28a19d46",
+          "bytes": 16345
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.json",
+          "sha256": "7454193dce40b246a09ae1b869e6d4ed6a5140ba9f129344b7aa39d642182670",
+          "bytes": 76062
+        },
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old11.json",
+          "sha256": "ef0fccf5a5f049d9156ec0d1853b8323ec5b14368c0833b5404445a8469ae336",
+          "bytes": 85760
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old11.log",
+          "sha256": "ef0fccf5a5f049d9156ec0d1853b8323ec5b14368c0833b5404445a8469ae336",
+          "bytes": 85760
+        }
+      },
+      "observed": "9 distinct graph/authority/public cases PASS; 4 unsafe actual old1.1 alias entries refused; safe direct scalar accepted; valid nested numeric entry conservatively misses (nondeciding).",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "graph_final_old10",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-graph_final_old10",
+        "--legacy-packet",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.json"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+          "sha256": "709b7270c2f7049d33012209d3bb62a2489db88df5eb6998c246e41a28a19d46",
+          "bytes": 16345
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.json",
+          "sha256": "4c575c9a9a2ad9f23a4e0ffde05c63238d76065c18e82c1310f0446f92eaf226",
+          "bytes": 78785
+        },
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old10.json",
+          "sha256": "94c44a7ce3b73c5ee4c45dba3e4888a302990c51288fe4e73b458ca9725207c7",
+          "bytes": 85759
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old10.log",
+          "sha256": "94c44a7ce3b73c5ee4c45dba3e4888a302990c51288fe4e73b458ca9725207c7",
+          "bytes": 85759
+        }
+      },
+      "observed": "Same9 input family PASS; old1.0 4 unsafe actual alias entries refused; safe scalar accepted. This is a second legacy-version control, not9 additional independent graph properties.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "native_owner_final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-native_owner_final"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+          "sha256": "9438c48270f7291fd4aca806e042a48212b69ef27ffa3a5c21f571c2133c8ff6",
+          "bytes": 8958
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-a175.json",
+          "sha256": "3a711d49ff6593adea8d5a4de896093a4269f2c6a3f9fc336a74e5015a9d782f",
+          "bytes": 189831
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-a175.log",
+          "sha256": "f6e98396c76b3ac92cb5e30e8f2fb371f7d53e6641ab4c756f718fe3707c07a2",
+          "bytes": 193339
+        }
+      },
+      "observed": "4 actual native AsyncWorkflowExecutor provider cases PASS: entry authority, mutable public completed result, nested grant attenuation, explicit False cannot release active grant.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "additive_before",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "--target",
+        "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-additive_before"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "target_tree_sha": "e9979738e8d9fa6ebce06592f2970b00d8c69625",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+          "sha256": "b7dd432df9f67d6ca1d35fe3d764f09c099ca64995f3ce485015e55d76a10bc6",
+          "bytes": 8140
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-3b81.json",
+          "sha256": "9903dbb93cba76b35b70fd6943b642dc845a6cce0b3c15f28d98593359f52c92",
+          "bytes": 63099
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-3b81.log",
+          "sha256": "9903dbb93cba76b35b70fd6943b642dc845a6cce0b3c15f28d98593359f52c92",
+          "bytes": 63099
+        }
+      },
+      "observed": "4 FAIL/8 warm+reopened real cache/merge consumers. Shared/current split targets preserve actual extra current rows in input; producer/replay fail.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "additive_final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-additive_final"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+          "sha256": "b7dd432df9f67d6ca1d35fe3d764f09c099ca64995f3ce485015e55d76a10bc6",
+          "bytes": 8140
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-a175.json",
+          "sha256": "f8560ca5b77245ffb6543f3055f8d4ada1fe8eb6cd952f30bbc437984955d03b",
+          "bytes": 65708
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-a175.log",
+          "sha256": "f8560ca5b77245ffb6543f3055f8d4ada1fe8eb6cd952f30bbc437984955d03b",
+          "bytes": 65708
+        }
+      },
+      "observed": "Same executable/input family:4 PASS/8 actual warm+reopened consumers. Append/pop applied exactly once per physical current target; distinct split targets each once; current extra rows, neighbor and reserved61 remain.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "presence_owned_before",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "--target",
+        "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-presence_owned_before"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "target_tree_sha": "e9979738e8d9fa6ebce06592f2970b00d8c69625",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+          "sha256": "1351836c2d1bedb02490b15518645901104045cda4eddbbb5cac883ae4101395",
+          "bytes": 13339
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-3b81.json",
+          "sha256": "56cf741af692bb99ed80474947e59a525ca67e6245e5a8f10dbce3f5c3fa6c44",
+          "bytes": 225870
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-3b81.log",
+          "sha256": "29eb8c837662cf44e1120da10c2d45b5bb15acf22a345e524b7b5771201746a6",
+          "bytes": 226080
+        }
+      },
+      "observed": "B62 actual5 keys/providers+10 consumers PASS; B70 real two interrupted native async resumes PASS.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "presence_owned_final",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-presence_owned_final"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+          "sha256": "1351836c2d1bedb02490b15518645901104045cda4eddbbb5cac883ae4101395",
+          "bytes": 13339
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-a175.json",
+          "sha256": "b56ef13e96bec0d162d41ea3757397960425cfba90153d01fe3f52751616b644",
+          "bytes": 225995
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-a175.log",
+          "sha256": "4805f01259ed6a88782034bf2a5e97a86bca5f4bceafe41353b5e80463100d48",
+          "bytes": 226205
+        }
+      },
+      "observed": "Same owned-profile executable:5 distinct presence keys/providers,10 warm/reopened consumers PASS; native A\u2192B\u2192C calls[1,2,2], original fingerprint preserved, completed reopen0 calls, changed functional invocation rejected.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "group_invalid_input",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-group_invalid_input"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+          "sha256": "fe3597517a8f0570ab3e88e659cd53424a727d27b62b562170fe25447e2d92d0",
+          "bytes": 7897
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-invalid-proof-a175.json",
+          "sha256": "4c26f262113a38900af38104a590c39cb3df2019c4ff5ca0a6f67826ae3c64ab",
+          "bytes": 32971
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-invalid-proof-a175.log",
+          "sha256": "4c26f262113a38900af38104a590c39cb3df2019c4ff5ca0a6f67826ae3c64ab",
+          "bytes": 32971
+        }
+      },
+      "observed": "NONDECIDING: invalid fixture proof hash omitted replay epoch/manifest material; healthy False/False also rejected. Preserved complete bytes. Not product PASS or failure evidence.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    },
+    {
+      "id": "group_typed_consistency",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "--target",
+        "a175392fb4b49d19189152609d93e2ec149a4704",
+        "--out",
+        "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-group_typed_consistency"
+      ],
+      "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+      "environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+        "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+        "bytes": 2986
+      },
+      "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+      "target_tree_sha": "aeec2f0515c4f682d11c7531e123c27ed65a40be",
+      "input_closure": {
+        "driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+          "sha256": "af804da010bb211c5c6366b1496dcd20a3a8ee22ddd107a31b1af7c269207172",
+          "bytes": 8266
+        },
+        "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+        "legacy_input": null,
+        "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+      },
+      "output": {
+        "packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-a175.json",
+          "sha256": "771c3b8da7b6f590a68a7ba3caab4f6bc1d961065eab774fd03874582eb3b4e5",
+          "bytes": 38429
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-a175.log",
+          "sha256": "771c3b8da7b6f590a68a7ba3caab4f6bc1d961065eab774fd03874582eb3b4e5",
+          "bytes": 38429
+        }
+      },
+      "observed": "1 PASS healthy grouped all-False,2 FAIL malformed False/0 and nestedFalse/0. All3 original native entry positives succeed; verified regrouped artifacts accepted load_entry/get despite canonically different intent. Strict reader consistency gap is OPEN on this exact source; ordinary producer is not claimed to emit malformed group.",
+      "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable."
+    }
+  ],
+  "effective_input_qualification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/premise-qualification.json",
+    "sha256": "93b9953f756df721b46c30d2310a9c3c1c51452adb466d59276cfb1073ad0be7",
+    "bytes": 9148
+  },
+  "historical_validity": "83a9 raw artifact9bfe initial alias is NOT_ESTABLISHED because typed constructor already copied raw shared dictionary. Final corrected fixture assigns alias on actual typed model and captures identityTrue before branch. Original standalone default authority also differs: actual producer inputs explicitTrue and native entries; neutral public editing controls remain legitimate. Original9raw flags not counted as9 established bugs.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B57",
+      "bundle_id": "STA-01",
+      "state": "OPEN",
+      "property_state": "PASS_MEASURED_GRAPH_WITH_OPEN_TYPED_GROUP_READER_COUNTERCASE",
+      "scope": "Measured finite JSON graph aliases/reparent/list operations, held/detached references, additive shared/split current effects and producer grant lifetime pass on a175; actual typed group consistency reader admits distinct False/0 intents and remains OPEN on this source.",
+      "checks": [
+        "graph_final_old11",
+        "graph_final_old10",
+        "native_owner_final",
+        "additive_before",
+        "additive_final",
+        "group_typed_consistency"
+      ],
+      "canonical_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 1543,
+        "excerpt_sha256": "311733b6c5a5bb6907ebc0142a728a0381d0d1e80e9e0c9d9dffbca33a9676f2",
+        "full_criterion_read": true
+      },
+      "limitation": "Independent generic fixtures measure declared tree/list state operations, current-base replay, presence-aware declared method and two interruptions of a real native async workflow. No assertion of full production history/data coverage or every possible non-JSON/shared-DAG/cyclic alias configuration.",
+      "next_owner": "EXE canonical narrow typed group fix, root independent acceptance and G final criterion/local history",
+      "replay_commands": [
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-graph_final_old11",
+            "--legacy-packet",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.json"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-graph_final_old10",
+            "--legacy-packet",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.json"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-native_owner_final"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+            "--target",
+            "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-additive_before"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-additive_final"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-group_typed_consistency"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        }
+      ]
+    },
+    {
+      "finding_id": "B58",
+      "bundle_id": "STA-01",
+      "state": "LIMITED",
+      "property_state": "PASS_ON_DECLARED_INDEPENDENT_PROFILE",
+      "scope": "Protected mutations reject before original wire/evidence/reservation changes; same-value/delete/null intents survive real cache/merge. Producer authority through nested grants and public settled results verified by actual native node entry.",
+      "checks": [
+        "graph_final_old11",
+        "graph_final_old10",
+        "native_owner_final"
+      ],
+      "canonical_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 1559,
+        "excerpt_sha256": "a4b3f09edf7d6a97bcac413cddd8335f3f83f654d823c5561b4c06b826b9838e",
+        "full_criterion_read": true
+      },
+      "limitation": "Independent generic fixtures measure declared tree/list state operations, current-base replay, presence-aware declared method and two interruptions of a real native async workflow. No assertion of full production history/data coverage or every possible non-JSON/shared-DAG/cyclic alias configuration.",
+      "next_owner": "EXE canonical narrow typed group fix, root independent acceptance and G final criterion/local history",
+      "replay_commands": [
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-graph_final_old11",
+            "--legacy-packet",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.json"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-graph_final_old10",
+            "--legacy-packet",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.json"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-native_owner_final"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        }
+      ]
+    },
+    {
+      "finding_id": "B62",
+      "bundle_id": "STA-02",
+      "state": "LIMITED",
+      "property_state": "PASS_ON_DECLARED_INDEPENDENT_PROFILE",
+      "scope": "Real declared default5 method distinguishes missing/null/0/False/[] through actual key, producer/cache artifact and warm/reopened merge value/type. Missing intermediate options equals explicit empty options only for this declared default method.",
+      "checks": [
+        "presence_owned_before",
+        "presence_owned_final"
+      ],
+      "canonical_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 1615,
+        "excerpt_sha256": "b8cf6da156cbaf10ecf2a7d84383b3cbbe9502e7055fafd345667f7be48288ef",
+        "full_criterion_read": true
+      },
+      "limitation": "Independent generic fixtures measure declared tree/list state operations, current-base replay, presence-aware declared method and two interruptions of a real native async workflow. No assertion of full production history/data coverage or every possible non-JSON/shared-DAG/cyclic alias configuration.",
+      "next_owner": "EXE canonical narrow typed group fix, root independent acceptance and G final criterion/local history",
+      "replay_commands": [
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+            "--target",
+            "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-presence_owned_before"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-presence_owned_final"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        }
+      ]
+    },
+    {
+      "finding_id": "B70",
+      "bundle_id": "RES-01",
+      "state": "LIMITED",
+      "property_state": "PASS_ON_DECLARED_INDEPENDENT_PROFILE",
+      "scope": "Actual original A\u2192B\u2192C identity survives two residual graph resumes/checkpoints and completed reopen; changed functional invocation refuses before another provider call.",
+      "checks": [
+        "presence_owned_before",
+        "presence_owned_final"
+      ],
+      "canonical_criterion": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "line": 1873,
+        "excerpt_sha256": "f963622d49c8de3af543f00c4f93ee30bfdb540c6b20a123dab65009f63ae0d0",
+        "full_criterion_read": true
+      },
+      "limitation": "Resume reopens actual FileSystemCAS/checkpoints three times in one Python process. Fresh process/host, platform and full production resume remain separate G authority. Failed provider attempts are explicitly counted; successful A/B nodes are not re-executed.",
+      "next_owner": "EXE canonical narrow typed group fix, root independent acceptance and G final criterion/local history",
+      "replay_commands": [
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+            "--target",
+            "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-presence_owned_before"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9"
+        },
+        {
+          "command": [
+            "/workspace/polisyos/policy-engine/.venv/bin/python",
+            "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+            "--target",
+            "a175392fb4b49d19189152609d93e2ec149a4704",
+            "--out",
+            "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-presence_owned_final"
+          ],
+          "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+          "environment": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+            "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+            "bytes": 2986
+          },
+          "target_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704"
+        }
+      ]
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Root/EXE own narrow strict typed sameintent reader fix and unchanged3case replay; this receipt binds actual a175 only, not future source or future custody.",
+    "Root/G owns full finding closure, merged-cohort integration, production data/history and fresh-process/host extension.",
+    "Finite native JSON/list/dict/split/shared cases only; no universal arbitrary nonJSON/cyclic/object alias claims.",
+    "B70 physical store/checkpoint reopened repeatedly in one Python process; fresh process/host/full-production remains local G candidate.",
+    "Installed package/config observations are final packaging custody, exact Python source is target Git/module hash census; no historical all-input claim.",
+    "Author108PASS/295PASS15FAIL aggregates are not this independent review outputs and are not relabeled."
+  ],
+  "excluded_exploratory_runs": [
+    "Wrong initial malformed-control proof: healthy rejected; full invalid-proof driver/packet/stdout retained NONDECIDING.",
+    "Earlier qualified harness assertions/import mistakes are preserved in historical receipts; no product count."
+  ],
+  "historical_bytes_preserved": {
+    "prior_head": "2c581342ca546c558c55bf361240878fc4c9bf66",
+    "policy": "All existing historical packet/driver/stdout bytes untouched; new standalone companions and receipt only."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+      "sha256": "b7dd432df9f67d6ca1d35fe3d764f09c099ca64995f3ce485015e55d76a10bc6",
+      "bytes": 8140
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+      "sha256": "1351836c2d1bedb02490b15518645901104045cda4eddbbb5cac883ae4101395",
+      "bytes": 13339
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+      "sha256": "af804da010bb211c5c6366b1496dcd20a3a8ee22ddd107a31b1af7c269207172",
+      "bytes": 8266
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+      "sha256": "fe3597517a8f0570ab3e88e659cd53424a727d27b62b562170fe25447e2d92d0",
+      "bytes": 7897
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/source-3b81-a175.diff",
+      "sha256": "908594d6d064efb4a7c124d3a7420917540836a5ea6f70efaf2d7ab1e1cb551f",
+      "bytes": 34491
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old11.json",
+      "sha256": "ef0fccf5a5f049d9156ec0d1853b8323ec5b14368c0833b5404445a8469ae336",
+      "bytes": 85760
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old11.log",
+      "sha256": "ef0fccf5a5f049d9156ec0d1853b8323ec5b14368c0833b5404445a8469ae336",
+      "bytes": 85760
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old10.json",
+      "sha256": "94c44a7ce3b73c5ee4c45dba3e4888a302990c51288fe4e73b458ca9725207c7",
+      "bytes": 85759
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/graph-a175-old10.log",
+      "sha256": "94c44a7ce3b73c5ee4c45dba3e4888a302990c51288fe4e73b458ca9725207c7",
+      "bytes": 85759
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-a175.json",
+      "sha256": "3a711d49ff6593adea8d5a4de896093a4269f2c6a3f9fc336a74e5015a9d782f",
+      "bytes": 189831
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-a175.log",
+      "sha256": "f6e98396c76b3ac92cb5e30e8f2fb371f7d53e6641ab4c756f718fe3707c07a2",
+      "bytes": 193339
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-3b81.json",
+      "sha256": "9903dbb93cba76b35b70fd6943b642dc845a6cce0b3c15f28d98593359f52c92",
+      "bytes": 63099
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-3b81.log",
+      "sha256": "9903dbb93cba76b35b70fd6943b642dc845a6cce0b3c15f28d98593359f52c92",
+      "bytes": 63099
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-a175.json",
+      "sha256": "f8560ca5b77245ffb6543f3055f8d4ada1fe8eb6cd952f30bbc437984955d03b",
+      "bytes": 65708
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-a175.log",
+      "sha256": "f8560ca5b77245ffb6543f3055f8d4ada1fe8eb6cd952f30bbc437984955d03b",
+      "bytes": 65708
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-3b81.json",
+      "sha256": "56cf741af692bb99ed80474947e59a525ca67e6245e5a8f10dbce3f5c3fa6c44",
+      "bytes": 225870
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-3b81.log",
+      "sha256": "29eb8c837662cf44e1120da10c2d45b5bb15acf22a345e524b7b5771201746a6",
+      "bytes": 226080
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-a175.json",
+      "sha256": "b56ef13e96bec0d162d41ea3757397960425cfba90153d01fe3f52751616b644",
+      "bytes": 225995
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-a175.log",
+      "sha256": "4805f01259ed6a88782034bf2a5e97a86bca5f4bceafe41353b5e80463100d48",
+      "bytes": 226205
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-invalid-proof-a175.json",
+      "sha256": "4c26f262113a38900af38104a590c39cb3df2019c4ff5ca0a6f67826ae3c64ab",
+      "bytes": 32971
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-invalid-proof-a175.log",
+      "sha256": "4c26f262113a38900af38104a590c39cb3df2019c4ff5ca0a6f67826ae3c64ab",
+      "bytes": 32971
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-a175.json",
+      "sha256": "771c3b8da7b6f590a68a7ba3caab4f6bc1d961065eab774fd03874582eb3b4e5",
+      "bytes": 38429
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-a175.log",
+      "sha256": "771c3b8da7b6f590a68a7ba3caab4f6bc1d961065eab774fd03874582eb3b4e5",
+      "bytes": 38429
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-proof-premise.diff",
+      "sha256": "d0cdfce86e40da55e38e7c591487456be28ff84ea2d22cc4a031a3532ccb9cb0",
+      "bytes": 4207
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+      "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+      "bytes": 2986
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-owned-input.diff",
+      "sha256": "443e70d3f61d9056d04de4c1bd1e111cfd5cc7a7a12980b8c15e992bac24bc8a",
+      "bytes": 6694
+    }
+  ]
+}

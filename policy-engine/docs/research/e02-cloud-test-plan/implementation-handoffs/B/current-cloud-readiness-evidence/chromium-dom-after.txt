@@ -1,0 +1,1 @@
+{"browserVersion":"147.0.7727.15","connected":true,"title":"e02-doctor-readiness","value":"actual Chromium DOM","node":"v22.22.0","execPath":"/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node","cwd":"/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard"}

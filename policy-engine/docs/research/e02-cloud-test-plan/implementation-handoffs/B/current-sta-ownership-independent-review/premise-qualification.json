@@ -1,0 +1,135 @@
+{
+  "schema": "policyos.e02.evidence_qualification.v1",
+  "unit": "B",
+  "slice": "current-sta-ownership-premise-qualification",
+  "historical_commit": "977a39a346bb67e84bb8257b93777bb89f5eaef3",
+  "unchanged_historical_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+      "sha256": "83a9f72ed63672d402d2cc2aea023025f3d5686da1f3ba17cca3fb7e1a07c4df",
+      "bytes": 14954
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.json",
+      "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+      "bytes": 74712
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.log",
+      "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+      "bytes": 74712
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-negative.json",
+      "sha256": "c6984b7181b0a4613d0076a16a65c9ec1807da1cb5e668e13d90485caa245ab1",
+      "bytes": 10772
+    }
+  ],
+  "effective_qualification": {
+    "initial_shared_dict_alias83a9": "NOT_ESTABLISHED: independent plain Python expected alias did not match actual typed constructor premise; Pydantic copied top-level child dicts before branch. Historical artifact9bfe is not deciding unsafe-legacy proof. Actual recorded bytes remain unchanged.",
+    "undeclared_neighbor83a9": "Standalone constructor profile lacks final ratified producer-authority premise; successor API neutral/public defaultFalse. Do not compare unchanged83a9 default constructor against owned final capability. Qualified explicit owned profile and actual public node-entry controls supply authority premise.",
+    "still_valid83a9": "Dynamic pop0→append heldref, cross-container alias and reparent create aliases on actual typed branch after construction. Numeric/scalar/protected controls and public result editing remain their recorded measured profile; no blanket aggregate closure follows raw flags.",
+    "qualified_input": "Actual typed state establishes right=left by ordinary params assignment after constructor, asserts/captures identityTrue before branch. Qualified driver requests producer grant with explicit enforce_write_scope=True if new signature exists; prior API uses declared write_paths producer path. Actual native executor route independently verifies producer-authority premise. Fresh current-state fixture per warm/reopened consumer prevents prior consumer mutation from changing next input. Current-base wire retention captured as failure rather than aborting packet."
+  },
+  "true_actual_legacy_refs": {
+    "1.1": {
+      "source_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "ref": "sha256:0eb59931d820ea009ab744bae0c033934fb124c1be7a092c0ba3eaac8f8f0ac6",
+      "input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.json",
+        "sha256": "7454193dce40b246a09ae1b869e6d4ed6a5140ba9f129344b7aa39d642182670",
+        "bytes": 76062
+      }
+    },
+    "1.0": {
+      "source_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "ref": "sha256:617990100a6f011cb57bd8cdcc81681d4e63b11c6a9b4d6ef8c0770fcd1829d4",
+      "input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.json",
+        "sha256": "4c575c9a9a2ad9f23a4e0ffde05c63238d76065c18e82c1310f0446f92eaf226",
+        "bytes": 78785
+      }
+    }
+  },
+  "qualified_deciding_outputs": {
+    "old3b": "True alias identity established before helper; producer left5/right1 vsactual expected both5; same dynamic alias3 failures. Numeric/scalar/protected pass.",
+    "old1bd": "Same true typed alias case fails; additional cross-alias merge changes current native base bytes. Full capture retains failure rather than early assertion stop.",
+    "native3b": "Two actual registered genuineasync node-entry consumers fail: illegal neighbor write reaches and physically publishes99 artifact with reportok; popappend/public mutable result case fails actual row/public edit assertions.",
+    "native29": "Actual public node entry direct guard passes; nested broader grant and explicitFalse release both publish99/reportok; publiccompletion control still fails. These exact historical source inputs are not candidate acceptance."
+  },
+  "input_difference": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/premise-and-authority-input.diff",
+    "sha256": "4cbfbdf6a101d684f49d96ae453249bb640d9dd9abb94a634dc8888798833688",
+    "bytes": 9814
+  },
+  "excluded_exploratory_runs": [
+    "First owned qualified1bd run stopped on actual current-base retention assertion; final same property capture reports false and isolates fresh current input per profile. Partial output is not counted separately.",
+    "Initial native oracle imported guessed ArtifactRef module; corrected to actual canonical manifest.py. First attempt UNRUN harness, not source failure."
+  ],
+  "source_profiles": "Qualified graph runs118 canonical Python modules from exact source Git; public executor/native probes capture complete imported canonical Git hashes separately. Explicit interpreter/PYTHONPATH/cwd match historical native check. Resource/dependency packaging custody distinct from executed Git source.",
+  "closure_ids": [],
+  "read_only_source_tests": true,
+  "next_owner": "EXE a175 final immutable review; root/G combined acceptance",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+      "sha256": "709b7270c2f7049d33012209d3bb62a2489db88df5eb6998c246e41a28a19d46",
+      "bytes": 16345
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.json",
+      "sha256": "7454193dce40b246a09ae1b869e6d4ed6a5140ba9f129344b7aa39d642182670",
+      "bytes": 76062
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-3b81.log",
+      "sha256": "7454193dce40b246a09ae1b869e6d4ed6a5140ba9f129344b7aa39d642182670",
+      "bytes": 76062
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.json",
+      "sha256": "4c575c9a9a2ad9f23a4e0ffde05c63238d76065c18e82c1310f0446f92eaf226",
+      "bytes": 78785
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/qualified-1bd.log",
+      "sha256": "4c575c9a9a2ad9f23a4e0ffde05c63238d76065c18e82c1310f0446f92eaf226",
+      "bytes": 78785
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-review.py",
+      "sha256": "cde75900574ea832c8cce1cb22e1ba92a55efed68252e8691038ca3bf584ac24",
+      "bytes": 8536
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-3b81.json",
+      "sha256": "6ea381c1feab2b47948365ae27bda92b70a653ce0a3cec18563f7d908e71ac83",
+      "bytes": 178194
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-3b81.log",
+      "sha256": "6ea381c1feab2b47948365ae27bda92b70a653ce0a3cec18563f7d908e71ac83",
+      "bytes": 178194
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+      "sha256": "9438c48270f7291fd4aca806e042a48212b69ef27ffa3a5c21f571c2133c8ff6",
+      "bytes": 8958
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-29da.json",
+      "sha256": "188b967be1c522a1435b97148f30e713f3b49f41036d830b026ca7bce69b2f2a",
+      "bytes": 195986
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-29da.log",
+      "sha256": "0ff45171b86e0909be44d2d92147f6cb2962491c7f4d019f9ad5f3025a874942",
+      "bytes": 197106
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/premise-and-authority-input.diff",
+      "sha256": "4cbfbdf6a101d684f49d96ae453249bb640d9dd9abb94a634dc8888798833688",
+      "bytes": 9814
+    }
+  ]
+}

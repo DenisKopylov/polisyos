@@ -1,0 +1,2 @@
+src/polisyos/scientist/orchestration/llm/gateway_client.py:641: error: Argument 1 to "dict" has incompatible type "Any | None"; expected "SupportsKeysAndGetItem[str, str]"  [arg-type]
+Found 1 error in 1 file (checked 6 source files)

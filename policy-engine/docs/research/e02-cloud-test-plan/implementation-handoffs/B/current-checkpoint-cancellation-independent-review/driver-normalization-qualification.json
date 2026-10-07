@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.evidence_metadata_qualification.v1",
+  "historical_review_sha": "d58db173aa854828c77ff7244178ea44f9e1367a",
+  "historical_audit": {
+    "source_sha": "48c55d02466fdae4255ac59321b16924c5966c45",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-cancellation-independent-review/audit.json",
+    "git_blob": "03a6395a5fbd2f50ad4c38b235e9c763dc7bf813",
+    "bytes": 227469,
+    "sha256": "d2ae9c5abbfa3388310cb0e499ba904c02030d6e2e531a85b8d14e44f02a66b3"
+  },
+  "historical_review": {
+    "source_sha": "d58db173aa854828c77ff7244178ea44f9e1367a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-cancellation-independent-review/review.json",
+    "git_blob": "6fec5ae43c27877e5afaaa6e79c421455365941a",
+    "bytes": 33949,
+    "sha256": "b6bf51ad33d8653ef7743ea5700d48efb7332cfe6a5de5a65e8ea32037191f27"
+  },
+  "incorrect_historical_fields": [
+    "audit.P37_qualification.driver_custody",
+    "review.P37_qualification.driver_custody"
+  ],
+  "incorrect_phrase": "Normalizedstyle.py is AST equivalent but UNRUN",
+  "effective_qualification": "Normalized .py is UNRUN and the direct AST equality is False: annotations/import layout are additional syntax changes. No behavioral equivalence or executed input identity is claimed for that companion. The actual6d runtime input remains the original literal.source.txt bytes, with full deciding output; source/module import successorbc AST comparison is a separate true check.",
+  "actual_measured_ast_equality": false,
+  "literal_executed_source_ref": {
+    "source_sha": "03e52adb2a8a84f0339108fea7a1f5a10e041132",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.source.txt",
+    "git_blob": "73aba205f80a18ea7c02b778b93e50b2df689adb",
+    "bytes": 2298,
+    "sha256": "258ed06efeb135cf613b6d68f6202170f00c27a2e428690ff2d8f3e6b4691e83"
+  },
+  "normalized_unrun_companion_ref": {
+    "source_sha": "03e52adb2a8a84f0339108fea7a1f5a10e041132",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+    "git_blob": "2121cfaf186b396b88e0165743345d79864740f6",
+    "bytes": 3409,
+    "sha256": "e09eb1f840048792870087bef6d47e327496545dd3ee4d21fc1c8613aa89dd29"
+  },
+  "author_full_driver_custody_diff_ref": {
+    "source_sha": "03e52adb2a8a84f0339108fea7a1f5a10e041132",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/driver-custody.json",
+    "git_blob": "1b520745b0186b76ab5afd9ef66cc44d42c7449b",
+    "bytes": 11417,
+    "sha256": "d7932581f28fb0bfe5a36d293ffa9614fd27821b26824b672ec219ec3f91881f"
+  },
+  "source_and_deciding_output_bytes_changed": false,
+  "author_all51_objects_and63_source_refs_unchanged": true,
+  "native40_source84_and_bc_import_checks_unchanged": true,
+  "closure_ids": [],
+  "predicate_basis": "recomputed direct AST equality false already present in unchanged historicalaudit; separatebc sourceAST true remains unchanged",
+  "reviewer_runtime_or_gates": false,
+  "next_owner": "ROOT/DUR metadata acceptance only; no product replay required for prose correction."
+}

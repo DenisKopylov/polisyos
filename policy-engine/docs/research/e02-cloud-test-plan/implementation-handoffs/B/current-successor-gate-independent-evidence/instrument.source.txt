@@ -1,0 +1,160 @@
+"""Configure the exact a464 read-only auditor for the successor launcher.
+
+This instrument reads existing files and Git objects only. The original audit
+module remains byte-identical; its gate/accounting predicates are unchanged.
+The declared launcher constant and the four filename lookups per gate receive
+explicit source-bound configuration. No gate, test, or product is invoked.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+READER = PREFIX + "final-gate-audit-preparation/audit.py"
+READER_SHA = "a4640e6812123877ce40685a3ca9c7974c856fc7"
+READER_DIGEST = "4140d5996c7563eb3cd40d58eeed0e122d2d011b19808f1f0c1eddfe7968e7ed"
+LAUNCHER = PREFIX + "final-root-evidence/run_successor.py"
+CAPTURE = PREFIX + "final-root-evidence/capture_frozen.py"
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, required=True)
+    parser.add_argument("--raw", type=Path, required=True)
+    parser.add_argument("--profile-raw", type=Path, required=True)
+    parser.add_argument("--target-sha", required=True)
+    parser.add_argument("--prefix", default="successor-final")
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--instrument-out", type=Path, required=True)
+    parser.add_argument("--prepare-only", action="store_true")
+    args = parser.parse_args()
+    started = datetime.now(UTC).isoformat()
+    sys.dont_write_bytecode = True
+
+    def git(*words: str) -> bytes:
+        return subprocess.check_output(
+            ["/usr/bin/git", "--no-optional-locks", "-C", str(args.root), *words]
+        )
+
+    if len(args.target_sha) != 40 or any(c not in "0123456789abcdef" for c in args.target_sha):
+        raise ValueError("Supply an exact hexadecimal source SHA")
+    source = git("show", READER_SHA + ":" + READER)
+    if digest(source) != READER_DIGEST or source != git("show", args.target_sha + ":" + READER):
+        raise ValueError("Original reader is not byte-identical to exact a464")
+    target_tree = git("rev-parse", args.target_sha + "^{tree}").decode().strip()
+    launcher = git("show", args.target_sha + ":" + LAUNCHER)
+    capture = git("show", args.target_sha + ":" + CAPTURE)
+    ast.parse(source)
+    ast.parse(launcher)
+    ast.parse(capture)
+    # Import only the exact Git-derived stdlib reader, never product or pytest.
+    module_source = args.instrument_out.parent / "audit-a464.source.txt"
+    if module_source.exists():
+        if module_source.read_bytes() != source:
+            raise ValueError("Refuse foreign reader bytes at the preparation path")
+    else:
+        with module_source.open("xb") as stream:
+            stream.write(source)
+    loader = importlib.machinery.SourceFileLoader("e02_a464_exact_reader", str(module_source))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    if spec is None:
+        raise RuntimeError("Cannot construct the exact stdlib reader module")
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    module.LAUNCHER = LAUNCHER
+    tags = module.tags_from_source(launcher, args.prefix)
+    capture_raw = args.raw.resolve(strict=True)
+    profile_raw = args.profile_raw.resolve(strict=True)
+    routes: dict[str, Path] = {}
+    for tag in tags:
+        routes[tag + "-profile.json"] = profile_raw / (tag + "-profile.json")
+        routes[tag + ".xml"] = profile_raw / (tag + ".xml")
+        routes[tag + ".json"] = capture_raw / (tag + ".json")
+        routes[tag + ".txt"] = capture_raw / (tag + ".txt")
+
+    class RealInputs:
+        def __truediv__(self, name: str) -> Path:
+            if name not in routes:
+                raise ValueError("Reader requested an undeclared routed input")
+            return routes[name]
+
+    original_gate = module.gate_audit
+
+    def routed_gate(reader: object, raw: Path, tag: str, target: str, tree: str) -> object:
+        if raw.resolve(strict=True) != capture_raw:
+            raise ValueError("Reader raw argument differs from the declared capture root")
+        return original_gate(reader, RealInputs(), tag, target, tree)
+
+    # Only filename resolution changes. Every original predicate runs unchanged.
+    module.gate_audit = routed_gate
+    plan = {
+        "schema": "policyos.e02.readonly_gate_audit_instrument.v1",
+        "start_utc": started,
+        "target_source_sha": args.target_sha,
+        "target_tree_sha": target_tree,
+        "reader": {"path": READER, "source_sha": READER_SHA, "sha256": digest(source),
+                   "target_byte_equal": True, "executed_copy": str(module_source)},
+        "launcher": {"path": LAUNCHER, "source_sha": args.target_sha,
+                     "sha256": digest(launcher)},
+        "capture": {"path": CAPTURE, "source_sha": args.target_sha,
+                    "sha256": digest(capture)},
+        "configurations": ["LAUNCHER constant selects run_successor.py",
+                           "gate_audit raw / filename resolves the two actual output roots"],
+        "predicate_source_changes": [],
+        "input_routes": {name: str(path) for name, path in routes.items()},
+        "dispatch_tags": tags,
+        "dispatch_denominator": {"outer_native_cohort": 1, "quality_gates": len(tags) - 1},
+        "profile_root_and_capture_root_samefile": os.path.samefile(profile_raw, capture_raw),
+        "reader_argv": [str(module_source), "--root", str(args.root), "--raw", str(capture_raw),
+                        "--target-sha", args.target_sha, "--prefix", args.prefix,
+                        "--out", str(args.out)],
+        "instrument_command": [sys.executable, str(Path(__file__).absolute()), *sys.argv[1:]],
+        "instrument_sha256": digest(Path(__file__).read_bytes()),
+        "reader_environment": {"executable": sys.executable, "version": sys.version},
+        "qualification": "No copied outputs, invented aliases, gate dispatch, pytest/product import, source edits, or inherited P41 waiver.",
+        "closure_ids": [],
+    }
+    if args.prepare_only:
+        plan["state"] = "PREPARED_AUDIT_UNRUN"
+    else:
+        # All eight terminal wrappers must exist before this single full reader run.
+        for tag in tags:
+            wrapper = json.loads(routes[tag + ".json"].read_bytes())
+            if wrapper.get("head") != args.target_sha or wrapper.get("head_after") != args.target_sha:
+                raise ValueError("Terminal wrapper source does not match the declared candidate")
+            if "exit_code" not in wrapper or "harness_state" not in wrapper:
+                raise ValueError("A dispatch wrapper is not terminal")
+        old_argv = sys.argv
+        try:
+            sys.argv = plan["reader_argv"]
+            module.main()
+        finally:
+            sys.argv = old_argv
+        audit = args.out.read_bytes()
+        plan["state"] = "EXECUTED_READ_ONLY_ACCOUNTING"
+        plan["audit_output"] = {"path": str(args.out), "bytes": len(audit), "sha256": digest(audit)}
+    plan["end_utc"] = datetime.now(UTC).isoformat()
+    with args.instrument_out.open("x") as stream:
+        json.dump(plan, stream, indent=2)
+        stream.write("\n")
+    print(json.dumps({"instrument_output": str(args.instrument_out), "state": plan["state"],
+                      "dispatch_tags": tags}, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

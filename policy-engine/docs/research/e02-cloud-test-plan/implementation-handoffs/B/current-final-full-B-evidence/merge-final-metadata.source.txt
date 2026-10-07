@@ -1,0 +1,33 @@
+"""Normal append-only merge of exact reviewed B metadata-only topic commits."""
+import json
+import pathlib
+import subprocess
+import sys
+
+prefix = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args]).decode()
+
+
+peer, tag = sys.argv[1:]
+before = git('rev-parse', 'HEAD').strip()
+assert git('status', '--porcelain') == ''
+base = git('merge-base', before, peer).strip()
+delta = git('diff', '--name-only', base, peer).splitlines()
+assert all(p.startswith(prefix) for p in delta), delta
+result = subprocess.run(['git', 'merge', '--no-ff', '-m', 'Merge B reviewed ' + tag + ' metadata', peer], text=True, capture_output=True)
+assert result.returncode == 0, (result.stdout, result.stderr)
+after = git('rev-parse', 'HEAD').strip()
+actual = git('diff', '--name-only', before, after).splitlines()
+assert all(p.startswith(prefix) for p in actual), actual
+assert git('status', '--porcelain') == ''
+record = {'peer': peer, 'before': before, 'merge_base': base, 'after': after,
+          'after_tree': git('rev-parse', 'HEAD^{tree}').strip(), 'paths': actual,
+          'non_handoff_paths': [], 'full_stdout': result.stdout, 'full_stderr': result.stderr,
+          'exit_code': result.returncode}
+out = pathlib.Path('.polisyos/e02-B-current/raw/review') / ('completed-final-merge-' + tag + '.json')
+out.write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({k: v for k, v in record.items() if k not in ['paths', 'full_stdout', 'full_stderr']}, indent=2))
+print('changed_metadata_paths', len(actual))

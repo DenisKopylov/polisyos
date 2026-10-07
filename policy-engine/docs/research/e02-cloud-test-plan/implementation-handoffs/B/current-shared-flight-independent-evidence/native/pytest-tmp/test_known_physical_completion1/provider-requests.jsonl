@@ -1,0 +1,2 @@
+{"attempt": 1, "request": {"temperature": 0.0, "user": "same physical request"}}
+{"attempt": 2, "request": {"user": "new real request"}}

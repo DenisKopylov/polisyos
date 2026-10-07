@@ -1,0 +1,68 @@
+{
+  "started_utc": "2026-10-06T16:41:02.190452+00:00",
+  "candidate_commit": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "g_branch": "codex/e02-integration",
+  "g_head_before": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "test_path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+  "test_git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "test_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "selected_closure_file_count": 3463,
+  "selected_closure_logical_bytes": 67525540,
+  "selected_closure_allocated_unique_bytes": 75272192,
+  "source_limit_bytes": 104857600,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "--basetemp",
+    "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3/pytest-basetemp",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-3/installed-wheel.junit.xml",
+    "tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/candidate/policy-engine",
+  "pytest_profile": "candidate policy-engine/pytest.ini + tests/conftest.py + manifest-selected helper plugins, unmodified",
+  "runtime": {
+    "python": "3.14.3 (existing G .venv)",
+    "pytest": "9.0.2 (existing G .venv)",
+    "uv": "0.10.6 (Homebrew)",
+    "uv_path": "/opt/homebrew/bin/uv"
+  },
+  "environment": {
+    "UV_OFFLINE": "1",
+    "UV_NO_PROGRESS": "1",
+    "UV_DEFAULT_INDEX": "file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/simple/",
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/cache",
+    "TMPDIR": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3",
+    "TEMP": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3",
+    "TMP": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3",
+    "PYTHONPATH": "unset",
+    "PYTHONHOME": "unset",
+    "network": "disabled by uv --offline; sole index is local PEP 503 file index"
+  },
+  "local_prerequisite": {
+    "requirements_lock_sha256": "f32bc32688e3fff5054a6a9e3cdff82078cfcd6e36e00fc72c2375a6a60fdf76",
+    "package_input_manifest_sha256": "032f85dbb3c2ae539a8c46b2c535c2074fa7b9113ca7a94704c0b998bcb13914",
+    "local_index_page_tree_sha256": "79da99c9255f6f307e463adb1934cebe574d168e33ea3d939d8f2a937076bd4c",
+    "package_source_bytes": 1294565,
+    "package_source_cap_bytes": 31457280
+  },
+  "disk_accounting": {
+    "controlled_generated_roots": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay",
+      "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay3"
+    ],
+    "generated_cap_bytes": 209715200,
+    "initial_generated_allocated_unique_bytes": 77586432,
+    "combined_source_plus_generated_cap_bytes": 314572800,
+    "initial_combined_allocated_unique_bytes": 152858624,
+    "deduplication": "sum st_blocks*512, deduplicate (st_dev,st_ino) inside the two controlled generated roots; selected source file allocation separately deduplicated over the selected manifest; no global counter"
+  },
+  "outer_timeout_seconds": 180,
+  "initial_free_bytes": 15648325632,
+  "first_setup_failure_receipt": "../pytest.stdout.txt, ../pytest.stderr.txt, ../installed-wheel.junit.xml and ../run-result.json (unchanged)",
+  "replay2_interrupted_by_monitor": "harness resource error; excluded source closure was incorrectly charged to generated cap; preserved as UNRUN"
+}

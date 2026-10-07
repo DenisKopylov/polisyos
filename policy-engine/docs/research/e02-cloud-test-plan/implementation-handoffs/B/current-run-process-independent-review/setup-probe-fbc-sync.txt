@@ -1,0 +1,48 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/run-review-3f/setup_probe_fbc.py", line 41, in <module>
+    module._execute_with_timeout_process(Node(), None, state, timeout_s=.1)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/run-review-3f/retry_pinned.py", line 1432, in _execute_with_timeout_process
+    group_ready = mp_ctx.Event()
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/context.py", line 92, in Event
+    from .synchronize import Event
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 892, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+OSError: [Errno 24] Too many open files: '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'
+{
+  "source_sha": "fbc5fb8dc4d300df2b1a81b78c13649e4832ad53",
+  "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "source_sha256": "c4de7e6cd725cb3094b14da6a82cd69e0088e2e628c09aefe5b13c998c922f36",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "mode": "sync",
+  "body_entered": false,
+  "fd_before": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "RLIMIT_NOFILE_soft_fault": 7,
+  "exception": {
+    "type": "OSError",
+    "message": "[Errno 24] Too many open files: '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'"
+  },
+  "fd_after_while_exception_retained": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "new_fds": [],
+  "new_fd_targets": {}
+}

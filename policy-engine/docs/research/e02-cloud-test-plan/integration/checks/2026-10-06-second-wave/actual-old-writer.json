@@ -1,0 +1,62 @@
+{
+  "base_writer_sha": "80d39780d72ea2d431df9470674ed0e4d703587f",
+  "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "property_verdict": "PASS",
+  "commands": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "from pathlib import Path\nfrom decimal import Decimal\nimport hashlib,json,sys\nimport polisyos.scientist.orchestration.engine.budget_ledger as m\nfrom polisyos.scientist.orchestration.engine.budget import BudgetLimit,BudgetState\np=Path(sys.argv[1]); l=m.FileBudgetLedger(p); l.load_or_bootstrap(BudgetState(limits={\"run\":BudgetLimit(key=\"run\",max_usd=Decimal(\"10\"))})); l.record_spend(\"run\",Decimal(\"2\")); raw=p.read_bytes(); w=json.loads(raw); assert w[\"schema_version\"]==\"1.0\"; assert \"spend_receipts\" not in w; print(json.dumps({\"stage\":\"actual_base_writer\",\"module\":m.__file__,\"schema_version\":w[\"schema_version\"],\"wire_sha256\":hashlib.sha256(raw).hexdigest(),\"bytes\":len(raw),\"spent\":str(l.load().spent[\"run\"])}))\n",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/actual-old-writer-wire-v2.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-legacy-base/policy-engine",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-legacy-base/policy-engine/src"
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "from pathlib import Path\nfrom decimal import Decimal\nimport hashlib,json,sys\nimport polisyos.scientist.orchestration.engine.budget_ledger as m\np=Path(sys.argv[1]); raw=p.read_bytes(); l=m.FileBudgetLedger(p); state=l.load(); assert state.spent[\"run\"]==Decimal(\"2\"); assert p.read_bytes()==raw; s=l.snapshot(); assert p.read_bytes()==raw; before=json.loads(raw)[\"schema_version\"]; l.record_spend(\"run\",Decimal(\"1\")); after=json.loads(p.read_bytes()); assert after[\"schema_version\"]==\"1.1\"; assert after[\"spend_receipts\"]=={}; assert l.load().spent[\"run\"]==Decimal(\"3\"); print(json.dumps({\"stage\":\"candidate_read_then_mutate\",\"module\":m.__file__,\"legacy_read_preserved_bytes\":True,\"returned_snapshot_schema\":s.schema_version,\"disk_schema_before_mutation\":before,\"disk_schema_after_mutation\":after[\"schema_version\"],\"spent_after_mutation\":\"3\",\"new_wire_sha256\":hashlib.sha256(p.read_bytes()).hexdigest(),\"property\":\"PASS\"}))\n",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/actual-old-writer-wire-v2.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src"
+    }
+  ],
+  "observations": [
+    {
+      "stage": "actual_base_writer",
+      "module": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-legacy-base/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "schema_version": "1.0",
+      "wire_sha256": "baa63a5905f675f16a800a6c12bc17f6d3252182de693c40bf19f1d120c8852b",
+      "bytes": 1302,
+      "spent": "2"
+    },
+    {
+      "stage": "candidate_read_then_mutate",
+      "module": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "legacy_read_preserved_bytes": true,
+      "returned_snapshot_schema": "1.1",
+      "disk_schema_before_mutation": "1.0",
+      "disk_schema_after_mutation": "1.1",
+      "spent_after_mutation": "3",
+      "new_wire_sha256": "dc6196d04af52b6f14354ac388b26be72183dcee5dc42f5994392595d120885f",
+      "property": "PASS"
+    }
+  ],
+  "wall_seconds": 0.30722520797280595,
+  "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/actual-old-writer.stdout.txt",
+  "stdout_sha256": "9dcfa811eb99ed45bc9c0de31c5c2b43b18d5560e206b264acfaa405d910b4fe",
+  "wire_fixture": "policy-engine/_build/e02-g-continuation-20261006/results/actual-old-writer-wire-v2.json",
+  "inputs": "Actual complete1.0 file emitted by exact base writer; candidate real load/snapshot preserve bytes; actualmutation publishes strict1.1 retaining accounting. No production data.",
+  "limitation": "snapshot returns current1.1 in-memory projection while legacy disk stays1.0 until explicit mutation. No claim of legacy payload provenance or whole finding closure.",
+  "full_base_and_candidate_trees_verified_before": true,
+  "finding_closure": false,
+  "original_legacy_input": {
+    "path": "policy-engine/_build/e02-g-continuation-20261006/results/actual-old-writer-original-v2.json",
+    "sha256": "baa63a5905f675f16a800a6c12bc17f6d3252182de693c40bf19f1d120c8852b",
+    "bytes": 1302
+  },
+  "repeat_reason": "Retain original exact1.0 input separately before intended migration mutation; previous complete deciding output retained."
+}

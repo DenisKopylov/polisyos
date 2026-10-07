@@ -1,0 +1,100 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-stub-freshness-independent-review",
+  "owner": "/root/cas_probe",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CMP-01",
+    "JIT-01"
+  ],
+  "slice_base_sha": "db29ad59a740ed52123298af70188e0a2c0f6974",
+  "implementation_commits": [
+    "f67fedf84388a00ddc724553d52de996d5453748"
+  ],
+  "candidate_tree_sha": "7901f18d1496d17f7873f483111616f9c711dc7c",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/artifact-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/audit-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/audit.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/review.json"
+  ],
+  "baseline_cells": [],
+  "baseline_qualification": "Foreign tooling/source custody review; no fresh finding verdict or baseline replay. Prior finding receipts remain distinct.",
+  "checks": [
+    {
+      "command": "python3 .polisyos/stub-freshness-review/audit.py",
+      "target_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+      "environment": {
+        "execution_kind": "metadata_only Git/JSON/AST/SHA256, no product imports/native/generator/gates",
+        "reviewer_cwd": "/workspace/e02-B-current-cas-generation",
+        "reviewer_checkout_at_execution": "db29ad59a740ed52123298af70188e0a2c0f6974",
+        "tool_version_census": "not_separately_captured; literal executable python3 uses managed host, no product environment claim"
+      },
+      "input_closure": {
+        "literal_executed_instrument": {
+          "source_sha": "f67fedf84388a00ddc724553d52de996d5453748",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/audit.py.txt",
+          "bytes": 5884,
+          "sha256": "f4d1045bcad51d8176b9f4044b6cc8468a6a9be2b31f067e351557d7aea0e0a9"
+        },
+        "foreign_index": {
+          "source_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/index.json",
+          "sha256": "b0c7a9cdc779b1c9ffd81b33402d638e9772169335721cc87f98723318586f55"
+        },
+        "source_pair": [
+          "75ec14287da9e1f288de4699ff01240682bffe89",
+          "b7d966af6551fc0ff63d3a830c70fe300c320967"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_sha": "f67fedf84388a00ddc724553d52de996d5453748",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/audit-full-stdout.json",
+        "bytes": 5760,
+        "sha256": "9b5613b5af737a2d55223d7737e1844d9800a8556ff5f4d8c13fcc9fc81613fa"
+      },
+      "qualification": "Complete metadata assertion output; actual author checker/stale effects independently reconciled, not a reviewer runtime repeat."
+    }
+  ],
+  "property": {
+    "statement": "Foreign four-output Foundry stub checker shares canonical generation bytes and refuses genuine stale expected input without changing expected or repository targets; source/evidence custody matches declared immutable inputs.",
+    "runtime_path": [
+      "Existing generate-stubs producer stubgen/reexport policy → scratch Ruff sorting/formatting → AST-valid expected bytes",
+      "--check full byte target comparison → nonzero missing/unreadable/drift/producer refusal",
+      "Actual author clean b7 healthy checker and genuine copied stale input -> preserved hashes",
+      "Independent metadata reader -> exact source/index/wrapper/stdout/observation reconciliation"
+    ],
+    "proxy_divergence": "Actual stale expected copy retains every old definition and parses, while full current expected-byte comparator refuses drift. Dry-run description or marker existence cannot establish freshness.",
+    "negative_controls": [
+      "Author exact b7 corrected stale-copy control gives actual exit1/DRIFT with same copied hashes and all4 original repository target hashes.",
+      "Earlier old-tool parser ERROR and configuration/drift failures preserved separately; no property proof from them."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "Git source/index/hash/count equality": "recomputed by reviewer",
+    "source controlflow consistency": "independently_reconciled",
+    "author actual healthy/stale effects": "independently_reconciled complete retained output, no duplicate execution"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING finite foreign tooling-source/custody profile; formal finding closure none",
+  "limitations_and_next_owner": [
+    "ROOT owns global generated registry/reference/public inventory companions and final composed source freeze; this narrow source does not imply combined readiness.",
+    "No scientific/runtime/cohort/gate execution by reviewer; named input/profile limits and full child import/resource closure boundaries retained.",
+    "All protected A/C and CAS authority/unsigned publication law remain unchanged; no own-CAS acceptance by this reviewer."
+  ],
+  "review": {
+    "source_sha": "f67fedf84388a00ddc724553d52de996d5453748",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-independent-review/review.json",
+    "bytes": 4723,
+    "sha256": "2aaa279a0b5d7bed2a4bb2d436c275c6d94fcefb7db8220480951e4ca56aed58"
+  },
+  "foreign_evidence_objects_including_index": 37,
+  "foreign_evidence_bytes_including_index": 456406,
+  "own_footprint_count": 4,
+  "source_changed_paths": [],
+  "test_changed_paths": []
+}

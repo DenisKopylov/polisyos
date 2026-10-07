@@ -1,0 +1,51 @@
+from pathlib import Path
+import hashlib,json,re,shutil,subprocess,xml.etree.ElementTree as ET
+ROOT=Path('/workspace/e02-B-current-coordination'); OWN=Path('/workspace/e02-B-current-runtime')
+DD='dd9584728bd96f204983615216efdbc58117e713'; OLD='69780761ae091d8fcc6ab8778c7f5f7227eeef0b'
+BASE=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent-evidence');dest=OWN/BASE;dest.mkdir(parents=True,exist_ok=True)
+def raw(sha,path):return subprocess.check_output(['git','show',f'{sha}:{path}'],cwd=OWN)
+def ref(sha,path):
+ b=raw(sha,path);return {'commit':sha,'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',f'{sha}:{path}'],cwd=OWN,text=True).strip()}
+def dump(path,obj):path.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+'\n')
+q=json.loads(Path('/tmp/e02-run-B65-baseline-query.json').read_text());shutil.copyfile('/tmp/e02-run-B65-baseline-query.json',dest/'baseline-query.json')
+allocation=json.loads(raw(DD,'policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json'));sources=json.loads(raw(DD,'policy-engine/docs/research/e02-cloud-test-plan/results/sources.json'))
+jobs={c['job'] for c in q['cells']}; contexts=[]
+for job in sorted(jobs):
+ p='policy-engine/docs/research/e02-cloud-test-plan/results/received/'+job+'.txt';b=raw(DD,p);s=b.decode();positions=[m.start() for m in re.finditer(r'\{',s)];metadata=None
+ for pos in positions:
+  try:x,end=json.JSONDecoder().raw_decode(s[pos:])
+  except json.JSONDecodeError:continue
+  if isinstance(x,dict) and any(k in x for k in ['source','source_sha']) and any(k in x for k in ['job','run']):
+   metadata={'line_start':s.count('\n',0,pos)+1,'line_end':s.count('\n',0,pos+end)+1,'literal_utf8':s[pos:pos+end],'parsed':x};break
+ assert metadata is not None,job
+ transfer=next(x for x in sources['sources'] if x['job']==job);assert transfer['sha256']==hashlib.sha256(b).hexdigest() and transfer['bytes']==len(b)
+ planned=next(x for x in allocation['jobs'] if x['id']==job)
+ contexts.append({'job':job,'received_ref':ref(DD,p),'transfer_card':transfer,'complete_environment_and_input_metadata':metadata,'planned_job_card':planned,'planned_card_role':'Frozen assignment/source selector, not execution proof. Literal received metadata is source-reported execution; raw archive transfer missing.','source_blocks_locator_rows':[x for x in q['job_dictionary_or_context_blocks'] if x['job']==job]})
+for cell in q['cells']:
+ p='policy-engine/docs/research/e02-cloud-test-plan/results/'+cell['source_file'];s=raw(DD,p).decode().splitlines()[int(cell['source_line'])-1];assert cell['id'] in s
+ cell['exact_received_line']=s;cell['source_ref']=next(x['ref'] for x in q['finding_routes'] if x['cell_id']==cell['id']) if any(x.get('cell_id')==cell['id'] for x in q['finding_routes']) else next(x['ref'] for x in q['finding_basis'][0]['assigned_routes'] if x['job']==cell['job']);cell['environment_input_closure_job']=cell['job']
+canonical='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md';lines=raw(DD,canonical).decode().splitlines(keepends=True);card=''.join(lines[1668:1688]);assert card.startswith('## B65.')
+residual_path='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json';residual=next(x for x in json.loads(raw(OLD,residual_path))['rows'] if x['id']=='B65')
+dump(dest/'baseline-source-context.json',{'role':'Historical source/cells/environment/input closure only. Nine file×cut PASS rows cannot establish new protected-audit property.','cells':q['cells'],'matching_cells':q['matching_cells'],'received_job_denominator':len(contexts),'source_job_contexts':contexts,'canonical_criterion':{**ref(DD,canonical),'line_start':1669,'line_end':1688,'full_card_utf8':card,'full_card_sha256':hashlib.sha256(card.encode()).hexdigest()},'owner_bundle':ref(OLD,'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md'),'historical_residual':{**ref(OLD,residual_path),'row':residual}})
+case_rows=[]
+for name,source in [('initial-not-established',Path('/tmp/e02-B65-protected-audit')),('qualified',Path('/tmp/e02-B65-protected-audit-qualified'))]:
+ d=dest/name;d.mkdir(exist_ok=True)
+ for f in ['native.txt','native.xml','wrapper.json','source-context.json']:
+  shutil.copyfile(source/f,d/f)
+ shutil.copyfile(source/'capture.py',d/'capture.source.txt');shutil.copyfile(source/'child.source.txt',d/'child.source.txt')
+ for case in sorted((source/'pytest-tmp').glob('test_protected_audit_reconcili[0-9]')):
+  out=d/'actual-files'/case.name;out.mkdir(parents=True,exist_ok=True)
+  for f in sorted(case.iterdir()):
+   if f.is_file():shutil.copyfile(f,out/f.name)
+ tree=ET.parse(source/'native.xml')
+ for index,t in enumerate(tree.iter('testcase')):
+  failure=t.find('failure');entry={'profile':name,'case_index':index,'native_case_name':t.get('name'),'native_status':'FAIL' if failure is not None else 'PASS','failure_message':failure.get('message') if failure is not None else None,'property_grade':'not_established_before_provider_admission' if name=='initial-not-established' else 'actual_protected_audit_failure' if failure is not None else 'actual_healthy_control'};case_rows.append(entry)
+ dump(d/'case-join.json',{'actual_cases':4,'cases':[x for x in case_rows if x['profile']==name]})
+source_paths=['policy-engine/src/polisyos/core/security/audit_protocol.py','policy-engine/src/polisyos/core/security/audit_log_adapter.py','policy-engine/src/polisyos/core/security/audit_sink.py','policy-engine/src/polisyos/core/security/audit_models.py','policy-engine/src/polisyos/core/security/audit_verifier.py','policy-engine/src/polisyos/core/security/README.md','policy-engine/src/polisyos/core/llm/README.md','policy-engine/src/polisyos/scientist/orchestration/llm/README.md','policy-engine/src/polisyos/scientist/policy_design/adversary.py','policy-engine/src/polisyos/scientist/policy_design/translator.py','policy-engine/pyproject.toml','policy-engine/uv.lock','policy-engine/pytest.ini','policy-engine/tests/conftest.py','AGENTS.md','policy-engine/CONTRIBUTING.md','policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md']
+prod=subprocess.check_output(['git','grep','-n','-E','ChainedAuditLog|audit_log=|LLMBudgetEnforcer\\(','--','policy-engine/src/polisyos'],cwd=ROOT,text=True)
+dump(dest/'contract-census.json',{'source_sha':DD,'source_tree':'7bf4be4a117762c8d37d4babcc214a2b28c2113e','refs':[ref(DD,p) for p in source_paths],'complete_literal_source_consumer_search':{'command':'git grep -n -E ChainedAuditLog|audit_log=|LLMBudgetEnforcer\\( -- policy-engine/src/polisyos','output':prod,'role':'Complete literal consumer denominator, not complete dynamic invocation/authority graph.'},'mandatory_profile':'Explicit supplied ChainedAuditLog with actual ChainedAuditSink durable synchronous LocalJsonlBackend, not NoopAuditLog permitted by protocol. No universal claim for every AuditLog argument.','production_reachability_limit':'Native LLM ScenarioAdversaryWorker/PolicyTranslatorWorker constructors omit audit_log; mandatory protected deployment wiring is not established by this public supported-profile witness.','amount_vs_audit':'Reported provider amount .02 is known and exact local FileBudgetLedger receipt persists. This witness concerns missing protected COMMITTED audit plus unblocked next action; it does not call amount unknown, duplicate external billing, or lack ledger durability.'})
+# Include complete before/after source input delta rather than relabeling first run.
+delta=subprocess.check_output(['git','diff','c1815b5fc9bea42a18297b2800bc7b8668ea202e','9c76d54cf10255ab5b926dfd961dcb3e07711ff4','--','policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py'],cwd=OWN,text=True)
+(dest/'premise-input-delta.txt').write_text(delta)
+dump(dest/'summary.json',{'source_sha':DD,'source_tree':'7bf4be4a117762c8d37d4babcc214a2b28c2113e','initial_test_sha':'c1815b5fc9bea42a18297b2800bc7b8668ea202e','qualified_test_sha':'9c76d54cf10255ab5b926dfd961dcb3e07711ff4','initial_literal_native_counts':{'FAIL':4},'initial_property':'not_established: actual unavailable tokenizer encoding fetch before provider/audit premise. No product failure attributed.','qualified_literal_native_counts':{'PASS':2,'FAIL':2},'cases':case_rows,'finding_status':'open scoped protected-audit settlement barrier; no full B65 closure','p37_input_qualification':'Only existing request _prompt_tokens_estimate=3 input and comment added; actual provider reports same3 tokens, input stripped before provider. No source change/network fallback/source authority invented.','p38_grade':'Actual Traced→enforcer→real FileBudgetLedger+protected local audit→fresh ledger and ChainVerifier readers; physical provider request JSONL before response; not constructor/marker/exit-only.'})
+print('packaged',sum(1 for p in dest.rglob('*') if p.is_file()),'objects',sum(p.stat().st_size for p in dest.rglob('*') if p.is_file()),'bytes')

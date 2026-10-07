@@ -1,0 +1,89 @@
+{
+  "schema": "e02.implementation-handoff.v1",
+  "unit": "B",
+  "slice": "current-sta-final-typed-group-qualification",
+  "prior_review_at_sha": "1af0bfe220414b1c6ee84d1e4b5373272cf3026a",
+  "prior_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-a175.json",
+    "sha256": "f9ecf8b94dc466113a84666695fb46931b5c487ac89a3e4b3c11063d64c5704a",
+    "bytes": 62715
+  },
+  "reviewed_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+  "reviewed_tree_sha": "b5bddf937eb2ebe30b5d2e1f34028a3ee9d39431",
+  "prior_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
+  "source_delta": {
+    "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "full_diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/source-a175-ed13.diff",
+      "sha256": "0d0f476f187b0e2ff95b1a9a88948bae6d5790548c302dab88a80ab2a870124a",
+      "bytes": 1731
+    },
+    "read_complete": true,
+    "typed_intent_rule": "Canonical bytes include typed value and all mutation intent fields except path/group label. Python dict equality conflates False0; canonical representation distinguishes both direct and nested values. Existing finite canonical profile permits floats and includes null; no broad serializer changes."
+  },
+  "origin_separation": "All broad graph/native/additive/presence/resume outputs remain ACTUALLY EXECUTED a175 or older exact source targets in review-a175.json. Final ed13 runtime replay is ONLY unchanged defining3case group reader consumer; source diff verifies sole narrow state_branching delta. This successor neither relabels prior broad outputs as ed13 runs nor rewrites historic runtime or invalid-proof bytes. Root/G owns merged/full criteria acceptance.",
+  "effective_group_disposition": "PASS_ON_DECLARED_TYPED_GROUP_READER_PROFILE: a175 actual malformed groups2FAIL+healthy1PASS preserved; ed13 same executable/values/native-cache-provenance protocol3PASS. Current B57 no longer has this measured reader blocker; finding LIMITED/full closure_ids[].",
+  "check": {
+    "id": "group_typed_consistency_final",
+    "command": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+      "--target",
+      "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "--out",
+      "/workspace/e02-B-current-runtime/_build/e02-current-runtime/sta-review/replay-group-final"
+    ],
+    "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+    "environment": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/environment-a175.json",
+      "sha256": "d7305adeef909132622a936c0dd54d1beb569be3f627094664105c59870ddc3c",
+      "bytes": 2986
+    },
+    "target_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+    "target_tree_sha": "b5bddf937eb2ebe30b5d2e1f34028a3ee9d39431",
+    "input_closure": {
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "sha256": "af804da010bb211c5c6366b1496dcd20a3a8ee22ddd107a31b1af7c269207172",
+        "bytes": 8266
+      },
+      "source_loading": "Exact Git canonical Python import loader; full loaded source hash census in deciding output; declared third-party/resource custody in environment.",
+      "legacy_input": null,
+      "driver_origin": "Executed scratch driver bytes match this published executable. Actual source/module hash census in full output, not future lane custody."
+    },
+    "output": {
+      "packet": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-ed13.json",
+        "sha256": "7b39948b0f803356c1f1192106bf812862888de80c7e2ee26afff275e6dc0a1c",
+        "bytes": 34955
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-ed13.log",
+        "sha256": "7b39948b0f803356c1f1192106bf812862888de80c7e2ee26afff275e6dc0a1c",
+        "bytes": 34955
+      }
+    },
+    "observed": "3 PASS: actual native original positives3/3; healthy False/False grouped proof accepted+actual CAS bool result; malformed False/0 and nestedFalse/0 canonical typed intents rejected by actual load_entry/get. Same byte-identical committed executable/values/input protocol; only target/output bindings change.",
+    "command_role": "Replay argv using published byte-identical driver; observed packet target/source_module_hashes and full stdout establish actual runtime outcome. Scratch output directory is regenerated; original artifacts in output refs remain immutable.",
+    "environment_origin_qualification": "Interpreter, declared environment/config custody reference was observed at a175 packaging. ed13 source/module bytes come exclusively from exact Git target in output. Only state_branching source changes; pyproject/uv.lock/conftest unchanged between actual target commits; no claim a175 final resources prove all historical inputs."
+  },
+  "closure_ids": [],
+  "source_tests_read_only": true,
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-ed13.json",
+      "sha256": "7b39948b0f803356c1f1192106bf812862888de80c7e2ee26afff275e6dc0a1c",
+      "bytes": 34955
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-ed13.log",
+      "sha256": "7b39948b0f803356c1f1192106bf812862888de80c7e2ee26afff275e6dc0a1c",
+      "bytes": 34955
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/source-a175-ed13.diff",
+      "sha256": "0d0f476f187b0e2ff95b1a9a88948bae6d5790548c302dab88a80ab2a870124a",
+      "bytes": 1731
+    }
+  ]
+}

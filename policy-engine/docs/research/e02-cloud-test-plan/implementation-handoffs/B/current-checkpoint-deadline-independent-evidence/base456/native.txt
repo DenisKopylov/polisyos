@@ -1,0 +1,36 @@
+F
+=================================== FAILURES ===================================
+______ test_real_atomic_head_35_seconds_fits_original_60_second_workflow _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/base456/pytest-scratch-first/test_real_atomic_head_35_secon0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7f13e95940>
+
+    @pytest.mark.asyncio
+    async def test_real_atomic_head_35_seconds_fits_original_60_second_workflow(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The real replace waits 35s; the owner permits it for 60s, not 30s."""
+>       sources = _source_observation()
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _source_observation() -> dict[str, object]:
+        observed: dict[str, object] = {}
+        expected = os.environ.get("E02_ORACLE_PRODUCT_ROOT")
+        for module in (async_tools, async_store, executor_module, checkpoint_module):
+            path = Path(module.__file__).resolve()
+            if expected is not None:
+>               assert path.is_relative_to(Path(expected).resolve())
+E               AssertionError: assert False
+E                +  where False = is_relative_to(PosixPath('/workspace/e02-B-current-coordination/policy-engine'))
+E                +    where is_relative_to = PosixPath('/workspace/e02-B-current-durability/policy-engine/src/polisyos/common/async_tools.py').is_relative_to
+E                +    and   PosixPath('/workspace/e02-B-current-coordination/policy-engine') = resolve()
+E                +      where resolve = PosixPath('/workspace/e02-B-current-coordination/policy-engine').resolve
+E                +        where PosixPath('/workspace/e02-B-current-coordination/policy-engine') = Path('/workspace/e02-B-current-coordination/policy-engine')
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:74: AssertionError
+=========================== short test summary info ============================
+FAILED ::test_real_atomic_head_35_seconds_fits_original_60_second_workflow - ...
+1 failed in 7.77s

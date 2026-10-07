@@ -1,0 +1,12 @@
+{
+  "official_input_url": "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken",
+  "official_expected_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "recomputed_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "bytes": 1681126,
+  "cache_dir": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+  "cache_key": "9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+  "retrieval_url": "https://registry.npmjs.org/@dqbd/tiktoken/-/tiktoken-1.0.22.tgz",
+  "retrieved_tgz_sha256": "67ae64fbbe889ff19b74d4e95a16da403b24aee6a506b74a9b84908a5d6f15a1",
+  "extraction": "package/encoders/cl100k_base.json bpe_ranks contiguous ranks !0; original token rank newline wire reconstructed and matched official SHA256 before use",
+  "grade": "genuine_exact_hash_bound_tool_input; no production source/dependency changes; no previous research outputs"
+}

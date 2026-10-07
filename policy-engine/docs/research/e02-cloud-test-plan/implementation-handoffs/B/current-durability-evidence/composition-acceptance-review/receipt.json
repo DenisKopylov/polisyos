@@ -1,0 +1,632 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe, independent from CMP producer author",
+  "finding_ids": [
+    "B42",
+    "B43",
+    "B45",
+    "B46",
+    "B47",
+    "B48"
+  ],
+  "bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03"
+  ],
+  "criteria": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "29a3a0775bdac83d1f1804f52673e5cc99a5602a611877b216a423f191f1472e",
+      "bytes": 16623,
+      "read_scope": "complete card, criterion/source contract; clouduser overrides historicalLcomputequota"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "c5f35cc8c2239918750118ab56f58ff6c0013360e0766f41e50906628389f509",
+      "bytes": 11948,
+      "read_scope": "complete card, criterion/source contract; clouduser overrides historicalLcomputequota"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "db8b0d2e0032c94c377e44b931b6920b54e88bb76223fb62d9b7d028305b0016",
+      "bytes": 12845,
+      "read_scope": "complete card, criterion/source contract; clouduser overrides historicalLcomputequota"
+    }
+  ],
+  "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+  "reviewed_owner_tree_sha": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+  "owner_publication_sha": "b2bfa4931cc91ab1781d02ac236047d4f8d0e8c1",
+  "author_test_only_sha": "132066318b3a1226bee87b46019741b4e13ac3ac",
+  "author_test_only_meaning": "Onlycompiler nativefile delta; notexecuted or borrowed by thisreview. Composer/linker/registry/NumPy modules immutable061; authorfutureJITsource notused.",
+  "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+  "execution_target_tree_sha": "bf99f7f2bbc6e2accfcde66a45acef0956b2c97f",
+  "reviewer_topic_pre_merge_sha": "8495fe40a4c8655b7b9c76a6e6008d275d9697b2",
+  "execution_binding": "Normal append-only merge of authorb2b publication into existingrootadmittedDURlane; wholecheckedsource31ccd, relevant13module bytes exactly061. OwnDURproduction/canonicala2receipt untouched. No newcheckout/helper/subagent.",
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "e5226070c6bbf58049b4ccde40db0e21036517bcb9bffed2e9e0aa7e227131c1",
+      "bytes": 31360,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "ec70dd4cc2d82a09653f0ac20822cc0c888725929f95db4e4b849de8fb1fa94a",
+      "bytes": 21584,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "24805f7dabb45c402a5915b968701e267904b90afabab9a2112cf09bafea540c",
+      "bytes": 15325,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "93ae378d72ce59f927fe5ce51daa25e2ab9201962fbadadeaf213333c429b461",
+      "bytes": 16619,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9",
+      "bytes": 35936,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8",
+      "bytes": 74245,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/base.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "bytes": 7890,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "57fb104896770bd28c1774722ca5bc9b0c6910b7722f99a6cc553fdb18e81d1b",
+      "bytes": 41250,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "unchanged_from_198_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "769060f639d99f2a04f413cfcb7b7aa3fbd0812b38cf961b2a00f31a62da95e1",
+      "bytes": 13846,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "unchanged_from_198_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "59b97d8eef871ce2ed5d02e846d782e9edf4a14af297751db736b8891eebc59d",
+      "bytes": 37425,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505",
+      "bytes": 5225,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "e3e321c42a649e914fc6a24aec4dd1969fa293fc8eb926c610839331eb274555",
+      "bytes": 7869,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "unchanged_from_198_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/types/checker.py",
+      "execution_target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "sha256": "2fe865d1bd41954ad0be686e7ecd7c53a7dad04f08993f9b761a9ff6b2d8bce7",
+      "bytes": 26393,
+      "actual_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/foundry/methods/types/checker.py",
+      "unchanged_from_198_bytes": true
+    }
+  ],
+  "admission": {
+    "profile": "existing rootadmitted lane only, normalmerge; no newtree",
+    "pre_merge_checkpoint": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-merge.json",
+      "sha256": "ee15b431100129fcf4e4e83a9e1b1c291cd5f1878312f17fa816dc8a872a9411",
+      "bytes": 938
+    },
+    "create": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-create.json",
+    "resume": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/admission-resume.json"
+  },
+  "verdict": "FAIL: two actual shared acceptance countercases, with bounded positive controls",
+  "findings": [
+    {
+      "finding_ids": [
+        "B48"
+      ],
+      "bucket": "P40 deeper same full/partial input-acceptance class",
+      "severity": "high",
+      "confidence": "high",
+      "location": "policy-engine/src/polisyos/foundry/methods/components/composer.py:559 → linker.py:287",
+      "property": "A complete multi-source DAG supplies every targetinput across its incomingbindings; strict completeness must test that aggregate instead of demanding allinputs on every separateedge.",
+      "actual_countercase": "Two realproducer values10and20 feed separate left/right inputs ofoneactualsumconsumer. Defaultpartial-edge profile+buildSTRICT consumesboth and produces30. Samevalidgraph under declaredproductionsemantic_strict linker fails at first leftedge because right notsupplied by thatONEsource, preventing later rightevenbefore finalDAGbuild.",
+      "mechanism": "MethodComposer.connect calls strictSlotLinker.link pairscope; eachlink explicit/autocomplete gate sees only onesourcesignature. No aggregatewholeDAG completeness predicate before chainacceptance.",
+      "smallest_direction": "Widen coherent composition admission: preserve peredge structural/semantic predicate, defer completeness to allincomingbindings ofactualtargetoccurrence at finalbuild. Preserve standalone pairlink strictcompatibility and explicitly declared root/externalinput profiles; do not manufacturedata or disableunit/shape/semanticgates.",
+      "selector": "test_strict_complete_dag_accepts_two_partial_edges_as_one_complete_input_set"
+    },
+    {
+      "finding_ids": [
+        "B43",
+        "B46"
+      ],
+      "bucket": "P40 sibling actualrequires occurrence-resolution class",
+      "severity": "high",
+      "confidence": "high",
+      "location": "policy-engine/src/polisyos/foundry/methods/components/composer.py:595",
+      "property": "An explicitly linked preceding required occurrence satisfies dependent prerequisite; a future occurrence withsameFQN cannot create a backwards artificialcycle.",
+      "actual_countercase": "Actualestimate1→sensitivity→estimate2 consumesvalue2→3→30→31. Adding sensitivity.requires(estimateFQN) to sameexactregisteredmethods makes_requirement_edges add BOTH estimateIDs includingfutureestimate2→sensitivity. Fullrealcompiledchainbuild throwsCyclicDependencyError although explicitestimate1→sensitivity incomingedge suppliesthevalid earlierrequiredoccurrence.",
+      "mechanism": "FQN→listIDs then required_ids.update(ids) unconditionallyadds everymatchingoccurrence. Tagvalidator alone is occurrence-aware and passes actualpositivecontrol, but publiccomposer admission/frozenplan still overconstrains sharedrequiredclass.",
+      "smallest_direction": "Resolve requirements against actual explicitmatchingancestor/occurrence and freeze the sameeffectivepredecessor set for validate/order/levels/cacheidentity. When oneexplicitmatchingancestor satisfiesrequirement, do not addfuturematches. Ambiguous/unestablished selection needs explicit finite contract or typedrefusal, not arbitraryUUID/lastFQNchoice. Preserve genuine two-methodrequirescycle negative.",
+      "selector": "test_explicit_earlier_required_occurrence_does_not_depend_on_future_occurrence"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/test_acceptance.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/tmp-31ccd-first",
+        "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/native-31ccd.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "target_tree_sha": "bf99f7f2bbc6e2accfcde66a45acef0956b2c97f",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "source_checkout": "/workspace/e02-B-current-durability",
+        "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "no_new_checkout": true,
+        "no_source_test_edits": true,
+        "source_identity_ref": "top-level source_identity exact Git bytes"
+      },
+      "input_closure": "Independent real registeredNumPy methodclasses, typed nonemptySlotSpec signatures, MethodComposer actualbuild/freeze, trueMethodDispatcher sequential/asyncboundvalues and requiredordering-only numericaldata; unique retainedscratch/pytestbasetemp. No mockproducer/DAG, no productiondataset. One physicalthreadingBarrier checks independentneighbors concurrently while actualpreparedvalue7→21 must be consumed. Two actualgraphcountercases have positive10+20→30 and2→3→30→31 arithmeticcontrols beforefailure. Namedsemanticunitshape/partial gates precede methodbody; warnings remain diagnostics, neverauthority. Source imported from ownattachedadmittednormalmerge and byteassertedagainst061 before tests.",
+      "outcome": "FAIL (two material acceptance countercases; remaining 12PASS)",
+      "exit_code": 1,
+      "actual_cases": 14,
+      "case_outcomes": [
+        {
+          "node": "test_two_fresh_import_orders_execute_real_bound_values[chain-first]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_two_fresh_import_orders_execute_real_bound_values[async-first]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_required_only_edge_keeps_actual_parallel_level_and_value",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_matching_consumes_actual_fixed_and_flexible_values[False]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_matching_consumes_actual_fixed_and_flexible_values[True]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_strict_complete_dag_accepts_two_partial_edges_as_one_complete_input_set",
+          "outcome": "FAIL"
+        },
+        {
+          "node": "test_actual_repeated_occurrence_tag_validator_positive_negative",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_explicit_earlier_required_occurrence_does_not_depend_on_future_occurrence",
+          "outcome": "FAIL"
+        },
+        {
+          "node": "test_duplicate_producer_strict_refusal_warn_visible_actual_merge",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_same_semantic_gate_and_actual_positive_for_manual_auto",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_both_typed_structural_paths_refuse_before_execution[unit]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_both_typed_structural_paths_refuse_before_execution[shape]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_both_typed_structural_paths_refuse_before_execution[partial]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_actual_requires_cycle_rejected_before_any_method_run",
+          "outcome": "PASS"
+        }
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-31ccd.txt",
+        "sha256": "0ed9738d9ac6b3c3b89fd1116f6c478a5e2b5257b126da24a6d30753ea08e4ca",
+        "bytes": 32257
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-31ccd.xml",
+        "sha256": "24f61d19515a5dae4bb9e735b81f4bcfde3344524c0b8031c5e43ec893f7af65",
+        "bytes": 5378
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-wrapper.json",
+        "sha256": "4c97aec817c01abaf55eadf995033548e7ed69d0032769feb502c649d5aa22d2",
+        "bytes": 1765
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+        "sha256": "049d16aee7ad5084a2b2dd1e9c1eb63e6b5ac9aef10bc4a8952016cf9b8dc4df",
+        "bytes": 13153
+      },
+      "worker": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+        "sha256": "c1f8357fe4b0fe69ae77f1bce559121876ec8eae4cd9cd3068bba21ed60ac94c",
+        "bytes": 1079
+      },
+      "elapsed_seconds": 5.455959796905518
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/test_acceptance.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "--tb=short",
+        "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/tmp-31ccd-final",
+        "--junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/composition-acceptance-review/native-final-31ccd.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-durability/policy-engine",
+      "target_sha": "31ccd716859a27bcd087eec79fb64565f27b4f2b",
+      "target_tree_sha": "bf99f7f2bbc6e2accfcde66a45acef0956b2c97f",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src:/workspace/e02-B-current-durability/policy-engine",
+        "E02_REVIEW_TARGET_SHA": "default31ccd",
+        "E02_REVIEW_OWNER_SHA": "default061",
+        "source_checkout": "/workspace/e02-B-current-durability",
+        "reviewed_owner_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "no_new_checkout": true,
+        "no_source_test_edits": true,
+        "source_identity_ref": "top-level source_identity exact Git bytes"
+      },
+      "input_closure": "Independent real registeredNumPy methodclasses, typed nonemptySlotSpec signatures, MethodComposer actualbuild/freeze, trueMethodDispatcher sequential/asyncboundvalues and requiredordering-only numericaldata; unique retainedscratch/pytestbasetemp. No mockproducer/DAG, no productiondataset. One physicalthreadingBarrier checks independentneighbors concurrently while actualpreparedvalue7→21 must be consumed. Two actualgraphcountercases have positive10+20→30 and2→3→30→31 arithmeticcontrols beforefailure. Namedsemanticunitshape/partial gates precede methodbody; warnings remain diagnostics, neverauthority. Source imported from ownattachedadmittednormalmerge and byteassertedagainst061 before tests.",
+      "outcome": "FAIL (two material acceptance countercases; remaining 13PASS)",
+      "exit_code": 1,
+      "actual_cases": 15,
+      "case_outcomes": [
+        {
+          "node": "test_two_fresh_import_orders_execute_real_bound_values[chain-first]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_two_fresh_import_orders_execute_real_bound_values[async-first]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_required_only_edge_keeps_actual_parallel_level_and_value",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_matching_consumes_actual_fixed_and_flexible_values[False]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_matching_consumes_actual_fixed_and_flexible_values[True]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_strict_complete_dag_accepts_two_partial_edges_as_one_complete_input_set",
+          "outcome": "FAIL"
+        },
+        {
+          "node": "test_actual_repeated_occurrence_tag_validator_positive_negative",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_explicit_earlier_required_occurrence_does_not_depend_on_future_occurrence",
+          "outcome": "FAIL"
+        },
+        {
+          "node": "test_duplicate_producer_strict_refusal_warn_visible_actual_merge",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_same_semantic_gate_and_actual_positive_for_manual_auto",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_both_typed_structural_paths_refuse_before_execution[unit]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_both_typed_structural_paths_refuse_before_execution[shape]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_both_typed_structural_paths_refuse_before_execution[partial]",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_actual_requires_cycle_rejected_before_any_method_run",
+          "outcome": "PASS"
+        },
+        {
+          "node": "test_missing_required_async_module_is_addressed_error_not_permanent_unavailable",
+          "outcome": "PASS"
+        }
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-final-31ccd.txt",
+        "sha256": "a01d90c507f7b3e517ddd23f69932857aa4d2ae021b0823e29e3306ee4a258ec",
+        "bytes": 32506
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-final-31ccd.xml",
+        "sha256": "93127e6eabf7627588072feac3325a8d38887b18771d51f7d657b20420cee640",
+        "bytes": 5583
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/wrapper-final.json",
+        "sha256": "d78a30b398690c9c55659de6cab6c6008f55c3989d991567e6d61bbfb5452872",
+        "bytes": 1858
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+        "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+        "bytes": 13846
+      },
+      "worker": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+        "sha256": "fd69640b7fbd1e70cfc9b4c174eb212af983f241c380b59dc2f29a34641779d2",
+        "bytes": 1995
+      },
+      "elapsed_seconds": 6.679235219955444
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B42",
+      "review_state": "bounded consumer criteria pass",
+      "evidence": "Both freshimportorders real two-nodeboundvalue7→21; requiredmoduleabsence remains addressedModuleNotFoundError via disclosed controlledmeta-path injection, not physicalinstallationremoval.",
+      "closure": false
+    },
+    {
+      "finding_id": "B43",
+      "review_state": "partial, occurrence sibling actualFAIL",
+      "evidence": "Singleordering-only edge preserves frozenlevels+actualsequential/asyncvalue21 and independentparallelneighbor physicalbarrier. Repeated requiredFQN explicitancestorcase createsartificialcycle.",
+      "closure": false
+    },
+    {
+      "finding_id": "B45",
+      "review_state": "bounded consumer criteria pass",
+      "evidence": "Strictduplicate refuser; WARNdiagnosticsvisible notexecuted/notauthority. Actualdistinctinputs/explicitsum combines10+20→30.",
+      "closure": false
+    },
+    {
+      "finding_id": "B46",
+      "review_state": "partial, publicrequires sibling actualFAIL",
+      "evidence": "Realregistry/tagvalidator repeatedestimate→sensitivity→estimate arithmetic31pass; earlysensitivity strictrefusal/WARNvisible. Publicrequiresallmatches introducesfutureoccurrencecycle. Heuristicorderingrulesnotuniversalmethodologicallaws.",
+      "closure": false
+    },
+    {
+      "finding_id": "B47",
+      "review_state": "bounded consumer criteria pass",
+      "evidence": "ActualfixedB11→firstB andflexible7→secondA completeassignment produces1107 despiteambient1000/2000; adversarialneutralrenamesame1107. Knownstructuralunit/shape/partialgatesfailbothroutesbeforeproduction.",
+      "closure": false
+    },
+    {
+      "finding_id": "B48",
+      "review_state": "partial, aggregatecompleteness actualFAIL",
+      "evidence": "Knownallowednamedsemantic outcometo residual actual21passmanual/auto; forbiddenoutcometo treatment rejectedbothSemanticCompatibilityError. Pairpartialgatefailsbothroutes; validtwo-sourcecompleteDAGcannotbeexpressedunderstrictpairgate.",
+      "closure": false
+    }
+  ],
+  "baseline_navigation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/baseline-navigation.json",
+    "sha256": "17f0d8e16ca649b24df3d2b9bb97f2c5f4fe2e7f3482b0e8dfa49ad022bd858c",
+    "bytes": 41437
+  },
+  "baseline_job_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/baseline-job-context.json",
+    "sha256": "9d1fb59e8b4f5c6802b563ec24f9209743117cdf130c0062a2a54506d22eefe6",
+    "bytes": 17012
+  },
+  "baseline_denominator": {
+    "finding_ids": 6,
+    "bundles": 3,
+    "unique_cells": 12,
+    "source_jobs": 7,
+    "meaning": "candidatebaseline navigation only; no baseline PASS upgraded todecidingnewproof"
+  },
+  "old_contrast": {
+    "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "same_bytes_paths": [
+      "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "policy-engine/src/polisyos/foundry/methods/components/linker.py",
+      "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py",
+      "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py",
+      "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "policy-engine/src/polisyos/foundry/methods/base.py",
+      "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "policy-engine/src/polisyos/foundry/methods/types/checker.py"
+    ],
+    "different_bytes_paths": [
+      "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+      "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py"
+    ],
+    "meaning": "Composer/linker/semanticvalidator mechanics preexist198 unchangedbytes. Runtimechainexecutors differ. No complete matchedbaseline execution/P41inheritedredowner/regressionattribution; current exactcountercases establish presentcriterion gaps.",
+    "typed_unit_shape_boundary": "ExplicitUnitMismatchError/ShapeMismatchError versus autoSlotConnectionError is preserved existingdiagnosticdifference; bothmandatoryrefusalcontrolsPASS. Notinvented newbug solelyfromdifferenterrorclass/nativegreen."
+  },
+  "replay_contract": {
+    "driver": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+      "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+      "bytes": 13846
+    },
+    "worker": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+      "sha256": "fd69640b7fbd1e70cfc9b4c174eb212af983f241c380b59dc2f29a34641779d2",
+      "bytes": 1995
+    },
+    "command": "On this same admittedDUR lane after root-approved normalmerge of frozen successor: E02_REVIEW_TARGET_SHA=<actualDURmergeSHA> E02_REVIEW_OWNER_SHA=<frozenCMPsourceSHA> PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest <absolutecommittedtest_acceptance.py> -o addopts= -q -s --tb=short --basetemp=<freshnonexistingtmp> --junitxml=<fulloutput.xml>",
+    "meaning": "Only target/sourceclosure and scratch paths change; immutable consumer arithmetic/gates/countercase assertions unchanged. Owner cannot self-attest this independentreview."
+  },
+  "execution_counts": [
+    {
+      "cases": 14,
+      "PASS": 12,
+      "FAIL": 2,
+      "target": "31ccd716859a27bcd087eec79fb64565f27b4f2b"
+    },
+    {
+      "cases": 15,
+      "PASS": 13,
+      "FAIL": 2,
+      "target": "31ccd716859a27bcd087eec79fb64565f27b4f2b"
+    }
+  ],
+  "counts_rule": "Initial14 and final15 are separateepochs/inputclosures, never summedorconsideredindependentwitnesses. Final15adds oneaddressedimportfailurecontrol, metadatafutureSHAparametrization and valid unexecutedstructuralbodies; all prior arithmetic and2 materialcountercases unchanged.",
+  "limitations": [
+    "Finite realMethodRegistry/MethodComposer/NumPy dispatch, sequential+asyncphysicalthread consumer; no servedA route/backenduniversal/JITsourcegraph or methodologicaltag-authority claim.",
+    "WholeMethodCompiler CompiledChainExecutor isnotexecuted here; actual CompiledMethodChain frozenDAG→publicheterogeneousexecutor isexecuted. Authorfuturecompiler/facade changes excluded.",
+    "No full128suite repetition; standaloneindependent14then15cases only. Genericproperty needs no productiondataset.",
+    "Warnings/unknownsemantics neitherauthorize productioncomposition norclose findings; finalrootGcriteriaauthority retained.",
+    "CanonicalDURproduction+sourcea2receipt unchanged; no ownproduction/testfiles modified. Root/CMP owns correction and finalmergedcohort."
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+      "sha256": "6a62bd58d2b4c84f4297ec54d8c394b135b9ecd5925be3a128cd71de2140b7c5",
+      "bytes": 13846
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+      "sha256": "fd69640b7fbd1e70cfc9b4c174eb212af983f241c380b59dc2f29a34641779d2",
+      "bytes": 1995
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+      "sha256": "049d16aee7ad5084a2b2dd1e9c1eb63e6b5ac9aef10bc4a8952016cf9b8dc4df",
+      "bytes": 13153
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+      "sha256": "c1f8357fe4b0fe69ae77f1bce559121876ec8eae4cd9cd3068bba21ed60ac94c",
+      "bytes": 1079
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-31ccd.txt",
+      "sha256": "0ed9738d9ac6b3c3b89fd1116f6c478a5e2b5257b126da24a6d30753ea08e4ca",
+      "bytes": 32257
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-31ccd.xml",
+      "sha256": "24f61d19515a5dae4bb9e735b81f4bcfde3344524c0b8031c5e43ec893f7af65",
+      "bytes": 5378
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-wrapper.json",
+      "sha256": "4c97aec817c01abaf55eadf995033548e7ed69d0032769feb502c649d5aa22d2",
+      "bytes": 1765
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-final-31ccd.txt",
+      "sha256": "a01d90c507f7b3e517ddd23f69932857aa4d2ae021b0823e29e3306ee4a258ec",
+      "bytes": 32506
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/native-final-31ccd.xml",
+      "sha256": "93127e6eabf7627588072feac3325a8d38887b18771d51f7d657b20420cee640",
+      "bytes": 5583
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/wrapper-final.json",
+      "sha256": "d78a30b398690c9c55659de6cab6c6008f55c3989d991567e6d61bbfb5452872",
+      "bytes": 1858
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/pre-merge.json",
+      "sha256": "ee15b431100129fcf4e4e83a9e1b1c291cd5f1878312f17fa816dc8a872a9411",
+      "bytes": 938
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/baseline-navigation.json",
+      "sha256": "17f0d8e16ca649b24df3d2b9bb97f2c5f4fe2e7f3482b0e8dfa49ad022bd858c",
+      "bytes": 41437
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/baseline-job-context.json",
+      "sha256": "9d1fb59e8b4f5c6802b563ec24f9209743117cdf130c0062a2a54506d22eefe6",
+      "bytes": 17012
+    }
+  ],
+  "closure_ids": []
+}

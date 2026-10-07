@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "created_at": "2026-10-06T23:06:10.294090+00:00",
+  "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "target_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "committed_review_objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.source.txt",
+      "bytes": 14539,
+      "sha256": "562945c09372ceeb81aa27e52f309236339a11b3ce1069480134ec3691468ca2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/audit.stdout.json",
+      "bytes": 99557,
+      "sha256": "2c27df3b1ed6af97bfd6d2bd02bae9a84b39a7ebf5817237804a4f20566d2a83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-native-incomplete-review-evidence/review.json",
+      "bytes": 10573,
+      "sha256": "6df115c5a2951e8130c30e0adf16edcc72c2da0eb606b68d287574c9128775ec"
+    }
+  ],
+  "original_observed_objects": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.json",
+      "bytes": 2858,
+      "sha256": "128df0057719f39a62fc303c4c267fc04a1db4d34a1e67d2b49523bdef889d97",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-profile.json",
+      "bytes": 21086,
+      "sha256": "306f134d1c709a33b1e195f62775ce226fee61f9addeda95fbc3dd1151158f58",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort-inventory.json",
+      "bytes": 4445184,
+      "sha256": "5904954da6fb919cf693d485fe665777b1f43cd5aa0419b244111a5ab93b46d4",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-B-cohort.txt",
+      "bytes": 172778,
+      "sha256": "2f1ccd3ec853f830617b714cd7041ac18f7ce6b22ed7c70cfe4ac90a4dbbc84b",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.json",
+      "bytes": 2929,
+      "sha256": "d4ba231338db6d83de3829de20cd9592ec791596ea0f26651ba0e38d67b3cd43",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-profile.json",
+      "bytes": 16353,
+      "sha256": "9f1559932776fcf0f215a15399b9f4329fc54a6bcd68aa2711a57523724fe9f1",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers-inventory.json",
+      "bytes": 9437835,
+      "sha256": "84d780ee59743bcafa9b5148fe4c028ec8ed98de71cc9791000b75ee4c646478",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-affected-consumers.txt",
+      "bytes": 1673745,
+      "sha256": "05ca33cf103234b77d78b37ce4f5731d5e14d14895bf2223a6b77e8df41e3b49",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-final-1862c021df74/whole-files.args",
+      "bytes": 14447,
+      "sha256": "e3658cfd86315cd27e62ab180a5a88604a6637754e559c78fbb1c4304274db8a",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/whole-files.args",
+      "bytes": 2917,
+      "sha256": "458d1f6100b18f667989312d72fc9f019a7e9b2d3a9cca2baff03202de01c973",
+      "stable_during_read": true
+    },
+    {
+      "path": "/dev/shm/e02-B-completed-affected-1862c021df74-bound/native.xml",
+      "bytes": 151979,
+      "sha256": "e7952cf7c945b460e4511a526b0e38c4d9bc7bce54fe57c1e2c0ce1ad4d8c872",
+      "stable_during_read": true
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+      "bytes": 1450744,
+      "sha256": "738f7becb550dd7a39dcd549f303a588eee8542ab8d382373544a46f3d9b5cc3",
+      "stable_during_read": true
+    }
+  ],
+  "delivery": "Root original custody pending; actual paths@SHA only. This index is not its own future SHA binding."
+}

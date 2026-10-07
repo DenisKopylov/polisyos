@@ -1,0 +1,174 @@
+{
+  "schema": "policyos.e02.independent-source-review.v1",
+  "reviewer": "adapters_probe; independent from test author exe_state_writer",
+  "finding_id": "B38",
+  "bundle": "DUR-02",
+  "source_target": "143b68a1596841fa444aace15120e2a46a746cb8",
+  "test_target": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+  "test_tree_sha": "58aff10a15c5ad109e3dd4781454c137d392f303",
+  "test_publication_admission": {
+    "normal_remote_branch": "codex/e02-B-current-execution-state",
+    "ls_remote_and_fresh_FETCH_HEAD": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+    "tree": "21096a15497b372c1ba68394611f5fead7a48f36",
+    "state": "Independently read back after normal author publication; no branch mutation by reviewer"
+  },
+  "status": "SOURCE_ONLY_BOUNDED_PASS; no source/oracle blocker; native by reviewer UNRUN",
+  "closure_ids": [],
+  "input_refs": [
+    {
+      "source_sha": "143b68a1596841fa444aace15120e2a46a746cb8",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "bytes": 209996,
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+    },
+    {
+      "source_sha": "143b68a1596841fa444aace15120e2a46a746cb8",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "bytes": 13613,
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+    },
+    {
+      "source_sha": "85f2417187396d40ef0a41e9d7f6651286f55754",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "bytes": 16646,
+      "sha256": "3dcdfcf21cc08a181c04073872efc3d8a32221e1dab5325d004990c032151f77"
+    },
+    {
+      "source_sha": "143b68a1596841fa444aace15120e2a46a746cb8",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md",
+      "bytes": 14763,
+      "sha256": "7fa202cb245c67f765b9fbbc10f4c29e78f5e5b3872591f98ee964ee3f222652"
+    },
+    {
+      "source_sha": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "bytes": 16407,
+      "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80"
+    }
+  ],
+  "read_scope": {
+    "criteria": "Full canonical DUR-02 including B38/B78; this oracle reviews B38 only",
+    "store": "Complete ControlPlaneStore class1445–5250 plus transaction DTO/fence/record support917–1719; prior-unread unrelated pure projection functions51–916 not included in this B38 review",
+    "worker": "Full353-line module",
+    "oracle": "Full original399-line file@85 + full414 narrow delta: formatting and local complete/fail operation closure invoked once under unchanged execution-fence/raises context. All other top-level definitions AST-equivalent; parameter decorators and every fault assertion preserved."
+  },
+  "production_delta": "None:143b→414 footprint is exactly one new test. Store/worker bytes independently equal143b/85/414/9dc; no inference of whole8 runtime on414 from this equality.",
+  "criterion": "Bind lifecycle/progress/publication to actual live owner/attempt/lease, reject stale A after B generation takeover, allow current B, publish status/progress/event/outbox/deadletter atomically; SQL fencing does not imply exactly-once external actions",
+  "source_invariants": [
+    {
+      "paths": "ControlPlaneStore.job_execution_fence/current_execution_job_record/_resolve_job_execution_fence/_job_fence_where/_require_fenced_write",
+      "property": "Handler fence is actual bound job/worker/attempt, current running row reread and lease expiry checked; per-inlet SQL predicates bind exact generation; rowcount !=1 refuses"
+    },
+    {
+      "paths": "_job_transaction/_bound_transaction_admission/_postgres_mutation_cursor/_execute",
+      "property": "Every admitted mutation uses same actual PostgreSQL cursor/transaction; exact bound source row FOR UPDATE prevents stale-source writes including child/generic tables; end validation rechecks live lease/terminal admission; exceptions cause rollback"
+    },
+    {
+      "paths": "_complete_job_in_transaction/_fail_job_in_transaction/_admit_terminal_publication",
+      "property": "Status clears lease only after affected rowcheck; carried exact transaction admission permits its own progress/event/outbox/deadletter to finish atomically, not a later public call to reuse terminal state as lease"
+    },
+    {
+      "paths": "_lease_next_postgres/lease_next_job",
+      "property": "Native CTE FOR UPDATE SKIP LOCKED candidate select+attempt increment, current B generation committed in actual PostgreSQL"
+    },
+    {
+      "paths": "ControlWorker.dispatch_once/_run_with_lease_heartbeat",
+      "property": "Actual handler enters store-provided execution fence; heartbeat carries expected attempt, false renewal stops its pulse; completion handler remains subject to database fencing; physical thread cannot be assumed killed"
+    }
+  ],
+  "oracle_semantics": [
+    {
+      "nodeid_prefix": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table",
+      "parameter_inputs": [
+        "running",
+        "completed"
+      ],
+      "discriminator": "Actual worker A dispatch leases attempt1; direct independent PostgreSQL update expires persisted lease; independent Python child uses canonical actual store to lease B attempt2, optionally actual B worker completes before A resumes. Bound stale A18 calls all raise ControlJobLeaseLostError; after EVERY refusal independent connection rereads every pg_catalog-discovered native schema table and compares every row to common before snapshot. Current B subsequently completes; terminal record/event/outbox/deadletter assertions preserve healthy behavior",
+      "stale_inlets": [
+        "complete",
+        "fail",
+        "progress",
+        "manifest",
+        "current_record",
+        "upsert",
+        "event",
+        "outbox",
+        "child_event",
+        "child_outbox",
+        "create",
+        "mark_running",
+        "lease_next",
+        "scenario",
+        "step_up",
+        "human_reservation",
+        "worker_heartbeat",
+        "worker_release"
+      ]
+    },
+    {
+      "nodeid_prefix": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation",
+      "parameter_inputs": [
+        "completed",
+        "failed"
+      ],
+      "discriminator": "A attempt1 physically expires then separate child B leases2; actual current B handler progress and complete/fail succeeds, terminal owner/expiry cleared, record progress exact, one generation2 lifecycle event and outbox with old ownerB/attempt2, failure deadletter present onlyforfailed; post-terminal append refused; current completion proof has bound attempt2"
+    },
+    {
+      "nodeid_prefix": "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows",
+      "parameter_inputs": {
+        "terminal": [
+          "completed",
+          "failed"
+        ],
+        "fault_boundary": [
+          "event",
+          "outbox"
+        ]
+      },
+      "discriminator": "Actual installed PL/pgSQL BEFORE INSERT trigger rejects exact terminal event/outbox insertion via real psycopg RaiseException. For event failure, status/progress have already changed; for outbox failure, events and failed deadletter have also changed inside same transaction. All native table rows must equal before; fresh ControlPlaneStore consumer reads original running attempt1, ownerA, nofinished timestamp, no terminal state transition."
+    }
+  ],
+  "fixture_custody": {
+    "resources": "Each parameter case new UUID-named PostgreSQL schema in task-owned DSN; scopes search_path with psycopg make_conninfo; native ControlPlaneStore constructs actual tables. Separate processuses same interpreter/environment and inherited isolated scoped DSN; canonical store/worker __file__ must be inside actual source root derived from caller module",
+    "native_table_denominator": "11 CREATE TABLE native schema families at source; actual catalog-derived table names recorded byfixture, do not manufacture runtime assertion of count",
+    "environment_admission": "Missing task DSN or psycopg is SKIP/UNRUN. Actual version/driver origin/database/server address/port/schema/table denominator recorded in JUnit properties. Native8-case nonSKIP phase/result evidence must be admitted separately",
+    "heartbeat_quantity": "A heartbeat interval60 is explicit fixture law preventing renewal from racing deliberately expired persisted row; no process/thread/CPU orchestration quota introduced",
+    "preservation": "Schemas intentionally retained. PostgreSQL service availability/connect smoke is setup only; historical original Docker child125 is unrecorded-convention setup qualifier, not actual native exit125 or PostgreSQL proof"
+  },
+  "limitations": [
+    "This source review runs no pytest/collection/PostgreSQL connect/provision/helper/native/gate and cannot independently certify author native PASS",
+    "Full row snapshot covers schema native tables, not PostgreSQL sequences/index counters/catalog or power-loss storage durability; trigger/schema definitions are intentionally introduced fixture inputs",
+    "Eight statically declared parametercases and18 explicit stale inlets are finite oracle scope, not a stop criterion or universal enumeration of every future source method",
+    "Fencing protects actual bound handler writes; unbound administrative API semantics, physical process/thread termination and external action idempotence/authority remain separate contracts",
+    "B78 backend fallback/postdispatch ambiguity and Ray/Temporal handover are not established by this B38 PostgreSQL test",
+    "Concurrent takeover occurs via true separate-process persisted generation after expiry, not a fully arbitrary simultaneous transaction schedule; prior SQLite/native generation tests remain distinct pins, not transplanted PG evidence",
+    "Native8@85 and native4@414 are author execution pins inspected from published full output, not independent reviewer replay or12unique cases.",
+    "OriginalDocker child125 was an unrecorded convention, not an observed exit125; resource/image-save and ICU failures remain preserved setup evidence.",
+    "Generic future cohort without E02_B38_POSTGRES_DSN or actual psycopg input skips these bodies; no transplant from targeted native8 to such a future SKIP."
+  ],
+  "source_only_review_command": "git show143b:<canonical DUR02/store/worker>; git show85:<test>; git diff85 414 -- <test>; stdlib source AST/hash and immutable author-output inspection. No production imports or native execution.",
+  "publication_next": "Independent bounded source/evidence review complete; root/G owns criterion adjudication and any fresh combined whole-file run with actual DSN/driver profile.",
+  "prior_full_test_target": "85f2417187396d40ef0a41e9d7f6651286f55754",
+  "author_handoff_ref": {
+    "commit": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+    "bytes": 57308,
+    "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+  },
+  "author_evidence_commit": "12fcabd5d0002cb7719f5570d1aad1be8fe3490b",
+  "native_author_result_inspection": {
+    "whole_file_original": "8PASS0FAIL0ERROR0SKIP@85, actual wrapper exit0; wait4 wall162.01974289599457/RSS935172KiB",
+    "affected_faults_successor": "4 repeated faultcases PASS0FAIL0ERROR0SKIP@414, actual wrapper exit0; wait4 wall29.1607804739906/RSS934084KiB",
+    "unique_case_names_across_targets": 8,
+    "full_eight_successor_runtime": "UNRUN",
+    "reviewer_runtime": "UNRUN",
+    "complete_published_artifact_inspection": "immutable-artifact-inspection.json",
+    "index": "45 indexed Gitobjects320285B;0 hash/size mismatches; index excludes its own11784B"
+  },
+  "predicate_basis": {
+    "source_oracle_and_published_output_reconciliation": "independently_reconciled",
+    "published_Git_hashes_AST_and_XML_representation": "recomputed",
+    "full_OS_vendor_dynamic_readset": "not_established",
+    "institutional_database_authenticity": "not_established"
+  }
+}

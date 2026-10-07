@@ -1,0 +1,29 @@
+# C-schema admission: b8 census slice
+
+**Disposition: HOLD the C transport at G until C fixes the dirty-path parser and supplies a focused delta receipt.** The source slice otherwise fits G cleanly as a bounded local static census instrument. This hold is for a demonstrated defect in the new tool's `working_tree_changes` field, not for DFK API retirement or a semantic finding closure.
+
+## Pin, ancestry, footprint
+
+- G was clean on `codex/e02-integration` at `127dc7ab8365d29eb656fe32c0c894f6cc971286`.
+- `origin/codex/e02-C-schema-20261006` resolves to transport `28b04149e6477216f37c2ab2e0abfc54b8857ac6` / tree `715e11ef478d6c8827494e6da89ed08792708fb2`. Its final handoff is `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-final-handoff.json@f601dc0fedef9b2ddffab63bc839bd7f04a4697e6ffeea6191436bfafde28fce`.
+- Exact implementation candidate is `b8d9115cdc6a55920c1e0a3cae2e5f9092010c27` / tree `467cd6f01ec204767dc60bb939955578428bf102`; base is published main `198076863e143dea9f89f02734b13d50dae3eed5` / tree `2b754a92c27959e2e747738d47ed0b419f3b6dd8`. Base is an ancestor of candidate; b8 is an ancestor of transport. Four implementation commits and all handoff commits are on the pinned topic history.
+- Base→b8 is exactly 13 paths: the tool `tools/quality/validation/schema_fqn_census.py`, its companion `tests/unit/remediation/test_dfk_01.py`, and 11 plan/handoff/receipt companions. No schema, Foundry, registry, API, or other production runtime code changed. Candidate→transport adds 63 C handoff/receipt paths only (46 b8-audit, 15 ImportFrom-review, two append-only handoffs).
+- G has no changed paths in common with base→b8. `git merge-tree --write-tree` previews were conflict-free for both b8 and transport into pinned G (result trees `6aa7f675e9c755ace5d6623a7aeca49b1aeb9fa6` and `5f261488676c2ca8ad833b9aefefcd5933dcd222`). No integration conflict needs routing to another owner; the code correction belongs to C.
+
+## Evidence and scope
+
+- The source/test blob identities match the handoff: tool SHA-256 `9b7f542591be7260a4ed1dbd8c8d158f73a7d388413b55b6a8a6c3504d7d0546`, test blob `26a7e6a92b2ee7596920bef9099361f639a209a3`.
+- Candidate-wide symbol search finds no production importer of this tool; its exercised consumer is the test's real CLI subprocess. The exact behavioral selectors are `test_dfk_01_census_resolves_importfrom_package_children_and_removal`, `test_dfk_01_census_digest_changes_when_a_selected_input_changes`, and `test_dfk_01_census_normalizes_git_status_paths_from_nested_product_root`.
+- The independent `1800-C-hygiene-schema.md` review accepts the ImportFrom fix as a bounded static instrument and says it does not close DFK-01 findings. The b8 handoff's focused ImportFrom tests and Ruff are PASS; b8's exact source census, package/archive census, installed module identity, and installed positive/removal fixture are also PASS. The census selected 13,611 of 13,682 product paths and reports 317 unresolved nonliteral loader sites; its claim is local selected-text evidence only.
+- I checked all 61 tracked evidence-file byte/hash mappings listed by the final handoff; one additional mapping is the ignored raw census output. That 6,105,339-byte output is present and matches SHA-256 `8900d61dc544cf2c60bd53fd7cd798be8303b723c76edb74f3f9fdda1d266f26`. Its Git status output was empty, so this receipt does not exercise dirty-path parsing. The retained package archive, wheel, and sdist are present; the final handoff carries their exact identities.
+- Preserve LA-005 `held`, LA-006 `limited`, LA-026 `held`, and LA-027 `held`. Keep all compatibility surfaces/tombstone. No semantic/API owner decision is supplied by this slice.
+
+## NEW_CLASS: incomplete dirty-path denominator (P40)
+
+The pinned source's `_git_status_paths` parses `git status --porcelain=v1 -z`, but treats ordinary `" M"`, `"M "`, and `"AM"` status records as if a second NUL-delimited path follows. For two ordinary modified files it consumes the next status record as a fake path and drops that file from the parsed set. This is separate from the ImportFrom recognition defect fixed by b8.
+
+The corrected, candidate-pinned probe is `policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/receipt.json@2638644fe43157c701eceb0875aeab23a247441211250db6249368a660efd142`. It imports the exact candidate tool and actual `tools/lib` dependencies by recorded hashes/module origins (no stubs). Clean and rename controls pass; two unstaged and two staged modifications each expect `[a.py, b.py]`, but the parser/output reports only `[a.py]` (the raw parser result includes the fake status-prefixed `b.py`). Both runs still return `complete_for_selected_local_text_inputs`. The initial probe setup that omitted required `tools/lib` modules errored and is nondeciding; only the corrected exact-source probe counts.
+
+This defect does **not** filter the selected-file set or skip reading either modified file: the census still reads both and records their byte hashes. It does make the output's claimed dirty-path list wrong and can hide a working-tree departure. Existing `test_dfk_01` dirty fixtures modify only one selected file, so they do not distinguish the bug. Hold the slice until C adds a real multi-path status regression (including staged/unstaged ordinary changes; retain rename control), fixes the parser to consume a second path only for rename/copy records, and publishes a new append-only candidate/handoff. Then re-review that delta and run those three named selectors plus the new regression against the exact candidate; a focused `ruff` on the tool/test is sufficient. Do not repeat the broad E02 replay for this parser fix.
+
+After correction, G can merge the final C topic history append-only. Code admission remains separate from DFK-01 closure; no main publication is implied by this report.

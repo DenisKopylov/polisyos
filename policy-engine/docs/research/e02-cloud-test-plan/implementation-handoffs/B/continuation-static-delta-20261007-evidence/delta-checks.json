@@ -1,0 +1,172 @@
+{
+  "root_source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "root_source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "root_head_before_after_unchanged": true,
+  "delta_base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "delta_python_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-journal-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ],
+  "static_checked_paths": [
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+  ],
+  "sources": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "bytes": 14990,
+      "sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "bytes": 28025,
+      "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+      "bytes": 11096,
+      "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "bytes": 14768,
+      "sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+      "bytes": 7886,
+      "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+      "bytes": 13157,
+      "sha256": "cfd4fcc24702ab87c8411f91dd83c5a5d520f279888559024b5325af67d912b7"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+      "bytes": 12567,
+      "sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+      "bytes": 6760,
+      "sha256": "8fee28dddb578b3be74cc7bb51b4320778a01dff960468381e51352f00d08a11"
+    }
+  ],
+  "config_inputs": [
+    {
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/generated.toml",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607"
+    }
+  ],
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "ruff_version": "ruff 0.14.10",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "RUFF_CACHE_DIR": "/tmp/e02-B-gateway-import-style-20261007/ruff-cache",
+    "no_source_mutation": true,
+    "no_native_or_dependency_setup": true
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "exit_code": 0,
+      "wall_s": 0.0717049390077591,
+      "stdout": {
+        "path": "/tmp/e02-B-gateway-import-style-20261007/continuation-eight-ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "/tmp/e02-B-gateway-import-style-20261007/continuation-eight-ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+        "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "target_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "exit_code": 0,
+      "wall_s": 0.04661021800711751,
+      "stdout": {
+        "path": "/tmp/e02-B-gateway-import-style-20261007/continuation-eight-format.stdout.txt",
+        "bytes": 26,
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+      },
+      "stderr": {
+        "path": "/tmp/e02-B-gateway-import-style-20261007/continuation-eight-format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "own_exact_money_file": {
+    "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py",
+    "bytes": 12567,
+    "sha256": "5d73103dac73c60d2db247c12dd114ae9f433e8d5d759f58f96259789007a015",
+    "bytes_equal_to_c383": true,
+    "whole_AST_equal_to_c383": true,
+    "source_import_edits": false
+  },
+  "root_test_bytes_unchanged_after": true,
+  "limitations": [
+    "Only the exact2production+6test continuationdelta statically checked; fullglobalRuff remains actualFAIL4444.",
+    "This does not run native code or assign inherited P41 status; no edits/deps/services/cleanup or broadfix."
+  ]
+}

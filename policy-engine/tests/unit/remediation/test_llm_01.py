@@ -84,6 +84,9 @@ class _PromptProvider:
 
 
 def _traced(provider: Any, *, metrics: Any | None = None, **kwargs: Any) -> TracedLLMClient:
+    # Explicit trusted fixture composition mirrors the production factory.
+    if isinstance(provider, CachingLLMClient):
+        kwargs["cache_reuse_owner"] = provider._cache_reuse_owner
     return TracedLLMClient(
         provider,
         model_name="fixture-model",

@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:d04dd92bf0e9b7ff",
+  "revision": 2,
+  "updated_at": "2026-10-06T20:39:17.919932Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:448437:original-ledger.json",
+    "pid": 448437
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:448437:original-ledger.json",
+        "pid": 448437
+      },
+      "committed_at": "2026-10-06T20:39:17.916158Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:448437:original-ledger.json",
+        "pid": 448437
+      },
+      "committed_at": "2026-10-06T20:39:17.918280Z"
+    },
+    {
+      "revision": 2,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:448437:original-ledger.json",
+        "pid": 448437
+      },
+      "committed_at": "2026-10-06T20:39:17.919927Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {
+      "run": "0.00015000000000000001"
+    }
+  },
+  "spend_receipts": {},
+  "completion_obligations": {
+    "llm-producer:9f3c18f42d0d45879df58d423702644b": {
+      "obligation_id": "llm-producer:9f3c18f42d0d45879df58d423702644b",
+      "event_payload": {
+        "event_id": "llm-producer:9f3c18f42d0d45879df58d423702644b",
+        "kind": "provider_intent",
+        "amount": null,
+        "request_digest": "sha256:29aa300271dbefbef4590b889b6989eb228842693ff5bbc99226b657b245c322"
+      },
+      "event_digest": "sha256:23df456e0d341ea9fa75748b80ef251195f25a5badf0511de8ae416329f9a5d9",
+      "run_id": "B65-owner-recovery",
+      "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81",
+      "budget_keys": [
+        "run"
+      ],
+      "reserved_amounts": {
+        "run": "0.00015000000000000001"
+      },
+      "phase": "provider_in_flight",
+      "known_receipt_ids": []
+    },
+    "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3": {
+      "obligation_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3",
+      "event_payload": {
+        "event_id": "budget-audit:llm-producer:40a8c69f79f545e68ef940db552686d3",
+        "kind": "budget_audit",
+        "amount": null,
+        "action": "BUDGET_RESERVED",
+        "run_id": "B65-owner-recovery",
+        "required_action": {
+          "run_id": "B65-owner-recovery",
+          "actor": "budget_enforcer",
+          "action": "BUDGET_RESERVED",
+          "metadata": {
+            "budget_keys": [
+              "run"
+            ],
+            "estimated_cost_usd": "0.00015000000000000001",
+            "model": "default"
+          }
+        }
+      },
+      "event_digest": "sha256:c927c3360abf68b8085f8f94a08dd47e8024296877f68b55ecb4540b74b0b9c7",
+      "run_id": "B65-owner-recovery",
+      "owner_epoch": "448437:323aba27bf83427ea7bace60c0290e81",
+      "budget_keys": [
+        "run"
+      ],
+      "reserved_amounts": {
+        "run": "0.00015000000000000001"
+      },
+      "phase": "protected_audit_pending",
+      "known_receipt_ids": [],
+      "required_action": {
+        "run_id": "B65-owner-recovery",
+        "actor": "budget_enforcer",
+        "action": "BUDGET_RESERVED",
+        "metadata": {
+          "budget_keys": [
+            "run"
+          ],
+          "estimated_cost_usd": "0.00015000000000000001",
+          "model": "default"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.472" timestamp="2026-10-06T10:54:29.430979+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_registry_source_or_abi_replacement_refuses_original_history[source]" time="0.170"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before-tmp/test_actual_registry_source_or0')
+replacement = &lt;class 'backends.test_checkpoint_identity._Replacement'&gt;
+
+    @pytest.mark.parametrize("replacement", [_Replacement, _ChangedABI], ids=["source", "abi"])
+    def test_actual_registry_source_or_abi_replacement_refuses_original_history(tmp_path, replacement):
+        chain, registry = _chain()
+        dispatcher = _RecordingDispatcher()
+        producer = CheckpointingChainExecutor(
+            registry=registry, dispatcher=dispatcher, checkpoint_dir=tmp_path
+        )
+        original = producer.execute(chain, initial_state={"x": 3}, seed=7)
+        assert [row.output for _, row in original.node_results] == [{"product": 6}, {"total": 7}]
+        checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0001_*.json")))
+        registry.register(replacement, override=True)
+        if replacement is _Replacement:
+            cold = CheckpointingChainExecutor(registry=registry).execute(
+                chain, initial_state={"x": 3}, seed=7
+            )
+            assert cold.final_state["total"] == 10
+            assert (
+                replacement.signature.stable_digest()
+                == chain.get_signature(chain.execution_order[0]).stable_digest()
+            )
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:150: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_actual_registry_source_or_abi_replacement_refuses_original_history[abi]" time="0.076"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;">tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before-tmp/test_actual_registry_source_or1')
+replacement = &lt;class 'backends.test_checkpoint_identity._ChangedABI'&gt;
+
+    @pytest.mark.parametrize("replacement", [_Replacement, _ChangedABI], ids=["source", "abi"])
+    def test_actual_registry_source_or_abi_replacement_refuses_original_history(tmp_path, replacement):
+        chain, registry = _chain()
+        dispatcher = _RecordingDispatcher()
+        producer = CheckpointingChainExecutor(
+            registry=registry, dispatcher=dispatcher, checkpoint_dir=tmp_path
+        )
+        original = producer.execute(chain, initial_state={"x": 3}, seed=7)
+        assert [row.output for _, row in original.node_results] == [{"product": 6}, {"total": 7}]
+        checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0001_*.json")))
+        registry.register(replacement, override=True)
+        if replacement is _Replacement:
+            cold = CheckpointingChainExecutor(registry=registry).execute(
+                chain, initial_state={"x": 3}, seed=7
+            )
+            assert cold.final_state["total"] == 10
+            assert (
+                replacement.signature.stable_digest()
+                == chain.get_signature(chain.execution_order[0]).stable_digest()
+            )
+        dispatcher.calls.clear()
+&gt;       with pytest.raises(CheckpointDigestMismatchError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'&gt;
+
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py:150: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.backends.test_checkpoint_identity" name="test_unrelated_registration_preserves_exact_effective_checkpoint_request" time="0.078" /></testsuite></testsuites>

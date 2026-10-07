@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "from decimal import Decimal; from pathlib import Path; from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger; p=Path(\"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/e02-unbound-owner-5nmhha_8/budget.json\"); state=FileBudgetLedger(p,ledger_id=\"ledger:budget\").load(); print({\"fresh_spent\":str(state.spent[\"run\"])}); assert state.spent[\"run\"]==Decimal(\"0.02\")"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "a6a621cd908fa477b62524a86aef316db8ee6d72",
+  "tree": "093d4dc665038dca26f8ae7f56ec9d3b021b6926",
+  "head_after": "a6a621cd908fa477b62524a86aef316db8ee6d72",
+  "wall_s": 0.1971951059967978,
+  "process_rusage_maxrss_kib": 29536,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-llm-fresh-ledger.txt",
+  "output_sha256": "1337b1c777368a8b44e0434fd0720e0bd268512148f24ad1421c341cf66e6836",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": null,
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

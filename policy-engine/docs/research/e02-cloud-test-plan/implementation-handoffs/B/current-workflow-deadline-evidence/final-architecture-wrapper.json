@@ -1,0 +1,43 @@
+{
+  "target_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+  "candidate_tree_sha": "185dc1e866579d48712580bd62b39aff83529158",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-architecture/input-closure.json",
+    "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242",
+    "tracked_paths": 13850,
+    "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "driver_sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+  "start_utc": "2026-10-06T12:12:37.503589+00:00",
+  "end_utc": "2026-10-06T12:16:12.379310+00:00",
+  "wall_s": 214.87569801000063,
+  "max_rss_kib": 1115988,
+  "exit": 1,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-architecture/input-closure.json",
+      "sha256": "071ed80550d84e00920156b91cc47646b0b5691fbc5b4762002edc19e1fe4242",
+      "bytes": 2792137
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-architecture/stdout.txt",
+      "sha256": "f745685cd4c2de496ad73b383dd5be515606da66abebb12173a3c1c613e54270",
+      "bytes": 115208
+    }
+  ]
+}

@@ -1,0 +1,1648 @@
+{
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+      "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-independent-baseline-384.txt",
+      "bytes": 459460,
+      "sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-independent-baseline-384.json",
+      "bytes": 2179,
+      "sha256": "70b6dfbb0cbde9ab11d2f23849673c92e5ad0667903c8ed0a5df1d7b96a557dc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full.xml",
+      "bytes": 23450,
+      "sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom0/budget.json",
+      "bytes": 3265,
+      "sha256": "ae88fae220b075695684c9f1983926caa1724651e456574aef4f2077b3f29258"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom0/response.bin",
+      "bytes": 269,
+      "sha256": "ec8f798ff6e1ec510b6cf7b778b2e2b4e9638cc89e51922e3ddc7b63cdbdf4d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom0/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "db50ebebba55314646cfa5af8e16e002bf7c394dde92d0f61941d9beeac7eb1a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom1/budget.json",
+      "bytes": 3268,
+      "sha256": "8ca66cb70672dd3cd856a515380ecf7911e67162a34e78cec349afddb344977a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom1/response.bin",
+      "bytes": 270,
+      "sha256": "4e65449ed8320d36c2b9e93de4206dc777e83bd204d4cce9828e20c1161fb6c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom1/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "4d0e99a0f8d9b5103ec60f660ab538d224b4d8b701c5ba0974936891e25a0d97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom10/budget.json",
+      "bytes": 2443,
+      "sha256": "95ba4b95507e912f037ad1fc48bd694de3d6410aea462f1f6af0619d9ff81276"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom10/response.bin",
+      "bytes": 266,
+      "sha256": "e96d4b45debdf674b5546eb7100a8ecfe32601b0642abb0c00330aaa24288105"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom10/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "593a6f298b4e42fc1b083557dc7206739333d8a447d8cd852ac734d0b0dd529d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom11/budget.json",
+      "bytes": 2443,
+      "sha256": "fa6d25cdb20ead911849d6464413cc44999018fe76f837fe606897e5b5a28728"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom11/response.bin",
+      "bytes": 267,
+      "sha256": "f1f4ba4145598fa0139c3cfad4499a8aecab7c1ddc873ffbe0457bc6405126e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom11/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "79c3c24ea2e7f0a12f5a5ad34a4106073ac7731afd0523c742ada0853ee7fe7e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom12/budget.json",
+      "bytes": 2443,
+      "sha256": "0638b2e46e1bde4e3f15a6972134be3d1b28f22af0757a25f53f2b52fcba4f59"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom12/response.bin",
+      "bytes": 265,
+      "sha256": "4dfc238aedb4de550d19c6ea0c03e1770cd0731e259c39f4943b0e9beba572e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom12/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "382d1435727f199327bc81e3d470265b832391d1b366dd6bb7262fa674b2e900"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom13/budget.json",
+      "bytes": 2443,
+      "sha256": "cb35320100caf7074230b2401cc27fcb9e0c376b0c41c454cd046dd95b17edb5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom13/response.bin",
+      "bytes": 270,
+      "sha256": "6dbd4c4ef695bcfba83fa03cc40b74931e265784a03adcd12ee09b43cadd6df8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom13/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "5b0c870b273572c5f7782e4a44f9b31e3af31ebb0e3673d455d841818bbde697"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom14/budget.json",
+      "bytes": 2443,
+      "sha256": "fb9076bdb85e7172745b8163673ffc40ee6c79d9deabc78452d93dfb9fb61ebf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom14/response.bin",
+      "bytes": 271,
+      "sha256": "be791a91d8fdc188a7753db9f0026727b52dbc9fc6e8b16ef82454929d30062b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom14/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "32c6c3524ac16437e59d25367c60e6eeb1587b148ad59b1690b8dbac50cc7302"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom2/budget.json",
+      "bytes": 2443,
+      "sha256": "1898c8d9483f2ce96be8b34df02329a2f4b8fcbca7c6784828f71a8a8dbd7958"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom2/response.bin",
+      "bytes": 251,
+      "sha256": "229b8cb550c23fbf40fb062f54b0656fcd3ef3130b6bab606b5c1e10dbe6499e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom2/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "8ba90ba9ee0923c56fbb7b17b74d7071fa77cd5aacb5594c412e8334ecf77a54"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom3/budget.json",
+      "bytes": 2443,
+      "sha256": "76ba14aaac25ee04ccc3c90a9802913c266549c8af3c54cbdadbcd707ba7188c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom3/response.bin",
+      "bytes": 266,
+      "sha256": "c8e10e4abd456b535e7decf879e50bd2ae2dffd8f78b22f0fe77dd678d6958d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom3/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "5b2e17c7871d6f6cc39640ba83ee2b373056c861c8985e4e352790dc6827714f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom4/budget.json",
+      "bytes": 3265,
+      "sha256": "73722f8509bc3c314ddd8275fea00d40f45a6926e2bec8ce86725dc986e0c77f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom4/response.bin",
+      "bytes": 263,
+      "sha256": "6d5398a184aa58fcd21deb2d94702facc50db836d63bba1fa741bc46c0d6c553"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom4/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "2767127b04a0286357c9ce1d0ecaf4d38f363d46519b5005b5605c4703a7b214"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom5/budget.json",
+      "bytes": 3265,
+      "sha256": "a840c7a9379905ef35a32e89c25b35b35b029caf7fec10a50c692f2bff0ac50e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom5/response.bin",
+      "bytes": 265,
+      "sha256": "bbf90bfde3f98f5dbba0abd943e4e689196c617e8bc9f6a5a495864587a2683f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom5/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "f51b53c59759da551086739ee38520e4713c3fbe7e2179043db7b913841087a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom6/budget.json",
+      "bytes": 3265,
+      "sha256": "0c388c864fdadf421c5381c9c88b8bbadaf4dee18041ad3f7aea4c3eadc8023a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom6/response.bin",
+      "bytes": 264,
+      "sha256": "764d5323e35e88200da3e85a91d909eb7589ef0c298a15c0b83bcc1de517d9c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom6/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "2bf9b2afe72a81e8af327ceaf9ee3588e19691794dff932863ac2fab3df1878a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom7/budget.json",
+      "bytes": 3268,
+      "sha256": "b8fd64f1520644ced8c7445081529048cd4be519c9248347aa2b1dc1f23a301b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom7/response.bin",
+      "bytes": 266,
+      "sha256": "fe915f60fe5e68749da9d4960588fe87e65c61daf7ace5f56523866241c645a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom7/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "4a69a5d15b5fd3ea173b68349f69ac43090b7a739894a678919270c8d61094e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom8/budget.json",
+      "bytes": 3270,
+      "sha256": "42de40568a8529d7a1be2730048f0bfd8680a62b05ffef6e34e0b17ccd4236eb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom8/response.bin",
+      "bytes": 266,
+      "sha256": "15220d4298fb5621dac7f16063a24a613372bcdec77aff0f5f918d94d6f8df84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom8/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "2108e0feb8e869030a530c08a3ba9aa6322335f16b21fa12c9cc49832f44efc9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom9/budget.json",
+      "bytes": 2443,
+      "sha256": "3e8cbdf076e63579680572370d9487d5c121ce3c5247bfd31e3f35130cc1535b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom9/response.bin",
+      "bytes": 267,
+      "sha256": "138d04f93864e46446df597039b4c0b1719adfc7116706b8d9f6c77eb8fc81e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom9/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "ec23aa04f33cef153b0117aa0f566ccb979493d2b039a0fe314f994cc32f4b1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/full/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-e7.txt",
+      "bytes": 27614,
+      "sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-e7.json",
+      "bytes": 2153,
+      "sha256": "a1a280c5b61586592d37e1d4ced791b4e567b3a2bc3d0d37410c2e2c984dfd50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/full.xml",
+      "bytes": 28983,
+      "sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-qualified-e7.txt",
+      "bytes": 449015,
+      "sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-qualified-e7.json",
+      "bytes": 2184,
+      "sha256": "65965d1afe2a537b6fa781dd1ba760de162e3c61f3982a2cabd9b9478ad96853"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full.xml",
+      "bytes": 25452,
+      "sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom0/budget.json",
+      "bytes": 2443,
+      "sha256": "f01c61a7ea17f4d08f4ae5e454add6553d8fb330f6ce9f59f10ee34f3f6fdbc6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom0/response.bin",
+      "bytes": 269,
+      "sha256": "ec8f798ff6e1ec510b6cf7b778b2e2b4e9638cc89e51922e3ddc7b63cdbdf4d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom0/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "4dc15ff22423390116de510777673c012ed8460d0bead4ed29f70287dd84beca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom1/budget.json",
+      "bytes": 2443,
+      "sha256": "b3f411bf2f0aab28be207a3b17d7a581ac51010099a48eaf452f8e4b0722d544"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom1/response.bin",
+      "bytes": 270,
+      "sha256": "4e65449ed8320d36c2b9e93de4206dc777e83bd204d4cce9828e20c1161fb6c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom1/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "04e7bfe159f80477d45fc65eb1914be59273384b8df75fb2582dd385e486c74f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom10/budget.json",
+      "bytes": 2443,
+      "sha256": "4ac387dfa74ed6f234bc3d70768f0621fb788f02847656c076c23a299b13f2eb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom10/response.bin",
+      "bytes": 266,
+      "sha256": "e96d4b45debdf674b5546eb7100a8ecfe32601b0642abb0c00330aaa24288105"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom10/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "3450205e2ab80c33850e862a82c9caef2030597c5f80768367727b14db058994"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom11/budget.json",
+      "bytes": 2443,
+      "sha256": "06854bfc38de34e4a0403e7456cc455b07c2b243b75b9bf7a6692c451d9daf2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom11/response.bin",
+      "bytes": 267,
+      "sha256": "f1f4ba4145598fa0139c3cfad4499a8aecab7c1ddc873ffbe0457bc6405126e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom11/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "dcc75dd84d22e76ee082138ff8d7f73eedf1265ebdc038fcec7da719f936366f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom12/budget.json",
+      "bytes": 2443,
+      "sha256": "b7f82450cc895b9f61344ccd97604c80922a03b5144ab160456e3bccbefa5054"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom12/response.bin",
+      "bytes": 265,
+      "sha256": "4dfc238aedb4de550d19c6ea0c03e1770cd0731e259c39f4943b0e9beba572e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom12/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "3c716d8012c4d935b68883b3c1e8d51c0c373568d266c9a198eabd221003a5d6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom13/budget.json",
+      "bytes": 2443,
+      "sha256": "74f157a83b18f250481e5f94ff140db34cb4d4d53fbf32bcacc41ae24a43660b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom13/response.bin",
+      "bytes": 270,
+      "sha256": "6dbd4c4ef695bcfba83fa03cc40b74931e265784a03adcd12ee09b43cadd6df8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom13/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "9a453f1f83b4847a7d4d8e751e818eb59c62ced07aec236064d7c7096bdba64a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom14/budget.json",
+      "bytes": 2443,
+      "sha256": "0dff9a7a4a4fa3a770f653942a47315fd863564f4c99fb063cfbdfa5aa18367a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom14/response.bin",
+      "bytes": 271,
+      "sha256": "be791a91d8fdc188a7753db9f0026727b52dbc9fc6e8b16ef82454929d30062b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom14/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "0c9b332974efe3cc6d530be97fd1366945f19e367fb8a949d567e57456e25177"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom2/budget.json",
+      "bytes": 2443,
+      "sha256": "78907ba2919179eab23695af2a60036378f4aaed7a8f9f3608d9df04beec8e45"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom2/response.bin",
+      "bytes": 251,
+      "sha256": "229b8cb550c23fbf40fb062f54b0656fcd3ef3130b6bab606b5c1e10dbe6499e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom2/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "92f34c9afe263ae8187316e9d2f17ce1097fe0b3bacbf8436043dcf10b7a72c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom3/budget.json",
+      "bytes": 2443,
+      "sha256": "06a93ce18755b7f9307e18483659ff10e5c591b32c32947c1dac475e7fa30064"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom3/response.bin",
+      "bytes": 266,
+      "sha256": "c8e10e4abd456b535e7decf879e50bd2ae2dffd8f78b22f0fe77dd678d6958d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom3/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "33d616eb46f0acabfee6e8d82f1255987518e7df122d3a92347b9d08737f72bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom4/budget.json",
+      "bytes": 3265,
+      "sha256": "2ab938bcda579bae5e4f03ca78b74fd7f9a813aa3a2d49e622a4056834d130fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom4/response.bin",
+      "bytes": 263,
+      "sha256": "6d5398a184aa58fcd21deb2d94702facc50db836d63bba1fa741bc46c0d6c553"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom4/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "a1ee425c7b54e68c3e23318bf05ecc8f6f31deaeab4bb453536a129522f0e516"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom5/budget.json",
+      "bytes": 3265,
+      "sha256": "cf188278d94a8800c3c4a91f59b3ba6425b3763e594d803c4d79e39b1cfba6ec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom5/response.bin",
+      "bytes": 265,
+      "sha256": "bbf90bfde3f98f5dbba0abd943e4e689196c617e8bc9f6a5a495864587a2683f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom5/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "e34f3e42963d35561d5ddb237797e4333a589a94a222d3a7660fcf277e2c7b97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom6/budget.json",
+      "bytes": 3265,
+      "sha256": "012e7700064481a1e711cefa2d18d98c2402ae4e6b40cbcf2534b87a35dae34a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom6/response.bin",
+      "bytes": 264,
+      "sha256": "764d5323e35e88200da3e85a91d909eb7589ef0c298a15c0b83bcc1de517d9c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom6/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "2089525d175072de9434ad8bdae1af66b42504d2915345fd5d3504cf3e0bac27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom7/budget.json",
+      "bytes": 3268,
+      "sha256": "82a7d56027e697f7e7069a3d0fdccef2fda760b037596290e2855cff6f1695b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom7/response.bin",
+      "bytes": 266,
+      "sha256": "fe915f60fe5e68749da9d4960588fe87e65c61daf7ace5f56523866241c645a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom7/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "6b3c18e0a4825453ea454cdb72993b8795239bc93ee715bc2081a49ab31bc741"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom8/budget.json",
+      "bytes": 3270,
+      "sha256": "05a80f96ffa92b69097998eeed1d81b4d16a96cd5a0fcbe0bf817968aad20001"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom8/response.bin",
+      "bytes": 266,
+      "sha256": "15220d4298fb5621dac7f16063a24a613372bcdec77aff0f5f918d94d6f8df84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom8/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "ce5e02e75d1d7d09a402c8e5794a9f47a9890f54c4e825cdd5efaab67e2ec95f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom9/budget.json",
+      "bytes": 2443,
+      "sha256": "eea93b8297db3612afee83e31af1c876cc21810056e1c44008cd43b9716f83c3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom9/response.bin",
+      "bytes": 267,
+      "sha256": "138d04f93864e46446df597039b4c0b1719adfc7116706b8d9f6c77eb8fc81e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom9/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "4ad0331ffb0c22dd4b66ed2c4fc6c679b17c92ba7357cedca40723e86322e6db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt",
+      "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-independent-baseline-qualified-595.txt",
+      "bytes": 3720260,
+      "sha256": "f5ce589095c5c2ee4cdf11773feaaf94e8dc08e6b6dd8d930f28045f78ea5bac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-execution-state/.polisyos/e02-B-current/raw/review/money-independent-baseline-qualified-595.json",
+      "bytes": 2207,
+      "sha256": "a5a280cd1cb45d9fd91975af7dbc8eb77f91d53eda395e3e30a0250689d9ae9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595.xml",
+      "bytes": 6047,
+      "sha256": "40e0e90dfb233eee8a35e15ddc10542321d298b7deb9a4fb24fffc8aea933a68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom0/budget.json",
+      "bytes": 3265,
+      "sha256": "9cdb8f9d60cd23823022ce10cdf46af176498ed2b343f37d02dc33401a7b3f95"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom0/response.bin",
+      "bytes": 269,
+      "sha256": "ec8f798ff6e1ec510b6cf7b778b2e2b4e9638cc89e51922e3ddc7b63cdbdf4d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom0/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "72e7ac9e20e04f6d9251812db03baf1e0e05e885f6d147e038dd4d04568a1118"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom1/budget.json",
+      "bytes": 3268,
+      "sha256": "6ab5c6964f3d92a33281cea30a201630a60230521b3d6cde895173248df67e5f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom1/response.bin",
+      "bytes": 270,
+      "sha256": "4e65449ed8320d36c2b9e93de4206dc777e83bd204d4cce9828e20c1161fb6c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom1/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "3c04be135d40234405cbe66d5a361034a84a7eb0136faa3da2ce9c5776e9d9b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom10/budget.json",
+      "bytes": 2443,
+      "sha256": "fa3c10b1b35514dca4d232ca3e3ff699495b89f182ca5c65e84d5109a5548f51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom10/response.bin",
+      "bytes": 266,
+      "sha256": "e96d4b45debdf674b5546eb7100a8ecfe32601b0642abb0c00330aaa24288105"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom10/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "d58c61e6e9888bc08bb9fa27898e811e1e9741b5606dd82de768a72b277f1e9c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom11/budget.json",
+      "bytes": 2443,
+      "sha256": "671508589b76d46958f0afc90ee06d51f6941fc4d7c1eecd30d5dded49e8032b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom11/response.bin",
+      "bytes": 267,
+      "sha256": "f1f4ba4145598fa0139c3cfad4499a8aecab7c1ddc873ffbe0457bc6405126e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom11/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "8f6eee912ac6874e6bf8084e2a75f9c58ec553e031abbfdcfce7a8fef35f144e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom12/budget.json",
+      "bytes": 2443,
+      "sha256": "a79708cb0977e8c83b574764112b40dac71d337794d7dabb83a8fd3e300e2c0f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom12/response.bin",
+      "bytes": 265,
+      "sha256": "4dfc238aedb4de550d19c6ea0c03e1770cd0731e259c39f4943b0e9beba572e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom12/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "45cb3bc252a4b83251acc00d90ce18fe7f2935d37edb996250ce1b1ab6b763a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom13/budget.json",
+      "bytes": 2443,
+      "sha256": "825c3dca9c44e30a22a17109187e3fee1c1f459b5c63a97601559488fa4061ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom13/response.bin",
+      "bytes": 270,
+      "sha256": "6dbd4c4ef695bcfba83fa03cc40b74931e265784a03adcd12ee09b43cadd6df8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom13/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "98b5080566b88ace7b3def61b48413def47f071f9a3bba62531b46ee54ab4cc1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom14/budget.json",
+      "bytes": 2443,
+      "sha256": "2827da3bab3b37ea377f171d3e2e4a75e22b58b0fa6507939c77b7b533cadab5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom14/response.bin",
+      "bytes": 271,
+      "sha256": "be791a91d8fdc188a7753db9f0026727b52dbc9fc6e8b16ef82454929d30062b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom14/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "6d4d1850e84a60a44c78de4e7366491d00cfe270805e0d3d33cfe0ede108042f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom2/budget.json",
+      "bytes": 2443,
+      "sha256": "97959b04c37627f965a5dd4006abc3ba4e49afe1b03190d38722cddecb4b5aac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom2/response.bin",
+      "bytes": 251,
+      "sha256": "229b8cb550c23fbf40fb062f54b0656fcd3ef3130b6bab606b5c1e10dbe6499e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom2/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "1ff6af937c2371f4915b37f329c7bb5cc353f83d516725f910fdc05c3b660439"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom3/budget.json",
+      "bytes": 2443,
+      "sha256": "74899a178102e7a2ca4f6332328f0ba3483bd9e3d4bebb6d91003e26549c022d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom3/response.bin",
+      "bytes": 266,
+      "sha256": "c8e10e4abd456b535e7decf879e50bd2ae2dffd8f78b22f0fe77dd678d6958d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom3/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "ee58f450aee189eadb5e3f595906db600111f6285f8893e52911a2c71eb2dc31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom4/budget.json",
+      "bytes": 3265,
+      "sha256": "b8b457a5f6cd12d0b7574d542bb6a7814edbe2fced65c6921796f98ed8e50d16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom4/response.bin",
+      "bytes": 263,
+      "sha256": "6d5398a184aa58fcd21deb2d94702facc50db836d63bba1fa741bc46c0d6c553"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom4/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "91182c0341d54daa23a88e6da6ea459ab19eb08ac9f41a114f0ba8b2ec63ede4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom5/budget.json",
+      "bytes": 3265,
+      "sha256": "5b7b1182f7505ed82dd995737018141309439fe7904616477ae1d097a2c5fee2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom5/response.bin",
+      "bytes": 265,
+      "sha256": "bbf90bfde3f98f5dbba0abd943e4e689196c617e8bc9f6a5a495864587a2683f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom5/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "37a22d492fdedd81e38120fa4da1a214abc35a9eb1ac04b957626ec59ecd1700"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom6/budget.json",
+      "bytes": 3265,
+      "sha256": "2bc059ce9ffc04ba827e9ea04b705ebc0cbd11688d080e8d8548c5f2688141cd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom6/response.bin",
+      "bytes": 264,
+      "sha256": "764d5323e35e88200da3e85a91d909eb7589ef0c298a15c0b83bcc1de517d9c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom6/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "64058ed2f88c434d8b214871d69b159274f2e8dd08bd91fea1a5dda1180f62b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom7/budget.json",
+      "bytes": 3268,
+      "sha256": "19bfaac43320f82a55ff6dd33c054888c3b6ec66e16ccb3a666cbca7e5e42c57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom7/response.bin",
+      "bytes": 266,
+      "sha256": "fe915f60fe5e68749da9d4960588fe87e65c61daf7ace5f56523866241c645a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom7/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "c48e8a1c4750ac31b48936f54e8c23ecd50c3c2c9f7f7c01d2f9559d1a412d7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom8/budget.json",
+      "bytes": 3270,
+      "sha256": "b6e7c2ea4fd03850b5105d938d57f3aad1af9ad64754872ea18c83be947648ec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom8/response.bin",
+      "bytes": 266,
+      "sha256": "15220d4298fb5621dac7f16063a24a613372bcdec77aff0f5f918d94d6f8df84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom8/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "c00574705ad66888e1a52cac5bbb1388181d4519eb6b52822e7aa3c6b29e0928"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom9/budget.json",
+      "bytes": 2443,
+      "sha256": "9a704bc4dc6133e1d5bfe82b8ac2282cec97a48106cfbf20443d7fe5e642f3b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom9/response.bin",
+      "bytes": 267,
+      "sha256": "138d04f93864e46446df597039b4c0b1719adfc7116706b8d9f6c77eb8fc81e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom9/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "fd2ef7fd7d463521d13d00845d31b12ef99a89bcb8aef8e6663e75d9803751f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-595-e7.txt",
+      "bytes": 3613492,
+      "sha256": "a08b0354ac1428026cf0ee223b0dbb69ff874891a7d1f16a1b8b5fadaceab124"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-candidate-595-e7.json",
+      "bytes": 2176,
+      "sha256": "be1050e19813f47f662d2178c597ca61143068236fbea4eb0739da402e9e9f90"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595.xml",
+      "bytes": 3063,
+      "sha256": "c067e68fd69e289594aad0aca96eb1b132044e899befed5ffb89a0d1e1982707"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom0/budget.json",
+      "bytes": 2443,
+      "sha256": "c4607aba3b668053baa141cff210f038e5f0bfede962d7c6462ef5d5004236ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom0/response.bin",
+      "bytes": 269,
+      "sha256": "ec8f798ff6e1ec510b6cf7b778b2e2b4e9638cc89e51922e3ddc7b63cdbdf4d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom0/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "5a4dc7cd307450dfa25858739e17143f610b953c24b923dfcfcdc80629d87c5e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom1/budget.json",
+      "bytes": 2443,
+      "sha256": "cde0498c3be949326757415690ae4f87443d3d867e5d551df71a66cd7b77367e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom1/response.bin",
+      "bytes": 270,
+      "sha256": "4e65449ed8320d36c2b9e93de4206dc777e83bd204d4cce9828e20c1161fb6c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom1/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "438fc8ef9423dbb4f4bd39e9a7c16f573aa63465309a32933d942c6117317581"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom10/budget.json",
+      "bytes": 2443,
+      "sha256": "8c2c021e19e8fdfd6771848cc3209e8974ab4a887d80e354209d47004cfb1170"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom10/response.bin",
+      "bytes": 266,
+      "sha256": "e96d4b45debdf674b5546eb7100a8ecfe32601b0642abb0c00330aaa24288105"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom10/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "1fba1e6771a369865232f6e5ac824d8dd1dff53ea377d6ece2ca56a622ecbfec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom11/budget.json",
+      "bytes": 2443,
+      "sha256": "60695b04f40ee4e401295b990d764c41084b8faeb73aa0b2253f03f7f578c381"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom11/response.bin",
+      "bytes": 267,
+      "sha256": "f1f4ba4145598fa0139c3cfad4499a8aecab7c1ddc873ffbe0457bc6405126e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom11/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "a1fa18b05717e96acf9218299d6c26ac0cc7e2e304bf4e9c5d6d8cae11d9b0e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom12/budget.json",
+      "bytes": 2443,
+      "sha256": "b3ef62de3ee275e4bd56e268f88d5b54962916521d86b23802fe1a789c9185f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom12/response.bin",
+      "bytes": 265,
+      "sha256": "4dfc238aedb4de550d19c6ea0c03e1770cd0731e259c39f4943b0e9beba572e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom12/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "6a359a249aec58db2050b9ce9e862b7851fc76bbd1da6ae2c6b00f9b7268a9ef"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom13/budget.json",
+      "bytes": 2443,
+      "sha256": "a75b086323cc6549b17bd96c09797c52fb570064005473744bf6cd79779d91e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom13/response.bin",
+      "bytes": 270,
+      "sha256": "6dbd4c4ef695bcfba83fa03cc40b74931e265784a03adcd12ee09b43cadd6df8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom13/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "8608426a330fa8ddaa15c74afa7ceb7558161629587589a33872c4c78503e866"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom14/budget.json",
+      "bytes": 2443,
+      "sha256": "323e7dfa96879d81cb3b4c220e90f80423362a13d4553a87a5137de06f8790ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom14/response.bin",
+      "bytes": 271,
+      "sha256": "be791a91d8fdc188a7753db9f0026727b52dbc9fc6e8b16ef82454929d30062b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom14/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "3d46af059783119ea2773f50bd3c392b26a2a83583e58782fafc8c87432080bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom2/budget.json",
+      "bytes": 2443,
+      "sha256": "de005824e05788c9049f2b735de451f88d09a6e3fb127d55bcf8ea5724afa1a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom2/response.bin",
+      "bytes": 251,
+      "sha256": "229b8cb550c23fbf40fb062f54b0656fcd3ef3130b6bab606b5c1e10dbe6499e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom2/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "d0c1e2460dfb374fc9d8c96cdd07c8ff1b138881ac96b757d41ed8c9235bc581"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom3/budget.json",
+      "bytes": 2443,
+      "sha256": "47ad79a174c0a45857fb2f0813ffe65653d82f3eef8c0df25c5aaa86973ba7c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom3/response.bin",
+      "bytes": 266,
+      "sha256": "c8e10e4abd456b535e7decf879e50bd2ae2dffd8f78b22f0fe77dd678d6958d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom3/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "e1b6dae45d50110f16c00a0e579b7cdbc0758697e4e1ac3965d9bb3619ce2a2f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom4/budget.json",
+      "bytes": 3265,
+      "sha256": "289879acd533d966dab97c7b6dddf938e8d37435bcf5f86b2aa2050ae81b81f4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom4/response.bin",
+      "bytes": 263,
+      "sha256": "6d5398a184aa58fcd21deb2d94702facc50db836d63bba1fa741bc46c0d6c553"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom4/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "f9ceff906991b9a9f3af5be7aaa7a764da69597c874a525b10f1f7deb253f1cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom5/budget.json",
+      "bytes": 3265,
+      "sha256": "28fb818f8600a2d6bc7cac6801af7e08be0a5f75484b0bbb7d06018d7de8264b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom5/response.bin",
+      "bytes": 265,
+      "sha256": "bbf90bfde3f98f5dbba0abd943e4e689196c617e8bc9f6a5a495864587a2683f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom5/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "816f5da8c8bed9f5fb5968df7785e1ed2df46fc091f3f268f2dd0be219f76822"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom6/budget.json",
+      "bytes": 3265,
+      "sha256": "bf567a06bcd67ae63b3ffea0e90b94fd2496ed98ab3b0c9dced16ff5f7047bb0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom6/response.bin",
+      "bytes": 264,
+      "sha256": "764d5323e35e88200da3e85a91d909eb7589ef0c298a15c0b83bcc1de517d9c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom6/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "f494409b3c281347333907f7201e654e8503f85a3e1e3e6e73e9c1e05fa84563"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom7/budget.json",
+      "bytes": 3268,
+      "sha256": "2a98de3eac1045157813cc75132c414ec473b65c1e4f3bc9f9e2ef9e4575cf64"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom7/response.bin",
+      "bytes": 266,
+      "sha256": "fe915f60fe5e68749da9d4960588fe87e65c61daf7ace5f56523866241c645a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom7/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "a54959d979cda998f663d96bf42a0485a9e2df1f38f59c393649e4717a37c006"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom8/budget.json",
+      "bytes": 3270,
+      "sha256": "63bd17a30a037db4f15f66f2ac68471ad164cf87f230f0e80a954922e95ff8b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom8/response.bin",
+      "bytes": 266,
+      "sha256": "15220d4298fb5621dac7f16063a24a613372bcdec77aff0f5f918d94d6f8df84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom8/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "83b7e96983b046fe262a935a8d7d3dcca63400a3b0f4929139dce8f979c79f79"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom9/budget.json",
+      "bytes": 2443,
+      "sha256": "980a6bb3f7390003eabae46bef05fe6599844f35520ecbf0cb21e72f55940087"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom9/response.bin",
+      "bytes": 267,
+      "sha256": "138d04f93864e46446df597039b4c0b1719adfc7116706b8d9f6c77eb8fc81e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom9/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "23537653cb8e3267f2152b22dc808885915c178aa2d34361d7b1fc66063aeb65"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/actual-files/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/qualified-595/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-removal-595-e7.txt",
+      "bytes": 490994,
+      "sha256": "ca80d2df9bde5388102086a8acabb989e5d6a703b214262ae13f1de58a96603a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json",
+      "source_absolute": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/review/money-independent-removal-595-e7.json",
+      "bytes": 2261,
+      "sha256": "a2c548afe2a3ab5730aeaac7e802166c79eec134b4e7f369ed30aa0f64c6128a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595.xml",
+      "bytes": 3706,
+      "sha256": "b0c166b0af9aa552ec362bccf62aa8c74a18622942eb6257392fdb1a111c825d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom0/budget.json",
+      "bytes": 3265,
+      "sha256": "ab1495c1d5e3f55370a9de12487bfc25fd6c0c2d3f8c1024cf2d7582f65c893d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom0/response.bin",
+      "bytes": 269,
+      "sha256": "ec8f798ff6e1ec510b6cf7b778b2e2b4e9638cc89e51922e3ddc7b63cdbdf4d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom0/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "4791ecbafc7486275ebedf26f840b2d2244427f33aa4933c1458691e2a02ea08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/budget.json",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom1/budget.json",
+      "bytes": 3268,
+      "sha256": "1ef6e4cd7ef3148608e98c24dd1231b56df3c538accb7c251b1bd33cff3f584f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/response.bin",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom1/response.bin",
+      "bytes": 270,
+      "sha256": "4e65449ed8320d36c2b9e93de4206dc777e83bd204d4cce9828e20c1161fb6c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/http-work.jsonl",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom1/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "aca4a4a64aabd8da29d48c83dd99e8db415323cc216b1139c8af9399e67bb821"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/actual-files/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-candidate/removal-595/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/http-baseline.py.source.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-source/http-baseline.py",
+      "bytes": 1177,
+      "sha256": "55482311741b6b810db9360c9e2f5b7388a98952c0d9961a44fd56eb85658cee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/http-baseline.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-source/http-baseline.txt",
+      "bytes": 1128,
+      "sha256": "f8d02328403844500b145482274ae24658a0bae2dc7722ec608d2a588776b2c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/remove_exact_decode.py.source.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-source/remove_exact_decode.py",
+      "bytes": 1630,
+      "sha256": "d57b36c3ece73b43129f6939e883c79f8c0dbd9af01587e5aee7608ea6953eb6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/inputs/package_evidence.py.source.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-source/package_evidence.py",
+      "bytes": 7277,
+      "sha256": "f2c6f3e113b5cbc4e01b7c0c6284867c6e08078602e212504ff54f4510e297d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/premise.txt",
+      "bytes": 2563,
+      "sha256": "41cebdda32f8b3b456b3ca321987e11c0a0630e53a713c42c6602c9018aca213"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise-qualified.txt",
+      "source_absolute": "/tmp/e02-B-gateway-exact-money-baseline/premise-qualified.txt",
+      "bytes": 30098,
+      "sha256": "a9f5a610be877a58df96f81b5e942b928f8cda6b7e40ab7e2bead1d76efadbcd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/observations.json",
+      "bytes": 226378,
+      "sha256": "a14891631d7511988c8f02c88e2dd87c81a6db3f77153c7cbdd5d47ac1958856"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json",
+      "bytes": 943,
+      "sha256": "b9de58213c6ab5424bf6081ece95c8ee249db8298873002a74cdd77157e7adf5"
+    }
+  ],
+  "artifact_count": 274,
+  "payload_bytes": 9336474
+}

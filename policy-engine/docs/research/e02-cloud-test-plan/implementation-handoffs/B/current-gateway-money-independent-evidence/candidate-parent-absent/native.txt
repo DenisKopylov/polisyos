@@ -1,0 +1,499 @@
+EEEEEEEEEEEEEEE
+==================================== ERRORS ====================================
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[tiny-positive] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[tiny-negative] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[missing] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[missing]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[null] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[null]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[integer-zero] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[integer-zero]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[decimal-zero] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[boolean-true] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[boolean-true]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[boolean-false] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[boolean-false]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[nan] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[nan]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[positive-infinity] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_http_money_does_not_become_zero_in_durable_reader[negative-infinity] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+../../e02-B-current-coordination/.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/full'), mode = 448
+parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-B-gateway-exact-money-candidate/full'
+
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+=========================== short test summary info ============================
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[missing]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[null]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[integer-zero]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[boolean-true]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[boolean-false]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[nan]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]
+ERROR ../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]
+15 errors in 0.71s

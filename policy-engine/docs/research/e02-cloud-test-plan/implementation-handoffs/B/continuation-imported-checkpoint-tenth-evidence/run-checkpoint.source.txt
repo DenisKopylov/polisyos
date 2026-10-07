@@ -1,0 +1,153 @@
+"""Capture one exact-source checkpoint consumer invocation and its physical fixture bytes."""
+import argparse
+import base64
+import datetime
+import hashlib
+import io
+import json
+import os
+import platform
+import subprocess
+import sys
+import tarfile
+import time
+from pathlib import Path
+
+CAPS = ['OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS']
+TEST = 'policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py'
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source-sha', required=True)
+    parser.add_argument('--source-tree', required=True)
+    parser.add_argument('--git-root', required=True)
+    parser.add_argument('--task-root', required=True)
+    parser.add_argument('--mode', choices=['native', 'removal'], required=True)
+    parser.add_argument('--child', action='store_true')
+    args = parser.parse_args()
+    task = Path(args.task_root)
+    projection = task / 'projection'
+    run = task / args.mode
+
+    def git(*argv):
+        return subprocess.check_output(['git', '-C', args.git_root, *argv])
+
+    def source_identity():
+        return {'sha': args.source_sha, 'tree': git('rev-parse', args.source_sha + '^{tree}').decode().strip()}
+
+    assert source_identity() == {'sha': args.source_sha, 'tree': args.source_tree}
+    expected_test = git('show', args.source_sha + ':' + TEST)
+    test_file = projection / TEST
+    if args.child:
+        import importlib.metadata
+        import pytest
+        assert test_file.read_bytes() == expected_test
+        profile = {'source': source_identity(), 'python': sys.version, 'executable': sys.executable,
+                   'platform': platform.platform(), 'started_utc': datetime.datetime.now(datetime.UTC).isoformat(),
+                   'test': {'path': TEST, 'bytes': len(expected_test), 'sha256': digest(expected_test)},
+                   'mode': args.mode, 'projection_role': 'Plain Git archive materialization of full tracked src/tests plus test configuration; normal pytest conftests/plugins enabled; no .git, checkout, service or source mutation.',
+                   'environment': {name: os.environ.get(name) for name in CAPS + ['PYTHONPATH', 'PYTEST_DISABLE_PLUGIN_AUTOLOAD', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_INDEX_FILE']},
+                   'versions': {name: importlib.metadata.version(name) for name in ['pytest', 'numpy', 'jax', 'pydantic']},
+                   'in_memory_overlay': None}
+        if args.mode == 'removal':
+            from polisyos.foundry.methods.artifacts import _implementation_identity as identity
+            original = identity._module_capture
+            def module_version_only(function, name, module, *, strict, visiting):
+                return {'module': module.__name__, 'version': identity._version(module.__name__.split('.')[0])}
+            identity._module_capture = module_version_only
+            profile['in_memory_overlay'] = {'runtime_symbol': original.__module__ + '._module_capture',
+                                            'input': str(Path(__file__)), 'input_sha256': digest(Path(__file__).read_bytes()),
+                                            'property_removed': 'Every captured imported module retains name/version while its actually selected member projection is omitted.',
+                                            'disk_source_bytes_unchanged': True}
+        reports = []
+        class Custody:
+            def pytest_runtest_logreport(self, report):
+                reports.append({'nodeid': report.nodeid, 'phase': report.when, 'outcome': report.outcome, 'duration_s': report.duration})
+            def pytest_sessionfinish(self, session, exitstatus):
+                origins = []
+                for name, module in sorted(sys.modules.items()):
+                    file = getattr(module, '__file__', None)
+                    if not name.startswith('polisyos') or not file:
+                        continue
+                    actual_file = Path(file).resolve()
+                    assert actual_file.is_relative_to(projection), (name, file)
+                    relative = str(actual_file.relative_to(projection))
+                    data = actual_file.read_bytes()
+                    assert data == git('show', args.source_sha + ':' + relative), (name, relative)
+                    origins.append({'module': name, 'path': relative, 'bytes': len(data), 'sha256': digest(data)})
+                assert test_file.read_bytes() == expected_test
+                profile.update({'source_after': source_identity(), 'origin_count': len(origins),
+                                'actual_source_origins': origins, 'origin_mismatches': [], 'pytest_exit': int(exitstatus),
+                                'collected_cases': [item.nodeid for item in session.items], 'phase_reports': reports})
+                (run / 'profile.json').write_text(json.dumps(profile, indent=2) + '\n')
+                fixtures = []
+                for file in sorted((run / 'fixtures').rglob('*')):
+                    if not file.is_file():
+                        continue
+                    data = file.read_bytes()
+                    item = {'path': str(file.relative_to(run / 'fixtures')), 'bytes': len(data), 'sha256': digest(data)}
+                    try:
+                        item['utf8'] = data.decode('utf-8')
+                    except UnicodeDecodeError:
+                        item['base64'] = base64.b64encode(data).decode()
+                    fixtures.append(item)
+                (run / 'physical-fixtures.json').write_text(json.dumps({'file_count': len(fixtures), 'files': fixtures}, indent=2) + '\n')
+                print('CHECKPOINT_SOURCE_ORIGINS', len(origins), args.source_sha)
+                print('CHECKPOINT_PHYSICAL_FIXTURES', len(fixtures))
+                for item in fixtures:
+                    if item['path'].endswith('effects.txt'):
+                        print('CHECKPOINT_ACTUAL_EFFECT_FILE', json.dumps(item))
+        argv = ['-p', 'no:cacheprovider', '-vv', '-s', '--tb=short',
+                '--basetemp', str(run / 'fixtures'), '--junitxml', str(run / 'native.xml'), str(test_file)]
+        if args.mode == 'removal':
+            argv += ['-k', 'same_version_imported_member_change_refuses_before_replacement_effect']
+        return pytest.main(argv, plugins=[Custody()])
+
+    task.mkdir(parents=True, exist_ok=True)
+    run.mkdir(exist_ok=False)
+    if not projection.exists():
+        projection.mkdir()
+        archive_paths = ['policy-engine/src', 'policy-engine/tests']
+        for path in ['policy-engine/pyproject.toml', 'policy-engine/pytest.ini', 'policy-engine/ruff.toml', 'policy-engine/uv.lock']:
+            if git('ls-tree', args.source_sha, path).strip():
+                archive_paths.append(path)
+        if git('ls-tree', args.source_sha, 'policy-engine/product').strip():
+            archive_paths.insert(1, 'policy-engine/product')
+        archive = git('archive', '--format=tar', args.source_sha, *archive_paths)
+        with tarfile.open(fileobj=io.BytesIO(archive), mode='r:') as contents:
+            contents.extractall(projection, filter='data')
+        (task / 'projection-input.json').write_text(json.dumps({'source': source_identity(), 'archive_bytes': len(archive),
+            'archive_sha256': digest(archive), 'command': ['git', '-C', args.git_root, 'archive', '--format=tar', args.source_sha, *archive_paths],
+            'test_sha256': digest(expected_test), 'not_a_git_checkout': True}, indent=2) + '\n')
+    assert not (projection / '.git').exists() and test_file.read_bytes() == expected_test
+    env = os.environ.copy()
+    for cap in CAPS:
+        env.pop(cap, None)
+    env.update({'PYTHONPATH': str(projection / 'policy-engine/src') + ':' + str(projection / 'policy-engine/product'),
+                'PYTHONDONTWRITEBYTECODE': '1',
+                'POLISYOS_METRICS_PORT': '0', 'JAX_PLATFORMS': 'cpu'})
+    env.pop('PYTEST_ADDOPTS', None)
+    env.pop('PYTEST_DISABLE_PLUGIN_AUTOLOAD', None)
+    argv = [sys.executable, str(Path(__file__)), *sys.argv[1:], '--child']
+    started = time.monotonic()
+    with (run / 'native.txt').open('wb') as stdout:
+        process = subprocess.Popen(argv, cwd=projection / 'policy-engine', env=env, stdout=stdout, stderr=subprocess.STDOUT)
+        _, status, usage = os.wait4(process.pid, 0)
+        code = os.waitstatus_to_exitcode(status)
+        process.returncode = code
+    wrapper = {'argv': argv, 'cwd': str(projection / 'policy-engine'), 'actual_exit': code,
+               'wall_s': time.monotonic() - started, 'max_rss_kib': usage.ru_maxrss,
+               'source': source_identity(), 'input_files': [{'path': str(file), 'bytes': file.stat().st_size, 'sha256': digest(file.read_bytes())} for file in [Path(__file__), test_file]],
+               'numeric_caps': {cap: env.get(cap) for cap in CAPS}}
+    (run / 'wrapper.json').write_text(json.dumps(wrapper, indent=2) + '\n')
+    print(json.dumps(wrapper, indent=2))
+    return code
+
+
+if __name__ == '__main__':
+    sys.exit(main())

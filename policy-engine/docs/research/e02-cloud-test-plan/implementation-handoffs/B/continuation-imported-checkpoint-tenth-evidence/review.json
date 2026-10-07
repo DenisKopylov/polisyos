@@ -1,0 +1,45 @@
+{
+  "schema": "policyos.e02.independent_consumer_review.v1",
+  "predicate_basis": "recomputed",
+  "closure_ids": [],
+  "source_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "source_tree_sha": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "native": {
+    "PASS": 4,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "phases": 12
+  },
+  "property_removal": {
+    "FAIL": 1,
+    "deselected": 3,
+    "phase_outcomes": [
+      "passed",
+      "failed",
+      "passed"
+    ],
+    "actual_wrong_resumed_total": 107
+  },
+  "runtime_quantities": [
+    "Actual CAS input selected manifest profile binds bytes {\"x\":3}; a fresh FileSystemCAS reads the same bytes.",
+    "Actual persisted prefix contains one completed concrete UUID, product6 and historical node output6; unchanged member cold/resume both7 and two original filesystem effects.",
+    "Same-version selected member replacement raises typed checkpoint refusal before replacement effect. Stdout at refusal records only original; the later explicit cold substantive control then returns107 and writes replacement.",
+    "Imported builtin cold/resume both6.0; original checkpoint pointer bytes remain unchanged.",
+    "Unsupported __import__ namespace intake raises typed source-identity error before consumer effect or any checkpoint directory.",
+    "Under generic module-member projection removal, real resume returns107 and writes replacement before the test fails DID NOT RAISE. Same on-disk source/test/name/version markers remain."
+  ],
+  "source_profile": "Plain immutable Git projection of full tracked src/tests and exact pytest configuration. Normal pytest.ini, root/Foundry/methods conftests and auto-loaded plugins used. No new Git checkout/service or canonical writes.",
+  "origin_closure": "166 actual file-backed loaded polisyos modules in each child match exact590 source Git bytes; test/config post-readback also match. External interpreter/dependencies bound by actual versions/stdout rather than whole external authority.",
+  "warning": "Each invocation has one PytestConfigWarning for cache_dir because capture disables cacheprovider; no collection/setup/call refusal in native and no test skip.",
+  "P37": {
+    "recomputed": "New exact-source native4 and material removal1 execution; full assertions/phase logs/XML/physical fixtures/origins/timings.",
+    "consumer_asserted": "Fixture initial x3/factor2/seed7 and injected helper names are bounded operational test inputs.",
+    "not_established": "Institutional/model source authority, arbitrary runtime namespace graph/frame identity, whole B/current quality gates, all backends/platforms/scientific validity."
+  },
+  "P38": "Module name/version equality is a cheap proxy. A same-version selected helper change alters actual resumed output to107 and creates a real replacement effect when only member identity is removed.",
+  "P40": "Selected imported-member binding is the same B74 dependency-identity class. Runtime frame/opaque installed-callable internals remain declared bounded residual; this finite four-case profile does not close them.",
+  "historical_qualification": "Previous author128 and broad6fa setupERROR did not execute this four-case file. No historical PASS/error is restamped590, and later carriers need explicit source/test/config byte reconciliation.",
+  "state": "NONBLOCKING finite static imported-member checkpoint consumer evidence; B74 remains LIMITED; formal closure authority false.",
+  "next_owner": "ROOT/G source integration and actual full cohort/gates. CMP owns source identity/frame/runtime graph residual. CAS/ROOT independent receipt review; this executor changes no canonical source."
+}

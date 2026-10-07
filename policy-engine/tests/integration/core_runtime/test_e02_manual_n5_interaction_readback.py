@@ -509,6 +509,13 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         completed = service._control_store.get_job(accepted["job_id"])
         assert completed is not None and completed.state == "completed"
         assert completed.run_id is not None
+        core_run_id = completed.progress["core_run_id"]
+        assert isinstance(core_run_id, str) and core_run_id
+        assert core_run_id != completed.run_id
+        core_manifest_ref = ArtifactRef.model_validate(
+            completed.progress["core_manifest_artifact_ref"]
+        )
+        assert str(core_manifest_ref.artifact_id) == completed.progress["manifest_ref"]
         compiled_ref = compiled_refs[completed.job_id]
         assert str(compiled_ref.artifact_id) == completed.progress[
             "compiled_recursive_generation_cycle_ref"
@@ -533,16 +540,22 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         candidate_simulation_profiles=(profile,),
         candidate_simulation_model_declarations=(model_declaration,),
     )
-    run_path = f"/api/v1/runs/{completed.run_id}"
+    # RunDetails is indexed by the attempt Core ID; the control ID remains the
+    # stable job identity and is carried in the Core manifest's control_job_id.
+    run_path = f"/api/v1/runs/{core_run_id}"
     with owner_scoped_test_client(fresh_app) as fresh_client:
         response = fresh_client.get(run_path)
         assert response.status_code == 200, response.text
         run = response.json()["run"]
+        assert run["run_id"] == core_run_id
+        assert run["control_job_id"] == completed.job_id
+        readback_manifest_ref = ArtifactRef.model_validate(run["manifest_ref"])
+        assert readback_manifest_ref.artifact_id == core_manifest_ref.artifact_id
         rows = run["conditional_simulation_values"]
         assert len(rows) == 1
         row = rows[0]
         assert row["job_id"] == completed.job_id
-        assert row["run_id"] == completed.run_id
+        assert row["run_id"] == core_run_id
         assert row["candidate_id"] == input_record.original_candidate_id
         assert row["profile_config_ref"] == input_record.profile_config_ref
         assert row["profile_config_ref"] == candidate_simulation_profile_ref(profile)

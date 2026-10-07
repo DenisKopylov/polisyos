@@ -274,8 +274,8 @@
   "original_next_owner": null,
   "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
   "root_assembled_source": {
-    "sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
-    "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
     "not_new_numerical_proof": true
   },
   "new_property_followups_not_automatically_original_reopen": [
@@ -290,6 +290,66 @@
       "code_candidate_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
       "code_candidate_tree": "bd4d4488cbd8121fed1c0983d2e3cc3d8fef49a5",
       "role": "Source-bound bounded delta/consumer evidence; no formal G closure"
+    },
+    {
+      "lane": "Graph",
+      "git_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+      "bytes": 89153,
+      "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+      "git_blob": "df227f1efbd870db9c2de811c3ed472b2a532716",
+      "tree": "014203f04f72a477407df231372775f403e0cefb",
+      "code_candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "code_candidate_tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "role": "Full source-bound corrective or independent evidence; not G finding acceptance"
+    },
+    {
+      "lane": "Installed-b5-failed",
+      "git_ref": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007.json",
+      "bytes": 31855,
+      "sha256": "f4cd659e42b8db8000a918f528d231cab1e8e70f95dd598d645e45acdc2d6fc5",
+      "git_blob": "de88da9f324d9657fe6feb28210f3c2419ce715a",
+      "tree": "2a13485d2b198b51643f78929a15d920b58e8e86",
+      "code_candidate_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "code_candidate_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "role": "Complete failed immutable installed checkpoint: each130PASS32GraphFAIL/0ERROR0SKIP; API2/FIT53/ECO28 passed unchanged. Full warnings/harness mistakes/decoded raw/source custody retained; no closure or final-candidate PASS."
+    },
+    {
+      "lane": "Catalog-resource",
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json",
+      "bytes": 102004,
+      "sha256": "8b7754451abfbfe2c78fcd261de84ebe8b3de1c373a8f23d7561c8b9c71b75af",
+      "git_blob": "62e24ee89c64ab756a8f5e914d44e0c4983e1f50",
+      "tree": "aa83a73a8b27785adc761898aa23d3ec85e83078",
+      "code_candidate_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "code_candidate_tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    },
+    {
+      "lane": "Installed-resource-forward",
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json",
+      "bytes": 47204,
+      "sha256": "d4cef17e72100250f5162b3642654882f1864c576e895ca8903b7b4f24e66f05",
+      "git_blob": "aede76d8e164702cab5b4d1da3a3aa3b0ef57b77",
+      "tree": "a4fad43369eb6ca56514591e27f70fb9033df4a5",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    },
+    {
+      "lane": "Installed-recovered-fresh-child",
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007.json",
+      "bytes": 20686,
+      "sha256": "90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88",
+      "git_blob": "2d3922dced9ea826c6c626f0a0e9d5b6fb8a36ea",
+      "tree": "8bb4badcc750f47833b402c32a5879f9bb7d59d7",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
     }
   ]
 }

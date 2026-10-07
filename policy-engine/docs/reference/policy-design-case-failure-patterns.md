@@ -409,3 +409,7 @@ report includes debt points, purpose multipliers, readiness bands, and
 burn-down templates; a red readiness band is acceptable when the report is
 honest and owned, but the affected capability still cannot be called
 implemented.
+
+### P02 installed default consumer discriminator (E02 F)
+
+- P02 installed-default discriminator: does an actual neutral installed consumer read the curated default metadata, or only import its module/use an explicit custom path? Bind all finite catalog resources from original tracked bytes through sdist and wheel, route every default owner through one resolver, and reject CWD or neighboring-checkout substitutions. Retain declared absence/parse fallback semantics separately: an empty fallback is not evidence that the supported installed default was supplied. Packaging file counts without these consumer calls miss this class.

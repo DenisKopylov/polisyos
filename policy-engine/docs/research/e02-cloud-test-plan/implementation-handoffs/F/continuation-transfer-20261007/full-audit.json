@@ -2,23 +2,52 @@
   "schema": "e02.F.continuation-transfer.v3",
   "unit": "F",
   "role": "Complete original35 audit follows full hash-bound per-ID documents and immutable complete registry/review Git refs; no duplicated raw/derived views",
+  "assembled_consumer_ready": true,
+  "assembled_consumer_status": "Verified deciding bytes published at de197; first b5 failure preserved separately; additional wheel graph fresh-child has separate frozen recovery review.",
   "slice_base_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
   "slice_base_tree": "f2b9b2d4bcc24a2feeae6f4873b61845a07cc090",
   "product_source": {
-    "sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
-    "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
     "prior_source8236": "8236d9c368336a5ea20c1586f29aea7321db6536",
     "new_product_paths": [
+      "policy-engine/hatch.toml",
+      "policy-engine/src/polisyos/data_forge/domains/README.md",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
       "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
       "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
     ],
-    "all_other_product_worker_lock_bytes_unchanged": true,
+    "unchanged_scientific_estimators_reuse_exact_source_bound_receipts": true,
+    "first_installed_freeze": {
+      "sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "wheel": {
+        "PASS": 130,
+        "FAIL": 32,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "rebuilt_sdist": {
+        "PASS": 130,
+        "FAIL": 32,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cause": "Four curated default catalog YAML absent; installed paths outside package. Full failure and warning custody retained; unchanged API2/FIT53/ECO28 passed each."
+    },
     "full_product_patch": "See committed root closeout companions source8236-to-freeze-product-full.patch"
   },
   "G_checkpoint": {
     "fetch_exit": 0,
-    "G": "a0ac10fc11975c345312034d0e568b4cfc330d76",
-    "G_tree": "ae067d9bcd96ff123b76d3b6eebef27a1736079c",
+    "G": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "G_tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
     "main": "198076863e143dea9f89f02734b13d50dae3eed5",
     "main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
     "relations": {
@@ -26,6 +55,413 @@
       "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7": true,
       "00a6eda114b903bc5abe86902cd8372426f739a1": true,
       "072d45a56d1119fe3e7665cec2cbbdca015d2934": false
+    },
+    "historical_previous_checkpoint": {
+      "G": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+      "G_tree": "ae067d9bcd96ff123b76d3b6eebef27a1736079c"
+    },
+    "actual_F_ordinary_merge": {
+      "base": "a7fb790d79207bbb17deaa3f9ea1431a6c40e614",
+      "G_dependency": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "source519": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "head": "79895c6758307a56b1613a8d1c19daa3f0d92c25",
+      "tree": "5bfbc2720c92fccb63ab2f288971b182cd09073b",
+      "parents": [
+        "a7fb790d79207bbb17deaa3f9ea1431a6c40e614",
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+      ],
+      "merge_conflicts": [
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md"
+      ],
+      "merged_paths": [
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B109_P27_TASK.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/E.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/A-resume-after-delivery.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/D-resume-after-pr47.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/E-resume-after-pr38-r2.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/E-resume-after-pr38.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F-resume-after-pr65.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/A.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-d030.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/E.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-offline-519e.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/compiler-readback.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/hatchling-backend-prewarm.stdout.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/installed-wheel.environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/installed-wheel.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/installed-wheel.stdout.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/offline-backend-error.capture.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/offline-backend-error.environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/origin-probe-harness-errors/construct-shape.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/origin-probe-harness-errors/host-sysconfig.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/origin-probe-harness-errors/missing-fallback-env.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/origin-probe.stdout.log",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/wheel-origin-and-report.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-11.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-12.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-13.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-admission-attempt1.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-child.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-main.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-main.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope-probe.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/b-state-scope.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-fifth-wave/cleanup-native-trash.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/afterstate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt1/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt1/execution-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt1/junit-summary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt1/pytest-a11-run.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt1/pytest-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/child-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/execution-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/junit-summary-corrected.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/junit-summary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/n8-child-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/n8-child-verification.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/pytest-a11-run.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/attempt2/pytest-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/postrun-lock-residue.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/A11/report.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt1/adjudication.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt1/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/poststate-receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/profile-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/run-after.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/run-before.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/runtime-profile-clarification.command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/B16/attempt2/runtime-profile-clarification.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/C-schema-dirty/attempt1-adjudication.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/C-schema-dirty/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/C-schema-dirty/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/C-schema-dirty/run_probe.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/environment-after.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/environment-before.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/inputs.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/probe.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/report.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/setup-failure-2-deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/setup-failure-2-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/setup-failure-deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt1/setup-failure-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/environment-after.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/environment-before.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/inputs.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/module-hashes.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/probe.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/report.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempt2/result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E-Morris-analysis/attempts-index.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/after-state.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/artifact-footprint.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/candidate-input-hashes.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/environment-before-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/environment-before.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/footprint-final.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/install-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/report.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/requirements.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/runtime-profile-attempt2-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/prerequisite/runtime-profile-attempt2-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/report.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/run_selector.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/runtime-provenance.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/slot-status-after.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/test-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/E77/test-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/cleanup-actions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/cleanup-preflight.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/planning-input-checks/checkpoint12-coverage-check.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/planning-input-checks/checkpoint12-coverage-check.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/planning-input-checks/checkpoint12-import-check.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/planning-input-checks/checkpoint12-import-check.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-A-current.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-B-CAS.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-B-cohort-deciding.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-B-identity-owners.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-B-state-runtime-adapters.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-B87-stream.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-C-hygiene-schema.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-C-migrations-plugins.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-D-GP-CAS-cost.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-D-consumers.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-D-deciding-stress.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-D-identity-surface.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-D-math-oracles.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-E-current.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-F-Fry-CAU.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-F-confidence-TMLE.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-F-economics.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-F-graph.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-F-identity-order.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1830-C-schema-admission.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1845-AC-actions-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1845-B16-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1845-BD-actions-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1845-EF-actions-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1900-E77-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1910-D-original-criteria-correction.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1920-Morris-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1930-E-r2-deciding.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1930-E-r2-identity.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1930-E-r2-remaining-work.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1945-workspace-cleanup-candidates.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2000-E-r2-original-criteria-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2010-A11-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2030-E-resume-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2045-checkpoint12-final-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2045-receipt-cleanup-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-delivery-deciding.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-delivery-identity-surface.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-delivery-remaining-work.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2100-A-runtime-oracle.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2115-A-prompt-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/2125-cleanup-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/transport-snapshot.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/accepted-test-ruff.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/accepted-test-ruff.stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/accepted-test-ruff.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/attempt-1/command-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/attempt-1/lossless-output-capture.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/attempt-1/pytest.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/attempt-1/run-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/build-inputs.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/build-requirements.lock.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-2/command-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-2/pytest.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-2/pytest.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-2/run-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-3/command-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-3/pytest.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-3/pytest.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-3/run-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/command-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/compiler-report.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/installed-wheel.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/pytest.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/pytest.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/run-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/wheel-source-reconciliation.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/source-readback.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/B-state-source-cleanup.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/binary-exact-scale/execution.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/binary-exact-scale/probe.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/binary-exact-scale/runner.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/binary-exact-scale/stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/binary-exact-scale/stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/decimal-scale/execution.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/decimal-scale/probe.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/decimal-scale/runner.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/decimal-scale/stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/decimal-scale/stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/C-BERL/source-identity.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/cleanup-native-trash.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/independent-review-decisions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/representation-delta-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/transport-snapshot.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/2034-pins.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/deciding-output.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/receipt.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/context-attempt2.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/context.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/cleanup-actions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/current-bindings-preservation.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage-unsupported-flag.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage-unsupported-flag.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/import.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/import.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/A-binding-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-CAS-DUR-evidence.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-async-JIT-runtime.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-checkpoint-oracles.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-checkpoint-runtime.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-deciding.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-installed-backends-surface.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-owner-footprint.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/CE-carry-delta.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-Search-consumers.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-identity-deciding.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-math-runtime.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-oracles-transfer.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-Fry-econ-Lex.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-causal-confidence.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-graph-SCM.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-identity-surface-deciding.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/G-D-ask-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/admission-order-checks.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/compactnew-six-identity.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/disk-candidates.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/final-pack-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/identity-queue-addendum-20261007.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/identity-queue.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/old-session-disposition.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/retired-source-value.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/six-accounting-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/six-root-inputs.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.junit.xml.lossless.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/candidate.stdout.txt.lossless.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.junit.xml.lossless.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/control.stdout.txt.lossless.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/executed-observer-ruff.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/g_origin_plugin.executed.py.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/independent-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/ruff.stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-ninth-wave/B-gateway/ruff.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/.gitignore",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/independent-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/pytest.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/runner-result.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/attempt2/supervisor-receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/report.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/stderr.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervisor-receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-seventh-wave.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-sixth-wave.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/A.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/B.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/C.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/D.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/F.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/B.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/D.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/E.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/F-merge-tree.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/F.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/independent-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-ninth-wave/pins.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-journal-correction.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-journal-readback.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B-prompt-independent-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/B.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/C.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/D.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E-IR-decision.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-prompt-independent-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/independent-publication-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/pins.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-extractions-1116-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-old-admin-1008-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/C-old-and-env-1008-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/storage/source-preservation.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delivery-continuation-audit-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-delta-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/A-next-wave-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-delta-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-next-wave-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/C-delta-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/C-next-wave-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-delta-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-next-wave-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-delta-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-next-wave-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-pr38-continuation-audit-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-pr38-r2-continuation-audit-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-delta-owner-actions-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-next-wave-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/original-criteria-errata-2026-10-06.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/A-source-disposition.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/C-source-disposition.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/E-appointment-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/E-delta.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/IR-consumer-map.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/LA033-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/N6-source-disposition.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/cleanup-actions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/cleanup-publication-independent-followup.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/cleanup-publication-independent.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/production-name-fixture-provenance.md",
+        "policy-engine/docs/runbooks/migration-release-promotion.md",
+        "policy-engine/ops/migrations/ir/README.md",
+        "policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b111-frontier-v3.toml",
+        "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "policy-engine/tests/unit/remediation/test_req_01_installed.py"
+      ],
+      "full_diff_bytes": 2772829,
+      "full_diff_sha256": "5ffca9dd969b0824564a404f01492311e6c5b76769ba5e6d75ec6cf209ae597a",
+      "runtime_or_companion_delta_from519": [
+        "policy-engine/src/polisyos/scientist/methods/search/README.md"
+      ],
+      "authored_doc_diff_check": "PASS",
+      "full_merge_diff_check": "FAIL",
+      "full_merge_diff_check_reason": "Two unchanged published G raw C-canon stdout whitespace lines preserved; P41 inherited attribution not_established; no blanket PASS.",
+      "acceptance": "not_G_acceptance"
+    },
+    "historical_pins": {
+      "a0ac10fc11975c345312034d0e568b4cfc330d76": "ancestor",
+      "76746fececd1a183a516c48f07ce2835baa8a2d1": "ancestor"
     }
   },
   "denominator": {
@@ -71,211 +507,211 @@
       "finding_id": "B204",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
       "bytes": 17977,
-      "sha256": "7aa74d7d63ea315cb62caf38177e72f8096ac2cc65e2932b6fb63ee079054573"
+      "sha256": "a8b3fb41f8a690eb238a59cacaff7c3f15ac957079ef5118ed78a321ce41375f"
     },
     {
       "finding_id": "B205",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B205.json",
       "bytes": 18259,
-      "sha256": "0c4e43f0c69da653b49a12d71d8facecae5ad647a5de96affda824ae49859e47"
+      "sha256": "3904b9fa07cdcaf45c110ac56e3e168b1883409eb1e493764ec368dbdda7e533"
     },
     {
       "finding_id": "B206",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B206.json",
       "bytes": 16603,
-      "sha256": "966e06017cfc047163463383f41c528d340ea8037d3b33df7601422b5e1f730f"
+      "sha256": "dba374b65670d1a01995e6198c3ae5badea7a077446dc22e9124e6a79718e6c8"
     },
     {
       "finding_id": "B207",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B207.json",
       "bytes": 18357,
-      "sha256": "90f0dac9839dc4f60f3a9c0b2609752e834b77c28a04026208c86d7d4ffde089"
+      "sha256": "cd200de7a081a02a128f6d34e7b85db16d991a16c9c8595300a5249e7ed29421"
     },
     {
       "finding_id": "B208",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B208.json",
       "bytes": 16634,
-      "sha256": "89ee8ddda25563fad8b807ad387a3361154e7f20d2d2724920438c56de519466"
+      "sha256": "bf8e6214bcf280b7b9496379e1eb14dc44de060f4e98528bea6c68de9f3bb297"
     },
     {
       "finding_id": "B209",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B209.json",
       "bytes": 16920,
-      "sha256": "ce1972b0332d4ab23d38ec1b4d00b6185c75dfe2917e61d8ca91546ba93a3c04"
+      "sha256": "c47f1abb627ac5a74747bbc29fec75daef42cfabe265a40cbadb729d29d1f09f"
     },
     {
       "finding_id": "B210",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B210.json",
       "bytes": 11808,
-      "sha256": "db8cb14aedc681ed2120964155332a9291e41d9e1d8b03281dcc5e6529538b50"
+      "sha256": "16c824d78233c0b925b49b8342f55d336ed12d492740f381018c38d07facbd36"
     },
     {
       "finding_id": "B211",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B211.json",
       "bytes": 11038,
-      "sha256": "9776e7ca7463f863df751e5bcd76a06be0d1ba0a1a7f44e49a157f1a41bcd9a0"
+      "sha256": "bc8330d624e8c8bc2dec0a6e1dec0270f53b132769502aca5e1d5c9bfa5a4f1f"
     },
     {
       "finding_id": "B212",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
       "bytes": 25002,
-      "sha256": "9865ef5b2eb055ebbe3a11a8e5338ee45b8394e81449347c7f42477d07792124"
+      "sha256": "b9ef3166c5c5b94bf59103c728e34f121cf11da27abf1cdc26daed7f8bfc7208"
     },
     {
       "finding_id": "B213",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
       "bytes": 24849,
-      "sha256": "c3cdfd38eb984cbda041243522203f4f505486e89736f2b241c5ae0da1795974"
+      "sha256": "e5f654ce950fd867b84573038c47e5b1a66e0e3f9acc5f2e2213d68e403a7703"
     },
     {
       "finding_id": "B214",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
-      "bytes": 23731,
-      "sha256": "0ea28cd0d3de5ced4ecb51efe5026327a5c5171e3daad3dd5d6201e4183e0afe"
+      "bytes": 26943,
+      "sha256": "0e14cf984e41da503c7e184d62aaeb0396483ea4e1c75cc594c44f0d4b4a3cd7"
     },
     {
       "finding_id": "B215",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B215.json",
       "bytes": 16686,
-      "sha256": "a5582866c5557abf7cde2790c4135fe401576bdfd03e1e86be3e6682efa70935"
+      "sha256": "5f8383b875a5edaea7df362da1c2db489423a4dc3ed093a5a544d51abd17351e"
     },
     {
       "finding_id": "B216",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B216.json",
       "bytes": 25745,
-      "sha256": "e7e321b5567e19bab23e5b38ded2a58c5fcdff8a25e9108f601e0a7a0dddffb8"
+      "sha256": "b31cd18f45f774c591de1cdddbf5aa63d6981f90e2fc1390aa011375824914d8"
     },
     {
       "finding_id": "B217",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B217.json",
       "bytes": 21673,
-      "sha256": "b6a773174eb3a9f683fb4b8b7276e523d77f8736fd104e8943aec1066773b3c5"
+      "sha256": "dff03b247c5d0de559767e5198f284fecbbeb12ba9b8ec79bdae4aa365ff00cc"
     },
     {
       "finding_id": "B218",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
-      "bytes": 22939,
-      "sha256": "3f5bf2a8157298dd10a987dad810af3badb27bd6660660357efdb3aa5991082a"
+      "bytes": 26151,
+      "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d"
     },
     {
       "finding_id": "B219",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B219.json",
       "bytes": 19781,
-      "sha256": "294e6da91ba24fc4ea0f821ecc8ddbe29917549d54473d1c0980d4eef865b7bb"
+      "sha256": "d276a6a11a40f682da4b88062ca79a6d387ed856cc8f9f900e5e94c8da73119c"
     },
     {
       "finding_id": "B220",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B220.json",
       "bytes": 24036,
-      "sha256": "b3ffc832480aba04486d03e806ee3c03498e6a716f0e4f75c5d9882914d349f4"
+      "sha256": "09a8595ce3af9117aa5fd76cc2ec5c9f2fd31494e87092158907781be9b713bf"
     },
     {
       "finding_id": "B221",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B221.json",
       "bytes": 32675,
-      "sha256": "38a6297dc33b8ebd0b717f27cf2874a86318660bb0a3159532a720663bf3f667"
+      "sha256": "56e667f19770395f96773524e30e81be86e527892dca81f3b3fa2ce1bbcb81e4"
     },
     {
       "finding_id": "B222",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B222.json",
       "bytes": 23556,
-      "sha256": "c634b0c879552ac38c6347b4066288966b29c5a5c015eb29e1f2e916af3cd782"
+      "sha256": "fc6e9d4d95cd198403f94d5bf0709942749d8b5344c3de0570c350f53b91d812"
     },
     {
       "finding_id": "B223",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B223.json",
       "bytes": 29643,
-      "sha256": "559f5f5307ba6a658a56c7b4e88f38105f2848b946ad334b0fd98a43e320d09c"
+      "sha256": "caab7a3869fd395a8df3b12534087b5d4dae59b5a375a44b5fa4fb1f0b12233d"
     },
     {
       "finding_id": "B224",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B224.json",
       "bytes": 21302,
-      "sha256": "ee75e8a8aaa0f26847ff020215f04903273631265b3d40e297dc14b6c6d49ef1"
+      "sha256": "8efbacf523367a3d3feabaf69b14065f14662765e3bd4b8f8d01f6ee1a5f4e7d"
     },
     {
       "finding_id": "B225",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B225.json",
       "bytes": 21025,
-      "sha256": "ededeb576b1999c7dc2b69fbac0896a4246a5faaf999b8c5611710a6c0fa53c3"
+      "sha256": "4c0e9894adcb5f94c86df9e856429488823bcbb33666507a7253eac16de643ca"
     },
     {
       "finding_id": "B54",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B54.json",
-      "bytes": 29465,
-      "sha256": "523f9dd0f6364d200eb4fa232a75fafac9cb0a1fdfa40772e8b226229be9d621"
+      "bytes": 31078,
+      "sha256": "e352fb79456ebd91020f5091f5ab481b00ac92a268345dad13e872601f616fcf"
     },
     {
       "finding_id": "B56",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
-      "bytes": 31546,
-      "sha256": "d80fc4d9035997286543b7a47bb2d741315f5c68fa5c9c5389a7304a4f3043b9"
+      "bytes": 33159,
+      "sha256": "330997ae0be27e86a00e15d5a2c4b41d32f46b52ac290b8effdc3e284fb72611"
     },
     {
       "finding_id": "LA-001",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-001.json",
       "bytes": 11889,
-      "sha256": "588711561156a4d937a5616088978e7aea1d8ab71b55c00eef89867ec2bf320f"
+      "sha256": "5bb776d6f2df4870aa947d9d740404fae6dfa25fe0d7f4ab787902e50dff0e42"
     },
     {
       "finding_id": "LA-002",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-002.json",
       "bytes": 11904,
-      "sha256": "0313f47365a148d60106556d9db9697d9fe74ed44ff9274586922f6359efc211"
+      "sha256": "f17811c55ea202438a0a688bf76b2a72e9a0d0cb769dc383bf6c47669c58f0c3"
     },
     {
       "finding_id": "LA-003",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-003.json",
       "bytes": 21583,
-      "sha256": "15f17c84c97014af22fa5491c207b5badb3ebb6b1b0e8ca03c0aca68ed61c237"
+      "sha256": "979e1ead6c89e439b29ec5f227be0c296b7745f0b49327617a95dde02da8bd5a"
     },
     {
       "finding_id": "LA-004",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json",
-      "bytes": 18375,
-      "sha256": "2e423bee342388e40cccf45ef4693462a6d2d580a261d36eee456c680e0862a4"
+      "bytes": 19988,
+      "sha256": "a9a7fbdaa28edbcd104a74841363b8ca79870804b710e432f48bd6855cf9faed"
     },
     {
       "finding_id": "LA-007",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-007.json",
-      "bytes": 29063,
-      "sha256": "ef26068d5d29bc2afc8cb1797551ab2756de3c388d7b6082e42b4273037b3a23"
+      "bytes": 32972,
+      "sha256": "a6588f4f06b6fde53a81ae3aaa678fa7d7a01e0363bebbe12eb39f9973e2b515"
     },
     {
       "finding_id": "LA-016",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-016.json",
       "bytes": 18192,
-      "sha256": "6ee9cbc1266a3ac5f7beb65ee1a16be20229b95bd9bcc00af3fd527dce25758a"
+      "sha256": "e929fdb392817ee6a634982159bdc4363dbc477f7e4f2eb1bb98fbc1220f862a"
     },
     {
       "finding_id": "LA-017",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-017.json",
       "bytes": 13955,
-      "sha256": "a27331278a0c2a100542adf77ca7dfb4c4e465f13294a5c4289c3237fad0ce13"
+      "sha256": "19cdcc326551fc8c747a19b2f0353f5a68f2ef4ca5f72ac8da471e98479ac4fb"
     },
     {
       "finding_id": "LA-019",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-019.json",
-      "bytes": 30336,
-      "sha256": "216500c4567a885171e2e072f960c514fe4c729a87753b8728d2e78bbc6d3f1f"
+      "bytes": 34245,
+      "sha256": "95175e83b4e60ae75a14425a1df4d009a5359bcb88e4e6db293a8cb182232d3c"
     },
     {
       "finding_id": "LA-020",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-020.json",
-      "bytes": 36091,
-      "sha256": "6ba1897af5ebe277e088394e2a9bdc17f56ebd1b6a8a127d7e8841bf6b7273cb"
+      "bytes": 40000,
+      "sha256": "f36336cf329dbf2a9a308427befc838ce98d682d9789d781506c56f7ac72f6a9"
     },
     {
       "finding_id": "LA-035",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json",
-      "bytes": 23823,
-      "sha256": "7269513ecb744b7406596e19c8aea5713b5d658174dc7668055fbb77f2bf66f4"
+      "bytes": 25436,
+      "sha256": "51c1461b87060265cc207c4a053ca51b3cabd4e620c6191b160ec0579fb20a55"
     },
     {
       "finding_id": "LA-037",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
       "bytes": 14768,
-      "sha256": "8b53e8216bc456d57e697d30d029cd955b1a7041a6a90594642c730e08beda0b"
+      "sha256": "fe80993be60bbf30f0243a8afa87b8d94db5f57e28399144d5031699be3e5382"
     }
   ],
   "current_receipt_registry": [
@@ -350,6 +786,54 @@
       "code_candidate_sha": "f3d4dad8dfa0980763d87050418c902908af25d2",
       "code_candidate_tree": "e27319ced3d236253e835fad174be283a2701361",
       "role": "Full source-bound corrective or independent evidence; not G finding acceptance"
+    },
+    {
+      "lane": "Installed-b5-failed",
+      "git_ref": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007.json",
+      "bytes": 31855,
+      "sha256": "f4cd659e42b8db8000a918f528d231cab1e8e70f95dd598d645e45acdc2d6fc5",
+      "git_blob": "de88da9f324d9657fe6feb28210f3c2419ce715a",
+      "tree": "2a13485d2b198b51643f78929a15d920b58e8e86",
+      "code_candidate_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "code_candidate_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "role": "Complete failed immutable installed checkpoint: each130PASS32GraphFAIL/0ERROR0SKIP; API2/FIT53/ECO28 passed unchanged. Full warnings/harness mistakes/decoded raw/source custody retained; no closure or final-candidate PASS."
+    },
+    {
+      "lane": "Catalog-resource",
+      "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json",
+      "bytes": 102004,
+      "sha256": "8b7754451abfbfe2c78fcd261de84ebe8b3de1c373a8f23d7561c8b9c71b75af",
+      "git_blob": "62e24ee89c64ab756a8f5e914d44e0c4983e1f50",
+      "tree": "aa83a73a8b27785adc761898aa23d3ec85e83078",
+      "code_candidate_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "code_candidate_tree": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    },
+    {
+      "lane": "Installed-resource-forward",
+      "git_ref": "de197363d4ba8a86b0e8c2fa0ff31c2858643d1c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007.json",
+      "bytes": 47204,
+      "sha256": "d4cef17e72100250f5162b3642654882f1864c576e895ca8903b7b4f24e66f05",
+      "git_blob": "aede76d8e164702cab5b4d1da3a3aa3b0ef57b77",
+      "tree": "a4fad43369eb6ca56514591e27f70fb9033df4a5",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Full immutable deciding component outputs; evidence carrier distinct from measured product source; no G acceptance"
+    },
+    {
+      "lane": "Installed-recovered-fresh-child",
+      "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007.json",
+      "bytes": 20686,
+      "sha256": "90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88",
+      "git_blob": "2d3922dced9ea826c6c626f0a0e9d5b6fb8a36ea",
+      "tree": "8bb4badcc750f47833b402c32a5879f9bb7d59d7",
+      "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
     }
   ],
   "prior_full_deciding_registry": {
@@ -450,5 +934,44 @@
     "P38",
     "P40",
     "P41"
-  ]
+  ],
+  "assembled_consumer_scope": "Only source519 exact installed-default91/profile plus six retained-marker controls and independent replay; no G assembled acceptance, global gate PASS or real identification.",
+  "reconciled_F_G_document_carrier": {
+    "sha": "79895c6758307a56b1613a8d1c19daa3f0d92c25",
+    "tree": "5bfbc2720c92fccb63ab2f288971b182cd09073b",
+    "G_dependency": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "not_new_method_candidate": true,
+    "runtime_input_delta": "NONE; docs/non-F required-test changes separately bound"
+  },
+  "global_quality": {
+    "source519_scanner": {
+      "first": "ERROR/incomplete",
+      "retry": "ERROR/incomplete",
+      "returncodes": [
+        -9,
+        -9
+      ],
+      "configured_paths": 5957,
+      "complete_output_absent": true
+    },
+    "Ruff": "FAIL103",
+    "public_surface": "FAIL38",
+    "format19": "PASS",
+    "release_fragments5": "PASS",
+    "full_G_merge_diff_check": "FAIL on two unchanged G raw stdout whitespace lines; preserved; no inherited/P41 claim",
+    "authored_F_document_diff_check": "PASS",
+    "P41": "not_established"
+  },
+  "recovered_graph_fresh_child": {
+    "lane": "Installed-recovered-fresh-child",
+    "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-recovery-20261007.json",
+    "bytes": 20686,
+    "sha256": "90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88",
+    "git_blob": "2d3922dced9ea826c6c626f0a0e9d5b6fb8a36ea",
+    "tree": "8bb4badcc750f47833b402c32a5879f9bb7d59d7",
+    "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+  }
 }

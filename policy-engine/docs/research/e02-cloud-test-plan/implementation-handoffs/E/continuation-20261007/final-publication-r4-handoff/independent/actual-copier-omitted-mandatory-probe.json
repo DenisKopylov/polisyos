@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.e02.independent_actual_copier_membership_probe.v1",
+  "source_manifest_sha256": "c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4",
+  "actual_copier_source_sha256": "630868fdd62cb3bb79994ae98ff68f8a247ab6cda45bd873d2a7fa31d7046f45",
+  "native_argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt",
+    "--manifest",
+    "/tmp/e02-E-publication-custody-independent-doe-20261007/omitted-mandatory-selector-member-input/staging-manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-publication-custody-independent-doe-20261007/omitted-mandatory-actual-materialization"
+  ],
+  "exit_code": 0,
+  "omitted_original_mandatory_row": {
+    "family": "runtime-retry",
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/historical-preflight-recovery-search-v1.json",
+    "source_bytes": 902,
+    "source_sha256": "abac5f22d0654a78355d470f22cb96d0f0412f42c7b6d7afa1be5671b3696a46",
+    "logical_destination": "runtime-retry/historical-preflight-recovery-search-v1.json",
+    "canonical_destination": "runtime-retry/historical-preflight-recovery-search-v1.json",
+    "proposed_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4/runtime-retry/historical-preflight-recovery-search-v1.json",
+    "literal_alias": false,
+    "role": "exact original selected by owner; literal read-only custody, no semantic review"
+  },
+  "original_selector_asset_and_hash_unchanged": true,
+  "original_selector_still_declares_member": true,
+  "omitted_asset_absent_in_actual_written_packet": true,
+  "observed_required_property": "The actual copier refuses omission of any original immutable selector member, even when cardinality/byte totals are recomputed.",
+  "outcome": "FAIL",
+  "source_or_root_writes": false,
+  "actual_materialization_scope": "Fresh /tmp only"
+}

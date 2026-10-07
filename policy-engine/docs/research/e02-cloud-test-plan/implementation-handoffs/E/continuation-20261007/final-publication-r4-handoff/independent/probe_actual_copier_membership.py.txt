@@ -1,0 +1,40 @@
+"""Adversarial actual CLI witness: complete selector remains, mandatory body omitted."""
+from __future__ import annotations
+from pathlib import Path
+import copy
+import hashlib
+import json
+import subprocess
+import sys
+
+CATALOG = Path('/tmp/e02-E-publication-custody-independent-doe-20261007')
+STAGING = Path('/tmp/e02-E-final-publication-r4-staging')
+CATALOG.mkdir(exist_ok=True)
+source = STAGING / 'staging-manifest.json'
+manifest = json.loads(source.read_text())
+target = next(row for row in manifest['logical_sources'] if row['source_path'].endswith('/historical-preflight-recovery-search-v1.json'))
+modified = copy.deepcopy(manifest)
+modified['logical_sources'] = [row for row in modified['logical_sources'] if row['source_path'] != target['source_path']]
+modified['canonical_copies'] = [row for row in modified['canonical_copies'] if row['portable_path'] != target['canonical_destination']]
+modified['logical_count_including_selectors'] = len(modified['logical_sources'])
+modified['logical_bytes_including_selectors'] = sum(row['source_bytes'] for row in modified['logical_sources'])
+modified['unique_payload_files'] = len(modified['canonical_copies'])
+modified['unique_payload_bytes'] = sum(row['bytes'] for row in modified['canonical_copies'])
+modified['deduplicated_logical_aliases'] = sum(row['literal_alias'] for row in modified['logical_sources'])
+# Actual CLI requires its six closed metadata siblings beside the manifest.
+observer_input = CATALOG / 'omitted-mandatory-selector-member-input'
+observer_input.mkdir(exist_ok=False)
+for path in STAGING.iterdir():
+    if path.is_file() and path.name != 'staging-manifest.json':
+        (observer_input / path.name).write_bytes(path.read_bytes())
+input_path = observer_input / 'staging-manifest.json'
+input_path.write_text(json.dumps(modified, indent=2) + '\n')
+destination = CATALOG / 'omitted-mandatory-actual-materialization'
+argv = [sys.executable, str(STAGING / 'copy-proposed-publication.py.txt'), '--manifest', str(input_path), '--destination-root', str(destination)]
+run = subprocess.run(argv, capture_output=True, text=True)
+(CATALOG / 'omitted-mandatory-actual.stdout.txt').write_text(run.stdout)
+(CATALOG / 'omitted-mandatory-actual.stderr.txt').write_text(run.stderr)
+copied_path = destination / manifest['proposed_git_prefix'] / target['canonical_destination']
+result = {'schema': 'policyos.e02.independent_actual_copier_membership_probe.v1', 'source_manifest_sha256': hashlib.sha256(source.read_bytes()).hexdigest(), 'actual_copier_source_sha256': hashlib.sha256((STAGING / 'copy-proposed-publication.py.txt').read_bytes()).hexdigest(), 'native_argv': argv, 'exit_code': run.returncode, 'omitted_original_mandatory_row': target, 'original_selector_asset_and_hash_unchanged': True, 'original_selector_still_declares_member': True, 'omitted_asset_absent_in_actual_written_packet': not copied_path.exists(), 'observed_required_property': 'The actual copier refuses omission of any original immutable selector member, even when cardinality/byte totals are recomputed.', 'outcome': 'FAIL' if run.returncode == 0 and not copied_path.exists() else 'PASS', 'source_or_root_writes': False, 'actual_materialization_scope': 'Fresh /tmp only'}
+(CATALOG / 'actual-copier-omitted-mandatory-probe.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result, indent=2))

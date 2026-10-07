@@ -1,0 +1,7 @@
+# Completed source copies moved to native Trash
+
+Four reproducible leaves moved after fresh lsof/inode/device/mtime checks: F MGraph source archive, tracked-assets archive, completed F source tree and completed B0bf source tree. Nominal allocated bytes **182996992**. Original refs/trees, native outputs, source/origin manifests, raw stdout/JUnit, CAS data and harnesses are retained outside the moved leaves. No permanent deletion or Trash empty.
+
+The F source tree had one additional generated benchmark output. Its exact3571 bytes were copied and hash-verified at `policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/preserved-generated/selection-history.executions.jsonl` before moving the tree. Keeping a whole source copy was unnecessary after preserving that small extra. Its SHA and the other nine protected receipt/output hashes are in [preservation record](completed-F35-B53-source-preserved.json); all ten were verified again after the move.
+
+[Intents](completed-F35-B53-source-intents.json) and [native result](completed-F35-B53-source-native.json) preserve exact destinations/source absence/identity. Earlier original native receipts record input locations as they existed during execution; the archive/source copies now live in Trash and are regenerable from Git. Production data and active workspaces were not scanned or moved. Same-volume Trash transfer does not prove physical free-space recovery.

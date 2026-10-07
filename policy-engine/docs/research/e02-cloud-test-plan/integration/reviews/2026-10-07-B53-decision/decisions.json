@@ -1,0 +1,1093 @@
+{
+  "schema": "policyos.e02.g.B53_continuation_decision.v1",
+  "head": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+  "head_tree": "568e2e42e18abcea9fd39759546f1e48525c590a",
+  "candidate": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "candidate_tree": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "G_base": "75ccf4dd211ad7fffa9430a84848b59d5ebf0886",
+  "denominator": {
+    "findings": 60,
+    "bundles": 25,
+    "finding_owners_tsv_rows": 282,
+    "canonical_marker_cards": 60
+  },
+  "B_recorded_counts": {
+    "closed": 47,
+    "limited": 7,
+    "held": 4,
+    "open": 2
+  },
+  "formal_G_closures": 0,
+  "new_source_accepted": 0,
+  "G_code_verdict": "HOLD actual exact-candidate native FAIL plus delivery dependency reconciliation",
+  "native_0bf": {
+    "scope": "two normal-conftest files, actual frozen source/origins",
+    "PASS": 62,
+    "FAIL": 17,
+    "ERROR": 0,
+    "SKIP": 0,
+    "cases": 79,
+    "author": {
+      "PASS": 44,
+      "FAIL": 15,
+      "cases": 59
+    },
+    "independent_oracle": {
+      "PASS": 18,
+      "FAIL": 2,
+      "cases": 20
+    },
+    "receipt": "native/receipt.json",
+    "full_stdout": "native/pytest-native.stdout",
+    "full_junit": "native/pytest-native.junit.xml",
+    "matched_removal": "UNRUN; baseline not green",
+    "broad_B": "UNRUN, this is not a full B replay"
+  },
+  "source_join": {
+    "state_branching_blob_current_and_d18": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+    "prior_validator_witness": "same unchanged source/runtime fixture,26dependency joins; not newly rerun in0bf wave",
+    "accepted_V11_commit": "cb4c6b82ec55f131caa5604125fd04502f264a05",
+    "accepted_G_executor_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+    "B_candidate_executor_blob": "56ce07b69f2edf6b5a4af477fbbe02c92151e61a",
+    "V11_ancestor_of_G": true
+  },
+  "old_590_checks": {
+    "imported_module_cases_PASS": 4,
+    "HTTP_cases_PASS": 15,
+    "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "not_current_model_behavior": true
+  },
+  "ci": "Exacthead53 metadata, PR merge result4fc9af7 into main198; Python imports21fail beforeunits, FeedbackSolveResult snapshot/manifest drift beforeABIsemanticdiff; fullignoredGHAlogs+officialjoblinks in evidenceaudit. P41not_established.",
+  "input_check": "actual importer --check PASS; verification read before baseline use, ownership from fullTSV/cards",
+  "rows": [
+    {
+      "finding_id": "B13",
+      "bundle_id": "RES-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        51,
+        66
+      ],
+      "canonical_source_block_sha256": "8714cb99089ae3acaf3b6bad7954b4ea29bb018e3128bccb5c937d21aa43ad49",
+      "criterion": "Real simulation survives later failure and is correctly consumed through served route.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "RES-03",
+      "next_owner": "A/G: real served simulation recovery on exact local read-only catalog/acquisition/history",
+      "G_next_action": "Full frozen6fa served case actual FAIL catalog_fetch_source_unreadable; no producer-only served-route proof.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B14",
+      "bundle_id": "RUN-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        53,
+        66
+      ],
+      "canonical_source_block_sha256": "6751a4ad3fac17a99f232f0c277b7df5b9a7911393ed10edf4013c8e60f71b0f",
+      "criterion": "Timeout/cancellation stops owned work or revokes late current-state publication; delivery success is distinguished from compute failure.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "RUN-01",
+      "next_owner": "G: native Mac runtime owner",
+      "G_next_action": "Linux proof retained; native Mac receipt absent.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B24",
+      "bundle_id": "RUN-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        48,
+        63
+      ],
+      "canonical_source_block_sha256": "07a88c84d0c6ba90c263ae4eac6963f2a204362af642aa95d60a00792aa7ece0",
+      "criterion": "Small/1MiB process results drain while producer lives; compute and delivery failures never publish false success.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "RUN-02",
+      "next_owner": "G: native Mac process/cancellation owner",
+      "G_next_action": "Linux proof retained; native Mac receipt absent.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        49,
+        68
+      ],
+      "canonical_source_block_sha256": "c555fb1ccd7afd60ee4c21887f0da19bb1d95885fd7b3a736cd84872814db01e",
+      "criterion": "Concurrent ledger reads and interrupted publication yield complete old/new or typed recovery, never implicit unlimited; sparse wire is refused before defaults.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "DUR-01",
+      "next_owner": "ROOT/G accepts transferred source-bound lower evidence and chooses final exact cohort; DUR owns lower only if a new actual escape appears.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B38",
+      "bundle_id": "DUR-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        54,
+        73
+      ],
+      "canonical_source_block_sha256": "d37d987dae1f7e9c87bb88d46bbbdb91c30f0a7208e28c12bdcd21ab46b73258",
+      "criterion": "Actual bound stale worker cannot publish terminal/progress/event/history/outbox after owner/attempt/expiry takeover; current owner completes coherently.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "DUR-02",
+      "next_owner": "Root/G criterion acceptance; DUR store/worker source owner; external effect owner for distinct B78 contract.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B39",
+      "bundle_id": "RUN-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        48,
+        65
+      ],
+      "canonical_source_block_sha256": "f2546edff7c1593a0c052e825aff9229abba6c4a98bf2f9a215698aafb27a7e2",
+      "criterion": "Same permanent returned/raised defect has same retry count; allowed transient faults retry within policy; unknown external outcome does not blind-retry.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RUN-03",
+      "next_owner": "Root/G combined acceptance; backend owner supplies any external status/idempotency law.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B40",
+      "bundle_id": "RUN-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        72,
+        91
+      ],
+      "canonical_source_block_sha256": "0f1f3de7c6168147385cad77e0eb9c8e974e6b51c28dd7bf6cc1533f5f655ed9",
+      "criterion": "One visible effective deadline covers queue/startup/retry/I/O/publication across sync/async forms and rejects late current writes.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RUN-01",
+      "next_owner": "Root/G final affected-consumer acceptance; EXE owns checkpoint/async source and RUN owns common/retry.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B42",
+      "bundle_id": "CMP-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        56,
+        73
+      ],
+      "canonical_source_block_sha256": "434fc93d5f183004fa3dea62a3802632618b7a5a640c7a29a94b218cc09bbc77",
+      "criterion": "Both fresh import orders execute real built two-node registry chain through common async wrapper; missing required dependency is diagnostic.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-01",
+      "next_owner": "CMP/root/G effective-plan acceptance.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B43",
+      "bundle_id": "CMP-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        79,
+        96
+      ],
+      "canonical_source_block_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9",
+      "criterion": "Build/freeze/execute consumes ordering-only requires in one effective graph, preserves independent parallelism and refuses cycle.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-01",
+      "next_owner": "ROOT/G formal finite-plan acceptance; method/source scientific owner for unclaimed historical source authority.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B44",
+      "bundle_id": "CMP-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        102,
+        119
+      ],
+      "canonical_source_block_sha256": "0c36b2d0d5304b425dde05fe8679dc2adab49d9ae67925a4533cdb1f912be5ae",
+      "criterion": "Static→dynamic→per-call override payload is identical in sequential/async/checkpoint and native compiled consumers.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-01",
+      "next_owner": "CMP/root/G merged executor consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B45",
+      "bundle_id": "CMP-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        57,
+        74
+      ],
+      "canonical_source_block_sha256": "164b0ecacd454c386662aac54c271c7298c3348b34de661816f015eaddc2e186",
+      "criterion": "Duplicate scalar target producers cannot silently last-win by UUID; distinct targets and explicit merge preserve meaning.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-02",
+      "next_owner": "CMP/root/G composition acceptance.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B46",
+      "bundle_id": "CMP-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        80,
+        97
+      ],
+      "canonical_source_block_sha256": "662a1a626240391877225f0ba32d12c2977f1acfba0290386b4bdff0d317b580",
+      "criterion": "Ordering uses concrete occurrences, accepting valid repeated prerequisite and rejecting unsupported early dependent.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-02",
+      "next_owner": "CMP/root/G; semantic source owner for substantive tag rules.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B47",
+      "bundle_id": "CMP-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        56,
+        73
+      ],
+      "canonical_source_block_sha256": "db0a46a8373da1087edb08b827fd8e925dc9c731492d6147ee683dc284a1dfa9",
+      "criterion": "Typed compatibility matching maximizes cardinality then existing utility; meaningful equivalent optima require explicit mapping, never lexical choice.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-03",
+      "next_owner": "CMP/root/G final supported composition consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B48",
+      "bundle_id": "CMP-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        79,
+        96
+      ],
+      "canonical_source_block_sha256": "f92d8823d473df1af96de2bc15940fe284bdb8ad0eb9e7d757478069c448007c",
+      "criterion": "Manual/automatic pair acceptance uses same mandatory type/unit/shape/contract/semantic rules; final whole incoming DAG enforces completeness.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CMP-03",
+      "next_owner": "CMP/root/G; semantic owner supplies actual transformation law.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B49",
+      "bundle_id": "JIT-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        50,
+        67
+      ],
+      "canonical_source_block_sha256": "e581a88f4245b540e42b3ac60bc78a278bbe890e6ce2149031305d4235188ab6",
+      "criterion": "Warm current dynamic defaults match cold, old handle stays unchanged and dynamic-only change reuses same actual kernel.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "JIT-01",
+      "next_owner": "G code acceptance; JIT/CMP canonical writer for a new finite-profile escape",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B50",
+      "bundle_id": "JIT-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        73,
+        90
+      ],
+      "canonical_source_block_sha256": "0aa3d14bac0b9f19c3362889bf0f13fdc54326453536084a4be68d1e295ed3bf",
+      "criterion": "Terminal value/error publishes before follower wakeup and shared cache generation/miss-claim recheck avoids duplicate useful compile.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "JIT-01",
+      "next_owner": "G code acceptance; JIT/CMP canonical writer for a new finite-profile escape",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B51",
+      "bundle_id": "EXE-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        50,
+        67
+      ],
+      "canonical_source_block_sha256": "8be3876e053d7fa9b13fafcf7d74ae50aae980a6949966dcbf5962344bd7aafd",
+      "criterion": "Authorized bounded cache read may reuse paid result after compute exhaustion; miss/permission/corruption cannot bypass budget.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "EXE-01",
+      "next_owner": "Root/G new affected consumer rejoin after LLM/budget repair; EXE owns native cache inlet.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B52",
+      "bundle_id": "EXE-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        73,
+        90
+      ],
+      "canonical_source_block_sha256": "e4af31d50bb9263c6744fd0aef0e1fe452faa29181bb42294e0c1e0d4c441885",
+      "criterion": "Real cache read/write/recovery leaves independent coroutine responsive, shares absolute deadline and quarantines late cancelled cache publication.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "EXE-01",
+      "next_owner": "ROOT/G finite criterion acceptance and full-joint verification; local workload owner may measure production distribution separately.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B53",
+      "bundle_id": "JIT-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/JIT-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        96,
+        113
+      ],
+      "canonical_source_block_sha256": "7593081b5107446ae188b695b89f6b84599a3dfbb0da218002d9c2e69fef8b12",
+      "criterion": "Known shape preparation performs no scientific body work; actual execution uses correct occurrence inputs and unknown shapes are never invented.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "JIT-01",
+      "next_owner": "G code acceptance; JIT/CMP canonical writer for a new finite-profile escape",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B55",
+      "bundle_id": "EXE-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        96,
+        111
+      ],
+      "canonical_source_block_sha256": "8191ea528e4cb3823ee245a3c5ff0d7a66aef73cd44e4a4bcb57ac1c4c2409da",
+      "criterion": "Fail-fast rechecks after semaphore acquire, frees every slot on error/cancellation and preserves continue/completed outcomes.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "EXE-01",
+      "next_owner": "EXE/root/G affected native scheduler consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B57",
+      "bundle_id": "STA-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        52,
+        69
+      ],
+      "canonical_source_block_sha256": "989c4b3d91329d24324c501149ed1325207d8755c3de0cb749b7ad79f339702a",
+      "criterion": "Replay applies actual assignments including same-value writes to current base without resurrecting unrelated/removed fields.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "STA-01",
+      "next_owner": "EXE/root/G native state/cache consumer acceptance; RUN foreign graph reviewer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B58",
+      "bundle_id": "STA-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        75,
+        90
+      ],
+      "canonical_source_block_sha256": "f033cf80f557c6d0182c48122321772bc26ce47dff30de0b0cca1baf1279285a",
+      "criterion": "Delete/null/no-write replay preserves allowed deletion and refuses protected-index removal with explicit conflict semantics.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "STA-01",
+      "next_owner": "EXE/root/G actual merge/consumer acceptance.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B59",
+      "bundle_id": "STA-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        96,
+        111
+      ],
+      "canonical_source_block_sha256": "2c0c22b628ad881f863d35c1ee9e05976d4e9cd281f4ab540820ae555bf50295",
+      "criterion": "Declared nested mutable subtree isolates base/neighbor before commit and failed branch leaves no nested trace; unrelated immutable subtree may stay shared.",
+      "recorded_B_recommendation": "open",
+      "canonical_writer_bundle": "STA-01",
+      "next_owner": "B EXE canonical writer + B CMP independent native oracle; G code acceptance and formal closure",
+      "G_next_action": "Exact0bf native:44/59author +18/20oracle PASS;17FAIL. Repair producer/wire/refusal/preflight/nested-copy contours and validator graph-delta boundary; then affected checks and matched removal.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false,
+      "recommendation_overlay_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-wave-all60-overlay.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "prior_evidence_index_recommendation": "closed",
+      "B_tenth_overlay_recommendation": "open verification_required",
+      "B_overlay_predates_G_native": true
+    },
+    {
+      "finding_id": "B60",
+      "bundle_id": "STA-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        51,
+        66
+      ],
+      "canonical_source_block_sha256": "2064253937c5fc51352981eef9dada91cd145e1a85afd788b33cd72866ee7635",
+      "criterion": "Existing adaptive bundle is loaded and checked for actual context/graph/required parameters; inaccessible ref never gives presence-only ok.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "STA-02",
+      "next_owner": "EXE/root/G affected ResolveParametersNode; causal source owner for B61.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B61",
+      "bundle_id": "STA-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        72,
+        87
+      ],
+      "canonical_source_block_sha256": "6c229b5194b7ece8cf32e5c774c9dc2d06092fb0e5eb592b60b956c9bf38baff",
+      "criterion": "Cache key and actual SKG read bind same immutable/versioned consumed snapshot; changed live source is never silently reused.",
+      "recorded_B_recommendation": "held",
+      "canonical_writer_bundle": "STA-02",
+      "next_owner": "SKG/causal source owner + G",
+      "G_next_action": "Restore accepted G/V11 executorfe0aad; real DuckDB key/read freshness is boundedGO (121/121). Prove retained immutable snapshot resolution after live replacement for literal historical-replay clause; issuer/K_ref law is not an original prerequisite.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B62",
+      "bundle_id": "STA-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STA-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        93,
+        108
+      ],
+      "canonical_source_block_sha256": "1cae96d29d981d9650032e044e8fda65b6165702f2ff6aa9ca7640b1d6444ac2",
+      "criterion": "Declared method input key preserves missing/null/0/False/empty distinctions, safe cache-version compatibility and meaningful current-base replay.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "STA-02",
+      "next_owner": "EXE/root/G native cache consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B63",
+      "bundle_id": "RES-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        53,
+        68
+      ],
+      "canonical_source_block_sha256": "7bccf9e6d563e9575f5da7d0c320fcdb6ec07175920c088106cb690c0bac9c28",
+      "criterion": "Successful exact ArtifactRef trace/checkpoint duplicates are read once; failed/conflicting/profile/tenant refs never become admitted hits.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-01",
+      "next_owner": "EXE/root/G successor affected cache recovery consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B64",
+      "bundle_id": "LLM-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        53,
+        74
+      ],
+      "canonical_source_block_sha256": "8b937eee0a8702760af6f5bc4cccec275c9d06f350456ba6c124cbdc55953487",
+      "criterion": "Supported named prompt reaches provider once; user/system/messages preserve meaning and incompatible forms refuse before external action.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "LLM-01",
+      "next_owner": "ADAPTER/root/G actual canonical client consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        80,
+        101
+      ],
+      "canonical_source_block_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9",
+      "criterion": "Optional metrics/tracing failure preserves obtained provider response; mandatory accounting failure retains unknown event and blocks uncontrolled new spend.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "LLM-01",
+      "next_owner": "ROOT/G formal acceptance; ADAPTER owns upper audit/producer bridge, DUR supplies unchanged lower contract.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        107,
+        128
+      ],
+      "canonical_source_block_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e",
+      "criterion": "Miss/hits/followers keep one actual provider cost event, separate reuse identity and durable idempotent producer settlement surviving caller cancellation.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "LLM-01",
+      "next_owner": "A/G: response_shapes, protected served NL/cycle budget-admission route",
+      "G_next_action": "B durable producer/ACK controls and exact HTTP decoder repaired; A real helper still maps unknown None to0.0:3PASS1FAIL; real served downstream admission remains UNRUN.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        50,
+        71
+      ],
+      "canonical_source_block_sha256": "b05c118cdc26e84579548072dcb2c766cfd5e75946b3cabe13ae3d021c62fdd4",
+      "criterion": "Reuse authorization binds actual principal/scope/purpose/epoch and exact verified evidence/model/request at every read/publication.",
+      "recorded_B_recommendation": "held",
+      "canonical_writer_bundle": "LLM-02",
+      "next_owner": "Institutional evidence/reuse authorization owner + G",
+      "G_next_action": "B-owned operational tests can proceed now; repair setup ERROR/current CAS/factory contour, preserve optional-authorizer fail-closed. No universal approval subsystem prerequisite.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false,
+      "G_original_scope_assessment": "Operational finite work remains actionable, partial; no universal policy subsystem gate. Existing factory bridge missing only for enabled frozen-evidence deployment."
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        77,
+        98
+      ],
+      "canonical_source_block_sha256": "e4ed51ed64211794192a8f19d6cceeeff1f29df468bf3b40109650658a7b2675",
+      "criterion": "Permitted exact scoped identical misses have one producer event; follower cancellation, error, deadline and distinct intentional repetitions preserve ownership.",
+      "recorded_B_recommendation": "held",
+      "canonical_writer_bundle": "LLM-02",
+      "next_owner": "Institutional reuse owner/B67 + G",
+      "G_next_action": "B-owned operational tests can proceed now; repair setup ERROR/current CAS/factory contour, preserve optional-authorizer fail-closed. No universal approval subsystem prerequisite.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false,
+      "G_original_scope_assessment": "Operational finite work remains actionable, partial; no universal policy subsystem gate. Existing factory bridge missing only for enabled frozen-evidence deployment."
+    },
+    {
+      "finding_id": "B69",
+      "bundle_id": "RUN-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        97,
+        118
+      ],
+      "canonical_source_block_sha256": "f3c09fefcef97725af61bccc6480d59034302012b9413815c6944474d632bb3e",
+      "criterion": "Shared executor rejects saturated reentry or admits bounded useful work; callbacks/queued cancellation/shutdown cannot create hidden occupied capacity.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RUN-01",
+      "next_owner": "RUN/root/G common executor consumers.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B70",
+      "bundle_id": "RES-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        74,
+        91
+      ],
+      "canonical_source_block_sha256": "bcf7738eb29ed6a0676ca42fdd999c14a680494038333aa8d557a605dc2047cb",
+      "criterion": "Original functional fingerprint survives two real interrupted resumes and complete reopen without reexecuting successfulA/B; changed request refuses.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-01",
+      "next_owner": "EXE/root/G concrete restore consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B71",
+      "bundle_id": "RES-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        97,
+        114
+      ],
+      "canonical_source_block_sha256": "f68a12b118f6d8105fc247896d765126ba087d740747a069abbb36ffc4bbc2cd",
+      "criterion": "Sufficient checkpoint state needs no irrelevant cache-count seed; truly required selected external output is verified/repaired or refused before suffix.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-01",
+      "next_owner": "EXE/root/G supported native protected resume consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B72",
+      "bundle_id": "RES-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        51,
+        68
+      ],
+      "canonical_source_block_sha256": "c2c20881bd0e439dfde5c4c59873754fd09a8eb20f6e5e30dc26563fd0a506ce",
+      "criterion": "Native skip is not silently successful producer; single/parallel widths and later checkpoints preserve same completed frontier meaning.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-02",
+      "next_owner": "EXE/root/G native checkpoint consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B73",
+      "bundle_id": "RES-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        74,
+        93
+      ],
+      "canonical_source_block_sha256": "5d7c44528f1e1d6845265d8bf932cf121cd2959bf2d144348d6b404066f8d8f4",
+      "criterion": "Checkpoint state, completed frontier and cache refs describe same committed generation; fail-fast rollback/continue and retained result are coherent.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-02",
+      "next_owner": "EXE/root/G complete checkpoint consumer; DUR independent real two-policy oracle.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        56,
+        71
+      ],
+      "canonical_source_block_sha256": "fe5c80be8769dc007957fe5125cff3110cc02a77208d29f3b7523f0b267bc181",
+      "criterion": "Checkpoint strict admission binds effective plan/input/seed/occurrences, actual supported implementation graph and exact scoped supplied refs to same generation.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "RES-04",
+      "next_owner": "CMP canonical graph owner + G real checkpoint/served consumer",
+      "G_next_action": "Static imported member identity is repaired; actual returned-frame namespace permits changed member effect107 and remains FAIL. Ordinary-function constant public data-field getter profile is finite; no universal runtime descriptor/namespace closure.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B75",
+      "bundle_id": "RES-04",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        77,
+        94
+      ],
+      "canonical_source_block_sha256": "bfa81a7d72085f1f37d2623263dff2cc2d52e19d297f8144a557d76875e443e6",
+      "criterion": "Per-node history restores original output/seed/runtime/warnings; legacy missing records remain explicitly incomplete and cannot supply absent bound predecessor.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-04",
+      "next_owner": "CMP/root/G Foundry history consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B76",
+      "bundle_id": "RES-04",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        100,
+        117
+      ],
+      "canonical_source_block_sha256": "18fbe02ddd13babe4e4df26b023de3655025e27309ae780ac8c7e1a24fc7995a",
+      "criterion": "All JSON/NumPy checkpoint sidecars belong to one immutable generation; path collision, fault, concurrent writer or process stop never mix acknowledged old/new.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RES-04",
+      "next_owner": "CMP/root/G supported native save/load consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B77",
+      "bundle_id": "EXE-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        48,
+        63
+      ],
+      "canonical_source_block_sha256": "a83c4caf19814d7cf068b5e1a24d095f44228f905d50acb4f8931e3818a6ca86",
+      "criterion": "Declared independent successor starts when its own predecessors complete; realB dependency/read-write overlap retains barrier and scientific inputs/seed remain unchanged.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "EXE-02",
+      "next_owner": "EXE/root/G supported native DAG scheduler consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DUR-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        79,
+        96
+      ],
+      "canonical_source_block_sha256": "5b3639630d2e7af82b90281906e6ed658c5f45687c3d3904dc2f177c07258dd0",
+      "criterion": "Pre-dispatch fallback is authorized separately; post-dispatch lost response reconciles actual external status/idempotency instead of duplicating effect.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "DUR-02",
+      "next_owner": "ROOT/G local clause acceptance; primary external status/idempotency owner supplies held authoritative capability.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        49,
+        62
+      ],
+      "canonical_source_block_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781",
+      "criterion": "Stream subscribe/checkpoint/rewind/close/cancel transfers pending physical cleanup ownership and leaves no permanently occupied pool slot.",
+      "recorded_B_recommendation": "open",
+      "canonical_writer_bundle": "NET-01",
+      "next_owner": "C: streaming.py and production process-final cleanup owner; G consumer",
+      "G_next_action": "The often-cited 7 PASS / 1 FAIL is historical evidence only: its source pin is 1862c021df74a5c5815bc5cd21a20e61b30132b6. Do not report it as current without a full source/blob and input join. A newer C cleanup/registry owner review exists, but the current actual physical-capacity and full-criterion proof remain unestablished. Join the exact C source, test input, and deciding output; C owns streaming.py/process-final cleanup transfer, B owns pool contract/witness, G owns consumer acceptance.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        68,
+        83
+      ],
+      "canonical_source_block_sha256": "5c543b225505ffd632e3ffb90bee0ac51d0473a19a0dfe2a93c0be2aaf6380c4",
+      "criterion": "Permit/handle is transferred or retired exactly once under lock/connect/health/disconnect cancellation and closed-pool release.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "NET-01",
+      "next_owner": "C/G: stream/cursor/checkpoint and process lifecycle, B pool contract",
+      "G_next_action": "Separate cap3 two-row checkpoint→restart cap1 real budget failure persists; budget/cleanup conditions distinct. Requires typed C acceptance before poll/flush/commit or agreed exact contract.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B90",
+      "bundle_id": "NET-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        89,
+        106
+      ],
+      "canonical_source_block_sha256": "8b1e63a16da14bf95ef0104b412bbd1da0b8ce0b4bb093026d80d50253bc94ab",
+      "criterion": "Network work is outside metadata lock; independent release proceeds and one absolute acquisition deadline/epoch gates atomic late publication.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "NET-01",
+      "next_owner": "ADAPTER/root/G real pool acquire consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B91",
+      "bundle_id": "NET-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        49,
+        64
+      ],
+      "canonical_source_block_sha256": "0f2ed6f8615e478a4110ac1658fba923e87255d0810a6ace9c78144b8fd7e541",
+      "criterion": "Unit capacity remains separate from fractional rate; impossible/nonfinite weights refuse before wait/provider and cooldown/cancel preserve law.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "NET-02",
+      "next_owner": "ADAPTER/root/G configured source regulator consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B92",
+      "bundle_id": "NET-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        70,
+        85
+      ],
+      "canonical_source_block_sha256": "eb9d5ebf88004fea69fff0eef6961700a7fa3fddf27ba044b317b4dcad90b5d4",
+      "criterion": "Finalization belongs to admitted circuit generation; old success/failure preserves provider outcome without voting on new half-open generation.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "NET-02",
+      "next_owner": "ADAPTER/root/G source decorator consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B93",
+      "bundle_id": "NET-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        91,
+        106
+      ],
+      "canonical_source_block_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d",
+      "criterion": "TTL/pressure never evicts active/cooldown/balance history into a second independent regulator; safe quiescent eviction remains bounded.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "NET-02",
+      "next_owner": "ROOT/G formal finite registry criterion acceptance and explicit historical mapping correction; no intrinsic protection mechanism gap demonstrated.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/WIRE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        50,
+        67
+      ],
+      "canonical_source_block_sha256": "42eed64bf083f227b7f0fb37cf13d60117e5521d8e06bc982bbb6b5e42a87aa5",
+      "criterion": "Versioned typed wire preserves Decimal/budget/union/nested/ref/outcome values and rejects nonfinite/unsupported/digest corruption consistently under both backends.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "WIRE-01",
+      "next_owner": "ADAPTER/root/G actual worker/envelope consumers.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B95",
+      "bundle_id": "RUN-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        124,
+        139
+      ],
+      "canonical_source_block_sha256": "e20a5f278e861f80727aa69e770584595eacef1d7b2aeb9d22ff9bf6aaade341",
+      "criterion": "Each actual task submission captures current context; repeated A/B/empty work in same worker never leaks prior context or invents permissions.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RUN-01",
+      "next_owner": "RUN/root/G actual scope consumer; institutional owner authorizes the scope separately.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B96",
+      "bundle_id": "RUN-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        71,
+        86
+      ],
+      "canonical_source_block_sha256": "e715c9c7e265cdca1b906cdce523be2a4a4728b354aa25a334d27082f0f1c73b",
+      "criterion": "Each retry starts from same isolated baseline; successful result matches cold while failed history and actual known typed expenses are retained once.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RUN-03",
+      "next_owner": "RUN/root/G native retry state/expense consumer and external effect owner.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B148",
+      "bundle_id": "CAS-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        55,
+        68
+      ],
+      "canonical_source_block_sha256": "7737ebff60bc5812b79091bfcc2859cd7a9415c47f4327f271e82641b076fe34",
+      "criterion": "Verified private staging/admission preserves oldCAS on bad/conflicting/truncated/concurrent import; owner decides scoped same-view retry law before publication.",
+      "recorded_B_recommendation": "held",
+      "canonical_writer_bundle": "CAS-02",
+      "next_owner": "CAS tenant/security source owner + G",
+      "G_next_action": "Verify documented bound-view positive, unbound typed refusal and foreign existing claim before writes on exact candidate; context-bearing fixture is legitimate API admission. Broader cross-tenant sharing policy separate.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false,
+      "G_original_scope_assessment": "Bound-owner import guard and context-bearing fixture are legitimate documented API; exact current positive/refusal proof pending, broader cross-tenant permission extension separate."
+    },
+    {
+      "finding_id": "B149",
+      "bundle_id": "CAS-02",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        74,
+        87
+      ],
+      "canonical_source_block_sha256": "911157062b91d21961884fc59c818a40ec8075917ef74f9e585510c9e611534f",
+      "criterion": "Replacement export has exact new inventory; A→B/options/fault/path entry changes preserve previous complete generation without staleA members.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CAS-02",
+      "next_owner": "CAS/root/G supported transfer consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B150",
+      "bundle_id": "CAS-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        56,
+        69
+      ],
+      "canonical_source_block_sha256": "135dfde8a0bb25422fa6a9972ccb662ede9706af55cf81c481c86dd1be843672",
+      "criterion": "Returned ref and selected persisted manifest profile match actual first-writer view; equalbytes different provenance retains separate meaningful views.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CAS-01",
+      "next_owner": "CAS/root/G actual profile consumers.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B151",
+      "bundle_id": "CAS-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        75,
+        88
+      ],
+      "canonical_source_block_sha256": "b7883805cfa726a3d09a814b00e5894c860ce9b4f4314ef1e78e818cb75af25a",
+      "criterion": "Public duplicateput never confirms corrupt existing blob/wrong selected byte_size; legitimate missing-sidecar repair yields immediately readable verified result.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CAS-01",
+      "next_owner": "CAS/root/G actual write/retry downstream consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B152",
+      "bundle_id": "CAS-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        55,
+        68
+      ],
+      "canonical_source_block_sha256": "1bf037809d7d4612858d37aae8198d5314bfb170d827c75126876df705bec85d",
+      "criterion": "Size/hash/signature/report consume same independently computed immutable byte+manifest snapshot while trust/revocation/current access remain enforced.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CAS-03",
+      "next_owner": "CAS/root/G native snapshot/report/chronology consumer acceptance.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B153",
+      "bundle_id": "CAS-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        94,
+        107
+      ],
+      "canonical_source_block_sha256": "adc89fe0916a2dfc26efa1b77d98c34550c9c75e2532424401c6f927093506aa",
+      "criterion": "Resident local lock ownership is bounded without evicting active same-key holder/waiter or losing scoped-view mutual exclusion.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CAS-01",
+      "next_owner": "CAS/root/G local long-lived store consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B154",
+      "bundle_id": "CAS-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        74,
+        87
+      ],
+      "canonical_source_block_sha256": "4238b2c281dcc1a9c504c40351b70039945a0e99b14e450cc571b7e3c3307b9f",
+      "criterion": "Typed per-item complete/aborted batch preserves local/global/cancel results; all-confirmations publisher requires exact full valid report before publication.",
+      "recorded_B_recommendation": "limited",
+      "canonical_writer_bundle": "CAS-03",
+      "next_owner": "A/G: actual all-confirmations governed publisher",
+      "G_next_action": "B typed full-batch partial/aborted report and obligations available; real served publisher refusal/recovery on exact local read-only input unproved.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "B155",
+      "bundle_id": "CAS-03",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        93,
+        106
+      ],
+      "canonical_source_block_sha256": "85ce1ecb40bf521ab7ef979d26f376fad77248c267b8d16eb87de42b3cacb2b9",
+      "criterion": "Producer advancement and pending window are bounded together; cancellation/deadline stop new intake while exact admitted result identities remain complete.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "CAS-03",
+      "next_owner": "CAS/root/G bounded iterator batch consumer.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    },
+    {
+      "finding_id": "LA-057",
+      "bundle_id": "RUN-01",
+      "canonical_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "canonical_marker_lines": [
+        145,
+        178
+      ],
+      "canonical_source_block_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57",
+      "criterion": "Only incidental moduleT/TypeVar cleanup preserves four local generic identities, imports/context/cancel/bridge and supported consumers/tooling/package compatibility.",
+      "recorded_B_recommendation": "closed",
+      "canonical_writer_bundle": "RUN-01",
+      "next_owner": "ROOT/G bounded common/package formal acceptance and full-joint verification; external consumer owner only if actual compatibility dependency is found.",
+      "G_next_action": "Сохранить конечный исходный профиль и exact deciding refs; перепроверить только изменившиеся source/dependencies/consumers. Formal closure G pending.",
+      "evidence_index_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "formal_G_closed": false
+    }
+  ],
+  "B_recommendation_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-wave-all60-overlay.json@53b14a6e5af66f2a784d7f4981c4613e534acd40",
+  "evidence_index_role": "Prior original-criterion/deciding-evidence pin, not the final disposition. Latest B overlay reopened B59 BEFORE the G native run; this is not a newly authored G status overlay."
+}

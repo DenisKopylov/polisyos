@@ -5,11 +5,11 @@
 | Агент | Промпт | Первый полезный результат продолжения |
 | --- | --- | --- |
 | A — локально | [A.md](A.md) | Исправленные исходные criterion bindings; настоящие N5/N8, unknown-cost/context consumers и отдельные served/predictive bridges. |
-| B — облако | [B.md](B.md) | Source-bound runtime slices, lossless raw-cost intake для D, точные completion/admission consumers и завершённая проверка текущего профиля. |
+| B — облако | [B-resume-after-53b-all60.md](B-resume-after-53b-all60.md) | Restore accepted G/V11 content, repair actual62/17producer failures; finish actionable cache/import criteria and preserve all60 dispositions. |
 | C — локально | [C.md](C.md) | Принятие/исправление конкретных source families, stream recovery, write options, migration/package/history gaps по C54. |
 | D — облако | [D.md](D.md) | Проверка исходных 46 occurrences на актуальном GP/Search/funnel коде; composed restore и точные owner inputs. |
 | E — облако | [E.md](E.md) | E-owned import/lint repairs, настоящий FRC producer/resolver и Morris analysis-input admission; выполнение доступных gate successors. |
-| F — облако | [F.md](F.md) | Content-bound graph intake, endpoint marks, объединённый TMLE/Confidence consumer и economics по исходным критериям. |
+| F — облако | [F-resume-after-25c-focused.md](F-resume-after-25c-focused.md) | Canonical MGraph profile repair, focused companions; B214/B56 broad cross-owner decisions deferred with concrete triggers. |
 
 Это публикация документации в `codex/e02-integration`. Она не означает слияние всех incoming PR, закрытие 282 findings или новую публикацию `main`. Самостоятельные source slices сохраняют свои original histories и проходят отдельную приёмку G. Исходные статусы research ledger не переписываются по числу PASS.
 
@@ -30,3 +30,10 @@ Pattern pass: P01/P02 — реальная цепочка; P14/P29 — неза�
 - [D: exact680, native budget factory и source residuals](D-resume-after-pr68-680.md).
 
 Старые рекомендации/source pins сохраняются; source admission и finding closure остаются раздельными решениями G.
+
+## Текущие поздние B/F решения
+
+- [B53: все60, exact native62PASS/17FAIL и уточнённые held prerequisites](B-resume-after-53b-all60.md).
+- [F25c:33bounded recommendations, два cross-owner residual и подтверждённый MGraph repair](F-resume-after-25c-focused.md).
+
+Ранее offline/source availability captions не отменяют уже полученные exact runtime/installed receipts. Main publication не является условием продолжения этих существующих topics.

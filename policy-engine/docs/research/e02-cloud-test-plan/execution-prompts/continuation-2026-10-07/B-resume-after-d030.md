@@ -1,3 +1,5 @@
+> Текущее продолжение после head53b и native62/17: [B-resume-after-53b-all60.md](B-resume-after-53b-all60.md). Старые source/caption instructions ниже сохраняются как история; новые решения по affected части важнее.
+
 # Продолжение B: завершить bounded implementation, не объявляя закрытие по частичному evidence
 
 Этот prompt и G feedback опубликованы на `codex/e02-integration`; актуальный checkpoint получи через обычный `git fetch origin`. Читай файлы напрямую из fetched G ref (`git show origin/codex/e02-integration:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/README.md`); не требуется переносить локальные файлы в chat или переключать shared checkout. Указанный ниже G SHA — историческая база этого review, не требование вернуться на старый head.

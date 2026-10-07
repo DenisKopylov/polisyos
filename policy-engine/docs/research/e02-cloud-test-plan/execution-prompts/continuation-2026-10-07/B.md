@@ -1,3 +1,5 @@
+> Текущее продолжение после head53b и native62/17: [B-resume-after-53b-all60.md](B-resume-after-53b-all60.md). Старые source/caption instructions ниже сохраняются как история; новые решения по affected части важнее.
+
 # B — продолжить runtime и consumer работу
 
 Прочитай также `execution-prompts/continuation-2026-10-07/COMMON.md` из fetched G. Полные пути ниже относительно `policy-engine/docs/research/e02-cloud-test-plan/`, если не указано иначе.

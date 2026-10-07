@@ -1,0 +1,24 @@
+{
+  "include": [
+    "src/polisyos/common",
+    "src/polisyos/ir",
+    "src/polisyos/core",
+    "src/polisyos/fabric",
+    "src/polisyos/data_forge",
+    "src/polisyos/scientist",
+    "src/polisyos/runtime"
+  ],
+  "baselineFile": "/tmp/e02-E-ir-composition-r4-20261007/basedpyright-ecde-baseline.json",
+  "exclude": [
+    "**/__pycache__",
+    ".venv",
+    ".venv_codex",
+    "_build",
+    "_cache",
+    "docs/archive"
+  ],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "standard",
+  "reportMissingTypeStubs": "warning",
+  "reportPrivateUsage": "warning"
+}

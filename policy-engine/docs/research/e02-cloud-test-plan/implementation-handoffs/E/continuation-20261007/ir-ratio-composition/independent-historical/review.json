@@ -1,0 +1,710 @@
+{
+  "schema": "e02-independent-IR-composition-source-review:1",
+  "disposition": "CHANGE_REQUIRED",
+  "source": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+  "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+  "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "complete_implementation_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+      "bytes": 1293,
+      "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 9186,
+      "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 94209,
+      "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "bytes": 11846,
+      "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+    }
+  ],
+  "source_guards": {
+    "gap_probe": {
+      "before": {
+        "sha": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+        "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+        "files": [
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+            "bytes": 1293,
+            "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+            "bytes": 9186,
+            "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "bytes": 31271,
+            "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "bytes": 94209,
+            "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+            "bytes": 11846,
+            "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+          }
+        ],
+        "status": "?? policy-engine/e02-composition-type-private.json\n"
+      },
+      "after": {
+        "sha": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+        "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+        "files": [
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+            "bytes": 1293,
+            "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+            "bytes": 9186,
+            "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "bytes": 31271,
+            "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "bytes": 94209,
+            "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+            "bytes": 11846,
+            "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+          }
+        ],
+        "status": "?? policy-engine/e02-composition-type-private.json\n"
+      }
+    },
+    "selected_tests": {
+      "before": {
+        "sha": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+        "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+        "paths": [
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+            "bytes": 1293,
+            "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+            "bytes": 9186,
+            "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "bytes": 31271,
+            "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "bytes": 94209,
+            "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+            "bytes": 11846,
+            "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+          }
+        ],
+        "status": "?? policy-engine/e02-composition-type-private.json\n"
+      },
+      "after": {
+        "sha": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+        "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+        "paths": [
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+            "bytes": 1293,
+            "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+            "bytes": 9186,
+            "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "bytes": 31271,
+            "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "bytes": 94209,
+            "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+            "bytes": 11846,
+            "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+          }
+        ],
+        "status": "?? policy-engine/e02-composition-type-private.json\n"
+      }
+    }
+  },
+  "selected_test_counts": {
+    "cases": 36,
+    "PASS": 36,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "selected_test_receipt": {
+    "path": "/tmp/e02-E-ir-composition-c539-independent-20261007/selectors.json",
+    "bytes": 11781,
+    "sha256": "9353062c3900ff202681d6bf065bf38bfa301344e6cb4e6b2e03722eec6fd1e6"
+  },
+  "concrete_runtime_defects": [
+    {
+      "case": "missing_profile_with_required_marker",
+      "defining_property": "unsupported declared profile refuses before map callback",
+      "outcome": "FAIL",
+      "actual_callbacks": 2,
+      "actual_point": 0.6666666666666666,
+      "actual_interval": [
+        0.0,
+        0.9249999999999998
+      ],
+      "returned_gate_eligible": false,
+      "persisted_ref": {
+        "artifact_id": "sha256:dec3add858f7b63dce721fbf5e6dc372558a58e4f51533fc149c56e257fcb3dc",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "fresh_reader_late_refusal": "posterior summary profile is missing",
+      "required_marker_retained": true,
+      "profile_discriminator_markers_removed": 2
+    },
+    {
+      "case": "unknown_profile_without_recognized_outer_markers",
+      "defining_property": "unsupported declared profile refuses before map callback",
+      "outcome": "FAIL",
+      "actual_callbacks": 2,
+      "actual_point": 0.6666666666666666,
+      "actual_interval": [
+        0.0,
+        0.9249999999999998
+      ],
+      "returned_gate_eligible": false,
+      "persisted_ref": {
+        "artifact_id": "sha256:c2d0cd530747891575f42504e6c8d88596965f76a1d3d5529b8c728f62c59ff2",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "fresh_reader_late_refusal": "4 validation errors for PosteriorSummaryProfile\nprofile_id\n  Input should be 'urn:policyos:ir:bayesian-posterior-summary-profile:1' [type=literal_error, input_value='urn:unsupported-posterior-law:9', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nprofile_version\n  Input should be '1.0' [type=literal_error, input_value='9.0', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nprobability_convention\n  Extra inputs are not permitted [type=extra_forbidden, input_value='exact_binary_weight_ratios', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nsampling_approximation\n  Extra inputs are not permitted [type=extra_forbidden, input_value='finite_uniform_mesh_discretization', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
+      "required_marker_retained": true,
+      "profile_discriminator_markers_removed": 2
+    },
+    {
+      "case": "compress_moments",
+      "outcome": "FAIL",
+      "returned_with_unknown_declared_profile": true,
+      "actual_callbacks": 0,
+      "required_marker_retained": true,
+      "gate_eligible": false
+    },
+    {
+      "case": "pull_back",
+      "outcome": "FAIL",
+      "returned_with_unknown_declared_profile": true,
+      "actual_callbacks": 2,
+      "required_marker_retained": true,
+      "gate_eligible": false
+    },
+    {
+      "case": "unprofiled_legacy_callback_order",
+      "outcome": "FAIL",
+      "base_function_ref": {
+        "source": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "function": "push_forward_envelope",
+        "sha256": "1bf49a6ff33e7b3bc7600c40fb0c1d24fce97e305838c57353d60fb7a1d6a85f"
+      },
+      "observations": [
+        {
+          "source": "exact_base",
+          "callbacks": [
+            0.0
+          ],
+          "error": {
+            "type": "TypeError",
+            "message": "float() argument must be a string or a real number, not 'object'"
+          }
+        },
+        {
+          "source": "current_c539",
+          "callbacks": [
+            0.0,
+            1.0
+          ],
+          "error": {
+            "type": "TypeError",
+            "message": "float() argument must be a string or a real number, not 'object'"
+          }
+        }
+      ]
+    }
+  ],
+  "later_same_compatibility_class_wire_probe": {
+    "schema": "e02-independent-legacy-wire-compatibility-counterexample:1",
+    "candidate": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+    "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+    "cases": [
+      {
+        "operation": "push_forward_envelope",
+        "defining_property_status": "FAIL",
+        "input_schema_version": "1.0",
+        "differing_output_fields": [
+          "schema_version"
+        ],
+        "observations": [
+          {
+            "source": "exact_base",
+            "output": {
+              "schema_version": "1.1",
+              "numeric_policy": {
+                "policy_id": "bounded_float_v1",
+                "mode": "float_round_12",
+                "decimal_places": 12,
+                "absolute_tolerance": 1e-12
+              },
+              "point_estimate": 0.5,
+              "confidence_interval": [
+                0.0,
+                1.0
+              ],
+              "confidence_level": null,
+              "distribution_family": "bootstrap",
+              "source": "ensemble",
+              "propagation_method": "none",
+              "interval_semantics": "deterministic_bounds",
+              "distribution_payload": {
+                "carrier_type": "posterior_samples",
+                "samples": [
+                  0.0,
+                  1.0
+                ],
+                "sample_axis": "draw",
+                "weights": [
+                  0.5,
+                  0.5
+                ]
+              },
+              "composition_provenance": {
+                "native_flavour": "monte_carlo",
+                "composed_flavour": "monte_carlo",
+                "exactness": "outer_bound",
+                "certificate_kind": "exact",
+                "certificate_radius": 0.0,
+                "confidence_level": null,
+                "scope": [
+                  "expectation",
+                  "bounds",
+                  "cdf"
+                ],
+                "origin_envelope_ids": [
+                  "inline:0:ensemble:0.5:0.0:1.0"
+                ],
+                "operator_history": [
+                  {
+                    "op": "push_forward",
+                    "stage_name": "push_forward_envelope",
+                    "input_flavours": [
+                      "monte_carlo"
+                    ],
+                    "output_flavour": "monte_carlo",
+                    "map_name": "identity",
+                    "lipschitz_bound": null,
+                    "bias_bound": null,
+                    "variance_bound": null,
+                    "sample_size": 2,
+                    "replicate_count": null,
+                    "qmc_method": null,
+                    "scrambled": null,
+                    "assumptions": [
+                      "law_preserving_particles"
+                    ],
+                    "notes": {
+                      "cert_policy": "auto"
+                    }
+                  }
+                ]
+              },
+              "sample_size": 2,
+              "is_heuristic_ci": false,
+              "gate_eligible": false,
+              "metadata": {
+                "push_forward_map": "identity",
+                "push_forward_cert_policy": "auto"
+              }
+            }
+          },
+          {
+            "source": "candidate218",
+            "output": {
+              "schema_version": "1.0",
+              "numeric_policy": {
+                "policy_id": "bounded_float_v1",
+                "mode": "float_round_12",
+                "decimal_places": 12,
+                "absolute_tolerance": 1e-12
+              },
+              "point_estimate": 0.5,
+              "confidence_interval": [
+                0.0,
+                1.0
+              ],
+              "confidence_level": null,
+              "distribution_family": "bootstrap",
+              "source": "ensemble",
+              "propagation_method": "none",
+              "interval_semantics": "deterministic_bounds",
+              "distribution_payload": {
+                "carrier_type": "posterior_samples",
+                "samples": [
+                  0.0,
+                  1.0
+                ],
+                "sample_axis": "draw",
+                "weights": [
+                  0.5,
+                  0.5
+                ]
+              },
+              "composition_provenance": {
+                "native_flavour": "monte_carlo",
+                "composed_flavour": "monte_carlo",
+                "exactness": "outer_bound",
+                "certificate_kind": "exact",
+                "certificate_radius": 0.0,
+                "confidence_level": null,
+                "scope": [
+                  "expectation",
+                  "bounds",
+                  "cdf"
+                ],
+                "origin_envelope_ids": [
+                  "inline:0:ensemble:0.5:0.0:1.0"
+                ],
+                "operator_history": [
+                  {
+                    "op": "push_forward",
+                    "stage_name": "push_forward_envelope",
+                    "input_flavours": [
+                      "monte_carlo"
+                    ],
+                    "output_flavour": "monte_carlo",
+                    "map_name": "identity",
+                    "lipschitz_bound": null,
+                    "bias_bound": null,
+                    "variance_bound": null,
+                    "sample_size": 2,
+                    "replicate_count": null,
+                    "qmc_method": null,
+                    "scrambled": null,
+                    "assumptions": [
+                      "law_preserving_particles"
+                    ],
+                    "notes": {
+                      "cert_policy": "auto"
+                    }
+                  }
+                ]
+              },
+              "sample_size": 2,
+              "is_heuristic_ci": false,
+              "gate_eligible": false,
+              "metadata": {
+                "push_forward_map": "identity",
+                "push_forward_cert_policy": "auto"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "operation": "pull_back_envelope",
+        "defining_property_status": "FAIL",
+        "input_schema_version": "1.0",
+        "differing_output_fields": [
+          "schema_version"
+        ],
+        "observations": [
+          {
+            "source": "exact_base",
+            "output": {
+              "schema_version": "1.1",
+              "numeric_policy": {
+                "policy_id": "bounded_float_v1",
+                "mode": "float_round_12",
+                "decimal_places": 12,
+                "absolute_tolerance": 1e-12
+              },
+              "point_estimate": 0.5,
+              "confidence_interval": [
+                0.0,
+                1.0
+              ],
+              "confidence_level": null,
+              "distribution_family": "unknown",
+              "source": "ensemble",
+              "propagation_method": "none",
+              "interval_semantics": "deterministic_bounds",
+              "distribution_payload": null,
+              "composition_provenance": {
+                "native_flavour": "monte_carlo",
+                "composed_flavour": "monte_carlo",
+                "exactness": "constraint_only",
+                "certificate_kind": "exact",
+                "certificate_radius": 0.0,
+                "confidence_level": null,
+                "scope": [
+                  "expectation",
+                  "bounds"
+                ],
+                "origin_envelope_ids": [
+                  "inline:0:ensemble:0.5:0.0:1.0"
+                ],
+                "operator_history": [
+                  {
+                    "op": "pull_back",
+                    "stage_name": "pull_back_envelope",
+                    "input_flavours": [
+                      "monte_carlo"
+                    ],
+                    "output_flavour": "monte_carlo",
+                    "map_name": "identity",
+                    "lipschitz_bound": null,
+                    "bias_bound": null,
+                    "variance_bound": null,
+                    "sample_size": null,
+                    "replicate_count": null,
+                    "qmc_method": null,
+                    "scrambled": null,
+                    "assumptions": [
+                      "inverse_not_identified_without_structure"
+                    ],
+                    "notes": {
+                      "mode": "local_inverse"
+                    }
+                  }
+                ]
+              },
+              "sample_size": null,
+              "is_heuristic_ci": false,
+              "gate_eligible": false,
+              "metadata": {
+                "pull_back_map": "identity"
+              }
+            }
+          },
+          {
+            "source": "candidate218",
+            "output": {
+              "schema_version": "1.0",
+              "numeric_policy": {
+                "policy_id": "bounded_float_v1",
+                "mode": "float_round_12",
+                "decimal_places": 12,
+                "absolute_tolerance": 1e-12
+              },
+              "point_estimate": 0.5,
+              "confidence_interval": [
+                0.0,
+                1.0
+              ],
+              "confidence_level": null,
+              "distribution_family": "unknown",
+              "source": "ensemble",
+              "propagation_method": "none",
+              "interval_semantics": "deterministic_bounds",
+              "distribution_payload": null,
+              "composition_provenance": {
+                "native_flavour": "monte_carlo",
+                "composed_flavour": "monte_carlo",
+                "exactness": "constraint_only",
+                "certificate_kind": "exact",
+                "certificate_radius": 0.0,
+                "confidence_level": null,
+                "scope": [
+                  "expectation",
+                  "bounds"
+                ],
+                "origin_envelope_ids": [
+                  "inline:0:ensemble:0.5:0.0:1.0"
+                ],
+                "operator_history": [
+                  {
+                    "op": "pull_back",
+                    "stage_name": "pull_back_envelope",
+                    "input_flavours": [
+                      "monte_carlo"
+                    ],
+                    "output_flavour": "monte_carlo",
+                    "map_name": "identity",
+                    "lipschitz_bound": null,
+                    "bias_bound": null,
+                    "variance_bound": null,
+                    "sample_size": null,
+                    "replicate_count": null,
+                    "qmc_method": null,
+                    "scrambled": null,
+                    "assumptions": [
+                      "inverse_not_identified_without_structure"
+                    ],
+                    "notes": {
+                      "mode": "local_inverse"
+                    }
+                  }
+                ]
+              },
+              "sample_size": null,
+              "is_heuristic_ci": false,
+              "gate_eligible": false,
+              "metadata": {
+                "pull_back_map": "identity"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "bucket": "same legacy-compatibility class as callback ordering, one level deeper in output wire; legitimate unprofiled inputs are outside the ratified Profile2-only source change",
+    "source_written": false
+  },
+  "independent_fraction_gold": {
+    "schema": "e02-independent-IR-composition-finite-oracle:1",
+    "candidate_code_imported": false,
+    "basis": "independently_reconciled",
+    "finite_equal_corpus": {
+      "samples": 4,
+      "exact_rational_sample": "159999999999999997764969561641033243472042269410021822003994571774137053642763901585037542627663370668582068486282473846293650765604033653380415237929846352171691066635030002857104637617170341434265972257138027520176322712852864297543325003016991155218743815378766749154225070877620513952042826684000337133568",
+      "weight_mass_each": "1/4",
+      "correctly_rounded_mean": 1.6e+308,
+      "population_variance": "0",
+      "point_and_interval": [
+        1.6e+308,
+        1.6e+308,
+        1.6e+308
+      ]
+    },
+    "two_atom_corpus": {
+      "values": [
+        0,
+        1
+      ],
+      "exact_masses": [
+        "1/3",
+        "2/3"
+      ],
+      "credible_mass_binary64": 0.32,
+      "finite_lower_quantile_hex": "0x1.5c28f5c28f5c2p-2",
+      "lower_quantile_above_exact_first_cut": true,
+      "mean": 0.6666666666666666,
+      "median": 1,
+      "interval": [
+        1,
+        1
+      ]
+    },
+    "transformed_dyadic_corpus": {
+      "input_values": [
+        0,
+        1,
+        4
+      ],
+      "output_values": [
+        0,
+        2,
+        8
+      ],
+      "ratio_masses": [
+        "1/4",
+        "1/4",
+        "1/2"
+      ],
+      "mean": 4.5,
+      "median": 2,
+      "mass": 0.5,
+      "interval": [
+        0,
+        8
+      ]
+    },
+    "asymmetric_output": {
+      "zero_atoms": 99,
+      "last_atom": 200,
+      "mean": 2,
+      "median": 0,
+      "mass": 0.9,
+      "interval": [
+        0,
+        0
+      ]
+    },
+    "limitations": [
+      "Exact reductions on the finite admitted corpus; no fit/source-law/coverage/provenance authority.",
+      "Finite binary64 tail q convention retained; no exact rational transformation of credible_mass promised."
+    ]
+  },
+  "predicate_basis": [
+    {
+      "predicate": "source identity, five complete paths, actual test outcomes and serialized body compatibility",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "finite corpus mean/inverse-CDF/atom controls",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "G finding acceptance, configured fit history, global type PASS",
+      "basis": "not_established"
+    }
+  ],
+  "capability_scope": "Existing public IR helpers and actual native producer/CAS/profile reader. Configured fit orchestration and generated surface remain separate owners.",
+  "source_acceptance": false,
+  "finding_acceptance": false,
+  "operational_history": {
+    "wrong_system_interpreter": "ERROR; no pytest backend available/no cases",
+    "first_containment_probe": "observer ERROR before complete row capture; preserved original script/trace",
+    "second_generic_reader_probe": "observer ERROR assumed generic v1.1 loader recomputed named profile; corrected actual fresh named reader explicitly invoked"
+  },
+  "type_receipt_qualification": {
+    "unsupported_json_tmp_profile": "observer configuration ERROR preserved; fallback9errors/209warnings is not the canonical configured check",
+    "supported_private_json_profile": "Author later supplied scoped0-error2-file result with original tracked baseline retained. Full command/config/postflight refs must bind it separately; no typecheck executed by this reviewer."
+  },
+  "required_changes": [
+    {
+      "owner": "E DoE source writer",
+      "result": "Unknown/incomplete declarations admitted through shared existing strict reader before dispatch on push/compress/pull; actual callback0 and no invalid law emission."
+    },
+    {
+      "owner": "E DoE source writer",
+      "result": "Preserve complete legacy behavior outside Profile2, including per-row callback coercion and output schema/default/full JSON."
+    }
+  ],
+  "no_source_env_git_mutation": true
+}

@@ -1,0 +1,6 @@
+{
+  "incident": "First candidate observer accidentally reused the old JSON output filename; original old terminal stdout/stderr and old-source Git bindings remain unchanged. The candidate JSON is archived as new-first-probe.json. A fresh exact-dee36 Git-blob replay re-establishes all old properties, and is a new receipt rather than fabricated original bytes.",
+  "observer_old_stdout": "old-falsifiers.stdout.txt",
+  "new_probe": "new-first-probe.json",
+  "exact_old_replay": "old-exact-source-replay/old-composition-falsifiers.json"
+}

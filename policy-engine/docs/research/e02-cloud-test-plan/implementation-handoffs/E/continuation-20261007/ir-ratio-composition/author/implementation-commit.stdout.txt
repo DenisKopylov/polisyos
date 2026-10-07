@@ -1,0 +1,4 @@
+[codex/e02-E-doe-20261006 c539dba7d] fix(ir): bind Profile2 composition to transformed ratio law
+ 5 files changed, 559 insertions(+), 38 deletions(-)
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml
+ create mode 100644 policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py

@@ -1,0 +1,1 @@
+{"control_count": 20, "source": "218c7bd75f29dea72d86d8c5830137ce0a2d0188", "removal_properties": ["FAIL", "FAIL", "FAIL", "FAIL", "FAIL", "FAIL", "FAIL", "FAIL", "FAIL", "FAIL"]}

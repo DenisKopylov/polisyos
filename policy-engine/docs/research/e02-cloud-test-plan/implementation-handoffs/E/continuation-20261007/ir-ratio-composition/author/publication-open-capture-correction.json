@@ -1,0 +1,30 @@
+{
+  "scope": "Author DOC copier corrections before any publication commit; source ecde untouched",
+  "incident": "Initial copier included two open wrapper captures. Second attempt excluded only initial basenames and retained the newly named open wrapper captures. Both complete uncommitted DOC snapshots and closed wrapper outputs are preserved; final copier excludes all preparation captures and its final wrapper capture is outside the selected input catalog.",
+  "snapshots": [
+    "/tmp/e02-E-ir-composition-r4-20261007/historical-first-publication-open-wrapper-capture",
+    "/tmp/e02-E-ir-composition-r4-20261007/historical-second-publication-open-wrapper-capture"
+  ],
+  "closed_wrappers": [
+    {
+      "path": "/tmp/e02-E-ir-composition-r4-20261007/handoff-preparation.stdout.txt",
+      "bytes": 374,
+      "sha256": "fb7a7f81858b08eaa879c6c06cf773e8276dcebc252f5ab5f56ea4d429a1be37"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-r4-20261007/handoff-preparation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-r4-20261007/handoff-preparation-v2.stdout.txt",
+      "bytes": 374,
+      "sha256": "74563b6d75b2a1c9db7997c639196b1a65836d8bae04af149bf6bf0cd83def61"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-r4-20261007/handoff-preparation-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

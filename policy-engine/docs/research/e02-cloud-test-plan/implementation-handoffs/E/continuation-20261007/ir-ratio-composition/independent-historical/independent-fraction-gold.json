@@ -1,0 +1,75 @@
+{
+  "schema": "e02-independent-IR-composition-finite-oracle:1",
+  "candidate_code_imported": false,
+  "basis": "independently_reconciled",
+  "finite_equal_corpus": {
+    "samples": 4,
+    "exact_rational_sample": "159999999999999997764969561641033243472042269410021822003994571774137053642763901585037542627663370668582068486282473846293650765604033653380415237929846352171691066635030002857104637617170341434265972257138027520176322712852864297543325003016991155218743815378766749154225070877620513952042826684000337133568",
+    "weight_mass_each": "1/4",
+    "correctly_rounded_mean": 1.6e+308,
+    "population_variance": "0",
+    "point_and_interval": [
+      1.6e+308,
+      1.6e+308,
+      1.6e+308
+    ]
+  },
+  "two_atom_corpus": {
+    "values": [
+      0,
+      1
+    ],
+    "exact_masses": [
+      "1/3",
+      "2/3"
+    ],
+    "credible_mass_binary64": 0.32,
+    "finite_lower_quantile_hex": "0x1.5c28f5c28f5c2p-2",
+    "lower_quantile_above_exact_first_cut": true,
+    "mean": 0.6666666666666666,
+    "median": 1,
+    "interval": [
+      1,
+      1
+    ]
+  },
+  "transformed_dyadic_corpus": {
+    "input_values": [
+      0,
+      1,
+      4
+    ],
+    "output_values": [
+      0,
+      2,
+      8
+    ],
+    "ratio_masses": [
+      "1/4",
+      "1/4",
+      "1/2"
+    ],
+    "mean": 4.5,
+    "median": 2,
+    "mass": 0.5,
+    "interval": [
+      0,
+      8
+    ]
+  },
+  "asymmetric_output": {
+    "zero_atoms": 99,
+    "last_atom": 200,
+    "mean": 2,
+    "median": 0,
+    "mass": 0.9,
+    "interval": [
+      0,
+      0
+    ]
+  },
+  "limitations": [
+    "Exact reductions on the finite admitted corpus; no fit/source-law/coverage/provenance authority.",
+    "Finite binary64 tail q convention retained; no exact rational transformation of credible_mass promised."
+  ]
+}

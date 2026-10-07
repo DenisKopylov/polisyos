@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-ir-composition-c539-independent-20261007/probe-gaps.py", line 39, in <module>
+    else:raise AssertionError('fresh strict reader unexpectedly admitted forged result')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: fresh strict reader unexpectedly admitted forged result

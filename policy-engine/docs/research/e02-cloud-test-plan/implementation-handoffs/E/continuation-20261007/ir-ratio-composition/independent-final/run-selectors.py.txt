@@ -1,0 +1,37 @@
+from __future__ import annotations
+import hashlib,json,os,subprocess,sys,time
+from pathlib import Path
+import xml.etree.ElementTree as ET
+ROOT=Path('/workspace/e02-E-doe-20261006');OUT=Path(__file__).parent
+SHA='ecde9d2d8d9d13cba87420930105e378010a1acc';TREE='41d52f7b26d7d10757b479f55dd412d97fa051c4';BASE='bfbd53a1f45795ad6901bc4bb7685237b0c3d20b'
+def guard():
+ sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip();assert(sha,tree)==(SHA,TREE)
+ paths=subprocess.check_output(['git','diff','--name-only',BASE,SHA],cwd=ROOT,text=True).splitlines();assert len(paths)==5
+ rows=[]
+ for p in paths:
+  b=(ROOT/p).read_bytes();assert b==subprocess.check_output(['git','show',f'{SHA}:{p}'],cwd=ROOT)
+  rows.append({'path':p,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return {'sha':sha,'tree':tree,'paths':rows,'status':subprocess.check_output(['git','status','--porcelain=v1','-uall'],cwd=ROOT,text=True)}
+before=guard()
+selectors=['tests/unit/ir/test_uncertainty_posterior_composition.py',
+ 'tests/unit/ir/test_uncertainty.py::test_push_forward_particles_preserves_law_object',
+ 'tests/unit/ir/test_uncertainty.py::test_compress_envelope_to_moments_marks_approximation',
+ 'tests/unit/ir/test_uncertainty.py::test_compress_envelope_to_particles_from_parametric_fit',
+ 'tests/unit/ir/test_uncertainty.py::test_pull_back_requires_extra_structure',
+ 'tests/unit/ir/test_uncertainty.py::test_pull_back_with_local_inverse_returns_constraint_envelope',
+ 'tests/unit/ir/test_posterior_summary.py::test_v11_unprofiled_inline_carrier_replay_is_unchanged',
+ 'tests/unit/ir/test_posterior_summary.py::test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator',
+ 'tests/unit/ir/test_posterior_ratio_law.py::test_literal_profile_one_decode_display_replay_is_unchanged',
+ 'tests/unit/ir/test_posterior_ratio_law.py::test_hundred_atom_mean_and_finite_bucket_law_share_exact_ratios']
+for p in ['cache','benchmarks','tmp']:(OUT/p).mkdir(exist_ok=True)
+env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONPATH=str(ROOT/'policy-engine/src'),TMPDIR=str(OUT/'tmp'),UV_NO_SYNC='1',UV_PROJECT_ENVIRONMENT=str(ROOT/'policy-engine/.venv'))
+argv=[sys.executable,'-m','pytest','-q',*selectors,'--junitxml',str(OUT/'pytest.xml'),'--basetemp',str(OUT/'pytest-base'),'-o',f'cache_dir={OUT/"cache"}',f'--benchmark-storage=file://{OUT/"benchmarks"}']
+start=time.time()
+with (OUT/'pytest.stdout.txt').open('wb')as out,(OUT/'pytest.stderr.txt').open('wb')as err:p=subprocess.run(argv,cwd=ROOT/'policy-engine',env=env,stdout=out,stderr=err)
+counts={'cases':0,'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0};cases=[]
+xml=ET.parse(OUT/'pytest.xml').getroot()
+for c in xml.findall('.//testcase'):
+ status='FAIL'if c.find('failure')is not None else 'ERROR'if c.find('error')is not None else 'SKIP'if c.find('skipped')is not None else 'PASS';counts['cases']+=1;counts[status]+=1;cases.append({'classname':c.get('classname'),'name':c.get('name'),'outcome':status})
+after=guard();assert before==after
+result={'schema':'e02-independent-affected-selectors:1','source':SHA,'tree':TREE,'base':BASE,'argv':argv,'cwd':str(ROOT/'policy-engine'),'exit_code':p.returncode,'wall_seconds':time.time()-start,'env':{k:env.get(k)for k in('PYTHONPATH','PYTHONDONTWRITEBYTECODE','TMPDIR','UV_NO_SYNC','UV_PROJECT_ENVIRONMENT','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','XLA_FLAGS')},'before':before,'after':after,'counts':counts,'cases':cases,'scope':'New44 native producer/composition/freshCAS controls plus chosen unchanged legacy/profile controls; not fullfamily or commonwave','finding_closure':False}
+(OUT/'selectors.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'exit_code':p.returncode,'counts':counts,'source_unchanged':True}));assert p.returncode==0

@@ -1,0 +1,57 @@
+........................F............................................... [ 74%]
+.........................                                                [100%]
+=================================== FAILURES ===================================
+__________ test_nonfinite_moment_projection_refuses_without_clipping ___________
+
+    def test_nonfinite_moment_projection_refuses_without_clipping():
+>       source = _source([-1.6e308, 1.6e308])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_uncertainty_posterior_composition.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_uncertainty_posterior_composition.py:35: in _source
+    return summarize_bayesian_calibration_posterior(
+src/polisyos/foundry/calibration/uncertainty_adapter.py:332: in summarize_bayesian_calibration_posterior
+    decomposition = UncertaintyDecomposition.from_gaussian_components(
+src/polisyos/foundry/uncertainty/protocol.py:74: in from_gaussian_components
+    total = gaussian_uncertainty_envelope(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def gaussian_uncertainty_envelope(
+        *,
+        point_estimate: float,
+        std: float,
+        confidence_level: float,
+        source: UncertaintySource,
+        distribution_family: DistributionFamily = DistributionFamily.NORMAL,
+        propagation_method: PropagationMethod = PropagationMethod.MONTE_CARLO,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> UncertaintyEnvelope:
+        """Build a Gaussian envelope from a point estimate and one standard deviation."""
+    
+        if not (0.0 < confidence_level < 1.0):
+            raise ValueError("confidence_level must be in (0, 1)")
+        sigma = max(float(std), 0.0)
+        z_value = NormalDist().inv_cdf((1.0 + confidence_level) / 2.0)
+        lower = float(point_estimate) - z_value * sigma
+        upper = float(point_estimate) + z_value * sigma
+        if lower > upper:
+            lower, upper = upper, lower
+>       return UncertaintyEnvelope(
+            point_estimate=float(point_estimate),
+            confidence_interval=(lower, upper),
+            confidence_level=float(confidence_level),
+            distribution_family=distribution_family,
+            source=source,
+            propagation_method=propagation_method,
+            interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+            sample_size=None,
+            metadata=dict(metadata or {}),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for UncertaintyEnvelope
+E         Value error, confidence_interval[0] must be finite [type=value_error, input_value={'point_estimate': 0.0, '..., 'component': 'total'}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/foundry/uncertainty/protocol.py:135: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_uncertainty_posterior_composition.py::test_nonfinite_moment_projection_refuses_without_clipping

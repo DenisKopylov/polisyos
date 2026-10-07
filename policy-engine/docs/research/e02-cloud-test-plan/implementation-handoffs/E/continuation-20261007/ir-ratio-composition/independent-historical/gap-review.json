@@ -1,0 +1,173 @@
+{
+  "schema": "e02-ir-composition-independent-concrete-gaps:1",
+  "disposition": "CHANGE_REQUIRED",
+  "source": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+  "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+  "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "before": {
+    "sha": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+    "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+    "files": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+        "bytes": 1293,
+        "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "bytes": 9186,
+        "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 31271,
+        "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 94209,
+        "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 11846,
+        "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+      }
+    ],
+    "status": "?? policy-engine/e02-composition-type-private.json\n"
+  },
+  "after": {
+    "sha": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+    "tree": "33973d4d8552da4bcef7a458b417a948bfe196fc",
+    "files": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+        "bytes": 1293,
+        "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "bytes": 9186,
+        "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 31271,
+        "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 94209,
+        "sha256": "2277e7fd7e27fd773e7db8954849e5d7075b3a06367e282fc3f2c6f764293008"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 11846,
+        "sha256": "19e5de66b2a4f7fcda08355fbd5dab37fe17ad0dc0b2e4bdd43c76ec7698b3e1"
+      }
+    ],
+    "status": "?? policy-engine/e02-composition-type-private.json\n"
+  },
+  "cases": [
+    {
+      "case": "missing_profile_with_required_marker",
+      "defining_property": "unsupported declared profile refuses before map callback",
+      "outcome": "FAIL",
+      "actual_callbacks": 2,
+      "actual_point": 0.6666666666666666,
+      "actual_interval": [
+        0.0,
+        0.9249999999999998
+      ],
+      "returned_gate_eligible": false,
+      "persisted_ref": {
+        "artifact_id": "sha256:dec3add858f7b63dce721fbf5e6dc372558a58e4f51533fc149c56e257fcb3dc",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "fresh_reader_late_refusal": "posterior summary profile is missing",
+      "required_marker_retained": true,
+      "profile_discriminator_markers_removed": 2
+    },
+    {
+      "case": "unknown_profile_without_recognized_outer_markers",
+      "defining_property": "unsupported declared profile refuses before map callback",
+      "outcome": "FAIL",
+      "actual_callbacks": 2,
+      "actual_point": 0.6666666666666666,
+      "actual_interval": [
+        0.0,
+        0.9249999999999998
+      ],
+      "returned_gate_eligible": false,
+      "persisted_ref": {
+        "artifact_id": "sha256:c2d0cd530747891575f42504e6c8d88596965f76a1d3d5529b8c728f62c59ff2",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "fresh_reader_late_refusal": "4 validation errors for PosteriorSummaryProfile\nprofile_id\n  Input should be 'urn:policyos:ir:bayesian-posterior-summary-profile:1' [type=literal_error, input_value='urn:unsupported-posterior-law:9', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nprofile_version\n  Input should be '1.0' [type=literal_error, input_value='9.0', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nprobability_convention\n  Extra inputs are not permitted [type=extra_forbidden, input_value='exact_binary_weight_ratios', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nsampling_approximation\n  Extra inputs are not permitted [type=extra_forbidden, input_value='finite_uniform_mesh_discretization', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
+      "required_marker_retained": true,
+      "profile_discriminator_markers_removed": 2
+    },
+    {
+      "case": "compress_moments",
+      "outcome": "FAIL",
+      "returned_with_unknown_declared_profile": true,
+      "actual_callbacks": 0,
+      "required_marker_retained": true,
+      "gate_eligible": false
+    },
+    {
+      "case": "pull_back",
+      "outcome": "FAIL",
+      "returned_with_unknown_declared_profile": true,
+      "actual_callbacks": 2,
+      "required_marker_retained": true,
+      "gate_eligible": false
+    },
+    {
+      "case": "unprofiled_legacy_callback_order",
+      "outcome": "FAIL",
+      "base_function_ref": {
+        "source": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "function": "push_forward_envelope",
+        "sha256": "1bf49a6ff33e7b3bc7600c40fb0c1d24fce97e305838c57353d60fb7a1d6a85f"
+      },
+      "observations": [
+        {
+          "source": "exact_base",
+          "callbacks": [
+            0.0
+          ],
+          "error": {
+            "type": "TypeError",
+            "message": "float() argument must be a string or a real number, not 'object'"
+          }
+        },
+        {
+          "source": "current_c539",
+          "callbacks": [
+            0.0,
+            1.0
+          ],
+          "error": {
+            "type": "TypeError",
+            "message": "float() argument must be a string or a real number, not 'object'"
+          }
+        }
+      ]
+    }
+  ],
+  "bucket_rules": [
+    {
+      "class": "unsupported declared law fallback",
+      "classification": "same profile-admission class at public-composition inlet; strict common reader must precede dispatch"
+    },
+    {
+      "class": "legacy callback execution ordering",
+      "classification": "separate source compatibility regression outside Profile2 scope"
+    }
+  ],
+  "scope": "Actual public helpers/real producer/real CAS; no source edits/typecheck/fullsuite or external input authority"
+}

@@ -1,0 +1,2 @@
+[codex/e02-E-doe-20261006 21a8bd8fa] fix(ir): admit every posterior declaration before composition
+ 2 files changed, 57 insertions(+), 9 deletions(-)

@@ -1,0 +1,3492 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791385644017",
+    "generalDiagnostics": [
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "error",
+            "message": "Cycle detected in import chain\n  /workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py\n  /workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "rule": "reportImportCycles"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 39,
+                    "character": 42
+                },
+                "end": {
+                    "line": 39,
+                    "character": 45
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 52,
+                    "character": 4
+                },
+                "end": {
+                    "line": 52,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 67,
+                    "character": 4
+                },
+                "end": {
+                    "line": 67,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 85,
+                    "character": 4
+                },
+                "end": {
+                    "line": 85,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 132,
+                    "character": 4
+                },
+                "end": {
+                    "line": 132,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 193,
+                    "character": 16
+                },
+                "end": {
+                    "line": 193,
+                    "character": 21
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"a\" in function \"any\"",
+            "range": {
+                "start": {
+                    "line": 198,
+                    "character": 14
+                },
+                "end": {
+                    "line": 198,
+                    "character": 39
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"condition\" in function \"where\"",
+            "range": {
+                "start": {
+                    "line": 202,
+                    "character": 20
+                },
+                "end": {
+                    "line": 202,
+                    "character": 30
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 206,
+                    "character": 33
+                },
+                "end": {
+                    "line": 206,
+                    "character": 38
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 206,
+                    "character": 45
+                },
+                "end": {
+                    "line": 206,
+                    "character": 50
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 219,
+                    "character": 24
+                },
+                "end": {
+                    "line": 219,
+                    "character": 72
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+            "range": {
+                "start": {
+                    "line": 220,
+                    "character": 8
+                },
+                "end": {
+                    "line": 220,
+                    "character": 19
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 263,
+                    "character": 32
+                },
+                "end": {
+                    "line": 263,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"ndarray[_AnyShape, dtype[Any]]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 270,
+                    "character": 4
+                },
+                "end": {
+                    "line": 270,
+                    "character": 37
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"ndarray[_AnyShape, dtype[Any]]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 319,
+                    "character": 4
+                },
+                "end": {
+                    "line": 319,
+                    "character": 42
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"i\" is Any",
+            "range": {
+                "start": {
+                    "line": 325,
+                    "character": 50
+                },
+                "end": {
+                    "line": 325,
+                    "character": 51
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"tuple[float, float, tuple[float, float]]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 342,
+                    "character": 4
+                },
+                "end": {
+                    "line": 342,
+                    "character": 59
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of parameter \"payload\" is Any",
+            "range": {
+                "start": {
+                    "line": 359,
+                    "character": 20
+                },
+                "end": {
+                    "line": 359,
+                    "character": 27
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 359,
+                    "character": 29
+                },
+                "end": {
+                    "line": 359,
+                    "character": 32
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 360,
+                    "character": 37
+                },
+                "end": {
+                    "line": 360,
+                    "character": 48
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Result of call expression is of type \"ndarray[_AnyShape, dtype[Any]]\" and is not used; assign to variable \"_\" if this is intentional",
+            "range": {
+                "start": {
+                    "line": 400,
+                    "character": 4
+                },
+                "end": {
+                    "line": 400,
+                    "character": 63
+                }
+            },
+            "rule": "reportUnusedCallResult"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"i\" is Any",
+            "range": {
+                "start": {
+                    "line": 412,
+                    "character": 52
+                },
+                "end": {
+                    "line": 412,
+                    "character": 53
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"last_positive\" is Any",
+            "range": {
+                "start": {
+                    "line": 419,
+                    "character": 4
+                },
+                "end": {
+                    "line": 419,
+                    "character": 17
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+            "range": {
+                "start": {
+                    "line": 463,
+                    "character": 8
+                },
+                "end": {
+                    "line": 463,
+                    "character": 23
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of parameter \"payload\" is Any",
+            "range": {
+                "start": {
+                    "line": 619,
+                    "character": 4
+                },
+                "end": {
+                    "line": 619,
+                    "character": 11
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 619,
+                    "character": 13
+                },
+                "end": {
+                    "line": 619,
+                    "character": 16
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 630,
+                    "character": 55
+                },
+                "end": {
+                    "line": 630,
+                    "character": 66
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"metadata\" is unknown",
+            "range": {
+                "start": {
+                    "line": 632,
+                    "character": 4
+                },
+                "end": {
+                    "line": 632,
+                    "character": 12
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is unknown\n  Argument corresponds to parameter \"metadata\" in function \"_profile_declared\"",
+            "range": {
+                "start": {
+                    "line": 633,
+                    "character": 29
+                },
+                "end": {
+                    "line": 633,
+                    "character": 37
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"carrier\" is partially unknown\n  Type of \"carrier\" is \"Unknown | None\"",
+            "range": {
+                "start": {
+                    "line": 640,
+                    "character": 4
+                },
+                "end": {
+                    "line": 640,
+                    "character": 11
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 640,
+                    "character": 14
+                },
+                "end": {
+                    "line": 640,
+                    "character": 25
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 641,
+                    "character": 40
+                },
+                "end": {
+                    "line": 641,
+                    "character": 51
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"values\" is partially unknown\n  Type of \"values\" is \"Unknown | None\"",
+            "range": {
+                "start": {
+                    "line": 644,
+                    "character": 8
+                },
+                "end": {
+                    "line": 644,
+                    "character": 14
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 644,
+                    "character": 17
+                },
+                "end": {
+                    "line": 644,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is unknown",
+            "range": {
+                "start": {
+                    "line": 651,
+                    "character": 16
+                },
+                "end": {
+                    "line": 651,
+                    "character": 21
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"numeric_values\" is partially unknown\n  Type of \"numeric_values\" is \"list[Unknown | None]\"",
+            "range": {
+                "start": {
+                    "line": 654,
+                    "character": 4
+                },
+                "end": {
+                    "line": 654,
+                    "character": 18
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 654,
+                    "character": 22
+                },
+                "end": {
+                    "line": 654,
+                    "character": 33
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 654,
+                    "character": 53
+                },
+                "end": {
+                    "line": 654,
+                    "character": 64
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"interval\" is partially unknown\n  Type of \"interval\" is \"Unknown | None\"",
+            "range": {
+                "start": {
+                    "line": 655,
+                    "character": 4
+                },
+                "end": {
+                    "line": 655,
+                    "character": 12
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 655,
+                    "character": 15
+                },
+                "end": {
+                    "line": 655,
+                    "character": 26
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Argument type is partially unknown\n  Argument corresponds to parameter \"obj\" in function \"len\"\n  Argument type is \"list[Unknown] | tuple[Unknown, ...]\"",
+            "range": {
+                "start": {
+                    "line": 656,
+                    "character": 54
+                },
+                "end": {
+                    "line": 656,
+                    "character": 62
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"extend\" is partially unknown\n  Type of \"extend\" is \"(iterable: Iterable[Unknown | None], /) -> None\"",
+            "range": {
+                "start": {
+                    "line": 658,
+                    "character": 4
+                },
+                "end": {
+                    "line": 658,
+                    "character": 25
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is partially unknown\n  Type of \"value\" is \"Unknown | None\"",
+            "range": {
+                "start": {
+                    "line": 663,
+                    "character": 12
+                },
+                "end": {
+                    "line": 663,
+                    "character": 17
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"raw\" is Any",
+            "range": {
+                "start": {
+                    "line": 684,
+                    "character": 4
+                },
+                "end": {
+                    "line": 684,
+                    "character": 7
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"metadata\" is partially unknown\n  Type of \"metadata\" is \"Unknown | dict[Unknown, Unknown]\"",
+            "range": {
+                "start": {
+                    "line": 686,
+                    "character": 4
+                },
+                "end": {
+                    "line": 686,
+                    "character": 12
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 686,
+                    "character": 15
+                },
+                "end": {
+                    "line": 686,
+                    "character": 22
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"manifest\" is Any",
+            "range": {
+                "start": {
+                    "line": 688,
+                    "character": 8
+                },
+                "end": {
+                    "line": 688,
+                    "character": 16
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"schema\" is Any",
+            "range": {
+                "start": {
+                    "line": 689,
+                    "character": 8
+                },
+                "end": {
+                    "line": 689,
+                    "character": 14
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"artifact_schema\" is Any",
+            "range": {
+                "start": {
+                    "line": 689,
+                    "character": 17
+                },
+                "end": {
+                    "line": 689,
+                    "character": 41
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"kind\" is Any",
+            "range": {
+                "start": {
+                    "line": 693,
+                    "character": 15
+                },
+                "end": {
+                    "line": 693,
+                    "character": 28
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"media_type\" is Any",
+            "range": {
+                "start": {
+                    "line": 694,
+                    "character": 15
+                },
+                "end": {
+                    "line": 694,
+                    "character": 34
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"name\" is Any",
+            "range": {
+                "start": {
+                    "line": 696,
+                    "character": 15
+                },
+                "end": {
+                    "line": 696,
+                    "character": 26
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "warning",
+            "message": "Type of \"version\" is Any",
+            "range": {
+                "start": {
+                    "line": 697,
+                    "character": 15
+                },
+                "end": {
+                    "line": 697,
+                    "character": 29
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 54,
+                    "character": 4
+                },
+                "end": {
+                    "line": 54,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 67,
+                    "character": 24
+                },
+                "end": {
+                    "line": 67,
+                    "character": 27
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Unnecessary isinstance call; \"str\" is always an instance of \"str\"",
+            "range": {
+                "start": {
+                    "line": 102,
+                    "character": 15
+                },
+                "end": {
+                    "line": 102,
+                    "character": 48
+                }
+            },
+            "rule": "reportUnnecessaryIsInstance"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Unnecessary isinstance call; \"OutputContractCapability\" is always an instance of \"OutputContractCapability\"",
+            "range": {
+                "start": {
+                    "line": 105,
+                    "character": 19
+                },
+                "end": {
+                    "line": 105,
+                    "character": 61
+                }
+            },
+            "rule": "reportUnnecessaryIsInstance"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 125,
+                    "character": 4
+                },
+                "end": {
+                    "line": 125,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 186,
+                    "character": 20
+                },
+                "end": {
+                    "line": 186,
+                    "character": 24
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"item\" is Any",
+            "range": {
+                "start": {
+                    "line": 186,
+                    "character": 30
+                },
+                "end": {
+                    "line": 186,
+                    "character": 34
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is unknown\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 236,
+                    "character": 21
+                },
+                "end": {
+                    "line": 236,
+                    "character": 25
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"item\" is unknown",
+            "range": {
+                "start": {
+                    "line": 236,
+                    "character": 31
+                },
+                "end": {
+                    "line": 236,
+                    "character": 35
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "\"object\" is not iterable\n  \"__iter__\" method not defined",
+            "range": {
+                "start": {
+                    "line": 236,
+                    "character": 39
+                },
+                "end": {
+                    "line": 236,
+                    "character": 44
+                }
+            },
+            "rule": "reportGeneralTypeIssues"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 400,
+                    "character": 4
+                },
+                "end": {
+                    "line": 400,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 437,
+                    "character": 4
+                },
+                "end": {
+                    "line": 437,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 447,
+                    "character": 24
+                },
+                "end": {
+                    "line": 447,
+                    "character": 27
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 493,
+                    "character": 4
+                },
+                "end": {
+                    "line": 493,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 504,
+                    "character": 24
+                },
+                "end": {
+                    "line": 504,
+                    "character": 27
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 523,
+                    "character": 4
+                },
+                "end": {
+                    "line": 523,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 546,
+                    "character": 4
+                },
+                "end": {
+                    "line": 546,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 572,
+                    "character": 4
+                },
+                "end": {
+                    "line": 572,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 596,
+                    "character": 4
+                },
+                "end": {
+                    "line": 596,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 618,
+                    "character": 4
+                },
+                "end": {
+                    "line": 618,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 637,
+                    "character": 4
+                },
+                "end": {
+                    "line": 637,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 664,
+                    "character": 4
+                },
+                "end": {
+                    "line": 664,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 679,
+                    "character": 21
+                },
+                "end": {
+                    "line": 679,
+                    "character": 24
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 685,
+                    "character": 4
+                },
+                "end": {
+                    "line": 685,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 699,
+                    "character": 23
+                },
+                "end": {
+                    "line": 699,
+                    "character": 26
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 701,
+                    "character": 15
+                },
+                "end": {
+                    "line": 701,
+                    "character": 18
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 710,
+                    "character": 38
+                },
+                "end": {
+                    "line": 710,
+                    "character": 44
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"sample\" is Any",
+            "range": {
+                "start": {
+                    "line": 710,
+                    "character": 51
+                },
+                "end": {
+                    "line": 710,
+                    "character": 57
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 714,
+                    "character": 42
+                },
+                "end": {
+                    "line": 714,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"weight\" is Any",
+            "range": {
+                "start": {
+                    "line": 714,
+                    "character": 55
+                },
+                "end": {
+                    "line": 714,
+                    "character": 61
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 718,
+                    "character": 16
+                },
+                "end": {
+                    "line": 718,
+                    "character": 19
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 718,
+                    "character": 48
+                },
+                "end": {
+                    "line": 718,
+                    "character": 53
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"key\" is Any",
+            "range": {
+                "start": {
+                    "line": 719,
+                    "character": 16
+                },
+                "end": {
+                    "line": 719,
+                    "character": 19
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 719,
+                    "character": 21
+                },
+                "end": {
+                    "line": 719,
+                    "character": 26
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"items\" is Any",
+            "range": {
+                "start": {
+                    "line": 720,
+                    "character": 16
+                },
+                "end": {
+                    "line": 720,
+                    "character": 53
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"iterable\" in function \"sorted\"",
+            "range": {
+                "start": {
+                    "line": 720,
+                    "character": 16
+                },
+                "end": {
+                    "line": 720,
+                    "character": 55
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of parameter \"entry\" is Any",
+            "range": {
+                "start": {
+                    "line": 721,
+                    "character": 27
+                },
+                "end": {
+                    "line": 721,
+                    "character": 32
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 721,
+                    "character": 40
+                },
+                "end": {
+                    "line": 721,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 726,
+                    "character": 16
+                },
+                "end": {
+                    "line": 726,
+                    "character": 19
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 726,
+                    "character": 48
+                },
+                "end": {
+                    "line": 726,
+                    "character": 53
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"key\" is Any",
+            "range": {
+                "start": {
+                    "line": 727,
+                    "character": 16
+                },
+                "end": {
+                    "line": 727,
+                    "character": 19
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 727,
+                    "character": 21
+                },
+                "end": {
+                    "line": 727,
+                    "character": 26
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"items\" is Any",
+            "range": {
+                "start": {
+                    "line": 727,
+                    "character": 37
+                },
+                "end": {
+                    "line": 727,
+                    "character": 75
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"iterable\" in function \"sorted\"",
+            "range": {
+                "start": {
+                    "line": 727,
+                    "character": 37
+                },
+                "end": {
+                    "line": 727,
+                    "character": 77
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"lo\" is Any",
+            "range": {
+                "start": {
+                    "line": 730,
+                    "character": 12
+                },
+                "end": {
+                    "line": 730,
+                    "character": 14
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"hi\" is Any",
+            "range": {
+                "start": {
+                    "line": 730,
+                    "character": 16
+                },
+                "end": {
+                    "line": 730,
+                    "character": 18
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 732,
+                    "character": 42
+                },
+                "end": {
+                    "line": 732,
+                    "character": 44
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 733,
+                    "character": 42
+                },
+                "end": {
+                    "line": 733,
+                    "character": 44
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"component\" is Any",
+            "range": {
+                "start": {
+                    "line": 737,
+                    "character": 12
+                },
+                "end": {
+                    "line": 737,
+                    "character": 21
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+            "range": {
+                "start": {
+                    "line": 738,
+                    "character": 12
+                },
+                "end": {
+                    "line": 738,
+                    "character": 29
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 741,
+                    "character": 56
+                },
+                "end": {
+                    "line": 741,
+                    "character": 75
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 743,
+                    "character": 28
+                },
+                "end": {
+                    "line": 743,
+                    "character": 31
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 743,
+                    "character": 60
+                },
+                "end": {
+                    "line": 743,
+                    "character": 65
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"key\" is Any",
+            "range": {
+                "start": {
+                    "line": 744,
+                    "character": 28
+                },
+                "end": {
+                    "line": 744,
+                    "character": 31
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 744,
+                    "character": 33
+                },
+                "end": {
+                    "line": 744,
+                    "character": 38
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is Any",
+            "range": {
+                "start": {
+                    "line": 744,
+                    "character": 49
+                },
+                "end": {
+                    "line": 744,
+                    "character": 62
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"items\" is Any",
+            "range": {
+                "start": {
+                    "line": 744,
+                    "character": 49
+                },
+                "end": {
+                    "line": 744,
+                    "character": 86
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"iterable\" in function \"sorted\"",
+            "range": {
+                "start": {
+                    "line": 744,
+                    "character": 49
+                },
+                "end": {
+                    "line": 744,
+                    "character": 88
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type is Any",
+            "range": {
+                "start": {
+                    "line": 752,
+                    "character": 4
+                },
+                "end": {
+                    "line": 752,
+                    "character": 32
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of parameter \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 752,
+                    "character": 33
+                },
+                "end": {
+                    "line": 752,
+                    "character": 38
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 752,
+                    "character": 40
+                },
+                "end": {
+                    "line": 752,
+                    "character": 43
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 752,
+                    "character": 75
+                },
+                "end": {
+                    "line": 752,
+                    "character": 78
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"item\" is unknown",
+            "range": {
+                "start": {
+                    "line": 756,
+                    "character": 63
+                },
+                "end": {
+                    "line": 756,
+                    "character": 67
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"item\" is unknown",
+            "range": {
+                "start": {
+                    "line": 758,
+                    "character": 68
+                },
+                "end": {
+                    "line": 758,
+                    "character": 72
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type, \"dict[Unknown, Any]\", is partially unknown",
+            "range": {
+                "start": {
+                    "line": 760,
+                    "character": 15
+                },
+                "end": {
+                    "line": 760,
+                    "character": 95
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"key\" is unknown",
+            "range": {
+                "start": {
+                    "line": 760,
+                    "character": 68
+                },
+                "end": {
+                    "line": 760,
+                    "character": 71
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"item\" is unknown",
+            "range": {
+                "start": {
+                    "line": 760,
+                    "character": 73
+                },
+                "end": {
+                    "line": 760,
+                    "character": 77
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type is Any",
+            "range": {
+                "start": {
+                    "line": 762,
+                    "character": 15
+                },
+                "end": {
+                    "line": 765,
+                    "character": 9
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type is Any",
+            "range": {
+                "start": {
+                    "line": 766,
+                    "character": 11
+                },
+                "end": {
+                    "line": 766,
+                    "character": 16
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 770,
+                    "character": 23
+                },
+                "end": {
+                    "line": 770,
+                    "character": 26
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 772,
+                    "character": 15
+                },
+                "end": {
+                    "line": 772,
+                    "character": 18
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type is Any",
+            "range": {
+                "start": {
+                    "line": 775,
+                    "character": 11
+                },
+                "end": {
+                    "line": 775,
+                    "character": 56
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 812,
+                    "character": 26
+                },
+                "end": {
+                    "line": 812,
+                    "character": 73
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 844,
+                    "character": 26
+                },
+                "end": {
+                    "line": 844,
+                    "character": 73
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"object\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 864,
+                    "character": 26
+                },
+                "end": {
+                    "line": 864,
+                    "character": 73
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 868,
+                    "character": 37
+                },
+                "end": {
+                    "line": 868,
+                    "character": 79
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "Argument of type \"float | dict[str, float]\" cannot be assigned to parameter \"x\" of type \"ConvertibleToFloat\" in function \"__new__\"\n  Type \"float | dict[str, float]\" is not assignable to type \"ConvertibleToFloat\"\n    Type \"dict[str, float]\" is not assignable to type \"ConvertibleToFloat\"\n      \"dict[str, float]\" is not assignable to \"str\"\n      \"dict[str, float]\" is incompatible with protocol \"Buffer\"\n        \"__buffer__\" is not present\n      \"dict[str, float]\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"dict[str, float]\" is incompatible with protocol \"SupportsIndex\"\n  ...",
+            "range": {
+                "start": {
+                    "line": 917,
+                    "character": 25
+                },
+                "end": {
+                    "line": 917,
+                    "character": 31
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "Argument of type \"float | dict[str, float]\" cannot be assigned to parameter \"x\" of type \"ConvertibleToFloat\" in function \"__new__\"\n  Type \"float | dict[str, float]\" is not assignable to type \"ConvertibleToFloat\"\n    Type \"dict[str, float]\" is not assignable to type \"ConvertibleToFloat\"\n      \"dict[str, float]\" is not assignable to \"str\"\n      \"dict[str, float]\" is incompatible with protocol \"Buffer\"\n        \"__buffer__\" is not present\n      \"dict[str, float]\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"dict[str, float]\" is incompatible with protocol \"SupportsIndex\"",
+            "range": {
+                "start": {
+                    "line": 917,
+                    "character": 25
+                },
+                "end": {
+                    "line": 917,
+                    "character": 31
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Function \"_worst_exactness\" is not accessed",
+            "range": {
+                "start": {
+                    "line": 928,
+                    "character": 4
+                },
+                "end": {
+                    "line": 928,
+                    "character": 20
+                }
+            },
+            "rule": "reportUnusedFunction"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Function \"_merge_certificate_kind\" is not accessed",
+            "range": {
+                "start": {
+                    "line": 941,
+                    "character": 4
+                },
+                "end": {
+                    "line": 941,
+                    "character": 27
+                }
+            },
+            "rule": "reportUnusedFunction"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Function \"_propagate_certificate_radius\" is not accessed",
+            "range": {
+                "start": {
+                    "line": 952,
+                    "character": 4
+                },
+                "end": {
+                    "line": 952,
+                    "character": 33
+                }
+            },
+            "rule": "reportUnusedFunction"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 1012,
+                    "character": 21
+                },
+                "end": {
+                    "line": 1012,
+                    "character": 24
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 1083,
+                    "character": 21
+                },
+                "end": {
+                    "line": 1083,
+                    "character": 24
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1129,
+                    "character": 18
+                },
+                "end": {
+                    "line": 1129,
+                    "character": 33
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1132,
+                    "character": 17
+                },
+                "end": {
+                    "line": 1132,
+                    "character": 49
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1146,
+                    "character": 18
+                },
+                "end": {
+                    "line": 1146,
+                    "character": 40
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1157,
+                    "character": 44
+                },
+                "end": {
+                    "line": 1157,
+                    "character": 49
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"level\" is Any",
+            "range": {
+                "start": {
+                    "line": 1157,
+                    "character": 56
+                },
+                "end": {
+                    "line": 1157,
+                    "character": 61
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"u\" is Any",
+            "range": {
+                "start": {
+                    "line": 1166,
+                    "character": 13
+                },
+                "end": {
+                    "line": 1166,
+                    "character": 14
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"sqrt\"",
+            "range": {
+                "start": {
+                    "line": 1168,
+                    "character": 38
+                },
+                "end": {
+                    "line": 1168,
+                    "character": 65
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"sqrt\"",
+            "range": {
+                "start": {
+                    "line": 1170,
+                    "character": 38
+                },
+                "end": {
+                    "line": 1170,
+                    "character": 73
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "Type \"NDArray[Any] | None\" is not assignable to declared type \"list[ndarray[_AnyShape, dtype[Any]]]\"\n  Type \"NDArray[Any] | None\" is not assignable to type \"list[ndarray[_AnyShape, dtype[Any]]]\"\n    \"ndarray[_AnyShape, dtype[Any]]\" is not assignable to \"list[ndarray[_AnyShape, dtype[Any]]]\"",
+            "range": {
+                "start": {
+                    "line": 1209,
+                    "character": 18
+                },
+                "end": {
+                    "line": 1209,
+                    "character": 95
+                }
+            },
+            "rule": "reportAssignmentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "Type \"tuple[NDArray[Any], list[ndarray[_AnyShape, dtype[Any]]]]\" is not assignable to return type \"tuple[ndarray[_AnyShape, dtype[Any]], ndarray[_AnyShape, dtype[Any]] | None]\"\n  Type \"list[ndarray[_AnyShape, dtype[Any]]]\" is not assignable to type \"ndarray[_AnyShape, dtype[Any]] | None\"\n    \"list[ndarray[_AnyShape, dtype[Any]]]\" is not assignable to \"ndarray[_AnyShape, dtype[Any]]\"\n    \"list[ndarray[_AnyShape, dtype[Any]]]\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 1210,
+                    "character": 24
+                },
+                "end": {
+                    "line": 1210,
+                    "character": 31
+                }
+            },
+            "rule": "reportReturnType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type annotation for attribute `model_config` is required because this class is not decorated with `@final`",
+            "range": {
+                "start": {
+                    "line": 1346,
+                    "character": 4
+                },
+                "end": {
+                    "line": 1346,
+                    "character": 16
+                }
+            },
+            "rule": "reportUnannotatedClassAttribute"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 1374,
+                    "character": 24
+                },
+                "end": {
+                    "line": 1374,
+                    "character": 27
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type is Any",
+            "range": {
+                "start": {
+                    "line": 1378,
+                    "character": 8
+                },
+                "end": {
+                    "line": 1378,
+                    "character": 37
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of parameter \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 1378,
+                    "character": 43
+                },
+                "end": {
+                    "line": 1378,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 1378,
+                    "character": 50
+                },
+                "end": {
+                    "line": 1378,
+                    "character": 53
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 1378,
+                    "character": 58
+                },
+                "end": {
+                    "line": 1378,
+                    "character": 61
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type is Any",
+            "range": {
+                "start": {
+                    "line": 1382,
+                    "character": 19
+                },
+                "end": {
+                    "line": 1382,
+                    "character": 24
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"payload\" is partially unknown\n  Type of \"payload\" is \"dict[Unknown, Unknown]\"",
+            "range": {
+                "start": {
+                    "line": 1383,
+                    "character": 8
+                },
+                "end": {
+                    "line": 1383,
+                    "character": 15
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is partially unknown\n  Argument corresponds to parameter \"map\" in function \"__init__\"\n  Argument type is \"dict[Unknown, Unknown]\"",
+            "range": {
+                "start": {
+                    "line": 1383,
+                    "character": 23
+                },
+                "end": {
+                    "line": 1383,
+                    "character": 28
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 1384,
+                    "character": 50
+                },
+                "end": {
+                    "line": 1384,
+                    "character": 61
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1387,
+                    "character": 66
+                },
+                "end": {
+                    "line": 1387,
+                    "character": 91
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"lo\" is unknown",
+            "range": {
+                "start": {
+                    "line": 1389,
+                    "character": 12
+                },
+                "end": {
+                    "line": 1389,
+                    "character": 14
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"hi\" is unknown",
+            "range": {
+                "start": {
+                    "line": 1389,
+                    "character": 16
+                },
+                "end": {
+                    "line": 1389,
+                    "character": 18
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1391,
+                    "character": 42
+                },
+                "end": {
+                    "line": 1391,
+                    "character": 44
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1392,
+                    "character": 42
+                },
+                "end": {
+                    "line": 1392,
+                    "character": 44
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 1394,
+                    "character": 11
+                },
+                "end": {
+                    "line": 1394,
+                    "character": 22
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1395,
+                    "character": 68
+                },
+                "end": {
+                    "line": 1395,
+                    "character": 95
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 1397,
+                    "character": 12
+                },
+                "end": {
+                    "line": 1397,
+                    "character": 23
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is partially unknown\n  Argument corresponds to parameter \"payload\" in function \"_canonicalize_distribution_payload\"\n  Argument type is \"Unknown | None\"",
+            "range": {
+                "start": {
+                    "line": 1397,
+                    "character": 12
+                },
+                "end": {
+                    "line": 1397,
+                    "character": 47
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 1401,
+                    "character": 12
+                },
+                "end": {
+                    "line": 1401,
+                    "character": 23
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is partially unknown\n  Argument corresponds to parameter \"payload\" in function \"_canonicalize_composition_provenance\"\n  Argument type is \"Unknown | None\"",
+            "range": {
+                "start": {
+                    "line": 1401,
+                    "character": 12
+                },
+                "end": {
+                    "line": 1401,
+                    "character": 49
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Return type, \"dict[Unknown, Unknown]\", is partially unknown",
+            "range": {
+                "start": {
+                    "line": 1404,
+                    "character": 15
+                },
+                "end": {
+                    "line": 1404,
+                    "character": 22
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Implicit string concatenation not allowed",
+            "range": {
+                "start": {
+                    "line": 1426,
+                    "character": 16
+                },
+                "end": {
+                    "line": 1427,
+                    "character": 51
+                }
+            },
+            "rule": "reportImplicitStringConcatenation"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "Argument missing for parameter \"schema_version\"",
+            "range": {
+                "start": {
+                    "line": 1566,
+                    "character": 11
+                },
+                "end": {
+                    "line": 1587,
+                    "character": 5
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+            "range": {
+                "start": {
+                    "line": 1603,
+                    "character": 35
+                },
+                "end": {
+                    "line": 1603,
+                    "character": 42
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type `Any` is not allowed",
+            "range": {
+                "start": {
+                    "line": 1614,
+                    "character": 15
+                },
+                "end": {
+                    "line": 1614,
+                    "character": 18
+                }
+            },
+            "rule": "reportExplicitAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+            "range": {
+                "start": {
+                    "line": 1704,
+                    "character": 8
+                },
+                "end": {
+                    "line": 1704,
+                    "character": 24
+                }
+            },
+            "rule": "reportUnknownMemberType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1760,
+                    "character": 32
+                },
+                "end": {
+                    "line": 1760,
+                    "character": 37
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 1760,
+                    "character": 43
+                },
+                "end": {
+                    "line": 1760,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1765,
+                    "character": 33
+                },
+                "end": {
+                    "line": 1765,
+                    "character": 39
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"weight\" is Any",
+            "range": {
+                "start": {
+                    "line": 1765,
+                    "character": 45
+                },
+                "end": {
+                    "line": 1765,
+                    "character": 51
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Code is unreachable",
+            "range": {
+                "start": {
+                    "line": 1781,
+                    "character": 8
+                },
+                "end": {
+                    "line": 1781,
+                    "character": 65
+                }
+            },
+            "rule": "reportUnreachable"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1869,
+                    "character": 33
+                },
+                "end": {
+                    "line": 1869,
+                    "character": 39
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"sample\" is Any",
+            "range": {
+                "start": {
+                    "line": 1869,
+                    "character": 46
+                },
+                "end": {
+                    "line": 1869,
+                    "character": 52
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1879,
+                    "character": 28
+                },
+                "end": {
+                    "line": 1879,
+                    "character": 33
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 1879,
+                    "character": 39
+                },
+                "end": {
+                    "line": 1879,
+                    "character": 44
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1903,
+                    "character": 26
+                },
+                "end": {
+                    "line": 1903,
+                    "character": 40
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1904,
+                    "character": 26
+                },
+                "end": {
+                    "line": 1904,
+                    "character": 40
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1909,
+                    "character": 32
+                },
+                "end": {
+                    "line": 1909,
+                    "character": 37
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 1909,
+                    "character": 43
+                },
+                "end": {
+                    "line": 1909,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1911,
+                    "character": 62
+                },
+                "end": {
+                    "line": 1911,
+                    "character": 68
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"weight\" is Any",
+            "range": {
+                "start": {
+                    "line": 1911,
+                    "character": 74
+                },
+                "end": {
+                    "line": 1911,
+                    "character": 80
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1961,
+                    "character": 46
+                },
+                "end": {
+                    "line": 1961,
+                    "character": 51
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 1961,
+                    "character": 59
+                },
+                "end": {
+                    "line": 1961,
+                    "character": 64
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1963,
+                    "character": 22
+                },
+                "end": {
+                    "line": 1963,
+                    "character": 36
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 1964,
+                    "character": 22
+                },
+                "end": {
+                    "line": 1964,
+                    "character": 36
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2086,
+                    "character": 53
+                },
+                "end": {
+                    "line": 2086,
+                    "character": 59
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"sample\" is Any",
+            "range": {
+                "start": {
+                    "line": 2087,
+                    "character": 20
+                },
+                "end": {
+                    "line": 2087,
+                    "character": 26
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2108,
+                    "character": 28
+                },
+                "end": {
+                    "line": 2108,
+                    "character": 33
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 2108,
+                    "character": 39
+                },
+                "end": {
+                    "line": 2108,
+                    "character": 44
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2109,
+                    "character": 28
+                },
+                "end": {
+                    "line": 2109,
+                    "character": 34
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"weight\" is Any",
+            "range": {
+                "start": {
+                    "line": 2109,
+                    "character": 40
+                },
+                "end": {
+                    "line": 2109,
+                    "character": 46
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2115,
+                    "character": 22
+                },
+                "end": {
+                    "line": 2115,
+                    "character": 38
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2116,
+                    "character": 22
+                },
+                "end": {
+                    "line": 2116,
+                    "character": 38
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2118,
+                    "character": 32
+                },
+                "end": {
+                    "line": 2118,
+                    "character": 37
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 2118,
+                    "character": 43
+                },
+                "end": {
+                    "line": 2118,
+                    "character": 48
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2127,
+                    "character": 33
+                },
+                "end": {
+                    "line": 2127,
+                    "character": 39
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"weight\" is Any",
+            "range": {
+                "start": {
+                    "line": 2127,
+                    "character": 45
+                },
+                "end": {
+                    "line": 2127,
+                    "character": 51
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2135,
+                    "character": 39
+                },
+                "end": {
+                    "line": 2135,
+                    "character": 44
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 2135,
+                    "character": 52
+                },
+                "end": {
+                    "line": 2135,
+                    "character": 57
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2138,
+                    "character": 22
+                },
+                "end": {
+                    "line": 2138,
+                    "character": 36
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2139,
+                    "character": 22
+                },
+                "end": {
+                    "line": 2139,
+                    "character": 36
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"base_lower\" is partially unknown\n  Type of \"base_lower\" is \"float | Unknown\"",
+            "range": {
+                "start": {
+                    "line": 2144,
+                    "character": 8
+                },
+                "end": {
+                    "line": 2144,
+                    "character": 18
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"base_upper\" is partially unknown\n  Type of \"base_upper\" is \"float | Unknown\"",
+            "range": {
+                "start": {
+                    "line": 2144,
+                    "character": 20
+                },
+                "end": {
+                    "line": 2144,
+                    "character": 30
+                }
+            },
+            "rule": "reportUnknownVariableType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "\"None\" is not iterable\n  \"__iter__\" method not defined",
+            "range": {
+                "start": {
+                    "line": 2144,
+                    "character": 33
+                },
+                "end": {
+                    "line": 2144,
+                    "character": 45
+                }
+            },
+            "rule": "reportGeneralTypeIssues"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is partially unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"\n  Argument type is \"float | Unknown\"",
+            "range": {
+                "start": {
+                    "line": 2145,
+                    "character": 42
+                },
+                "end": {
+                    "line": 2145,
+                    "character": 52
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is partially unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"\n  Argument type is \"float | Unknown\"",
+            "range": {
+                "start": {
+                    "line": 2145,
+                    "character": 61
+                },
+                "end": {
+                    "line": 2145,
+                    "character": 71
+                }
+            },
+            "rule": "reportUnknownArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Argument type is Any\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+            "range": {
+                "start": {
+                    "line": 2148,
+                    "character": 53
+                },
+                "end": {
+                    "line": 2148,
+                    "character": 58
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"value\" is Any",
+            "range": {
+                "start": {
+                    "line": 2149,
+                    "character": 20
+                },
+                "end": {
+                    "line": 2149,
+                    "character": 25
+                }
+            },
+            "rule": "reportAny"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "error",
+            "message": "Argument missing for parameter \"schema_version\"",
+            "range": {
+                "start": {
+                    "line": 2297,
+                    "character": 11
+                },
+                "end": {
+                    "line": 2314,
+                    "character": 5
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "Type of \"payload\" is Any",
+            "range": {
+                "start": {
+                    "line": 2357,
+                    "character": 4
+                },
+                "end": {
+                    "line": 2357,
+                    "character": 11
+                }
+            },
+            "rule": "reportAny"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 2,
+        "errorCount": 9,
+        "warningCount": 209,
+        "informationCount": 0,
+        "timeInSec": 3.375
+    }
+}

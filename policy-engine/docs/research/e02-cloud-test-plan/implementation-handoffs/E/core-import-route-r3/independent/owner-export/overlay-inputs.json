@@ -1,0 +1,47 @@
+{
+  "base_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "base_tree": "cee54ddfec357aedc96a8495b4a9fff5b5cec167",
+  "inputs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "canonical_bytes": 47862,
+      "canonical_sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+      "overlay_sha256": "a508e061b416d6faace3873c8604a7666dcb1da52703858df53a12f60e3284c4",
+      "overlay_bytes": 48350
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "canonical_bytes": 1561,
+      "canonical_sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1",
+      "overlay_sha256": "385321444290222cf3b3b9e8e0900acb0298fef181aa02ecf675be8cfc34e3e7",
+      "overlay_bytes": 1906
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "canonical_bytes": 24137,
+      "canonical_sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f",
+      "overlay_sha256": "341749d49ea9df845b32cb0bbf1501b49986656669ead5fd2269b77baa92cada",
+      "overlay_bytes": 24125
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "canonical_bytes": 81721,
+      "canonical_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "overlay_sha256": "a2f98071ff7fbfe7a9173424d8ffbf36e2b514046a2807fdeded133d60e4fb9c",
+      "overlay_bytes": 81680
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "canonical_bytes": 27666,
+      "canonical_sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "overlay_sha256": "f41eb3ba073980a6a3e2998a78967a592f5eae7ade9bac448169ffedec3a4f68",
+      "overlay_bytes": 27657
+    }
+  ],
+  "packet_sha256": {
+    "canonical-owner-exports.patch": "5e9b9cce446cd75f9f61f920ef7f1cd91c6e60c9b542225c9d3022168c0eef99",
+    "E-consumers-after-owner-exports.patch": "3b2dd53c3b34bad615ac362ea4982f3f7ad649ef37b58e0859a4838b3c0277a4"
+  },
+  "packet_state": "unapplied; canonical owners decide API admission and mandatory inventory/docs/release companions",
+  "canonical_sources_unchanged": true
+}

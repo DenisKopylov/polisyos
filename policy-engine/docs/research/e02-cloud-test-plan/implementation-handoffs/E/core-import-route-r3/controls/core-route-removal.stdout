@@ -1,0 +1,27 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________ test_actual_persistence_consumes_core_root_binding ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f1b9d29c050>
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-225/test_actual_persistence_consum0')
+
+    def test_actual_persistence_consumes_core_root_binding(monkeypatch, tmp_path: Path):
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+    
+        def unavailable_options(**kwargs):
+            raise RuntimeError("Core artifact export unavailable")
+    
+        # Keep the public names present, but remove the actual writer capability.
+        monkeypatch.setattr(
+            core,
+            "artifacts",
+            SimpleNamespace(ArtifactWriteOptions=unavailable_options, SchemaInfo=artifacts.SchemaInfo),
+        )
+>       with pytest.raises(RuntimeError, match="Core artifact export unavailable"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/calibration/test_core_artifact_routes.py:69: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/calibration/test_core_artifact_routes.py::test_actual_persistence_consumes_core_root_binding
+property_removal_pytest_exit=1

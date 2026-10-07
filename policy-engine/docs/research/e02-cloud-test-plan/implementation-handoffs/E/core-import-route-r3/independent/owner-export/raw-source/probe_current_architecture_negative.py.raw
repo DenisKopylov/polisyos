@@ -1,0 +1,89 @@
+"""Exercise the canonical deep-import AST collector with unchanged governing bytes."""
+from __future__ import annotations
+import dataclasses
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import sys
+from unittest.mock import patch
+
+REPO = Path('/workspace/e02-E-cal-review-20261006')
+DEST = Path('/workspace/e02-E-pr38-r3-receipts/owner-export-independent/architecture-current')
+REF = '539ee6d6aad7f9db4c03dc520fc515dabef8d799'
+PATHS = ['policy-engine/pyproject.toml', 'policy-engine/tools/devx/architecture/guardrails.py',
+         'policy-engine/architecture/public_surface/contract.toml',
+         'policy-engine/architecture/baselines/imports/deep_import.json']
+ROOT = DEST / 'architecture-fixture' / 'policy-engine'
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(REPO), *args])
+
+bindings = []
+for path in PATHS:
+    data = git('show', f'{REF}:{path}')
+    target = ROOT / path.removeprefix('policy-engine/')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
+    bindings.append({'path': path, 'git_blob': git('rev-parse', f'{REF}:{path}').decode().strip(), 'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)})
+(ROOT / 'src').mkdir(parents=True, exist_ok=True)
+module_path = ROOT / 'tools/devx/architecture/guardrails.py'
+spec = importlib.util.spec_from_file_location('oracle_architecture_guardrails', module_path)
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+module.REPO_ROOT = ROOT
+module.SRC_ROOT = ROOT / 'src'
+policies = module._parse_public_surface(ROOT / 'architecture/public_surface/contract.toml')
+baseline = ROOT / 'architecture/baselines/imports/deep_import.json'
+original_baseline = baseline.read_bytes()
+original_contract = (ROOT / 'architecture/public_surface/contract.toml').read_bytes()
+source = ROOT / 'src/polisyos/scientist/methods/doe/oracle_import_probe.py'
+source.parent.mkdir(parents=True, exist_ok=True)
+
+fixtures = {
+ 'healthy_canonical_root': '# Uses public facade polisyos.core\nfrom polisyos.core import artifacts as PublicArtifacts\n',
+ 'present_but_fake_facade': '# Uses public facade polisyos.core\nfrom polisyos.core.artifacts.cas import CAS as PublicArtifacts\n',
+}
+results = []
+for name, code in fixtures.items():
+    source.write_text(code)
+    edges = module.collect_deep_import_edges(policies)
+    violations = module._check_deep_import_creep(baseline_path=baseline, current_edges=edges)
+    expected_reject = name == 'present_but_fake_facade'
+    assert bool(violations) == expected_reject
+    results.append({'case': name, 'outcome': 'PASS', 'expected_rejection': expected_reject,
+                    'actual_violation_count': len(violations), 'source_sha256': hashlib.sha256(code.encode()).hexdigest(),
+                    'complete_edges': [dataclasses.asdict(v) for v in edges],
+                    'complete_violations': [dataclasses.asdict(v) for v in violations]})
+
+# The same fake file, its facade marker, the configured contract, and the complete
+# baseline remain present. Removing actual edge collection must defeat this
+# behavioral check, demonstrating that it does not key on those markers.
+with patch.object(module, '_maybe_add_deep_import', lambda **kwargs: None):
+    removed_edges = module.collect_deep_import_edges(policies)
+    removed_violations = module._check_deep_import_creep(baseline_path=baseline, current_edges=removed_edges)
+try:
+    assert removed_violations, 'actual import boundary checker missed the forbidden deep import'
+except AssertionError as exc:
+    removal = {'case': 'remove_AST_edge_admission_keep_markers', 'outcome': 'PASS',
+               'negative_gate_outcome': 'FAIL', 'actual_edges': len(removed_edges),
+               'actual_violations': len(removed_violations), 'assertion': str(exc)}
+else:
+    raise AssertionError('removal control ineffective: broken gate was not detected')
+assert baseline.read_bytes() == original_baseline
+assert (ROOT / 'architecture/public_surface/contract.toml').read_bytes() == original_contract
+report = {'schema': 'policyos.e02.independent_oracle.v1', 'source_sha': REF,
+          'source_tree': git('rev-parse', REF + '^{tree}').decode().strip(),
+          'source_bindings': bindings,
+          'actual_runtime_path': ['guardrails.collect_deep_import_edges', 'guardrails._check_deep_import_creep'],
+          'property': 'cross-root deep imports require an existing supported entrypoint or existing exact baseline edge',
+          'predicate_basis': 'recomputed',
+          'proxy_divergence': 'facade comment and PublicArtifacts alias remain present while actual AST import targets a private deep module',
+          'fixture_scope': {'path_count': 1, 'file_type': 'Python', 'full_repo_scan': False},
+          'limitations': ['This independently exercises the existing AST boundary mechanism, not full architecture workflow or runtime availability of exported CAS. Full changed-source consumer tests remain separate.'],
+          'controls': results, 'removal_control': removal,
+          'baseline_unchanged': True, 'contract_unchanged': True}
+(DEST / 'architecture-negative-results.json').write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'complete': True, 'controls': [{'case': r['case'], 'outcome': r['outcome'], 'actual_violation_count': r['actual_violation_count']} for r in results], 'removal': removal, 'baseline_unchanged': True}, indent=2))

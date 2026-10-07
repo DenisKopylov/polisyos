@@ -1,0 +1,46 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py
+@@ -24,7 +24,7 @@
+     UncertaintyEnvelope,
+     UncertaintySource,
+ )
+-from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
++from polisyos.ir.analytics import PosteriorSamplesCarrier
+ 
+ 
+ def sampling_content_digest(value: Any) -> str:
+--- a/policy-engine/src/polisyos/calibration/forecast_bridge.py
++++ b/policy-engine/src/polisyos/calibration/forecast_bridge.py
+@@ -992,9 +992,7 @@
+         raise ValueError("forecast candidate training/source/request binding mismatch")
+     if measurement is not None and training.get("measurement_binding") != measurement:
+         raise ValueError("forecast candidate training measurement binding mismatch")
+-    from polisyos.ir.analytics.forecasting_uncertainty import (
+-        load_forecasting_uncertainty_bundle,
+-    )
++    from polisyos.ir.analytics import load_forecasting_uncertainty_bundle
+     from polisyos.ir.registry.refs import ForecastingUncertaintyBundleRef
+ 
+     bundle_ref = ForecastingUncertaintyBundleRef.model_validate(
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py
+@@ -49,7 +49,7 @@
+     load_dependence_structure,
+ )
+ from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
+-from polisyos.ir.analytics.uncertainty import (
++from polisyos.ir.analytics import (
+     DistributionFamily,
+     ParametricFitCarrier,
+     PosteriorSamplesCarrier,
+--- a/policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py
++++ b/policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py
+@@ -32,7 +32,7 @@
+     SimulationResult,
+     StateSnapshotRef,
+ )
+-from polisyos.foundry.execute.executor import (
++from polisyos.foundry.execute import (
+     get_state_path,
+     load_state_snapshot,
+     put_state_snapshot,

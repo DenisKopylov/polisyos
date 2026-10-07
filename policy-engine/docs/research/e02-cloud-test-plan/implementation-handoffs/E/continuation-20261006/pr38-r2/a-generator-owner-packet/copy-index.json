@@ -1,0 +1,105 @@
+{
+  "files": [
+    {
+      "path": "A-source-coordinates.json",
+      "bytes": 1692,
+      "sha256": "95c253bfca7065fad6ec8bf1554bc475d8e28f61a7165195b13232e8f020dbbc"
+    },
+    {
+      "path": "A-source-fragments.py.txt",
+      "bytes": 24776,
+      "sha256": "9a2afa1a350b317928ae36e2b48222b9538d9c4f51acfb05fa4e489398a9961b"
+    },
+    {
+      "path": "abi-registry-denominator.json",
+      "bytes": 16459,
+      "sha256": "e391efccb846b55a4c8ddae0b03435f1362b058bac11f70e8b301be42c94e776"
+    },
+    {
+      "path": "dependency-packet.json",
+      "bytes": 36018,
+      "sha256": "bccc0ceade3aa173de37dab538510f7fbdfe73fb044d8922156f51da427f4d72"
+    },
+    {
+      "path": "generated-owner-contracts.json",
+      "bytes": 8488,
+      "sha256": "812672864f07a4e80bcfa4215716431415f43b722250102250d0b95e8fe67070"
+    },
+    {
+      "path": "patch-check.json",
+      "bytes": 893,
+      "sha256": "7e2b6ab83ad95f3b624ea5c43945f4bd3f3c3e28f5bc6ffffe06860fabaebf6e"
+    },
+    {
+      "path": "patch-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "patch-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "prior-packet/README.md",
+      "bytes": 4761,
+      "sha256": "b1869faf21704a4c7a3cadbfe8c0f4869731e244f7c4a257fc683c9fcc6461f7"
+    },
+    {
+      "path": "prior-packet/a-cas-contract-tests.py.txt",
+      "bytes": 4327,
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac"
+    },
+    {
+      "path": "prior-packet/a-status-reason-tests.py.txt",
+      "bytes": 3114,
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4"
+    },
+    {
+      "path": "prior-packet/a-status-reason.patch.txt",
+      "bytes": 1039,
+      "sha256": "826e19c426272ded24f1223cd07060a51f226d1cf48934949c484fda6fa7c784"
+    },
+    {
+      "path": "prior-packet/checks/a-cas-contract.junit.xml",
+      "bytes": 1113,
+      "sha256": "8043f5932f472916e7c2631aa92f8c5181c913d9a5ea73c42de4e4be9234af48"
+    },
+    {
+      "path": "prior-packet/checks/a-cas-contract.stdout",
+      "bytes": 109,
+      "sha256": "152b0fdc6507bf0dd923c562f5804d383e58407af14ccd3fce5014442e34cf70"
+    },
+    {
+      "path": "prior-packet/checks/a-status-reason.junit.xml",
+      "bytes": 3667,
+      "sha256": "f67fd6462a6efa31fa6a8f7c6f7de3236998da66fd88e903f045031bc2fc589a"
+    },
+    {
+      "path": "prior-packet/checks/a-status-reason.stdout",
+      "bytes": 6986,
+      "sha256": "121195630aedfb1770f6c4e61d92881282b91fe624d76624b3d7bf76f6ecb2f7"
+    },
+    {
+      "path": "prior-packet/checks/execution.json",
+      "bytes": 9676,
+      "sha256": "6027c82f77faf7a1424d90c1770f3e29ae7b193e545fa1a62c183c9bce2b44bb"
+    },
+    {
+      "path": "prior-packet/checks/positive-artifact.stdout",
+      "bytes": 7288,
+      "sha256": "7b0810193555c6226c0a5cc41f34593eb77d103741a3d2397aead88cccbf1c00"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 40255,
+      "sha256": "8956402babe6354ce9af80b741a18dacbab21dbc18bfb6fdabcc152be4748ed1"
+    }
+  ],
+  "file_count": 19,
+  "total_bytes": 170661,
+  "index_self_excluded": true,
+  "primary": "dependency-packet.json",
+  "existing_complete_evidence_publication_commit": "1e1b5028274814b7c4318671588202480390a6bc",
+  "raw_not_duplicated": true
+}

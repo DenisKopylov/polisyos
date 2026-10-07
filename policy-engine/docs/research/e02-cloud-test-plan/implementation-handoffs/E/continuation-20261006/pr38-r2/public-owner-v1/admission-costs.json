@@ -1,0 +1,16 @@
+{
+  "current_literal_exports": {
+    "polisyos.core.artifacts": 54,
+    "polisyos.core.canon": 10,
+    "polisyos.core.registry": 12,
+    "polisyos.core": 134,
+    "polisyos.ir": 284,
+    "polisyos.foundry.execute": 3
+  },
+  "Core_option_A_total_entrypoint_names": 76,
+  "Core_option_A_does_not_create_new_implementations": true,
+  "Core_option_B_new_root_names": 9,
+  "IR_option_B_new_root_names": 3,
+  "Foundry_execute_new_root_names": 3,
+  "all_owner_admission": "not_ratified"
+}

@@ -1,0 +1,174 @@
+"""Read-only exact G delta/artifact/source binding review; never build/run a wheel."""
+from pathlib import Path
+from collections import Counter
+import ast
+import copy
+import hashlib
+import json
+import os
+import platform
+import subprocess
+import sys
+from defusedxml import ElementTree
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path(__file__).parent
+BASE = 'c311546deb347c185b30a2652c2ee9a5e1535e95'
+HEAD = 'a9f78817c873be5b35a08155f2593b229d9fdbb6'
+TREE = 'c02e043c3e1c8222c28aa71187fa8db4e2fdeea7'
+A = '577521c6651bba048d6bdfdc13f36a383c8146c6'
+A_TREE = '1e8820533c48ec88355f2a2fccba486f279c2a4b'
+A_IMPL = '5650b7aed7991606d62cd8510b377698a778ce39'
+ACCEPTED = '9c989f7877bd25fea38416cbd10d4c8b2511d10e'
+PLAN = 'policy-engine/docs/research/e02-cloud-test-plan'
+G_DIR = ROOT/PLAN/'integration/checks/2026-10-06-sixth-wave'
+COMPILER = G_DIR/'A-compiler'
+TEST = 'policy-engine/tests/unit/remediation/test_req_01_installed.py'
+COLLECTOR = PLAN+'/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py'
+COLLECTOR_SHA = '2f7e7e12516dd98678903c5b4a89553a28b08608'
+
+def git(*args):
+    return subprocess.check_output(['git','-C',str(ROOT),*args])
+
+def blob(ref,path):
+    return git('show',ref+':'+path)
+
+def ident(data):
+    return dict(bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
+
+def file_identity(path):
+    return ident(path.read_bytes())
+
+def check_file(path, expected):
+    assert file_identity(path) == dict(bytes=expected['bytes'],sha256=expected['sha256'])
+
+assert git('rev-parse','HEAD').decode().strip() == HEAD
+assert git('rev-parse',HEAD+'^{tree}').decode().strip() == TREE
+assert git('status','--porcelain') == b''
+paths = git('diff','--name-only',BASE,HEAD).decode().splitlines()
+assert len(paths) == 68
+native = [p for p in paths if p.startswith('policy-engine/tests/')]
+docs = [p for p in paths if p.startswith('policy-engine/docs/')]
+assert native == [TEST] and len(docs) == 67
+assert not any(p.startswith(('policy-engine/src/','policy-engine/architecture/','policy-engine/release-fragments/')) for p in paths)
+assert set(paths) == set(native+docs)
+footprint = []
+for path in paths:
+    data = blob(HEAD,path)
+    assert (ROOT/path).read_bytes() == data
+    footprint.append(dict(path=path,git_blob=git('rev-parse',HEAD+':'+path).decode().strip(),**ident(data)))
+(OUT/'full-68-footprint.json').write_text(json.dumps(footprint,indent=2)+'\n')
+# Exact operational collector bytes survive original commit and ordinary G merge.
+collector = blob(HEAD,COLLECTOR)
+assert collector == blob(COLLECTOR_SHA,COLLECTOR)
+assert ident(collector) == dict(bytes=38197,sha256='faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc')
+assert collector == Path('/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py').read_bytes()
+collector_binding = {'implementation_sha':COLLECTOR_SHA,'implementation_tree':git('rev-parse',COLLECTOR_SHA+'^{tree}').decode().strip(),'merged_sha':HEAD,'merged_tree':TREE,'path':COLLECTOR,'git_blob':git('rev-parse',HEAD+':'+COLLECTOR).decode().strip(),**ident(collector),'bytes_equal_original_scratch_and_Git':True,'independent_v4_review_reused_without_new_protocol_run':True}
+(OUT/'collector-source-Git-binding.json').write_text(json.dumps(collector_binding,indent=2)+'\n')
+test_bytes = blob(HEAD,TEST)
+assert test_bytes == blob(A,TEST) == blob(A_IMPL,TEST)
+test_hash = ident(test_bytes)['sha256']
+assert test_hash == 'f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830'
+ast.parse(test_bytes)
+test_blob = git('rev-parse',HEAD+':'+TEST).decode().strip()
+assert test_blob == 'c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89'
+assert git('rev-parse',A+'^{tree}').decode().strip() == A_TREE
+source_readback = json.loads((COMPILER/'source-readback.json').read_text())
+a_changes = git('diff','--name-only',A_IMPL+'^',A).decode().splitlines()
+assert len(a_changes) == 15 and sum(p.startswith('policy-engine/tests/') for p in a_changes) == 1
+assert all(p == TEST or p.startswith(PLAN+'/implementation-handoffs/A/') for p in a_changes)
+for path in a_changes:
+    assert blob(A,path) == blob(ACCEPTED,path) == blob(HEAD,path)
+for commit in source_readback['original_commits']:
+    subprocess.run(['git','-C',str(ROOT),'merge-base','--is-ancestor',commit,HEAD],check=True)
+run = json.loads((COMPILER/'replay-4/run-result.json').read_text())
+reconciliation = json.loads((COMPILER/'replay-4/wheel-source-reconciliation.json').read_text())
+checkpoint = json.loads((ROOT/PLAN/'integration/checkpoint-11.json').read_text())
+assert run['candidate_commit'] == reconciliation['candidate'] == source_readback['candidate'] == A
+assert run['candidate_tree'] == source_readback['candidate_tree'] == A_TREE
+assert run['test_source_blob'] == test_blob and run['test_source_sha256'] == test_hash
+assert run['outcome'] == 'PASS' and run['returncode'] == 0
+check_file(COMPILER/'replay-4/installed-wheel.junit.xml',run['junit'])
+check_file(COMPILER/'replay-4/pytest.stdout.txt',dict(bytes=run['pytest_stdout_bytes'],sha256=run['pytest_stdout_sha256']))
+check_file(COMPILER/'replay-4/pytest.stderr.txt',dict(bytes=run['pytest_stderr_bytes'],sha256=run['pytest_stderr_sha256']))
+check_file(COMPILER/'replay-4/compiler-report.json',run['persisted_compiler_reports'][0])
+cases = list(ElementTree.parse(COMPILER/'replay-4/installed-wheel.junit.xml',forbid_dtd=True).getroot().iter('testcase'))
+assert len(cases) == 1 and not any(c.find(n) is not None for c in cases for n in ['failure','error','skipped'])
+properties = {p.get('name'):p.get('value') for p in ElementTree.parse(COMPILER/'replay-4/installed-wheel.junit.xml',forbid_dtd=True).getroot().iter('property')}
+wheel_hash = run['wheel_artifacts'][0]['sha256']
+assert properties['req01_installed_wheel_sha256'] == reconciliation['wheel_sha256'] == source_readback['wheel_sha256'] == wheel_hash
+assert wheel_hash == 'c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27'
+a_paths = git('ls-tree','-r','--name-only',A,'policy-engine/src','policy-engine/tools').decode().splitlines()
+counts = {prefix:sum(p.startswith(prefix) and p.endswith('.py') for p in a_paths) for prefix in ['policy-engine/src/','policy-engine/tools/']}
+assert counts == {'policy-engine/src/':2698,'policy-engine/tools/':445}
+assert reconciliation['python_entry_denominator'] == reconciliation['matched_candidate_git_blobs'] == sum(counts.values()) == 3143
+assert reconciliation['unmatched_python_paths'] == []
+report = json.loads((COMPILER/'replay-4/compiler-report.json').read_text())
+assert report['schema_version'] == 'policyos.data_requirement_compilation.v1'
+assert report['specs'][0]['required_data_families'] == ['employment_panel']
+assert report['specs'][0]['metadata']['construct_ref'] == 'employment_status'
+binding = report['specs'][0]['metadata']['capability_binding']
+assert binding['limitations'] == ['fixture resolver; not source admission']
+assert binding['authority_envelope_result'] == 'candidate'
+assert report['metadata']['capability_index_refs'] == ['capability-index://req-01-installed-wheel']
+assert checkpoint['finding_closures'] == []
+assert checkpoint['accepted_slices'][0]['finding_closure'] is False
+assert source_readback['complete_changed_path_denominator'] == 15
+assert source_readback['changed_test_paths'] == 1 and source_readback['handoff_evidence_companions'] == 14
+handoff = json.loads((ROOT/PLAN/'implementation-handoffs/A/compiler-full.json').read_text())
+assert handoff['closure_ids'] == [] and handoff['source_register_status'] == 'partial'
+assert handoff['active_compiler_witness']['resolver_fixture_is_production_source_admission'] is False
+assert handoff['tracked_python_census']['computed_dynamic_import_targets'] == 270
+assert handoff['tracked_python_census']['universal_zero_claim'] is False
+census_path = PLAN+'/implementation-handoffs/A/compiler-full/census_tracked_python.py'
+assert ident(blob(HEAD,census_path))['sha256'] == handoff['tracked_python_census']['reproducer']['committed_script_sha256']
+ast.parse(blob(HEAD,census_path))
+origin = json.loads((ROOT/PLAN/'implementation-handoffs/A/compiler-full/wheel-origin-and-report.json').read_text())
+assert origin['commit'] == A_IMPL and origin['test_blob_sha256'] == test_hash
+assert origin['wheel_sha256'] != wheel_hash # Separate earlier A build, no wheel-container conflation.
+historical_origin = origin['installed_module_origin_probe']
+assert len(historical_origin['loaded_python_package_modules']) == historical_origin['loaded_python_package_module_count'] == 144
+for name,path in historical_origin['loaded_python_package_modules'].items():
+    assert Path(path).is_relative_to(Path(historical_origin['package_root']))
+four_module_joins=[]
+for name,row in historical_origin['modules'].items():
+    relative = 'policy-engine/src/'+row['source_path'].split('/policy-engine/src/',1)[1]
+    assert ident(blob(A_IMPL,relative))['sha256'] == row['sha256'] == row['source_sha256']
+    four_module_joins.append({'module':name,'source_path':relative,'sha256':row['sha256']})
+prior = []
+for name in ['attempt-1','replay-2','replay-3']:
+    receipt = json.loads((COMPILER/name/'run-result.json').read_text())
+    assert receipt['outcome'] == 'UNRUN'
+    prior.append({'attempt':name,'outcome':'UNRUN','classification':receipt['classification'],'runtime_property':'not reached, no transfer from wheel existence'})
+lossless = json.loads((COMPILER/'attempt-1/lossless-output-capture.json').read_text())
+for row in lossless['artifacts']:
+    assert ident(row['text'].encode('utf-8')) == dict(bytes=row['bytes'],sha256=row['sha256'])
+cleanup = json.loads((G_DIR/'cleanup-native-trash.json').read_text())
+assert all(row['state']=='moved_identity_verified' and row['no_active_handles'] is True and row['source_absent'] is True and row['trash_identity_matches'] for row in cleanup['actions'])
+assert sum(row['allocated_bytes'] for row in cleanup['actions']) == cleanup['moved_allocated_bytes'] == 410251264
+
+def validate_join(candidate_run, candidate_reconciliation):
+    assert candidate_run['candidate_commit'] == A
+    assert candidate_run['candidate_tree'] == A_TREE
+    assert candidate_run['test_source_sha256'] == test_hash
+    assert candidate_run['test_source_blob'] == test_blob
+    assert candidate_reconciliation['candidate'] == A
+    assert candidate_reconciliation['wheel_sha256'] == wheel_hash == properties['req01_installed_wheel_sha256']
+    assert candidate_reconciliation['python_entry_denominator'] == sum(counts.values())
+    assert candidate_reconciliation['matched_candidate_git_blobs'] == sum(counts.values())
+    assert candidate_reconciliation['unmatched_python_paths'] == []
+
+validate_join(run,reconciliation)
+negatives=[]
+for target,field,wrong in [('run','candidate_commit',HEAD),('run','test_source_sha256','0'*64),('wheel','wheel_sha256','0'*64),('wheel','python_entry_denominator',3142)]:
+    r,w = copy.deepcopy(run),copy.deepcopy(reconciliation)
+    (r if target=='run' else w)[field]=wrong
+    try:
+        validate_join(r,w)
+        raise RuntimeError('corrupt field admitted')
+    except AssertionError:
+        negatives.append({'target':target,'field':field,'outcome':'REFUSED'})
+assert git('rev-parse','HEAD').decode().strip() == HEAD and git('status','--porcelain') == b''
+review = {'schema':'policyos.e02.independent-G-checkpoint11-delta.v1','reviewer':'doe_r2 read-only independent, no A-test/census authorship','base_sha':BASE,'base_tree':git('rev-parse',BASE+'^{tree}').decode().strip(),'candidate_sha':HEAD,'candidate_tree':TREE,'delta_paths':68,'native_tests':1,'docs_evidence_companions':67,'production_source_config_release_surface_changes':0,'verdict':'GO-bounded-new-test-and-moderate-evidence-delta','collector_source_binding':collector_binding,'A_candidate':A,'A_candidate_tree':A_TREE,'A_original_commits_in_current_ancestry':source_readback['original_commits'],'A_accepted_merge':ACCEPTED,'A_accepted_delta':{'paths':15,'native_tests':1,'companions':14,'all15_blobs_equal_A_acceptance_currentE':True},'A_replay4_receipt_join':{'selector_cases':1,'passed':1,'failed':0,'errors':0,'skipped':0,'JUnit_seconds':3.175,'wall_seconds':4.662,'test_blob':test_blob,'test_sha256':test_hash,'wheel_sha256':wheel_hash,'persisted_report':file_identity(COMPILER/'replay-4/compiler-report.json'),'predicate_basis':'Exact byte/Git/source/receipt joins, no fresh wheel execution.'},'denominators':{'reported_reconciled_A_wheel_python_entries':3143,'A_Git_src_py':2698,'A_Git_tools_py':445,'historical_A_loaded_modules':144,'current_A_installed_package_files':2698,'wheel_cases':1,'these_are_distinct_denominators':True},'historical_A_origin_four_source_joins':four_module_joins,'resolver_scope':'RecordingResolver fixture only; compiler query/binding/report persistence, not production source admission, no completeREQ01/LA045/LA046 closure. Unknown-family static assertion requires zero resolver queries/specs.','wheel_boundary':'Local wheel container/raw per-entry inventory unavailable in cloud;3143 is publisher reconciliation qualified by exactmoderate receipts and matching candidateGit denominator, not independently regenerated ZIP bytes. No fresh/composed E/G wheelPASS.','prior_prerequisite_harness_attempts':prior,'lossless_firstattempt_artifact_hashes_verified':True,'cleanup_receipt':{'native_Trash_only':True,'actions':5,'allocated_bytes_moved':410251264,'physical_reclamation':'not claimed','local_device_inode_readback':'publisher evidence only, no cloudTrash action'},'scope_amendment':'G narrows B188 unknown-law requirement to zero unsupported stochastic propagation/callbacks; limited deterministic nominal/gradient diagnostics allowed where originalcriterion doesnot impose API-wide pre-callback refusal. Doesnot ratifyIRlaw/wire semantics.','pending_owners':{'Core_IR_Foundry_execute_surface':'team-polisyos and team-architecture decide existing curated entrypoint/narrow export admission; no contract, inventory exceptions or root exports changed by thisGdelta. IRsemanticowner remains absent/unallocated until explicit appointment; B201/B202held.','A':'Defaultgeneration/HTTP/S10 reason/missing-ref and validboundpositivepacket remain A-owned; acceptedcompilerfixture neither supplies authenticL6inputs nor resolves E→Aforecastbridge.','D':'CanonicalSearchLoopRunner analysis_ref→ranking-dependent proposal→freshreopen witness remains bridge_missing/consumer_missing; E DoE70c budgetfix is separate prior acceptedsource, not rerun or autoclosed here.','E':'Historical4758 compatibility/count/cap concerns are source-qualified; currentrootfacade/DoE fixes retain their separate independentGO, broadarchitecture/CI/currentcandidatewave await actualfreeze.'},'P41':'No global inherited-red attribution from path intersection; no old/new fullglobalcommand here.','independent_corrupt_field_controls':negatives,'commands_executed_scope':'Git read-only metadata/blob operations, JSON/AST/JUnit parsing/hash joins only; zero wheels/venvs/builds/product/numerical/globalgates','findings_closed':[],'environment':{'python':sys.executable,'version':sys.version,'platform':platform.platform(),'UV_NO_SYNC':os.environ.get('UV_NO_SYNC'),'PYTHONDONTWRITEBYTECODE':os.environ.get('PYTHONDONTWRITEBYTECODE')},'harness_history':'Shortc311 ambiguous against commit/tree/blob; preserved stderr and resolved exactcommitc311546de. Initialrg nonexistentintegration/checkpoints path was navigation error, corrected checkpoint-11.json. No product failure.'}
+(OUT/'review.json').write_text(json.dumps(review,indent=2)+'\n')
+print(json.dumps({key:review[key] for key in ['verdict','base_sha','candidate_sha','candidate_tree','delta_paths','native_tests','docs_evidence_companions','production_source_config_release_surface_changes','denominators','independent_corrupt_field_controls']},indent=2))

@@ -1,0 +1,74 @@
+[
+  {
+    "unit": "A",
+    "branch": "codex/e02-A-delivery-attached",
+    "head": "579788751baefe065fd5b94c446ab665eb65861a",
+    "tree": "e3ff953110c39ab11635f1c2ae99454d6333865c",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-report.md",
+      "blob": "35c0b944bf050b1bf78e2a76eefe6c9100478446",
+      "bytes": 10475,
+      "sha256": "e32c867fadb2ffb2f00cad66cb9f8f7696354d4c270542816323e875a24d7d2e"
+    }
+  },
+  {
+    "unit": "B",
+    "branch": "codex/e02-B-current-coordination",
+    "head": "c683ab749f470249565ecaf377e5a24cd74e47bc",
+    "tree": "8f7b9eb242671e3cfa32ecb076c6c9eedb831705",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-full-B.json",
+      "blob": "3b966afea401e6acb113dc0006889f8e57eadad7",
+      "bytes": 77682,
+      "sha256": "33b4e88aa12844e25242e0271eeded946254ce8f411b791cefa906c5da92b79c"
+    }
+  },
+  {
+    "unit": "C",
+    "branch": "codex/e02-C-continuation-20261006",
+    "head": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "tree": "573063f560533e73518ef87d29acc1a46959cf33",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json",
+      "blob": "7995dd9c2128c5c4be165ce2cda53ba24934f804",
+      "bytes": 4344,
+      "sha256": "795e17eef8ac5d27f3d1c6cdc377630fb67cb5a3af677a978d7de8a6c95fd651"
+    }
+  },
+  {
+    "unit": "D",
+    "branch": "codex/e02-D-published-root",
+    "head": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "tree": "bb6213c0cde3246e63c04f749547f40f35644a15",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-continuation-final-closeout.json",
+      "blob": "4f64a8ab930f071d0422ce0126536fdd098dde24",
+      "bytes": 19301,
+      "sha256": "629598f9da1e501d7a0993268cba8459fceddd09f9efb57acf3932c27076b909"
+    }
+  },
+  {
+    "unit": "E",
+    "branch": "codex/e02-E-continuation-20261006",
+    "head": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "tree": "d884554723bb66e83f5df467fc95766fd90f7bda",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/README.md",
+      "blob": "6785b7473a6fab16933430d4a4719a95c401e11a",
+      "bytes": 8787,
+      "sha256": "bf90b8d42699c9ceaa21e1ba9d353b18b5d5afca07edf45a666d4aa986d240da"
+    }
+  },
+  {
+    "unit": "F",
+    "branch": "codex/e02-F-closeout-20261006",
+    "head": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "tree": "f2b9b2d4bcc24a2feeae6f4873b61845a07cc090",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+      "blob": "0cb02af8b429ae1bb2ef7a1e3b822010c8529aee",
+      "bytes": 236955,
+      "sha256": "9c61c70a184988980a02751fa58cce58b0e496818d3a5b1532440266b03142c7"
+    }
+  }
+]

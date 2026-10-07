@@ -1,0 +1,384 @@
+..............................................E.E..........EEEEEEEEE.... [ 36%]
+........................................................................ [ 72%]
+........................................................                 [100%]
+==================================== ERRORS ====================================
+___ ERROR at setup of test_morris_native_scale_and_persisted_search_consumer ___
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_morris_native_scale_and_persisted_search_consumer>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_sobol_whole_paired_block_replay_keeps_estimands_and_rebinds_content _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_sobol_whole_paired_block_replay_keeps_estimands_and_rebinds_content>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_bridge_seed_isolation_distribution_and_exact_identity _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_bridge_seed_isolation_distribution_and_exact_identity>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_content_valid_fake_receipt_refuses_at_actual_consumer[result] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_content_valid_fake_receipt_refuses_at_actual_consumer[result]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_content_valid_fake_receipt_refuses_at_actual_consumer[order] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_content_valid_fake_receipt_refuses_at_actual_consumer[order]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_content_valid_fake_receipt_refuses_at_actual_consumer[seed] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_content_valid_fake_receipt_refuses_at_actual_consumer[seed]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_content_valid_fake_receipt_refuses_at_actual_consumer[kind] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_content_valid_fake_receipt_refuses_at_actual_consumer[kind]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_content_valid_fake_receipt_refuses_at_actual_consumer[schema] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_content_valid_fake_receipt_refuses_at_actual_consumer[schema]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_denominator_and_failed_support_survive_morris_receipt[nan] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_denominator_and_failed_support_survive_morris_receipt[nan]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_denominator_and_failed_support_survive_morris_receipt[inf] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_denominator_and_failed_support_survive_morris_receipt[inf]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+_ ERROR at setup of test_denominator_and_failed_support_survive_morris_receipt[-inf] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_denominator_and_failed_support_survive_morris_receipt[-inf]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+>               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+>           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/doe-salib-and-consumer-factory'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError
+=============================== warnings summary ===============================
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:222: RuntimeWarning: Degrees of freedom <= 0 for slice
+    ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:211: RuntimeWarning: invalid value encountered in divide
+    ret = um.true_divide(
+
+tests/unit/scientist/methods/doe/test_morris_geometry.py::test_native_morris_blocks_preserve_point_uncertainty_under_units_and_order[3]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/SALib/sample/morris/morris.py:382: UserWarning: num_levels should be an even number, sample may be biased
+    warnings.warn("num_levels should be an even number, " "sample may be biased")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_morris_native_scale_and_persisted_search_consumer
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_whole_paired_block_replay_keeps_estimands_and_rebinds_content
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_bridge_seed_isolation_distribution_and_exact_identity
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_content_valid_fake_receipt_refuses_at_actual_consumer[result]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_content_valid_fake_receipt_refuses_at_actual_consumer[order]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_content_valid_fake_receipt_refuses_at_actual_consumer[seed]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_content_valid_fake_receipt_refuses_at_actual_consumer[kind]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_content_valid_fake_receipt_refuses_at_actual_consumer[schema]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_denominator_and_failed_support_survive_morris_receipt[nan]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_denominator_and_failed_support_survive_morris_receipt[inf]
+ERROR tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_denominator_and_failed_support_survive_morris_receipt[-inf]

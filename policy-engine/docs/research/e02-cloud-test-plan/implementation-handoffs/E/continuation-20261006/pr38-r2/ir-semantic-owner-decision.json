@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.owner_decision_packet.v1",
+  "findings": ["B201", "B202"],
+  "ledger_status": "held",
+  "decision_state": "unratified",
+  "canonical_owner": null,
+  "appointment_required_from": "IR semantic/public-contract authority",
+  "source_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "criterion": "closure-decisions/semantic-decisions.md#narrow-ratification-still-required; original UQS-01 B201/B202 cards",
+  "four_decisions": [
+    {
+      "decision": "separate linked uncertainty objects",
+      "recommended": "Identification set and statistical/model uncertainty are separate artifacts, linked by exact estimand and unit. No confidence interpretation is inferred from an identification bound.",
+      "inputs": ["estimand ID", "unit/scale", "identification artifact ref", "uncertainty artifact ref"]
+    },
+    {
+      "decision": "independent named summary functionals",
+      "recommended": "Weighted arithmetic mean and equal-tail inverse-CDF quantiles are independently named functionals. Mean is allowed outside the equal-tail interval; never widen a quantile interval to include it.",
+      "quantile_convention": "inf{x: F(x)>=p}, using normalized admitted nonnegative weights and preserving atoms; exact draw order and finite-machine representation are declared",
+      "negative_inputs": ["NaN/Inf", "negative or all-zero weights", "unit/estimand mismatch", "collapsed positive CDF category without explicit approximation semantics"],
+      "oracle": {"draws": "99 zeros and one 100 with equal mass", "mean": 1, "q05": 0, "q95": 0}
+    },
+    {
+      "decision": "distinct v2 contract with v1.1 replay retained",
+      "recommended": "Use distinct v2 $id urn:policyos:ir:uncertainty-envelope:2, wire version 2.0. The v1.1 reader, inline PosteriorSamplesCarrier inputs and historical replay meaning remain unchanged.",
+      "compatibility": "No silent reinterpretation of an existing $id; old readers do not receive v2 payloads. Explicit routing/migration selects the new reader."
+    },
+    {
+      "decision": "exact joint-law carrier and consumer appointment",
+      "recommended": "CAS-only v2 joint-law output",
+      "alternative": "inline carrier plus persisted ref",
+      "tradeoffs": {"CAS-only": "One immutable law identity and bounded display summaries; consumers require the configured resolver.", "inline-plus-ref": "Consumers can access draws inline, but must reconcile identical content and order with the persisted ref; larger wire payload and two-carrier validation."},
+      "required_lineage": ["parameter axes/order", "shared draw row IDs", "weights/numeric policy", "units/scale", "source/model/fit/rule refs", "six time roles where applicable", "purpose/denied uses"],
+      "consumer_rule": "Display summaries alone permit no new law-dependent computation. Missing/unresolved joint law is a typed refusal; moments cannot reconstruct it.",
+      "consumer_owners": ["E producer→CAS→sampler", "C/F consumers appointed by canonical IR owner"],
+      "oracles": ["Equal display summaries from different laws remain distinct after serialize/reopen", "Paired correlation +1/-1 retains distinct joint content and distinct difference variance after fresh read"]
+    }
+  ],
+  "minimum_owner_reply": ["Named accountable canonical IR semantic owner", "Ratify or amend each of the four finite decisions", "Choose CAS-only or inline-plus-ref", "Name real C/F consumers and supported compatibility profile"],
+  "next_verifiable_result": "Owner-signed tracked ratification referencing this packet and exact v2 $id, followed by E producer→configured CAS→fresh sampler oracles and C/F consumer packets.",
+  "implementation_state": "No new v2 wire semantics implemented or ratified by this packet. Independent MC finite-law and CAL/PCL/BKT work continues."
+}

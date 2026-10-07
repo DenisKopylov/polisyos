@@ -1,0 +1,203 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "backtest-native-chain-admission-r2",
+  "bundle_ids": [
+    "BKT-01"
+  ],
+  "closure_ids": [
+    "B166",
+    "B169",
+    "B170"
+  ],
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "slice_base_tree_sha": "a00c054928d7f9bafff6b46f2fb19e95697e6e9b",
+  "previous_receipt": "backtest-native-default-replay-r2.json",
+  "previous_source_code_disposition": {
+    "sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+    "state": "HOLD",
+    "basis": "Independent genuine native K3 CAS controls accepted whole-block reversal, duplicate second block, substituted initial binding, and unexecuted same-source Trinity. Valid hashes, paired refs and recomputed values did not establish trajectory order/model binding.",
+    "saved_falsifiers": "backtest-native-chain-admission-r2-checks/independent-9c51-reader-falsifiers.json"
+  },
+  "implementation_commits": [
+    "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+    "0983d064df3c3e21f8b1accff4ee90484d78973b"
+  ],
+  "reader_correction_sha": "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+  "reader_correction_tree_sha": "6ef283517543ffa96952f00192126c62edcdf38e",
+  "candidate_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+  "candidate_tree_sha": "438277e00ae3cdaf6c7729c509d40fa09464e88f",
+  "branch": "codex/e02-E-backtest-20261006",
+  "worktree_root": "/workspace/e02-E-backtest-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/51",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-curated-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-environment-corrected.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-deciding-evidence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-frozen.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-native-frozen.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-complete.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-falsifier.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-pr51-curated-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-regression-frozen.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-regression-frozen.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-results-import-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/measure-command.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2.json",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+  ],
+  "property_path": [
+    "First execution binding must equal initial binding anchor",
+    "Resolve canonical materializer input.data_snapshot_ref/input.registry_bundle_ref/artifact.bound_state_snapshot_ref lineage for the initial binding and source/registry edges for its state",
+    "Infer initial native clock from that actual anchored state, retain valid nonzero clocks",
+    "Every consumed bound state and resulting post-state has clock initial_step+coordinate_index",
+    "Every actual post-state base_state edge joins the consumed bound-state snapshot",
+    "Every subsequent advanced bound state previous_forecast_state edge joins the preceding actual post-state",
+    "Resolve actual SimulationResult.exec_plan_ref -> ExecPlan.program_ref -> ProgramGraph.ir_ref and LoweredIR.ir_ref to declared request Trinity",
+    "Validate compiled Trinity.ModelSpec binds request DataSnapshot and registry; require one unchanged execution plan along the trajectory",
+    "Preserve actual request/config seed and source/registry bindings, then independently recompute target values"
+  ],
+  "defining_property": "Predictive trajectory ordering and compiled model lineage are checked independently of content hashes, marker presence and matching recomputed values.",
+  "independent_oracle": "Canonical native income-tax transition remains income[1.5,1.0] for masked income[1,2]; actual steps are [0,1] in this fixture. No production-data assumption or inferred interval/source law.",
+  "new_native_checks": {
+    "candidate_sha": "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+    "command_argv": [
+      "python3",
+      "/workspace/e02-E-pr38-r2-receipts/measure-command.py",
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/scientist/methods/backtesting/test_native_replay.py::test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[1]",
+      "tests/unit/scientist/methods/backtesting/test_native_replay.py::test_native_replay_refuses_unadmitted_inputs_before_backend",
+      "tests/unit/scientist/methods/backtesting/test_native_replay.py::test_native_replay_counters_cannot_bypass_trajectory_requirement",
+      "-q",
+      "-o",
+      "cache_dir=/workspace/e02-E-pr38-r2-receipts/backtest-chain-native-cache",
+      "--basetemp=/workspace/e02-E-pr38-r2-receipts/backtest-chain-native-tests",
+      "--junitxml=/workspace/e02-E-pr38-r2-receipts/backtest-chain-native.xml"
+    ],
+    "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src"
+    },
+    "stdout": "backtest-native-chain-admission-r2-checks/backtest-chain-native.stdout.txt",
+    "junit": "backtest-native-chain-admission-r2-checks/backtest-chain-native.xml",
+    "outcome": {
+      "PASS": 12,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "measurement": {
+      "exit_code": 0,
+      "wall_seconds": 68.6270055139903,
+      "user_seconds": 60.328098,
+      "system_seconds": 4.249467,
+      "max_rss_kib": 966740
+    },
+    "scope": "Actual fresh native K1 producer with the strengthened pre-execution model join, five integrity-valid structural/model negatives, ten pre-backend admission negatives, counter-only refusal. No full second heavy wave."
+  },
+  "final_source_readback": {
+    "candidate_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "command_argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-chain-cas-readback.py"
+    ],
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src"
+    },
+    "stdout": "backtest-native-chain-admission-r2-checks/backtest-chain-cas-readback.stdout.txt",
+    "result": "PASS fresh readers reopen all eight genuine K1/K7 scenarios previously executed at0e457bf and refuse five integrity-valid chain/model fakes for every scenario",
+    "native_execution_sha": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+    "new_reader_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "measurement": {
+      "exit_code": 0,
+      "wall_seconds": 10.980761725993943,
+      "max_rss_kib": 514176
+    }
+  },
+  "negative_controls": [
+    "Paired whole blocks reversed together, including values",
+    "Second block duplicated with matching values",
+    "First block duplicated (initial anchor remains valid, chronology fails)",
+    "Initial binding substituted with second execution binding",
+    "Request Trinity changed from executed tax25% to unexecuted tax50%, retaining source/registry and genuine simulation/state/binding refs"
+  ],
+  "predicate_basis": {
+    "P37": "Same frozen consumer_asserted predictive simulation target/unit/time/horizon/profile. No numeric/oracle/authority basis relaxed to pass.",
+    "P40": "Two independently discovered temporal/model carrier escapes repaired as one reader class, including clock order, initial materializer anchor, prior state chain and actual compiled model join.",
+    "P41": "Exact old source falsifiers and new genuine-artifact readback are attributed separately; no global inherited-red or production proof."
+  },
+  "import_only_delta": {
+    "sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "basis_sha": "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+    "changes": [
+      "native_replay imports TrinityBundle from existing supported polisyos.ir root",
+      "orchestrator nested ArtifactRef from existing curated core.artifacts facade"
+    ],
+    "identity_checks": "backtest-native-chain-admission-r2-checks/backtest-chain-curated-identity.json",
+    "algorithms_and_tests_unchanged": true,
+    "supported_boundary_admission": "Core artifacts/canon/registry and Foundry snapshot helper admission remain explicit owner packets; no guard waiver or namespace alias"
+  },
+  "environment_and_input_identity": "Same real environment and synthetic content-bound native fixture as previous receipt; no production data entered cloud. Actual new K1 CAS stores/temp/cache are isolated. Previous deciding output hashes and case counts are retained.",
+  "independent_review": {
+    "reviewer": "/root/ddm_r2",
+    "requested_candidate_shas": [
+      "5ad90749c5ae745b1cb5345a5543b28dd19c2f76",
+      "0983d064df3c3e21f8b1accff4ee90484d78973b"
+    ],
+    "state": "GO for bounded native BKT code on exact0983; foreign API admission and production/trust-law/finding closure remain separate",
+    "checks_state": "PASS: exact0983 immutable Git blob accepts independently executed genuine K3 and rejects five hash-valid structural/model carriers",
+    "final_packet": "backtest-native-chain-admission-r2-checks/independent-order-falsifiers-final.json",
+    "stdout": "backtest-native-chain-admission-r2-checks/independent-order_falsifier_final.stdout",
+    "script": "backtest-native-chain-admission-r2-checks/independent-order_falsifier.final.py",
+    "property_removal_control": "backtest-native-chain-admission-r2-checks/independent-order-falsifiers-removal.json; disabling actual plan→Trinity join at5ad accepts unexecuted tax50% with genuine tax25% outcomes, proving the join is active rather than a marker",
+    "formal_review_receipt": "backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+    "receipt_sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9",
+    "author_self_review": false
+  },
+  "finding_verdicts": [
+    {
+      "finding_id": "B166",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Root independent reviewer, canonical API/model/history owners where applicable, and formal finding-closure owner",
+      "reason": "Generic native property evidence is strengthened; formal closure/ledger adjudication remains separate. Absence of production history does not block generic wiring verification."
+    },
+    {
+      "finding_id": "B169",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Root independent reviewer, canonical API/model/history owners where applicable, and formal finding-closure owner",
+      "reason": "Generic native property evidence is strengthened; formal closure/ledger adjudication remains separate. Absence of production history does not block generic wiring verification."
+    },
+    {
+      "finding_id": "B170",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Root independent reviewer, canonical API/model/history owners where applicable, and formal finding-closure owner",
+      "reason": "Generic native property evidence is strengthened; formal closure/ledger adjudication remains separate. Absence of production history does not block generic wiring verification."
+    }
+  ],
+  "remaining_checks": [
+    "Root integration code acceptance remains separate from bounded independent reviewer GO and formal finding closure.",
+    "Canonical Core/Foundry supported boundary owner packets",
+    "Root single common expensive wave on final aggregate SHA; preserve K7 evidence attribution instead of relabeling old source",
+    "Formal original-criterion finding closure adjudication; any production local check only for an owner-selected criterion requiring production history"
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "no_permanent_deletion": true,
+    "additional_repeatable_candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/backtest-chain-native-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-chain-native-cache"
+    ],
+    "retain": "Committed deciding outputs, source/docs, unique reviewer outputs and shared root interpreter; previous receipt lists remaining own repeatable fixture/overlay/cache candidates."
+  }
+}

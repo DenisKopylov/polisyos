@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/common/test_async_tools.py",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "tests/unit/remediation/test_run_03.py",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187.junit.xml",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/pytest-cache-new-b-runtime-e187"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+  "env": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_MAX_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTEST_ADDOPTS": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timeout_seconds": 300
+}

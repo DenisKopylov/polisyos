@@ -46,6 +46,8 @@ class TestSensitivityBridge:
             evaluator,
             method="sobol",
             n_trajectories=8,
+            input_law="independent",
+            seed=19,
         )
         assert "ranking" in result
         assert result["method"] == "sobol"

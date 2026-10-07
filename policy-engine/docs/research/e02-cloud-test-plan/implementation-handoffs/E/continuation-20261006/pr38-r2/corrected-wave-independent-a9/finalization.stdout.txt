@@ -1,0 +1,27 @@
+{
+  "status": "READY-custody-GO-numerical-HOLD-global-FAIL",
+  "primary": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/independent-wave-review-a9f78817c.json",
+    "bytes": 199695,
+    "sha256": "624103ca6fb8889fcb2285fff17a499741eaa12530f7eed3703434a006ce76f9"
+  },
+  "peer_index_verified_files": 14,
+  "carrier_controls": [
+    {
+      "control": "omitted actual external review",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "false canonical all-eight validation",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "changed original source timestamp",
+      "outcome": "REJECTED"
+    }
+  ],
+  "candidate": [
+    "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+  ]
+}

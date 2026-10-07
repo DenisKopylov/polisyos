@@ -1,0 +1,15 @@
+{
+  "target_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "families": [
+    "BKT",
+    "PCL",
+    "DDM",
+    "DOE",
+    "FRC",
+    "CAL_and_CAL05_real_caller",
+    "MC_welfare_complete_draw_consumer"
+  ],
+  "static_verdict": "limited: concrete configured internal producer/artifact/readback paths exist; served bridge limitations below remain.",
+  "source_defects_requested": 0,
+  "runtime_checks": "UNRUN here; frozen common wave and author-independent numerical receipts supply execution evidence. No numeric PASS inferred from this census."
+}

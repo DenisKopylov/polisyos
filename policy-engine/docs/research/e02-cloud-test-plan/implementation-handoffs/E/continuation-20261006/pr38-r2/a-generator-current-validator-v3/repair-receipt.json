@@ -1,0 +1,92 @@
+{
+  "schema": "e02.E.current-candidate-metadata-validator-repair.v3",
+  "scope": "Separate scratch author companion during frozen actualwave; no root/source/config/Git mutation, product/native/numeric/generator/gate replay or independent selfGO. Original10asset716c packet and historical helper preserved.",
+  "base_original_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817/copy-index.json",
+    "bytes": 1958,
+    "sha256": "716cfb15445b16de654f16fc8c7f860c2bbe79f0f02a099082dc514e70c3f53e"
+  },
+  "base_original_helper": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817/validate_binding.py.txt",
+    "bytes": 4404,
+    "sha256": "14a1debe4e904cb7e5de34cf465550f2b5b7e4d5437f954fd2d3683638a134aa"
+  },
+  "baseline_independent_falsifier": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/source-candidate-probe.json",
+    "bytes": 732,
+    "sha256": "39858dce4b010cd1998e9b3a2bc96add39948c97d7b1cdc0cb182eea398aa420"
+  },
+  "baseline_property": "Valid real bytes/blob at old5e replace current_source.commit; originalhelper accepts. This is validatorHOLD, actual original packet10assets correctlya9 and independentlyGO.",
+  "frozen_new_validator": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+    "bytes": 8016,
+    "sha256": "0183743ead5d4b27ffc6f3265334b8f1329f72c482ab3612cd37e9a7c7b07cf4"
+  },
+  "frozen_author_controls": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_controls_v3.py",
+    "bytes": 7041,
+    "sha256": "5d85a965b032dee230677755adc17a51fd7ba4d90f24393ecd9fdb073428cb08"
+  },
+  "external_authorized_pin": {
+    "candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "origin": "Root exact freeze authorization, literal constants independent of mutable candidate JSONfields."
+  },
+  "runtime_property": "Common Gitref admission verifies role-specific exact candidate/path, computedGitblob and full contenthash/size. Top-level packet/binding current pin/tree/parents and initial current observation match externala9. All29current rows,20currentG/packet refs,8caller refs, binding+packet canonicalcollector and carriedpacket/review source fields binda9; old5e source reuse only in explicit historicalcolumns. Canonical29/20/8path/name sets come from preserved hash-pinned original10assetindex.",
+  "property_controls": {
+    "BOUND": 1,
+    "TYPED_REFUSAL": 17,
+    "REACCEPTED_after_single_predicate_removal": 2,
+    "complete_output": "binding-controls-v3.json",
+    "positive": "Exact currenta9 and explicit historical5e source roles unchanged.",
+    "negative": "Valid samebytes old5e currentrow/caller and old2f7 currentGref/collector refuse; top pin, computedblob, path, digest and oldwrong-reason/measurement/acceptance controls refuse.",
+    "removal": "Only common commit==expected_commit predicate removed; names/fields remain. Wrongcurrent5e row and wrongcurrent2f7Gref become accepted with exact validbytes/blob; effective class discriminator."
+  },
+  "configured_checks": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_controls_v3.py"
+      ],
+      "exit_code": 0,
+      "stdout": "configured-ruff.stdout.txt",
+      "stderr": "configured-ruff.stderr.txt",
+      "scope": "Two owned scratch source files only, not globalgate PASS"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_binding_v3.py",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_controls_v3.py"
+      ],
+      "exit_code": 0,
+      "stdout": "configured-format.stdout.txt",
+      "stderr": "configured-format.stderr.txt",
+      "scope": "Two owned scratch source files only"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817-validator-v3/validate_controls_v3.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": "controls.stdout.txt",
+      "stderr": "controls.stderr.txt",
+      "scope": "Metadata-only twentycontrols; no product/native/numeric/generator/gate checks"
+    }
+  ],
+  "P37_basis": "Sourcecandidate identity is distinct from equalcontent blobs/hashes; historical trace is not current measurement. P40 applies shared candidate-role inlet, not one row exception.",
+  "new_actual_wave_results": "Root reports actuala9 CASpacket5PASS/status2FAIL, allnumeric1441PASS4FAIL0ERROR; runtimeAPIactual1493identitynew. These are separate in-flight wave observations, not validated/reclassified by this historical preparation-packet validator; will bind complete terminaloutputs via canonicalv4collector.",
+  "preservation": "Original index716c bytes verified unchanged, no actualwaveoutput writes; originalauthorhelper/DoEbaselineHOLD remain. NOT_LAUNCHED in originalpacket is historical preparation state, actualwavecurrentlyRUNNING.",
+  "next_owner": "IndependentDoE narrow successor/control review, root append-only committed companion afterGO. CAL separatelyaudits completedwave custody/counts.",
+  "cleanup": "No native fixtures/env created. Preserve useful source/docs/receipts; no deletion/Trash."
+}

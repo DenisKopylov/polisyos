@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.668" timestamp="2026-10-06T14:14:43.262101+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.funnel_calibration_report-polisyos.foundry.CalibrationReport-2.0]" time="0.147"><failure message="assert 101 == 1">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-204/test_legacy_node_refuses_same_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f411aa20b00&gt;
+kind = 'foundry.funnel_calibration_report'
+schema = 'polisyos.foundry.CalibrationReport', version = '2.0'
+
+    @pytest.mark.parametrize(
+        "kind,schema,version",
+        [
+            ("foundry.funnel_calibration_report", "polisyos.foundry.CalibrationReport", "2.0"),
+            ("foundry.calibration_report", "polisyos.foundry.FunnelCalibrationReport", "2.0"),
+            ("foundry.calibration_report", "polisyos.foundry.CalibrationReport", "1.0"),
+        ],
+    )
+    def test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch(
+        tmp_path, monkeypatch, kind, schema, version
+    ):
+        from polisyos.foundry.uncertainty import PropagationDispatcher
+    
+        store, report, inputs, valid = _fixture(tmp_path)
+        forged = store.put_json(
+            report,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema, version=version),
+                inputs=inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        assert forged.artifact_id == valid.artifact_id
+        fresh = FileSystemCAS(tmp_path)
+        ctx, state = _node_fixture(fresh, forged, {"A.rate": 1.0})
+        calls = 0
+        propagation_calls = 0
+        from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+    
+        original_build = node._build_propagation_fn
+        original_propagate = PropagationDispatcher.propagate
+    
+        def counted_build(*args, **kwargs):
+            fn, mapped = original_build(*args, **kwargs)
+    
+            def counted(**params):
+                nonlocal calls
+                calls += 1
+                return fn(**params)
+    
+            counted._sensitivity_map = fn._sensitivity_map
+            return counted, mapped
+    
+        def counted_propagate(*args, **kwargs):
+            nonlocal propagation_calls
+            propagation_calls += 1
+            return original_propagate(*args, **kwargs)
+    
+        monkeypatch.setattr(node, "_build_propagation_fn", counted_build)
+        monkeypatch.setattr(PropagationDispatcher, "propagate", counted_propagate)
+        error = None
+        try:
+            PropagateUncertaintyNode().execute(ctx, state)
+        except ValueError as exc:
+            error = str(exc)
+        print(
+            json.dumps(
+                {
+                    "callback_count": calls,
+                    "propagation_entry_count": propagation_calls,
+                    "refusal": error,
+                    "kind": kind,
+                    "schema": schema,
+                    "version": version,
+                }
+            )
+        )
+&gt;       assert calls == propagation_calls == 0
+E       assert 101 == 1
+
+tests/unit/scientist/nodes/test_calibration_report_consumer.py:194: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.FunnelCalibrationReport-2.0]" time="0.130"><failure message="assert 101 == 1">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-204/test_legacy_node_refuses_same_1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f411ac97bb0&gt;
+kind = 'foundry.calibration_report'
+schema = 'polisyos.foundry.FunnelCalibrationReport', version = '2.0'
+
+    @pytest.mark.parametrize(
+        "kind,schema,version",
+        [
+            ("foundry.funnel_calibration_report", "polisyos.foundry.CalibrationReport", "2.0"),
+            ("foundry.calibration_report", "polisyos.foundry.FunnelCalibrationReport", "2.0"),
+            ("foundry.calibration_report", "polisyos.foundry.CalibrationReport", "1.0"),
+        ],
+    )
+    def test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch(
+        tmp_path, monkeypatch, kind, schema, version
+    ):
+        from polisyos.foundry.uncertainty import PropagationDispatcher
+    
+        store, report, inputs, valid = _fixture(tmp_path)
+        forged = store.put_json(
+            report,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema, version=version),
+                inputs=inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        assert forged.artifact_id == valid.artifact_id
+        fresh = FileSystemCAS(tmp_path)
+        ctx, state = _node_fixture(fresh, forged, {"A.rate": 1.0})
+        calls = 0
+        propagation_calls = 0
+        from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+    
+        original_build = node._build_propagation_fn
+        original_propagate = PropagationDispatcher.propagate
+    
+        def counted_build(*args, **kwargs):
+            fn, mapped = original_build(*args, **kwargs)
+    
+            def counted(**params):
+                nonlocal calls
+                calls += 1
+                return fn(**params)
+    
+            counted._sensitivity_map = fn._sensitivity_map
+            return counted, mapped
+    
+        def counted_propagate(*args, **kwargs):
+            nonlocal propagation_calls
+            propagation_calls += 1
+            return original_propagate(*args, **kwargs)
+    
+        monkeypatch.setattr(node, "_build_propagation_fn", counted_build)
+        monkeypatch.setattr(PropagationDispatcher, "propagate", counted_propagate)
+        error = None
+        try:
+            PropagateUncertaintyNode().execute(ctx, state)
+        except ValueError as exc:
+            error = str(exc)
+        print(
+            json.dumps(
+                {
+                    "callback_count": calls,
+                    "propagation_entry_count": propagation_calls,
+                    "refusal": error,
+                    "kind": kind,
+                    "schema": schema,
+                    "version": version,
+                }
+            )
+        )
+&gt;       assert calls == propagation_calls == 0
+E       assert 101 == 1
+
+tests/unit/scientist/nodes/test_calibration_report_consumer.py:194: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_calibration_report_consumer" name="test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.CalibrationReport-1.0]" time="0.107"><failure message="assert 101 == 1">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-204/test_legacy_node_refuses_same_2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f411ab928d0&gt;
+kind = 'foundry.calibration_report'
+schema = 'polisyos.foundry.CalibrationReport', version = '1.0'
+
+    @pytest.mark.parametrize(
+        "kind,schema,version",
+        [
+            ("foundry.funnel_calibration_report", "polisyos.foundry.CalibrationReport", "2.0"),
+            ("foundry.calibration_report", "polisyos.foundry.FunnelCalibrationReport", "2.0"),
+            ("foundry.calibration_report", "polisyos.foundry.CalibrationReport", "1.0"),
+        ],
+    )
+    def test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch(
+        tmp_path, monkeypatch, kind, schema, version
+    ):
+        from polisyos.foundry.uncertainty import PropagationDispatcher
+    
+        store, report, inputs, valid = _fixture(tmp_path)
+        forged = store.put_json(
+            report,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema, version=version),
+                inputs=inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        assert forged.artifact_id == valid.artifact_id
+        fresh = FileSystemCAS(tmp_path)
+        ctx, state = _node_fixture(fresh, forged, {"A.rate": 1.0})
+        calls = 0
+        propagation_calls = 0
+        from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+    
+        original_build = node._build_propagation_fn
+        original_propagate = PropagationDispatcher.propagate
+    
+        def counted_build(*args, **kwargs):
+            fn, mapped = original_build(*args, **kwargs)
+    
+            def counted(**params):
+                nonlocal calls
+                calls += 1
+                return fn(**params)
+    
+            counted._sensitivity_map = fn._sensitivity_map
+            return counted, mapped
+    
+        def counted_propagate(*args, **kwargs):
+            nonlocal propagation_calls
+            propagation_calls += 1
+            return original_propagate(*args, **kwargs)
+    
+        monkeypatch.setattr(node, "_build_propagation_fn", counted_build)
+        monkeypatch.setattr(PropagationDispatcher, "propagate", counted_propagate)
+        error = None
+        try:
+            PropagateUncertaintyNode().execute(ctx, state)
+        except ValueError as exc:
+            error = str(exc)
+        print(
+            json.dumps(
+                {
+                    "callback_count": calls,
+                    "propagation_entry_count": propagation_calls,
+                    "refusal": error,
+                    "kind": kind,
+                    "schema": schema,
+                    "version": version,
+                }
+            )
+        )
+&gt;       assert calls == propagation_calls == 0
+E       assert 101 == 1
+
+tests/unit/scientist/nodes/test_calibration_report_consumer.py:194: AssertionError</failure></testcase></testsuite></testsuites>

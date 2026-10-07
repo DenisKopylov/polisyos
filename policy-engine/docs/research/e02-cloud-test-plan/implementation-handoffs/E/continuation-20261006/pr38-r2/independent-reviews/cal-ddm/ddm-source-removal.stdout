@@ -1,0 +1,6 @@
+{"control": "forged_digest", "decision": {"model_id": "independent-review-model", "model_version": "revision-7", "promotion_allowed": true, "reason": "R4_promotion_allowed", "required_actions": ["continue_monitoring"]}}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/ddm_probe.py", line 70, in <module>
+    assert not decision.promotion_allowed and decision.reason=="registry_source_binding_not_established",decision
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: model_id='independent-review-model' model_version='revision-7' promotion_allowed=True reason='R4_promotion_allowed' required_actions=['continue_monitoring']

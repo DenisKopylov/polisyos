@@ -1,0 +1,43 @@
+{
+  "command_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/B37-frozen-bff",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/B37-frozen-bff.xml",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "target_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+  "target_tree": "71f1cfbff46fa832f40b4a032f0a1467c486eac8",
+  "source_after_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+  "source_after_status": "",
+  "environment": {
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "child_source_origin_asserted": true
+  },
+  "input_closure": "Complete three ledger/process/middleware/static-mirror files on immutable current198-derived source; pytest basetemp fresh isolated; full schema-derived field deletion through all nine public paths in fresh child per variant. No production data/live external backend/powerloss/multi-host proof.",
+  "exit_code": 0,
+  "wall_s": 10.740870716996142,
+  "max_rss_kib": 90600,
+  "outcome": "PASS",
+  "outputs": [
+    {
+      "path": "B37-frozen-bff.txt",
+      "bytes": 99,
+      "sha256": "e2f672c6cf4a846ad5c6cbc622d26bbc273499277598006526bb9fd503af5598"
+    },
+    {
+      "path": "B37-frozen-bff.xml",
+      "bytes": 7118,
+      "sha256": "86f56cc20d22a7dbf7189a101d4ec706851b37beb7f708f22d457d9680fed4dc"
+    }
+  ]
+}

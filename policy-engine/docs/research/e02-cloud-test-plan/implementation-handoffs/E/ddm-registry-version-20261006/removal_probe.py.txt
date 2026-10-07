@@ -1,0 +1,16 @@
+from pathlib import Path
+import importlib.util, sys, pytest
+source=Path("src/polisyos/ddm/integration/model_registry.py").read_text()
+needle='if self.schema_version == "1" and any('
+assert source.count(needle)==1
+mutated=source.replace(needle,"if False and any(")
+probe=Path("/workspace/e02-E-pr38-r2-receipts/ddm/model_registry.guard_removed.py")
+probe.write_text(mutated)
+import polisyos.ddm.integration.model_registry
+name="polisyos.ddm.integration.model_registry"
+spec=importlib.util.spec_from_file_location(name,probe)
+module=importlib.util.module_from_spec(spec)
+sys.modules[name]=module
+spec.loader.exec_module(module)
+code=pytest.main(["-q","tests/unit/ddm/test_registry_schema_compatibility.py::test_prerelease_enriched_record_requires_explicit_migration_and_rebind"])
+assert code==pytest.ExitCode.TESTS_FAILED, code

@@ -1,0 +1,20 @@
+2026-10-06 13:26:00 [info     ] method_registered              backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 lazy=False namespace=econometrics.panel override=False tags=['econometrics', 'estimation', 'garch', 'panel', 'policy-risk', 'structural-break', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-06 13:26:01 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:26:05 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=4251.52 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"degraded": false, "derived_roles": ["independent-pcl:calibration.segment.review.0", "independent-pcl:calibration.overall", "independent-pcl:calibration.scenario.proposed_profile_break_garch", "independent-pcl:calibration.scenario.pooled_stationary_garch", "independent-pcl:calibration.scenario.group_specific_stationary_garch", "independent-pcl:calibration.scenario.pooled_break_garch"], "name": "actual_graph", "summary_calls": [{"caller": "pure_step", "ref": "sha256:352f59d3413a326fe1a2d13085fde94142b7849571bc5c76aa22c47361586eb9", "rows": 100, "store_is_configured": true}, {"caller": "pure_step", "ref": "sha256:2ac4fe124c84f888c6550011dfa011aea86b4be48624a7ff68cd2af66ea6500b", "rows": 100, "store_is_configured": true}, {"caller": "_evaluate_panel_volatility_scenario", "ref": "sha256:1f869d61bfb73db3cacced73a74b6c3ec993da350245c0dee89922220fafba31", "rows": 100, "store_is_configured": true}, {"caller": "_evaluate_panel_volatility_scenario", "ref": "sha256:e9d30d58db0c05dd788c2c4616b5668a993ced18f454cc7b70dab1acc92cdbc4", "rows": 100, "store_is_configured": true}, {"caller": "_evaluate_panel_volatility_scenario", "ref": "sha256:a57c72e7d37a1e7cbc44028b395293120e418ebae6a4c4a8cc1cebfa62e754ec", "rows": 100, "store_is_configured": true}]}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py", line 218, in <module>
+    else: native()
+          ~~~~~~^^
+  File "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py", line 176, in native
+    assert not artifacts.is_degraded and len(refs)==5
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py", line 218, in <module>
+    else: native()
+          ~~~~~~^^
+  File "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/pcl_probe.py", line 176, in native
+    assert not artifacts.is_degraded and len(refs)==5
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

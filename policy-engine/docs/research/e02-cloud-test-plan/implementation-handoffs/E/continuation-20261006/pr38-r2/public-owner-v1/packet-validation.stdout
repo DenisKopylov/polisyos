@@ -1,0 +1,28 @@
+{
+  "outcome": "PASS",
+  "artifact_refs_validated": 67,
+  "matrix_rows_validated": 20,
+  "negative_controls": [
+    {
+      "name": "corrupt-hash-marker-retained",
+      "outcome": "REJECTED",
+      "reason": "('hash', 'README.md')"
+    },
+    {
+      "name": "corrupt-size-marker-retained",
+      "outcome": "REJECTED",
+      "reason": "('size', 'README.md')"
+    },
+    {
+      "name": "denominator-zero-marker-retained",
+      "outcome": "REJECTED",
+      "reason": "pending denominator"
+    },
+    {
+      "name": "minted-owner-admission",
+      "outcome": "REJECTED",
+      "reason": "owner admission cannot be minted by library preview"
+    }
+  ],
+  "validator_sha256": "b3a630a964b40c699351aee39a5e8655a16b9c51b5f8ea66dbeaf5293c1487d0"
+}

@@ -1,0 +1,434 @@
+"""Independent welfare outcome/property oracle on a clean, exact source candidate.
+
+The bounded DGP supplies mathematics only, not production or served provenance.
+No production source is modified; all malformed artifacts use a separate scratch CAS.
+"""
+from copy import deepcopy
+from dataclasses import replace
+import importlib.util
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+import time
+from types import SimpleNamespace
+
+import numpy as np
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.foundry.uncertainty.sampling_admission import sampling_content_digest
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily, IntervalSemantics, ParametricFitCarrier, UncertaintyEnvelope, UncertaintySource,
+)
+from polisyos.ir.analytics.welfare import WelfareSampleBundle, load_welfare_sample_bundle
+from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as module
+
+ROOT = pathlib.Path(sys.argv[1]).resolve()
+EXPECTED = sys.argv[2]
+OUT = pathlib.Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else pathlib.Path(__file__).resolve().parent
+OUT.mkdir(parents=True, exist_ok=True)
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+assert git('rev-parse', 'HEAD') == EXPECTED
+assert not git('status', '--porcelain', '--untracked-files=no')
+assert pathlib.Path(module.__file__).resolve().is_relative_to(ROOT)
+paths = [
+    'policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py',
+    'policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py',
+    'policy-engine/src/polisyos/foundry/calibration/calibrator.py',
+    'policy-engine/src/polisyos/foundry/calibration/hessian.py',
+    'policy-engine/src/polisyos/foundry/calibration/report.py',
+    'policy-engine/src/polisyos/ir/analytics/welfare.py',
+]
+source_hashes = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in paths}
+start = time.monotonic()
+cas_root = OUT / ('welfare-repaired-cas-' + EXPECTED[:12])
+writer = FileSystemCAS(cas_root)
+checks = []
+refs = {}
+metrics = ('welfare', 'welfare_pe', 'welfare_ge')
+
+def check(name, fn):
+    try:
+        details = fn()
+    except Exception as exc:
+        row = {'name': name, 'outcome': 'FAIL', 'error_type': type(exc).__name__, 'error': str(exc)}
+    else:
+        row = {'name': name, 'outcome': 'PASS', 'details': details}
+    row = json.loads(json.dumps(row, default=lambda value: sorted(value) if isinstance(value, set) else repr(value)))
+    checks.append(row)
+    print(json.dumps(row), flush=True)
+
+
+def envelope(family=DistributionFamily.UNIFORM, metadata=None):
+    return UncertaintyEnvelope(
+        source=UncertaintySource.CALIBRATION,
+        point_estimate=0.0,
+        confidence_interval=(-1.0, 1.0),
+        confidence_level=None,
+        distribution_family=family,
+        interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+        is_heuristic_ci=True,
+        gate_eligible=False,
+        metadata=metadata or {},
+    )
+
+
+def run(evaluator, *, count=256, envelopes=None, method='monte_carlo'):
+    envelopes = envelopes or {'x': envelope()}
+    calls = []
+    def actual(**params):
+        calls.append(dict(params))
+        return evaluator(len(calls) - 1, params)
+    dep = module._ResolvedDependenceContext(
+        ref=None, structure=None, correlation_matrix=None,
+        parameter_order=tuple(envelopes), strategy='unknown', warnings=(), diagnostics={},
+    )
+    ctx = SimpleNamespace(store=writer)
+    state = SimpleNamespace(params={'propagation_config': {
+        'mc_n_samples': count, 'mc_min_valid_samples': 10, 'mc_seed': 23,
+    }})
+    context = SimpleNamespace(dependence_context=dep, dependence_structure_ref=None)
+    try:
+        result = module._propagate_credible_interval(
+            ctx, state, welfare_params={'credible_method': method}, context=context,
+            simulation_fn=actual, nominal_params={name: 0.0 for name in envelopes},
+            input_envelopes=envelopes,
+        )
+    except module._WelfareNodeFailure as exc:
+        return None, calls, exc
+    return result, calls, None
+
+
+def fresh_receipt(result):
+    ref = ArtifactRef.model_validate(result.diagnostics['draw_outcomes_ref'])
+    return module._load_welfare_draw_outcomes(FileSystemCAS(cas_root), ref)
+
+
+def outcome_expectation(receipt, calls, failed_indices):
+    n = len(calls)
+    assert receipt['attempted_draw_count'] == n
+    assert receipt['requested_draw_count'] == n
+    assert receipt['failed_draw_count'] == len(failed_indices)
+    assert receipt['successful_draw_count'] == n - len(failed_indices)
+    assert receipt['unattempted_draw_count'] == 0
+    assert receipt['unattempted_draw_indices'] == []
+    assert len(receipt['draw_records']) == len(receipt['sampled_inputs']) == len(receipt['output_records']) == n
+    assert {row['draw_index'] for row in receipt['failure_records']} == set(failed_indices)
+    assert [row['sampled_input'] for row in receipt['sampled_inputs']] == calls
+    assert receipt['successful_sample_draw_indices'] == [i for i in range(n) if i not in failed_indices]
+    assert receipt['gate_eligible'] is False
+
+
+partial_state = {}
+def partial_uniform():
+    def evaluator(_, params):
+        value = params['x'] if params['x'] >= 0 else np.nan
+        return {metric: value for metric in metrics}
+    result, calls, error = run(evaluator, count=2048)
+    assert error is None
+    expected = np.random.default_rng(23).uniform(-1.0, 1.0, size=2048)
+    np.testing.assert_array_equal([p['x'] for p in calls], expected)
+    failures = np.flatnonzero(expected < 0).tolist()
+    receipt = fresh_receipt(result)
+    outcome_expectation(receipt, calls, failures)
+    fresh = FileSystemCAS(cas_root)
+    samples = module._load_verified_welfare_samples(fresh, result.sample_bundle_ref)
+    successful = expected[expected >= 0]
+    np.testing.assert_array_equal(samples.welfare_draws, successful)
+    assert result.credible_interval is None
+    assert result.result_map['welfare']['point_estimate'] is None
+    assert np.isclose(result.result_map['welfare']['conditional_mean'], successful.mean())
+    assert abs(successful.mean() - 0.5) < 0.03
+    assert abs(expected.mean()) < 0.03
+    outcome_manifest = fresh.get_manifest(ArtifactRef.model_validate(result.diagnostics['draw_outcomes_ref']))
+    config_edges = [edge for edge in outcome_manifest.inputs if edge.role == 'method_config']
+    assert len(config_edges) == 1 and str(config_edges[0].artifact_id) == str(result.method_config_ref.artifact_id)
+    assert fresh.verify(ArtifactRef.model_validate(result.method_config_ref.model_dump())).ok
+    report_manifest = fresh.get_manifest(ArtifactRef.model_validate(result.report_ref.model_dump()))
+    assert {edge.role for edge in report_manifest.inputs} >= {'draw_outcomes', 'sample_bundle'}
+    report = from_canonical_bytes(fresh.get_bytes(ArtifactRef.model_validate(result.report_ref.model_dump())))
+    assert report['draw_summary']['welfare_mean'] is None
+    assert report['gate_eligible'] is False
+    assert report['estimate_scope'] == 'conditional_on_all_outputs_finite'
+    assert np.isclose(report['input_parameter_sample_means']['x'], expected.mean())
+    partial_state.update(result=result, calls=calls, receipt=receipt, samples=samples, report=report)
+    refs['partial_sample'] = result.sample_bundle_ref.model_dump(mode='json')
+    refs['partial_outcomes'] = result.diagnostics['draw_outcomes_ref']
+    return {'requested': 2048, 'successful': len(successful), 'failed': len(failures),
+            'unconditional_input_mean': float(expected.mean()), 'conditional_output_mean': float(successful.mean()),
+            'unconditional_evaluator_mean': 'undefined_without_owner_completion_rule',
+            'conditional_interval': result.diagnostics.get('conditional_interval')}
+check('actual_uniform_partial_support_with_fresh_CAS_read', partial_uniform)
+
+
+def full_support():
+    result, calls, error = run(lambda _, p: {'welfare': p['x'], 'welfare_pe': 2*p['x'], 'welfare_ge': -p['x']})
+    assert error is None
+    receipt = fresh_receipt(result)
+    outcome_expectation(receipt, calls, [])
+    samples = module._load_verified_welfare_samples(FileSystemCAS(cas_root), result.sample_bundle_ref)
+    x = np.asarray([p['x'] for p in calls])
+    np.testing.assert_array_equal(samples.welfare_draws, x)
+    assert result.result_map['welfare']['point_estimate'] == float(x.mean())
+    assert result.result_map['welfare']['conditional_mean'] is None
+    assert result.result_map['welfare']['estimate_scope'] == 'all_requested_draws'
+    assert receipt['support_complete'] is True
+    assert result.result_map['welfare']['gate_eligible'] is False
+    return {'draws': len(x), 'observed_mean': float(x.mean()), 'analytic_input_mean': 0.0,
+            'no_mean_error_certificate_claimed': True}
+check('complete_bounded_predictive_draws_remain_nongating', full_support)
+
+
+def mixed_terminal_outputs():
+    def evaluator(i, p):
+        values = {metric: p['x'] for metric in metrics}
+        if i == 1: values.pop('welfare_pe')
+        if i == 3: values['welfare_ge'] = True
+        if i == 5: values['welfare'] = np.inf
+        if i == 7: return ['present', 'but', 'fake']
+        if i == 9: raise ArithmeticError('bounded independent fixture')
+        return values
+    result, calls, error = run(evaluator)
+    assert error is None
+    receipt = fresh_receipt(result)
+    outcome_expectation(receipt, calls, [1, 3, 5, 7, 9])
+    codes = {row['draw_index']: {v['outcome_code'] for v in row['output_outcomes']} for row in receipt['failure_records']}
+    assert codes == {1: {'missing_output'}, 3: {'non_numeric_output'}, 5: {'non_finite_output'},
+                     7: {'invalid_response'}, 9: {'simulation_exception'}}
+    assert result.credible_interval is None
+    assert result.result_map['welfare']['point_estimate'] is None
+    samples = module._load_verified_welfare_samples(FileSystemCAS(cas_root), result.sample_bundle_ref)
+    keep = [i for i in range(256) if i not in [1, 3, 5, 7, 9]]
+    np.testing.assert_array_equal(samples.welfare_draws, [calls[i]['x'] for i in keep])
+    # A missing sibling output changes the joint complete-output support, even when welfare is finite.
+    assert samples.metadata['estimate_scope'] == 'conditional_on_all_outputs_finite'
+    report = from_canonical_bytes(FileSystemCAS(cas_root).get_bytes(ArtifactRef.model_validate(result.report_ref.model_dump())))
+    for field in ('welfare_mean', 'welfare_pe_mean', 'welfare_ge_mean'):
+        assert report['draw_summary'].get(field) is None, (field, report['draw_summary'])
+    return {'failed_draws': [1, 3, 5, 7, 9], 'codes': codes, 'all_output_support': 'conditional'}
+check('missing_sibling_non_numeric_nonfinite_invalid_and_exception_outcomes', mixed_terminal_outputs)
+
+
+
+one_failed_state = {}
+def single_failed_draw():
+    result, calls, error = run(lambda i, p: {m: np.nan if i == 0 else p['x'] for m in metrics}, count=128)
+    assert error is None
+    receipt = fresh_receipt(result)
+    outcome_expectation(receipt, calls, [0])
+    assert result.credible_interval is None and result.result_map['welfare']['point_estimate'] is None
+    samples = module._load_verified_welfare_samples(FileSystemCAS(cas_root), result.sample_bundle_ref)
+    one_failed_state.update(result=result, receipt=receipt, samples=samples)
+    return {'failed': 1, 'successful': 127, 'scope': samples.metadata['estimate_scope']}
+check('single_failed_draw_remains_explicit_conditional_support', single_failed_draw)
+
+def all_failed():
+    result, calls, error = run(lambda _, __: {m: np.nan for m in metrics}, count=128)
+    assert result is None and error is not None
+    ref = ArtifactRef.model_validate(error.error.details['draw_outcomes_ref'])
+    receipt = module._load_welfare_draw_outcomes(FileSystemCAS(cas_root), ref)
+    outcome_expectation(receipt, calls, list(range(128)))
+    assert receipt['support_complete'] is False
+    refs['all_failed_outcomes'] = ref.model_dump(mode='json')
+    return {'native_error_code': error.error.code, 'attempted': 128, 'failed': 128, 'persisted_terminal_ref': str(ref.artifact_id)}
+check('all_failed_budget_retains_receipt_without_estimate', all_failed)
+
+
+def unknown_law(method):
+    env = envelope(DistributionFamily.NORMAL, {'std': .05})
+    result, calls, error = run(lambda _, p: {m: p['a'] - p['b'] for m in metrics}, count=128,
+                               envelopes={'a': env, 'b': env}, method=method)
+    assert error is None and result.credible_interval is None
+    assert result.diagnostics['limitation_codes'] == ['welfare_joint_law_not_established']
+    assert result.diagnostics['gate_eligible'] is False
+    # One separately labeled deterministic nominal evaluation is permissible under frozen P37.
+    assert calls in ([], [{'a': 0.0, 'b': 0.0}])
+    assert not any(p != {'a': 0.0, 'b': 0.0} for p in calls)
+    if method == 'monte_carlo':
+        receipt = fresh_receipt(result)
+        assert receipt['requested_draw_count'] == receipt['unattempted_draw_count'] == 128
+        assert receipt['attempted_draw_count'] == receipt['successful_draw_count'] == receipt['failed_draw_count'] == 0
+        assert receipt['unattempted_draw_indices'] == list(range(128))
+        assert receipt['support_complete'] is False
+    return {'deterministic_nominal_callbacks': len(calls), 'stochastic_callbacks': 0,
+            'missing_owner': 'Welfare input-law owner', 'iid_product_law': 'not_established'}
+for method in ('monte_carlo', 'delta'):
+    check('unknown_multi_input_law_admission_' + method, lambda method=method: unknown_law(method))
+
+
+
+def invalid_scale():
+    for bad in (float('nan'), float('inf'), -1.0):
+        carrier = ParametricFitCarrier(family=DistributionFamily.NORMAL, parameters={'mean': 0.0, 'std': .1})
+        malformed = carrier.model_copy(update={'parameters': {'mean': 0.0, 'std': bad}})
+        env = envelope(DistributionFamily.NORMAL).model_copy(update={'distribution_payload': malformed})
+        result, calls, error = run(lambda _, p: {m: p['x'] for m in metrics}, count=128,
+                                   envelopes={'x': env})
+        assert result is None and error is not None
+        assert error.error.code == 'ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID'
+        assert calls == [], (bad, calls)
+    return {'invalid_scales': ['NaN', '+Inf', '-1'], 'callbacks': 0}
+check('invalid_scale_admission_precedes_every_draw_callback', invalid_scale)
+
+
+def native_calibration_covariance_boundary():
+    fixture_path = ROOT / 'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py'
+    spec = importlib.util.spec_from_file_location('native_review_calibration_fixture', fixture_path)
+    fixtures = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixtures)
+    ref, report = fixtures._run_b197_tied_calibrator(writer)
+    from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF
+    collection = module._collect_input_envelopes(SimpleNamespace(store=FileSystemCAS(cas_root)),
+        SimpleNamespace(inputs={INPUT_CALIBRATION_REPORT_REF: ref}), welfare_params={})
+    assert collection.calibration_source is not None
+    names = sorted(collection.envelopes)
+    cov = np.array([collection.envelopes[n].metadata['covariance_row'] for n in names])
+    np.testing.assert_allclose(cov, np.full((2, 2), .0025), rtol=1e-6)
+    contrast = np.array([1.0, -1.0])
+    assert float(contrast @ cov @ contrast) == 0.0
+    observed = []
+    for method in ('monte_carlo', 'delta'):
+        for bad in (float('inf'), -1.0):
+            calls = []
+            source = replace(collection.calibration_source, coordinate_covariance=((bad,),))
+            ctx = SimpleNamespace(store=writer)
+            state = SimpleNamespace(params={'propagation_config': {
+                'mc_n_samples': 128, 'mc_min_valid_samples': 10, 'mc_seed': 23,
+            }})
+            context = SimpleNamespace(dependence_context=module._ResolvedDependenceContext(
+                ref=None, structure=None, correlation_matrix=None, parameter_order=tuple(names),
+                strategy='unknown', warnings=(), diagnostics={}), dependence_structure_ref=None)
+            def evaluator(**params):
+                calls.append(params)
+                value = params[names[0]] - params[names[1]]
+                return {m: value for m in metrics}
+            result = module._propagate_credible_interval(ctx, state,
+                welfare_params={'credible_method': method}, context=context, simulation_fn=evaluator,
+                nominal_params={n: collection.envelopes[n].point_estimate for n in names},
+                input_envelopes=collection.envelopes, calibration_source=source)
+            assert result.credible_interval is None and calls == []
+            assert result.diagnostics['gate_eligible'] is False
+            observed.append({'method': method, 'bad_covariance': str(bad),
+                             'limitation_codes': result.diagnostics['limitation_codes'], 'callbacks': 0})
+    refs['native_B197_report'] = ref.model_dump(mode='json')
+    return {'actual_tied_projected_covariance': cov.tolist(), 'contrast_variance': 0.0,
+            'independent_marginal_proxy_variance': float(contrast @ np.diag(np.diag(cov)) @ contrast),
+            'invalid_admission_controls': observed}
+check('native_B197_tie_and_invalid_covariance_before_callback', native_calibration_covariance_boundary)
+
+def put_outcomes(receipt, *, kind='foundry.welfare_draw_outcomes', schema='polisyos.foundry.WelfareDrawOutcomes', source_result=None):
+    original = ArtifactRef.model_validate((source_result or partial_state['result']).diagnostics['draw_outcomes_ref'])
+    manifest = writer.get_manifest(original)
+    return writer.put_json(receipt, PutOptions(kind=kind, media_type='application/json',
+        schema=SchemaInfo(name=schema, version='1.0'), inputs=manifest.inputs),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False))
+
+
+def put_samples(samples, receipt_ref, *, orphan=False, kind='ir.welfare_sample_bundle'):
+    data = samples.model_dump(mode='json')
+    data['metadata']['draw_outcomes_ref'] = receipt_ref.model_dump(mode='json')
+    inputs = [] if orphan else [InputRef(artifact_id=receipt_ref.artifact_id, role='draw_outcomes',
+                                       manifest_profile_sha256=receipt_ref.manifest_profile_sha256)]
+    return writer.put_json(data, PutOptions(kind=kind, media_type='application/json',
+        schema=SchemaInfo(name='ir.welfare_sample_bundle', version='1.0'), inputs=inputs),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False))
+
+
+def must_reject(ref):
+    try:
+        module._load_verified_welfare_samples(FileSystemCAS(cas_root), ref)
+    except ValueError as exc:
+        return str(exc)
+    raise AssertionError('content-valid malformed artifact accepted')
+
+
+def corruption(name):
+    selected = one_failed_state if name == 'boolean_failed_count' else partial_state
+    r = deepcopy(selected['receipt'])
+    samples = selected['samples']
+    sample_data = samples.model_dump(mode='json')
+    good_index = r['successful_sample_draw_indices'][0]
+    if name == 'successful_count': r['successful_draw_count'] += 1
+    elif name == 'orphan_failure': r['failure_records'].pop()
+    elif name == 'out_of_denominator_failure': r['failure_records'][0]['draw_index'] = 999999
+    elif name == 'out_of_denominator_draw': r['draw_records'][0]['draw_index'] = 999999
+    elif name == 'successful_null_input':
+        r['sampled_inputs'][good_index]['sampled_input'] = None
+        r['draw_records'][good_index]['sampled_input_sha256'] = sampling_content_digest(None)
+    elif name == 'row_hash': r['sampled_inputs'][0]['sampled_input']['x'] += .125
+    elif name == 'wrong_output_value': r['output_records'][good_index]['successful_values']['welfare'] += .125
+    elif name == 'missing_metric': r['draw_records'][good_index]['successful_outputs'].remove('welfare_pe')
+    elif name == 'failure_reason_missing': r['failure_records'][0]['output_outcomes'].pop()
+    elif name == 'reordered_sample': sample_data['welfare_draws'] = list(reversed(sample_data['welfare_draws']))
+    elif name == 'false_scope': sample_data['metadata']['estimate_scope'] = 'all_requested_draws'
+    elif name == 'boolean_count': r['attempted_draw_count'] = True
+    elif name == 'boolean_failed_count': r['failed_draw_count'] = True
+    elif name == 'integer_support_flag': r['support_complete'] = 0
+    elif name == 'string_parameter_order': r['parameter_order'] = 'x'
+    elif name == 'wrong_typed_outcomes': pass
+    elif name == 'orphan_sample': pass
+    else: raise ValueError(name)
+    outcome_ref = put_outcomes(r, kind='foundry.funnel_calibration_report' if name == 'wrong_typed_outcomes' else 'foundry.welfare_draw_outcomes', source_result=selected['result'])
+    sample_ref = put_samples(WelfareSampleBundle.model_validate(sample_data), outcome_ref, orphan=name == 'orphan_sample')
+    assert writer.verify(outcome_ref).ok and writer.verify(sample_ref).ok
+    # Old proxy still loads plausible success arrays from precisely these bytes.
+    old_proxy = load_welfare_sample_bundle(FileSystemCAS(cas_root), sample_ref)
+    assert len(old_proxy.welfare_draws) == len(samples.welfare_draws)
+    rejection = must_reject(sample_ref)
+    return {'negative_kind': name, 'CAS_hash_and_schema_valid': True, 'old_payload_proxy_accepts': True,
+            'strict_consumer_rejection': rejection, 'sample_ref': sample_ref.model_dump(mode='json')}
+
+for name in ('successful_count', 'orphan_failure', 'out_of_denominator_failure', 'out_of_denominator_draw',
+             'successful_null_input', 'row_hash', 'wrong_output_value', 'missing_metric',
+             'failure_reason_missing', 'reordered_sample', 'false_scope', 'boolean_count',
+             'boolean_failed_count', 'integer_support_flag', 'string_parameter_order',
+             'wrong_typed_outcomes', 'orphan_sample'):
+    check('present_but_fake_' + name, lambda name=name: corruption(name))
+
+
+def remove_property_control():
+    r = deepcopy(partial_state['receipt'])
+    r['successful_draw_count'] += 1
+    ref = put_samples(partial_state['samples'], put_outcomes(r))
+    before = must_reject(ref)
+    original = module.reconcile_draw_outcomes
+    # Same schema, markers, CAS binding and call site; remove the actual denominator relation.
+    module.reconcile_draw_outcomes = lambda receipt, metric_ids: set(metric_ids)
+    try:
+        loaded = module._load_verified_welfare_samples(FileSystemCAS(cas_root), ref)
+        assert loaded.welfare_draws == partial_state['samples'].welfare_draws
+    finally:
+        module.reconcile_draw_outcomes = original
+    after = must_reject(ref)
+    return {'property_removal_admits_forged_count': True, 'same_fake_markers_preserved': True,
+            'normal_rejection_before': before, 'normal_rejection_after': after}
+check('denominator_property_removal_negative_control', remove_property_control)
+
+assert git('rev-parse', 'HEAD') == EXPECTED
+assert not git('status', '--porcelain', '--untracked-files=no')
+assert source_hashes == {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in paths}
+receipt = {
+    'candidate': EXPECTED, 'tree': git('rev-parse', 'HEAD^{tree}'),
+    'property': 'Actual welfare producer persists every terminal draw; fresh CAS consumer reconciles denominator, row/input identity, output values and success-array order; partial support is conditional only.',
+    'environment': {'python': sys.version, 'numpy': np.__version__, 'backend': 'NumPy native welfare path',
+                    'source_import': module.__file__, 'threads_processes_cpu_caps': 'none imposed'},
+    'input': 'Bounded Uniform[-1,1], numpy.default_rng(23); deterministic independent terminal fixtures; no production history.',
+    'command_argv': sys.argv, 'source_sha256': source_hashes, 'artifact_refs': refs, 'checks': checks,
+    'outcome': 'PASS' if all(c['outcome'] == 'PASS' for c in checks) else 'FAIL',
+    'wall_seconds': time.monotonic() - start,
+    'P37_basis': 'Preserve requested/attempted/success/failed/unattempted; evaluate finite output conjunction; mathematical DGP is candidate evidence, not served/source law. Nominal point differs from conditional/unconditional mean.',
+    'P40_class': 'All outcome/support summaries and consumer sample records, including sibling metrics and exception/missing-output failures; no patch-by-marker closure.',
+    'P41_basis': 'Exact imported source blobs, native producing caller and fresh CAS reads; old payload-only proxy explicitly diverges.',
+    'limitations': ['No production or served evaluator provenance established.', 'No mean-error certificate, IID source law, causal authority, IR point/interval wire ratification, or finding closure claimed.',
+                    'Public legacy IR sample loader remains a payload-only proxy; strict sample reconciliation is exercised at the welfare producer and fresh strict-loader seam.'],
+    'cleanup_candidates': [str(cas_root)],
+}
+path = OUT / ('welfare-repaired-' + EXPECTED[:12] + '-receipt.json')
+path.write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps({'receipt': str(path), 'outcome': receipt['outcome'], 'pass': sum(c['outcome'] == 'PASS' for c in checks), 'fail': sum(c['outcome'] == 'FAIL' for c in checks)}))
+sys.exit(0 if receipt['outcome'] == 'PASS' else 1)

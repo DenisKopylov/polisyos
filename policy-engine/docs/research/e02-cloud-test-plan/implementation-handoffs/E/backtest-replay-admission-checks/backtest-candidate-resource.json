@@ -1,0 +1,26 @@
+{
+  "target_sha": "d94b1116cb852eb66722d47610dcd65d75faf503",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/backtesting",
+    "tests/unit/scientist/governance/test_backtest_matrix.py",
+    "tests/unit/remediation/test_bkt_02.py",
+    "tests/unit/remediation/test_bkt_03.py",
+    "tests/unit/ir/mirror_contracts/test_backtest.py",
+    "-o",
+    "cache_dir=/workspace/e02-E-20261006-receipts/backtest-pytest-cache",
+    "--basetemp=/workspace/e02-E-20261006-receipts/backtest-check-004",
+    "--junitxml=/workspace/e02-E-20261006-receipts/backtest-candidate-junit.xml"
+  ],
+  "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+  "returncode": 0,
+  "wall_s": 29.87116837898793,
+  "rss_kib_direct_and_children": 652268,
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

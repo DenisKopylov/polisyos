@@ -58,6 +58,7 @@ class PredictionEvaluator:
         missing_cells: list[tuple[str, int]] = []
         invalid_cells: list[tuple[str, int]] = []
         requested_count = 0
+        observed_count = 0
         compared_count = 0
         missing_count = 0
         invalid_count = 0
@@ -76,6 +77,10 @@ class PredictionEvaluator:
             ci_vals = ci_raw if isinstance(ci_raw, (list, tuple)) else []
             for idx, y_t_raw in enumerate(true_vals):
                 requested_count += 1
+                try:
+                    observed_count += int(math.isfinite(float(y_t_raw)))
+                except (TypeError, ValueError, OverflowError):
+                    pass
                 if interval_contract_declared:
                     interval_requested_count += 1
                 if idx >= len(pred_vals):
@@ -158,9 +163,7 @@ class PredictionEvaluator:
         mae = float(np.mean(absolute_errors)) if absolute_errors else None
         mape = float(np.mean(percentage_errors)) if percentage_errors else None
         coverage = (
-            interval_hit_count / interval_evaluated_count
-            if interval_evaluated_count > 0
-            else None
+            interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
         interval_availability = (
             interval_available_count / interval_requested_count
@@ -168,11 +171,17 @@ class PredictionEvaluator:
             else None
         )
         interval_hit_rate = (
-            interval_hit_count / interval_evaluated_count
-            if interval_evaluated_count > 0
-            else None
+            interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
         metadata_payload = dict(metadata or {})
+        metadata_payload["evaluation_status"] = "evaluated" if compared_count else "not_evaluated"
+        metadata_payload["comparison_denominator"] = {
+            "requested": requested_count,
+            "eligible": compared_count,
+            "observed": observed_count,
+            "unit": "metric_time_cell",
+            "basis": "recomputed",
+        }
         interval_type = metadata_payload.get("interval_type")
         if interval_type is not None and not isinstance(interval_type, str):
             interval_type = str(interval_type)

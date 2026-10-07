@@ -1,0 +1,46 @@
+{
+  "source_sha": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+  "input_description": "complex NumPy arrays; finite huge real weights; exact full inputs in this script",
+  "cases": [
+    {
+      "case": "complex-CDF",
+      "result": "admitted",
+      "projection": [
+        0.5,
+        1.0
+      ],
+      "warnings": [
+        "Casting complex values to real discards the imaginary part"
+      ]
+    },
+    {
+      "case": "complex-U",
+      "result": "admitted",
+      "projection": [
+        0.5
+      ],
+      "warnings": [
+        "Casting complex values to real discards the imaginary part"
+      ]
+    },
+    {
+      "case": "complex-weights",
+      "result": "admitted",
+      "projection": [
+        0.5,
+        0.5
+      ],
+      "warnings": [
+        "Casting complex values to real discards the imaginary part"
+      ]
+    },
+    {
+      "case": "finite-total-overflow",
+      "result": "refused",
+      "exception": "OverflowError",
+      "reason": "intermediate overflow in fsum",
+      "warnings": []
+    }
+  ],
+  "potential_boundary": "public helper receives object; complex mass/coordinate has no probability-domain ordering, imaginary components must not silently select a real law; investigate actual typed consumer reachability separately"
+}

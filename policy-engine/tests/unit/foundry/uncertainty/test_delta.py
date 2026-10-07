@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy.testing as npt
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.ir.analytics.uncertainty import (
@@ -52,6 +53,7 @@ class TestDeltaMethodPropagator:
         propagator = DeltaMethodPropagator(config)
         std_x, std_z = 0.5, 1.0
         envelopes = {"x": _normal_env(1.0, std_x), "z": _normal_env(2.0, std_z)}
+        envelopes = _declared_gaussian_product(envelopes)
 
         results = propagator.propagate(
             _linear_sim,
@@ -113,7 +115,7 @@ class TestDeltaMethodPropagator:
         assert missing.confidence_interval != (0.0, 0.0)
         assert genuine_zero.point_estimate == 0.0
         assert genuine_zero.confidence_interval == (0.0, 0.0)
-        assert genuine_zero.gate_eligible is True
+        assert genuine_zero.gate_eligible is False
 
     def test_delta_nonlinear_approximation(self) -> None:
         """For y=x^2, at x=2 Jacobian=4, so output_std ≈ 4*input_std."""
@@ -180,3 +182,23 @@ class TestDeltaMethodPropagator:
 
         assert results[0].method_used == PropagationMethod.DELTA_METHOD
         assert results[0].envelope.propagation_method == PropagationMethod.DELTA_METHOD
+
+
+def _declared_gaussian_product(envelopes):
+    from polisyos.foundry.uncertainty.covariance import extract_std
+
+    names = sorted(envelopes)
+    return {
+        name: env.model_copy(
+            update={
+                "metadata": {
+                    **env.metadata,
+                    "covariance_params": names,
+                    "covariance_row": [
+                        extract_std(env) ** 2 if column == name else 0.0 for column in names
+                    ],
+                }
+            }
+        )
+        for name, env in envelopes.items()
+    }

@@ -1,0 +1,15 @@
+{
+  "scope": "Existing concurrency-aware shared example cache, not all mutable cache isolation",
+  "path": "/workspace/e02-E-continuation-20261006/policy-engine/_cache/hypothesis",
+  "conftest_path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/conftest.py",
+  "conftest_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+  "conftest_binding_lines": [
+    165,
+    172,
+    176
+  ],
+  "installed_hypothesis_save_implementation": "    def save(self, key: bytes, value: bytes) -> None:\n        key_path = self._key_path(key)\n        if key_path.name != self._metakeys_hash:\n            # add this key to our meta entry of all keys - taking care to avoid\n            # infinite recursion.\n            self.save(self._metakeys_name, key)\n\n        # Note: we attempt to create the dir in question now. We\n        # already checked for permissions, but there can still be other issues,\n        # e.g. the disk is full, or permissions might have been changed.\n        try:\n            key_path.mkdir(exist_ok=True, parents=True)\n            path = self._value_path(key, value)\n            if not path.exists():\n                # to mimic an atomic write, create and write in a temporary\n                # directory, and only move to the final path after. This avoids\n                # any intermediate state where the file is created (and empty)\n                # but not yet written to.\n                fd, tmpname = tempfile.mkstemp()\n                tmppath = Path(tmpname)\n                os.write(fd, value)\n                os.close(fd)\n                try:\n                    tmppath.rename(path)\n                except OSError as err:  # pragma: no cover\n                    if err.errno == errno.EXDEV:\n                        # Can't rename across filesystem boundaries, see e.g.\n                        # https://github.com/HypothesisWorks/hypothesis/issues/4335\n                        try:\n                            path.write_bytes(tmppath.read_bytes())\n                        except OSError:\n                            pass\n                    tmppath.unlink()\n                assert not tmppath.exists()\n        except OSError:  # pragma: no cover\n            pass\n",
+  "implementation_sha256": "58240340e96c79d3a975cf53d275f2eac9a048732dd17b8ced594024df87f507",
+  "same_filesystem_cache_and_scratch": true,
+  "serialized_conflicting_seams": "Global generator/workspace/frontendoutputs serial; pertestCAS/SQLite, perjobpytestcache/benchmarks/temporary paths. No addedCPU/process caps."
+}

@@ -1,0 +1,138 @@
+"""Independent current A/G packet custody/pins/reasons; zero runtime/gate launches."""
+from pathlib import Path
+import ast
+import copy
+import hashlib
+import json
+import os
+import platform
+import subprocess
+import sys
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path(__file__).parent
+AUTHOR=Path('/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817')
+PIN='a9f78817c873be5b35a08155f2593b229d9fdbb6'
+TREE='c02e043c3e1c8222c28aa71187fa8db4e2fdeea7'
+OLD='5e3e3727685132f270a3a07b9f63dd962a88cd96'
+P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/'
+identity=lambda data:dict(bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
+def git(*args):
+    return subprocess.check_output(['git','-C',str(ROOT),*args])
+def blob(ref,path):
+    return git('show',ref+':'+path)
+def fileid(path):
+    return identity(path.read_bytes())
+
+index=json.loads((AUTHOR/'copy-index.json').read_text())
+assert fileid(AUTHOR/'copy-index.json')['sha256']=='716cfb15445b16de654f16fc8c7f860c2bbe79f0f02a099082dc514e70c3f53e'
+assert index['file_count']==len(index['files'])==10 and index['total_bytes']==sum(r['bytes'] for r in index['files'])==84975
+for row in index['files']:
+    assert fileid(AUTHOR/row['path'])==dict(bytes=row['bytes'],sha256=row['sha256'])
+packet=json.loads((AUTHOR/'dependency-packet-a9f78817.json').read_text())
+binding=json.loads((AUTHOR/'source-binding-a9f78817.json').read_text())
+original=json.loads(blob(PIN,P+'a-generator-owner-packet/dependency-packet.json'))
+old_review=json.loads(blob(PIN,P+'a-generator-owner-independent/independent-review-eb035.json'))
+assert old_review['disposition'].startswith('GO as owner-ready bounded dependency packet')
+prior_rows={r['path']:r for r in old_review['29_source_paths_wave_to_packet_and_live_byte_exact']}
+assert len(prior_rows)==29
+head_before=git('rev-parse','HEAD','HEAD^{tree}').decode().splitlines()
+assert head_before==[PIN,TREE]
+
+def current_ref(ref, expected_path):
+    assert ref['commit']==PIN
+    assert ref['path']==expected_path
+    data=blob(PIN,ref['path'])
+    assert identity(data)==dict(bytes=ref['bytes'],sha256=ref['sha256'])
+    assert git('rev-parse',PIN+':'+ref['path']).decode().strip()==ref['git_blob']
+    return data
+
+def validate(b,p):
+    assert b['current_committed_source']['sha']==p['current_committed_source']['sha']==PIN
+    assert b['current_committed_source']['tree']==p['current_committed_source']['tree']==TREE
+    assert git('rev-parse',PIN+'^{tree}').decode().strip()==TREE
+    assert b['selected_source_denominator']==b['unchanged_selected_source_denominator']==len(b['source_rows'])==29
+    assert {r['path'] for r in b['source_rows']}==set(prior_rows)
+    for row in b['source_rows']:
+        data=current_ref(row['current_source'],row['path'])
+        historical=row['failed5e_source']
+        assert historical['commit']==OLD and historical['path']==row['path']
+        assert blob(OLD,row['path'])==data==(ROOT/row['path']).read_bytes()
+        assert row['current_source']['git_blob']==historical['git_blob']==prior_rows[row['path']]['wave_git_blob']
+    assert len(b['new_owner_action_and_carried_packet_refs'])==20
+    for ref in b['new_owner_action_and_carried_packet_refs']:
+        current_ref(ref,ref['path'])
+    current_ref(b['canonical_collector_v4'],P+'wave-controls/collect_wave.py')
+    assert b['canonical_collector_v4']['bytes']==38197 and b['canonical_collector_v4']['sha256']=='faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc'
+    reasons={c['case']:c for c in p['A_reason_scenarios']}
+    assert reasons['missing_ref']['expected_S6_reason']=='s10://calibration/fail-closed/empirical_evidence_ref_missing'
+    assert reasons['resolved_limited']['expected_S6_reason']=='s10://calibration/calibration_floor_not_met'
+    assert 'insufficient-history' in (AUTHOR/'G-owner-reason-clarification.md').read_text()
+    assert p['generator_evidence_boundary']['current_generated_dependency_count'] is None
+    assert p['generator_evidence_boundary']['current_generator_check_state']=='UNRUN'
+    assert p['new_G_owner_result']['E_new_executions']==0 and p['new_G_owner_result']['FRC_acceptance'] is False and p['new_G_owner_result']['finding_closure'] is False
+    assert p['held_and_ledger_boundary']['B194_B197_B201_B202']=='held preserved'
+
+validate(binding,packet)
+# Original19 source assets plus portable index20 records are distinct denominators.
+portable=json.loads(blob(PIN,P+'a-generator-owner-packet/portable-copy-index.json'))
+assert len(portable['records'])==portable['copies']==20
+assert sum(r['bytes'] for r in portable['records'])==portable['bytes']==174084
+for row in portable['records']:
+    assert identity(blob(PIN,row['copied_path']))==dict(bytes=row['bytes'],sha256=row['sha256'])
+assert packet['original_packet']['asset_denominator']==19 and packet['original_packet']['bytes']==170661
+# Definition coordinate/digest joins establish only the exact bounded caller trace.
+source=blob(PIN,'policy-engine/src/polisyos/runtime/quality/generation_cycle.py').decode()
+syntax=ast.parse(source)
+by_name={n.name:n for n in syntax.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+definitions=[]
+for row in binding['actual_caller_coordinates']:
+    current_ref(row['git_source'],row['path'])
+    node=by_name[row['name']]
+    segment=ast.get_source_segment(source,node)
+    assert node.lineno==row['line'] and node.end_lineno==row['end_line']
+    assert hashlib.sha256(segment.encode()).hexdigest()==row['definition_sha256']
+    definitions.append(dict(name=row['name'],line=row['line'],end_line=row['end_line'],sha256=row['definition_sha256']))
+assert len(definitions)==8
+projection=ast.get_source_segment(source,by_name['_s10_empirical_projection'])
+limitation=ast.get_source_segment(source,by_name['_s10_limitation_refs'])
+assert 'failure_codes' in projection and 'failure_codes' in limitation and 'insufficient-history' in limitation
+assert packet['A_positive_packet']['minimum_generic_input']==old_review['minimum_A_inputs']
+assert old_review['generic_fixture_oracle'].startswith('Historical deterministic y=t')
+# Independent analytic statement, no backend launch: linear y=t extrapolates t+1..t+4,
+# zero residuals give point intervals; source1000 misses all four31..34 point intervals.
+points=tuple(range(31,35))
+assert points==(31,32,33,34)
+assert sum(value<=value<=value for value in points)==4
+assert sum(value<=1000<=value for value in points)==0
+merge=json.loads((AUTHOR/'G-merge-delta.json').read_text())
+assert merge['path_denominator']==68 and merge['production_source_path_denominator']==0 and merge['test_path_denominator']==1
+current_paths=set(git('diff','--name-only',packet['current_committed_source']['parents'][0],PIN).decode().splitlines())
+declared_paths={r['path'] for r in merge['all_paths']}
+assert current_paths==declared_paths
+controls=[]
+mutations=[
+ ('valid source bytes, wrong current row candidate',lambda b,p:b['source_rows'][0]['current_source'].update(commit=OLD)),
+ ('valid source bytes, wrong top current candidate',lambda b,p:b['current_committed_source'].update(sha=OLD)),
+ ('present source ref, counterfeit blobID',lambda b,p:b['source_rows'][0]['current_source'].update(git_blob='0'*40)),
+ ('present Gref, counterfeit digest',lambda b,p:b['new_owner_action_and_carried_packet_refs'][0].update(sha256='0'*64)),
+ ('missing-ref mislabeled measuredfloor',lambda b,p:p['A_reason_scenarios'][0].update(expected_S6_reason='s10://calibration/calibration_floor_not_met')),
+ ('resolvedfloor mislabeled missingref',lambda b,p:p['A_reason_scenarios'][1].update(expected_S6_reason='s10://calibration/fail-closed/empirical_evidence_ref_missing')),
+ ('resolvedfloor mislabeled insufficienthistory',lambda b,p:p['A_reason_scenarios'][1].update(expected_S6_reason='s10://calibration/fail-closed/insufficient-history')),
+ ('historical1493 calledcurrentcount',lambda b,p:p['generator_evidence_boundary'].update(current_generated_dependency_count=1493,current_generator_check_state='PASS')),
+ ('installedcompilerPASS calledFRCacceptance',lambda b,p:p['new_G_owner_result'].update(FRC_acceptance=True)),
+]
+for name,mutate in mutations:
+    b,p=copy.deepcopy(binding),copy.deepcopy(packet)
+    mutate(b,p)
+    try:
+        validate(b,p)
+        raise RuntimeError('forged field admitted')
+    except AssertionError:
+        controls.append({'control':name,'outcome':'REFUSED','product_native_numeric_gate_commands':0})
+assert head_before==git('rev-parse','HEAD','HEAD^{tree}').decode().splitlines()
+for row in index['files']:
+    assert fileid(AUTHOR/row['path'])==dict(bytes=row['bytes'],sha256=row['sha256'])
+review={'schema':'policyos.e02.independent-current-A-G-packet.v1','reviewer':'doe_r2 independent of FRC packet author and A shared runtime writer','source_pin':PIN,'source_tree':TREE,'actual_packet_verdict':'GO-bounded-current-packet-source/ref/math/writer/custody','author_reusable_validator_verdict':'HOLD-valid-bytes-wrong-current-candidate-escape, separate append-only correction pending','author_original_index':{'path':str(AUTHOR/'copy-index.json'),**fileid(AUTHOR/'copy-index.json'),'files':10,'bytes':84975},'original_CAL_review_reuse':{'path':P+'a-generator-owner-independent/independent-review-eb035.json','Git_source':PIN,'source_blob':git('rev-parse',PIN+':'+P+'a-generator-owner-independent/independent-review-eb035.json').decode().strip(),'disposition':old_review['disposition'],'all29sourceblobs_unchanged':True,'sevenoriginalcontrols_not_replayed':True},'source_joins':{'selected':29,'current_G_packet_refs':20,'actual_definition_coordinates':definitions,'old19assets_current20portablecopyrecords':True,'complete_consulted_generator_inputclosure_established':False},'reason_boundary':{'missing_ref':'specific empirical_evidence_ref_missing; preserve kind/integrity/unresolved/time/rule refusals','resolved_limited_zero_of_four':'specific calibration_floor_not_met from bound measurement','actual_finite_estimator_without_empiricalhistory':'separate insufficient-history allowed, not fallback for every missingref or0/4 floorfailure'},'math_boundary':{'independent_analytic_points':points,'point_intervalhits':4,'heldout1000hits':0,'oracle_reuse':'Same priorETS/CAS fixture/source; no numericbackend rerun or claim of production/default/HTTP authority'},'writer_boundary':{'A':'generation_cycle/run_lifecycle/default/HTTP producer-resolver-verifier andnormalizedreasons; packetpatch unapplied and code unchanged','G':'owner action clarification/integration and generator leases','Core_IR_A_generator':'canonical generation/compatibility classification; no handgeneratedfilechanges','E':'existing strict producer+typedCAS packet, no A writes/wiresemantics ratification'},'old_and_current_measurement':{'5eCAS':'5 setupERROR, not propertyFAIL/PASS','5estatus':'1 actualFAIL+1 setupERROR, historical8486twoFAIL separate','compiler':'G A577 oneinstalledwheelPASS only, no E replay/FRCacceptance','generator':'1493 exact5e historical,1492 older58 historical; currenta9measurementpending','packet_preparation':'NOT_LAUNCHED correctly describes prep; rootcommonwave nowRUNNING perparentmessage; no new results read or inferred'},'independent_forged_field_controls':controls,'findings_closed':[],'ledger':'B32/LA051partial/limited,B194/B197/B201/B202held,B198historicalclosed; no reclassification','P41':'not_established without exactbasecommand/fullinputdenominator;29unchangedblobs are onlyboundedsourcequalifier','runtime_numeric_gate_or_wheel_commands_executed':0,'root_Git_config_ref_fetch_writes':0,'environment':{'python':sys.executable,'version':sys.version,'platform':platform.platform(),'UV_NO_SYNC':os.environ.get('UV_NO_SYNC'),'PYTHONDONTWRITEBYTECODE':os.environ.get('PYTHONDONTWRITEBYTECODE')},'author_packet_and_root_source_unchanged':True,'cleanup':'No disposable nativeenvironment; preserve usefuldocs/source/uniqueoutput. No Trash/deletion.'}
+(OUT/'actual-packet-review.json').write_text(json.dumps(review,indent=2)+'\n')
+print(json.dumps({k:review[k] for k in ['actual_packet_verdict','author_reusable_validator_verdict','source_pin','source_tree','author_original_index','independent_forged_field_controls','runtime_numeric_gate_or_wheel_commands_executed']},indent=2))

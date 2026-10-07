@@ -1,0 +1,122 @@
+{
+  "schema": "e02.E.independent_final_snapshot_after_review.v1",
+  "source_and_receipts_immutable": true,
+  "files": [
+    {
+      "path": "publication-index.json",
+      "unchanged_after_review": true,
+      "sha256": "bf3f65c565a1464cd8fa793835173bec50b4813a8df7ee3915fa0716325362ad"
+    },
+    {
+      "path": "README.md",
+      "unchanged_after_review": true,
+      "sha256": "c5ec51252cb545e13607ef820524aa9251c376281a7c55ea658c0fd4409b40f4"
+    },
+    {
+      "path": "all-54-update.json",
+      "unchanged_after_review": true,
+      "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28"
+    },
+    {
+      "path": "build-final.stdout.json",
+      "unchanged_after_review": true,
+      "sha256": "159721dad7d86d70cd0ec83118b47b8a0175e6ecae34d0b85ec94264c71d424f"
+    },
+    {
+      "path": "build_final.py",
+      "unchanged_after_review": true,
+      "sha256": "eff77c607d6ba230da72e17fc2fb8b53d80a49d75e05b8f20bf0362aaa41ce2a"
+    },
+    {
+      "path": "construction-receipt.json",
+      "unchanged_after_review": true,
+      "sha256": "ae6dcb1e4b0994e6b323042e6f0fd6aae55443b163ad6a04e25ea4eab9bf06a6"
+    },
+    {
+      "path": "current-case-index.json",
+      "unchanged_after_review": true,
+      "sha256": "d807bea5f42c0d2ee782320f621ebe03b95eb957a68442363f9c4eed2d5018c2"
+    },
+    {
+      "path": "current-lint-publication-debt.json",
+      "unchanged_after_review": true,
+      "sha256": "8b56a2504a560c2fbd137d115c7fad382b6a0f14b8c2729440455f5b11efa7b5"
+    },
+    {
+      "path": "current-local-G-recipes.json",
+      "unchanged_after_review": true,
+      "sha256": "d58566c81f2ced49271c39068974304bd4f1140c2c191072ef3a01293c9066c1"
+    },
+    {
+      "path": "current-wave-recomputed.json",
+      "unchanged_after_review": true,
+      "sha256": "e80ef53c7492ff3f6fbf18653941562a12f313f2d4051325c936f56c4b7f5f0f"
+    },
+    {
+      "path": "format-final.stdout.txt",
+      "unchanged_after_review": true,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "input-index.json",
+      "unchanged_after_review": true,
+      "sha256": "0f6fb47dc8d914bd4206fbeda755e2cdb07ab9e8b4ee25a3cd07213305e9a032"
+    },
+    {
+      "path": "ruff-final.stdout.txt",
+      "unchanged_after_review": true,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "ruff.after-fixes.json",
+      "unchanged_after_review": true,
+      "sha256": "66fae6065334618745cf58cd020963c6786b20d20c145cb46a416fbb4b556704"
+    },
+    {
+      "path": "ruff.initial.json",
+      "unchanged_after_review": true,
+      "sha256": "cbe1511058e96d5d10189ae79270bb5780273b71b838752baff0c2e53f199a67"
+    },
+    {
+      "path": "validate.py",
+      "unchanged_after_review": true,
+      "sha256": "2d38d703d950cb4883ea1107b1c8fac01e83ba64e8ecda0a543aa333c20a7626"
+    },
+    {
+      "path": "validation-final.stdout.json",
+      "unchanged_after_review": true,
+      "sha256": "b9474c8ec7eb625fbb181579868697f243e84a439bc5be6bdbedb80ce03293a2"
+    },
+    {
+      "path": "validation-preformat.stdout.json",
+      "unchanged_after_review": true,
+      "sha256": "9bbbe19b75e7c298fa362af64c77f7f238733867dad507140c914a4a15eb51d6"
+    }
+  ],
+  "Git_object_availability_controls": [
+    {
+      "name": "missing_Git_object",
+      "commit": "0000000000000000000000000000000000000000",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "outcome": "REFUSED_NO_Git_BYTES",
+      "exit_code": 128,
+      "stderr": "fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json' exists on disk, but not in '0000000000000000000000000000000000000000'\n"
+    },
+    {
+      "name": "unpublished_main_checkpoint",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "outcome": "REFUSED_NO_Git_BYTES",
+      "exit_code": 128,
+      "stderr": "fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json' exists on disk, but not in '198076863e143dea9f89f02734b13d50dae3eed5'\n"
+    }
+  ],
+  "root_status_after": "## codex/e02-E-continuation-20261006\n",
+  "root_HEAD_after": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "reviewer_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "linux"
+  },
+  "property": "Source/output Git availability is mandatory; valid-looking digest/marker alone cannot supply absent evidence. No Git writes/deletions or product/backend checks."
+}

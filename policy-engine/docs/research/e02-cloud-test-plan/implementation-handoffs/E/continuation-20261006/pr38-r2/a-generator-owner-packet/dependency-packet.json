@@ -1,0 +1,676 @@
+{
+  "schema": "policyos.e02.A-generator-dependency-packet.v1",
+  "unit": "E",
+  "scope": "Read-only current owner packet built from complete exact5e failed wave and immutable source; no new numerical/native/generator check executed.",
+  "actual_candidate_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "actual_candidate_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "published_deciding_evidence_commit": "1e1b5028274814b7c4318671588202480390a6bc",
+  "published_tree": "a4ed7ca77636c4e0165923e3d5400aea0c5068d5",
+  "observed_current_sha": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "observed_current_tree": "6b5f1bdd9292318007b529ef2310675a8ce798fd",
+  "finding_scope": {
+    "ids": [
+      "B32",
+      "LA-051"
+    ],
+    "bundles": [
+      "FRC-01",
+      "FRC-02"
+    ],
+    "ledger_status": "partial preserved",
+    "code_acceptance_and_finding_closure": "Separate; this packet does not ratify closure or source authority."
+  },
+  "actual_wave_counts": {
+    "cases": 1440,
+    "passed": 1086,
+    "failed": 3,
+    "errors": 351,
+    "skipped": 0
+  },
+  "actual_BKT_FRC_denominator": {
+    "native_paths": 25,
+    "owner_packet_paths": 2,
+    "cases": 315,
+    "passed": 145,
+    "failed": 3,
+    "errors": 167,
+    "skipped": 0
+  },
+  "three_named_actual_FRC_failures": [
+    {
+      "name": "test_calibration_time_roles_are_preserved_from_bound_evidence",
+      "classname": "tests.unit.remediation.test_frc_01",
+      "file": null,
+      "seconds": "0.002",
+      "outcome": "failed",
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+    },
+    {
+      "name": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "classname": "tests.unit.remediation.test_frc_01",
+      "file": null,
+      "seconds": "0.001",
+      "outcome": "failed",
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+    },
+    {
+      "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "classname": "",
+      "file": null,
+      "seconds": "0.001",
+      "outcome": "failed",
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+    }
+  ],
+  "actual_A_packet_outcomes": [
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac",
+      "owner": "A",
+      "matching_basis": {
+        "exact_destination_in_source_bound_job_argv": [
+          "bkt-frc-s10-and-adjacent-report-consumers"
+        ],
+        "anonymous_classname_policy": "Require exact test-function uniqueness across all planned candidate source inputs and matching job; refuse ambiguous identity.",
+        "function_origins": {
+          "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+          ],
+          "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+          ]
+        }
+      },
+      "counts": {
+        "cases": 5,
+        "passed": 0,
+        "failed": 0,
+        "errors": 5,
+        "skipped": 0
+      },
+      "cases": [
+        {
+          "name": "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "errors",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[missing_ref]",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "errors",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[wrong_kind]",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "errors",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[bad_time]",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "errors",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[wrong_rule]",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "errors",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        }
+      ]
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4",
+      "owner": "A",
+      "matching_basis": {
+        "exact_destination_in_source_bound_job_argv": [
+          "bkt-frc-s10-and-adjacent-report-consumers"
+        ],
+        "anonymous_classname_policy": "Require exact test-function uniqueness across all planned candidate source inputs and matching job; refuse ambiguous identity.",
+        "function_origins": {
+          "test_missing_ref_tier_and_s6_share_named_missing_ref_reason": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+          ],
+          "test_resolved_limited_evidence_keeps_floor_failure_reason": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+          ]
+        }
+      },
+      "counts": {
+        "cases": 2,
+        "passed": 0,
+        "failed": 1,
+        "errors": 1,
+        "skipped": 0
+      },
+      "cases": [
+        {
+          "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "failed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+          "classname": "",
+          "file": null,
+          "seconds": "0.002",
+          "outcome": "errors",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        }
+      ]
+    }
+  ],
+  "failure_boundaries": [
+    {
+      "case": "test_calibration_time_roles_are_preserved_from_bound_evidence",
+      "owner": "A, canonical generation_cycle/test_frc_01 writer",
+      "observed": "record None causes AttributeError; test supplies unpersisted outcome/implementation/evidence refs, no resolved empirical CAS evidence, missing prediction/threshold refs and invalid chronology",
+      "input_violations": [
+        "data_valid_time 2025-04-01 follows calibration_window_start 2025-03-01",
+        "calibration_window_end 2025-04-30 follows prediction_time 2025-01-15",
+        "policy_effective_time 2025-02-01 follows prediction_time 2025-01-15",
+        "foundry.methods.example is not declared versioned forecasting method"
+      ],
+      "runtime_requirement": "Keep current strict refusal. Replace positive with prior real ETS/CAS packet; retain old fixture as explicit negative. No fake mapping acceptance to make test green.",
+      "P41": "not_established for historical red attribution; source/input contradictions explicit from exact current native test and caller definitions."
+    },
+    {
+      "case": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "owner": "A",
+      "observed": "blocked tier but S6 empty; outer calibration_status limit is read by tier path while _s10_limitation_refs reads evidence.calibration_status which is absent",
+      "next": "Normalize one typed status/reason for direct helper and real gateway, with distinct empirical_evidence_ref_missing vs resolved calibration_floor_not_met; retire unconditional insufficient-history expectation for every missing-ref case."
+    },
+    {
+      "case": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "owner": "A",
+      "observed": "exact A packet failed requiring named missing-ref S6 reason; producer/resolver not invoked in this direct missing-input case",
+      "next": "Apply/review bounded a-status-reason.patch.txt or equivalent normalized typed boundary, then real native checks; actual patch source Git apply --check PASS only is not behavioral PASS."
+    },
+    {
+      "case": "A CAS5ERROR and A resolved-limited1ERROR",
+      "owner": "E root harness dependency, then A consumer verification",
+      "observed": "all6 tmp_path setup failures from missing numeric basetemp parent; no callback/resolver behavior measured in this actual wave",
+      "next": "Only after independently reviewed parent repair and new source freeze rerun through sole common wave. Prior8486 CAS5PASS/status2FAIL are historical deciding outputs, not new-candidate PASS."
+    }
+  ],
+  "A_code_trace": {
+    "default_gateway": "RealValueOwnerGateway.empirical_evidence_resolver defaults None; produce_forecast_inputs calls _build_real_s10_forecast_inputs then resolver then typedrecord/support. Default constructor4577 supplies repo/context only; reentry6079 supplies configured artifact_store but no resolver. run_lifecycle contains no ForecastOwner/ForecastOwnerRequest/empirical resolver binding.",
+    "current_capability": "Generic injected canonical loader exists, actual default producer\u2192artifact\u2192verifier/served bridge remains consumer_missing/bridge_missing for A; synthetic injection is not default or HTTP admission.",
+    "E_contract": "ForecastOwnerRequest internal2.0 requires observed DataSnapshot/DataSchema, explicit metric/unit/scale/source split/horizon/calibration rule/model+policy/time+seed; producer emits separate empirical_evidence_ref and candidate_receipt_ref. to_s10_input_fields(freshCAS) adapts to empirical_calibration_evidence_ref, forecast_candidate_receipt_ref, expected_rule_version_ref and temporal_roles; verifier_provenance stays not_established."
+  },
+  "A_minimal_generic_inputs": {
+    "source": "canonical persisted DataSnapshot+DataSchema field metric float64 unit count plus source rows1..30 and heldout31,32,33,34",
+    "split": {
+      "train": [
+        0,
+        30
+      ],
+      "holdout": [
+        30,
+        34
+      ],
+      "horizon": 4
+    },
+    "scale": "source_native",
+    "method": "forecasting.univariate.exponential_smoothing@1.0.0",
+    "seed": 17,
+    "rule": "rolling-origin-residual-conformal.v1 nominalcoverage0.9",
+    "profile": "linear-ets1.0 request-bound threshold0.8; generic fixture declaration is not institutional source/profile admission",
+    "six_roles": "2026-01-01 data_valid, Jan02 window_start, Jan03 window_end, Jan04 policy_effective, Jan05 prediction, Jan06 observation; all distinct UTC",
+    "known_oracle": "Holt linear points31,32,33,34 with rolling-origin residual zero yield intervals[31,31]..[34,34], fresh source4/4 hits. Source1000x4 gives0/4 despite same training, point forecast and model; no consumer report-loop oracle."
+  },
+  "A_next_measured_result": {
+    "owner": "A, using configured shared CAS/native gateway/lifecycle; G fetches exact Git packet",
+    "positive": "Default predictive intake calls strict E producer, preserves separate CAS refs; A independently resolves/binds/recomputes source schema,metric,unit,scale,profile,source/model/rule,time,purpose,split/horizon,rowpairs/counts/threshold, persists its verifier provenance, then fresh default+HTTP read returns same typed refs and normalized status/reason. Predictive sibling reaches existing terminal causal/treatment/policy refusal.",
+    "negatives": [
+      "missing ref distinct named refusal",
+      "wrong kind/schema or old digest",
+      "wrong unit/scale/target/horizon",
+      "changed/reordered persisted rowpairs/forged counts",
+      "wrong rule or one changed time role",
+      "resolved limited0/4 keeps calibration_floor_not_met",
+      "credible=True/producer receipt alone cannot establish trusted verifier or causal authority"
+    ],
+    "source_history_owner": "G local read-only only where original criterion requires actual issued forecast/outcome history; frozen E implementation8486 and current5e wrapper, minimal compatible immutable source/schema/unit/source-model-rule/split-horizon/sixroles. Full production history stays local."
+  },
+  "generator_facts": {
+    "runtime_openapi": {
+      "owner": "A/runtime API plus team-polisyos generated-family owner, versionowner team-runtime; G integration coordinates",
+      "actual": "runtimeAPI FAIL reports only OpenAPI drift. confidence-ledger-risk-spend bound_dependency_count committed1489\u2192generated1493; old58e historical generated1492 remains separate.",
+      "hash_changes": {
+        "projection": [
+          "4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+          "6a8894caa13b2374fa707b33a22e3c6af7ccca80d75f174f0ddf20dc35fa7b16"
+        ],
+        "dependency": [
+          "fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+          "93bfb0b4c04430a89179e71aec4ac2b2e50ca2ce493c6f4f037708f627fb65f4"
+        ],
+        "worker_receipt": [
+          "c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+          "3a95a88530c11f98f3d2f59f09c6ff582a71080b276039e202de73a187438ab9"
+        ]
+      },
+      "minimal_inputs": "Exact source5e+lock/env/config, committed OpenAPI, governed confidence contract and complete owner-validator consulted dependency basis; no production data required for byte freshness. Changed output count alone does not identify which supplier caused drift.",
+      "next": "Owner independently measures complete dependency basis and intended contract semantics, runs declared generator via canonical export, updates client family only through existing package generator if affected, declares actual compatibility/release classification, then runtime contract+architecture/doctor consumers on fresh source. Corrupt provenance/source binding negative must remain refused.",
+      "P41": "not_established; no exact198 or58e full command/dependency replay in this packet."
+    },
+    "runtime_client": {
+      "owner": "team-polisyos generator/approval; versionowner team-frontend",
+      "actual": "Default runtime contract check includes generated-client family freshness against current committed OpenAPI; stdout reports no client drift. No claim that client matches newly generated OpenAPI until owner regenerates/checks affected family.",
+      "outputs": [
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "next": "After owner-approved canonical OpenAPI regeneration, canonical pnpm generate/check family and actual consumer/API tests; no hand edits."
+    },
+    "FeedbackSolveResult_ABI": {
+      "owner": "team-polisyos ABI generator/approval; Core FeedbackSolveResult contract owner and team-ir internal persisted-format version classification; G coordinates lease",
+      "actual": "CI doctor gen_schema --check fails feedback_solve_result.schema.json and ir/_manifest.json. Registry FQN is polisyos.core.contracts.foundry.FeedbackSolveResult, stored under ir schema family; it is not FunnelCalibrationReport or E uncertainty semantic ratification.",
+      "minimum_inputs": "Full active ABI registry selection, Core Foundry contracts and nested contract source dependency basis, exact Pydantic/Python/lock, committed snapshots/manifests and release compatibility policy; source-bindings/abi-registry-denominator supplied.",
+      "next": "Owner compares full generated schema/manifest through declared generator into admitted scratch, classifies actual nested/top contract migration/replay impact, supplies old/new reader positives and wrong version/payload refusal where changed, canonical generated update and required structured release; re-run full doctor/ABI check and resume umbrella only after actual fail-fast reason cleared.",
+      "P41": "not_established; stale output observation is exact, cause/inherited history not established by same reported path."
+    },
+    "trust_posture": {
+      "owner": "team-architecture generated-register owner/approval and Scientist claims owner; G coordinates publication",
+      "actual": "Architecture guard reports apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match generated output. No separate trust-posture semantic checker command ran in this wave.",
+      "minimum_inputs": "Complete canonical tracked posture source walk, identity/custody source, historical content-bound A11Y receipt, generated-artifact manifest/projection docs/register-as-of default2026-09-17 and current register; exact source-bound compiler/checker.",
+      "next": "Owner runs canonical check and source/content corruption negative, inspects full source-derived posture delta, canonical --write/--write-generated-reference under owned lease, fresh public/trust consumer tests and architecture guard. No boolean/authority wording or baseline exception to make green.",
+      "P41": "not_established; generated-family mismatch alone is not proof of semantic defect or author cause."
+    }
+  },
+  "exact_checks": [
+    {
+      "name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "receipt": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+        "git_blob": "76739f08a576ba813e134f3b998a8311c9d4e5cb",
+        "bytes": 10621,
+        "sha256": "3ab10e942a5284d8ec47d228691bd69f51644f03cb97f3fd62747eeda77a435c"
+      },
+      "complete_stdout": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+        "git_blob": "05fa9495f6f8735f3c1655701ddc521c2ba3c3a8",
+        "bytes": 313063,
+        "sha256": "198686407d1a4cfebf1ce5acae927ab17860d8dd456fbc77e2303fd8ca53e432"
+      },
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/pytest",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/benchmarks",
+        "--junitxml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+        "tests/unit/foundry/analysis/test_merge_determinism.py",
+        "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_frc_02.py",
+        "tests/unit/remediation/test_frc_02_bridge.py",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/remediation/test_frc_02_s10.py",
+        "tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "tests/unit/scientist/methods/backtesting/test_cv.py",
+        "tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "tests/unit/scientist/methods/backtesting/test_masking.py",
+        "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/owner-packets/test_a_cas_contract.py",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/owner-packets/test_a_status_reason.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "outcome": "FAIL",
+      "counts": {
+        "cases": 315,
+        "passed": 145,
+        "failed": 3,
+        "errors": 167,
+        "skipped": 0
+      },
+      "source_identity_before": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_identity_after": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_immutable": true,
+      "effective_git_config_hash": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "environment_from_complete_receipt": true
+    },
+    {
+      "name": "runtime-api-contract",
+      "receipt": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/runtime-api-contract/runtime-api-contract.json",
+        "git_blob": "24d68db70cc8ebb07543977b21b5a83c09256ee0",
+        "bytes": 8120,
+        "sha256": "2ede7cb4a59d3fd829cb6092498047e6ec07145b860ff2091cfeefcb6963de18"
+      },
+      "complete_stdout": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+        "git_blob": "4e33d6a8a13aed62ab6be9a367feb25c6b217236",
+        "bytes": 13051,
+        "sha256": "384085d02d1862be0324716b03916b328c53e117a4d460a029d31309e35650ff"
+      },
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "runtime",
+        "check-runtime-api-contract"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "outcome": "FAIL",
+      "counts": null,
+      "source_identity_before": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_identity_after": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_immutable": true,
+      "effective_git_config_hash": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "environment_from_complete_receipt": true
+    },
+    {
+      "name": "architecture",
+      "receipt": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/architecture/architecture.json",
+        "git_blob": "fd477326cda710c08543bdc738d68240e0950c24",
+        "bytes": 8076,
+        "sha256": "d8ec97019b33ebc3cdb21b4e8063bc40160a2afe75fc6a0cf7741b7bf9acdce2"
+      },
+      "complete_stdout": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/architecture/architecture.stdout.txt",
+        "git_blob": "c7abf920a0ba49d678d7d05948860d4885314e78",
+        "bytes": 126481,
+        "sha256": "360aae0a52b76619d99f6adf1faacea4eb0139cc3aa645a54560b1874636799f"
+      },
+      "argv": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "outcome": "FAIL",
+      "counts": null,
+      "source_identity_before": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_identity_after": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_immutable": true,
+      "effective_git_config_hash": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "environment_from_complete_receipt": true
+    },
+    {
+      "name": "ci-parity",
+      "receipt": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ci-parity/ci-parity.json",
+        "git_blob": "2a2d0251866bb29a92339db623a0fcd2470eb6fc",
+        "bytes": 8490,
+        "sha256": "97d51f90d3997335cfae35987148d6cf37bc483989e1ba1b5349a08ae89f69b5"
+      },
+      "complete_stdout": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ci-parity/ci-parity.stdout.txt",
+        "git_blob": "75b2771c23d1eba154c15cf4573011815201f20f",
+        "bytes": 14830,
+        "sha256": "2e330075cd09c3f66caf67aebfa90e29a7f93ba5d493911a50937031b6a8ffba"
+      },
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "ci-parity",
+        "--stages-output",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ci-parity/internal-stages.json",
+        "--temp-root",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/umbrella-temp/ci-parity"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "outcome": "FAIL",
+      "counts": null,
+      "source_identity_before": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_identity_after": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_immutable": true,
+      "effective_git_config_hash": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "environment_from_complete_receipt": true
+    },
+    {
+      "name": "static-invocation",
+      "receipt": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/static-invocation/static-invocation.json",
+        "git_blob": "9ea73fb4dbe1cb70bb807e4a4f27bcf0e66f5d89",
+        "bytes": 8346,
+        "sha256": "ed7d3438f4fd3e8b449a0fc651aebf6dd7f34ee0f9f1c5fbe028fe4900b637d5"
+      },
+      "complete_stdout": {
+        "commit": "1e1b5028274814b7c4318671588202480390a6bc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/static-invocation/static-invocation.stdout.txt",
+        "git_blob": "c994ca46f3d10eb8d754097f35d9019a429bc3f7",
+        "bytes": 9170,
+        "sha256": "31e1b337b9f79e647d29d6c31e43f6deb58d713b65d52a3b851173d1967f0cae"
+      },
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-continuation-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/raw/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "outcome": "FAIL",
+      "counts": null,
+      "source_identity_before": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_identity_after": {
+        "tracked_paths": 15179,
+        "bytes": 473489894,
+        "framed_sha256": "5b3d32ed6f9727e878220601436ebd65bbdf56329454c5ef10f24fd33cf581fb"
+      },
+      "source_immutable": true,
+      "effective_git_config_hash": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "environment_from_complete_receipt": true
+    }
+  ],
+  "umbrella_state": {
+    "workspace_verify": "doctorPASS, importlintFAIL,13UNRUN",
+    "ci_parity": "doctorFAIL,23UNRUN; gen_schema/runtime-openapi failures explicitly reported; no frontend/browser/current backend fullCI PASS"
+  },
+  "bounded_static_proxy": {
+    "regressions": 10,
+    "new_unresolved": 89,
+    "unresolved_total": 9239,
+    "receiver_calls": 140152,
+    "coverage": "partial",
+    "runtime_invocation_established": false,
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "full_lists_and_denominator": "Complete staticstdout+raw custody already Git bound in exact_checks/publication; not previous11/42. No dummy calls or broad fa\u00e7ade/baseline exception authorized."
+  },
+  "raw_custody": [
+    {
+      "path": "raw/pcl-continuous-persistence.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ddm-runtime-and-facade.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/bkt-frc-s10-and-adjacent-report-consumers.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/cal-and-welfare-consumer.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/mc-joint-law-support-and-scientist-consumer.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/doe-salib-and-consumer-factory.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/g-checkpoint10-controlplanestore-companion.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/results-importer.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/architecture.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/runtime-api-contract.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/static-invocation.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ruff.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ruff-format.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/workspace-verify.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ci-parity.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/production-invocation.raw.json",
+      "bytes": 171772803,
+      "sha256": "404cdb1543a96433016ca3880c3d557e2d027f9fa62060be40d9b8e266b16fbd",
+      "publication": "large_raw_excluded_no_repeated_dump"
+    }
+  ],
+  "raw_not_copied": true,
+  "present_but_fake_control": "Old time/ref fixture remains negative. Missing output or producer credible flag cannot mint consumer verification. New generator bytes must be produced by canonical owner commands, not hand-edited.",
+  "next_implementation_is_owner_ready": "A accepts/applies packet on own topic; G incorporates exact published E checkpoint and coordinates canonical owners. E does not edit generation_cycle/run_lifecycle/shared/generated contracts.",
+  "author_verification_scope": "JSON/output/source-byte binding and read-only patch applicability only; not independent FRC/harness review or new code/runtime PASS.",
+  "cleanup": "None. Preserve code/docs/unique outputs/raw. Only list reusable candidate scratch after deciding receipts/no active users; no nativeTrash established/permanent deletion forbidden."
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "e02.E.independent_assembly_copy_index.v1",
+  "candidate": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "tree": "a2c9076c618a241d7a7a02e666f8b3648c94b3cd",
+  "copy_exact_bytes": true,
+  "files": [
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/assembly-dependency-review-c79.json",
+      "destination_name": "assembly-dependency-review-c79.json",
+      "bytes": 51942,
+      "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/assembly.initial-harness-scope.stdout.txt",
+      "destination_name": "assembly.initial-harness-scope.stdout.txt",
+      "bytes": 560,
+      "sha256": "36d5dbb67341f31e2f5abd1ac4ef1d9be2727e5952fabfb6064d615ede059940"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/assembly.stdout.txt",
+      "destination_name": "assembly.stdout.txt",
+      "bytes": 436,
+      "sha256": "6c18e4c889aee98de1bbc868023aa67b2b702a614da9cf09f57df412b7474557"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/full-committed-footprint.tsv",
+      "destination_name": "full-committed-footprint.tsv",
+      "bytes": 131643,
+      "sha256": "7f6805a5ed0f5336552e67c95c40d35fc3fe5c77253e130d4f47394cee4c49db"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/review_assembly.initial.py.txt",
+      "destination_name": "review_assembly.initial.py.txt",
+      "bytes": 19176,
+      "sha256": "a4900cb9a00510a09e04c6f7ce2e036bb4d3dd6bed4a8ffd48f9c3c0161adea5"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/review_assembly.py",
+      "destination_name": "review_assembly.py",
+      "bytes": 19843,
+      "sha256": "dc0bcae7e141e00ebf5bef6317891a62b2fdbc46c4970d15a368d9a88b68f1f5"
+    }
+  ],
+  "file_count": 6,
+  "total_bytes": 223600,
+  "no_source_or_repository_writes": true
+}

@@ -1,0 +1,526 @@
+{
+  "source": {
+    "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+    "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+    "bytes": 27101,
+    "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+  },
+  "declared_entries": 101,
+  "entries": [
+    {
+      "abi_key": "'trinity_bundle'",
+      "fqn": "'polisyos.ir.trinity.TrinityBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'problem_frame'",
+      "fqn": "'polisyos.ir.governance.problem_frame.ProblemFrame'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'policy_spec'",
+      "fqn": "'polisyos.ir.governance.policy_spec.PolicySpec'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'policy_portfolio'",
+      "fqn": "'polisyos.ir.loading.portfolio.PolicyPortfolio'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'model_spec'",
+      "fqn": "'polisyos.ir.model_layer.model_spec.ModelSpec'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'norm_pack'",
+      "fqn": "'polisyos.ir.loading.norm_pack.NormPack'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'norm_rule'",
+      "fqn": "'polisyos.ir.loading.norm_pack.NormRule'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'norm_ref'",
+      "fqn": "'polisyos.ir.loading.norm_pack.NormRef'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'claim'",
+      "fqn": "'polisyos.ir.world.claim.Claim'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'conflict_set'",
+      "fqn": "'polisyos.ir.world.conflict.ConflictSet'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'conflict_set_resolution'",
+      "fqn": "'polisyos.ir.world.conflict.ConflictSetResolution'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'conflict_resolution'",
+      "fqn": "'polisyos.ir.world.conflict.ConflictResolution'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'world_event'",
+      "fqn": "'polisyos.ir.world.event.WorldEvent'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'prov_activity'",
+      "fqn": "'polisyos.ir.world.event.ProvActivity'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'doc_fragment'",
+      "fqn": "'polisyos.ir.world.doc.DocFragment'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'doc_meta'",
+      "fqn": "'polisyos.ir.world.doc.DocMeta'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'trust_assessment'",
+      "fqn": "'polisyos.ir.world.trust.TrustAssessment'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'quality_report'",
+      "fqn": "'polisyos.ir.world.quality.QualityReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'uncertainty_envelope'",
+      "fqn": "'polisyos.ir.analytics.uncertainty.UncertaintyEnvelope'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_effect_report'",
+      "fqn": "'polisyos.ir.analytics.causal.CausalEffectReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'abm_alignment_report'",
+      "fqn": "'polisyos.ir.analytics.abm_bridge.ABMAlignmentReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'abm_result'",
+      "fqn": "'polisyos.ir.analytics.phase4_dynamics.ABMResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'transportability_result'",
+      "fqn": "'polisyos.ir.analytics.transportability.TransportabilityResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'refutation_result'",
+      "fqn": "'polisyos.ir.analytics.causal.RefutationResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_graph_model'",
+      "fqn": "'polisyos.ir.analytics.causal_graph.CausalGraphModel'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'structural_causal_model_spec'",
+      "fqn": "'polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_query_result'",
+      "fqn": "'polisyos.ir.analytics.causal_queries.CausalQueryResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_discovery_report'",
+      "fqn": "'polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_model_ensemble'",
+      "fqn": "'polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_sensitivity_result'",
+      "fqn": "'polisyos.ir.analytics.sensitivity.SensitivityResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'distributional_report'",
+      "fqn": "'polisyos.ir.analytics.distributional.DistributionalReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'metric_validation_report'",
+      "fqn": "'polisyos.ir.analytics.metric_validation_report.MetricValidationReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'forecasting_uncertainty_bundle'",
+      "fqn": "'polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'regime_shift_forecast_bundle'",
+      "fqn": "'polisyos.ir.analytics.regime_shift_forecast.RegimeShiftForecastBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'phase4_temporal_policy_gate_verdict'",
+      "fqn": "'polisyos.ir.analytics.phase4_dynamics.Phase4TemporalPolicyGateVerdict'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'dynamic_microsim_validation_report'",
+      "fqn": "'polisyos.ir.analytics.phase4_dynamics.DynamicMicrosimValidationReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'temporal_graph_causal_certificate'",
+      "fqn": "'polisyos.ir.analytics.phase4_dynamics.TemporalGraphCausalCertificate'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'space_time_causal_certificate'",
+      "fqn": "'polisyos.ir.analytics.phase4_dynamics.SpaceTimeCausalCertificate'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'hte_result'",
+      "fqn": "'polisyos.ir.analytics.hte.HTEResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'policy_recommendation'",
+      "fqn": "'polisyos.ir.analytics.hte.PolicyRecommendation'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'backtest_report'",
+      "fqn": "'polisyos.ir.analytics.backtest.BacktestReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'fact'",
+      "fqn": "'polisyos.ir.loading.fact_log.Fact'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'fact_segment_manifest'",
+      "fqn": "'polisyos.ir.loading.fact_log.FactSegmentManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'calibration_config'",
+      "fqn": "'polisyos.ir.analytics.calibration.CalibrationConfig'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'data_view_request'",
+      "fqn": "'polisyos.ir.analytics.data_views.DataViewRequest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'article_extraction_result'",
+      "fqn": "'polisyos.ir.analytics.literature.ArticleExtractionResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'literature_causal_prior'",
+      "fqn": "'polisyos.ir.analytics.literature.LiteratureCausalPrior'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'context_adaptive_parameter_bundle'",
+      "fqn": "'polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_query'",
+      "fqn": "'polisyos.ir.analytics.causal_queries.CausalQuery'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'gate_context'",
+      "fqn": "'polisyos.ir.governance.gate.GateContext'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'gate_request'",
+      "fqn": "'polisyos.ir.governance.gate.GateRequest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'gate_decision'",
+      "fqn": "'polisyos.ir.governance.gate.GateDecision'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'gate_event'",
+      "fqn": "'polisyos.ir.governance.gate.GateEvent'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'partial_identification_result'",
+      "fqn": "'polisyos.ir.analytics.partial_identification.PartialIdentificationResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'intervention_cost_manifold'",
+      "fqn": "'polisyos.ir.analytics.recourse_manifold.InterventionCostManifold'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'optimal_recourse_intervention_query'",
+      "fqn": "'polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionQuery'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'recourse_proof_bundle'",
+      "fqn": "'polisyos.ir.analytics.recourse_manifold.RecourseProofBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'recourse_feasibility_certificate'",
+      "fqn": "'polisyos.ir.analytics.recourse_manifold.RecourseFeasibilityCertificate'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'optimal_recourse_intervention_bundle'",
+      "fqn": "'polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'certification_result'",
+      "fqn": "'polisyos.ir.analytics.alignment_certification.CertificationResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'outer_search_result'",
+      "fqn": "'polisyos.ir.analytics.alignment_certification.OuterSearchResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'observation_record'",
+      "fqn": "'polisyos.ir.observation.contracts.ObservationRecord'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'observation_panel'",
+      "fqn": "'polisyos.ir.observation.contracts.ObservationPanel'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'observation_family'",
+      "fqn": "'polisyos.ir.observation.contracts.ObservationFamily'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'entity_scope'",
+      "fqn": "'polisyos.ir.observation.contracts.EntityScope'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'identification_mode'",
+      "fqn": "'polisyos.ir.observation.contracts.IdentificationMode'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'source_confidence_tier'",
+      "fqn": "'polisyos.ir.observation.contracts.SourceConfidenceTier'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'multiplex_graph_layer_id'",
+      "fqn": "'polisyos.ir.observation.contracts.MultiplexGraphLayerId'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'strategic_response_channel'",
+      "fqn": "'polisyos.ir.observation.contracts.StrategicResponseChannel'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'governance_pass_alias_status'",
+      "fqn": "'polisyos.ir.observation.governance.GovernancePassAliasStatus'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'governance_pass_alias'",
+      "fqn": "'polisyos.ir.observation.governance.GovernancePassAlias'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'governance_pass_alias_registry'",
+      "fqn": "'polisyos.ir.observation.governance.GovernancePassAliasRegistry'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'observation_family_policy'",
+      "fqn": "'polisyos.ir.observation.governance.ObservationFamilyPolicy'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'observation_family_policy_registry'",
+      "fqn": "'polisyos.ir.observation.governance.ObservationFamilyPolicyRegistry'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'temporal_intervention_step'",
+      "fqn": "'polisyos.ir.governance.policy_spec.TemporalInterventionStep'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'temporal_intervention_sequence'",
+      "fqn": "'polisyos.ir.governance.policy_spec.TemporalInterventionSequence'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'calibration_target_bundle_manifest'",
+      "fqn": "'polisyos.ir.observation.bundles.CalibrationTargetBundleManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'microsim_survey_contract_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.MicrosimSurveyContractBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'network_contract_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.NetworkContractBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'network_causal_contract_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.NetworkCausalContractBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'causal_panel_bundle_manifest'",
+      "fqn": "'polisyos.ir.observation.bundles.CausalPanelBundleManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'backtest_plan_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.BacktestPlanBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'observation_to_contract_manifest'",
+      "fqn": "'polisyos.ir.observation.bundles.ObservationToContractManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'bounds_estimation_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.BoundsEstimationBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'proxy_identification_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.ProxyIdentificationBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'dtr_treatment_sequence_bundle_manifest'",
+      "fqn": "'polisyos.ir.observation.bundles.DTRTreatmentSequenceBundleManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'panel_econometric_bundle_manifest'",
+      "fqn": "'polisyos.ir.observation.bundles.PanelEconometricBundleManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'survival_data_bundle_manifest'",
+      "fqn": "'polisyos.ir.observation.bundles.SurvivalDataBundleManifest'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'specification_curve_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.SpecificationCurveBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'leontief_io_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.LeontiefIOBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'strategic_response_specs_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.StrategicResponseSpecsBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'governance_pass_mapping_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.GovernancePassMappingBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'lesson_registry_seed_bundle'",
+      "fqn": "'polisyos.ir.observation.bundles.LessonRegistrySeedBundle'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'measurement_aware_target'",
+      "fqn": "'polisyos.foundry.calibration.measurement.MeasurementAwareTarget'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'measurement_aware_loss_config'",
+      "fqn": "'polisyos.foundry.calibration.measurement.MeasurementAwareLossConfig'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'feedback_solver_config'",
+      "fqn": "'polisyos.core.contracts.foundry.FeedbackSolverConfig'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'feedback_jacobian_diagnostics'",
+      "fqn": "'polisyos.core.contracts.foundry.FeedbackJacobianDiagnostics'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'feedback_solve_result'",
+      "fqn": "'polisyos.core.contracts.foundry.FeedbackSolveResult'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'equilibrium_multiplicity_report'",
+      "fqn": "'polisyos.core.contracts.foundry.EquilibriumMultiplicityReport'",
+      "module": "'ir'"
+    },
+    {
+      "abi_key": "'edge_kind'",
+      "fqn": "'polisyos.ir.world.abi.EdgeKind'",
+      "module": "'fabric'"
+    },
+    {
+      "abi_key": "'node_kind'",
+      "fqn": "'polisyos.ir.world.abi.NodeKind'",
+      "module": "'fabric'"
+    }
+  ],
+  "selection": "gen_schema --check no --models selects all active registry entries; generator scan_mode full. Declared AST count is not a new runtime generator measurement.",
+  "abi_target": {
+    "key": "feedback_solve_result",
+    "fqn": "polisyos.core.contracts.foundry.FeedbackSolveResult",
+    "source": "policy-engine/src/polisyos/core/contracts/foundry.py",
+    "module": "ir",
+    "schema": "schemas/snapshots/ir/feedback_solve_result.schema.json"
+  },
+  "manifest_compatibility": "gen_schema MODULE_COMPATIBILITY ir declares persisted-artifact-format/team-ir/2minor releases; family manifest declares schema-openapi-abi/team-polisyos. Canonical owners must reconcile actual classification/release, not E."
+}

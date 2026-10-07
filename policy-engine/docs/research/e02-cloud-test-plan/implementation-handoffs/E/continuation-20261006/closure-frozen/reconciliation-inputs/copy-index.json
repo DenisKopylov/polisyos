@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.evidence_custody.v1",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "files": [
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/all-54-final-overlay.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/all-54-final-overlay.json",
+      "bytes": 197661,
+      "sha256": "d6b695637fe34bd14f5757752b3a1e6e5948687ee42026b320e91ec03ce031cb"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/all-54-final-overlay.md",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/all-54-final-overlay.md",
+      "bytes": 24696,
+      "sha256": "c4c4b4fff5acf8505a60611009e2db5e0d22f32e6fe6c7cadf51f92068026690"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/ddm51-frozen-identity.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/ddm51-frozen-identity.json",
+      "bytes": 17343,
+      "sha256": "a6bcf0476743a2ca44dd7f2b271ec683b05242a2a2596a5e62bd380c7deed8d4"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/local-G-frozen-recipes-input-check.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/local-G-frozen-recipes-input-check.json",
+      "bytes": 6663,
+      "sha256": "fc13e0fe15a1974ba2edbb435a5449900591e045ee9a4b2687ab4b5f40daa512"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/local-G-frozen-recipes.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/local-G-frozen-recipes.json",
+      "bytes": 27598,
+      "sha256": "943020c9e463cf8e55b7b28b12440b335087a199484842477ef8254004f6e6e8"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/overlay-reproduce.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/overlay-reproduce.json",
+      "bytes": 2638,
+      "sha256": "b09d3046053192d20afa98675ed88578f3708164176ff9bf1b60492ddff12aba"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/tracked-criterion-audit/criterion-proposal.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/tracked-criterion-audit/criterion-proposal.json",
+      "bytes": 115400,
+      "sha256": "df62d0f9ef1dac06e7535b03cb7cbcfe354ad9c5e8f47090138f2fcd0987a1c8"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/tracked-criterion-audit/criterion-proposal.md",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/tracked-criterion-audit/criterion-proposal.md",
+      "bytes": 22489,
+      "sha256": "e6628799a1d3eed63fb1030b44839a4b2cf542c47c68122dcf62cf1e91b72d49"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/closure-independent/frozen-overlay/tracked-criterion-audit.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/reconciliation-inputs/tracked-criterion-audit.stdout.txt",
+      "bytes": 415,
+      "sha256": "415e217e00ada7bbfd252bf5121be1e17750e7e94189ab1499fb0d1b5c133faf"
+    }
+  ]
+}

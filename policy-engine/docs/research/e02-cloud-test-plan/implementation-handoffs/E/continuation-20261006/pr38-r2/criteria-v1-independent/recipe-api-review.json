@@ -1,0 +1,285 @@
+{
+  "schema": "policyos.e02.independent-local-recipe-api.v1",
+  "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+  "source_tree": "050bf6c204b419db4a5a7abbb6a5ed5443ab76ae",
+  "recipe_count": 6,
+  "functions": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+      "function": "prepare_native_replay",
+      "line": 175,
+      "signature": "store: ArtifactStore, plan: HistoricalValidationPlan, historical_data: dict[str, Any]"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+      "function": "execute_native_forecast",
+      "line": 391,
+      "signature": "ctx: ExecutionContext, execution: ExecuteRequest, request_ref: ArtifactRef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+      "function": "load_native_forecast",
+      "line": 506,
+      "signature": "store: ArtifactStore, forecast_ref: ArtifactRef, request_ref: ArtifactRef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945",
+      "function": "put_calibration_config",
+      "line": 195,
+      "signature": "store: ArtifactStore, config: CalibrationConfig, *, inputs: list[InputRef] | None=None"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945",
+      "function": "put_calibration_report",
+      "line": 214,
+      "signature": "store: ArtifactStore, report: CalibrationReport, *, inputs: list[InputRef] | None=None"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "function": "load_empirical_calibration_evidence",
+      "line": 681,
+      "signature": "store: ArtifactStore, evidence_ref: EmpiricalCalibrationEvidenceRef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "function": "load_forecast_candidate_receipt",
+      "line": 791,
+      "signature": "store: ArtifactStore, receipt_ref: ForecastCandidateReceiptRef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10",
+      "function": "build_model_registry_record",
+      "line": 174,
+      "signature": "*, readiness_event: ReadinessStateEvent, calibration_audit: CalibrationAudit, metric_budget: MetricBudgetPolicy, last_shift_event: ShiftRiskEvent | None=None, last_degradation_event: PerformanceDegradationEvent | None=None, active_incident_id: str | None=None, _calibration_validity_evidence: _CalibrationValidityEvidence | None=None, _source_shift_events: list[ShiftRiskEvent] | None=None"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10",
+      "function": "rebind_calibration_validity",
+      "line": 273,
+      "signature": "record: ModelRegistryReadinessRecord, *, report: CalibrationReport, calibration_audit: CalibrationAudit, now: datetime, observed_invalidation_triggers: list[str] | None, metric_budget: MetricBudgetPolicy | None=None, readiness_event: ReadinessStateEvent | None=None, shift_events: list[ShiftRiskEvent] | None=None, last_degradation_event: PerformanceDegradationEvent | None=None"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10",
+      "function": "evaluate_registry_gate",
+      "line": 347,
+      "signature": "record: ModelRegistryReadinessRecord, *, owner_signoff: bool=False"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/calibration/audit.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "02a8490bcaee5fbce7ed520e9a8cd3ce1e70653b18546fd9d1ec8eebf4dd9664",
+      "function": "build_calibration_audit",
+      "line": 68,
+      "signature": "*, calibration_id: str, report: CalibrationReport"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "source_sha256": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8",
+      "function": "calibrate_detector",
+      "line": 123,
+      "signature": "*, detector_id: str, stationarity_regime: StationarityRegime, fp_target: FpTarget, calibration_streams: list[list[float]], holdout_streams: list[list[float]], seed: int=0"
+    }
+  ],
+  "classes": {
+    "ForecastOwner": {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 777,
+      "methods": {
+        "__init__": "self, store: FileSystemCAS, *, empirical_profile_ref: ArtifactRefModel | None=None",
+        "run": "self, request: ForecastOwnerRequest"
+      }
+    },
+    "BacktestOrchestrator": {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "line": 201,
+      "methods": {
+        "__init__": "self, *, cas: BacktestStore | None=None, cas_root: str='.polisyos/cas', store_factory: BacktestStoreFactory | None=None",
+        "run": "self, plans: list[HistoricalValidationPlan], *, report_id: str | None=None, inputs: Sequence[InputRef] | None=None, metadata: dict[str, Any] | None=None, trust_screening: TrustScreeningMode=TrustScreeningMode.DEFAULT"
+      }
+    },
+    "Calibrator": {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 612,
+      "methods": {
+        "__init__": "self, inputs: CalibratorInputs",
+        "run": "self"
+      }
+    },
+    "PropagationDispatcher": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "line": 32,
+      "methods": {
+        "__init__": "self, config: PropagationConfig | None=None",
+        "propagate": "self, simulation_fn: Callable[..., Mapping[str, float]], nominal_params: Mapping[str, float], input_envelopes: Mapping[str, UncertaintyEnvelope], output_metric_ids: list[str], *, is_jax_differentiable: bool=True, weights: Mapping[str, float] | None=None"
+      }
+    },
+    "DriftAndDegradationMonitor": {
+      "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "line": 61,
+      "methods": {
+        "evaluate_window": "self, *, model_id: str, model_version: str, shift_events: list[ShiftDetectedEvent | dict[str, object]] | None=None, degradation_event: PerformanceDegradationEvent | None=None, data_quality_signals: list[DataQualitySignal] | None=None, critical_slice_budget_used: float | None=None, upstream_versions: dict[str, str] | None=None, metric_budget: MetricBudgetPolicy | None=None, calibration_audit: CalibrationAudit | None=None, active_incident_id: str | None=None, timestamp: datetime | None=None, _calibration_report: CalibrationReport | None=None, _observed_invalidation_triggers: list[str] | None=None"
+      }
+    },
+    "PropagateWelfareNode": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 480,
+      "methods": {
+        "execute": "self, ctx: ExecutionContext, state: ExperimentState"
+      }
+    }
+  },
+  "bounded_test_paths": [
+    {
+      "family": "backtest",
+      "selector": "tests/unit/scientist/methods/backtesting/test_native_replay.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "backtest",
+      "selector": "tests/unit/scientist/methods/backtesting/test_native_replay.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "cal",
+      "selector": "tests/unit/foundry/calibration/test_hessian.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "cal",
+      "selector": "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "cal",
+      "selector": "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "cal",
+      "selector": "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/remediation/test_uqp_02.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "mc",
+      "selector": "tests/unit/remediation/test_uqp_03.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "frc",
+      "selector": "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "ddm",
+      "selector": "tests/unit/ddm",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    },
+    {
+      "family": "ddm",
+      "selector": "tests/unit/remediation/test_ddm_02.py",
+      "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "file_available": true,
+      "executed": false
+    }
+  ],
+  "missing_expected_function_names": [],
+  "concrete_correction": {
+    "family": "DDM",
+    "field": "actual_api_sequence[0]",
+    "unsupported_keyword": "schema_version",
+    "signature_check": "No declared kwarg or **kwargs in build_model_registry_record; explicit(schema_version=2) is not a callable invocation",
+    "next_owner": "E all54 recipe writer in append-only v2",
+    "replacement": "build_model_registry_record(...) emits schema_version=2"
+  },
+  "consumer_scope_correction": {
+    "family": "MC/B194",
+    "field": "actual_api_sequence[4]",
+    "statement": "The repaired configured welfare sibling",
+    "next_owner": "E all54 recipe writer in append-only v2",
+    "required_qualification": "Historical scoped counts/outcomes readback only; current welfare empirical-law/failed-support class is explicitly blocked atf445. Bind actual classfix+independent review only to later exact source."
+  },
+  "verdict": "GO_named_native_API_existence_and_sourcebinding; LIMITED_literal_DDM_keyword_and_Welfare_wording_until_v2",
+  "native_execution": "UNRUN_by_design; exactsource AST/API/testpath review, not new backend/consumer test",
+  "initial_nondeciding_attempt": "Detector function initially searched in wrong local navigation path ddm/calibration/engine.py. Resolved actual exactGit ddm/calibration/calibrate.py:123; original attempt preserved; no missing producer inferred."
+}

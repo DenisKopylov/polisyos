@@ -1,0 +1,33 @@
+{
+  "controls": [
+    {
+      "control": "wrong source SHA",
+      "result": "REJECTED"
+    },
+    {
+      "control": "wrong source tree",
+      "result": "REJECTED"
+    },
+    {
+      "control": "old source ERROR falsely labeled PASS",
+      "result": "REJECTED"
+    },
+    {
+      "control": "removed property callback falsely labeled supported",
+      "result": "REJECTED"
+    },
+    {
+      "control": "source marker retained but content digest forged",
+      "result": "REJECTED"
+    },
+    {
+      "control": "omitted zero-child axis",
+      "result": "REJECTED"
+    },
+    {
+      "control": "bounded fixture falsely labeled full corrected wave",
+      "result": "REJECTED"
+    }
+  ],
+  "actual_native_counts_not_relabelled": true
+}

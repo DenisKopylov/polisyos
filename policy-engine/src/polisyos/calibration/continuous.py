@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict
 
 from polisyos.calibration.curve import compute_calibration_curve
 from polisyos.ir.analytics.calibration_diagnostics import (
@@ -17,6 +18,9 @@ from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationMetrics,
 )
 from polisyos.ir.analytics.query_validation_report import ValidationSeverity
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
 
 _EPSILON = 1e-12
 _DEFAULT_LEVELS = (0.5, 0.8, 0.9)
@@ -35,11 +39,12 @@ def evaluate_continuous(
 ) -> CalibrationDiagnosticsReport:
     """Evaluate interval coverage and PIT-style diagnostics for continuous outcomes."""
 
-    y_arr = np.asarray(y_true, dtype=float).reshape(-1)
-    if y_arr.size == 0:
-        raise ValueError("y_true must not be empty for continuous diagnostics")
+    y_arr = np.asarray(y_true, dtype=float)
+    if y_arr.ndim != 1 or y_arr.size == 0:
+        raise ValueError("y_true must be a nonempty one-dimensional sequence")
     if not np.all(np.isfinite(y_arr)):
         raise ValueError("y_true contains non-finite values")
+    bootstrap_seed = _bootstrap_replay_seed(uncertainty, required=False)
 
     issues: list[CalibrationDiagnosticIssue] = []
     warnings: list[str] = []
@@ -104,7 +109,7 @@ def evaluate_continuous(
             interval_sets=interval_sets,
             bootstrap_reps=int(uncertainty.get("bootstrap", 0) or 0),
             confidence_level=float(uncertainty.get("confidence_level", 0.95)),
-            rng_seed=None if "seed" not in uncertainty else int(uncertainty["seed"]),
+            rng_seed=bootstrap_seed,
             original_bins=curve_bins,
         )
 
@@ -153,7 +158,7 @@ def evaluate_continuous(
             )
         )
 
-    return CalibrationDiagnosticsReport(
+    report = CalibrationDiagnosticsReport(
         task="continuous",
         target_type="predictive_distribution" if sample_arr is not None else "interval_set",
         metrics=CalibrationMetrics(
@@ -174,9 +179,175 @@ def evaluate_continuous(
             "interval_coverage": {
                 "status": curve_result.evaluation_status,
                 "n_comparisons": curve_result.n_comparisons,
+                "requested": int(y_arr.size * len(level_values)),
+                "eligible": sum(point.n_observations for point in curve_result.points),
+                # Outcomes are observed even when an interval set is missing.
+                # Repeated levels are cases, not independent source observations.
+                "observed": int(y_arr.size * len(level_values)),
+                "observed_outcomes": int(y_arr.size),
+                "observed_pairs": sum(len(interval_set) for interval_set in interval_sets),
+                "missing_outcomes": 0,
+                "missing": int(y_arr.size * len(level_values))
+                - sum(point.n_observations for point in curve_result.points),
+                "unit": "requested_outcome_level",
+                "row_identity_basis": "ordered_position_only",
             },
         },
     )
+    report._continuous_inputs = _ContinuousCalibrationInputs(
+        y_true=y_arr.tolist(),
+        levels=list(level_values),
+        intervals=interval_sets,
+        predictive_samples=None if sample_arr is None else sample_arr.tolist(),
+        uncertainty=None if uncertainty is None else dict(uncertainty),
+        strict=strict,
+    ).model_dump(mode="json")
+    report._continuous_projection_digest = report._projection_digest()
+    return report
+
+
+class _ContinuousCalibrationInputs(BaseModel):
+    """Exact ordered inputs to the existing continuous evaluator, not a source attestation."""
+
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    protocol: Literal["continuous-calibration-pairs-v1"] = "continuous-calibration-pairs-v1"
+    y_true: list[float]
+    levels: list[float]
+    intervals: list[list[tuple[float, float]]]
+    predictive_samples: list[list[float]] | None = None
+    uncertainty: dict[str, Any] | None = None
+    strict: bool = True
+
+
+class _ContinuousCalibrationArtifact(BaseModel):
+    """Content-bound descriptive report and receipt; source authority is unavailable."""
+
+    model_config = ConfigDict(extra="forbid")
+    protocol: Literal["continuous-calibration-diagnostics-v1"] = (
+        "continuous-calibration-diagnostics-v1"
+    )
+    pairs_ref: dict[str, Any]
+    report: dict[str, Any]
+    receipt: dict[str, Any]
+    source_binding: dict[str, Any] | None = None
+    source_binding_basis: Literal["consumer_asserted", "not_established"]
+    authority_purpose: Literal["descriptive_predictive_calibration"] = (
+        "descriptive_predictive_calibration"
+    )
+    gate_eligible: Literal[False] = False
+
+
+def _bootstrap_replay_seed(uncertainty: Mapping[str, Any] | None, *, required: bool) -> int | None:
+    """Admit one exact deterministic seed before any bootstrap callback."""
+    if not uncertainty or int(uncertainty.get("bootstrap", 0) or 0) <= 0:
+        return None
+    if "seed" not in uncertainty:
+        if required:
+            raise ValueError("Persisted bootstrap calibration requires an explicit replay seed")
+        return None
+    seed = uncertainty["seed"]
+    if type(seed) is not int or seed < 0:
+        raise ValueError("Bootstrap replay seed must be a nonnegative integer, not bool or null")
+    return seed
+
+
+def persist_continuous_evaluation(
+    store: ArtifactStore,
+    report: CalibrationDiagnosticsReport,
+    *,
+    source_binding: Mapping[str, Any] | None = None,
+) -> ArtifactRef:
+    """Persist exact ordered pairs and a reproducible report on the configured CAS.
+
+    Source/split/horizon/time declarations are retained as caller assertions and
+    never authorize a production claim. Bootstrap replay requires an explicit seed.
+    """
+    from polisyos.core.artifacts import ArtifactWriteOptions, SchemaInfo
+    from polisyos.core.canon import CanonSpec
+
+    if report.task != "continuous" or report._continuous_inputs is None:
+        raise ValueError("Continuous calibration inputs must be rebound before persistence")
+    inputs = _ContinuousCalibrationInputs.model_validate(report._continuous_inputs)
+    _bootstrap_replay_seed(inputs.uncertainty, required=True)
+    reproduced = _reproduce_continuous(inputs)
+    if reproduced.model_dump(mode="json") != report.model_dump(mode="json"):
+        raise ValueError("Continuous calibration report does not reproduce from its pairs")
+    pairs = store.put_json(
+        inputs.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind="continuous_calibration_pairs",
+            media_type="application/json",
+            schema=SchemaInfo(name="continuous_calibration_pairs", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    artifact = _ContinuousCalibrationArtifact(
+        pairs_ref=pairs.model_dump(mode="json"),
+        report=report.model_dump(mode="json"),
+        receipt=reproduced.to_truthfulness_receipt().model_dump(mode="json"),
+        source_binding=None if source_binding is None else dict(source_binding),
+        source_binding_basis="not_established" if source_binding is None else "consumer_asserted",
+    )
+    return store.put_json(
+        artifact.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind="continuous_calibration_diagnostics",
+            media_type="application/json",
+            schema=SchemaInfo(name="continuous_calibration_diagnostics", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def load_continuous_evaluation(
+    store: ArtifactStore, ref: ArtifactRef
+) -> CalibrationDiagnosticsReport:
+    """Reopen both artifacts and recompute the full report/receipt before consumption."""
+    from polisyos.core.artifacts import ArtifactRef
+
+    artifact = _ContinuousCalibrationArtifact.model_validate(
+        _load_continuous_artifact(store, ref, "continuous_calibration_diagnostics")
+    )
+    pairs_ref = ArtifactRef.model_validate(artifact.pairs_ref)
+    inputs = _ContinuousCalibrationInputs.model_validate(
+        _load_continuous_artifact(store, pairs_ref, "continuous_calibration_pairs")
+    )
+    _bootstrap_replay_seed(inputs.uncertainty, required=True)
+    reproduced = _reproduce_continuous(inputs)
+    if reproduced.model_dump(mode="json") != artifact.report:
+        raise ValueError("Persisted continuous calibration report does not reproduce")
+    if reproduced.to_truthfulness_receipt().model_dump(mode="json") != artifact.receipt:
+        raise ValueError("Persisted continuous calibration receipt does not reproduce")
+    reproduced._continuous_pairs_ref = str(pairs_ref.artifact_id)
+    return reproduced
+
+
+def _reproduce_continuous(inputs: _ContinuousCalibrationInputs) -> CalibrationDiagnosticsReport:
+    return evaluate_continuous(
+        y_true=inputs.y_true,
+        intervals=inputs.intervals,
+        levels=inputs.levels,
+        predictive_samples=inputs.predictive_samples,
+        uncertainty=inputs.uncertainty,
+        strict=inputs.strict,
+    )
+
+
+def _load_continuous_artifact(store: ArtifactStore, ref: ArtifactRef, kind: str) -> Any:
+    from polisyos.core.canon import from_canonical_bytes
+
+    manifest = store.get_manifest(ref)
+    if (
+        manifest.kind != kind
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != kind
+        or manifest.artifact_schema.version != "1.0"
+    ):
+        raise ValueError("Continuous calibration artifact kind/schema mismatch")
+    if not store.verify(ref).ok:
+        raise ValueError("Continuous calibration artifact integrity failed")
+    return from_canonical_bytes(store.get_bytes(ref))
 
 
 def _prepare_predictive_samples(

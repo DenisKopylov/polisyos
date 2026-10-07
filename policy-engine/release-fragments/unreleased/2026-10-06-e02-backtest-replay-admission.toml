@@ -1,0 +1,33 @@
+id = "2026-10-06-e02-backtest-replay-admission"
+title = "Execute counted backtest replays and withhold unadmitted trust authority"
+type = "fixed"
+component = "scientist-backtesting"
+owner = "team-polisyos"
+summary = "Dispatch each requested Scientist replay separately through the configured CAS, retain requested and failed counts, and withhold report trust grade and matrix promotion composite until an owner-admitted versioned trust purpose/profile and bias rule exist."
+evidence = [
+  "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+  "tests/unit/scientist/governance/test_backtest_matrix.py",
+]
+compatibility = "Consumers previously accepting heuristic trust grades or matrix promotion composites must now handle an unavailable result and obtain an owner-admitted trust profile before treating diagnostics as authority."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.scientist.methods.backtesting"
+migration = "Use measured point, interval, residual, and denominator diagnostics; preserve unavailable trust score/grade and promotion composite. Bootstrap callers must pass one-dimensional observations and an integer resample count. Requested replay seeds are request metadata until the configured Scientist workflow binds them into Foundry ExecConfig."
+limitations = "A successful native forecast replay remains unestablished without the admitted Trinity/model and masked-history materializer. The real Scientist workflow currently refuses missing inputs.trinity_bundle_ref; distinct requested replay seeds do not establish an independent native source law. No production-history or finding-closure claim is made."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scientist-backtest-trust-admission"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.scientist.methods.backtesting"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "public_experimental: immediate correction of unadmitted trust authority"
+release_note = "Backtest trust score/grade and matrix promotion composite are unavailable until the trust-profile owner admits the versioned purpose, sampling assumptions, and meaningful-bias/equivalence rule."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []

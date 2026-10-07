@@ -1,0 +1,244 @@
+{
+  "schema": "policyos.e02.umbrella_stages.v1",
+  "gate": "verify",
+  "exit_code": 1,
+  "numerical_thread_caps": null,
+  "scopes": [
+    {
+      "gate": "verify",
+      "argv": [
+        "--backend-only"
+      ],
+      "steps": [
+        {
+          "label": "doctor",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "tools.devx.workspace.doctor",
+            "--skip-contract-checks"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "PASS",
+          "env": {},
+          "started_unix": 1791304528.2753165,
+          "exit_code": 0,
+          "wall_seconds": 1.5013501644134521
+        },
+        {
+          "label": "lint imports",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/lint/lint_imports.py",
+            "--policy",
+            "architecture/imports/policy.toml",
+            "--exceptions",
+            "architecture/imports/exceptions.toml"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "FAIL",
+          "env": {},
+          "started_unix": 1791304529.7767377,
+          "error_type": "CalledProcessError",
+          "reason": "Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--no-sync', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1.",
+          "exit_code": 1,
+          "wall_seconds": 2.1271581649780273
+        },
+        {
+          "label": "check package import gates (shell-package closure)",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "_build/.tmp/last-mile/package-import-gates.json"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "lint foundry",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "-m",
+            "tools.quality.lint.lint_foundry",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check state reads",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/diagnostics/check_state_reads.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check scholar imports",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/lint/check_scholar_imports.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check connector contracts",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "polisyos-tools",
+            "connectors",
+            "check-contracts",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check schema freshness",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check runtime API contract",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "python",
+            "tools/ops_runners/runtime/check_runtime_api_contract.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check last-mile inventory baseline",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "build honest diagnostics coverage dashboard",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/build_honest_diagnostics_coverage.py",
+            "--repo-root",
+            ".",
+            "--output-dir",
+            "_build/honest-diagnostics/coverage"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check honest diagnostics substrate drift",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_substrate_drift.py",
+            "--repo-root",
+            ".",
+            "--require-passing"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check extension example contract coverage",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_extension_examples.py",
+            "--skip-install",
+            "--skip-discovery",
+            "--skip-pytest"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check schemas pure-data closure",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "-c",
+            "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "pytest fast backend gate",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "pytest",
+            "-m",
+            "not integration",
+            "--ignore=tests/unit/runtime/http"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        }
+      ]
+    }
+  ],
+  "required_steps_preserved": true,
+  "doctor_is_full_ci": false,
+  "finding_closure": false
+}

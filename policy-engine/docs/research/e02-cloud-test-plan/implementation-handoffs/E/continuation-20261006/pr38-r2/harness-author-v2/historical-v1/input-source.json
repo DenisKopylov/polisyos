@@ -1,0 +1,22 @@
+{
+  "candidate_head": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "harness_committed_source": "fd291b736",
+  "includes_root_uncommitted_browser_path_correction": true,
+  "files": [
+    {
+      "name": "plan_wave.py",
+      "sha256": "bac7106ab2a58cafa920c3db05b4a55c29ea50bba36b915970f1050edb502878",
+      "bytes": 21092
+    },
+    {
+      "name": "run_check.py",
+      "sha256": "56240a2b6396610022a8bd9bef6abb964308f1f6aea33b1004af2caa9f9193d7",
+      "bytes": 10799
+    },
+    {
+      "name": "uncapped_umbrella.py",
+      "sha256": "3ca556f1ffad614d5848d00f2ce44931fbd248abca2e3a80f99b9d182d0b79ab",
+      "bytes": 6840
+    }
+  ]
+}

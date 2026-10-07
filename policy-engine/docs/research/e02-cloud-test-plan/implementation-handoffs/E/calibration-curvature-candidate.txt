@@ -1,0 +1,5 @@
+TARGET=ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55
+59f1256589c4b860a22002bb62053630f10c2bcd
+...............                                                          [100%]
+15 passed in 17.03s
+{"command": ["/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python", "-m", "pytest", "-q", "tests/unit/foundry/calibration/test_hessian.py", "tests/unit/foundry/calibration/test_report.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare", "-o", "addopts="], "exit_code": 0, "wall_s": 23.56835764599964, "max_rss_kib": 1053424}

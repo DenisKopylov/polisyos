@@ -1,0 +1,1712 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="59" failures="0" skipped="0" tests="59" time="4.022" timestamp="2026-10-06T16:26:04.279965+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_concurrent_reservation_has_one_sqlite_winner" time="0.009"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_concurrent_reservation_has_one_sqlite_winner&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_crash_reservation_requires_reconciliation_before_reuse" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_crash_reservation_requires_reconciliation_before_reuse&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_empty_reconciliation_scans_record_artifacts" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_empty_reconciliation_scans_record_artifacts&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_commit_rejects_expired_lease_or_record_validity[1-60-2]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_commit_rejects_expired_lease_or_record_validity[1-60-2]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_commit_rejects_expired_lease_or_record_validity[60-1-2]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_commit_rejects_expired_lease_or_record_validity[60-1-2]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_reservation_preserves_microsecond_lease_boundary" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_reservation_preserves_microsecond_lease_boundary&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_empty_reconciliation_cas_rejects_attached_refs" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_empty_reconciliation_cas_rejects_attached_refs&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_write_fence_prevents_recovery_overtaking_paused_signer" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_write_fence_prevents_recovery_overtaking_paused_signer&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_human_decision_fence_reuses_store_transaction_for_durable_event" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_human_decision_fence_reuses_store_transaction_for_durable_event&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_natural_language_lookup_ignores_newer_acquisition_and_rejects_ambiguity" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_natural_language_lookup_ignores_newer_acquisition_and_rejects_ambiguity&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_acquisition_action_head_requires_exact_predecessor" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_acquisition_action_head_requires_exact_predecessor&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_plane_store_tracks_worker_leases_and_outbox" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_plane_store_tracks_worker_leases_and_outbox&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_worker_renews_job_lease_while_handler_runs" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_worker_renews_job_lease_while_handler_runs&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_plane_store_dead_letters_terminal_failures" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_plane_store_dead_letters_terminal_failures&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_response_promotes_progress_failure_to_stable_envelope" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_response_promotes_progress_failure_to_stable_envelope&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_response_marks_completed_without_quality_evidence_as_failed" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_response_marks_completed_without_quality_evidence_as_failed&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_plane_store_rejects_clean_completion_for_failed_workflow_progress" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_plane_store_rejects_clean_completion_for_failed_workflow_progress&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_response_projects_operator_diagnostic_for_serious_quality_failure" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_response_projects_operator_diagnostic_for_serious_quality_failure&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_response_fails_completed_scorecard_missing_runtime_quality_refs" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_response_fails_completed_scorecard_missing_runtime_quality_refs&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_response_promotes_quality_scorecard_to_top_level" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_response_promotes_quality_scorecard_to_top_level&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_plane_store_persists_scorecard_refs_in_progress" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_plane_store_persists_scorecard_refs_in_progress&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_response_projects_policy_design_case_semantics_without_authority" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_response_projects_policy_design_case_semantics_without_authority&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_plane_sqlite_uses_wal_journaling" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_plane_sqlite_uses_wal_journaling&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_scenario_head_create_cas_has_one_winner_across_store_instances" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_scenario_head_create_cas_has_one_winner_across_store_instances&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_scenario_head_update_cas_denies_baseline_run_rebinding" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_scenario_head_update_cas_denies_baseline_run_rebinding&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_worker_stop_suppresses_store_unavailable_release" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_worker_stop_suppresses_store_unavailable_release&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_worker_shutdown_suppresses_heartbeat_store_unavailable_logs" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_worker_shutdown_suppresses_heartbeat_store_unavailable_logs&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_normative_head_compare_and_append_has_one_sqlite_winner" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_normative_head_compare_and_append_has_one_sqlite_winner&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_acquisition_action_heads_enumerate_latest_per_generation_in_exact_scope" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_acquisition_action_heads_enumerate_latest_per_generation_in_exact_scope&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_preserves_progress_and_journals_exact_attempt[True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[completion_owner-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[attempt-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[restarted-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_owner-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[lease_expiry-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_primitive_type-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[proof_basis_key_presence-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-False]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-False]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-True]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_completed_proof_publication_refuses_foreign_or_replaced_attempt[history-True]&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_uses_event_and_allows_fenced_pointer_refresh" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_uses_event_and_allows_fenced_pointer_refresh&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_keeps_scope_less_legacy_unknown" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_keeps_scope_less_legacy_unknown&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_accepts_typed_unknown_scope" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_accepts_typed_unknown_scope&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_rejects_malformed_scope_and_row_mismatch" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_rejects_malformed_scope_and_row_mismatch&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_requires_exactly_one_creation_event" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_requires_exactly_one_creation_event&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_rejects_bool_int_outbox_scope_drift" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_rejects_bool_int_outbox_scope_drift&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_rejects_nested_bool_int_outbox_drift" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_rejects_nested_bool_int_outbox_drift&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_rejects_nested_bool_int_row_drift" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_rejects_nested_bool_int_row_drift&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_binds_actor_subject_to_submitter" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_binds_actor_subject_to_submitter&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.http.test_control_plane_store" name="test_control_job_execution_admission_ignores_json_object_key_order" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'&quot;">fixturedef = &lt;FixtureDef argname='tmp_path' scope='function' baseid=''&gt;
+request = &lt;SubRequest 'tmp_path' for &lt;Function test_control_job_execution_admission_ignores_json_object_key_order&gt;&gt;
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -&gt; object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+                return (yield)
+            if not _is_coroutine_or_asyncgen(fixturedef.func):
+&gt;               return (yield)
+                        ^^^^^
+
+.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/g-checkpoint10-controlplanestore-companion'
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError</error></testcase></testsuite></testsuites>

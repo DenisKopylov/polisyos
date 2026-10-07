@@ -1,0 +1,38 @@
+[
+  {
+    "control": "copied payload hash forged",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "copied payload size forged",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "relative path escape",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "absolute path masquerading as repository ref",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "actual unpublished origin/main evidence ref",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "publication commit falsely relabeled wave source",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "complete custody falsely promoted to all PASS",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "global FAIL falsely promoted to PASS",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "job FAIL falsely relabeled PASS",
+    "outcome": "REJECTED"
+  }
+]

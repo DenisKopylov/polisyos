@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (
@@ -452,9 +453,8 @@ def test_calibrator_hessian_uncertainty():
     )
 
     report = Calibrator(inputs).run()
-    uncertainties = report.uncertainties
-    assert uncertainties is not None
-    assert len(uncertainties.params) == 1
-    assert len(uncertainties.std) == 1
-    assert len(uncertainties.correlation) == 1
-    assert pytest.approx(1.0, rel=1e-6) == uncertainties.correlation[0][0]
+    assert report.uncertainties is None
+    assert report.execution_context["objective_kind"] == "generic_loss"
+    diagnostic = report.execution_context["curvature_diagnostic"]
+    assert len(diagnostic["raw_eigenvalues"]) == 1
+    assert diagnostic["covariance_unavailable_reason"] == "generic_objective_curvature_only"

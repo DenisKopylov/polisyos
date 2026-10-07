@@ -1,0 +1,28 @@
+from pathlib import Path
+import asyncio, hashlib, importlib.metadata, json, os, platform, subprocess, sys, time
+root=Path('/workspace/e02-E-frc-20261006'); cwd=root/'policy-engine'
+out=Path('/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b197-frozen')
+py=sys.executable; env=dict(os.environ,PYTHONPATH='src')
+source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+assert source_sha=='1e942ff624ae7cb6c71227d48eef760687e17d2b'
+files=['src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','tests/unit/scientist/nodes/test_calibration_report_consumer.py']
+commands={
+ 'affected-native':[py,'-m','pytest','-q','-s','--junitxml='+str(out/'affected-native.junit.xml'),files[1],'tests/unit/scientist/nodes/test_propagate_uncertainty_node.py'],
+ 'property-removal':[py,str(out.parent/'b197-property-removal.py')],
+ 'ruff':[py,'-m','ruff','check',*files],
+ 'format':[py,'-m','ruff','format','--check',*files],
+ 'results-importer':[py,'docs/research/e02-cloud-test-plan/results/import_results.py','--check'],
+ 'diff-check':['git','-C',str(root),'diff','--check','902d9f6b224f0fbeec709bc3683910fa08eba4b7',source_sha],
+}
+async def run(name,argv):
+ start=time.time();stdout=out/(name+'.stdout');resource=out/(name+'.resource.json')
+ with stdout.open('wb') as h:
+  proc=await asyncio.create_subprocess_exec(py,'/workspace/e02-E-pr38-r2-receipts/frc/measure-process.py',str(resource),*argv,cwd=cwd,env=env,stdout=h,stderr=asyncio.subprocess.STDOUT)
+  code=await proc.wait()
+ return {'name':name,'argv':argv,'cwd':str(cwd),'target_sha':source_sha,'exit_code':code,'wall_seconds':round(time.time()-start,3),'stdout':stdout.name,'stdout_sha256':hashlib.sha256(stdout.read_bytes()).hexdigest(),'stdout_bytes':stdout.stat().st_size,'resource':resource.name}
+async def main():
+ checks=await asyncio.gather(*(run(n,a) for n,a in commands.items()))
+ environment={'interpreter':py,'python':sys.version,'platform':platform.platform(),'cpu_count':os.cpu_count(),'numerical_thread_overrides':{k:os.environ.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','JAX_PLATFORMS']},'packages':{n:importlib.metadata.version(n) for n in ['numpy','scipy','jax','SALib','pydantic','pytest','ruff']},'worktree':str(root),'source_sha':source_sha,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=root,text=True).strip(),'file_sha256':{f:hashlib.sha256((cwd/f).read_bytes()).hexdigest() for f in files}}
+ (out/'execution.json').write_text(json.dumps({'environment':environment,'checks':checks},indent=2)+'\n')
+ print(json.dumps({r['name']:{'exit':r['exit_code'],'wall':r['wall_seconds']} for r in checks},indent=2))
+asyncio.run(main())

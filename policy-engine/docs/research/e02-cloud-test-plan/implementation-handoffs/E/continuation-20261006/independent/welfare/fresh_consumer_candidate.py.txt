@@ -1,0 +1,31 @@
+"""Independent fresh-store configured CAL→report→welfare readback oracle."""
+import hashlib,importlib.util,json,pathlib,subprocess,sys,time
+from types import SimpleNamespace
+import numpy as np
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS,PutOptions
+from polisyos.core.canon import CanonSpec
+from polisyos.foundry.calibration.report import load_calibration_report
+from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
+from polisyos.foundry.uncertainty.covariance import extract_std
+from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import _collect_input_envelopes
+from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF
+ROOT=pathlib.Path(sys.argv[1]).resolve();OUT=pathlib.Path(sys.argv[3]).resolve() if len(sys.argv)>3 else pathlib.Path(__file__).resolve().parent;candidate=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();assert candidate==sys.argv[2];assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip()
+paths=['policy-engine/src/polisyos/foundry/calibration/calibrator.py','policy-engine/src/polisyos/foundry/calibration/report.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py'];hashes={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in paths}
+p=ROOT/'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py';spec=importlib.util.spec_from_file_location('configured_tied_fixture',p);fixtures=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixtures)
+start=time.monotonic();cas_root=OUT/('fresh-cal-consumer-cas-'+candidate[:12]);writer=FileSystemCAS(cas_root);ref,report=fixtures._run_b197_tied_calibrator(writer)
+fresh=FileSystemCAS(cas_root);loaded=load_calibration_report(fresh,ref);assert loaded==report
+collection=_collect_input_envelopes(SimpleNamespace(store=fresh),SimpleNamespace(inputs={INPUT_CALIBRATION_REPORT_REF:ref}),welfare_params={});assert set(collection.envelopes)=={'A.rate','B.rate'}
+J=np.array([[1.],[1.]]);C=np.array([[.0025]]);expected=J@C@J.T;actual=np.array([collection.envelopes[n].metadata['covariance_row'] for n in ['A.rate','B.rate']]);assert np.allclose(actual,expected,rtol=1e-6)
+contrast=np.array([1.,-1.]);assert float(contrast@actual@contrast)==0.;independent_proxy=float(contrast@np.diag(np.diag(actual))@contrast);assert np.isclose(independent_proxy,.005,rtol=1e-6)
+levels=[]
+for level in [.8,.95]:
+ envelopes=envelopes_from_calibration(loaded,confidence_level=level);stds=[extract_std(envelopes[n]) for n in ['A.rate','B.rate']];assert np.allclose(stds,[.05,.05],rtol=1e-6);assert all(e.gate_eligible is False and e.confidence_level is None for e in envelopes.values());levels.append({'display_level':level,'std':stds,'display_widths':[envelopes[n].ci_width for n in ['A.rate','B.rate']]})
+manifest=fresh.get_manifest(ref)
+fake=writer.put_json(loaded,PutOptions(kind='foundry.funnel_calibration_report',media_type='application/json',schema=SchemaInfo(name='polisyos.foundry.CalibrationReport',version='2.0'),inputs=manifest.inputs),canon_spec=CanonSpec(forbid_floats=False,exclude_none=False));assert fake.artifact_id==ref.artifact_id
+try:_collect_input_envelopes(SimpleNamespace(store=FileSystemCAS(cas_root)),SimpleNamespace(inputs={INPUT_CALIBRATION_REPORT_REF:fake}),welfare_params={})
+except ValueError as exc:rejection=str(exc)
+else:raise AssertionError('byte-identical wrong CAS kind admitted by welfare')
+assert hashes=={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in hashes}
+r={'candidate':candidate,'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip(),'property':'configured tied Gaussian Calibrator→v2Report→persisted selected CAS profile→fresh loader→actual welfare intake; aliases preserve joint covariance and B198 scale','checks':[{'name':'fresh_configured_producer_consumer','outcome':'PASS','coordinate_variance':loaded.uncertainties.covariance,'actual_projected_covariance':actual.tolist(),'independent_J_cov_JT':expected.tolist(),'contrast_variance':0.,'independent_marginal_proxy_variance':independent_proxy},{'name':'B198_display_invariant_typed_scale','outcome':'PASS','levels':levels},{'name':'same_bytes_wrong_typed_CAS_view','outcome':'PASS','rejection':rejection,'payload_same_content_id':True}],'artifact_refs':{'report':ref.model_dump(mode='json'),'wrong_kind':fake.model_dump(mode='json')},'source_sha256':hashes,'environment':{'python':sys.version,'source_import':str(pathlib.Path(__import__('polisyos.foundry.calibration.report',fromlist=['']).__file__).resolve()),'numpy':np.__version__},'wall_seconds':time.monotonic()-start,'limitations':['Synthetic known-noise fixture proves mathematical and content-bound mechanism; source IID/regularity and factual production-fit validity not_established.','Covariance envelopes remain heuristic, gate_eligibleFalse, confidence_levelNone.','No IR point/interval wire semantics ratification.']}
+(OUT/('fresh-consumer-'+candidate[:12]+'-receipt.json')).write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r))

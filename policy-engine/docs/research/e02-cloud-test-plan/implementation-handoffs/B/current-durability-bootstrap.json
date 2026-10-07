@@ -1,0 +1,220 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-durability-bootstrap",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DUR-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "bff2464a1303c76e387f4cd2d0cbb995e02d4bea"
+  ],
+  "candidate_tree_sha": "71f1cfbff46fa832f40b4a032f0a1467c486eac8",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P139",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.71",
+      "rss_kib": "93548",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "256",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_resolution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/baseline-navigation.json",
+  "checks": [
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": {
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src",
+        "child_source_origin_asserted": true
+      },
+      "input_closure": "Complete current actual ledger/schema + new real-subprocess regression; isolated pytest temp directory, no production data/external services; complete current test serialization schema walk. Exact test-only immutable overlay is policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py@bff2464a1303c76e387f4cd2d0cbb995e02d4bea SHA256 8e453452940679ad5242cf712625eef756f3773de071c248d207fd7b08c054ee.",
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.txt",
+        "sha256": "416c134a20b60f871ef73b7c00be6fd4e8528e6f20b08ac93d90affb3bd70727",
+        "bytes": 5698
+      },
+      "deciding_output": "4 material failed / 3 passed in6.98s: cold mutation implicit unlimited, {} and state{} rewritten/accepted, missing writer-required fields defaulted."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --basetemp=../.polisyos/e02-B-current-durability/tmp/B37-frozen-bff --junitxml=../.polisyos/e02-B-current-durability/raw/B37-frozen-bff.xml tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "target_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "pydantic": "2.12.5",
+        "module_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "module_sha256": "abefe0edeea771328f2099f8da6bfaab2a3d297aa9f072162effddaac2c42401",
+        "PYTHONPATH": "src",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine"
+      },
+      "input_closure": "Three complete native files; fresh explicit isolated basetemp; real child public cold mutation, explicit unlimited bootstrap, nine load/mutate/bootstrap/configured-middleware/reopen paths for each schema-derived mandatory field deletion. Generic fixtures sufficient; no production dataset/external services. Child actual budget source root asserted.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.txt",
+        "sha256": "e2f672c6cf4a846ad5c6cbc622d26bbc273499277598006526bb9fd503af5598",
+        "bytes": 99
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.xml",
+        "sha256": "86f56cc20d22a7dbf7189a101d4ec706851b37beb7f708f22d457d9680fed4dc",
+        "bytes": 7118
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.json",
+        "sha256": "bd3005860c2b4c02cf7dcea4cf83966df065f7921123f1e139a2518c1a2a2c34",
+        "bytes": 1751
+      },
+      "deciding_output": "40 passed in9.62s; wall10.7409s, max RSS90600KiB; exact source/tree clean unchanged."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/scientist/orchestration/engine/budget_ledger.py tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py; /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/scientist/orchestration/engine/budget_ledger.py tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "target_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea",
+      "environment": {
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine"
+      },
+      "input_closure": "budget_ledger.py,new test_budget_ledger_process.py, nearest test_budget_middleware.py only; exact paths in changed_paths.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-ruff.txt",
+        "sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b",
+        "bytes": 45
+      }
+    }
+  ],
+  "property": {
+    "statement": "Persisted accounting completeness is checked before defaults, and any public missing-ledger read/mutation requires explicit initialization; explicit unlimited bootstrap remains valid.",
+    "runtime_path": [
+      "actual FileBudgetLedger snapshot/state writer",
+      "stable POSIX lockfile + same-directory temp fsync/replace snapshot",
+      "strict shared decode inlet for load/mutations/bootstrap",
+      "real subprocess BudgetMiddleware constructor, accounting and pre_check; fresh reopen"
+    ],
+    "proxy_divergence": "Atomic helper presence and a valid default-constructible Pydantic model do not prove accounting completeness: baseline public cold spend or {} silently manufactured unlimited state and neutralized exhausted configured middleware.",
+    "negative_controls": [
+      "cold spend on absent path",
+      "empty/corrupt/{} /state{} existing bytes",
+      "each nonnullable required field removed recursively from actual nondefault writer record",
+      "every load/mutate/bootstrap/middleware/reopen consumer preserves invalid bytes"
+    ],
+    "positive_controls": [
+      "explicit unlimited BudgetState bootstrap and spend survives fresh process reopen",
+      "configured exhausted middleware/bootstrap remains blocked"
+    ],
+    "consumer_surface": "Generic public ledger/middleware chain exercised; deployed ledger factory reachability not established."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B37 mechanism_fixed_bounded_first_slice; actual fault/process publication and full DUR continuation still pending; no formal closure.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "source_status": "partial",
+      "status": "limited",
+      "mechanism": "snapshot_completeness_and_explicit_bootstrap_fixed_bounded",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.txt",
+          "sha256": "416c134a20b60f871ef73b7c00be6fd4e8528e6f20b08ac93d90affb3bd70727",
+          "bytes": 5698
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.txt",
+          "sha256": "e2f672c6cf4a846ad5c6cbc622d26bbc273499277598006526bb9fd503af5598",
+          "bytes": 99
+        }
+      ],
+      "residuals": [
+        "Upcoming actual multiprocess barrier/fsync/replace/crash/fresh-reopen fault controls and legal nullable/wrong type adversaries",
+        "Deployment/factory invocation, physical power-loss, multi-host/filesystem authority, valid-but-forged content and ambiguous post-replace retry operation idempotency not established"
+      ],
+      "next_owner": "B durability continuation; independent root reviewer; G alone formal acceptance"
+    }
+  ],
+  "independent_review": {
+    "status": "pending",
+    "owner": "B root independent reviewer",
+    "candidate_sha": "bff2464a1303c76e387f4cd2d0cbb995e02d4bea"
+  },
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.txt",
+      "sha256": "416c134a20b60f871ef73b7c00be6fd4e8528e6f20b08ac93d90affb3bd70727",
+      "bytes": 5698
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-before-formatted.json",
+      "sha256": "a1adb32e26002f771681e211e560b17bbafee51305c704c5ac7ec814ce7f0dcd",
+      "bytes": 1211
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.txt",
+      "sha256": "e2f672c6cf4a846ad5c6cbc622d26bbc273499277598006526bb9fd503af5598",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.xml",
+      "sha256": "86f56cc20d22a7dbf7189a101d4ec706851b37beb7f708f22d457d9680fed4dc",
+      "bytes": 7118
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-bff.json",
+      "sha256": "bd3005860c2b4c02cf7dcea4cf83966df065f7921123f1e139a2518c1a2a2c34",
+      "bytes": 1751
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-frozen-ruff.txt",
+      "sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b",
+      "bytes": 45
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/B37-origin.json",
+      "sha256": "3dd73c29be11538a2c8f9fdf10058ea0a6599ae7adb970bb34b703d030a3a084",
+      "bytes": 344
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/baseline-navigation.json",
+      "sha256": "5ba00cfd30fa8f7bb90fec9d6a1bf0aa5825d58eb6e2c432e1f25a8cca9cf6ac",
+      "bytes": 4423
+    }
+  ],
+  "limitations_and_next_owner": [
+    "This early finite slice does not complete DUR01/02. B38/B78 actual store/worker/fallback verification and further B37 real process/fault controls continue on the same admitted branch.",
+    "No full dataset required for generic ledger behavior; no power-loss/multi-host or valid-but-forged accounting authenticity claim.",
+    "Cold absence now raises FileNotFoundError; corrupt/sparse existing input raises ValueError/Pydantic validation before mutation. Explicit BudgetState constructor defaults remain allowed only through load_or_bootstrap. Legal nullable fields are not required.",
+    "B66 adapter owner coordinates a separate stable producer event/idempotent durable settlement API; no external status/idempotency/permission rule fabricated.",
+    "Normal checkout-local pnpm frozen bootstrap installed ignored deps. Node24 warning recorded; mandatory commit/push hooks use root-provided supported Node22 PATH. No hook bypass.",
+    "Earlier nondeciding harness attempts retained in ignored own raw directory: first child-origin-unasserted run, tmp parent setup errors, old native read gate intercepted the now-unified writer inlet. Corrected source-origin asserted baseline and fresh frozen candidate outputs are deciding.",
+    "Original admitted create/resume: /workspace/e02-B-current-admission/durability-{create,resume}.json. No self-created checkouts/helpers. Preserve all own fixture scratch; cleanup candidates go to Trash where available, never production/code/unique evidence."
+  ]
+}

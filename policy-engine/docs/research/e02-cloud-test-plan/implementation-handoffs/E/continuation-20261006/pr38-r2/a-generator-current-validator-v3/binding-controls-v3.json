@@ -1,0 +1,105 @@
+{
+  "scope": "Author metadata only; no product/numerical/generator/gate commands",
+  "source_sha256": "0183743ead5d4b27ffc6f3265334b8f1329f72c482ab3612cd37e9a7c7b07cf4",
+  "original_index_unchanged": true,
+  "checks": [
+    {
+      "control": "unchanged current and distinct historical roles",
+      "outcome": "BOUND"
+    },
+    {
+      "control": "same real bytes but old5e in current_source",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role"
+    },
+    {
+      "control": "same collector bytes but old2f7 in current owner/G reference",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role"
+    },
+    {
+      "control": "same collector bytes but old2f7 in binding current collector",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role"
+    },
+    {
+      "control": "same collector bytes but old2f7 in packet current collector",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role"
+    },
+    {
+      "control": "same caller bytes but old5e in current caller source",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role"
+    },
+    {
+      "control": "current source assigned to explicitly historical5e role",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref candidate differs from its declared current role"
+    },
+    {
+      "control": "binding candidate pin replaced by old5e",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "current source pin differs from authorized candidate"
+    },
+    {
+      "control": "packet candidate pin replaced by old5e",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "current source pin differs from authorized candidate"
+    },
+    {
+      "control": "valid content digest with counterfeit declared Git blob",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "declared Git blob differs from computed source blob"
+    },
+    {
+      "control": "present source ref with fake content digest",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git source content hash/size mismatch"
+    },
+    {
+      "control": "present current owner-action ref with fake digest",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git source content hash/size mismatch"
+    },
+    {
+      "control": "current source ref path differs from admitted row role",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "Git ref path differs from its canonical role"
+    },
+    {
+      "control": "missing-ref reason replaced by floor failure",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "missing-ref reason misclassified"
+    },
+    {
+      "control": "resolved limited reason replaced by missing ref",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "resolved-limited reason lost"
+    },
+    {
+      "control": "historical1492 promoted to current generated measurement",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "historical generator count presented as current measurement"
+    },
+    {
+      "control": "installed compiler PASS promoted to FRC acceptance",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "bounded compiler result misattributed to FRC/closure/E run"
+    },
+    {
+      "control": "historical preparation snapshot marked as measured PASS",
+      "outcome": "TYPED_REFUSAL",
+      "reason": "preparation snapshot misclassified as measured wave"
+    },
+    {
+      "control": "same real bytes but old5e in current_source with only shared commit predicate removed",
+      "outcome": "REACCEPTED"
+    },
+    {
+      "control": "same collector bytes but old2f7 in current owner/G reference with only shared commit predicate removed",
+      "outcome": "REACCEPTED"
+    }
+  ],
+  "preparation_snapshot_note": "Original packet's NOT_LAUNCHED describes its preparation time; actual corrected wave is now RUNNING separately. This validator does not inspect or classify that wave."
+}

@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.independent-immutable-review-input.v1",
+  "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+  "source_tree": "afdd4b7b7f6784752d0bf2470303fb33c9de75aa",
+  "snapshot_before_review": true,
+  "records": [
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/all-54-update.json",
+      "git_blob": "3fe1f65963f97bccc582e12f0e8093b680095fc2",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/all-54-update.json",
+      "bytes": 455518,
+      "sha256": "1baefb19d2ffbedc1be03125d22759adcceddb984609ba120464c90ecfb21dc1"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/build_packet.py",
+      "git_blob": "81dcd56bf8a4572796cea4b8f73a4e01ed729dd0",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/build_packet.py",
+      "bytes": 68772,
+      "sha256": "b0f07857705952182f739c443d7036fde5b581cb2ed8ceb24ed2f5187c69770d"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/current-local-G-recipes.json",
+      "git_blob": "059e33764811615065ce987d240cb0adc85ede2e",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/current-local-G-recipes.json",
+      "bytes": 31083,
+      "sha256": "52e974bdec728b46a29a8ebd1af2bf9917c4f7efc94ef7ffce411f24d7c0723f"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/input-index.json",
+      "git_blob": "b726999103ca06db09464fc5e7b395676406a72c",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/input-index.json",
+      "bytes": 77417,
+      "sha256": "d120fd4f72b00227524c66bf2f8bb1fe8a3b51d00e858527e7c3caa108d52e2e"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/publication-index.json",
+      "git_blob": "cd9f99f6f017e03d92e52207bc6bcfc5c3a943df",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/publication-index.json",
+      "bytes": 2817,
+      "sha256": "492a700aac2327864664115aca6fa71b972361ebe5fea8a37bc83b87c743d597"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/summary.md",
+      "git_blob": "a5d5dc9c2e5d73f4013ab67b514937accd762124",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/summary.md",
+      "bytes": 2648,
+      "sha256": "4177e2774df66bc29eb008db9f3ab752e647b186e29fa40f9dffc3c5a83aa80c"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+      "git_blob": "a096af97727a3863982d318a223790725f82d131",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/validate.py",
+      "bytes": 15327,
+      "sha256": "390ec9fa22bd59b6d3f642ae15c9045e50ba6b2cfd7c44e57d442189292adef2"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validation.json",
+      "git_blob": "0b2ae861c3f76a26ba59ae71f7a9effd1cc21aec",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/validation.json",
+      "bytes": 1459,
+      "sha256": "09bd5f19ae4881490ba869ff28ccb8588745729b7e84c965751840c33c8548be"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validation.stdout.txt",
+      "git_blob": "df7479e53d4072a51bb3485a47b229687292d76d",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/validation.stdout.txt",
+      "bytes": 1207,
+      "sha256": "c0fefa0167423b7dad9036848173178d479bcaec2c43f77529c2dfaa71cb6d9b"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+      "git_blob": "b131da804e955388bbe49d04cae12d836859486d",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/validate_review_copies.py",
+      "bytes": 2539,
+      "sha256": "ecf33316c9d698d86904839d0e3dc447973a805ac5f83d746d76ea6cb4f427a2"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/review-copy-git-validation.json",
+      "git_blob": "6cdb0b051b5cf6f5393d727e07b7fb8f8b75b8b0",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/review-copy-git-validation.json",
+      "bytes": 163,
+      "sha256": "52b59593dc852e9cc5561eee896e0f83aea45f0ddc23a247eb132bc71b202b3f"
+    },
+    {
+      "source_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/copy-index.json",
+      "git_blob": "0ad5745fb86c612b8bc3725665da836710ee707a",
+      "copied_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/independent-reviews/copy-index.json",
+      "bytes": 70843,
+      "sha256": "af8372918253663cc27d5e568244995ad15db09bf4162c3801e1509ff135e6c9"
+    }
+  ]
+}

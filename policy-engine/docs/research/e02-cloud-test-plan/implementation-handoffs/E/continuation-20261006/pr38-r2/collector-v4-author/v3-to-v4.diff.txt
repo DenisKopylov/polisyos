@@ -1,0 +1,13 @@
+--- collect_wave_v3_final.py
++++ collect_wave_v4.py
+@@ -63,8 +63,8 @@
+ def public_evidence(root: Path, path: Path, *, expected: Path | None = None) -> Path:
+     """Admit public evidence roles; integrity never overrides raw/private exclusion."""
+     resolved = inside(root, path)
+-    relative = resolved.relative_to(root)
+-    parts = [part.casefold() for part in relative.parts]
++    # The external freeze root may be its parent; role checks must retain that parent.
++    parts = [part.casefold() for part in resolved.parts]
+     if any(part in {"raw", "private"} or "git-config-private" in part for part in parts):
+         raise EvidenceAdmissionError("raw/private evidence cannot be published: " + str(path))
+     if resolved.name.casefold().endswith(".raw.json"):

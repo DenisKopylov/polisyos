@@ -1,0 +1,43 @@
+{
+  "cal": {
+    "author_receipt": "/workspace/e02-E-cal-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.json",
+    "sha256": "4a09ea71ee1c7137fc00cb65ba6ba99908b8db5bafe6c73a9c30acb85b037db6",
+    "hash_size_refs_verified": 9,
+    "unique_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-gaussian-scale.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-pytest.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-ruff.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.frozen58-gaussian-scale.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.resume-admission.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.static-partial.txt"
+    ]
+  },
+  "ddm": {
+    "author_receipt": "/workspace/e02-E-ddm-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006.json",
+    "sha256": "63a0df81204287dd07c29b7c9f0337ec6a79e6ac7b2256c6c76ce24c26f9b5ad",
+    "hash_size_refs_verified": 37,
+    "unique_refs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/architecture.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/environment.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/format-candidate.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/format-candidate.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/legacy_source_probe.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/legacy_source_probe.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/native-candidate.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/old_source_probe.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/old_source_probe.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal-candidate.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal-candidate.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/removal_probe.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/ruff-candidate.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/ruff-candidate.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/schema-removal-candidate.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/schema_removal_probe.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/validate_receipt.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006/worktree-resume.json"
+    ]
+  }
+}

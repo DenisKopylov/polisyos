@@ -1,0 +1,54 @@
+{
+  "schema": "e02.E.independent-publication-delta.copy-index.v1",
+  "primary": "review.json",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2169,
+      "sha256": "55977a7297131bd96c11561cf6f32f0aa948640119385f6aaf0bc69bf377ebf1"
+    },
+    {
+      "path": "READY.json",
+      "bytes": 813,
+      "sha256": "3a90e61df5f6c6d812bce77c5dbd432f34eff0dad167e1f547c4206bb1115f03"
+    },
+    {
+      "path": "corrupt-controls.json",
+      "bytes": 808,
+      "sha256": "c1bdcd24f41cb22c4225feafc93a0c29132e3165936a0aff2ce0791b0d717074"
+    },
+    {
+      "path": "publication-footprint.json",
+      "bytes": 109646,
+      "sha256": "b7d12878baecddf7fe854d7475928ec106ecd457929930ef35b41336af0c35e8"
+    },
+    {
+      "path": "review.json",
+      "bytes": 19335,
+      "sha256": "9d4de70d4d14cc4509efac6555ed5aba5c165bd227904baeca52140b2203a3d2"
+    },
+    {
+      "path": "review.stderr.txt",
+      "bytes": 192,
+      "sha256": "f4c8ae881b9208d52431889603d224b7e34eeaaf9dee77c7f9d0b357d05e0808"
+    },
+    {
+      "path": "review.stdout.txt",
+      "bytes": 722,
+      "sha256": "a58556313951de37ea7dc442d7010a7107d7d1c1e376fc7035426c7f94d3f86f"
+    },
+    {
+      "path": "review_publication.py.txt",
+      "bytes": 16927,
+      "sha256": "318edce7c3fec5aeca014ad22460ecb2e026a62ff108abad0fc1e4f023417cd3"
+    },
+    {
+      "path": "verified-portable-copies.json",
+      "bytes": 124199,
+      "sha256": "cdbc3609d812bd5550c56ee996535c632f23b14700586309eed437111ba79754"
+    }
+  ],
+  "file_count": 9,
+  "total_bytes": 274811,
+  "raw_private_content_copied": false
+}

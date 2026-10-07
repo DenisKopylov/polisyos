@@ -1,0 +1,23 @@
+{
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "numerical_codes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "gate_codes": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "finished_unix": 1791309911.4634624,
+  "finding_closure": false
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.independent_review_findings.v1",
+  "reviewer": "/root/mc_independent_r3",
+  "entry_implementation_sha": "0701251c57d707f0abe0550448e036d9d3c47c7d",
+  "entry_implementation_tree": "a6b4e4839f220fa25124ce42abd0bff557ae6295",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "initial_readback_head": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+  "initial_readback_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+  "initial_status": "clean, attached codex/e02-E-mc-20261006; delta from implementation was release-fragment documentation only",
+  "entry_code_verdict": "HOLD",
+  "execution_identity_limit": "The first failed-support reproduction ran before author corrections began. Later boundary examples ran during the author's batched correction window and are observations only; no later example is represented as an immutable-candidate execution receipt. Fresh deciding checks are required on the refrozen SHA.",
+  "P41": "No inherited-red attribution is made. These are candidate-boundary observations, not claims about untouched slice-base behavior.",
+  "findings": [
+    {
+      "class": "per-output/per-replica certificate completeness",
+      "property": "Incomplete failed support must remain a conditional diagnostic and cannot acquire a full RQMC estimator certificate.",
+      "input": "Uniform[-1,1], y=x for x>=0, undefined for x<0; n=256, four scrambles, default seed42",
+      "output": ["random RESULT 0.493181034754 False 130", "sobol ERROR KeyError mean_estimator_standard_error", "halton ERROR KeyError mean_estimator_standard_error"],
+      "location": "monte_carlo.py _build_results: global qmc_has_full_certificate followed by missing per-output standard-error dereference",
+      "P40_disposition": "Widen to complete actual independent replica-estimator sets for each output; preserve all conditional outcomes."
+    },
+    {
+      "class": "joint-law preservation under backend/configuration selection",
+      "input": "(a,b)=(g,g), Var(g)=.0025, y=a-b; explicit full covariance; delta_use_full_covariance false versus true",
+      "output": "true: delta, analytical, MC interval[0,0]; false: delta/analytical variance .004999999888241291 and interval approximately[-.13859038,.13859038], MC still[0,0]",
+      "P40_disposition": "Common covariance construction must preserve a supplied law independent of the convenience flag; direct supplied covariance must reconcile with that law."
+    },
+    {
+      "class": "persisted estimator/outcome claim completeness",
+      "input": "Canonical bounded indicator p=.5; replace persisted mean_error_interval with [mean,mean] while retaining certificate",
+      "output": "verify_mean_certificate accepted a zero-width advertised error interval; original interval[.45374331550802144,.5537433155080215], mean .5037433155080214",
+      "P40_disposition": "Recompute all advertised estimator claims from admitted law/response/seed/main carrier."
+    },
+    {
+      "class": "persisted estimator/outcome claim completeness",
+      "input": "All-success terminal receipt; append failure_records index999999 with otherwise valid fields",
+      "output": "reconcile_draw_outcomes returned empty failure set",
+      "P40_disposition": "Parse every terminal record; reconcile exact failure-index and output sets against the complete attempted/requested denominator, including unattempted support."
+    },
+    {
+      "class": "float64-to-float32 narrowing range",
+      "input": "1e-50 and subnormal covariance1e-40, contrasted with float32 normal tiny and exact zero",
+      "output": "1e-50 accepted then stored0; 1e-40 stored9.99994610111476e-41 but JAXCPU [1]@cov@[1] gives0; float32 tiny1.1754943508222875e-38 survives actual quadratic form",
+      "P40_disposition": "Freeze a finite supported normal-float32 range before callbacks. True zero/singular directions remain allowed. No assertion of arbitrary float32 precision is made."
+    },
+    {
+      "class": "persisted estimator/outcome claim completeness",
+      "input": "Valid bounded mean plan epsilon=.5; canonical indicator p=.5; default generic mc_min_valid_samples50",
+      "output": "Frozen N15; envelope familyUNKNOWN, payloadNone, sample_size15; attached certificate cannot pass readback",
+      "P40_disposition": "The bounded method's complete fixed-N carrier follows its own proof instead of the generic minimum-valid heuristic, or the producer returns typed unavailable without a certificate."
+    }
+  ],
+  "authority_boundary": "All results remain candidate/non-gating. No production input law, general served evaluator, IR semantic ratification, finding closure or integration/main publication is established."
+}

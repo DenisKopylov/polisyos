@@ -1,0 +1,67 @@
+{
+  "started_utc": "2026-10-06T16:45:38.555135+00:00",
+  "candidate_commit": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+  "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+  "g_branch": "codex/e02-integration",
+  "g_head_before": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "test_path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+  "test_git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+  "test_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+  "selected_closure_file_count": 3463,
+  "selected_closure_logical_bytes": 67525540,
+  "selected_closure_allocated_unique_bytes": 75272192,
+  "source_limit_bytes": 104857600,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "--basetemp",
+    "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4/pytest-basetemp",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/replay-4/installed-wheel.junit.xml",
+    "tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/candidate/policy-engine",
+  "pytest_profile": "candidate policy-engine/pytest.ini, tests/conftest.py, and selected helper plugins unchanged",
+  "runtime": {
+    "python": "3.14.3 existing G .venv",
+    "pytest": "9.0.2 existing G .venv",
+    "uv": "0.10.6 /opt/homebrew/bin/uv"
+  },
+  "environment": {
+    "UV_OFFLINE": "1",
+    "UV_NO_CACHE": "1",
+    "UV_NO_PROGRESS": "1",
+    "UV_DEFAULT_INDEX": "file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/simple/",
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay/cache",
+    "TMPDIR": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4",
+    "TEMP": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4",
+    "TMP": "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4",
+    "PYTHONPATH": "unset",
+    "PYTHONHOME": "unset",
+    "network": "disabled; all build wheels served only by local hash-pinned PEP 503 file index",
+    "cache_behavior": "UV_NO_CACHE avoids reading/writing any cache; UV_CACHE_DIR recorded but inactive for this invocation"
+  },
+  "local_inputs": {
+    "requirements_lock_sha256": "f32bc32688e3fff5054a6a9e3cdff82078cfcd6e36e00fc72c2375a6a60fdf76",
+    "package_input_manifest_sha256": "032f85dbb3c2ae539a8c46b2c535c2074fa7b9113ca7a94704c0b998bcb13914",
+    "local_index_page_tree_sha256": "79da99c9255f6f307e463adb1934cebe574d168e33ea3d939d8f2a937076bd4c",
+    "package_source_bytes": 1294565,
+    "package_source_limit_bytes": 31457280,
+    "verified_local_wheel_count": 6
+  },
+  "disk_accounting": {
+    "controlled_generated_roots": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-Acompiler-checks/prereq-overlay",
+      "/tmp/polisyos-e02-Acompiler-577521c6651bba048d6bdfdc13f36a383c8146c6-replay4"
+    ],
+    "generated_cap_bytes": 524288000,
+    "initial_generated_allocated_unique_bytes": 153001984,
+    "method": "st_blocks*512 with unique (st_dev,st_ino) across both controlled roots; does not add du summaries or global counters"
+  },
+  "outer_timeout_seconds": 180,
+  "initial_free_bytes": 15551180800,
+  "earlier_attempts": "Receipts 1-3 preserved and not overwritten; this is the single parent-authorized cache-corrected replay."
+}

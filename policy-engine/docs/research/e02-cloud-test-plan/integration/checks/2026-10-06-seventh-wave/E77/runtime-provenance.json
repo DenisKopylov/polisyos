@@ -1,0 +1,687 @@
+{
+  "all_provenance_assertions_pass": true,
+  "assertions": {
+    "SALib_loaded_from_overlay": true,
+    "all_loaded_own_modules_candidate_local": true,
+    "at_least_one_own_module_loaded": true,
+    "dill_loaded_from_overlay": true,
+    "multiprocess_loaded_from_overlay": true
+  },
+  "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "candidate_owned_module_count": 77,
+  "candidate_owned_modules": [
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/__init__.py",
+      "name": "polisyos",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/__init__.py",
+      "name": "polisyos.common",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/async_tools.py",
+      "name": "polisyos.common.async_tools",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/async_tools.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/canonical.py",
+      "name": "polisyos.common.canonical",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/canonical.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/hashing.py",
+      "name": "polisyos.common.hashing",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/hashing.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/logger.py",
+      "name": "polisyos.common.logger",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/logger.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/serialization.py",
+      "name": "polisyos.common.serialization",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/common/serialization.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/__init__.py",
+      "name": "polisyos.core",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "name": "polisyos.core.artifacts",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "name": "polisyos.core.artifacts._atomic_write",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_atomic_write.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "name": "polisyos.core.artifacts._integrity_ops",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_layout.py",
+      "name": "polisyos.core.artifacts._layout",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_layout.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "name": "polisyos.core.artifacts._manifest_lifecycle",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "name": "polisyos.core.artifacts._signature_ops",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "name": "polisyos.core.artifacts._transfer_ops",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "name": "polisyos.core.artifacts.async_store",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/async_store.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+      "name": "polisyos.core.artifacts.backends",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/backends"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/backends/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "name": "polisyos.core.artifacts.backends.config",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/backends/config.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+      "name": "polisyos.core.artifacts.cas_integrity_report",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/graph.py",
+      "name": "polisyos.core.artifacts.graph",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/graph.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/ids.py",
+      "name": "polisyos.core.artifacts.ids",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/ids.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "name": "polisyos.core.artifacts.manifest",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/manifest.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "name": "polisyos.core.artifacts.ownership",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/ownership.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "name": "polisyos.core.artifacts.protocol",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/protocol.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/registry.py",
+      "name": "polisyos.core.artifacts.registry",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/registry.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/signing.py",
+      "name": "polisyos.core.artifacts.signing",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/signing.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/store.py",
+      "name": "polisyos.core.artifacts.store",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/store.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "name": "polisyos.core.artifacts.write_contract",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/artifacts/write_contract.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon/__init__.py",
+      "name": "polisyos.core.canon",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon/canon_json.py",
+      "name": "polisyos.core.canon.canon_json",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon/canon_json.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon/hashing.py",
+      "name": "polisyos.core.canon.hashing",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/canon/hashing.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/__init__.py",
+      "name": "polisyos.core.components",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/bootstrap.py",
+      "name": "polisyos.core.components.bootstrap",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/bootstrap.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/capabilities.py",
+      "name": "polisyos.core.components.capabilities",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/capabilities.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/compliance.py",
+      "name": "polisyos.core.components.compliance",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/compliance.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/discovery.py",
+      "name": "polisyos.core.components.discovery",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/discovery.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/ids.py",
+      "name": "polisyos.core.components.ids",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/ids.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/metadata.py",
+      "name": "polisyos.core.components.metadata",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/metadata.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/protocols.py",
+      "name": "polisyos.core.components.protocols",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/protocols.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/registry.py",
+      "name": "polisyos.core.components.registry",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/components/registry.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/discovery/__init__.py",
+      "name": "polisyos.core.discovery",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/discovery"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/discovery/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/discovery/base.py",
+      "name": "polisyos.core.discovery.base",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/discovery/base.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/errors/__init__.py",
+      "name": "polisyos.core.errors",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/errors"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/errors/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/errors/base.py",
+      "name": "polisyos.core.errors.base",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/errors/base.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/__init__.py",
+      "name": "polisyos.core.observability",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+      "name": "polisyos.core.observability._metrics_helpers",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/_metrics_helpers.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+      "name": "polisyos.core.observability._metrics_registry_base",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/_metrics_registry_base.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/config.py",
+      "name": "polisyos.core.observability.config",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/config.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/decorators.py",
+      "name": "polisyos.core.observability.decorators",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/decorators.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/determinism.py",
+      "name": "polisyos.core.observability.determinism",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/determinism.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/logs.py",
+      "name": "polisyos.core.observability.logs",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/logs.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/metrics.py",
+      "name": "polisyos.core.observability.metrics",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/metrics.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/metrics_parts.py",
+      "name": "polisyos.core.observability.metrics_parts",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/metrics_parts.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/pricing.py",
+      "name": "polisyos.core.observability.pricing",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/pricing.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/propagation.py",
+      "name": "polisyos.core.observability.propagation",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/propagation.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/tracer.py",
+      "name": "polisyos.core.observability.tracer",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/observability/tracer.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry/__init__.py",
+      "name": "polisyos.core.registry",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry/base.py",
+      "name": "polisyos.core.registry.base",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry/base.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry/generic.py",
+      "name": "polisyos.core.registry.generic",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/registry/generic.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/__init__.py",
+      "name": "polisyos.core.security",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/db_backend.py",
+      "name": "polisyos.core.security.db_backend",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/db_backend.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/exceptions.py",
+      "name": "polisyos.core.security.exceptions",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/exceptions.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/tenant_context.py",
+      "name": "polisyos.core.security.tenant_context",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/core/security/tenant_context.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/__init__.py",
+      "name": "polisyos.scientist",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/__init__.py",
+      "name": "polisyos.scientist.methods",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "name": "polisyos.scientist.methods.doe",
+      "package_paths": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe"
+      ],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/__init__.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "name": "polisyos.scientist.methods.doe._receipt",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "name": "polisyos.scientist.methods.doe.adaptive",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "name": "polisyos.scientist.methods.doe.analysis",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/analysis.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "name": "polisyos.scientist.methods.doe.designs",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/designs.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "name": "polisyos.scientist.methods.doe.morris_geometry",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+      "name": "polisyos.scientist.methods.doe.multi_output",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/multi_output.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "name": "polisyos.scientist.methods.doe.sampling",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/sampling.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+      "name": "polisyos.scientist.methods.doe.sensitivity_benchmark",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "name": "polisyos.scientist.methods.doe.stability",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/stability.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "name": "polisyos.scientist.methods.doe.stress_report",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py"
+    },
+    {
+      "candidate_local": true,
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+      "name": "polisyos.scientist.methods.doe.uncertainty",
+      "package_paths": [],
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py"
+    }
+  ],
+  "candidate_src": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src",
+  "candidate_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "machine": "arm64",
+  "overlay": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay",
+  "overlay_distributions": {
+    "SALib": {
+      "direct_url_json": "{\"url\":\"https://files.pythonhosted.org/packages/13/e2/9fbf2d571c0d5360f9cf6656de6c94b273d08ede1b628f23f319fa1a910d/salib-1.5.2-py3-none-any.whl\",\"archive_info\":{}}",
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/salib-1.5.2.dist-info",
+      "record_bytes": 5146,
+      "record_sha256": "2ea8cf88e6addd67f7e0dcd342fc1e431ecb92cd4595bf97ed7e62d54ef1ee74",
+      "version": "1.5.2"
+    },
+    "dill": {
+      "direct_url_json": "{\"url\":\"https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl\",\"archive_info\":{}}",
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/dill-0.4.1.dist-info",
+      "record_bytes": 4506,
+      "record_sha256": "0a28cfe2ca770f48576940118ec1aee8b7e90ac2396642af70f43a313e5f88d0",
+      "version": "0.4.1"
+    },
+    "multiprocess": {
+      "direct_url_json": "{\"url\":\"https://files.pythonhosted.org/packages/a0/61/af9115673a5870fd885247e2f1b68c4f1197737da315b520a91c757a861a/multiprocess-0.70.19-py314-none-any.whl\",\"archive_info\":{}}",
+      "dist_info": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/multiprocess-0.70.19.dist-info",
+      "record_bytes": 5312,
+      "record_sha256": "0cfb00af2c89cb1193260c76f0444e812f0dc4979b3bfffdee86cf0f6ae13328",
+      "version": "0.70.19"
+    }
+  },
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "project_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine",
+  "pytest_args": [
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/pytest.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/basetemp",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/benchmarks",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/outputs/pytest-cache"
+  ],
+  "pytest_elapsed_seconds": 3.183,
+  "pytest_exit_code": 0,
+  "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "relevant_import_origins": {
+    "SALib": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/__init__.py"
+    },
+    "SALib.analyze": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/analyze/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/analyze/__init__.py"
+    },
+    "SALib.sample": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/sample/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/sample/__init__.py"
+    },
+    "SALib.sample.morris": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/sample/morris/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/sample/morris/__init__.py"
+    },
+    "SALib.sample.sobol": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/sample/sobol.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/sample/sobol.py"
+    },
+    "dill": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/dill/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/dill/__init__.py"
+    },
+    "matplotlib": {
+      "file": null,
+      "loaded": false,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/matplotlib/__init__.py"
+    },
+    "multiprocess": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/multiprocess/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/multiprocess/__init__.py"
+    },
+    "numpy": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py"
+    },
+    "pandas": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pandas/__init__.py"
+    },
+    "scipy": {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py",
+      "loaded": true,
+      "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py"
+    }
+  },
+  "sys_prefix": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv"
+}

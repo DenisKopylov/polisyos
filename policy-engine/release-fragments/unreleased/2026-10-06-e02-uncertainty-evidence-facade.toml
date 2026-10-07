@@ -1,0 +1,30 @@
+id = "2026-10-06-e02-uncertainty-evidence-facade"
+title = "Expose canonical terminal-draw and mean-certificate consumers"
+type = "added"
+component = "foundry-uncertainty"
+owner = "team-polisyos"
+summary = "Scientist consumes terminal-draw reconciliation and bounded mean-certificate checks through the existing Foundry uncertainty facade. Canonical object identity and non-gating boundaries are preserved."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.uncertainty"
+compatibility = "Additive canonical exports; source-law, purpose and authority admission remain separate."
+migration = "Use the existing polisyos.foundry.uncertainty facade for terminal outcome and bounded mean certificate consumers."
+limitations = "Core and IR admission remain decisions of their canonical owners. This facade does not ratify uncertainty wire semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+evidence = ["tests/unit/calibration/test_evidence_facades.py", "tests/unit/foundry/uncertainty/test_adaptive_stopping.py"]
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-uncertainty-evidence-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.uncertainty"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Expose canonical terminal-draw reconciliation and bounded mean certificate consumers through Foundry uncertainty."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

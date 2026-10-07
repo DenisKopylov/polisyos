@@ -1,0 +1,130 @@
+{
+  "source_sha": "1e1b5028274814b7c4318671588202480390a6bc",
+  "tree": "a4ed7ca77636c4e0165923e3d5400aea0c5068d5",
+  "actual_wave_source": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "custody_denominators": {
+    "portable_records": 79,
+    "nested_moderate_asset_records": 48,
+    "record_checks": 127,
+    "distinct_copied_paths": 79
+  },
+  "counts": {
+    "cases": 1440,
+    "passed": 1086,
+    "failed": 3,
+    "errors": 351,
+    "skipped": 0
+  },
+  "native": {
+    "cases": 1433,
+    "passed": 1086,
+    "failed": 2,
+    "errors": 345,
+    "skipped": 0
+  },
+  "A": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 1,
+    "errors": 6,
+    "skipped": 0
+  },
+  "job_counts": [
+    {
+      "job": "pcl-continuous-persistence",
+      "counts": {
+        "cases": 96,
+        "passed": 77,
+        "failed": 0,
+        "errors": 19,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "ddm-runtime-and-facade",
+      "counts": {
+        "cases": 82,
+        "passed": 80,
+        "failed": 0,
+        "errors": 2,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "counts": {
+        "cases": 315,
+        "passed": 145,
+        "failed": 3,
+        "errors": 167,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "cal-and-welfare-consumer",
+      "counts": {
+        "cases": 311,
+        "passed": 256,
+        "failed": 0,
+        "errors": 55,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "mc-joint-law-support-and-scientist-consumer",
+      "counts": {
+        "cases": 377,
+        "passed": 339,
+        "failed": 0,
+        "errors": 38,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "doe-salib-and-consumer-factory",
+      "counts": {
+        "cases": 200,
+        "passed": 189,
+        "failed": 0,
+        "errors": 11,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "g-checkpoint10-controlplanestore-companion",
+      "counts": {
+        "cases": 59,
+        "passed": 0,
+        "failed": 0,
+        "errors": 59,
+        "skipped": 0
+      }
+    }
+  ],
+  "stage_counts": {
+    "workspace-verify": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "ci-parity": {
+      "FAIL": 1,
+      "UNRUN": 23
+    }
+  },
+  "independent_corrupt_controls": [
+    "bytes REFUSED",
+    "sha256 REFUSED",
+    "native1433/A7 denominator forgery REFUSED"
+  ],
+  "publication_verdict": "GO-bounded-actual5e-custody-and-attribution",
+  "reusable_collector_verdict": "HOLD-two synthetic protocol escapes separately recorded",
+  "numeric_or_product_commands_executed": 0,
+  "limitations": [
+    "Custody COMPLETE_BOUND is not successful wave or finding closure.",
+    "Source-frame completeness is separately under independent CAL review; this validates exact existing bytes/declared frame consistency, not a new whole framework proof.",
+    "Observer backend does not establish child JAX state; static proxy P41 inherited-red remains not_established.",
+    "Actual raw171772803B and15 private config files were hashed only, not read into output or copied.",
+    "No deletion/Trash action. Existing original and source bytes remain unchanged."
+  ]
+}

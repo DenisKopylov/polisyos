@@ -1,0 +1,23 @@
+{
+  "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+    "--mode",
+    "requested",
+    "-q",
+    "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_denominator_survives_missing_terminal_scenario",
+    "-o",
+    "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-requested-cache",
+    "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-requested-002"
+  ],
+  "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+  "returncode": 1,
+  "wall_s": 20.272268788990914,
+  "rss_kib_direct_and_children": 532696,
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "output": "final-requested-removal.log"
+}

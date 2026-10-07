@@ -1,0 +1,164 @@
+"""Independent final handoff refbinding/copy metadata proof, no execution claims."""
+from pathlib import Path
+import copy
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+PREFIX=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2')
+FINAL=ROOT/PREFIX
+DRAFT=Path('/workspace/e02-E-pr38-r2-receipts/final-root-a9')
+OUT=Path(__file__).parent
+SOURCE='a9f78817c873be5b35a08155f2593b229d9fdbb6'
+TREE='c02e043c3e1c8222c28aa71187fa8db4e2fdeea7'
+EVIDENCE='ddcdfd9c220ba57e37c8abf52b976a7184c384f9'
+EVIDENCE_TREE='1c5e1bd9ecdd619ae99ae978231aa296875bd1b1'
+CHECKPOINT='9954f394b470961d9e144a557f3cefeb9e0a67b6'
+CHECKPOINT_TREE='e923abf31637b4299ec36a467f4c6b06e26cae1c'
+identity=lambda p:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+git=lambda *a:subprocess.check_output(['git','-C',str(ROOT),*a])
+head=git('rev-parse','HEAD','HEAD^{tree}').decode().splitlines()
+assert head==[CHECKPOINT,CHECKPOINT_TREE]
+status=git('status','--porcelain').decode()
+assert all(line.startswith('?? ') for line in status.splitlines())
+assert all(line[3:].startswith(str(PREFIX)+'/') for line in status.splitlines())
+draft=json.loads((DRAFT/'final-handoff-v2.json').read_text())
+handoff=json.loads((FINAL/'final-handoff-v2.json').read_text())
+binding=json.loads((FINAL/'final-review-refbindings.json').read_text())
+assert identity(DRAFT/'final-handoff-v2.json')=={'bytes':21233,'sha256':'b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed'}
+assert identity(FINAL/'final-handoff-v2.json')=={'bytes':22960,'sha256':'b2745a726ffa29e6b56f2ec8dafa96ee8a86d0a978f96f1693e5bd78a0892bd2'}
+allowed={'publication_state','final_independent_closeout_review','final_independent_narrative_review','final_independent_publication_review'}
+expected_primary={
+ 'final_independent_publication_review':('final-publication-independent/review.json',19335,'9d4de70d4d14cc4509efac6555ed5aba5c165bd227904baeca52140b2203a3d2','GO_bounded_exact_bytes_Git_role_and_doc_only_delta'),
+ 'final_independent_narrative_review':('final-narrative-independent/review.json',12914,'82ed0a0947a4d8ead99aecd932a5650686ae651d43512357f77a784eea6a0303','GO_bounded_corrected_narrative_contract_cleanup'),
+ 'final_independent_closeout_review':('final-closeout-independent/review-final-all54-9954.json',94391,'a24e0b788c2ef2288829c0f3ddd1c80513cb72ba63e36e33d142abce4fa48013','GO_bounded_criteria_metadata_custody')}
+class BindingError(ValueError):pass
+
+def need(condition,message):
+ if not condition:raise BindingError(message)
+
+def validate_handoff(value):
+ changed={k for k in value.keys()|draft.keys() if value.get(k)!=draft.get(k)}
+ need(changed==allowed,'undeclared substantive field change or missing required finalization')
+ need(value['publication_state']=='READY_REVIEWED_HANDOFF_NUMERICAL_HOLD_GLOBAL_FAIL_FINDING_PROPOSALS','GO falsely promotes numeric/global/finding acceptance')
+ for name,(relative,size,digest,state) in expected_primary.items():
+  ref=value[name]
+  need(ref['path']==str(PREFIX/relative),'review path differs from canonical bound primary')
+  need((ref['bytes'],ref['sha256'],ref['state'])==(size,digest,state),'review hash/size/state mismatch')
+  need(identity(ROOT/ref['path'])=={'bytes':size,'sha256':digest},'actual review primary differs')
+ need(value['numerical_candidate']['sha']==SOURCE and value['numerical_candidate']['tree']==TREE,'wrong numerical candidate')
+ need(value['evidence_checkpoint']['sha']==EVIDENCE and value['all54_checkpoint']['sha']==CHECKPOINT,'source/publication role mismatch')
+ need(value['actual_checks']['numeric']=={'total':1445,'PASS':1441,'FAIL':4,'ERROR':0,'SKIP':0,'native':{'total':1438,'PASS':1436,'FAIL':2},'A_owner_packet':{'total':7,'PASS':5,'FAIL':2}},'actual numeric outcomes promoted or denominator changed')
+ need(len(value['actual_checks']['global_gates'])==7 and all(s.startswith('FAIL') for s in value['actual_checks']['global_gates'].values()),'global gate FAIL promoted')
+ need(value['actual_checks']['required_checks_waived'] is False and value['actual_checks']['full_CI_PASS'] is False,'checks waived/promoted')
+ need(value['ledger_status_preserved']=={'partial':49,'held':4,'closed':1} and value['ledger_updates']==0,'historical ledger changed')
+ need(value['proposed_verdicts']=={'limited':49,'held':4,'closed':1},'finding proposals promoted')
+ need(value['final_independent_closeout_review']['finding_acceptance'] is False,'review GO promoted to owner closure')
+ need(value['final_independent_closeout_review']['reviewed_checkpoint']==CHECKPOINT,'closeout review wrong current checkpoint')
+ need(value['final_independent_narrative_review']['reviewed_draft_sha256']=='b8d90afb421ba1f5c277d34df30bf92dba25381cf8a275a4d12607e33f9a11ed','narrative reviewed wrong draft')
+
+validate_handoff(handoff)
+assert set(binding['allowed_changed_handoff_fields'])==allowed
+assert binding['reviewed_draft']==identity(DRAFT/'final-handoff-v2.json')
+assert binding['final_handoff']=={'path':str(PREFIX/'final-handoff-v2.json'),**identity(FINAL/'final-handoff-v2.json')}
+assert binding['source']==SOURCE and binding['finding_status_changes']==0 and binding['wave']=='1441PASS4FAIL0ERROR0SKIP' and binding['required_global_gates']=='7FAIL;13+23UNRUN'
+assert git('rev-parse',SOURCE+'^{tree}').decode().strip()==TREE
+assert git('rev-parse',EVIDENCE+'^{tree}').decode().strip()==EVIDENCE_TREE
+assert git('rev-parse',CHECKPOINT+'^{tree}').decode().strip()==CHECKPOINT_TREE
+actual_refs=[]
+for role,ref in handoff['identity_refs'].items():
+ relative=Path(ref['path']);need(not relative.is_absolute() and '..' not in relative.parts and relative.is_relative_to(PREFIX),'unsafe identity ref path')
+ data=git('show',ref['commit']+':'+ref['path']);blob=git('rev-parse',ref['commit']+':'+ref['path']).decode().strip()
+ need(len(data)==ref['bytes'] and hashlib.sha256(data).hexdigest()==ref['sha256'] and blob==ref['git_blob'],'identity ref differs from actual committed bytes')
+ actual_refs.append({'role':role,**ref})
+# Exact final README differs only by the separately bounded three independent-review links.
+readme0=(DRAFT/'README.md').read_bytes();readme1=(FINAL/'README.md').read_bytes()
+assert len(readme0)==8447 and hashlib.sha256(readme0).hexdigest()=='92955eb85ca9234e9496e6fa7119b8831c5469f3bfb945718dfd8749e3696452'
+addition=b'\nIndependent final reviews: [all-54 criteria and custody](final-closeout-independent/review-final-all54-9954.json), [publication bytes and delta](final-publication-independent/review.json), [corrected narrative and cleanup](final-narrative-independent/review.json). Each GO is bounded; numerical suite remains HOLD and required gates FAIL.\n'
+assert readme1.count(addition)==1 and readme1.replace(addition,b'')==readme0
+assert identity(FINAL/'cleanup-candidates-final.json')==identity(DRAFT/'cleanup-candidates-final.json')=={'bytes':14705,'sha256':'8d89c90a7588f55b02d9272cc4b307a06447ee1509633d6d0e8f268b957e1d0c'}
+assert identity(FINAL/'PR38-description.md')==identity(DRAFT/'PR38-body.md')=={'bytes':5344,'sha256':'2e9955c9b10718eacf036188d88217d455890ba4daec092c828b207cdf82a15b'}
+expected_groups=[('final-publication-independent',10,276389,'ea743ac1290764b9631db11c5edf5b629918b0d8ea41fd4b62d78fdc9c2a303a'),('final-narrative-independent',6,58857,'90505f22867a8de8039b7fc99ff04432bdd0ac02e67cbca4b3579cb7ee3a424b'),('final-closeout-independent',51,4097412,'d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b')]
+verified_copies=[];indices=[];snapshots={}
+def validate_portable(index,group,expected_count,expected_bytes,source_digest):
+ need(index['source_candidate_sha']==SOURCE and index['source_candidate_tree']==TREE,'portable source role differs from frozen numeric candidate')
+ need(index['reviewed_publication_commit']==CHECKPOINT,'portable reviewed publication role mismatch')
+ need(index['file_count']==expected_count==len(index['files']),'portable complete record denominator mismatch')
+ need(index['total_bytes']==expected_bytes==sum(r['bytes'] for r in index['files']),'portable complete byte denominator mismatch')
+ sourceindex=Path(index['source_index']['path']);need(identity(sourceindex)=={'bytes':index['source_index']['bytes'],'sha256':source_digest} and index['source_index']['sha256']==source_digest,'source index changed')
+ original=json.loads(sourceindex.read_text());original_rows=original['files']
+ need(len(original_rows)==original['file_count'] and sum(r['bytes'] for r in original_rows)==original['total_bytes'],'original index denominator mismatch')
+ expected_paths={str(sourceindex.parent/r['path']) for r in original_rows}|{str(sourceindex)}
+ if original.get('ready_self_excluded') is True:expected_paths.add(str(sourceindex.parent/'READY-review.json'))
+ need({r['source_path'] for r in index['files']}==expected_paths,'portable omitted or added unindexed source role')
+ need(len({r['source_path'] for r in index['files']})==len(index['files']) and len({r['copied_path'] for r in index['files']})==len(index['files']),'duplicate source/copy role')
+ for row in index['files']:
+  src=Path(row['source_path']);dst=Path(row['copied_path']);need(src.is_relative_to(sourceindex.parent),'source role escapes source index')
+  need(not dst.is_absolute() and '..' not in dst.parts and dst==PREFIX/group/src.relative_to(sourceindex.parent),'copied path differs from canonical role')
+  need(not src.is_symlink() and not (ROOT/dst).is_symlink(),'symlink copy role')
+  need(identity(src)==identity(ROOT/dst)=={'bytes':row['bytes'],'sha256':row['sha256']},'actual source/copied full bytes mismatch')
+ return original
+for group,count,total,digest in expected_groups:
+ path=FINAL/group/'portable-copy-index.json';index=json.loads(path.read_text());original=validate_portable(index,group,count,total,digest)
+ expected_row={'path':str(PREFIX/group/'portable-copy-index.json'),'records':count,'bytes':total,'original_index_sha256':digest}
+ assert expected_row in binding['review_copy_groups']
+ indices.append({'path':str(PREFIX/group/'portable-copy-index.json'),**identity(path),'records':count,'copied_bytes':total,'source_index':index['source_index']})
+ snapshots[str(path)]=identity(path)
+ for row in index['files']:
+  verified_copies.append(row);snapshots[row['source_path']]=identity(Path(row['source_path']));snapshots[str(ROOT/row['copied_path'])]=identity(ROOT/row['copied_path'])
+assert len(verified_copies)==binding['review_copy_records']==67
+assert sum(r['bytes'] for r in verified_copies)==binding['review_copy_bytes']==4432658
+# These controls bind the final metadata, not a mirror assertion over output counts.
+controls=[]
+for label,mutate in [
+ ('valid-existing-wrong-numerical-sha',lambda h:h['numerical_candidate'].update(sha=CHECKPOINT,tree=CHECKPOINT_TREE)),
+ ('wrong-review-primary-path',lambda h:h['final_independent_publication_review'].update(path=str(PREFIX/'final-narrative-independent/review.json'))),
+ ('wrong-review-primary-hash',lambda h:h['final_independent_narrative_review'].update(sha256='0'*64)),
+ ('actual-four-failures-promoted-PASS',lambda h:h['actual_checks']['numeric'].update(PASS=1445,FAIL=0)),
+ ('global-FAIL-promoted-PASS',lambda h:h['actual_checks']['global_gates'].update(architecture='PASS')),
+ ('GO-promoted-to-finding-closure',lambda h:h['final_independent_closeout_review'].update(finding_acceptance=True)),
+ ('held-ledger-promoted-closed',lambda h:h['ledger_status_preserved'].update(held=0,closed=5)),
+]:
+ changed=copy.deepcopy(handoff);mutate(changed)
+ try:validate_handoff(changed)
+ except BindingError as error:controls.append({'control':label,'outcome':'REFUSED','reason':str(error)})
+ else:raise AssertionError('forged final binding admitted: '+label)
+baseindex=json.loads((FINAL/'final-publication-independent/portable-copy-index.json').read_text())
+for label,mutate in [('copied-path-escape',lambda x:x['files'][0].update(copied_path=str(PREFIX/'../wrong.json'))),('copied-payload-hash',lambda x:x['files'][0].update(sha256='0'*64)),('omitted-source-copy',lambda x:x['files'].pop())]:
+ changed=copy.deepcopy(baseindex);mutate(changed)
+ try:validate_portable(changed,*expected_groups[0])
+ except BindingError as error:controls.append({'control':label,'outcome':'REFUSED','reason':str(error)})
+ else:raise AssertionError('forged portable copy admitted: '+label)
+# Preserve original exact candidate and all authoritative final artifacts before freezing review.
+for path in [FINAL/'final-handoff-v2.json',FINAL/'final-review-refbindings.json',FINAL/'README.md',FINAL/'cleanup-candidates-final.json',FINAL/'PR38-description.md',DRAFT/'final-handoff-v2.json',DRAFT/'README.md',DRAFT/'cleanup-candidates-final.json',DRAFT/'PR38-body.md']:
+ snapshots[str(path)]=identity(path)
+for path,expected in snapshots.items():assert identity(Path(path))==expected
+assert head==git('rev-parse','HEAD','HEAD^{tree}').decode().splitlines()
+assert status==git('status','--porcelain').decode()
+(OUT/'verified-67-copies.json').write_text(json.dumps(verified_copies,indent=2)+'\n')
+(OUT/'input-snapshot.json').write_text(json.dumps(snapshots,indent=2)+'\n')
+review={
+ 'schema':'e02.E.independent-final-handoff-refbinding-review.v1',
+ 'verdict':'GO-bounded-final-refbinding-and-byte-custody','reviewer':'/root/doe_r2',
+ 'root_HEAD_tree_before_after':head,'tracked_status_unchanged':True,
+ 'numerical_source':{'sha':SOURCE,'tree':TREE},'evidence_checkpoint':{'sha':EVIDENCE,'tree':EVIDENCE_TREE},'all54_checkpoint':{'sha':CHECKPOINT,'tree':CHECKPOINT_TREE},
+ 'reviewed_draft':identity(DRAFT/'final-handoff-v2.json'),'final_handoff':identity(FINAL/'final-handoff-v2.json'),
+ 'final_review_refbindings':identity(FINAL/'final-review-refbindings.json'),
+ 'exact_changed_fields':sorted(allowed),'substantive_fields_equal_reviewed_draft':True,
+ 'review_primary_refs':{key:handoff[key] for key in expected_primary},
+ 'identity_refs_recomputed':actual_refs,'portable_indices':indices,'verified_copy_records':67,'verified_copy_bytes':4432658,
+ 'README':{'original':identity(DRAFT/'README.md'),'final':identity(FINAL/'README.md'),'delta':'One added paragraph with precisely three current independent-review links and explicit boundedGO/numericHOLD/globalFAIL scope; all remaining bytes equal'},
+ 'cleanup_unchanged':identity(FINAL/'cleanup-candidates-final.json'),'PR_description_unchanged':identity(FINAL/'PR38-description.md'),
+ 'numeric_outcomes_reused_unchanged':handoff['actual_checks']['numeric'],'global_gates_reused_unchanged':handoff['actual_checks']['global_gates'],
+ 'ledger_reused_unchanged':handoff['ledger_status_preserved'],'B198':'Closed regression retained in reviewed draft; no new per-ID/status reclassification',
+ 'meaningful_corrupt_controls':controls,
+ 'P37':'Bounded reviewGO separated from frozen a9 numerical1441P4F/required7FAIL/13+23UNRUN and findingowner decisions. Source/evidence/closeout/finalpublication roles stay distinct.',
+ 'scope':'Read-only byte/JSON/Git metadata proof of final refbinding and copied receipts. No source/product/runtime/native/numeric/global/wheel/cleanup commands, no ownDoE/DDMper-ID/CALcustody re-review, no repository/ref/config writes.',
+ 'next_owner':'Root commits final handoff/reviews append-only then binds actual final commit/tree and exact remote readback; G separate code admission/integration, accountable owners separate findingacceptance.',
+ 'environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'UV_NO_SYNC':'1','PYTHONDONTWRITEBYTECODE':'1'}
+}
+(OUT/'review.json').write_text(json.dumps(review,indent=2)+'\n')
+print(json.dumps({'verdict':review['verdict'],'records':67,'bytes':4432658,'controls':len(controls),'root_unchanged':head,'final_refbindings':review['final_review_refbindings']}))

@@ -1,0 +1,1 @@
+{"candidate":"70c4a14fc872f5ef66437d958ba63884ecdda168","tree":"3e654b07a3228d1b3d2d0bb2a3a91ae792068090","plan":{"parameters":["x"],"n_trajectories":1,"max_estimated_runs":2,"levels":4,"seed":23},"control_samples":[[0],[0.6666666666666666]],"excess_samples":[[0],[0.6666666666666666],[0.3333333333333333],[1]],"outputs":"2*x"}

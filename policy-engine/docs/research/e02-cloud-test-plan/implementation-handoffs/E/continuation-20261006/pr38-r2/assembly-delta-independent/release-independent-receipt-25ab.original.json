@@ -1,0 +1,99 @@
+{
+  "DDM_reuse": {
+    "bounded_code_verdict": "GO_bounded_mechanism",
+    "defining_source_schema_facade_tests_unchanged": true,
+    "independent_receipt": "prior-independent-DDM-code-review.json",
+    "native_tests_original": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 82
+    },
+    "new_code_review_or_test_claim": false,
+    "original_source": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+    "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec"
+  },
+  "G_owner_actions_full_read": true,
+  "G_owner_decision_sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "actual_structured_rows": 6,
+  "base_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "cleanup": {
+    "new_environment_or_worktree": false,
+    "permanent_deletion_performed": false,
+    "policy": "No native Trash operation performed; retain deciding outputs and exact source bytes, list candidates only.",
+    "reproducible_fixture_cleanup_candidate": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments",
+    "shared_runtime_retained": "/workspace/e02-E-continuation-20261006/policy-engine/.venv"
+  },
+  "code_verdict": "GO-bounded-canonical-owner-release-metadata",
+  "controls": {
+    "DDM_migration_profile_corruptions_generic_PASS_canonical_REFUSED": 3,
+    "canonical_version_or_surface_corruption_generic_PASS_canonical_REFUSED": 12,
+    "present_fake_owner_E_generic_PASS_canonical_REFUSED": 12,
+    "public_inventory_review_removed_REFUSED": 5,
+    "required_field_removal": 48,
+    "structured_row_carrier_removal_warning_only_canonical_REFUSED": 6,
+    "total": 86
+  },
+  "current_export_counts": {
+    "polisyos.calibration": 29,
+    "polisyos.ddm": 17,
+    "polisyos.foundry.uncertainty": 20
+  },
+  "deciding_evidence": "review.json",
+  "environment": {
+    "caps_added": false,
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "new_environment": false,
+    "new_worktree": false,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "production_data_used": false,
+    "python": "3.14.7",
+    "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+  },
+  "finding_statuses": "No ledger statuses or formal finding closure decisions changed. DDM LA-054/055/056 remain subject to source/feed/time/signoff/served-consumer/API-owner adjudication. B197/B194/B201/B202 boundaries are preserved.",
+  "global_CI_or_numeric_family_claim": false,
+  "historical_surface_counts": "G53 source7f 28/19 is historical; current source25ab29c has exact current29/20 inventoried/exported. DDM internal17 unchanged.",
+  "index": "copy-index.json",
+  "limits_and_next_owner": [
+    "Selected six-row parser and canonical-owner reconciliation only; no generic/global CI PASS",
+    "No code/schema API semantics changed in this metadata delta",
+    "Structured parser presence checks alone do not establish canonical ownership",
+    "Current29/20 reconciliation is reused from independent r5 and verified from pinned source/inventory, no dynamic numerical family rerun",
+    "DDM17 internal facade and independently reviewed v1/v2 code are unchanged; deployment/version rollout and current-feed/signoff owner decisions remain separate",
+    "B197/B194/B201/B202 and remaining finding ledger statuses are unchanged",
+    "Root copies and commits the exact moderate packet append-only on its E topic; G code acceptance and formal finding closure remain separate."
+  ],
+  "native_command": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/review.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "UV_NO_SYNC": "1"
+    },
+    "exit_code": 0,
+    "purpose": "Selected six-row metadata native parsing and independent canonical-owner/source reconciliation; no global build_report/CI or numerical family suite",
+    "redirect": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/review.stdout"
+  },
+  "output": "review.stdout",
+  "predicate_basis": "independently_reconciled",
+  "property": "Canonical per-surface owner/classification/version ownership from tracked contract and explicit G53 decision; native structured-row presence parsing and source-bound doc refs. Nonempty owner presence is insufficient.",
+  "reviewer": "backtest_r3, independent metadata leaf; no authorship of selected release edits",
+  "schema": "e02.E.independent-selected-release-review-receipt.v1",
+  "script": "review.py",
+  "source_before_after_equal": true,
+  "source_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-uncertainty-evidence-facade.toml"
+  ],
+  "source_sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+  "source_tree": "51343543823afdec2dd86f7e76e1590b1dca0a70",
+  "state": "READY",
+  "unit": "E"
+}

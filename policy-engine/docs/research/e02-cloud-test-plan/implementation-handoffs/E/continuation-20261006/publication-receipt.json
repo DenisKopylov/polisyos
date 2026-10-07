@@ -1,0 +1,100 @@
+{
+  "schema": "policyos.e02.topic_publication_receipt.v1",
+  "unit": "E",
+  "recorded_utc": "2026-10-06T11:31:37.690167+00:00",
+  "branch": "codex/e02-E-continuation-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "source_candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "source_candidate_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "published_source_and_evidence_checkpoint_sha": "e5bb26a9145d9cb4464f36105d800b72d4579186",
+  "published_source_and_evidence_checkpoint_tree": "9579bc1bb4e7c2ae7cceea1447bb11db7e1da7ac",
+  "source_tree": "b979fbe04a3370f4562c7967048409b34e3d4cb3",
+  "tests_tree": "144b18412f6bb8bec3bc3986ebf3da61313c8b38",
+  "source_tests_delta_after_frozen_wave": "empty",
+  "receipts": [
+    {
+      "name": "topic-remote-readback",
+      "command": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-E-continuation-20261006"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "topic-remote-readback.stdout.txt",
+      "stdout_sha256": "ce6cc9b72de5b7c31f79c875630f8a25dd93c4af4d47298a280c06daa362840a"
+    },
+    {
+      "name": "source-test-post-wave-delta",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+        "HEAD",
+        "--",
+        "policy-engine/src",
+        "policy-engine/tests"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "source-test-post-wave-delta.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "evidence-raw-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "e5bb26a9145d9cb4464f36105d800b72d4579186^",
+        "e5bb26a9145d9cb4464f36105d800b72d4579186"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 2,
+      "stdout": "evidence-raw-diff-check.stdout.txt",
+      "stdout_sha256": "6b65e3460078fcce533060d61f47fafbc474d0c27d4b991725b1e2d155d829b9"
+    },
+    {
+      "name": "pr-readback",
+      "command": [
+        "gh",
+        "pr",
+        "view",
+        "38",
+        "--json",
+        "url,title,headRefOid,headRefName,baseRefName,isDraft,labels"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "pr-readback.stdout.txt",
+      "stdout_sha256": "06bd5d18cb2e7cca3cca212a3b5cd49f1121c687cd37d8b91c24e4013dc954bb"
+    },
+    {
+      "name": "status",
+      "command": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "status.stdout.txt",
+      "stdout_sha256": "adcff384c01db083f9ad45c109feaa77e54f05f81cdd5b322910b1ff6cc8bbdd"
+    }
+  ],
+  "pr_description_sha256": "d62a157faf17f375ef30ca4a382f6eba725e483f4eee80c223004f65e497b3ee",
+  "publication_operation": "normal git push E topic; remote exact checkpoint and draft PR verified; final receipt itself is a docs-only descendant",
+  "integration_acceptance": "HOLD: G code acceptance pending; current architecture/schema/OpenAPI/production-invocation/A FRC consumer failures unwaived",
+  "evidence_byte_preservation": "diff --check reports trailing whitespace only in original pytest stdout and failure XML. Bytes intentionally preserved with exact hashes; this is recorded as FAIL, not silently normalized or relabelled PASS.",
+  "finding_verdict_counts": {
+    "limited": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "main_write": false,
+  "history_rewrite": false,
+  "other_user_chats_contacted": false,
+  "permanent_cleanup": false
+}

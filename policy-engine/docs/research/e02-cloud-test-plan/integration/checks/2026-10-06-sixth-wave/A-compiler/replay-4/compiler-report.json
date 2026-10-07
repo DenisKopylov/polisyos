@@ -1,0 +1,155 @@
+{
+  "authority_boundary": {
+    "authoritative_for": [
+      "data_requirements",
+      "fabric_source_selection_preconditions",
+      "scenario_evidence_contract_legacy_projection"
+    ],
+    "may_not_use_for": [
+      "source_contract_binding_without_fabric_validation",
+      "scenario_family_authority_lookup",
+      "claim_support",
+      "legal_authority",
+      "method_validity",
+      "projection_authority",
+      "closeout_pass"
+    ]
+  },
+  "capability_reality_label": "implemented",
+  "legacy_admissible_data_source_families": [
+    "employment_panel"
+  ],
+  "metadata": {
+    "candidate_construct_proposals": [],
+    "capability_index_refs": [
+      "capability-index://req-01-installed-wheel"
+    ],
+    "consumes": [
+      "policy_grammar.facet_snapshots_for_obligation_graph",
+      "obligation_graph.blocking_frontier",
+      "scientist.claim_decomposition.ClaimLedger",
+      "core.contracts.CapabilityResolverPort"
+    ],
+    "producer": "data_requirement_compiler",
+    "reuse_classification": "wire_existing"
+  },
+  "pattern_refs": [
+    "P02",
+    "P05",
+    "P08",
+    "P12",
+    "P14"
+  ],
+  "run_id": "run:req-01-installed-wheel",
+  "runtime_event_ref": "event://data-requirement/run-req-01-installed-wheel",
+  "scenario_id": "opaque-case-alpha",
+  "schema_version": "policyos.data_requirement_compilation.v1",
+  "specs": [
+    {
+      "admissibility_predicates": [
+        "source_family_matches_compiled_requirement",
+        "source_contract_active",
+        "observation_time_covers_claim_time",
+        "lineage_preserves_required_transformations",
+        "missingness_within_tolerance",
+        "quality_minima_satisfied",
+        "claim_bindability_refs_present"
+      ],
+      "authority_profile_refs": [
+        "authority_profile:req-01-test"
+      ],
+      "claim_family": "implementation",
+      "claim_id": "claim:req-01-employment",
+      "claim_type": "implementation",
+      "claim_use": "decision_support",
+      "concept_spine_refs": [
+        "concept://data-requirement/fallback"
+      ],
+      "facet_refs": [],
+      "lineage_strictness": "strict",
+      "mandatory_facets": [
+        "source_contract_ref",
+        "source_rights",
+        "dictionary_ref",
+        "schema_ref",
+        "field_refs",
+        "unit_refs",
+        "geography_refs",
+        "time_coverage_refs",
+        "freshness_ref",
+        "lineage_refs",
+        "transformation_refs",
+        "quality_assertion_refs",
+        "missingness_refs",
+        "outlier_refs",
+        "construct_validity_refs",
+        "claim_bindability_refs"
+      ],
+      "metadata": {
+        "binding_status": "resolved",
+        "capability_binding": {
+          "acquisition_strategies": [],
+          "authority_envelope_result": "candidate",
+          "authority_level": "governed_pilot",
+          "binding_reasons": [
+            "recording resolver returned this test binding"
+          ],
+          "blocked_reasons": [],
+          "capability_index_ref": "capability-index://req-01-installed-wheel",
+          "conflict_markers": [],
+          "construct_ref": "employment_status",
+          "limitations": [
+            "fixture resolver; not source admission"
+          ],
+          "rejected_alternatives": [],
+          "requirement_id": "data-requirement:opaque-case-alpha:employment_status",
+          "rule_version_ref": "policyos.capability_binding.test-rule.v1",
+          "schema_version": "policyos.capability_binding.test.v1",
+          "selected_capability_ref": "capability://req-01/active-construct",
+          "status": "resolved"
+        },
+        "capability_index_ref": "capability-index://req-01-installed-wheel",
+        "compatibility_projection": {
+          "replacement": "capability_index_v1",
+          "source_family": "employment_panel"
+        },
+        "construct_ref": "employment_status",
+        "family_derivation": "capability_resolver",
+        "may_not_use_for": [
+          "scenario_family_authority_lookup",
+          "source_family_authority_decision_path"
+        ],
+        "run_id": "run:req-01-installed-wheel",
+        "scenario_family_authority_status": "sunset_projection_only",
+        "scenario_id": "opaque-case-alpha"
+      },
+      "missingness_tolerance": 0.05,
+      "obligation_refs": [],
+      "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+      "quality_minima": {
+        "min_completeness": 0.95,
+        "min_quality_score": 0.8,
+        "required_quality_refs": [
+          "quality_assertion_refs",
+          "construct_validity_refs"
+        ]
+      },
+      "recency_horizon": "P180D",
+      "required_data_families": [
+        "employment_panel"
+      ],
+      "requirement_id": "data-requirement:opaque-case-alpha:claim:req-01-employment:employment_panel:33d5a7632e02",
+      "rule_version_ref": "policyos.data_requirement.compiler.v1",
+      "schema_version": "policyos.data_requirement_spec.v1",
+      "scope": {
+        "geography": "geography",
+        "jurisdiction": null,
+        "population": "population",
+        "time": "time",
+        "time_role": "observation_time"
+      },
+      "source_requirement_refs": [],
+      "transformation_tolerance": "traceable"
+    }
+  ]
+}

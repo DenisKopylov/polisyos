@@ -1,0 +1,56 @@
+
+import importlib
+import importlib.abc
+import importlib.machinery
+import json
+import sys
+from pathlib import Path
+
+mode = sys.argv[1]
+blocked = {
+    "polisyos.ddm.integration.monitor",
+    "polisyos.ddm.integration.model_registry",
+    "polisyos.ddm.integration.incident",
+    "polisyos.ddm.readiness.readiness_mapper",
+}
+attempts = []
+class Trap(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname in blocked:
+            attempts.append(fullname)
+            raise AssertionError("contract entered execution dependency: " + fullname)
+        selected = {"root-eager": "polisyos.ddm", "integration-eager": "polisyos.ddm.integration"}.get(mode)
+        if fullname != selected:
+            return None
+        spec = importlib.machinery.PathFinder.find_spec(fullname, path)
+        original = spec.loader
+        class EagerRemoval(importlib.abc.Loader):
+            def create_module(self, spec):
+                return None
+            def exec_module(self, module):
+                # Remove only lazy-parent behavior; preserve real declarations,
+                # exports, and class definitions byte for byte.
+                source = original.get_source(fullname)
+                source += "\nfrom polisyos.ddm.integration.monitor import DriftAndDegradationMonitor\n"
+                exec(compile(source, spec.origin, "exec"), module.__dict__)
+        spec.loader = EagerRemoval()
+        return spec
+sys.meta_path.insert(0, Trap())
+try:
+    canonical = importlib.import_module("polisyos.ddm.contracts.events")
+    budget = importlib.import_module("polisyos.ddm.contracts.metric_budget")
+    root = importlib.import_module("polisyos.ddm")
+    integration = importlib.import_module("polisyos.ddm.integration")
+    legacy = importlib.import_module("polisyos.ddm.integration.events")
+    for name in legacy.__all__:
+        assert getattr(legacy, name) is getattr(canonical, name)
+        assert getattr(integration, name) is getattr(canonical, name)
+    for name in root.__all__:
+        if name in canonical.__dict__:
+            assert getattr(root, name) is getattr(canonical, name)
+    assert not blocked.intersection(sys.modules)
+    assert not attempts
+except AssertionError as exc:
+    print(json.dumps({"mode": mode, "outcome": "FAIL", "error": str(exc), "blocked_attempts": attempts}, sort_keys=True))
+    raise SystemExit(1)
+print(json.dumps({"mode": mode, "outcome": "PASS", "blocked_attempts": attempts, "loaded_execution_modules": sorted(blocked.intersection(sys.modules))}, sort_keys=True))

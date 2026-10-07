@@ -1,0 +1,24 @@
+{
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "ruff": "0.14.10"
+  },
+  "package_origins": {
+    "numpy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "scipy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "pytest": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages"
+  },
+  "owner_origin": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+  "numerical_thread_environment": {},
+  "backend_installation": "readonly pre-existing repo .venv; fresh worktree PYTHONPATH; no historical ignored output used as evidence input",
+  "uv_observed": "0.12.19",
+  "uv_repo_declared": "0.9.21",
+  "node_for_repo_hooks": "22.23.3",
+  "pnpm_frozen_install_log": "/workspace/e02-E-20261006-receipts/backtest-pnpm-install.log"
+}

@@ -1,0 +1,212 @@
+"""Reconcile the complete tracked E criterion denominator without changing a ledger."""
+
+from __future__ import annotations
+
+import argparse
+import collections
+import csv
+import hashlib
+import io
+import json
+import subprocess
+from pathlib import Path
+
+
+E02 = "policy-engine/docs/research/e02-cloud-test-plan"
+ORIGINAL = "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package"
+LEDGER = "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json"
+BASE = "198076863e143dea9f89f02734b13d50dae3eed5"
+
+# This is a criterion-scoped recommendation for owner adjudication, not a
+# conversion of historical partial to closed. Exact final independent replay
+# remains pending. Broader source/serving authority is recorded separately.
+PROPERTY_COMPLETE_CANDIDATES = {
+    "B97", "B98", "B99", "B101", "B102", "B103", "B104", "B105",
+    "B167", "B168", "B171", "B174", "B175", "B176", "B177", "B178",
+    "B179", "B180", "B181", "B182", "B183", "B184", "B186", "B187",
+    "B189", "B191", "B195", "B196", "B198", "B199", "B203", "LA-056",
+}
+
+# Each row describes its original discriminator, rather than the color of a suite.
+# Property evidence remains bounded by the independent reviewers/final candidate.
+# Columns: family, criterion, deciding evidence, actual remaining condition, next owner.
+ROWS = {
+    "B32": ("frc", "Distinct prediction/observation/valid/policy/calibration-window roles; no credible/pass defaults from estimator shape.", "Configured ForecastOwner request and separate source-bound empirical evidence/candidate receipt; exact ETS and CAS replay.", "A-owned default generation-cycle temporal reader and missing-evidence limitation still fail two FRC01 controls; trusted verifier/default served fresh read is absent.", "A generation-cycle/default gateway and S10 verifier owner"),
+    "B97": ("doe", "GRID_EXTREME cap applies before full Cartesian materialization, and returned prefix owns only admitted rows.", "Native stress/remediation tests preserve exact prefix, enumeration count and NumPy ownership; canonical producer used.", "Exact frozen candidate replay and E owner adjudication; original generic cap criterion requires no production corpus.", "E DOE finding owner; G exact-candidate acceptance"),
+    "B98": ("doe", "AdaptiveSampler returns the last completed round with no hidden final evaluator round.", "Native adaptive/remediation round-call history and completed-result preservation controls.", "Exact frozen candidate replay and E owner adjudication; no extra production-data requirement for call-count/state preservation.", "E DOE finding owner; G exact-candidate acceptance"),
+    "B99": ("doe", "Child plans preserve allow_large_run and reject an oversized block before evaluator admission.", "Native adaptive plan/cap and positive explicit-override controls.", "Exact frozen candidate replay and E owner adjudication; caller budget authority is a distinct claim.", "E DOE finding owner; declared budget owner for institutional override"),
+    "B100": ("doe", "Sampler and analyzer share one actual distribution parameterization, transform and design fingerprint.", "Native SALib seeded sampler/analyzer, changed distribution/order/seed refusal and CAS search-consumer numerical replay.", "Default search/autotune configured-store bridge and admitted population/evaluator provenance are absent; known-law fixture proves math only.", "E DOE distribution owner; D default search/autotune owner"),
+    "B101": ("doe", "Explicit seed reaches supported local RNG and independent stages do not reset global NumPy state.", "Canonical native SALib seeded design repeatability, global RNG unchanged and deprecated sibling sampler removed.", "Exact frozen candidate replay and owner adjudication; no production history is intrinsic to RNG isolation.", "E DOE finding owner; G exact-candidate acceptance"),
+    "B102": ("doe", "Failed Morris rows preserve the original denominator and exclude only whole validated trajectories.", "Native full trajectory geometry plus ordered X/Y receipt; corruption and removal controls reject mixed/reordered rows.", "Geometry/content replay does not authenticate evaluator/source provenance or remove parameter-dependent selection bias; default served design consumer absent.", "E DOE experiment/source owner; D search consumer owner"),
+    "B103": ("doe", "Multi-output preprocessing/PCA honors scalar failure policy and retains original attempted/success/failed/block counts.", "Native multi-output/Morris tests and finite/nonfinite full-row receipt; failed trajectory selection disclosed.", "Full configured multi-output design-to-persisted default search consumer is not established; failed-response law remains limited.", "E DOE multi-output owner; D configured search consumer"),
+    "B104": ("doe", "PCA rank/number of components is admissible for centered wide, narrow, degenerate and zero matrices on supported backends.", "Native multi-output/PCA suite with centered-rank controls; sklearn and NumPy paths remain distinct from sample sufficiency.", "Exact frozen candidate replay and owner adjudication; three observations are a linear-algebra fixture, not population evidence.", "E DOE finding owner; G exact-candidate acceptance"),
+    "B105": ("doe", "Morris point and uncertainty elementary effects use identical declared coordinates, units and scale.", "Native SALib linear oracle: physical (2,3), normalized full-range (20,3); same validated trajectory and receipt.", "Nonuniform Morris uncertainty and seeded FAST are explicitly unavailable; no broad method/population confidence claim. Default orchestration missing.", "E sensitivity uncertainty/units owner; D production consumer"),
+    "B166": ("backtest", "The exact immutable pre-cutoff historical view actually reaches Scientist rather than an independent unmasked state.", "Controlled real orchestrator dispatch receives masked row IDs and source snapshot; report CAS readback retains view identity.", "Positive native Foundry workflow/state materializer is UNRUN; Trinity/input materializer and source-state projection are missing. Real history is local only for a factual historical claim.", "Scientist configured-workflow/history materializer owner"),
+    "B167": ("backtest", "Missing predictions remain in requested denominator; zero/wrong-key comparisons cannot earn positive trust grade.", "Native PROVIDED evaluator/report/CAS/matrix controls preserve requested/eligible/observed and not_evaluated.", "Positive admitted trust-purpose/profile and native replay consumer are not established; diagnostic completeness itself is bounded verified.", "Scientist backtest trust-purpose/profile and configured-workflow owners"),
+    "B168": ("backtest", "Missing interval is unknown, actual miss is false, availability is separate, and nominal level survives serialization.", "Native paired interval/evaluator and report CAS controls preserve observed coverage and nominal level.", "Actual production interval/forecast profile is not established. Generic denominator/nominal-level semantics require frozen replay, not a production corpus.", "Scientist backtest interval/forecast owner"),
+    "B169": ("backtest", "Scalar/effect CI cannot silently become a forecast trajectory; explicit constant forecast, units and time coordinates are required.", "Native temporal/target/scalar refusal controls and Provided forecasts; report-CAS semantics preserved.", "Positive native forecast model/target materialization is UNRUN; actual trajectory mapping needs configured workflow source/estimand/horizon refs.", "Scientist forecast target/materializer owner"),
+    "B170": ("backtest", "K requested simulation runs produce K actual calls with distinct replica identity/seed plan and failures retained.", "Controlled orchestrator executes K scalar dispatches and records complete requested/completed/failed replica denominator; PROVIDED does not rerun.", "ExecConfig seed binding and positive native RunSimulation workflow remain not established; distinct requested seeds alone do not prove independent data or actual backend use.", "Scientist RunSimulation/ExecConfig and configured-workflow owner"),
+    "B171": ("backtest", "Technical partitioning preserves pooled micro RMSE/MAE; declared macro weights remain a separate estimand.", "Native residual sums/counts and shard/permutation controls; [0,10,10] micro sqrt(200/3), macro 5 for split [0]/[10,10].", "Exact frozen replay and E owner adjudication. Trust-purpose/equivalence margin is not this finding's defining condition.", "Scientist backtest aggregation finding owner"),
+    "B172": ("backtest", "Constant nonzero residual retains descriptive magnitude; unknown/degenerate inference cannot mean neutrality.", "Native constant/nonzero/zero, small-n and SciPy t/df/p controls; report/matrix cannot promote absent inference.", "Owner versioned trust purpose/profile and where required meaningful-bias margin/equivalence interval remain absent; p>alpha is not equivalence.", "Scientist trust-grade purpose/profile and statistical-method owner"),
+    "B173": ("backtest", "Unavailable SciPy does not silently change a labeled Student t test into a normal approximation.", "Native SciPy balanced t0/df2/p1 and unequal t2.59807621135/p.1216899343; unavailable dependency preserves descriptive values/degraded status.", "Same owner-admitted trust purpose, sampling assumptions and equivalence profile remain absent for positive Grade A/neutrality authority.", "Scientist trust-grade purpose/profile and statistical-method owner"),
+    "B174": ("backtest", "CV selected fold boundaries are chosen before index arrays; invalid step/train/cap rejects before looping.", "Canonical native CV selector/property-removal controls and allowed-grid parity.", "Exact frozen replay and E owner adjudication. Standalone CV preparation/progress does not require production history or trust profile.", "Scientist CV finding owner; G exact-candidate acceptance"),
+    "B175": ("backtest", "Resolve defined bootstrap statistic and finite one-dimensional data before any draw/callback; performed statistic survives readback.", "Native built-in mean/median discrete oracle, typo/nonfinite/shape pre-callback refusal and persisted statistic.", "Arbitrary callable label/__name__ remains consumer_asserted provenance; source sampling/resampling law needs owner input only for inferential use.", "Scientist bootstrap/statistical-method owner"),
+    "B176": ("cal", "Every source/time observation survives or has explicit admissibility/refusal; technical ID rename cannot choose its value or unit.", "Native measurement/compiler duplicate, unit and source controls retained; source-specific fit remains distinct.", "Exact frozen candidate replay and E owner adjudication; real source law is needed only for an actual empirical fit claim.", "Foundry measurement/compiler finding owner"),
+    "B177": ("cal", "Calendar time is explicit and synchronized with values/masks/metadata; missing requested time column cannot become positional data.", "Native sorted/unsorted aligned-pair and missing-time preflight controls.", "Exact frozen candidate replay and E owner adjudication; actual Fabric source calendar is separate factual input.", "Foundry preflight/time-axis owner"),
+    "B178": ("cal", "Fractional fill is dtype-stable; explicit empty observed support is not a measured zero row.", "Native integer/float padding, empty-support and allowed endpoint-fill controls.", "Exact frozen candidate replay and E owner adjudication; declared filling hypothesis cannot gain empirical authority.", "Foundry preflight/support owner"),
+    "B179": ("cal", "Declared observation/weight axes are checked before broadcasting so N comparisons do not become N squared.", "Native matched-shape and ambiguous column/vector negative controls through the calibration loss owner.", "Exact frozen candidate replay and E owner adjudication; source validity is not intrinsic to the arithmetic-axis property.", "Foundry calibration loss owner"),
+    "B180": ("cal", "Sample quality normalizes inside a target; target priority is applied outside that normalization and affects the exact objective.", "Native weighted-loss/JAX gradient, target weight permutation and objective identity controls.", "Exact frozen candidate replay and E owner adjudication; normative source/target priorities remain external declared inputs.", "Foundry calibration objective/loss owner"),
+    "B181": ("cal", "Zero-support inactive arithmetic has finite primal and reverse gradient without hiding active invalid model output.", "Native JAX eager/JIT/grad zero-support and active nonfinite guards retained.", "Exact frozen candidate replay and E owner adjudication; numerical zero remains missing support, not successful empirical calibration.", "Foundry calibration loss/autodiff owner"),
+    "B182": ("cal", "Scale uses the target's observed training support; other targets' dates/placeholders do not change it.", "Native mask/scale and independent target-date perturbation tests retain the exact objective.", "Exact frozen candidate replay and E owner adjudication; actual training-split provenance is separate for a real fit.", "Foundry calibration scale/support owner"),
+    "B183": ("cal", "Each multi-start uses a fresh telemetry span context; enabling observability does not break the second optimizer start.", "Native multi-start/calibrator tests retain fresh span lifecycle with and without telemetry.", "Exact frozen candidate replay must bind the multi-start/OTel positive selector; no production data is required for context-manager lifetime.", "Foundry Calibrator/multi-start owner"),
+    "B184": ("cal", "One identical final forward yields total/component loss and report traces without detached derivative input.", "Native real Calibrator final-forward counters and matching output/report tests; curvature still differentiates actual parameters.", "Exact frozen candidate replay, including new CAL05 caller; no measured global speedup or production fit-quality claim.", "Foundry Calibrator finalization owner"),
+    "B185": ("cal05", "Inactive per-row mechanisms have zero numerical callbacks and identity derivatives while active rows preserve real failures and independent key identity.", "Real lax.map batch execution, eager/JIT/grad/Hessian and numerical callback removal controls with row state/time/key.", "CAL companion must route actual Calibrator forwards through the batch owner and persist/reopen row context; standalone helper alone is consumer_missing.", "Foundry Calibrator caller owner + pure-executor owner"),
+    "B186": ("mc", "Nominal, delta and MC use the same complete fixed-plus-varying effective kwargs.", "Native fixed scale interaction, delta/random/QMC consistent nominal and output-law controls.", "General real simulation evaluator/source binding is bridge_missing; configured narrow numerical response is verified but not arbitrary served models.", "Scientist simulation/execution owner; E propagation owner"),
+    "B187": ("mc", "Named covariance row/column axes align before spectral checks; numerical repair cannot conceal an axis permutation.", "Native unequal diagonal/cross-axis covariance and singular tied-law controls; common pre-draw representability admission.", "Exact frozen replay and producer/covariance axes consumer check; inferential calibration source authority is a separate claim.", "E covariance/producer axes owner"),
+    "B188": ("mc", "Every backend preserves the admitted joint vector law; absent dependence cannot become an independent product.", "Native Gaussian tied variance0 versus independent.005; content-bound paired empirical draws; absent/fake law refuses before callbacks.", "Verified external product/joint law and configured CAL joint carrier lineage remain owner inputs; Gaussian declaration remains nongating conditional law.", "E law admission + Foundry calibration producer owner"),
+    "B189": ("mc", "JAX-compatible varying values are not cast to Python float before differentiation; actual supported affine node chooses delta.", "Native PropagateUncertaintyNode/JAX derivative and delta selection controls.", "Exact frozen replay; source-bound response provenance remains a distinct B190/general-evaluator limitation.", "Scientist uncertainty node/JAX adapter owner"),
+    "B190": ("mc", "Missing sensitivity remains unknown; explicit additive response preserves nonzero uncertainty at zero baseline without inventing links.", "Native zero-baseline/partial-map/actual-constant and missing-sensitivity controls; nongating declared affine proxy.", "Source-bound real model/Jacobian/evaluator bridge is absent; declared proxy is not the served simulator or authoritative sensitivity map.", "Scientist simulation/Jacobian producer owner"),
+    "B191": ("mc", "Missing output is an addressed structural gap, not an inferred zero interval; true constant zero remains allowed.", "Native expected-output admission and actual zero/partial-output controls across dispatcher/delta/MC.", "Exact frozen consumer replay and owner adjudication; no real-output certificate is inferred from fallback behavior.", "E propagation expected-output owner"),
+    "B192": ("mc", "Propagation consumes the available exact empirical support/weights/ordered joint rows rather than reconstructing Normal from bounds.", "Native atomic carrier random/QMC transforms, changed row order/content-digest refusal and persisted-law consumer replay.", "Configured multivariate CAL producer must emit complete joint-law digest/order/draw identities; shared string ID alone unsupported. V2 Bayesian storage remains B202 held.", "Foundry calibration carrier producer + E MC/QMC consumer"),
+    "B193": ("mc", "Mean error uses independent pilot and frozen N with pilot excluded; RQMC error uses independent complete-net replicate means.", "Native canonical Uniform indicator, all-zero256pilot U.0995612819/N408, persisted certificate replay; Sobol4x256 replicate estimator SE.", "Implemented certificate is only canonical bounded indicator over exact Uniform[0,1]. Opaque evaluator, other law/functional or anytime stop requires an admitted response/theorem profile.", "E estimator-method owner; Scientist configured simulation evaluator owner"),
+    "B194": ("mc", "Every requested draw has terminal support outcome; successful-only mean remains conditional and downstream refuses unconditional authority.", "Native Uniform[-1,1] domain-failure mean approximately.5, full outcome denominator; CAS reconciliation rejects missing outcomes.", "Real served simulation evaluator is bridge_missing; same-input transient retry classifier is absent. Need exact source-law/evaluator/domain/run refs, not an invented route.", "Scientist simulation/execution/domain failure owner"),
+    "B195": ("cal", "Finite loss and satisfactory/unknown/known-bad raw Hessian are distinct selection states; NaN/inf cannot win through unknown diagnostics.", "Native multi-start finite minimum and raw saddle/flat/ill-conditioned/nonstationary curvature tests.", "Exact frozen replay and owner adjudication; generic curvature is not inferential covariance.", "Foundry multi-start/Hessian selection owner"),
+    "B196": ("cal", "The final produced optimizer iterate is scored under the comparable objective before best-result selection, or remains explicitly unscored.", "Native Calibrator final-iterate improvement/overshoot/nonfinite/resource controls; objective identity retained.", "Exact frozen candidate replay and new batch caller check; no production fit-quality assumption needed for state accounting.", "Foundry Calibrator optimizer/finalization owner"),
+    "B197": ("cal", "Typed tie-group-to-field J projection preserves addresses/cross covariance through configured producer, CalibrationReportv2 CAS and welfare consumer.", "Real narrow known-sigma Gaussian Calibrator; stationary tied covariance.0025*ones; configured report/profile persistence and strict kind/schema/payload welfare intake.", "Configured fixture math chain exists, but independently admitted real calibration/model/source likelihood provenance and actual served producer remain not established. CAL joint-law carrier metadata must match MC admission.", "Foundry configured Calibrator/model/source owner; E adapter; Scientist served workflow owner"),
+    "B198": ("cal", "Changing display confidence level does not change the existing typed law sigma or its heuristic/gating limitations.", "Historical closed regression preserved by typed parametric scale .8/.95 readback and current calibration/uncertainty tests.", "Keep closed unless a new exact defining-property falsifier appears; final frozen regression pending.", "Foundry calibration uncertainty adapter owner"),
+    "B199": ("mc", "Duplicate envelope references do not increase stated level or silently change credible to confidence interval.", "Native singleton/duplicate content, matching type/level and heuristic restriction controls.", "Exact frozen CAS/consumer replay; mixed interval semantics have bounded candidate behavior and cannot invent guarantees.", "E uncertainty aggregation semantic owner"),
+    "B200": ("mc", "Duplicate evidence does not become independent precision; origins and effective information count remain separate.", "Native repeat same artifact/content unchanged versus conditional declared independent Gaussian arithmetic; all gates remain false.", "Verified information-unit relationships/likelihood versus prior/posterior lineage are absent; caller declarations/origin strings cannot establish authority.", "E evidence-information relationship/source owner"),
+    "B201": ("mc", "Posterior point functional and equal-tail interval are separate: 99zeros+100 gives mean1 and q05/q95[0,0].", "Independent finite analytic discriminator; v1.1 replay is retained and no silent wire change is made.", "Appointed IR semantic owner must ratify independent functionals and distinct v2 $id while retaining v1.1 read/replay; no producer code can ratify this.", "Appointed canonical IR analytics uncertainty semantic owner"),
+    "B202": ("mc", "Exact joint posterior law remains resolvable with content/order/weights/units/lineage so identical marginals cannot merge different pairings.", "Content-bound finite joint empirical carriers supported in existing v1.1 input path; current new-law semantics explicitly held.", "IR owner must choose CAS-onlyv2 (recommended) or inline+persisted ref and all four fixed ratifications; then actual Bayesian producer→CAS→sampler readback.", "Appointed canonical IR analytics uncertainty semantic owner; then E producer and C/F consumers"),
+    "B203": ("cal", "Hessian winner reuse requires exact parameter/objective/weight/seed/dtype/numerical-policy/model identity, otherwise recompute.", "Native multi-start N versus N+1 counters and per-key mutation/cache miss controls; raw spectrum authority protected.", "Exact frozen candidate replay including companion batch context/objective identity; no global cache authority inferred.", "Foundry Calibrator Hessian/cache owner"),
+    "LA-051": ("frc", "N8 transfers actual calibrated predictive evidence from one compatible producer and does not manufacture empirical pass from estimator shape.", "Configured ETS→ordered holdout→report/role artifacts→separate empirical evidence and candidate receipt→fresh CAS replay.", "A alone wires default served predictive branch before terminal causal refusal and trusted profile verifier; fresh served recomputation/surface remain missing. Causal/treatment/policy authority remains denied.", "A generation-cycle/default gateway/S10 verifier owner; E configured producer"),
+    "LA-052": ("pcl", "Continuous report/receipt agrees with persisted requested/eligible/observed pairs; no comparisons cannot become approximate_calibrated.", "Native actual Foundry diagnostics caller, same-store pairs/report/receipt and independent full recomputation; fake report/receipt/pairs and removal controls.", "Higher default Foundry configured-store composition is implemented_but_not_orchestrated. Source/split/horizon/time are not production authority from synthetic pairs.", "Foundry default diagnostics configured-store owner; E calibration owner"),
+    "LA-053": ("pcl", "Canonical calibration objects and numerical tests migrate while supported old alias keeps identity until its authorized compatibility window ends.", "Three canonical public objects equal supported Scientist forwarding objects; tests under canonical owner with alias identity regression.", "Canonical calibration and Scientist API owners must declare actual compatibility/deprecation window and supported external consumers; no alias sunset/retirement was invented.", "Canonical calibration owner and Scientist backtesting API/alias migration owner"),
+    "LA-054": ("ddm", "Same report/model/detector/regime/metric/window/expiry/invalidation evidence reaches public DDM registry consumer without pass-only bypass.", "Native calibration→audit→monitor→persisted registry→source-rebind→gate; quantity/report/source/time removal controls and full shared-field binding.", "Actual complete live-feed/source/rule/window admission, delayed-event freshness profile and served registry/deployment consumer remain absent; fixture integrity is not stationarity validity.", "DDM applicability/live-feed/source profile owner; deployment consumer owner"),
+    "LA-055": ("ddm", "Baseline eligibility, independent false veto and documented R2 signoff precedence share one consistent gate; R1/R0/failure cannot be overridden.", "Native R-state matrix and JSON reopen/rebind false-veto protection; public mutation/source removal fails.", "Versioned deployment-purpose policy, actual institutional signoff and observed-empty versus unavailable feed provenance remain owner inputs; bool is not authorized human identity.", "DDM semantic/deployment-purpose owner and institutional R2 signoff owner"),
+    "LA-056": ("ddm", "One neutral event/budget owner imports without orchestration while public/legacy models, aliases, runtime validators, JSON/schema and old FQN pickle remain compatible.", "Independent MetaPath subprocess no-runtime hook, root/integration lazy removal failing controls, all14 classes/enums,12 native JSON/pickle models, LK35 differential and public root monitor;42 native testsPASS.", "Final frozen source replay and accountable finding-owner decision only. No production corpus/deployment/wheel-wide claim is required for this bounded import/compatibility criterion.", "DDM contracts/facade finding owner; G exact-candidate acceptance"),
+}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository", type=Path, required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--handoff-index", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    def git(*arguments: str) -> str:
+        return subprocess.check_output(["git", *arguments], cwd=args.repository, text=True).strip()
+    candidate = git("rev-parse", args.candidate)
+    tree = git("rev-parse", candidate + "^{tree}")
+    identities = {}
+    def read(path: str) -> str:
+        raw = subprocess.check_output(["git", "show", candidate + ":" + path], cwd=args.repository)
+        identities[path] = {"git_blob": git("rev-parse", candidate + ":" + path), "sha256": hashlib.sha256(raw).hexdigest()}
+        return raw.decode()
+    manifest = json.loads(read(ORIGINAL + "/bundle_manifest.json"))
+    coverage = json.loads(read(E02 + "/closure-decisions/coverage.json"))
+    bundle_owners = list(csv.DictReader(io.StringIO(read(E02 + "/execution-organization/bundle-owners.tsv")), delimiter="\t"))
+    finding_owners = list(csv.DictReader(io.StringIO(read(E02 + "/execution-organization/finding-owners.tsv")), delimiter="\t"))
+    ledger = json.loads(read(LEDGER))
+    source_documents = {name: read(ORIGINAL + "/source/" + name + "_original.md") for name in ("B_r19", "LA_r09")}
+    bundles_by_id = {item["id"]: item for item in manifest["bundles"]}
+    covered = {item["id"]: item for item in coverage["findings"] if item["unit"] == "E"}
+    owned = {item["finding_id"]: item for item in finding_owners if item["unit"] == "E"}
+    bundle_ids = {item["bundle_id"] for item in bundle_owners if item["unit"] == "E"}
+    ledger_rows = {item["id"]: item for item in ledger["rows"]}
+    assert len(bundle_owners) == 127 and len(finding_owners) == len(ledger_rows) == 282
+    assert set(ROWS) == set(owned) == set(covered), (set(ROWS) ^ set(owned), set(ROWS) ^ set(covered))
+    attachments = []
+    for bundle_id in sorted(bundle_ids):
+        item = bundles_by_id[bundle_id]
+        ids = [*item["findings"], *item["legacy_cards"]]
+        attachments.extend((bundle_id, finding_id) for finding_id in ids)
+        raw_bundle = read(ORIGINAL + "/bundles/" + bundle_id + ".md")
+        for finding_id in ids:
+            kind = "LA" if finding_id.startswith("LA-") else "B"
+            assert "<!-- SOURCE_BEGIN " + kind + ":" + finding_id + " -->" in raw_bundle
+    assert len(bundle_ids) == 22 and len(owned) == 54 and len(attachments) == 55
+    assert collections.Counter(fid for _, fid in attachments)["LA-051"] == 2
+    assert {fid for _, fid in attachments} == set(owned)
+    handoffs = json.loads(args.handoff_index.read_text())
+    family_receipts = {item["family"]: item for item in handoffs}
+    assert len(family_receipts) == 8
+    rows = []
+    for finding_id in sorted(owned, key=lambda name: (name.startswith("LA-"), int(name.removeprefix("LA-").removeprefix("B")))):
+        family, criterion, evidence, remaining, owner = ROWS[finding_id]
+        ledger_status = ledger_rows[finding_id]["status"]
+        assert ledger_status == owned[finding_id]["source_status"] == covered[finding_id]["ledger_status_historical"]
+        criterion_refs = []
+        for ref in covered[finding_id]["criterion_refs"]:
+            start, end = ref["lines"]
+            source = source_documents[ref["document"]]
+            block = "".join(source.splitlines(keepends=True)[start - 1:end])
+            assert hashlib.sha256(block.encode()).hexdigest() == ref["sha256"], finding_id
+            criterion_refs.append({"path": ORIGINAL + "/source/" + ref["document"] + "_original.md", "lines": [start, end], "sha256": ref["sha256"]})
+        receipt = family_receipts[family]
+        verdict = "closed" if finding_id == "B198" else "held" if finding_id in ("B201", "B202") else "limited"
+        rows.append({
+            "finding_id": finding_id,
+            "bundle_ids": sorted(bundle for bundle, fid in attachments if fid == finding_id),
+            "ledger_status_preserved": ledger_status,
+            "proposed_verdict": verdict,
+            "criterion_property_assessment": (
+                "receipt-supported bounded criterion-complete candidate; final independent source replay pending"
+                if finding_id in PROPERTY_COMPLETE_CANDIDATES else
+                "criterion includes an active producer/consumer/method/semantic owner boundary"
+            ),
+            "post_freeze_owner_adjudication_recommendation": (
+                "Retain historical closed regression unless a new defining-property falsifier appears"
+                if finding_id == "B198" else
+                "Owner may adjudicate bounded finding closure after exact final replay and review; do not require unrelated production or deployment authority"
+                if finding_id in PROPERTY_COMPLETE_CANDIDATES else
+                "Retain limited/held at the stated active boundary; PASS counts or code acceptance do not resolve it"
+            ),
+            "formal_ledger_change": False,
+            "criterion": criterion,
+            "criterion_refs": criterion_refs,
+            "deciding_scoped_evidence": evidence,
+            "receipt_ref": receipt["handoff_path"] + "@" + receipt["branch_head"],
+            "implementation_commits": receipt["data"]["implementation_commits"],
+            "implementation_tree": receipt["data"]["candidate_tree_sha"],
+            "independent_extra_evidence": "ddm01-independent.json@cb9fb322a45efcac1cbdfa04d5f59a03d7dbe90a" if finding_id == "LA-056" else None,
+            "remaining_condition": remaining,
+            "next_owner": owner,
+            "final_frozen_wave": "UNRUN/pending at reconciliation",
+            "bounded_import_criterion_closure_recommendation": "closed after final DDM input identity replay and owner adjudication" if finding_id == "LA-056" else None,
+        })
+    args.output.mkdir(parents=True, exist_ok=True)
+    output = {
+        "schema": "policyos.e02.independent_criterion_reconciliation.v1",
+        "unit": "E", "reviewer": "closure_reconcile_r3 independent leaf",
+        "review_source_sha": candidate, "review_source_tree": tree,
+        "entry_base_sha": BASE,
+        "denominator": {"manifest_bundles": len(manifest["bundles"]), "bundle_owner_rows": len(bundle_owners), "finding_owner_rows": len(finding_owners), "ledger_rows": len(ledger_rows), "E_bundles": len(bundle_ids), "E_unique_findings": len(owned), "E_bundle_links": len(attachments)},
+        "ledger_status_counts_preserved": dict(collections.Counter(item["ledger_status_preserved"] for item in rows)),
+        "proposal_counts": dict(collections.Counter(item["proposed_verdict"] for item in rows)),
+        "bounded_property_complete_candidate_ids": sorted(PROPERTY_COMPLETE_CANDIDATES),
+        "predicate_basis": "recomputed criterion/input-set reconciliation; native outcomes supplied by exact referenced author/independent receipts, not recounted as finding closure",
+        "authority": "No ledger mutation and no final-wave claim. Code acceptance, method scope, formal closure and serving are separate decisions.",
+        "input_identities": identities,
+        "corrections": [
+            "DDM01 LA056 is separate from author DDM02 receipt LA054/LA055 and needs explicit independent evidence.",
+            "B169 is scalar/interval trajectory semantics; B170 is K actual replays/seed plan. Author receipt reason adjacency is not criterion authority.",
+            "B171 defining condition is micro/macro sharding; trust-purpose/equivalence is B172/B173, not B171.",
+            "B174 CV materialization/progress and DOE97/98/99/104 generic properties do not inherently require production corpus.",
+            "CAL broad focused receipt labels target entry base, so use exact final-candidate replay before promoting it as post-change evidence.",
+            "B194/B197 historical held remain ledger held with proposed technical limited; B201/B202 remain semantic held.",
+        ],
+        "rows": rows,
+    }
+    (args.output / "criterion-proposal.json").write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n")
+    lines = ["# E independent criterion reconciliation proposal", "", "This is a pre-freeze proposal. Ledger statuses are preserved; final frozen checks are pending. It does not ratify closures. The JSON separately lists 32 receipt-supported bounded criterion-complete candidates for owner adjudication after exact independent replay; broader source/serving limitations do not automatically defeat those original mechanical criteria.", "", "| Finding | Bundles | Ledger | Proposed verdict | Defining property | Criterion-complete candidate | Remaining condition / next owner |", "|---|---|---|---|---|---|---|"]
+    for row in rows:
+        cells = [row["finding_id"], ", ".join(row["bundle_ids"]), row["ledger_status_preserved"], row["proposed_verdict"], row["criterion"], "Receipt-supported; final replay/owner pending" if row["finding_id"] in PROPERTY_COMPLETE_CANDIDATES else "Active defining boundary", row["remaining_condition"] + " Next: " + row["next_owner"]]
+        lines.append("| " + " | ".join(cell.replace("|", "\\|").replace("\n", " ") for cell in cells) + " |")
+    (args.output / "criterion-proposal.md").write_text("\n".join(lines) + "\n")
+    print(json.dumps({"candidate": candidate, "denominator": output["denominator"], "ledger": output["ledger_status_counts_preserved"], "proposal": output["proposal_counts"]}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

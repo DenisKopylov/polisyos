@@ -1,0 +1,11 @@
+id = "e02-pcl-configured-consumer"
+title = "Persist continuous calibration through configured NumPy graph execution"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "All nonstationary GARCH interval summaries now persist and recompute their ordered pairs using the configured execution CAS. Method diagnostics and graph derived refs expose actual persisted artifacts with exact panel row/time/split bindings."
+evidence = ["tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py", "tests/unit/calibration/test_continuous_persistence.py"]
+compatibility = "Scientific method signatures and the calibration_curve compatibility alias remain unchanged. NumPy accepts artifact_store as an execution service; the graph overrides a supplied service with its own configured CAS."
+surface_classification = "internal: Foundry graph method execution and NumPy runner"
+migration = "Consumers resolve calibration diagnostics refs with the existing continuous evaluation reader. Missing-store execution exposes a descriptive store_missing state without a persisted diagnostic ref."
+limitations = "Descriptive calibration remains gate_eligible=false. Constructed synthetic source-row binding does not grant production-source or decision authority; the calibration and Scientist alias owners still own the compatibility window."

@@ -1,0 +1,61 @@
+{
+  "scope": "Frozen currentG A/generator dependency author binding, no code/numeric/gate execution or independent review claim",
+  "primary": "dependency-packet-a9f78817.json",
+  "source_pin": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "files": [
+    {
+      "path": "G-merge-delta.json",
+      "bytes": 9068,
+      "sha256": "7c21b634bcafef66f895d8bcd63acb23f987c5a7e83429492e498fbe8d083db3"
+    },
+    {
+      "path": "G-owner-reason-clarification.md",
+      "bytes": 1745,
+      "sha256": "ac6138134cb2f299d05ac8036c1b71bf1b77e962b759f5ebb9854efccd7b3e59"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2795,
+      "sha256": "c3c325278f51785c12f576582169af80fdb0459614843c39cbce8bcf08fdd3cf"
+    },
+    {
+      "path": "binding-controls.json",
+      "bytes": 1838,
+      "sha256": "c9b39a53f58bfa2e9a76caae16922a19b308a15e66731a55b866b86e7a7e6830"
+    },
+    {
+      "path": "binding-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "binding-controls.stdout.txt",
+      "bytes": 1838,
+      "sha256": "c9b39a53f58bfa2e9a76caae16922a19b308a15e66731a55b866b86e7a7e6830"
+    },
+    {
+      "path": "dependency-packet-a9f78817.json",
+      "bytes": 18712,
+      "sha256": "eb30471ab35c2fa89e205f07e7ef35c9eb360fb315bff68e8bf6f2d12c42d604"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 2077,
+      "sha256": "a8de7b4f02efe2df2a8ef37ac1f90a902d91fad6d2435b567d452c33930b56f4"
+    },
+    {
+      "path": "source-binding-a9f78817.json",
+      "bytes": 42498,
+      "sha256": "14e4b908c03ddcf78f7f8cb6563cf8212bd4d61ef6fe5c0574e9d359e011e281"
+    },
+    {
+      "path": "validate_binding.py.txt",
+      "bytes": 4404,
+      "sha256": "14a1debe4e904cb7e5de34cf465550f2b5b7e4d5437f954fd2d3683638a134aa"
+    }
+  ],
+  "file_count": 10,
+  "total_bytes": 84975,
+  "index_self_excluded": true,
+  "asset_paths_relative_to_index_directory": true
+}

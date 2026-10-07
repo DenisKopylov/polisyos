@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe.py", line 39, in <module>
+    env=UncertaintyEnvelope(point_estimate=.5,confidence_interval=(0.0,1.0),distribution_family=DistributionFamily.UNIFORM,source=UncertaintySource.CALIBRATION,interval_semantics=IntervalSemantics.HEURISTIC_RANGE,is_heuristic_ci=True,gate_eligible=False)
+  File "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for UncertaintyEnvelope
+  Value error, confidence_level must be None for non-statistical interval semantics [type=value_error, input_value={'point_estimate': 0.5, '... 'gate_eligible': False}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/value_error

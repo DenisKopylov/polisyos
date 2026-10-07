@@ -1,0 +1,580 @@
+{
+  "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "all_module_origins_exact": true,
+  "module_count": 77,
+  "module_hashes": {
+    "polisyos.scientist.methods.doe.uncertainty": "af3fdab52ebf687adf326134f9f31f407896c7bcf0f26159183acef4db3033b1",
+    "polisyos.scientist.methods.doe.designs": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c",
+    "polisyos.scientist.methods.doe.morris_geometry": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e",
+    "polisyos.scientist.methods.doe.sampling": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574",
+    "polisyos.scientist.methods.doe.analysis": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60",
+    "polisyos.scientist.methods.doe.sensitivity_benchmark": "c4ffd36f8a23a0b6ab8c08832a0f97c018952d6eb65eb5ef21d8bc01ce9c17d6",
+    "polisyos.scientist.methods.doe.stress_report": "f6a76e683ef4fa3519d9af056e5b1466e2a26f2a8da4126d0353d9aa2b70bd17",
+    "polisyos.scientist.methods.doe": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37",
+    "polisyos.scientist.methods.doe._receipt": "65dc3871e65eeaab30e1210efafc8dc184450783751d4ec2c9b9c584b5b92350",
+    "polisyos.scientist.methods.doe.adaptive": "fee7bcdd5ee5d980f89437a4f252d1c7f9e378cb0a3cc40848e56d88728b73e7",
+    "polisyos.scientist.methods.doe.multi_output": "cc98dd394851a25da2c7b52855b9860c780b9cb5ff7886ed8dae23191549d19f",
+    "polisyos.scientist.methods.doe.stability": "9f4c83b406703b9267973a88e1f3a9705481074e6357b01603632fe120c3cd32"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "SALib": "1.5.2",
+    "backend": "native SALib sampler/analyzer plus counted inlet controls",
+    "no_artificial_caps": true
+  },
+  "results": [
+    {
+      "boundary": "generate",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "generate",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "generate",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "generate",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "generate",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "generate",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "problem",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "problem",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "problem",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "problem",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "problem",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "problem",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "identity",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "identity",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "identity",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "identity",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "identity",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "identity",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "prepare",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "prepare",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "prepare",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "prepare",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "prepare",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "prepare",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "analyze",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "analyze",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "analyze",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "analyze",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "analyze",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "analyze",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "persist",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "persist",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "persist",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "persist",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "persist",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "persist",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "adaptive",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "adaptive",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "adaptive",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "adaptive",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "adaptive",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "adaptive",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "PCA",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "PCA",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "PCA",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "PCA",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "PCA",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "PCA",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "stability",
+      "corruption": "N",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "stability",
+      "corruption": "dimension",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "stability",
+      "corruption": "method",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "stability",
+      "corruption": "cap",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "stability",
+      "corruption": "copy",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "boundary": "stability",
+      "corruption": "construct",
+      "outcome": "REFUSED_before_backend",
+      "SALib_calls": 0,
+      "evaluator_calls": 0,
+      "CAS_writes": 0
+    },
+    {
+      "native_method": "morris",
+      "N": 2,
+      "k": 2,
+      "rows": 6,
+      "cap": 6,
+      "SALib": "1.5.2"
+    },
+    {
+      "native_method": "sobol",
+      "N": 2,
+      "k": 2,
+      "rows": 12,
+      "cap": 12,
+      "SALib": "1.5.2"
+    },
+    {
+      "native_method": "fast",
+      "N": 65,
+      "k": 2,
+      "rows": 130,
+      "cap": 130,
+      "SALib": "1.5.2"
+    },
+    {
+      "native_analysis": "Morris y=x+2z",
+      "independent_mu_star": [
+        1,
+        2
+      ],
+      "rows": 12,
+      "source_plan": {
+        "parameters": [],
+        "method": "morris",
+        "parameter_specs": [
+          {
+            "name": "x",
+            "lower_bound": 0.0,
+            "upper_bound": 1.0,
+            "distribution": "uniform",
+            "distribution_spec": null,
+            "baseline": null,
+            "description": "",
+            "unit": "normalized",
+            "num_levels": 4
+          },
+          {
+            "name": "z",
+            "lower_bound": 0.0,
+            "upper_bound": 1.0,
+            "distribution": "uniform",
+            "distribution_spec": null,
+            "baseline": null,
+            "description": "",
+            "unit": "normalized",
+            "num_levels": 4
+          }
+        ],
+        "n_trajectories": 4,
+        "confidence_level": 0.95,
+        "seed": 29,
+        "input_law": "independent",
+        "max_estimated_runs": 12,
+        "allow_large_run": false,
+        "max_wall_time_sec": null,
+        "run_failure_policy": "fail_fast",
+        "min_success_rate": 0.9,
+        "uncertainty": {
+          "enabled": false,
+          "level": 0.95,
+          "method": "auto",
+          "n_resamples": 1999,
+          "interval_types": [
+            "marginal",
+            "simultaneous"
+          ],
+          "rank_uncertainty": true,
+          "random_seed": null,
+          "uncertainty_scope": "sampling_only",
+          "top_k": [
+            1,
+            3
+          ],
+          "simulated_rank_draws": 1999,
+          "studentized_inner_resamples": 99
+        }
+      },
+      "CAS": "/tmp/pytest-of-agent/pytest-217/test_real_native_analysis_CAS_0/cas",
+      "analysis_ref": {
+        "artifact_id": "sha256:c9203193760dbe8b94f64305d2f0ca6f8fc0a707d9a9778f25fcb0cff952e3f8",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json"
+      },
+      "fresh_readback_equal": true,
+      "corrupt_receipt_ref": {
+        "artifact_id": "sha256:8ef2cc767c955a36b0951325ef2548dbfc35106b3358a598192309ef22d0a992",
+        "kind": "doe_sensitivity_analysis",
+        "media_type": "application/json"
+      },
+      "corrupt_callback_count": 0,
+      "population_law_status": "not_established"
+    },
+    {
+      "boundary": "Adaptive original callback mutation",
+      "evaluator_calls": 1,
+      "rows": 6,
+      "captured_cap": 6,
+      "late_permission_ignored": true,
+      "stop_reason": "max_estimated_runs_exceeded"
+    },
+    {
+      "property_removed": "shared plan snapshot/readmission",
+      "present_API_preserved": true,
+      "overcap_N": 3,
+      "cap": 6,
+      "backend_calls": 1,
+      "outcome": "EXPECTED_escape"
+    }
+  ]
+}

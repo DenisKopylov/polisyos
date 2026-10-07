@@ -1,0 +1,56 @@
+{
+  "base_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "candidate_sha": "c64b13aeaef11073bbdb2f9e52b30b6effae928d",
+  "changed_python_paths": 5,
+  "new_absolute_poliyos_import_rows": [
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.foundry.calibration.report",
+      "symbols": [
+        "load_calibration_report"
+      ],
+      "status": "pending owner admission: new cross-root module edge",
+      "owner": "team-polisyos Foundry public API + team-architecture contract/inventory"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.foundry.uncertainty",
+      "symbols": [
+        "admit_empirical_weights",
+        "admit_unit_uniform",
+        "empirical_cdf",
+        "reconcile_draw_outcomes",
+        "sampling_content_digest"
+      ],
+      "status": "existing-admitted-E-uncertainty facade"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "symbols": [
+        "DistributionFamily",
+        "ParametricFitCarrier",
+        "PosteriorSamplesCarrier",
+        "UncertaintyEnvelope",
+        "load_uncertainty_envelope",
+        "persist_uncertainty_envelope"
+      ],
+      "status": "existing module edge; new ParametricFitCarrier symbol needs curated IR alias admission",
+      "owner": "team-polisyos IR public API + team-architecture inventory",
+      "already_available_in_admitted_facade": [
+        "DistributionFamily",
+        "UncertaintyEnvelope",
+        "load_uncertainty_envelope",
+        "persist_uncertainty_envelope"
+      ],
+      "not_curated": [
+        "ParametricFitCarrier",
+        "PosteriorSamplesCarrier"
+      ]
+    }
+  ],
+  "scope": "additive post-v1 source import rows; no global architecture verdict",
+  "new_pending_module_edges_post_v1": 1,
+  "current_targeted_pending_module_edges": 15,
+  "module_edge_vs_import_row_note": "Welfare had the IR uncertainty edge before v1; augmented symbol list is not another module edge. Original12 audit denominator remains12. Original unresolved9+BKT5+new legacy1=15 targeted pending module edges; this is not the complete global architecture denominator."
+}

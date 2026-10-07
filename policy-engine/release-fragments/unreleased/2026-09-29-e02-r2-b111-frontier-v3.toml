@@ -1,3 +1,4 @@
+# Criterion clarification: v3 migration/reader inventory and unknown-version guard are release/profile obligations; original B111 remains metric-state, partial-denominator and finite-or-unavailable output. See integration original-criteria-errata-2026-10-06.md.
 id = "2026-09-29-e02-r2-b111-frontier-v3"
 title = "Version Scientist frontier artifacts with eligible identities"
 type = "changed"

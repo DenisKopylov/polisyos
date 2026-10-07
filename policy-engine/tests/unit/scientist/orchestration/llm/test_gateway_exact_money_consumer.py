@@ -82,9 +82,10 @@ def _origins() -> list[dict[str, Any]]:
     for name, module in sorted(sys.modules.items()):
         if not name.startswith("polisyos.") or not getattr(module, "__file__", None):
             continue
-        path = Path(module.__file__).resolve()
-        if not path.is_relative_to(root / "policy-engine/src"):
+        if name in _D_MODULES and module.__file__.startswith(f"git-object:{_D_SHA}:"):
             continue
+        path = Path(module.__file__).resolve()
+        assert path.is_relative_to(root / "policy-engine/src"), path
         data = path.read_bytes()
         if sha:
             assert data == _git_bytes(root, sha, str(path.relative_to(root))), path
@@ -289,7 +290,7 @@ def test_http_money_does_not_become_zero_in_durable_reader(
         assert observed["result_error"] == "LLMAccountingError", observed
         assert not receipts and observed["snapshot"]["completion_obligations"], observed
         assert Decimal(state["reserved"]["run"]) > 0
-        assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+        assert fresh["admission_error"] == "BudgetLedgerCompletionRequiredError", fresh
         assert fresh["should_stop"] and not fresh["details"]["budget_available"], fresh
     else:
         assert observed["result_error"] is None, observed
@@ -315,4 +316,5 @@ if __name__ == "__main__":
     sys.meta_path.insert(0, _loader)
     _observed = _fresh_reader(Path(sys.argv[2]))
     _observed["d_source"] = _loader.rows
+    _observed["b_source"] = _origins()
     print("EXACT_MONEY_READER " + json.dumps(_observed, default=str))

@@ -33,6 +33,7 @@ from polisyos.runtime.quality.generation_cycle import (
     SimulationPortObservation,
     load_joint_simulation_result,
     simulation_evaluation_input_ref,
+    validate_generation_cycle_candidate_run,
 )
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
@@ -525,6 +526,44 @@ async def test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_resu
             assert low_summary.content_hash == low.content_hash
             assert generation_cycle_module._candidate_content_hash(high) == high.content_hash
             assert generation_cycle_module._candidate_content_hash(low) == low.content_hash
+            assert validate_generation_cycle_candidate_run(run) == ()
+
+            # A refusal marker cannot erase the selected candidate's actual N5 result.
+            assert low_summary.n5_applicability is not None
+            fake_blocker = "intervention_assignment_conflict"
+            fake_applicability = low_summary.n5_applicability.model_copy(
+                update={"status": "ineligible", "blockers": (fake_blocker,)}
+            )
+            fake_summary = low_summary.model_copy(
+                update={"n5_applicability": fake_applicability}
+            )
+            fake_summaries = tuple(
+                fake_summary if item.candidate_id == low.candidate_id else item
+                for item in run.candidate_summaries
+            )
+            fake_voi_decision = cycle.voi_decision.model_copy(
+                update={
+                    "scheduler_action": "not_run_hard_feasibility_blocked",
+                    "scheduler_reason": fake_blocker,
+                    "priority": 0.0,
+                    "next_action": "blocked",
+                    "reason": f"n5_preflight_blocked:{fake_blocker}",
+                }
+            )
+            fake_cycle = cycle.model_copy(update={"voi_decision": fake_voi_decision})
+            fake_run = run.model_copy(
+                update={"cycles": (fake_cycle,), "candidate_summaries": fake_summaries}
+            )
+            assert fake_cycle.simulation.status == "joint_simulated"
+            assert fake_cycle.simulation.simulation_result_ref == (
+                cycle.simulation.simulation_result_ref
+            )
+            assert fake_cycle.value_port.value_ref == cycle.value_port.value_ref
+            fake_issue_codes = {
+                str(issue.get("code"))
+                for issue in validate_generation_cycle_candidate_run(fake_run)
+            }
+            assert "hard_feasibility_blocked_execution_mismatch" in fake_issue_codes
 
             persisted = load_joint_simulation_result(
                 cycle.simulation.simulation_result_ref,
@@ -743,6 +782,7 @@ async def test_all_hard_infeasible_candidates_block_before_n5_and_voi(
             assert cycle.simulation.simulation_result_ref is None
             assert cycle.voi_decision.scheduler_action == "not_run_hard_feasibility_blocked"
             assert n5_run_calls == 0
+            assert validate_generation_cycle_candidate_run(run) == ()
     finally:
         store.close()
 

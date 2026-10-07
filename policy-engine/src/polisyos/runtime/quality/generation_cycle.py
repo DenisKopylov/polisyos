@@ -682,8 +682,12 @@ def _historical_generation_cycle_field_tree(
             for key in (name, field.alias, field.serialization_alias)
             if isinstance(key, str)
         }
-        allowed_wire_fields = set(shape["wire_fields"])
         computed_fields = set(shape["computed_fields"])
+        allowed_wire_fields = set(shape["wire_fields"])
+        if version == "v3":
+            # Native v3 serialization emits its frozen computed fields. Legacy
+            # v1/v2 keep the exact historical widthless projection.
+            allowed_wire_fields.update(computed_fields)
         result: dict[str, Any] = {}
         for key, item in payload.items():
             if key not in allowed_wire_fields:
@@ -2083,6 +2087,11 @@ class GenerationCycleRun(_StrictModel):
         if not isinstance(payload, Mapping):
             raise ValueError("generation_cycle_persisted_payload_not_mapping")
 
+        legacy_widthless = payload.get("schema_version") in {
+            "policyos.runtime.generation_cycle_controller.v1",
+            "policyos.runtime.generation_cycle_controller.v2",
+        }
+
         def load_value_port(value: object) -> object:
             if not isinstance(value, Mapping):
                 return value
@@ -2090,7 +2099,11 @@ class GenerationCycleRun(_StrictModel):
             if not isinstance(receipt, Mapping):
                 return value
             normalized = dict(value)
-            normalized["value_receipt"] = ValueGateReceipt.from_persisted_payload(receipt)
+            normalized["value_receipt"] = (
+                ValueGateReceipt.model_validate(receipt)
+                if legacy_widthless
+                else ValueGateReceipt.from_persisted_payload(receipt)
+            )
             return normalized
 
         validation_payload = dict(payload)
@@ -9895,6 +9908,7 @@ def _validate_generation_cycle_run(
             "pending",
             "blocked",
             "unsupported_terminal",
+            "not_run_hard_feasibility_blocked",
         }:
             issues.append(
                 {
@@ -9903,6 +9917,37 @@ def _validate_generation_cycle_run(
                     "scheduler_action": cycle.voi_decision.scheduler_action,
                 }
             )
+        if cycle.voi_decision.scheduler_action == "not_run_hard_feasibility_blocked":
+            selected_applicabilities = tuple(
+                summary.n5_applicability
+                for summary in run.candidate_summaries
+                if summary.cycle_index == cycle.cycle_index
+                and summary.candidate_id == cycle.selected_candidate_ref
+                and summary.content_hash == cycle.selected_candidate_content_hash
+            )
+            refusal_is_bound = any(
+                applicability is not None
+                and applicability.status != "eligible"
+                and cycle.voi_decision.scheduler_reason in applicability.blockers
+                for applicability in selected_applicabilities
+            )
+            if not (
+                refusal_is_bound
+                and cycle.voi_decision.next_action == "blocked"
+                and cycle.voi_decision.priority == 0.0
+                and cycle.simulation.status == "simulation_blocked"
+                and cycle.simulation.simulation_result_ref is None
+                and cycle.simulation.simulation_ref is None
+                and cycle.value_port.status == "value_blocked"
+                and cycle.value_port.value_ref is None
+                and cycle.voi_decision.scheduler_reason in cycle.simulation.authority_blockers
+            ):
+                issues.append(
+                    {
+                        "code": "hard_feasibility_blocked_execution_mismatch",
+                        "cycle_index": index,
+                    }
+                )
         try:
             expected_strategy = _revision_strategy_for_terminal_kind(
                 cycle.revision_request.source_terminal_kind

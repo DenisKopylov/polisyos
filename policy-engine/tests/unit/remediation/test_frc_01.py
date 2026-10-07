@@ -367,6 +367,16 @@ def test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_
     assert evidence.recomputed_denominator == expected_denominator
     assert evidence.recomputed_pass_rate == expected_rate
 
+    projection, projection_error = _generation_cycle("_s10_empirical_projection")(
+        evidence_ref=evidence_ref,
+        evidence=evidence,
+    )
+    assert projection_error is None
+    assert projection is not None
+    assert projection["numerator"] == expected_numerator
+    assert projection["denominator"] == expected_denominator
+    assert projection["pass_rate"] == expected_rate
+
     inputs, resolver = _gateway_inputs_for_bridge_evidence(
         store,
         evidence_ref,

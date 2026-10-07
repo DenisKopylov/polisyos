@@ -1,0 +1,864 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-imported-module-checkpoint-oracle",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RES-04"
+  ],
+  "slice_base_sha": "6ab98c56cc92d81c9ed2180dab1f34690622e41b",
+  "implementation_commits": [
+    "e02bedff0b01527dca858447d312106240207a2c",
+    "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+    "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
+    "4ef8b89b0321eb8bc51972ac834910aeb7bc8cae",
+    "a4fc45a9e2174087aeb3b9c301b81277165d57b6",
+    "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+    "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "1970df7b049c6f70b918d453d7051d497f73aa21",
+    "ce3b983d2c249cd945c6766f9a83bb8af409739f",
+    "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2"
+  ],
+  "candidate_tree_sha": "12e0b29e1d905351f2086496670442fe8c03ed7a",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-e02_b74_input_custody.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-input-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-e02_b74_input_custody.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-input-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-style-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/format-corrected.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native-removal.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-e02_b74_input_custody.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-input-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-mutation.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/ruff-corrected.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/ruff-introduced.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/source-review.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "e02_b74_input_custody",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "--basetemp",
+        "/tmp/e02-B-cas-b74-20261007/base-f4/pytest",
+        "--junitxml",
+        "/tmp/e02-B-cas-b74-20261007/base-f4/native.xml",
+        "-o",
+        "cache_dir=/tmp/e02-B-cas-b74-20261007/base-f4/cache"
+      ],
+      "target_sha": "f4c11a7506ae6e2c80161dc67c2458aa248164d5",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/base-f4",
+        "removed_thread_cap_env": {},
+        "started_utc": "2026-10-07T07:32:12Z",
+        "native_header": "Python3.14.2/pytest9.0.2; complete installed-plugin versions inbaseline-native.txt",
+        "numeric_or_process_quota": "none introduced; only inherited artificial thread-cap variables removed if present"
+      },
+      "input_closure": {
+        "source_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "actual_head": "f4c11a7506ae6e2c80161dc67c2458aa248164d5",
+        "actual_tree": "1962a642c33b7350c1af641e74e720b8de9ac6ca",
+        "production_delta": "git diff f796..f4 -- policy-engine/src policy-engine/product empty",
+        "unique_test": {
+          "git_sha": "f4c11a7506ae6e2c80161dc67c2458aa248164d5",
+          "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py"
+        },
+        "profile": {
+          "git_sha": "ae56f85a272828262e24e09fe2694dd1e9c380dc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-profile.json",
+          "sha256": "eaadfb564cddd4255bcc08deae5b407c42329fdf0dae59fc04adf85ae5f3b3dc"
+        },
+        "full_input_binding": {
+          "git_sha": "ae56f85a272828262e24e09fe2694dd1e9c380dc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-input-custody.json",
+          "tracked_before_after_count": 6251,
+          "drift": [],
+          "imported_origins": 174,
+          "origin_hash_mismatch": []
+        },
+        "instrument": {
+          "git_sha": "ae56f85a272828262e24e09fe2694dd1e9c380dc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/native.py.txt",
+          "sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03"
+        },
+        "baseline_navigation": {
+          "git_sha": "ae56f85a272828262e24e09fe2694dd1e9c380dc",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-context.json",
+          "source_reported_compact_text_only": true
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "git_sha": "ae56f85a272828262e24e09fe2694dd1e9c380dc",
+        "stdout_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-native.txt",
+        "stdout_sha256": "84d1cc5033d3be277b0eec612b0cdf1a2b217522f5de5028439b7714bbdaef73",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-native.xml",
+        "result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-evidence/baseline-result.json",
+        "counts": {
+          "PASS": 2,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "deciding_literal": "DID NOT RAISE checkpoint refusal; REPLACEMENT_EFFECTS [original,replacement]. Actual remaining consumer entered and performed replacement filesystem write. Unchanged imported helper and math.fabs builtin cold/resume parity passed.",
+        "wall_s": 3.8281011449871585,
+        "rss_kib": 224168
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "e02_b74_input_custody",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py::test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect",
+        "--basetemp",
+        "/tmp/e02-B-cas-b74-20261007/dynamic-first-5bb/pytest",
+        "--junitxml",
+        "/tmp/e02-B-cas-b74-20261007/dynamic-first-5bb/native.xml",
+        "-o",
+        "cache_dir=/tmp/e02-B-cas-b74-20261007/dynamic-first-5bb/cache"
+      ],
+      "target_sha": "4ef8b89b0321eb8bc51972ac834910aeb7bc8cae",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/dynamic-first-5bb",
+        "removed_thread_cap_env": {},
+        "started_utc": "2026-10-07T07:45:46Z",
+        "native_header": "Python3.14.2/pytest9.0.2, full plugins/versions in retained stdout",
+        "process_or_cpu_quota": "none"
+      },
+      "input_closure": {
+        "actual_head": "4ef8b89b0321eb8bc51972ac834910aeb7bc8cae",
+        "actual_tree": "908a30f20592b9f2e89c19dc86f195331fc1f8b3",
+        "actual_head_before_after_equal": true,
+        "canonical_source_projection_sha": "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
+        "test_sha256": "753d45316c7957e3132468ed953a4decd1971be04904559e4cb2acb59679805e",
+        "source_identity_sha256": "df93a42999042dfd6a2aa1065bae33a04563966bc36766048c3403ea7df9a143",
+        "full_inputs": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-input-custody.json",
+          "sha256": "20b6fb8867c6627cce31ca1647a41e46970502ba532842260f32f67711fab181",
+          "bytes": 1545
+        },
+        "actual_module_origins": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-module-origins.json",
+          "sha256": "3c8375f3af3f6d7b69f7d2b6ea553d9f4301c51a1aeb1c8073623a25de183f9a",
+          "bytes": 44211
+        },
+        "source_status_before_after_clean": true,
+        "tracked_inputs": 6252,
+        "drift": [],
+        "origin_git_hash_mismatch": [],
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-profile.json",
+          "sha256": "fa45cbe20f73cfd83c20f8ab0c93b3a9af5a91c5ff8c059de594d2193067c15d",
+          "bytes": 1708
+        },
+        "instrument": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native.py.txt",
+          "sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03",
+          "bytes": 3916
+        },
+        "input_origin_plugin": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-e02_b74_input_custody.py.txt",
+          "sha256": "976e728809ce9fbe085c98ae9c2537920e1c0a73eedfbc81e9678b960287537e",
+          "bytes": 625
+        },
+        "mutation": "none"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout_stderr": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-native.txt",
+          "sha256": "fb28f1a71fde1615efdc1b8c37f255d79929a3e0d7c2b9a5fe0a3e3718848b2d",
+          "bytes": 5966
+        },
+        "junit": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-native.xml",
+          "sha256": "550b37eeab7c01c17c5ce149b11727dffdd76e087e2ba59e4328808d05fee526",
+          "bytes": 2917
+        },
+        "result": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/dynamic-first-5bb-result.json",
+          "sha256": "49e92950cdb3889226164ccb6d0a6531f08daff6b0aecb76177253e53c5db135",
+          "bytes": 668
+        },
+        "counts": {
+          "PASS": 0,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "exit_code": 1,
+        "wall_s": 2.7006230510014575,
+        "rss_kib": 223084,
+        "deciding_literal": "Actual strict cold checkpoint admitted dynamic namespace, persisted producer6, then true fresh resume returned107 and wrote [original,replacement]. FAIL at explicit unsupported cold-profile assertion."
+      },
+      "qualification": "Historical intermediate same-class actual FAIL preserved; not final-candidate outcome."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "e02_b74_input_custody",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "--basetemp",
+        "/tmp/e02-B-cas-b74-20261007/final-eb4/pytest",
+        "--junitxml",
+        "/tmp/e02-B-cas-b74-20261007/final-eb4/native.xml",
+        "-o",
+        "cache_dir=/tmp/e02-B-cas-b74-20261007/final-eb4/cache"
+      ],
+      "target_sha": "1970df7b049c6f70b918d453d7051d497f73aa21",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/final-eb4",
+        "removed_thread_cap_env": {},
+        "started_utc": "2026-10-07T07:52:15Z",
+        "native_header": "Python3.14.2/pytest9.0.2, full plugins/versions in retained stdout",
+        "process_or_cpu_quota": "none"
+      },
+      "input_closure": {
+        "actual_head": "1970df7b049c6f70b918d453d7051d497f73aa21",
+        "actual_tree": "2b87aedcd039624be7243988bd4a47df811b1208",
+        "actual_head_before_after_equal": true,
+        "canonical_source_projection_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+        "source_identity_sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73",
+        "full_inputs": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-input-custody.json",
+          "sha256": "943f142ef786bb99fa1216e89cbfcce7bab122f8b0be1dfea27af360bfa3a298",
+          "bytes": 1521
+        },
+        "actual_module_origins": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-module-origins.json",
+          "sha256": "826843e4678ddbd49612c99e7c0260312c9b504ca47a5f8b58e579fad7b9f54c",
+          "bytes": 44211
+        },
+        "source_status_before_after_clean": true,
+        "tracked_inputs": 6252,
+        "drift": [],
+        "origin_git_hash_mismatch": [],
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-profile.json",
+          "sha256": "aa543275c3dc9ee1d06db5202e23b7d9f764cd931a273e2b8626cc6493967a74",
+          "bytes": 1590
+        },
+        "instrument": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native.py.txt",
+          "sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03",
+          "bytes": 3916
+        },
+        "input_origin_plugin": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-e02_b74_input_custody.py.txt",
+          "sha256": "8489c4b0e7cfe19d3474019776c89ca855edf62f001765330b606703897fa765",
+          "bytes": 617
+        },
+        "mutation": "none"
+      },
+      "outcome": "PASS",
+      "output": {
+        "stdout_stderr": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.txt",
+          "sha256": "aafd42e6fc2ad41da57ab9b038b8e1ae06e673a2df3cb236e464fb9c9e99b1fa",
+          "bytes": 7074
+        },
+        "junit": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.xml",
+          "sha256": "a65cba0c486e51bd0940ef9a7afec069858b038c9a3446c36c338b0bb75d9e43",
+          "bytes": 997
+        },
+        "result": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-result.json",
+          "sha256": "faf129b3e8fce8840e3ad761be335cdec7e6e0a9bd678b3f727c4d67ca92133d",
+          "bytes": 640
+        },
+        "counts": {
+          "PASS": 4,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "exit_code": 0,
+        "wall_s": 2.990443216986023,
+        "rss_kib": 223304,
+        "deciding_literal": "Actual four cases PASS: same-version member changed refuses before replacement; unchanged ordinary helper7 and builtin6.0 persisted prefix reopen/resume; dynamic unsupported strict cold intake refuses before every helper/checkpoint effect."
+      },
+      "qualification": "Finite independent ordinary Python checkpoint profile; dynamic cold refusal quantity differs from successful resume producer profile."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "e02_b74_input_custody",
+        "-p",
+        "e02_b74_remove_imported_members",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py::test_same_version_imported_member_change_refuses_before_replacement_effect",
+        "--basetemp",
+        "/tmp/e02-B-cas-b74-20261007/removal-eb4/pytest",
+        "--junitxml",
+        "/tmp/e02-B-cas-b74-20261007/removal-eb4/native.xml",
+        "-o",
+        "cache_dir=/tmp/e02-B-cas-b74-20261007/removal-eb4/cache"
+      ],
+      "target_sha": "1970df7b049c6f70b918d453d7051d497f73aa21",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/removal-eb4",
+        "removed_thread_cap_env": {},
+        "started_utc": "2026-10-07T07:52:52Z",
+        "native_header": "Python3.14.2/pytest9.0.2, full plugins/versions in retained stdout",
+        "process_or_cpu_quota": "none"
+      },
+      "input_closure": {
+        "actual_head": "1970df7b049c6f70b918d453d7051d497f73aa21",
+        "actual_tree": "2b87aedcd039624be7243988bd4a47df811b1208",
+        "actual_head_before_after_equal": true,
+        "canonical_source_projection_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+        "source_identity_sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73",
+        "full_inputs": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-input-custody.json",
+          "sha256": "62a01bab00cfefa1b63345e98caae58387acd171d9b07a91f258fe39e1c659b1",
+          "bytes": 1527
+        },
+        "actual_module_origins": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-module-origins.json",
+          "sha256": "826843e4678ddbd49612c99e7c0260312c9b504ca47a5f8b58e579fad7b9f54c",
+          "bytes": 44211
+        },
+        "source_status_before_after_clean": true,
+        "tracked_inputs": 6252,
+        "drift": [],
+        "origin_git_hash_mismatch": [],
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-profile.json",
+          "sha256": "2ba7d4a52e40e771e52be2ae3dafc9d85e6a8a9ba5e065f2ec503a65ef5768d2",
+          "bytes": 2107
+        },
+        "instrument": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native-removal.py.txt",
+          "sha256": "8af1fcd497f524a93e44feb577131f5d1c50ab8b56eecbb32b3d26c7d5fd005f",
+          "bytes": 4907
+        },
+        "input_origin_plugin": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-e02_b74_input_custody.py.txt",
+          "sha256": "af0f477fb61fdafbffd1a84341349a1ab5f29f9979d1968bc3baaf0bc265ff8e",
+          "bytes": 619
+        },
+        "mutation": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-mutation.py.txt",
+          "sha256": "db7dea6c9817daa5eb2a254bf1047e110fd9c71ef7a8e78732521bfb9fa4f100",
+          "bytes": 598
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout_stderr": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.txt",
+          "sha256": "97b2402c846cca2278e2d72b1c15337e13efdb81f086b2a969470b734f2b419b",
+          "bytes": 5145
+        },
+        "junit": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.xml",
+          "sha256": "bf8fcd15a9ec282b17ef5cbde956c3569a079baf16e8d17286236429a6635ce0",
+          "bytes": 2268
+        },
+        "result": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-result.json",
+          "sha256": "1170c61676ef8e1ee0a7d4920845700a0353abf196ada35ea80b2c3e6af6ca6a",
+          "bytes": 645
+        },
+        "counts": {
+          "PASS": 0,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "exit_code": 1,
+        "wall_s": 2.8005271639849525,
+        "rss_kib": 224164,
+        "deciding_literal": "Actual defining test FAIL/DIDNOTRAISE. WRONGLY_RESUMED_TOTAL107; REPLACEMENT_EFFECTS [original,replacement]. Only in-memory selected-member quantity removed; actual CAS selected ref/history/source/version markers and physical calls retained."
+      },
+      "qualification": "Expected mutation FAIL establishes the defining guard quantity; it is not a clean product test PASS."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "check",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py"
+      ],
+      "target_sha": "ce3b983d2c249cd945c6766f9a83bb8af409739f",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "ruff_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "same_actual_environment": "root isolated194 Python3.14 environment; no sync"
+      },
+      "input_closure": {
+        "actual_tree": "cdb4892d899401fb5b065dd3779a7c987f760e6d",
+        "whole_test_path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+        "same_as_native_test_a4_1970": true,
+        "ruff_configuration": "policy-engine/ruff.toml@ce3b983d2c249cd945c6766f9a83bb8af409739f",
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-style-profile.json",
+          "sha256": "0c3255dd4e03d8c0caa8b3693f511ae0477dbbacb4442cd55e87b33ef02265b4",
+          "bytes": 1837
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "qualification": "Original authored RuffPT012 FAIL retained separately; no inherited-red waiver."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py"
+      ],
+      "target_sha": "ce3b983d2c249cd945c6766f9a83bb8af409739f",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "ruff_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "same_actual_environment": "root isolated194 Python3.14 environment; no sync"
+      },
+      "input_closure": {
+        "actual_tree": "cdb4892d899401fb5b065dd3779a7c987f760e6d",
+        "whole_test_path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+        "same_as_native_test_a4_1970": true,
+        "ruff_configuration": "policy-engine/ruff.toml@ce3b983d2c249cd945c6766f9a83bb8af409739f",
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-style-profile.json",
+          "sha256": "0c3255dd4e03d8c0caa8b3693f511ae0477dbbacb4442cd55e87b33ef02265b4",
+          "bytes": 1837
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-format.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      },
+      "qualification": "Original authored RuffPT012 FAIL retained separately; no inherited-red waiver."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "--",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+        "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+        "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "profile": "Git source/evidence review only, no runtime/native import or quality-gate claim"
+      },
+      "input_closure": {
+        "source_base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "candidate_tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+        "canonical_4_source_path_hashes": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/source-review.json",
+          "sha256": "044a18a98bbe4ca90250b9058b7e96d97ee5db7eab04bc4e426f723b46985df4",
+          "bytes": 10286
+        },
+        "B47_historical_reuse": "13 exact old production blobs +11 complete historical evidence hashes reconciled; 12 unchanged, composer cold intake addition isolated. Historical observations only."
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/source-review.json",
+        "sha256": "044a18a98bbe4ca90250b9058b7e96d97ee5db7eab04bc4e426f723b46985df4",
+        "bytes": 10286
+      },
+      "qualification": "Independent NONBLOCKING source review within explicit static selected-members + installed-callable opaque-internals boundary; not whole-B/formal criterion acceptance."
+    }
+  ],
+  "property": {
+    "statement": "Strict persisted checkpoint reuse must bind the actual statically selected source-readable imported helper graph, not only module name/version; an unsupported dynamic namespace path must refuse before physical checkpoint consumers.",
+    "runtime_path": [
+      "actual fresh registry/MethodComposer two-node multiply\u2192required consumer",
+      "FileSystemCAS.put_bytes and actual guarded manifest-profile selected input",
+      "CheckpointingChainExecutor.execute(strict artifact context) \u2192 immutable ChainCheckpoint generation/public pointer",
+      "fresh ChainCheckpoint.load and freshFileSystemCAS reader",
+      "CheckpointingChainExecutor.execute(resume prefix0) \u2192 remaining consumer resolving current imported ModuleType member \u2192 physical effect file"
+    ],
+    "proxy_divergence": "The exact selected CAS ref, original producer6/history/prefix, immutable pointer, same module name/Python version and code-graph profile markers survive removal of selected_members. Real fresh resume then computes107 rather than7 and physically writes replacement. The defining test fails without changing its expectation.",
+    "negative_controls": [
+      "Original f796/f4 actual static first red: two positives PASS, changed member DIDNOTRAISE and physical replacement.",
+      "Intermediate5bb actual dynamic import falsely admitted cold execution then persisted/reopened resume107/physical replacement: FAIL preserved.",
+      "Finaleb4 same-version selected helper changes: typed refusal before replacement and pointer/effects unchanged; independent direct method after refusal proves replacement107 is substantive.",
+      "Finaleb4 unchanged ordinary Python helper7 and native builtin math.fabs6.0 cold/persisted reopen/resume positives.",
+      "Finaleb4 dynamic __import__ unsupported strict cold admission refuses before helper or checkpoint effects; no cold accepted/resume profile is claimed for this test.",
+      "Narrow in-memory _module_capture returns only module/version: exact final defining test FAIL/DIDNOTRAISE with actual107 and replacement file write; generic source/dynamic guard/CAS/checkpoint/history remain."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "native_case_results": "recomputed actual JUnit/stdout/physical consumer assertions",
+    "source_custody": "independently_reconciled clean actual heads,6252 before/after tracked inputs and174 actual module origins per native",
+    "foreign_source_verdict": "independently_reconciled full canonical source diff/consumers/nearest README/release and final10+/4- delta",
+    "historical_cells": "consumer_asserted/source-reported compact context only; no raw baseline archive proof",
+    "formal_closure": "not_established; ROOT/G remains owner"
+  },
+  "capability_state_or_finding_state": "Concrete B74 same-version imported-member false resume and dynamic namespace sibling reproduced, then finite canonical static/member and fail-closed dynamic admission properties independently verified on eb4. Foreign CMP source review NONBLOCKING within declared opaque installed-callable boundary; closure_ids empty.",
+  "limitations_and_next_owner": [
+    "CMP owns canonical implementation_identity/checkpoint and canonical compiler consumer; this author edits only unique mirrored test/evidence and normally merges immutable owner checkpoints for replay.",
+    "Parent ROOT/G decides complete B74/RES04 acceptance, institutional/history/versioned SKG law and full repaired final-source cohort; no all-B/global green or formal closure by this packet.",
+    "No current independent JAX/opaque numerical internal mutation claim: installed external callable internals/transitive state/code remain explicit opaque boundary. CMP actual109 intermediate3FAIL/final successor own results must be consumed separately, not inferred from independent4.",
+    "Unsupported module transport/dynamic namespace/reflection/local import/introspection is cold strict refusal; no arbitrary dynamic dependency decoder or complete transitive runtime/hostile mutation guarantee.",
+    "Baseline eight cells/source/ref/environment/inputclosure retained via original ae56/6ab packet; source-reported historicalPASS is navigation only, never proof of new member-binding repair.",
+    "B47 historical solver finite math/consumer observations reused only after13 old source blobs and11 committed evidence hashes checked; composer differs by cold intake/equivalent key refinement, no new current solver-native/global graph authority.",
+    "Original test authored RuffPT012 failure is preserved; final whole own test Ruff/formatPASS on exact ce3, and a4 test bytes equal actualfinal1970. Initial historical style command profile was not separately retained; rawdiagnostic custody only, no inherited waiver.",
+    "Full production dataset remains local; no A/C writes, production author edits, new worktree/helper child, deletion/Trash/service migration/shared environment sync or numerical/process/CPU quota."
+  ],
+  "evidence_index": {
+    "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/index.json",
+    "sha256": "085759e65008f91004430803b8ae8c3ffe92e659fdd1a247d5c9218836afd39c",
+    "objects": 32,
+    "payload_bytes": 195421
+  },
+  "baseline_receipt": {
+    "git_sha": "6ab98c56cc92d81c9ed2180dab1f34690622e41b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle-baseline.json",
+    "sha256": "0890e4b81e0aaceaeb73743ea44e3088c1809347fc9274622c88749d5b07a212"
+  },
+  "implementation_roles": [
+    {
+      "sha": "e02bedff0b01527dca858447d312106240207a2c",
+      "subject": "test(foundry): witness hidden dynamic-import checkpoint admission",
+      "role": "independent CAS oracle author test/evidence or normal immutable-candidate merge; no production author edit"
+    },
+    {
+      "sha": "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+      "subject": "test(foundry): distinguish imported module checkpoint identity",
+      "role": "foreign CMP exclusive canonical production/test owner checkpoint, normally merged for immutable inspection/replay"
+    },
+    {
+      "sha": "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
+      "subject": "fix(foundry): bind selected imported module graph members",
+      "role": "foreign CMP exclusive canonical production/test owner checkpoint, normally merged for immutable inspection/replay"
+    },
+    {
+      "sha": "4ef8b89b0321eb8bc51972ac834910aeb7bc8cae",
+      "subject": "Merge commit '5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197' into codex/e02-B-current-cas-generation",
+      "role": "independent CAS oracle author test/evidence or normal immutable-candidate merge; no production author edit"
+    },
+    {
+      "sha": "a4fc45a9e2174087aeb3b9c301b81277165d57b6",
+      "subject": "test(foundry): retain false-resume numeric trace outside raises block",
+      "role": "independent CAS oracle author test/evidence or normal immutable-candidate merge; no production author edit"
+    },
+    {
+      "sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+      "subject": "fix(foundry): enforce static imported graph admission boundary",
+      "role": "foreign CMP exclusive canonical production/test owner checkpoint, normally merged for immutable inspection/replay"
+    },
+    {
+      "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "subject": "fix(foundry): retain selected external callable identity profile",
+      "role": "foreign CMP exclusive canonical production/test owner checkpoint, normally merged for immutable inspection/replay"
+    },
+    {
+      "sha": "1970df7b049c6f70b918d453d7051d497f73aa21",
+      "subject": "Merge immutable B74 imported-module identity candidate for independent consumer replay",
+      "role": "independent CAS oracle author test/evidence or normal immutable-candidate merge; no production author edit"
+    },
+    {
+      "sha": "ce3b983d2c249cd945c6766f9a83bb8af409739f",
+      "subject": "test(foundry): preserve independent imported-module checkpoint successor evidence",
+      "role": "independent CAS oracle author test/evidence or normal immutable-candidate merge; no production author edit"
+    },
+    {
+      "sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+      "subject": "docs(e02): bind literal final imported-module oracle style checks",
+      "role": "independent CAS oracle author test/evidence or normal immutable-candidate merge; no production author edit"
+    }
+  ],
+  "canonical_source_candidate": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+  "phase": "finished independent finite consumer/oracle/source slice; formal acceptance separate"
+}

@@ -75,9 +75,11 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
     def owner_scoped_test_client(app: Any) -> Iterator[Any]:
         """Keep the producer's existing CAS owner active through app lifespan."""
 
-        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            with TestClient(app) as client:
-                yield client
+        with (
+            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+            TestClient(app) as client,
+        ):
+            yield client
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")

@@ -1,0 +1,290 @@
+{
+  "commit": "ca2ef334953ca85872b1917baf7f262bf6d45213",
+  "tree": "20ed1315feb3ab272ca00e8560d17f8ce5b5313e",
+  "root_carrier_sha256": "8377b8cc9fe16ecf7f3a8788776081e32c99532dce773814997de1d11b37d9d5",
+  "root_carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.json",
+  "receipts_and_refs_verified_from_committed_Git": true,
+  "hooks": "UNRUN scoped override",
+  "records": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.0064678750350140035,
+      "stdout": "refs/heads/codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00547879101941362,
+      "stdout": "1806b7815887f354c4d25018b5ab430158f7352c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.11151445802533999,
+      "stdout": "## codex/e02-C-continuation-20261006\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "--",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.019243374990765005,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--cached"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.008580999972764403,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "commit",
+        "-m",
+        "docs(e02-C): hand off complete C54 continuation with exact source receipts",
+        "-m",
+        "C recommendations remain distinct from G admission and formal closure. Full54 original criterion joins, bounded source results, missing inputs and next owners are referenced by immutable Git objects. Unavailable Lefthook hooks are UNRUN; one-command override only."
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.04002337501151487,
+      "stdout": "[codex/e02-C-continuation-20261006 ca2ef3349] docs(e02-C): hand off complete C54 continuation with exact source receipts\n 6 files changed, 692 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261007-C4.md\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/C54.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/Root-intake.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/main-G-final-fetch.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-final/root-full54-reconciliation.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005464667046908289,
+      "stdout": "ca2ef334953ca85872b1917baf7f262bf6d45213\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006111458991654217,
+      "stdout": "20ed1315feb3ab272ca00e8560d17f8ce5b5313e\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005860833975020796,
+      "stdout": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.0060961659764871,
+      "stdout": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005850124987773597,
+      "stdout": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "847929e3e0cac30fb49ff61a47ecaf46d41ac94d^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005772750009782612,
+      "stdout": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00600200000917539,
+      "stdout": "75308c9d306bc8187008613597f2acc917cb0d74\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "373c9623071f60c08f5e362e61d211829e5d8f5a^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005732499994337559,
+      "stdout": "dece08804715a9288aa17281532c4f58cb249bda\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "12d77b34ea845adde0bf27a653fa70fd2ea8ad35^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005779958970379084,
+      "stdout": "a5a0199ac0ed470c76ab7afbe016020fd65247fb\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "1806b7815887f354c4d25018b5ab430158f7352c^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005856459029018879,
+      "stdout": "7a1d531eeb82bff31401ccdb83bac224a3ae0b1b\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.06191966700134799,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 1.8483488750061952,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   1806b7815..ca2ef3349  codex/e02-C-continuation-20261006 -> codex/e02-C-continuation-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.5296265420038253,
+      "stdout": "ca2ef334953ca85872b1917baf7f262bf6d45213\trefs/heads/codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.598868915985804,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                codex/e02-C-continuation-20261006 -> FETCH_HEAD\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00573412497760728,
+      "stdout": "ca2ef334953ca85872b1917baf7f262bf6d45213\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-continuation-20261006^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00622870895313099,
+      "stdout": "20ed1315feb3ab272ca00e8560d17f8ce5b5313e\n",
+      "stderr": ""
+    }
+  ]
+}

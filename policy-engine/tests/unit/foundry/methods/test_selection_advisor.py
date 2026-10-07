@@ -1002,13 +1002,13 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload(
             "value_required_data_modalities": ("tabular", "panel"),
         },
     }
-    manifest = (
+    advisory_manifest = (
         {"contract_target": "tabular"},
         {"data_modality": "panel"},
         {"contract_target": "tabular"},
     )
-    manifest = report.discovery_manifest
-    assert manifest is not None
+    discovery_manifest = report.discovery_manifest
+    assert discovery_manifest is not None
     catalog = build_method_catalog_snapshot(
         registry=registry,
         registry_report=report,
@@ -1023,7 +1023,7 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload(
     )
     expected_payload = {
         "schema_version": "policyos.foundry.method_selection_context.v5",
-        "registry_discovery_manifest_id": manifest.manifest_id,
+        "registry_discovery_manifest_id": discovery_manifest.manifest_id,
         "registry_binding_sha256": report.registry_binding_sha256,
         "route_constraint": None,
         "value_catalog_projection_hash": value_catalog_projection_hash,
@@ -1089,7 +1089,7 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload(
         registry=registry,
         candidate=candidate,
         problem=problem,
-        observation_to_contract_manifest=manifest,
+        observation_to_contract_manifest=advisory_manifest,
         runtime_budget_ms=25.0,
     )
 
@@ -1098,7 +1098,7 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload(
         registry=registry,
         candidate=candidate,
         problem=problem,
-        observation_to_contract_manifest=manifest,
+        observation_to_contract_manifest=advisory_manifest,
         runtime_budget_ms=25.0,
     )
 

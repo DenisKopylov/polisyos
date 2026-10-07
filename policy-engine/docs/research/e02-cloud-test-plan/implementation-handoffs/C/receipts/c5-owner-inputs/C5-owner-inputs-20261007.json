@@ -52,10 +52,19 @@
     {
       "id": "B79",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Exact REST cursor hint and since-filter evidence remains bounded; current confirmed promotion stays fail-closed. Remaining boundary: Source-confirmed dataset + ingestion_run_id + cursor + resolved evidence-content binder.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/1/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/1",
-      "proven_part": "Exact REST cursor hint and since-filter evidence remains bounded; current confirmed promotion stays fail-closed.",
+      "scoped_proven_part": "Exact REST cursor hint and since-filter evidence remains bounded; current confirmed promotion stays fail-closed.",
       "missing_input": "Source-confirmed dataset + ingestion_run_id + cursor + resolved evidence-content binder.",
       "next_owner": "B connector/cursor owner",
       "next_action": "Bind exact source/run/content, test promotion and absent/forged/mismatch refusal plus same-source restart; B83 identity is not a prerequisite.",
@@ -64,10 +73,19 @@
     {
       "id": "B80",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: Per-source persistence/retry exists; reference presence and CAS integrity alone do not promote progress. Remaining boundary: Verified evidence resolving and binding exact dataset/run/cursor/content.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/2/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/2",
-      "proven_part": "Per-source persistence/retry exists; reference presence and CAS integrity alone do not promote progress.",
+      "scoped_proven_part": "Per-source persistence/retry exists; reference presence and CAS integrity alone do not promote progress.",
       "missing_input": "Verified evidence resolving and binding exact dataset/run/cursor/content.",
       "next_owner": "B connector/cursor/evidence owner",
       "next_action": "Provide verified binder and marker-kept positive/absent/forged/mismatch/restart witnesses before promotion; do not require B83 for this criterion.",
@@ -76,10 +94,19 @@
     {
       "id": "B83",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: UTC 86,400-second horizon, composite keys and refusal-before-live-key eviction have bounded fixtures. Remaining boundary: Source-owned event/version identity bound to cursor/replay; synthetic offsets are not authority.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/5/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/5",
-      "proven_part": "UTC 86,400-second horizon, composite keys and refusal-before-live-key eviction have bounded fixtures.",
+      "scoped_proven_part": "UTC 86,400-second horizon, composite keys and refusal-before-live-key eviction have bounded fixtures.",
       "missing_input": "Source-owned event/version identity bound to cursor/replay; synthetic offsets are not authority.",
       "next_owner": "B source-contract owner",
       "next_action": "Supply identity; independent map a,b,c,a before/after restart, UTC expiry, source/partition isolation, durable bound/refusal before eviction.",
@@ -88,10 +115,27 @@
     {
       "id": "LA-005",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "limited",
+      "basis": "new_bounded_DFK_owner_implementation_and_independent_property_review",
+      "reason": "Current C proposal limited: a13 retires only early internal Foundry DTO FQN; real plugin SimulationConfig/canonical consumers remain. Remaining boundary: No new institutional approval; current built distribution and historical external/persisted identity behavior remain unestablished.",
+      "code_outcome": "Bounded source property verified at a13 and independently reviewed; exact noneditable distribution/installed layer UNRUN.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/20/current_root_verdict"
+        },
+        {
+          "source_id": "current_c5_dfk",
+          "json_pointer": "/findings/0"
+        },
+        {
+          "source_id": "dfk_c5_review",
+          "json_pointer": "/review_disposition"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/20",
-      "proven_part": "a13 retires only early internal Foundry DTO FQN; real plugin SimulationConfig/canonical consumers remain.",
+      "scoped_proven_part": "a13 retires only early internal Foundry DTO FQN; real plugin SimulationConfig/canonical consumers remain.",
       "missing_input": "No new institutional approval; current built distribution and historical external/persisted identity behavior remain unestablished.",
       "next_owner": "C Foundry/public-surface package owner; G distribution/admission reviewer",
       "next_action": "Admit bounded source retirement separately; when backend is present inspect exact wheel/sdist/installed import/resource behavior; preserve historical limits.",
@@ -100,10 +144,27 @@
     {
       "id": "LA-006",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "new_bounded_DFK_owner_implementation_and_independent_property_review",
+      "reason": "Current C proposal limited: Exact mechanisms tombstone remains absent; canonical mechanism dispatcher/runner works; generic census observes module/package/resource variants. Remaining boundary: Current built distribution behavior remains UNRUN; unrelated dynamic/external destinations are bounded residuals only.",
+      "code_outcome": "Bounded source property verified at a13 and independently reviewed; exact noneditable distribution/installed layer UNRUN.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/21/current_root_verdict"
+        },
+        {
+          "source_id": "current_c5_dfk",
+          "json_pointer": "/findings/1"
+        },
+        {
+          "source_id": "dfk_c5_review",
+          "json_pointer": "/review_disposition"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/21",
-      "proven_part": "Exact mechanisms tombstone remains absent; canonical mechanism dispatcher/runner works; generic census observes module/package/resource variants.",
+      "scoped_proven_part": "Exact mechanisms tombstone remains absent; canonical mechanism dispatcher/runner works; generic census observes module/package/resource variants.",
       "missing_input": "Current built distribution behavior remains UNRUN; unrelated dynamic/external destinations are bounded residuals only.",
       "next_owner": "C package/public-surface owner; G admission reviewer",
       "next_action": "Retain absence and negative-reexport companions; do not restore tombstone or demand global resolution of unrelated nonliteral loaders.",
@@ -112,10 +173,19 @@
     {
       "id": "LA-018",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: Existing source_auth:null witness selects unauthorized input; descriptive license/source fields are not permission. Remaining boundary: Actual source/version-byte-bound permitted-purpose grant and independently anchored verifier/trust input; common Lex intake bridge.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/28/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/28",
-      "proven_part": "Existing source_auth:null witness selects unauthorized input; descriptive license/source fields are not permission.",
+      "scoped_proven_part": "Existing source_auth:null witness selects unauthorized input; descriptive license/source fields are not permission.",
       "missing_input": "Actual source/version-byte-bound permitted-purpose grant and independently anchored verifier/trust input; common Lex intake bridge.",
       "next_owner": "Source-rights/trusted-source supplier; HYG C-W08 and canonical Lex F-W07 owners",
       "next_action": "Gate automatic, explicit document and direct-claim paths on real verified permission; marker-kept null/forged/source/purpose mismatch controls after supplier input.",
@@ -124,10 +194,19 @@
     {
       "id": "LA-021",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: e3 JSON-mode Mapping/FileSystemCAS readback and strict pre-byte refusals remain independently bounded GO; no repeated Mapping repair. Remaining boundary: B raw Core byte-emission/profile contract or explicit bounded bypass decision; exact e3 noneditable installed readback still UNRUN without Hatchling.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/29/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/29",
-      "proven_part": "e3 JSON-mode Mapping/FileSystemCAS readback and strict pre-byte refusals remain independently bounded GO; no repeated Mapping repair.",
+      "scoped_proven_part": "e3 JSON-mode Mapping/FileSystemCAS readback and strict pre-byte refusals remain independently bounded GO; no repeated Mapping repair.",
       "missing_input": "B raw Core byte-emission/profile contract or explicit bounded bypass decision; exact e3 noneditable installed readback still UNRUN without Hatchling.",
       "next_owner": "B Core emission/admission owner; G exact installed-layer reviewer",
       "next_action": "Resolve Core boundary and run exact e3 wheel/readback if build backend is available; old 55b wheel/Mapping failure is not current evidence.",
@@ -136,10 +215,19 @@
     {
       "id": "LA-023",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: a452/443 one-call native training/CAS and zero-gradient receipts stay exact-source-bound; current warm actor uses fresh optimizer/RNG. Remaining boundary: Public .train/TrainingResult/checkpoint-field promise and continuation profile/explicit supported limitation.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/31/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/31",
-      "proven_part": "a452/443 one-call native training/CAS and zero-gradient receipts stay exact-source-bound; current warm actor uses fresh optimizer/RNG.",
+      "scoped_proven_part": "a452/443 one-call native training/CAS and zero-gradient receipts stay exact-source-bound; current warm actor uses fresh optimizer/RNG.",
       "missing_input": "Public .train/TrainingResult/checkpoint-field promise and continuation profile/explicit supported limitation.",
       "next_owner": "Product public API owner; C-W15 trainer continuation owner",
       "next_action": "Product fixes the promise; C-W15 implements that exact continuation or typed refusal before optimizer/CAS. Do not ban warm-actor calls or add another trainer without the contract.",
@@ -148,10 +236,19 @@
     {
       "id": "LA-024",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Technical provider URL/MIME/bytes/CAS and deadline result remains bounded. Remaining boundary: Authoritative source-specific fetch/storage/normalization/inference/downstream reuse rule.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/32/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/32",
-      "proven_part": "Technical provider URL/MIME/bytes/CAS and deadline result remains bounded.",
+      "scoped_proven_part": "Technical provider URL/MIME/bytes/CAS and deadline result remains bounded.",
       "missing_input": "Authoritative source-specific fetch/storage/normalization/inference/downstream reuse rule.",
       "next_owner": "Source-specific license/reuse authority; C Scholar owner",
       "next_action": "Apply permission only to exact source operations; preserve technical result and B17 without license blanket prerequisite.",
@@ -160,10 +257,19 @@
     {
       "id": "LA-025",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: Exact CAS snapshot/downstream packet byte continuity is bounded technical evidence. Remaining boundary: Permission for the exact selected source bytes and exact Scholar operations.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/33/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/33",
-      "proven_part": "Exact CAS snapshot/downstream packet byte continuity is bounded technical evidence.",
+      "scoped_proven_part": "Exact CAS snapshot/downstream packet byte continuity is bounded technical evidence.",
       "missing_input": "Permission for the exact selected source bytes and exact Scholar operations.",
       "next_owner": "Source-specific license/reuse authority; C Scholar owner",
       "next_action": "Bind verified permission to selected bytes/purpose; license strings/defaults do not authorize reuse.",
@@ -172,10 +278,27 @@
     {
       "id": "LA-026",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "limited",
+      "basis": "new_bounded_DFK_owner_implementation_and_independent_property_review",
+      "reason": "Current C proposal limited: a13 removes only GeneratedSchemaModule descriptor placeholder; kernel.schemas registry/evolution/migrations remain real owners. Remaining boundary: No invented codegen or approval; current archive/installed behavior and external persisted identities remain unestablished.",
+      "code_outcome": "Bounded source property verified at a13 and independently reviewed; exact noneditable distribution/installed layer UNRUN.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/34/current_root_verdict"
+        },
+        {
+          "source_id": "current_c5_dfk",
+          "json_pointer": "/findings/2"
+        },
+        {
+          "source_id": "dfk_c5_review",
+          "json_pointer": "/review_disposition"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/34",
-      "proven_part": "a13 removes only GeneratedSchemaModule descriptor placeholder; kernel.schemas registry/evolution/migrations remain real owners.",
+      "scoped_proven_part": "a13 removes only GeneratedSchemaModule descriptor placeholder; kernel.schemas registry/evolution/migrations remain real owners.",
       "missing_input": "No invented codegen or approval; current archive/installed behavior and external persisted identities remain unestablished.",
       "next_owner": "C Data Forge schema/package owner; G distribution reviewer",
       "next_action": "Admit bounded placeholder retirement; inspect exact distribution members/import/resources when backend exists; retain canonical kernel.schemas.",
@@ -184,10 +307,27 @@
     {
       "id": "LA-027",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "limited",
+      "basis": "new_bounded_DFK_owner_implementation_and_independent_property_review",
+      "reason": "Current C proposal limited: Canonical kernel.schemas and identity alias are tested; pending relative release notice/window is recorded. Remaining boundary: Actual published notice/release date is not established; current distribution and external compatibility remain unrun/unknown.",
+      "code_outcome": "Bounded source property verified at a13 and independently reviewed; exact noneditable distribution/installed layer UNRUN.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/35/current_root_verdict"
+        },
+        {
+          "source_id": "current_c5_dfk",
+          "json_pointer": "/findings/3"
+        },
+        {
+          "source_id": "dfk_c5_review",
+          "json_pointer": "/review_disposition"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/35",
-      "proven_part": "Canonical kernel.schemas and identity alias are tested; pending relative release notice/window is recorded.",
+      "scoped_proven_part": "Canonical kernel.schemas and identity alias are tested; pending relative release notice/window is recorded.",
       "missing_input": "Actual published notice/release date is not established; current distribution and external compatibility remain unrun/unknown.",
       "next_owner": "C DFK schema + active-plan/release owners",
       "next_action": "Keep alias through later of next minor release and 90 days after published notice; release owner assigns dates before sunset; no invented already-started window.",
@@ -196,10 +336,19 @@
     {
       "id": "LA-028",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: C8 same-profile direct producer/QC/publish/RetrievalService fixture is real; current A HTTP/NL/acquisition request has no CatalogRunProfile carrier. Remaining boundary: Typed explicit run_profile/context and owner mapping through actual serving callers.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/36/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/36",
-      "proven_part": "C8 same-profile direct producer/QC/publish/RetrievalService fixture is real; current A HTTP/NL/acquisition request has no CatalogRunProfile carrier.",
+      "scoped_proven_part": "C8 same-profile direct producer/QC/publish/RetrievalService fixture is real; current A HTTP/NL/acquisition request has no CatalogRunProfile carrier.",
       "missing_input": "Typed explicit run_profile/context and owner mapping through actual serving callers.",
       "next_owner": "A runtime/lifecycle profile/context owner; C Catalog consumer owner",
       "next_action": "A supplies carrier; C proves same-profile producer-to-HTTP consumer and omitted/unknown/forwarding refusal; no invented default or connector-profile substitution.",
@@ -208,10 +357,19 @@
     {
       "id": "LA-029",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: Prior SSH 8.023-second timeout is bounded availability evidence only; no new host run. Remaining boundary: One eligible reachable Linux/C7 candidate/resource and exact process lifecycle run.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/37/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/37",
-      "proven_part": "Prior SSH 8.023-second timeout is bounded availability evidence only; no new host run.",
+      "scoped_proven_part": "Prior SSH 8.023-second timeout is bounded availability evidence only; no new host run.",
       "missing_input": "One eligible reachable Linux/C7 candidate/resource and exact process lifecycle run.",
       "next_owner": "G local resource coordinator + UDF Linux/C7 process owner",
       "next_action": "Reserve local slot and perform create/start/stop/restart/cleanup plus removal; do not treat timeout as absent provider or product defect.",
@@ -220,10 +378,19 @@
     {
       "id": "LA-032",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: Four readers/shared immutable selector are bounded; D3 household/labor manifests do not produce targets/prior/donor source-to-state inventory. Remaining boundary: Authoritative state-ID/order/source mapping; target/entrant definitions; prior axes/derivation/time; donor inclusion/omission and versioned source profile.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/40/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/40",
-      "proven_part": "Four readers/shared immutable selector are bounded; D3 household/labor manifests do not produce targets/prior/donor source-to-state inventory.",
+      "scoped_proven_part": "Four readers/shared immutable selector are bounded; D3 household/labor manifests do not produce targets/prior/donor source-to-state inventory.",
       "missing_input": "Authoritative state-ID/order/source mapping; target/entrant definitions; prior axes/derivation/time; donor inclusion/omission and versioned source profile.",
       "next_owner": "C-W19 authority/versioned inventory producer; C UDF reader bridge owner",
       "next_action": "Selected existing producer emits content-bound inventory; registered artifact/read_api bridge admits inputs/members; all four readers reject missing/forged/swapped inventory.",
@@ -232,10 +399,19 @@
     {
       "id": "LA-034",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Tracked runtime/schema census remains bounded; no external-all-caller conclusion. Remaining boundary: External scope only after a concrete producer and consumer is named.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/41/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/41",
-      "proven_part": "Tracked runtime/schema census remains bounded; no external-all-caller conclusion.",
+      "scoped_proven_part": "Tracked runtime/schema census remains bounded; no external-all-caller conclusion.",
       "missing_input": "External scope only after a concrete producer and consumer is named.",
       "next_owner": "G bounded tracked-consumer census reviewer; named future producer/consumer owner",
       "next_action": "Adjudicate the existing tracked criterion independently; do not impose an undefined external census.",
@@ -244,10 +420,19 @@
     {
       "id": "LA-036",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal held: E posterior-parameter corpus and F graph/SCM rows are not the observed-feature conditional law; marginal replacement is not conditional Shapley. Remaining boundary: Content-bound verified feature law with population/cohort/time/schema/order/epoch/support and model identity; nonlinear structural bound verifier if precision is claimed.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/42/current_root_verdict"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/42",
-      "proven_part": "E posterior-parameter corpus and F graph/SCM rows are not the observed-feature conditional law; marginal replacement is not conditional Shapley.",
+      "scoped_proven_part": "E posterior-parameter corpus and F graph/SCM rows are not the observed-feature conditional law; marginal replacement is not conditional Shapley.",
       "missing_input": "Content-bound verified feature law with population/cohort/time/schema/order/epoch/support and model identity; nonlinear structural bound verifier if precision is claimed.",
       "next_owner": "E/F conditional law/model/bounds suppliers; C BERL consumer owner",
       "next_action": "After admitted supplier input wire existing coalition executor + ExplanationBundle persisted readback into both Runtime/Scientist consumers; C-M1/M2 exact oracles/negative law-removal/mismatch; fixed-N certification only for admitted bounded IID draws.",
@@ -256,10 +441,19 @@
     {
       "id": "LA-038",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Existing bounded writer/readback remains fixture/declared-consumer evidence. Remaining boundary: Production corpus/assets only if a production claim is requested; external/dynamic consumers remain unestablished.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/43/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/43",
-      "proven_part": "Existing bounded writer/readback remains fixture/declared-consumer evidence.",
+      "scoped_proven_part": "Existing bounded writer/readback remains fixture/declared-consumer evidence.",
       "missing_input": "Production corpus/assets only if a production claim is requested; external/dynamic consumers remain unestablished.",
       "next_owner": "G downstream writer/readback admission reviewer",
       "next_action": "Adjudicate declared bounded scope without a universal production-data prerequisite.",
@@ -268,10 +462,19 @@
     {
       "id": "LA-039",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Fresh fixture producer/reader and source-row/native-index removal controls remain bounded. Remaining boundary: Immutable production model/corpus provenance only for a production claim.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/44/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/44",
-      "proven_part": "Fresh fixture producer/reader and source-row/native-index removal controls remain bounded.",
+      "scoped_proven_part": "Fresh fixture producer/reader and source-row/native-index removal controls remain bounded.",
       "missing_input": "Immutable production model/corpus provenance only for a production claim.",
       "next_owner": "C embedding/model producer + G declared reader reviewer",
       "next_action": "Keep fixture/native-reader result separate from production weights/population/history.",
@@ -280,10 +483,27 @@
     {
       "id": "LA-040",
       "historical_c4_recommendation": "held",
-      "c5_root_proposal": "held",
+      "basis": "new_bounded_Legal_query_property_review_and_actual_input_presence",
+      "reason": "Current C proposal held: c60 binds actual query encoder before all three native readers; independent target/decoy/removal and selector tests GO. Actual DB is present. Remaining boundary: Paired persisted production generation/assets and compatible live query encoder through serving callers; selected DB-parent selectors/aliases are absent.",
+      "code_outcome": "Bounded c60 query binding independently verified with native HNSW; serving encoder bridge and production paired generation/assets remain unestablished.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/45/current_root_verdict"
+        },
+        {
+          "source_id": "current_c5_legal",
+          "json_pointer": "/property"
+        },
+        {
+          "source_id": "legal_c5_review",
+          "json_pointer": "/decision"
+        }
+      ],
+      "value": "held",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/45",
-      "proven_part": "c60 binds actual query encoder before all three native readers; independent target/decoy/removal and selector tests GO. Actual DB is present.",
+      "scoped_proven_part": "c60 binds actual query encoder before all three native readers; independent target/decoy/removal and selector tests GO. Actual DB is present.",
       "missing_input": "Paired persisted production generation/assets and compatible live query encoder through serving callers; selected DB-parent selectors/aliases are absent.",
       "next_owner": "C-W04 Legal producer/assets owner + A/Lex serving provider owner; G local read-only verifier",
       "next_action": "Supply paired inputs/provider; G then runs authorized minimal ordered membership/projection digest and same-profile persisted readback. No new reading approval, bulk corpus scan/full-DB hash proxy or legally-current subset inference.",
@@ -292,10 +512,19 @@
     {
       "id": "LA-041",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Bounded invalidation/checkpoint/failure retry and exact CAT editable producer/consumer fixture remain valid for cited source. Remaining boundary: Remote/global history/external authorization/production scale not claimed; noneditable distribution layer remains separate.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/46/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/46",
-      "proven_part": "Bounded invalidation/checkpoint/failure retry and exact CAT editable producer/consumer fixture remain valid for cited source.",
+      "scoped_proven_part": "Bounded invalidation/checkpoint/failure retry and exact CAT editable producer/consumer fixture remain valid for cited source.",
       "missing_input": "Remote/global history/external authorization/production scale not claimed; noneditable distribution layer remains separate.",
       "next_owner": "C Data Forge cache/checkpoint owner; G declared consumer reviewer",
       "next_action": "Adjudicate exact fixture/profile outcome and repeat only dependencies changed by an upstream contract.",
@@ -304,10 +533,19 @@
     {
       "id": "LA-042",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: Retained legacy entrypoint has exact old installed evidence; c60 source fixture also exercises current bound-query reader. Remaining boundary: Current c60 noneditable layer UNRUN; external caller/model-release history needed only for expanded claims.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/47/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/47",
-      "proven_part": "Retained legacy entrypoint has exact old installed evidence; c60 source fixture also exercises current bound-query reader.",
+      "scoped_proven_part": "Retained legacy entrypoint has exact old installed evidence; c60 source fixture also exercises current bound-query reader.",
       "missing_input": "Current c60 noneditable layer UNRUN; external caller/model-release history needed only for expanded claims.",
       "next_owner": "C Legal legacy entrypoint owner; model-release/serving owner for expanded scope",
       "next_action": "Keep old installed and current source outcomes separate; no transfer of old wheel to c60 profile.",
@@ -316,10 +554,19 @@
     {
       "id": "LA-050",
       "historical_c4_recommendation": "limited",
-      "c5_root_proposal": "limited",
+      "basis": "prior_criterion_evidence_carried_and_current_owner_input_scope_preserved",
+      "reason": "Current C proposal limited: 19 documented paths,129 information_schema columns/10 tables and4 genuine current1.0 private-copy CLI checks stay bounded. Remaining boundary: Authorized genuine historical0.9 manifest with source/version/path lineage; not found in checked scope, not globally absent.",
+      "code_outcome": "Exact prior criterion evidence retained; current read-only owner/input refresh adds no new product runtime PASS.",
+      "evidence_refs": [
+        {
+          "source_id": "c4_final_cut",
+          "json_pointer": "/rows/53/current_root_verdict"
+        }
+      ],
+      "value": "limited",
       "g_formal_status": "not_adjudicated",
       "original_criterion_and_prior_evidence_pointer": "/rows/53",
-      "proven_part": "19 documented paths,129 information_schema columns/10 tables and4 genuine current1.0 private-copy CLI checks stay bounded.",
+      "scoped_proven_part": "19 documented paths,129 information_schema columns/10 tables and4 genuine current1.0 private-copy CLI checks stay bounded.",
       "missing_input": "Authorized genuine historical0.9 manifest with source/version/path lineage; not found in checked scope, not globally absent.",
       "next_owner": "C MIG/Fabric historical-input owner; G exact CLI reviewer",
       "next_action": "Supply actual historical input or preserve limitation; synthetic rename fixture is not historical evidence.",

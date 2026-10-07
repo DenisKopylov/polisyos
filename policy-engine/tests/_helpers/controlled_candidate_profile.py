@@ -81,6 +81,96 @@ def _controlled_procurement_recording(
     return controlled
 
 
+def _candidate_only_procurement_intervention_bundle():
+    """Build a test-only, explicitly synthetic L6-shaped input for candidate N5.
+
+    This fixture is deliberately not a production L6 manifest or evidence of a
+    mechanism's empirical meaning. It supplies only the typed link needed for
+    the synthetic candidate profile's single write slot.
+    """
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.intervention_substrate import (
+        replace_intervention_substrate_bundle,
+    )
+    from tests.unit.runtime.quality.test_cycle_substrate import _intervention_bundle
+
+    fixture_identity = {
+        "purpose": "candidate_only_synthetic_ncm_reentry_test",
+        "operator_kind": "procurement_shock_intensity",
+        "target_world_slot": "cells.distress_score",
+    }
+    fixture_payloads = {
+        "intervention_knob_dictionary": {
+            "procurement_shock_intensity": {
+                "type": "float",
+                "default": 0.5,
+                "min": 0.0,
+                "max": 1.0,
+                "mechanism_id": "procurement_shock_intensity",
+                "param_path": "params.intensity",
+            }
+        },
+        "world_mechanism_manifest": {
+            "mechanisms": {
+                "procurement_shock_intensity": {
+                    "mechanism_id": "procurement_shock_intensity",
+                    "params": {
+                        "intensity": {
+                            "param_id": "intensity",
+                            "required": True,
+                            "value_type": "decimal",
+                            "min_value": 0,
+                            "max_value": 1,
+                            "unit_id": "synthetic_score",
+                        }
+                    },
+                    "reads_slots": [],
+                    "writes_slots": ["cells.distress_score"],
+                    "default_merge": {"cells.distress_score": "override"},
+                    "description": (
+                        "Test-only declared candidate mechanism; no empirical or "
+                        "production authority is implied."
+                    ),
+                }
+            }
+        },
+        "slot_family_manifest": {
+            "schema_version": "1.0",
+            "families": {
+                "cells": {
+                    "scope": "per_cell",
+                    "state_prefix": "cells",
+                    "entity_size_key": "n_cells",
+                    "slots": ["cells.distress_score"],
+                }
+            },
+        },
+    }
+    source_names = {
+        "intervention_knob_dictionary": "candidate_knob",
+        "world_mechanism_manifest": "candidate_mechanism",
+        "slot_family_manifest": "candidate_slot",
+    }
+    base_bundle = _intervention_bundle()
+    return replace_intervention_substrate_bundle(
+        base_bundle,
+        update={
+            **fixture_payloads,
+            "source_refs": {
+                name: f"test-fixture://{fixture_identity['purpose']}/{label}"
+                for name, label in source_names.items()
+            },
+            "source_content_hashes": {
+                name: gy_content_hash(
+                    {**fixture_identity, "payload": fixture_payloads[field]}
+                )
+                for field, name in source_names.items()
+            },
+        },
+    )
+
+
 def _configured_procurement_profile(
     *,
     recorded_problem: object,
@@ -88,6 +178,7 @@ def _configured_procurement_profile(
     tenant_id: str,
     cell_id: str,
     outcome_per_target_unit: float = 0.5,
+    intervention_substrate: object | None = None,
 ):
     """Return a configured candidate profile and its explicit synthetic SCM."""
 
@@ -215,11 +306,13 @@ def _configured_procurement_profile(
         }
     )
     world = _record_with_selected_ncm_ref(world, str(ncm_ref.artifact_id))
+    if intervention_substrate is None:
+        intervention_substrate = load_l6_intervention_substrate(REPO_ROOT)
     context_inputs = CandidateSimulationContextInputs(
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
         world_model_record=world,
-        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+        intervention_substrate=intervention_substrate,
         source_pack_content_hash=base_context.source_pack_content_hash,
         substrate_input_content_hash=base_context.substrate_input_content_hash,
     )

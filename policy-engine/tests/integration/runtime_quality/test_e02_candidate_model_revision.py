@@ -8,6 +8,7 @@ from typing import Any
 import pytest
 
 from tests._helpers.controlled_candidate_profile import (
+    _candidate_only_procurement_intervention_bundle,
     _configured_procurement_profile,
     _controlled_procurement_recording,
     _current_compiler_problem,
@@ -46,7 +47,12 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A served, owner-issued model change reruns N5 and retains the old occurrence."""
+    """A synthetic candidate-only model change reenters served, owner-bound N5.
+
+    This exercises the configured candidate owner, current-job CAS, and retained
+    N4 occurrence using explicit synthetic inputs; it makes no factual L6 or
+    empirical claim and does not substitute for the factual served-path check.
+    """
 
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
@@ -129,11 +135,13 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
     )
+    candidate_only_bundle = _candidate_only_procurement_intervention_bundle()
     profile, model_declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
         artifact_store=runtime_api_context.store,
         tenant_id=_TENANT_ID,
         cell_id=_CELL_ID,
+        intervention_substrate=candidate_only_bundle,
     )
     compiled_problems: list[Any] = []
     original_compiler = generation_cycle_service.build_design_problem_from_nl_request
@@ -303,6 +311,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
             tenant_id=verified_scope.tenant_id,
             cell_id=verified_scope.cell_id,
             outcome_per_target_unit=1.0,
+            intervention_substrate=candidate_only_bundle,
         )
         assert declaration.outcome_per_target_unit == 1.0
         prebound_ncm_refs = (

@@ -1,0 +1,14 @@
+{
+  "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+  "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+  "exception": "unexpected export-prep schema",
+  "exception_type": "HarnessError",
+  "finished_utc": "2026-10-07T23:21:25.396397+00:00",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/positive",
+  "product_verdict": null,
+  "pytest_started": false,
+  "ready_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+  "retry_count": 0,
+  "schema": "policyos.e02.local_pytest_receipt.v1",
+  "status": "ERROR_PREFLIGHT"
+}

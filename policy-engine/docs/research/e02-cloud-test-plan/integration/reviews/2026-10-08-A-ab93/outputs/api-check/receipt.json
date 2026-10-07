@@ -1,0 +1,571 @@
+{
+  "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+  "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "tools/ops_runners/runtime/check_runtime_api_contract.py",
+    "--skip-client-drift"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine",
+  "disk_after": {
+    "free_bytes": 43481993216,
+    "total_bytes": 245107195904,
+    "used_bytes": 201625202688
+  },
+  "disk_before": {
+    "free_bytes": 43490533376,
+    "total_bytes": 245107195904,
+    "used_bytes": 201616662528
+  },
+  "environment_values_recorded": false,
+  "finished_utc": "2026-10-07T23:35:32.217011+00:00",
+  "loaded_module_origin_audit": {
+    "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+    "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+    "errors": [],
+    "errors_count": 0,
+    "loaded_file_modules_checked_against_blob_and_mode": 1674,
+    "module_count": 1674,
+    "namespace_modules_checked": 0,
+    "ok": true,
+    "present": true,
+    "removed_live_paths": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ]
+  },
+  "nonmanifest_extras_after": {
+    "policy-engine/.polisyos/cas/artifacts/ownership/transactions/locks/stripe-48.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob": {
+      "bytes": 37,
+      "mode": "100644",
+      "sha256": "6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0"
+    },
+    "policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json": {
+      "bytes": 358,
+      "mode": "100644",
+      "sha256": "1686efe9804e401a273e7421aca5b5d9bc3283d3483ce720f4845076bcd4e47c"
+    },
+    "policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json": {
+      "bytes": 358,
+      "mode": "100644",
+      "sha256": "1686efe9804e401a273e7421aca5b5d9bc3283d3483ce720f4845076bcd4e47c"
+    },
+    "policy-engine/.polisyos/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/029111dc787b8e0c3c9bde76cd05feb305c908b2a67b5d7302e6090c1599a2b1/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/092956ff66ff05305a7f42f91e133d4d531b1db3b8a6e613bc51a078642cc762/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/55ff1765245bf675428944ac943cc8b3ceaabdf68ddb55fe0b2d901a008cb34a/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/5fe10949037895fadb083dd6b1b9c08b02627fb05b63b7e0af946ca3127b6b1a/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/75c368ea84afb882fe73721d984737fb801fd2f7a4d1f38627fb3c220a94c505/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/db033788d47b655536d3237b31bb9daa7eee2102e18677c055772263cd61ad2f/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/f8fc97eff2d42a8c65ec2b8b1f1db0118db2f4c7211bafd1d45bd603d28d307f/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.tmp/n6-generation-source-cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.tmp/n6-grounding-candidate-custody/synthetic/42cf95bcf3c05d2af59bd7c07172f54fbc1be755521ab3c65c931524cf4a3e18/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "nonmanifest_extras_before": {
+    "policy-engine/.polisyos/runtime/grounding_risk/029111dc787b8e0c3c9bde76cd05feb305c908b2a67b5d7302e6090c1599a2b1/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/092956ff66ff05305a7f42f91e133d4d531b1db3b8a6e613bc51a078642cc762/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/55ff1765245bf675428944ac943cc8b3ceaabdf68ddb55fe0b2d901a008cb34a/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/5fe10949037895fadb083dd6b1b9c08b02627fb05b63b7e0af946ca3127b6b1a/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/75c368ea84afb882fe73721d984737fb801fd2f7a4d1f38627fb3c220a94c505/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/db033788d47b655536d3237b31bb9daa7eee2102e18677c055772263cd61ad2f/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.polisyos/runtime/grounding_risk/f8fc97eff2d42a8c65ec2b8b1f1db0118db2f4c7211bafd1d45bd603d28d307f/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.tmp/n6-generation-source-cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/.tmp/n6-grounding-candidate-custody/synthetic/42cf95bcf3c05d2af59bd7c07172f54fbc1be755521ab3c65c931524cf4a3e18/cas/artifacts/ownership/transactions/root.lock": {
+      "bytes": 0,
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "nonmanifest_extras_unchanged": false,
+  "outputs": {
+    "origin_audit": {
+      "bytes": 353103,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/api-python/origin-audit.json",
+      "present": true,
+      "sha256": "1057063f38cb3888a098a6c9c3407626fab0953ba584a30be097c97c3133a3cb"
+    },
+    "stderr": {
+      "bytes": 6755,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/api-python/stderr.txt",
+      "present": true,
+      "sha256": "6b763fc09d57fa6d5be4d4f86e3b3bff99922a45dc3dc24a8854cff851196da1"
+    },
+    "stdout": {
+      "bytes": 5037,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/results/api-python/stdout.txt",
+      "present": true,
+      "sha256": "b9398f23839c4b9f9e195b3417ef5e41399368eb495e9d0a4ea418d08af49b29"
+    }
+  },
+  "process_id": 17533,
+  "product_verdict": null,
+  "production_data_or_credential_environment_values_recorded": false,
+  "pytest_started": true,
+  "removed_environment_key_names": [
+    "GH_PAGER",
+    "SSH_AUTH_SOCK"
+  ],
+  "retry_count": 0,
+  "returncode": 1,
+  "schema": "policyos.e02.local_runtime_api_check_receipt.v1",
+  "selected_input_after": {
+    "candidate_tree_identity_verified": true,
+    "complete_architecture_matches": true,
+    "complete_source_subtree_matches": true,
+    "export_prep_verification_ok": true,
+    "known_extras_only": false,
+    "non_allowlisted_errors": [
+      "extra:policy-engine/.polisyos/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "extra:policy-engine/.polisyos/cas/artifacts/ownership/transactions/root.lock",
+      "extra:policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "extra:policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "extra:policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "extra:policy-engine/.polisyos/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock"
+    ],
+    "ok": false,
+    "raw_verification": {
+      "complete_architecture_git_tree": {
+        "entry_count": 733,
+        "matches_selected_manifest": true,
+        "total_bytes": 60229990
+      },
+      "complete_candidate_git_tree": {
+        "commit_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+        "entry_count": 14839,
+        "git_ls_tree_raw_sha256": "6e5eb239e41c9cc26df9cf5ddfc2aa06e3812477744a99c48b9f5ce7870303d9",
+        "identity_verified": true,
+        "tree_sha": "ee92f0719be5b02e212947dcd35f90a1276e875f"
+      },
+      "errors": [
+        "extra:policy-engine/.polisyos/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+        "extra:policy-engine/.polisyos/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+        "extra:policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+        "extra:policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+        "extra:policy-engine/.polisyos/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/029111dc787b8e0c3c9bde76cd05feb305c908b2a67b5d7302e6090c1599a2b1/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/092956ff66ff05305a7f42f91e133d4d531b1db3b8a6e613bc51a078642cc762/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/55ff1765245bf675428944ac943cc8b3ceaabdf68ddb55fe0b2d901a008cb34a/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/5fe10949037895fadb083dd6b1b9c08b02627fb05b63b7e0af946ca3127b6b1a/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/75c368ea84afb882fe73721d984737fb801fd2f7a4d1f38627fb3c220a94c505/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/db033788d47b655536d3237b31bb9daa7eee2102e18677c055772263cd61ad2f/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/f8fc97eff2d42a8c65ec2b8b1f1db0118db2f4c7211bafd1d45bd603d28d307f/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.tmp/n6-generation-source-cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.tmp/n6-grounding-candidate-custody/synthetic/42cf95bcf3c05d2af59bd7c07172f54fbc1be755521ab3c65c931524cf4a3e18/cas/artifacts/ownership/transactions/root.lock"
+      ],
+      "errors_count": 15,
+      "export_prep_verification": {
+        "attempt1_entry_count": 6805,
+        "attempt1_path_rows_preserved": true,
+        "attempt1_rows_changed_count": 0,
+        "attempt1_rows_missing_count": 0,
+        "attempt1_total_bytes_from_git": 106282555,
+        "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+        "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+        "errors": [],
+        "errors_count": 0,
+        "manifest_entry_count": 7499,
+        "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+        "ok": true,
+        "preserved_attempt1_outputs": {
+          "export-prep-attempt1.json": {
+            "actual_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20",
+            "expected_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20"
+          },
+          "harness/prepare_a_export-attempt1.py": {
+            "actual_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624",
+            "expected_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624"
+          },
+          "results/prep-report-attempt1.md": {
+            "actual_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8",
+            "expected_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8"
+          },
+          "source-manifest-attempt1.json": {
+            "actual_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e",
+            "expected_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e"
+          }
+        },
+        "supplement_bytes_recomputed_from_git": 59698264,
+        "supplement_entry_count_recomputed": 694
+      },
+      "ok": false,
+      "selected_input_closure": {
+        "all_selected_rows_checked": 7499,
+        "bytes_read": 165980819,
+        "entry_count": 7499,
+        "expected_total_bytes_from_git_objects": 165980819,
+        "export_path_set_exact": false,
+        "extra_count": 15,
+        "extra_paths": [
+          "policy-engine/.polisyos/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+          "policy-engine/.polisyos/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+          "policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+          "policy-engine/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+          "policy-engine/.polisyos/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/029111dc787b8e0c3c9bde76cd05feb305c908b2a67b5d7302e6090c1599a2b1/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/092956ff66ff05305a7f42f91e133d4d531b1db3b8a6e613bc51a078642cc762/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/55ff1765245bf675428944ac943cc8b3ceaabdf68ddb55fe0b2d901a008cb34a/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/5fe10949037895fadb083dd6b1b9c08b02627fb05b63b7e0af946ca3127b6b1a/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/75c368ea84afb882fe73721d984737fb801fd2f7a4d1f38627fb3c220a94c505/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/db033788d47b655536d3237b31bb9daa7eee2102e18677c055772263cd61ad2f/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/f8fc97eff2d42a8c65ec2b8b1f1db0118db2f4c7211bafd1d45bd603d28d307f/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.tmp/n6-generation-source-cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.tmp/n6-grounding-candidate-custody/synthetic/42cf95bcf3c05d2af59bd7c07172f54fbc1be755521ab3c65c931524cf4a3e18/cas/artifacts/ownership/transactions/root.lock"
+        ],
+        "file_type_denominator": {
+          ".blob": 11,
+          ".csv": 15,
+          ".cypher": 2,
+          ".duckdb": 4,
+          ".fixture": 2,
+          ".ini": 10,
+          ".json": 930,
+          ".jsonl": 1,
+          ".lock": 1,
+          ".md": 349,
+          ".mjs": 4,
+          ".pkl": 2,
+          ".py": 5945,
+          ".pyi": 5,
+          ".retired": 1,
+          ".sh": 27,
+          ".sql": 1,
+          ".tmpl": 7,
+          ".toml": 123,
+          ".ts": 15,
+          ".txt": 4,
+          ".typed": 2,
+          ".whl": 1,
+          ".yaml": 23,
+          ".yml": 12,
+          "[no_suffix]": 2
+        },
+        "groups_recomputed_from_git_objects": {
+          "architecture_other_governing_inputs": {
+            "bytes": 59698264,
+            "files": 694
+          },
+          "architecture_production_quality": {
+            "bytes": 217766,
+            "files": 17
+          },
+          "canonical_api_surface_companions": {
+            "bytes": 5076655,
+            "files": 9
+          },
+          "claim_dependency_field_registry_1825B": {
+            "bytes": 1825,
+            "files": 1
+          },
+          "python_and_build_config": {
+            "bytes": 954259,
+            "files": 6
+          },
+          "runtime_claim_registry_fixture": {
+            "bytes": 69470,
+            "files": 17
+          },
+          "source": {
+            "bytes": 54990755,
+            "files": 2911
+          },
+          "tests": {
+            "bytes": 32455454,
+            "files": 3304
+          },
+          "tools": {
+            "bytes": 12516371,
+            "files": 540
+          }
+        },
+        "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+        "missing_count": 0,
+        "missing_paths": [],
+        "mode_denominator_from_manifest": {
+          "100644": 7478,
+          "100755": 21
+        },
+        "mode_denominator_observed": {
+          "100644": 7478,
+          "100755": 21
+        },
+        "required_fixture_missing": [],
+        "source_file_count": 2911,
+        "source_tree_matches_complete_candidate_subtree": true
+      }
+    },
+    "selected_git_input_bytes": 165980819,
+    "selected_git_inputs_7499_rows_checked": 7499
+  },
+  "selected_input_before": {
+    "candidate_tree_identity_verified": true,
+    "complete_architecture_matches": true,
+    "complete_source_subtree_matches": true,
+    "export_prep_verification_ok": true,
+    "known_extras_only": true,
+    "non_allowlisted_errors": [],
+    "ok": true,
+    "raw_verification": {
+      "complete_architecture_git_tree": {
+        "entry_count": 733,
+        "matches_selected_manifest": true,
+        "total_bytes": 60229990
+      },
+      "complete_candidate_git_tree": {
+        "commit_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+        "entry_count": 14839,
+        "git_ls_tree_raw_sha256": "6e5eb239e41c9cc26df9cf5ddfc2aa06e3812477744a99c48b9f5ce7870303d9",
+        "identity_verified": true,
+        "tree_sha": "ee92f0719be5b02e212947dcd35f90a1276e875f"
+      },
+      "errors": [
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/029111dc787b8e0c3c9bde76cd05feb305c908b2a67b5d7302e6090c1599a2b1/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/092956ff66ff05305a7f42f91e133d4d531b1db3b8a6e613bc51a078642cc762/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/55ff1765245bf675428944ac943cc8b3ceaabdf68ddb55fe0b2d901a008cb34a/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/5fe10949037895fadb083dd6b1b9c08b02627fb05b63b7e0af946ca3127b6b1a/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/75c368ea84afb882fe73721d984737fb801fd2f7a4d1f38627fb3c220a94c505/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/db033788d47b655536d3237b31bb9daa7eee2102e18677c055772263cd61ad2f/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.polisyos/runtime/grounding_risk/f8fc97eff2d42a8c65ec2b8b1f1db0118db2f4c7211bafd1d45bd603d28d307f/cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.tmp/n6-generation-source-cas/artifacts/ownership/transactions/root.lock",
+        "extra:policy-engine/.tmp/n6-grounding-candidate-custody/synthetic/42cf95bcf3c05d2af59bd7c07172f54fbc1be755521ab3c65c931524cf4a3e18/cas/artifacts/ownership/transactions/root.lock"
+      ],
+      "errors_count": 9,
+      "export_prep_verification": {
+        "attempt1_entry_count": 6805,
+        "attempt1_path_rows_preserved": true,
+        "attempt1_rows_changed_count": 0,
+        "attempt1_rows_missing_count": 0,
+        "attempt1_total_bytes_from_git": 106282555,
+        "candidate_sha": "ab93e222381372c54056b9f05e6c8cd7aedf2f2c",
+        "candidate_tree": "ee92f0719be5b02e212947dcd35f90a1276e875f",
+        "errors": [],
+        "errors_count": 0,
+        "manifest_entry_count": 7499,
+        "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+        "ok": true,
+        "preserved_attempt1_outputs": {
+          "export-prep-attempt1.json": {
+            "actual_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20",
+            "expected_sha256": "b2a613341c165947898b3ba4b44e8b52a7909df2f183ffb4d779406a9f6bbd20"
+          },
+          "harness/prepare_a_export-attempt1.py": {
+            "actual_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624",
+            "expected_sha256": "58c4b83c1e541e69a649aeb037207b82ebaf305ea6601ba8ef62a4d29fbcc624"
+          },
+          "results/prep-report-attempt1.md": {
+            "actual_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8",
+            "expected_sha256": "f1d3e1673ff63633925c3fdcb2b7b09a70d80f5e076cd953da889256e2d0cda8"
+          },
+          "source-manifest-attempt1.json": {
+            "actual_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e",
+            "expected_sha256": "cf661e8035f349eefbf30113ee1ef2f93aa2ca8ecde85d44085da1490648cb8e"
+          }
+        },
+        "supplement_bytes_recomputed_from_git": 59698264,
+        "supplement_entry_count_recomputed": 694
+      },
+      "ok": false,
+      "selected_input_closure": {
+        "all_selected_rows_checked": 7499,
+        "bytes_read": 165980819,
+        "entry_count": 7499,
+        "expected_total_bytes_from_git_objects": 165980819,
+        "export_path_set_exact": false,
+        "extra_count": 9,
+        "extra_paths": [
+          "policy-engine/.polisyos/runtime/grounding_risk/029111dc787b8e0c3c9bde76cd05feb305c908b2a67b5d7302e6090c1599a2b1/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/092956ff66ff05305a7f42f91e133d4d531b1db3b8a6e613bc51a078642cc762/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/55ff1765245bf675428944ac943cc8b3ceaabdf68ddb55fe0b2d901a008cb34a/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/5fe10949037895fadb083dd6b1b9c08b02627fb05b63b7e0af946ca3127b6b1a/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/75c368ea84afb882fe73721d984737fb801fd2f7a4d1f38627fb3c220a94c505/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/db033788d47b655536d3237b31bb9daa7eee2102e18677c055772263cd61ad2f/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.polisyos/runtime/grounding_risk/f8fc97eff2d42a8c65ec2b8b1f1db0118db2f4c7211bafd1d45bd603d28d307f/cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.tmp/n6-generation-source-cas/artifacts/ownership/transactions/root.lock",
+          "policy-engine/.tmp/n6-grounding-candidate-custody/synthetic/42cf95bcf3c05d2af59bd7c07172f54fbc1be755521ab3c65c931524cf4a3e18/cas/artifacts/ownership/transactions/root.lock"
+        ],
+        "file_type_denominator": {
+          ".blob": 11,
+          ".csv": 15,
+          ".cypher": 2,
+          ".duckdb": 4,
+          ".fixture": 2,
+          ".ini": 10,
+          ".json": 930,
+          ".jsonl": 1,
+          ".lock": 1,
+          ".md": 349,
+          ".mjs": 4,
+          ".pkl": 2,
+          ".py": 5945,
+          ".pyi": 5,
+          ".retired": 1,
+          ".sh": 27,
+          ".sql": 1,
+          ".tmpl": 7,
+          ".toml": 123,
+          ".ts": 15,
+          ".txt": 4,
+          ".typed": 2,
+          ".whl": 1,
+          ".yaml": 23,
+          ".yml": 12,
+          "[no_suffix]": 2
+        },
+        "groups_recomputed_from_git_objects": {
+          "architecture_other_governing_inputs": {
+            "bytes": 59698264,
+            "files": 694
+          },
+          "architecture_production_quality": {
+            "bytes": 217766,
+            "files": 17
+          },
+          "canonical_api_surface_companions": {
+            "bytes": 5076655,
+            "files": 9
+          },
+          "claim_dependency_field_registry_1825B": {
+            "bytes": 1825,
+            "files": 1
+          },
+          "python_and_build_config": {
+            "bytes": 954259,
+            "files": 6
+          },
+          "runtime_claim_registry_fixture": {
+            "bytes": 69470,
+            "files": 17
+          },
+          "source": {
+            "bytes": 54990755,
+            "files": 2911
+          },
+          "tests": {
+            "bytes": 32455454,
+            "files": 3304
+          },
+          "tools": {
+            "bytes": 12516371,
+            "files": 540
+          }
+        },
+        "manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+        "missing_count": 0,
+        "missing_paths": [],
+        "mode_denominator_from_manifest": {
+          "100644": 7478,
+          "100755": 21
+        },
+        "mode_denominator_observed": {
+          "100644": 7478,
+          "100755": 21
+        },
+        "required_fixture_missing": [],
+        "source_file_count": 2911,
+        "source_tree_matches_complete_candidate_subtree": true
+      }
+    },
+    "selected_git_input_bytes": 165980819,
+    "selected_git_inputs_7499_rows_checked": 7499
+  },
+  "source_manifest_sha256": "584723b42846e072baaf3cad49c8bbbc67c37b7027bcce48afe143a715d35307",
+  "started_utc": "2026-10-07T23:34:47.704641+00:00",
+  "status": "ERROR_SOURCE_AFTER",
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "wall_seconds": 44.511,
+  "workspace_after": {
+    "branch": "codex/e02-integration",
+    "head": "c7adfde6d039e47b1f304eff79340e31a9426270"
+  },
+  "workspace_before": {
+    "branch": "codex/e02-integration",
+    "head": "c7adfde6d039e47b1f304eff79340e31a9426270"
+  },
+  "workspace_branch_unchanged": true,
+  "workspace_head_unchanged": true
+}

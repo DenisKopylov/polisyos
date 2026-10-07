@@ -1,0 +1,3 @@
+ERROR: not found: /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/watch-20261007-2256/native-A/candidate/policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py::test_workspace_partial_admissible_projects_as_stop_not_abstention
+(no match in any of [<Module test_e02_recursive_partial_readback.py>])
+

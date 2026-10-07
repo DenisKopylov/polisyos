@@ -14,10 +14,11 @@ import pytest
 
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import EvaluationExecutionContext, EvaluationMode, gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     derive_recursive_design_graph,
 )
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     N4GenerationPort,
@@ -30,6 +31,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleError,
     build_default_recursive_generation_cycle_controller,
 )
+from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 _CONSTRUCTOR_TARGETS: Final = frozenset(
     {
@@ -52,6 +54,66 @@ _DYNAMIC_TARGET_MARKERS: Final = frozenset(
     }
 )
 _PROMOTION_PORT_TARGET: Final = "<promotion-port>"
+_TASK_44_OWNER_ONLY_COMPAT_EXPORTS: Final = frozenset(
+    {
+        "DecisionDependencyEvent",
+        "DecisionLifecycleJob",
+        "DecisionLifecycleJobKind",
+        "DecisionLifecycleJobState",
+        "DecisionValidityTransition",
+    }
+)
+
+
+def _unestablished_eval_safety_context(
+    *,
+    mode: EvaluationMode,
+    candidate_id: str,
+    candidate_content_hash: str,
+    world: WorldModelRecord,
+    problem: DesignProblem,
+) -> EvaluationExecutionContext:
+    """Build a mode-bound negative context that declares no input provenance."""
+
+    from datetime import UTC, datetime
+
+    from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
+    from tests.unit.runtime.quality.test_value_gate import _execution_ref
+
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    binding_hash = gy_content_hash({"problem_ref": problem_ref, "candidate_id": candidate_id})
+    context = EvaluationExecutionContext(
+        intake_ref=_execution_ref("unestablished-evaluation-intake", binding_hash),
+        evaluator_owner_id=FOUNDRY_VALUE_PORT_EVALUATOR_ID,
+        design_problem_ref=problem_ref,
+        evaluation_mode=mode,
+        candidate_ref=_execution_ref(
+            candidate_id,
+            candidate_content_hash,
+            artifact_type="candidate",
+            schema_ref="policyos.runtime.candidate.v1",
+        ),
+        world_model_record_ref=_execution_ref(
+            world.world_model_record_id,
+            world.content_hash,
+            artifact_type="world_model_record",
+            schema_ref="policyos.runtime.world_model_record.v1",
+        ),
+        target_population_scope_ref=_execution_ref(
+            "unestablished-target-population",
+            binding_hash,
+            artifact_type="target_population_scope",
+            schema_ref="policyos.runtime.target_population_scope.v1",
+        ),
+        rule_version="polisyos.eval_safety.test@1.0.0",
+        intended_start_at=datetime(2026, 8, 27, tzinfo=UTC),
+        evaluation_input_refs=(),
+        evaluation_input_provenance=(),
+        eval_safety_certificate_ref=None,
+        eval_safety_revision_head_ref=None,
+    )
+    assert context.attempt_class == "not_established"
+    return context
 
 
 @pytest.mark.asyncio
@@ -160,7 +222,6 @@ async def test_non_simulation_context_without_admission_is_not_candidate_fallbac
     )
     from tests.unit.runtime.quality.test_value_gate import (
         _candidate,
-        _non_simulation_execution_context,
         _world_record,
     )
 
@@ -173,9 +234,11 @@ async def test_non_simulation_context_without_admission_is_not_candidate_fallbac
         parent_child_edges=(),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
-    context = _non_simulation_execution_context(
+    candidate = _candidate()
+    context = _unestablished_eval_safety_context(
         mode="field_pilot",
-        candidate=_candidate(),
+        candidate_id=candidate.candidate_id,
+        candidate_content_hash=candidate.atom.content_hash,
         world=_world_record(),
         problem=problem,
     )
@@ -424,7 +487,7 @@ async def test_data_trust_modes_report_their_missing_owner_separately_from_eval_
 @pytest.mark.asyncio
 async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4(
     tmp_path: Path,
-    intent: str,
+    intent: EvaluationMode,
     binding_case: str,
 ) -> None:
     """Protected modes reject any incomplete or widened leaf context mapping."""
@@ -437,7 +500,6 @@ async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n
         _problem,
     )
     from tests.unit.runtime.quality.test_value_gate import (
-        _non_simulation_execution_context,
         _world_record,
     )
 
@@ -459,9 +521,10 @@ async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n
         ),
         diversity_key=("grant", "firms", "eval_safety_denominator", "baseline"),
     )
-    context = _non_simulation_execution_context(
+    context = _unestablished_eval_safety_context(
         mode=intent,
-        candidate=candidate,
+        candidate_id=candidate.candidate_id,
+        candidate_content_hash=candidate.atom.content_hash,
         world=_world_record("7"),
         problem=problem,
     )
@@ -725,8 +788,14 @@ def _source_role(relative_path: str) -> str:
         return "benchmark_only"
     if first == "examples":
         return "example_only"
-    if relative_path.startswith("docs/research/"):
+    if relative_path.startswith("docs/superpowers/journals/"):
+        return "evidence_probe_only"
+    if relative_path.startswith("docs/superpowers/research/") or relative_path.startswith(
+        "docs/research/"
+    ):
         return "research_only"
+    if relative_path.startswith("docs/plans/active/agent-packages/"):
+        return "plan_harness_only"
     if first in {"src", "tools", "apps", "ops", "architecture"}:
         return "production_capable"
     if relative_path in {"jax_bootstrap.py", "migrate.py"}:
@@ -1066,6 +1135,7 @@ def _assert_task_44_export_contract(
     expected_decision_names: tuple[str, ...],
     decision_owner_names: set[str],
     decision_facade_names: set[str],
+    decision_public_names: set[str],
     control_owner_names: set[str],
     control_facade_names: set[str],
     scientist_names: set[str],
@@ -1073,15 +1143,16 @@ def _assert_task_44_export_contract(
     facade_lazy_imports: dict[str, str],
 ) -> None:
     expected_decision = set(expected_decision_names)
-    assert decision_owner_names == expected_decision
-    assert decision_facade_names == expected_decision
+    assert expected_decision.issubset(decision_owner_names)
+    assert decision_owner_names == decision_facade_names
+    assert decision_public_names == decision_owner_names - _TASK_44_OWNER_ONLY_COMPAT_EXPORTS
 
     control_epoch_names = {"EpochValidityBatchRequest", "EpochValidityBatchResponse"}
     assert control_epoch_names.issubset(control_owner_names)
     assert control_epoch_names.issubset(control_facade_names)
     assert scientist_lazy_names == scientist_names
 
-    for name in expected_decision:
+    for name in decision_owner_names:
         assert facade_lazy_imports.get(name) == "polisyos.core.contracts.decision_validity"
     for name in control_epoch_names:
         assert facade_lazy_imports.get(name) == "polisyos.core.contracts.control"
@@ -1192,7 +1263,7 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         _problem,
     )
     from tests.unit.runtime.quality.test_value_gate import (
-        _non_simulation_execution_context,
+        _execution_ref,
         _simulation,
         _world_record,
     )
@@ -1224,19 +1295,25 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
     )
     world = _world_record("7")
     simulation = _simulation(world, candidate_id=candidate.candidate_id)
-    bound_context = _non_simulation_execution_context(
-        mode="field_pilot",
-        candidate=candidate,
-        world=world,
-        problem=problem,
+    bound_candidate_ref = _execution_ref(
+        candidate.candidate_id,
+        candidate.atom.content_hash,
+        artifact_type="candidate",
+        schema_ref="policyos.runtime.candidate.v1",
+    )
+    bound_world_model_record_ref = _execution_ref(
+        world.world_model_record_id,
+        world.content_hash,
+        artifact_type="world_model_record",
+        schema_ref="policyos.runtime.world_model_record.v1",
     )
     original_intake = c02_test.EvaluationAttemptIntake
 
     def bound_intake(**values: object) -> es.EvaluationAttemptIntake:
         values.update(
             {
-                "candidate_ref": bound_context.candidate_ref,
-                "world_model_record_ref": bound_context.world_model_record_ref,
+                "candidate_ref": bound_candidate_ref,
+                "world_model_record_ref": bound_world_model_record_ref,
             }
         )
         return original_intake(**values)
@@ -1921,14 +1998,12 @@ async def test_http_protected_explicit_n4_without_owner_context_fails_closed_bef
         _budget,
         _cyc01_owner_bound_n5_case,
     )
-    from tests.unit.runtime.quality.test_value_gate import (
-        _non_simulation_execution_context,
-    )
 
     problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
-    evaluation_context = _non_simulation_execution_context(
+    evaluation_context = _unestablished_eval_safety_context(
         mode="field_pilot",
-        candidate=candidate,
+        candidate_id=candidate.candidate_id,
+        candidate_content_hash=candidate.atom.content_hash,
         world=substrate_context.world_model_record,
         problem=problem,
     )
@@ -2235,6 +2310,7 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         "expected_decision_names": expected_decision_names,
         "decision_owner_names": set(decision_validity.__all__),
         "decision_facade_names": set(core_contracts._MODULE_SYMBOLS[".decision_validity"]),
+        "decision_public_names": set(decision_validity.__all__) & set(core_contracts.__all__),
         "control_owner_names": set(control.__all__),
         "control_facade_names": set(core_contracts._MODULE_SYMBOLS[".control"]),
         "scientist_names": set(scientist_validation.__all__),
@@ -2243,7 +2319,9 @@ def test_task_44_public_export_denominator_is_exact() -> None:
     }
     _assert_task_44_export_contract(**contract)
 
-    assert tuple(decision_validity.__all__) == expected_decision_names
+    assert tuple(
+        name for name in decision_validity.__all__ if name in set(expected_decision_names)
+    ) == expected_decision_names
     assert (
         tuple(name for name in control.__all__ if name.startswith("EpochValidityBatch"))
         == control_epoch_names
@@ -2257,8 +2335,11 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         == control_epoch_names
     )
 
+    for name in contract["decision_owner_names"]:
+        assert name in dir(core_contracts)
+        assert getattr(core_contracts, name) is getattr(decision_validity, name)
     for owner, names in (
-        (decision_validity, epoch_decision_names),
+        (decision_validity, contract["decision_public_names"]),
         (control, control_epoch_names),
     ):
         for name in names:
@@ -2281,6 +2362,14 @@ def test_task_44_public_export_denominator_is_exact() -> None:
                 **contract,
                 "decision_owner_names": contract["decision_owner_names"]
                 - {epoch_decision_names[0]},
+            }
+        )
+    with pytest.raises(AssertionError):
+        _assert_task_44_export_contract(
+            **{
+                **contract,
+                "decision_public_names": contract["decision_public_names"]
+                | {"DecisionDependencyEvent"},
             }
         )
     with pytest.raises(AssertionError):

@@ -8,6 +8,7 @@ result does not establish the configured production S10 route.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -22,6 +23,31 @@ def _generation_cycle(name: str) -> Any:
     import polisyos.runtime.quality.generation_cycle as module
 
     return getattr(module, name)
+
+
+def _nullable_rate_removed_projection(original: Any) -> Any:
+    """Return a test mutant that replaces only the unavailable rate with zero."""
+
+    def remove_nullable_rate(*, evidence_ref: object, evidence: object) -> Any:
+        projection, error = original(evidence_ref=evidence_ref, evidence=evidence)
+        if (
+            projection is not None
+            and projection.get("denominator") == 0
+            and projection.get("pass_rate") is None
+        ):
+            projection = dict(projection)
+            projection["pass_rate"] = 0.0
+        return projection, error
+
+    return remove_nullable_rate
+
+
+def _install_nullable_rate_removal() -> None:
+    import polisyos.runtime.quality.generation_cycle as module
+
+    module._s10_empirical_projection = _nullable_rate_removed_projection(
+        module._s10_empirical_projection
+    )
 
 
 def _finite_estimator_report(
@@ -359,6 +385,9 @@ def test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_
 ) -> None:
     """Canonical E readback keeps absence distinct from a measured zero."""
 
+    if os.environ.get("POLISYOS_TEST_S10_NULLABLE_RATE_REMOVAL") == "1":
+        _install_nullable_rate_removal()
+
     store, evidence_ref, evidence = _persisted_bridge_fixture(
         tmp_path,
         observations=observations,
@@ -375,7 +404,10 @@ def test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_
     assert projection is not None
     assert projection["numerator"] == expected_numerator
     assert projection["denominator"] == expected_denominator
-    assert projection["pass_rate"] == expected_rate
+    assert projection["pass_rate"] == expected_rate, (
+        "S10 projection must preserve nullable pass_rate; got "
+        f"{projection['pass_rate']!r} for denominator {projection['denominator']}"
+    )
 
     inputs, resolver = _gateway_inputs_for_bridge_evidence(
         store,
@@ -407,6 +439,45 @@ def test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_
         assert record.pass_rate == 0.0
         assert record.calibration_status == "limit"
         assert support.calibration_record_ref == record.calibration_ref
+
+
+def test_zero_denominator_projection_mutant_does_not_emit_calibration_record(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Even a null-to-zero projection mutation cannot create a zero-data record."""
+
+    import importlib
+
+    module = importlib.import_module("polisyos.runtime.quality.generation_cycle")
+    monkeypatch.setattr(
+        module,
+        "_s10_empirical_projection",
+        _nullable_rate_removed_projection(module._s10_empirical_projection),
+    )
+    store, evidence_ref, evidence = _persisted_bridge_fixture(
+        tmp_path,
+        observations=(None,),
+    )
+    projection, projection_error = module._s10_empirical_projection(
+        evidence_ref=evidence_ref,
+        evidence=evidence,
+    )
+    assert projection_error is None
+    assert projection is not None
+    assert projection["denominator"] == 0
+    assert projection["pass_rate"] == 0.0
+
+    inputs, resolver = _gateway_inputs_for_bridge_evidence(
+        store,
+        evidence_ref,
+        evidence,
+    )
+    support = inputs["forecast_support"]
+    assert resolver.resolved_refs == [evidence_ref]
+    assert support.forecast_tier == "blocked"
+    assert support.calibration_record_ref is None
+    assert inputs["forecast_calibration_record"] is None
 
 
 @pytest.mark.parametrize(

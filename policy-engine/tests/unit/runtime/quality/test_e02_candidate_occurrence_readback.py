@@ -5,12 +5,15 @@ to a temporary CAS and reopens it with a fresh store. It exercises the typed
 compiled-run contract and runtime owner seam. Candidate hashes are opaque test
 tokens; grounding, value, and completion inputs are test fixtures. This does
 not establish source provenance, N5 truth, or deployment currentness, and it
-does not claim a public persisted-run resume API.
+does not claim a public persisted-run resume API. Ready test receipts are
+roundtripped under v3/v4; separate real v1/v2 history stays widthless and is
+not represented as carrying a ready value receipt.
 """
 
 from __future__ import annotations
 
 import copy
+import json
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
@@ -50,6 +53,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
 )
+from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
 from tests.unit.runtime.quality.test_generation_cycle import (
     REPO_ROOT,
     _AlwaysLowGrounding,
@@ -87,66 +91,123 @@ class _CurrentValidOnSecondCycleGrounding:
         )
 
 
-def _assert_persisted_value_receipt_roundtrip(run: GenerationCycleRun) -> None:
-    """Exercise actual root and cycle value receipts through persisted readers."""
+def _assert_modern_value_receipt_roundtrips(run: GenerationCycleRun) -> None:
+    """Exercise real root and cycle receipts through modern v3/v4 readers."""
 
     spec = canon.CanonSpec(forbid_floats=False)
-    run_payload = run.model_dump(mode="json")
-    run_bytes = canon.to_canonical_bytes(run_payload, spec)
-    decoded_run = canon.from_canonical_bytes(run_bytes)
-    assert isinstance(decoded_run, dict)
-    replayed_run = GenerationCycleRun.from_persisted_payload(decoded_run)
-    assert canon.to_canonical_bytes(replayed_run.model_dump(mode="json"), spec) == run_bytes
-
-    receipt_locations: list[tuple[str, tuple[str | int, ...]]] = [
-        ("root", ("value_port", "value_receipt")),
-    ]
-    receipt_locations.extend(
-        (f"cycle-{index}", ("cycles", index, "value_port", "value_receipt"))
-        for index in range(len(run_payload["cycles"]))
+    versions = (
+        ("v3", "policyos.runtime.generation_cycle_controller.v3"),
+        ("v4", "policyos.runtime.generation_cycle_controller.v4"),
     )
-    assert len(receipt_locations) == 1 + len(run_payload["cycles"])
-
-    for label, path in receipt_locations:
-        receipt_payload = _mapping_at_path(run_payload, path)
-        receipt_bytes = canon.to_canonical_bytes(receipt_payload, spec)
-        decoded_receipt = canon.from_canonical_bytes(receipt_bytes)
-        assert isinstance(decoded_receipt, dict), label
-        receipt = ValueGateReceipt.from_persisted_payload(decoded_receipt)
+    for version, schema_version in versions:
+        # Keep the owner-emitted run and all actual value receipts. The v3
+        # projection only removes the v4-only source-custody limitation.
+        updates: dict[str, Any] = {"schema_version": schema_version}
+        if version != "v4":
+            updates["source_custody_limitation"] = None
+        versioned_run = run.model_copy(update=updates)
+        run_payload = versioned_run.model_dump(mode="json")
+        run_bytes = canon.to_canonical_bytes(run_payload, spec)
+        decoded_run = canon.from_canonical_bytes(run_bytes)
+        assert isinstance(decoded_run, dict), version
+        replayed_run = GenerationCycleRun.from_persisted_payload(decoded_run)
         assert (
-            canon.to_canonical_bytes(receipt.model_dump(mode="json"), spec)
-            == receipt_bytes
-        ), label
+            canon.to_canonical_bytes(replayed_run.model_dump(mode="json"), spec)
+            == run_bytes
+        ), version
 
-        with pytest.raises(ValidationError) as live_width_error:
-            ValueOuterSet.model_validate(receipt_payload["value_outer_set"])
-        assert any(
-            "value_outer_set_width_supplied_not_derived" in issue["msg"]
-            for issue in live_width_error.value.errors()
-        ), label
-
-        negative_cases: tuple[
-            tuple[str, Callable[[dict[str, Any]], None], str], ...
-        ] = (
-            ("tampered_width", _set_width((1.0,)), "value_outer_set_width_tampered"),
-            ("boolean_width", _set_width((False,)), "value_outer_set_width_tampered"),
-            ("missing_width", _remove_width, "value_outer_set_persisted_width_missing"),
-            ("unknown_receipt_field", _add_unknown_receipt_field, "extra_forbidden"),
+        receipt_locations: list[tuple[str, tuple[str | int, ...]]] = [
+            ("root", ("value_port", "value_receipt")),
+        ]
+        receipt_locations.extend(
+            (f"cycle-{index}", ("cycles", index, "value_port", "value_receipt"))
+            for index in range(len(run_payload["cycles"]))
         )
-        for case_name, mutate, expected in negative_cases:
-            altered_payload = copy.deepcopy(run_payload)
-            altered_receipt = _mapping_at_path(altered_payload, path)
-            mutate(altered_receipt)
-            if expected == "extra_forbidden":
-                with pytest.raises(ValidationError) as extra_error:
-                    GenerationCycleRun.from_persisted_payload(altered_payload)
-                assert any(
-                    issue["type"] == "extra_forbidden"
-                    for issue in extra_error.value.errors()
-                ), (label, case_name)
-            else:
-                with pytest.raises(ValueError, match=expected):
-                    GenerationCycleRun.from_persisted_payload(altered_payload)
+        assert len(receipt_locations) == 1 + len(run_payload["cycles"]), version
+
+        for label, path in receipt_locations:
+            receipt_payload = _mapping_at_path(run_payload, path)
+            outer_payload = receipt_payload["value_outer_set"]
+            assert "width" in outer_payload, (version, label)
+            receipt_bytes = canon.to_canonical_bytes(receipt_payload, spec)
+            decoded_receipt = canon.from_canonical_bytes(receipt_bytes)
+            assert isinstance(decoded_receipt, dict), (version, label)
+            receipt = ValueGateReceipt.from_persisted_payload(decoded_receipt)
+            assert (
+                canon.to_canonical_bytes(receipt.model_dump(mode="json"), spec)
+                == receipt_bytes
+            ), (version, label)
+
+            live_outer_payload = copy.deepcopy(outer_payload)
+            if "width" not in live_outer_payload:
+                live_outer_payload["width"] = [
+                    max(0.0, round(float(upper) - float(lower), 12))
+                    for lower, upper in zip(
+                        live_outer_payload["lower"],
+                        live_outer_payload["upper"],
+                        strict=True,
+                    )
+                ]
+            with pytest.raises(ValidationError) as live_width_error:
+                ValueOuterSet.model_validate(live_outer_payload)
+            assert any(
+                "value_outer_set_width_supplied_not_derived" in issue["msg"]
+                for issue in live_width_error.value.errors()
+            ), (version, label)
+
+            negative_cases = (
+                ("tampered_width", _set_width((1.0,)), "value_outer_set_width_tampered"),
+                ("boolean_width", _set_width((False,)), "value_outer_set_width_tampered"),
+                ("missing_width", _remove_width, "value_outer_set_persisted_width_missing"),
+                ("unknown_receipt_field", _add_unknown_receipt_field, "extra_forbidden"),
+                ("unknown_value_set_field", _add_unknown_value_set_field, "extra_forbidden"),
+            )
+            for case_name, mutate, expected in negative_cases:
+                altered_payload = copy.deepcopy(run_payload)
+                altered_receipt = _mapping_at_path(altered_payload, path)
+                mutate(altered_receipt)
+                if expected == "extra_forbidden":
+                    with pytest.raises(ValidationError) as extra_error:
+                        GenerationCycleRun.from_persisted_payload(altered_payload)
+                    assert any(
+                        issue["type"] == "extra_forbidden"
+                        for issue in extra_error.value.errors()
+                    ), (version, label, case_name)
+                else:
+                    with pytest.raises(ValueError, match=expected):
+                        GenerationCycleRun.from_persisted_payload(altered_payload)
+
+
+def _assert_actual_legacy_history_roundtrips() -> None:
+    """Replay real widthless v1/v2 history without manufacturing N8 receipts."""
+
+    v1_document = historical_generation_cycle_v1()
+    v1_run = v1_document["generation_cycle_run"]
+    v2_document = json.loads(
+        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json")
+        .read_bytes()
+    )
+    v2_run = v2_document["generation_cycle_run"]
+    versions = (("v1", v1_run), ("v2", v2_run))
+    spec = canon.CanonSpec(forbid_floats=False)
+    for version, payload in versions:
+        assert payload["schema_version"].endswith(f".{version}")
+        ports = [
+            payload.get("value_port"),
+            *(cycle.get("value_port") for cycle in payload["cycles"]),
+        ]
+        assert all(
+            isinstance(port, dict) and port.get("value_receipt") is None
+            for port in ports
+        ), version
+        original_bytes = canon.to_canonical_bytes(payload, spec)
+        decoded = canon.from_canonical_bytes(original_bytes)
+        assert isinstance(decoded, dict), version
+        replayed = GenerationCycleRun.from_persisted_payload(decoded)
+        assert (
+            canon.to_canonical_bytes(replayed.model_dump(mode="json"), spec)
+            == original_bytes
+        ), version
 
 
 def _mapping_at_path(value: Any, path: tuple[str | int, ...]) -> dict[str, Any]:
@@ -170,6 +231,10 @@ def _remove_width(receipt: dict[str, Any]) -> None:
 
 def _add_unknown_receipt_field(receipt: dict[str, Any]) -> None:
     receipt["unexpected_receipt_field"] = "preserve-strictness"
+
+
+def _add_unknown_value_set_field(receipt: dict[str, Any]) -> None:
+    receipt["value_outer_set"]["unexpected_value_set_field"] = "preserve-strictness"
 
 
 @pytest.mark.asyncio
@@ -230,7 +295,8 @@ async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readba
         ("candidate_same_subject", "sha256:" + "1" * 64, 0),
         ("candidate_same_subject", "sha256:" + "2" * 64, 1),
     )
-    _assert_persisted_value_receipt_roundtrip(produced_run)
+    _assert_modern_value_receipt_roundtrips(produced_run)
+    _assert_actual_legacy_history_roundtrips()
 
     recursive_payload = recursive_run.model_dump(mode="json", exclude={"leaf_nodes"})
     compiled_payload = {

@@ -1,0 +1,8 @@
+{
+  "refusal": null,
+  "error": "TypeError",
+  "message": "attribute name must be string, not 'dict'",
+  "actual_effects": [
+    "body"
+  ]
+}

@@ -260,6 +260,17 @@
       "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
       "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
       "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+    },
+    {
+      "lane": "Canonical-graph-profile-receipt",
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a",
+      "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "role": "HANDOFF minimal schema/check/property canonical aliases; old source/output bytes and custom receipt remain historical"
     }
   ],
   "focused_continuation": {
@@ -270,11 +281,11 @@
       "not_a_transfer_of_old_numerical_waves": true
     },
     "receipt": {
-      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
-      "bytes": 38873,
-      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
-      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
     },
     "implementation": "unchanged423 worker; changed test body qualified on4ee",
     "check": "PASS",
@@ -285,6 +296,14 @@
     "code_ready": true,
     "G_new_code_acceptance": "not_issued",
     "G_formal_finding_closure": "not_issued",
-    "no_original_criterion_rebinding": true
+    "no_original_criterion_rebinding": true,
+    "previous_custom_receipt": {
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+    },
+    "canonical_handoff_fields_review": "Forward receipt-only correction; no runtime/source/native outcome changes"
   }
 }

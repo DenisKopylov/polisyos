@@ -130,6 +130,13 @@
     "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d"
   },
   "focused_receipt": {
+    "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 71398,
+    "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+    "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
+  },
+  "previous_custom_receipt": {
     "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
     "bytes": 38873,

@@ -1256,11 +1256,11 @@
         "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
       ],
       "receipt": {
-        "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+        "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
-        "bytes": 38873,
-        "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
-        "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        "bytes": 71398,
+        "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+        "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
       },
       "upstream_history": "Preserve36b/e1/6be and ordinarymerge parents; cumulative historical carriers are not owner patches",
       "checks": {
@@ -1270,7 +1270,14 @@
         "new_source_wheel": "16PASS +differentPIDreaderPASS",
         "property_removal": "2expectednativeFAIL/5positivePASS +1expectedinstalledFAIL"
       },
-      "remaining": "New rebuilt-sdistUNRUN; G integratedfreeze after acceptance; B214/B56 ownertriggers separate"
+      "remaining": "New rebuilt-sdistUNRUN; G integratedfreeze after acceptance; B214/B56 ownertriggers separate",
+      "previous_custom_receipt": {
+        "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+        "bytes": 38873,
+        "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+        "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+      }
     }
   ],
   "frozen421_and_ROOT072": "Historicalfullcarrierprovenance; canonicalcurrentlyacceptedLexsource preserved, no competing3ddeimport",
@@ -1339,11 +1346,11 @@
       "not_a_transfer_of_old_numerical_waves": true
     },
     "receipt": {
-      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
-      "bytes": 38873,
-      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
-      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+      "bytes": 71398,
+      "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+      "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
     },
     "G_dependency_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
     "affected_IDs": [
@@ -1366,7 +1373,60 @@
     "G_new_runtime_source_accepted": 0,
     "formal_G_closures": 0,
     "prior_Lex_accepted_source_preserved": "00a6eda114b903bc5abe86902cd8372426f739a1",
-    "scope": "Historical519 whole91/91 consumers retained at their own source; current4ee is focused delta, not rerun/relabelled whole suite"
+    "scope": "Historical519 whole91/91 consumers retained at their own source; current4ee is focused delta, not rerun/relabelled whole suite",
+    "previous_custom_receipt": {
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+    },
+    "fresh_observed_G_checkpoint": {
+      "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+      "previous_dependency_pin": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "previous_is_ancestor": true,
+      "delta_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-53b-all60.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C-resume-after-C4-all54.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C-resume-after-c54-v10.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-a795-all45.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-pr68-680.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-CAN-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-CAN-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-NET-decoder-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-NET-decoder-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-actions.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-decisions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-remaining.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-resume-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-resume-review.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-actions.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/cache-candidates.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/cache-candidates.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-links.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-links.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-semantics.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-semantics.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/identity.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/identity.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/local-build-availability.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/pins.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/storage.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/storage.md"
+      ],
+      "product_delta_paths": [],
+      "F35_decision_blob_unchanged": true,
+      "G_ref_read_only": true,
+      "not_an_accepted_or_merged_G_candidate": true
+    }
   },
   "B218_status_supersession": {
     "role": "Explicit append-only supersession of the original B218 recommendation only",

@@ -1,0 +1,297 @@
+2026-10-07 19:22:38 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 19:22:38 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:22:38 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.98 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:22:38 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:22:38 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.66 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:22:39 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:22:39 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.52 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "failed_expectations": [],
+  "input_profile": "real build_mgraph -> synthetic confidence=0.9 -> graph_type only retag ADMG; dict and existing-reader-supported JSON string",
+  "intakes": [
+    {
+      "cutoff": 0.1,
+      "error": null,
+      "label": "retagged",
+      "path": "direct",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:f5db127df36dff4163469ee1fe2f4eea0037bb6e1fcedfbb04417a3a591eb311",
+      "relations": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ]
+      ],
+      "reopened_type": "admg",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": null,
+      "label": "retagged",
+      "path": "supplied_result",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:f5db127df36dff4163469ee1fe2f4eea0037bb6e1fcedfbb04417a3a591eb311",
+      "relations": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ]
+      ],
+      "reopened_type": "admg",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": null,
+      "label": "retagged",
+      "path": "current_and_selected",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:f5db127df36dff4163469ee1fe2f4eea0037bb6e1fcedfbb04417a3a591eb311",
+      "relations": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ]
+      ],
+      "reopened_type": "admg",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": {
+        "code": "node.invalid_state",
+        "details": {},
+        "message": "Current source is required to reconcile cached graph content"
+      },
+      "label": "retagged",
+      "path": "selected_only",
+      "profile_retained": null,
+      "published_count": 0,
+      "reconciled_ref": null,
+      "status": "fail"
+    },
+    {
+      "cutoff": 0.99,
+      "error": null,
+      "label": "retagged",
+      "path": "direct",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:7a0370bdaa7224ecc54351fe970e986edbd1816f943a48a8071c686da4b2bd4c",
+      "relations": [],
+      "reopened_type": "dag",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": null,
+      "label": "json-profile",
+      "path": "direct",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:3186754f00e5ac5adfb194dedf3a4e736006815476769f324574bb402e03b9cc",
+      "relations": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ]
+      ],
+      "reopened_type": "admg",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": null,
+      "label": "json-profile",
+      "path": "supplied_result",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:3186754f00e5ac5adfb194dedf3a4e736006815476769f324574bb402e03b9cc",
+      "relations": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ]
+      ],
+      "reopened_type": "admg",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": null,
+      "label": "json-profile",
+      "path": "current_and_selected",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:3186754f00e5ac5adfb194dedf3a4e736006815476769f324574bb402e03b9cc",
+      "relations": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ]
+      ],
+      "reopened_type": "admg",
+      "status": "ok"
+    },
+    {
+      "cutoff": 0.1,
+      "error": {
+        "code": "node.invalid_state",
+        "details": {},
+        "message": "Current source is required to reconcile cached graph content"
+      },
+      "label": "json-profile",
+      "path": "selected_only",
+      "profile_retained": null,
+      "published_count": 0,
+      "reconciled_ref": null,
+      "status": "fail"
+    },
+    {
+      "cutoff": 0.99,
+      "error": null,
+      "label": "json-profile",
+      "path": "direct",
+      "profile_retained": true,
+      "published_count": 1,
+      "reconciled_ref": "sha256:81ee99b9679561cfe0729bc55424963ca9e4a9ca16f1c7b1bafe6aefbb2f0346",
+      "relations": [],
+      "reopened_type": "dag",
+      "status": "ok"
+    }
+  ],
+  "jobs": [
+    {
+      "issues": [],
+      "label": "retagged",
+      "method_result_ref": "sha256:2ade1c9f9d292b888cb6643c83156d80a841d00bd2aff09f9b15b338d7871538"
+    },
+    {
+      "issues": [],
+      "label": "json-profile",
+      "method_result_ref": "sha256:83ff12a1d57fd799b816489b0482632317b34332d4a52032a1496c2afc63bffe"
+    }
+  ],
+  "mutation": {
+    "enabled": false,
+    "guard_source_sha256": "46994a052a68418cc202641f9f36c8fff79537342558d423ec7cfd2f9474614f"
+  },
+  "origin_count": 970,
+  "origin_errors": [],
+  "original_mgraph_readable": true,
+  "outcome": "PASS",
+  "positive": {
+    "actual_job_node_fresh_store_reader": true,
+    "actual_ref": "sha256:d99ad6ce12582d96b2714723799cfa56ce84d12933e4036e5457d0c96319ed6e",
+    "declared": "admg",
+    "mgraph_key_absent": true,
+    "same_node_names_and_relations": true
+  },
+  "scope": "Synthetic known typed MGraph consistency only; no unknown-profile classifier, empirical missingness, causal authority, or general identification claim."
+}

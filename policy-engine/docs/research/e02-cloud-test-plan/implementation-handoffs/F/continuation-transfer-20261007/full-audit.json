@@ -566,8 +566,8 @@
     {
       "finding_id": "B214",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
-      "bytes": 30612,
-      "sha256": "99d50a22bbac063dddbfe7ff21be97a46ee981062062ac150c21ec851e9eea9e"
+      "bytes": 36885,
+      "sha256": "622885d4771de1c37f4564451b1e0d675c8b9a113bb93faf5e5b7a09380496d1"
     },
     {
       "finding_id": "B215",
@@ -1134,5 +1134,102 @@
     },
     "historical_literals_preserved": true,
     "G_formal_closure": "not_issued"
+  },
+  "profile_consistency_continuation": {
+    "source": {
+      "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "base_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "base_tree": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+      "role": "New bounded graph consistency/report delta; original scientific component and historical receipts retain their own sources"
+    },
+    "canonical_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+      "role": "Committed current handoff companion binds complete commands/outputs; source identity is the implementation candidate, not a receipt carrier or a future self-SHA"
+    },
+    "G_dependency": {
+      "sha": "2abc17f46a033a7879663486ff9946a95786601f",
+      "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+      "role": "Fetched review dependency only; not G source acceptance"
+    },
+    "affected_IDs": [
+      "B214"
+    ],
+    "unchanged_per_ID_bytes": 34,
+    "old_focused4ee_preserved": true,
+    "historical_control_semantics_supersession": {
+      "source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "historical_receipt_preserved": true,
+      "statement": "The earlier same-shape ADMG positive retained valid MGraph metadata. Its successful publication/fresh read established retagged-artifact persistence, not semantic supported-ADMG consistency. New clean ADMG control omits the reserved MGraph contract; retag-only known MGraph is now refused."
+    },
+    "deciding_checks": {
+      "affected_native": {
+        "result": "PASS",
+        "cases": 38
+      },
+      "independent_graph": {
+        "result": "PASS",
+        "registered_jobs_refused": 2,
+        "Node_intake_cutoff_cases_refused": 10,
+        "clean_ADMG_actual_job_Node_fresh_CAS_reader": "PASS"
+      },
+      "independent_report": {
+        "result": "PASS",
+        "actual_MethodJob_CAS_cases": 3,
+        "distinct_process_reader_cases": 3
+      },
+      "affected_installed_wheel": {
+        "result": "PASS",
+        "cases": 17,
+        "separate_child_reader": "PASS",
+        "warnings": "One retained PytestUnknownMarkWarning in isolated harness; no blanket pytest/quality PASS"
+      },
+      "retained_marker_graph_removal": {
+        "raw_result": "FAIL",
+        "expected": true,
+        "actual_erroneous_job_admissions": 2,
+        "actual_Node_graph_publications": 8,
+        "failed_assertions_total": 12,
+        "selected_only_basis_diagnostics": 2,
+        "clean_positive_retained": true
+      },
+      "retained_marker_report_removal": {
+        "raw_result": "FAIL",
+        "expected": true,
+        "failed_cases": 2,
+        "positive_cases_passed": 1
+      },
+      "retained_marker_installed_removal": {
+        "raw_result": "FAIL",
+        "expected": true,
+        "failed_cases": 1
+      },
+      "scoped_quality": {
+        "release_fragment_cases_PASS": 5,
+        "Ruff_changed_Python_files_PASS": 6,
+        "format_changed_Python_files_PASS": 6
+      }
+    },
+    "new_production_invocation": {
+      "check_state": "ERROR/incomplete",
+      "source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "returncode": -9,
+      "wall_seconds": 172.8896110339847,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "completed_receipt": false,
+      "kill_reason": "unknown",
+      "configured_Python_input_counts_separately_enumerated": {
+        "base": 5958,
+        "candidate": 5959
+      },
+      "not_historical_519_scanner": true,
+      "P41": "not_established"
+    },
+    "original35_recommendations_unchanged": true,
+    "G_new_code_acceptance": "not_issued",
+    "formal_G_closures": 0,
+    "bounded_residual_and_falsifier": "Unknown metadata and missingness-looking node names are not classified. Same names/relations without the reserved typed profile pass the actual positive path. A broader source-grounded profile-inference/admission capability is absent from this bounded reconciliation contract; no general PAG/CPDAG completion, temporal identification or protected authority is asserted."
   }
 }

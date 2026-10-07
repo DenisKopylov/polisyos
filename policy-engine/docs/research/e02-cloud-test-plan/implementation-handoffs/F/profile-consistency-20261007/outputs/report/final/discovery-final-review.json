@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "/root/report_review",
+  "canonical_author": "/root/discovery",
+  "independence": "reviewer authored no repository source/tests",
+  "scope": "discovery requested-reconciliation report and canonical slot companion; final composition input guard dependency",
+  "slice_base_sha": "fd7cf2a15a5341845341bf117542c122146ffc6d",
+  "slice_base_tree": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+  "leaf_candidate_sha": "8a5539cf4874da26c58caa14ca3f22fa0baccf2b",
+  "leaf_tree": "b189d481d7575527f4d75eb4a8b373e69384743c",
+  "implementation_commits": [
+    "d3dfee2558207f4e455730ff96232fc797e78c30",
+    "8a5539cf4874da26c58caa14ca3f22fa0baccf2b"
+  ],
+  "composed_candidate_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "composed_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "verdict": "GO_BOUNDED_SOURCE_AND_ACTUAL_REPORT_CONSUMER",
+  "findings": [],
+  "requirements": [
+    {
+      "requirement": "requested PAG refusal is visible",
+      "evidence": "Canonical validator runs before reconciliation; catches produce unchanged graph plus warning and structured requested/applied/status/reason/detail metadata; report explicitly carries both.",
+      "state": "SOURCE_GO"
+    },
+    {
+      "requirement": "ordinary no-request positive",
+      "evidence": "No-request helper returns same graph, empty warnings, absent reconciliation metadata; actual native reader test exercises it.",
+      "state": "SOURCE_GO"
+    },
+    {
+      "requirement": "early no-result branch",
+      "evidence": "All-algorithms-failed report carries discovery_failed reason only if actual prior/hint request exists; also emits canonical declared slot.",
+      "state": "SOURCE_GO"
+    },
+    {
+      "requirement": "real report ABI/CAS companion",
+      "evidence": "Both output branches include canonical discovery_pipeline_report and legacy report as same object; existing MethodBackend persists both; typed fresh CAS reader reads canonical slot. No shared IO/dispatcher changes.",
+      "state": "SOURCE_GO"
+    },
+    {
+      "requirement": "source quality and scope",
+      "evidence": "Only3 discovery paths, method guidance correct partial semantics;4 existing tests adapt private helper return contract. No IR/schema changes/new enum/authority engine. Root README/reference/release companions accurately describe it.",
+      "state": "SOURCE_GO"
+    }
+  ],
+  "exact_leaf_composed_blob_carry": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+      "leaf_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+      "composed_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+      "leaf_blob": "713d7e7e61624692cbbd09b3a15662fbef6be6e8",
+      "composed_blob": "713d7e7e61624692cbbd09b3a15662fbef6be6e8",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+      "leaf_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+      "composed_blob": "6373650ccf55d9cd82725ffebba261c810267477",
+      "unchanged": true
+    }
+  ],
+  "author_evidence_independently_read": {
+    "author-smoke2.xml": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 5.454,
+      "qualified_scope": "author native requested/no-request report cases plus controlled failures and affected4 sibling reporting tests; not independent final runtime"
+    },
+    "ruff-final.stdout": "All checks passed!",
+    "format-final.stdout": "3 files already formatted"
+  },
+  "independent_baseline": "baseline-review-receipt.json",
+  "retained_marker_discriminator_required": "Remove runtime warnings/summary forwarding while keeping canonical slot keys, enums, warning strings and report fields; actual requested PAG fresh-reader negative must FAIL; no-request positive PASS. Held until all source reviews GO/final freeze.",
+  "remaining_checks": [],
+  "limits": [
+    "This is bounded report/wiring validity; no general PAG identification, causal authority, real missingness inference or production calibration.",
+    "New final installed graph/report consumer qualification still belongs final-wave evidence, not this source GO.",
+    "Generic MethodJob and typed report/CAS readback is actual available consumer; no specialized Scientist Node/report authority consumer invented.",
+    "Whole35 outcomes/G acceptance/formal closures unchanged; source GO does not grant acceptance.",
+    "Independent removal uses isolated export excluding default pytest.ini; one unit-marker warning retained. This does not establish default pytest configuration or repository-wide quality PASS."
+  ],
+  "actual_final_checks": [
+    {
+      "check": "independent MethodJob/CAS report",
+      "result": "PASS",
+      "cases": 3,
+      "output": "final-report-consumer.attempt2.stdout"
+    },
+    {
+      "check": "distinct child CAS report reader",
+      "result": "PASS",
+      "cases": 3,
+      "output": "fresh-report-reader.stdout"
+    },
+    {
+      "check": "retained-marker runtime carry removal",
+      "result": "PASS discriminator;2expectedFAIL+1positivePASS",
+      "output": "report-removal.attempt2.stdout",
+      "warning": "1PytestUnknownMarkWarning due exported harness omitting pytest.ini; no default profile/quality PASS asserted"
+    }
+  ],
+  "harness_attempts_preserved": [
+    "initial canonical raw-float json.loads misuse ERROR",
+    "initial removal return120 ERROR/incomplete with full volume measured and0-byte outputs",
+    "baseline missing architecture resource ERROR",
+    "baseline actual declared slot FAIL (fixed by canonical producer companion)"
+  ],
+  "source_input_closure": {
+    "denominator": 6977,
+    "healthy_changed_tracked_paths": 0,
+    "removal_changed_tracked_paths": 1,
+    "receipt": "source-input-byte-check.json"
+  }
+}

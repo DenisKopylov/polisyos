@@ -1,0 +1,93 @@
+2026-10-07 19:46:18 [info     ] method_registered              backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 lazy=False namespace=causal.discovery override=True tags=['causal', 'discovery', 'pag', 'pipeline', 'structural', 'unified'] version=1.1.0
+2026-10-07 19:46:18 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:25 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7065.82 fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:25 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:32 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7194.48 fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:32 [debug    ] method_dispatch_start          backend=numpy fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 19:46:40 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7289.22 fqn=causal.discovery.unified_causal_discovery@1.1.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "producer_pid": 1016715,
+  "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "source_root": "/dev/shm/e02-F-report-export-852/policy-engine/src",
+  "cases": [
+    {
+      "case": "no_request",
+      "cas_root": "/dev/shm/e02-F-profile-consistency-report/final-cas/no_request",
+      "warnings": [],
+      "reconciliation": null,
+      "actual_ci_backend": "causallearn",
+      "result_ref": {
+        "artifact_id": "sha256:9ca40f23d4c65c869e6741ba3ee6dbd188e0ef86e16273dc1a544347b0c5c0a4",
+        "kind": "scientist.method_result.causal.discovery",
+        "media_type": "application/json"
+      },
+      "output": "final-cas-no_request.json",
+      "result_bytes": 8198,
+      "result_sha256": "9ca40f23d4c65c869e6741ba3ee6dbd188e0ef86e16273dc1a544347b0c5c0a4"
+    },
+    {
+      "case": "literature_prior",
+      "cas_root": "/dev/shm/e02-F-profile-consistency-report/final-cas/literature_prior",
+      "warnings": [
+        "reconciliation_not_applied:unsupported_profile"
+      ],
+      "reconciliation": {
+        "applied": false,
+        "detail": "ValueError: Unsupported graph reconciliation profile: graph_type=pag; requires declared static DAG/ADMG",
+        "input_graph_type": "pag",
+        "output_graph_type": "pag",
+        "reason": "unsupported_profile",
+        "requested": true,
+        "status": "not_applied"
+      },
+      "actual_ci_backend": "causallearn",
+      "result_ref": {
+        "artifact_id": "sha256:ae633f5529cbcd5da9179904842ae7b0dea6fcb8a32c88483a1b27cd1e48a820",
+        "kind": "scientist.method_result.causal.discovery",
+        "media_type": "application/json"
+      },
+      "output": "final-cas-literature_prior.json",
+      "result_bytes": 8838,
+      "result_sha256": "ae633f5529cbcd5da9179904842ae7b0dea6fcb8a32c88483a1b27cd1e48a820"
+    },
+    {
+      "case": "llm_hint",
+      "cas_root": "/dev/shm/e02-F-profile-consistency-report/final-cas/llm_hint",
+      "warnings": [
+        "reconciliation_not_applied:unsupported_profile"
+      ],
+      "reconciliation": {
+        "applied": false,
+        "detail": "ValueError: Unsupported graph reconciliation profile: graph_type=pag; requires declared static DAG/ADMG",
+        "input_graph_type": "pag",
+        "output_graph_type": "pag",
+        "reason": "unsupported_profile",
+        "requested": true,
+        "status": "not_applied"
+      },
+      "actual_ci_backend": "causallearn",
+      "result_ref": {
+        "artifact_id": "sha256:92ba44722dd8e01c87a07e118e027357a76adfa02b7cd967910155cd0cd62f35",
+        "kind": "scientist.method_result.causal.discovery",
+        "media_type": "application/json"
+      },
+      "output": "final-cas-llm_hint.json",
+      "result_bytes": 8836,
+      "result_sha256": "92ba44722dd8e01c87a07e118e027357a76adfa02b7cd967910155cd0cd62f35"
+    }
+  ],
+  "polisyos_module_count": 772,
+  "origin_errors": 0,
+  "selected_module_origins": {
+    "polisyos.foundry.methods.catalog.causal.discovery_pipeline": "/dev/shm/e02-F-report-export-852/policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation": "/dev/shm/e02-F-report-export-852/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "polisyos.foundry.methods.catalog.causal.constraint_discovery": "/dev/shm/e02-F-report-export-852/policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+    "polisyos.scientist.compute.runner": "/dev/shm/e02-F-report-export-852/policy-engine/src/polisyos/scientist/compute/runner.py",
+    "polisyos.ir.analytics.causal_discovery": "/dev/shm/e02-F-report-export-852/policy-engine/src/polisyos/ir/analytics/causal_discovery.py"
+  },
+  "authority_claim": "report execution/limitation only; no identification or institutional authority"
+}

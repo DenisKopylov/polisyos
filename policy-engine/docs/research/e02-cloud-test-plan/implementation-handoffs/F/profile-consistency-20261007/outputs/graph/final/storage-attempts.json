@@ -1,0 +1,9 @@
+{
+  "active_relocated_to": "/dev/shm/e02-F-profile-consistency-adversary",
+  "new_output_root": "/workspace/e02-F-profile-consistency-adversary-outputs",
+  "preservation": "no deletion/moves; exact new archive on /workspace overlay to continue native independent probe; original /tmp export/input/logs preserved",
+  "prior_exact_export": "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc",
+  "prior_preserved_native_attempt": "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1.stderr",
+  "second_setup_error": "adding exact architecture completed; creating run_wave.py failed filesystem-full: /tmp 8.8GiB used/0available, empty file retained; no runtime execution",
+  "setup_error": "source-only export missed actual canonical architecture digest TOML; no runtime selector executed"
+}

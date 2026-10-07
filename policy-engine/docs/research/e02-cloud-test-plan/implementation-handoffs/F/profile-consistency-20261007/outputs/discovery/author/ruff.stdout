@@ -1,0 +1,57 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import numpy as np
+ 4 | | from polisyos.foundry.methods.catalog.causal import discovery_pipeline as pipeline_module
+ 5 | | from polisyos.foundry.methods.catalog.causal.protocols import (
+ 6 | |     TabularCausalDiscoveryData,
+ 7 | |     UnifiedDiscoveryData,
+ 8 | | )
+ 9 | | from polisyos.ir.analytics.causal_discovery import (
+10 | |     AlgebraicConstraintFamily,
+11 | |     AlgebraicConstraintReport,
+12 | |     CausalDiscoveryReport,
+13 | |     EdgeAgreement,
+14 | | )
+15 | | from polisyos.ir.analytics.causal_graph import (
+16 | |     CausalEdge,
+17 | |     CausalGraphModel,
+18 | |     EdgeMark,
+19 | |     GraphType,
+20 | | )
+   | |_^
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py:3:1
+   |
+ 1 |   """Requested reconciliation limitations survive the real method/CAS report route."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import numpy as np
+ 6 | | import pytest
+ 7 | |
+ 8 | | from polisyos.core.artifacts import PutOptions, SchemaInfo
+ 9 | | from polisyos.core.artifacts.store import FileSystemCAS
+10 | | from polisyos.core.canon import CanonSpec
+11 | | from polisyos.foundry.methods.catalog.causal import discovery_pipeline as pipeline_module
+12 | | from polisyos.foundry.methods.catalog.causal.discovery_pipeline import UnifiedCausalDiscovery
+13 | | from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
+14 | | from polisyos.foundry.methods.catalog.causal.protocols import LLMStructuralHint, UnifiedDiscoveryData
+15 | | from polisyos.foundry.methods.registry import MethodRegistry
+16 | | from polisyos.ir.analytics.causal_discovery import DiscoveryPipelineReport
+17 | | from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+18 | | from polisyos.ir.analytics.literature import LiteratureCausalPrior
+19 | | from polisyos.ir.artifacts import get_json_artifact
+20 | | from polisyos.scientist.compute.job_spec import JobSpec
+21 | | from polisyos.scientist.compute.runner import run_job
+   | |_____________________________________________________^
+   |
+help: Organize imports
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.

@@ -1,0 +1,906 @@
+[
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--name-only",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "f3132e7fe8a2ea0fcc63993c66455f91e4aa1bfaf66ab3502246944202ea962c",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/docs/reference/scientist/causal-graph-intake.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "69b54c99628b8557173d73765b92772343a521ddfe28c892200c76691610b474",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/docs/reference/scientist/causal-graph-intake.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "c0dab826b5bf160e7d63fc88317c934e7214028f3c8a29e7e309a98ab3fe0f88",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "d10fed9fe9b5941c775f46a9b1749f56eb1778f7a5393043be91b18df39639a2",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "251d998f6cd0e57739e78b4eb3e22ac2f9a7d76b1e934556320c5c2d017e2c6a",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "4ab8dcd9398036b252c934dd2e31378935a0ca3860f3e264c1e42888277d5159",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "0edc0874c9bcc59f6bd83f54489c44bf10cc635ecbf64e24e3bce34b6fd76538",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "dc8e5abd7bec042644cea99d8dbd7d9ddaddab91fc76b07a3c3b1671b65c9f87",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "17100415473e0d4dde5a241c2709338d23c5438909a7e2441c31a44f25260b0a",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "64604fe454e5c784212ac0928a4d7207f5c4946744a50ccdb6147d8b29c6a430",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "419ec31beedce45a9449f3b8277cf6f39290d996fd57e7fa8974d0e7abf8d7c6",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "f258b336a96ada16abd081ff98c568e7756d50bd97e1351050d8936367cc0922",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "103ae89a8b4a5629f4f9d69a0db7e3d04702fd7ad60fc38499a4faa3dfa11ebb",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "637f8d20274e50f4c6c9e6d386b8e188576c85e5fb4378d75e04824c12d7b802",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "da4e426c930bec4e0bcf4b297f481e42ce2f0fbbd2258773db0706b09e856fde",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "c33be06cd580350c6f1b6f5af247cee1172c52ba26ed5824e428383c87293efd",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "7363deef20706cd0d39a4649bacccc06b1884889e61f794cb2e144ea2a3246aa",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "cbb60623e8dc087830cbf5ce0a91c3a82c64afc4aed6c42771a57bb7041bfe41",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2:policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "5f1014e253e2e60fc4ae8693057e4fabb5ce37e6dd4096d312d91bf75385f59b",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "ba5fc93aa687eea32973374418a44eae9503a7d0^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "6394250b7bac72ba4a69e3e67878532d9128dbf5c544435577c277980998775a",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "ba5fc93aa687eea32973374418a44eae9503a7d0"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "7bcd9bb92433c1eaad0f4c28d53eb8ac2e726745c9bdcd38b2239517465ce448",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "a175846e457309c1f5ec8887d9ca0075ebeb8824^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "bc5b9da617fa73b710f5b1df967ca5bce0e25b4b4d2356c8e5f2db65c3448347",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "a175846e457309c1f5ec8887d9ca0075ebeb8824"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "07a88a14dcd1f4dfd78155c6b6c03b6228db807dec50b3e9a144f3631d9634a1",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "3ead92349f5837016f9ad6d5b61b3a7b1d60ace8^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "bba0bfc135bd0fcfcc3511bf08471cb5e87ecd82fb6f1d5eb057ef9946f93101",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "3ead92349f5837016f9ad6d5b61b3a7b1d60ace8"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "09b64cd6d989578fed741006f8dc85f454a190a6c5b59d3c5140a05e6a715860",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "fd7cf2a15a5341845341bf117542c122146ffc6d^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "be45f150c7cf3f9d354d80facbe4b6d744092d2be74b1581d6ff93bee246b672",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "fd7cf2a15a5341845341bf117542c122146ffc6d"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "6d952190bc5cec8d2557972b0f1b625cf53424284aa78554927ef49a3f51a597",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "d3dfee2558207f4e455730ff96232fc797e78c30^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "7225b7f64105b93e9dffb9494bde53059460046f04e3f3c2dfff270e226d0ebd",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "d3dfee2558207f4e455730ff96232fc797e78c30"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "f252b4d108731bb41e786935e8a62031afe5ae1e0850b0856621be1141a4a40b",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "8a5539cf4874da26c58caa14ca3f22fa0baccf2b^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "fb439f9e3404c33be4f64b3e4752d893f288f5a10b088a57d8b780aed6fbb134",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "8a5539cf4874da26c58caa14ca3f22fa0baccf2b"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "bd8676e3ccddc2f7bb780f73293579d9d22438975155b90ed78d77397d0f96ad",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "59372f8137dcb5bad43dacae0bf4aa7c58d27c554df869db58ea42d6262eed0d",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "5c6da4881a6f163f26924a7e753f3059a3690b80a1138dc207c63c9ab1f77659",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "49d952ff282ca56c146574a3b80d83deeb59a0c17c14becd55a08558ef205d24",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B205.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "3904b9fa07cdcaf45c110ac56e3e168b1883409eb1e493764ec368dbdda7e533",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B206.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "dba374b65670d1a01995e6198c3ae5badea7a077446dc22e9124e6a79718e6c8",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B207.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "cd200de7a081a02a128f6d34e7b85db16d991a16c9c8595300a5249e7ed29421",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B208.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "bf8e6214bcf280b7b9496379e1eb14dc44de060f4e98528bea6c68de9f3bb297",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B209.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "c47f1abb627ac5a74747bbc29fec75daef42cfabe265a40cbadb729d29d1f09f",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B210.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "16c824d78233c0b925b49b8342f55d336ed12d492740f381018c38d07facbd36",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B211.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "bc8330d624e8c8bc2dec0a6e1dec0270f53b132769502aca5e1d5c9bfa5a4f1f",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "9969b11e29991c33241a31497e5fd810f43194e1734abf12e9b83c8d6d2cb519",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "88572573efc8ff4ac2863ff36d6c243c679f62a7c40e0090b5657f2bc8d4d4a7",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "99d50a22bbac063dddbfe7ff21be97a46ee981062062ac150c21ec851e9eea9e",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B215.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "5f8383b875a5edaea7df362da1c2db489423a4dc3ed093a5a544d51abd17351e",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B216.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "b31cd18f45f774c591de1cdddbf5aa63d6981f90e2fc1390aa011375824914d8",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B217.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "dff03b247c5d0de559767e5198f284fecbbeb12ba9b8ec79bdae4aa365ff00cc",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "c8fe3348ec1e2013704fd006ca603fe97397ff6b352f604604552289901a5450",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B219.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "d276a6a11a40f682da4b88062ca79a6d387ed856cc8f9f900e5e94c8da73119c",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B220.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "09a8595ce3af9117aa5fd76cc2ec5c9f2fd31494e87092158907781be9b713bf",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B221.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "56e667f19770395f96773524e30e81be86e527892dca81f3b3fa2ce1bbcb81e4",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B222.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "fc6e9d4d95cd198403f94d5bf0709942749d8b5344c3de0570c350f53b91d812",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B223.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "caab7a3869fd395a8df3b12534087b5d4dae59b5a375a44b5fa4fb1f0b12233d",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B224.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "8efbacf523367a3d3feabaf69b14065f14662765e3bd4b8f8d01f6ee1a5f4e7d",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B225.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "4c0e9894adcb5f94c86df9e856429488823bcbb33666507a7253eac16de643ca",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B54.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "e352fb79456ebd91020f5091f5ab481b00ac92a268345dad13e872601f616fcf",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "330997ae0be27e86a00e15d5a2c4b41d32f46b52ac290b8effdc3e284fb72611",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-001.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "5bb776d6f2df4870aa947d9d740404fae6dfa25fe0d7f4ab787902e50dff0e42",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-002.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "f17811c55ea202438a0a688bf76b2a72e9a0d0cb769dc383bf6c47669c58f0c3",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-003.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "979e1ead6c89e439b29ec5f227be0c296b7745f0b49327617a95dde02da8bd5a",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-004.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "a9a7fbdaa28edbcd104a74841363b8ca79870804b710e432f48bd6855cf9faed",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-007.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "a6588f4f06b6fde53a81ae3aaa678fa7d7a01e0363bebbe12eb39f9973e2b515",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-016.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "e929fdb392817ee6a634982159bdc4363dbc477f7e4f2eb1bb98fbc1220f862a",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-017.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "19cdcc326551fc8c747a19b2f0353f5a68f2ef4ca5f72ac8da471e98479ac4fb",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-019.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "95175e83b4e60ae75a14425a1df4d009a5359bcb88e4e6db293a8cb182232d3c",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-020.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "f36336cf329dbf2a9a308427befc838ce98d682d9789d781506c56f7ac72f6a9",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-035.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "51c1461b87060265cc207c4a053ca51b3cabd4e620c6191b160ec0579fb20a55",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "0ad65b23b5821aa4d04eb44f9650740568a1a16240adadb32537efc6583eaa1b",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "5bce2ea7066d5dc57c0a454de1580d71c79104af:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "fd782de18d26d14a33536ef0104c87a8798503c4bd4bd60290db0d1309dd277f",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "5bce2ea7066d5dc57c0a454de1580d71c79104af:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/native-retry.execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "4568f69ff380a50ca107d68f398f77017219f6a51d555e1492768edc26059333",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "5bce2ea7066d5dc57c0a454de1580d71c79104af:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/fresh-profile-corrected.execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "9a52b4a9ed758b05c82d82111252f917f34cb255a0d8cc5ed6e57a7a6fb6e633",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "5bce2ea7066d5dc57c0a454de1580d71c79104af:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-profile-consistency-20261007/retry-wheel/removal.execution.json"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout_sha256": "53e661c3007515078a5688d0bccc09fbc857725a0c8c4097fa883a84d17041ad",
+    "stderr": "",
+    "stdout_custody": "Tracked object source is cited by exact path/SHA; source bodies are not duplicated."
+  }
+]

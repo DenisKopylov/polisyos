@@ -1,0 +1,42 @@
+{
+  "quota": "none; sequential only shared runtime history",
+  "result": "incomplete",
+  "runs": [
+    {
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-profile-consistency-20261007/adversary/probe.py",
+        "--source",
+        "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc",
+        "--out",
+        "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1",
+        "--expect",
+        "repaired"
+      ],
+      "children_max_rss_kib": 111668,
+      "cwd": "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc",
+      "expected_returncode": 0,
+      "harness_sha256": "1fb8031a8031c05446708172a6bfa523e0eec9a141b3f1acba935a57861cc74e",
+      "label": "repaired-attempt1",
+      "metrics_port": "19753",
+      "outputs": {
+        "stderr": {
+          "bytes": 2136,
+          "path": "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1.stderr",
+          "sha256": "72b9fd4ef299ccb043544bd5c7deccb9dea6654163557011bb21670ac9d43a85"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reported_outcome": "ERROR/incomplete; report missing",
+      "returncode": 1,
+      "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "wall_seconds": 1.5132241249084473
+    }
+  ],
+  "serialized_resource": "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc/policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.independent_transport_review.v1",
+  "reviewer": "/root/graph_review",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "handoff_path": "/workspace/e02-F-closeout-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+  "handoff_bytes": 104014,
+  "handoff_sha256": "bb8898c4b8e67124eb44989935bb8299d4e4579403b786dd7d0c1dc44b56f945",
+  "transport_path": "/workspace/e02-F-closeout-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007/artifact-transports.json",
+  "transport_sha256": "b2b21e0c447d82c9d08a728b279a4eaa54943042f56c09fa1cab9286d85d8d74",
+  "complete_transport_counts": {
+    "files": 315,
+    "decoded_bytes": 2556414,
+    "stored_bytes": 992571
+  },
+  "local_equal": 315,
+  "local_missing": [],
+  "local_diff": [],
+  "errors": [],
+  "qualification": "DRAFT filesystem transport verified; actual committed Git readback is pending. No runtime rerun. Every manifest record processed; local bytes compared wherever available.",
+  "checked_at": "2026-10-07T19:58:52.837801+00:00"
+}

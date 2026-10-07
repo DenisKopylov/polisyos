@@ -1,0 +1,20 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "versions": {
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2"
+  },
+  "module_origins": {
+    "polisyos.foundry.methods.catalog.causal.discovery_pipeline": "/workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation": "/workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "polisyos.foundry.methods.catalog.causal.constraint_discovery": "/workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py"
+  },
+  "actual_reader": "polisyos.ir.analytics.causal_discovery",
+  "native_backend": "jax_partial_corr",
+  "optional_backend_claim": "none",
+  "production_data": "none"
+}

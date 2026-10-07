@@ -1,0 +1,65 @@
+{
+  "role": "AUTHOR validation, not independent review",
+  "writer": "F direct ledger helper with root lease on five current companions only",
+  "source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "allowed_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md"
+  ],
+  "changed_per_IDs": [
+    "B214"
+  ],
+  "unaffected_per_IDs_byte_identical": 34,
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "bindings": 36
+  },
+  "summary_unchanged": {
+    "F_original_finding_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "F_bounded_technical_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "check_results": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "formal_G_closures": 0,
+    "historical_ROOT072": {
+      "finding": {
+        "closed": 25,
+        "limited": 9,
+        "held": 1
+      },
+      "technical": {
+        "closed": 30,
+        "limited": 4,
+        "held": 1
+      },
+      "checks": {
+        "PASS": 33,
+        "UNRUN": 2
+      }
+    }
+  },
+  "original_B214_fields_unchanged_except_next_result": true,
+  "historical_focused4ee_unchanged": true,
+  "B214_new_record": {
+    "finding_id": "B214",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+    "bytes": 36741,
+    "sha256": "aa61f0e048631e268c0219bccebb9af1bd6228dfdba1bcca40a2fc71c05b3e9b"
+  },
+  "implementation_code_tests_unchanged": true,
+  "canonical_receipt_companion": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json",
+  "independent_metadata_review_required": true,
+  "author_validation_output_correction": "Initial stdout selected the last loop record LA-037 in B214_new_record; actual repository manifest/hash verification was correct. This output now selects the exact B214 record."
+}

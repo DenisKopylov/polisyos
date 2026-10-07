@@ -1,0 +1,26 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "isolated_mutant_only": true,
+  "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+  "original_sha256": "dc8e5abd7bec042644cea99d8dbd7d9ddaddab91fc76b07a3c3b1671b65c9f87",
+  "mutant_sha256": "d70991244d46dc1b26534d66125d7030b8f0216cb28b38ce49c450e1390c6509",
+  "changed_runtime_operations": 4,
+  "suppressed_property": "Runtime warning+reconciliation summary carry in normal and early-failed pipeline report branches",
+  "retained_markers": [
+    "reconciliation_not_applied:",
+    "\"requested\": True",
+    "\"applied\": False",
+    "\"status\": \"not_applied\"",
+    "\"reason\": reason",
+    "\"detail\": detail",
+    "\"input_graph_type\": graph.graph_type.value",
+    "\"output_graph_type\": graph.graph_type.value",
+    "\"discovery_pipeline_report\": report",
+    "GraphType.PAG",
+    "unsupported_profile",
+    "discovery_failed"
+  ],
+  "canonical_slot_preserved": true,
+  "original_repo_edits": false
+}

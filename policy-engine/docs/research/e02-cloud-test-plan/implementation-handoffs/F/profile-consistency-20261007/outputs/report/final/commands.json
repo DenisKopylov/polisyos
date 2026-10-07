@@ -1,0 +1,66 @@
+[
+  {
+    "phase": "baseline initial import",
+    "target_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+    "command": "POLISYOS_METRICS_PORT=19187 PYTHONPATH=/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-profile-consistency-20261007/report-review/baseline_consumer.py > /tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.stdout 2> /tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.stderr",
+    "cwd": "/tmp/e02-F-profile-consistency-20261007/report-review",
+    "returncode": 1,
+    "classification": "ERROR/harness: canonical architecture resource missing before import"
+  },
+  {
+    "phase": "baseline actual method contract",
+    "target_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+    "command": "POLISYOS_METRICS_PORT=19187 PYTHONPATH=/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-profile-consistency-20261007/report-review/baseline_consumer.py > /tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.attempt2.stdout 2> /tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.attempt2.stderr",
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 1,
+    "classification": "FAIL actual canonical output-slot seam, real PC reached dispatcher"
+  },
+  {
+    "phase": "baseline actual documented pure report",
+    "target_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+    "command": "POLISYOS_METRICS_PORT=19187 PYTHONPATH=/tmp/e02-F-profile-consistency-20261007/report-review/base2c/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-profile-consistency-20261007/report-review/baseline_pure_report.py > /tmp/e02-F-profile-consistency-20261007/report-review/baseline-pure-report.stdout 2> /tmp/e02-F-profile-consistency-20261007/report-review/baseline-pure-report.stderr",
+    "cwd": "/tmp/e02-F-profile-consistency-20261007/report-review",
+    "returncode": 0,
+    "classification": "baseline observable omission3 genuine discovery reports; not fixed property PASS"
+  },
+  {
+    "phase": "final original reader attempt",
+    "target_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "command": "POLISYOS_METRICS_PORT=19187 PYTHONPATH=/tmp/e02-F-profile-consistency-20261007/report-review/final852/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-profile-consistency-20261007/report-review/final_report_consumer.py /tmp/e02-F-profile-consistency-20261007/report-review/final852/policy-engine/src > /tmp/e02-F-profile-consistency-20261007/report-review/final-report-consumer.stdout 2> /tmp/e02-F-profile-consistency-20261007/report-review/final-report-consumer.stderr",
+    "cwd": "/tmp/e02-F-profile-consistency-20261007/report-review",
+    "returncode": 1,
+    "classification": "ERROR/harness: json.loads canonical float carrier instead of existing get_json_artifact decoder"
+  },
+  {
+    "phase": "final original removal attempt",
+    "target_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "command": "POLISYOS_METRICS_PORT=19188 PYTHONPATH=/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py -k 'requested_pag_reconciliation_limitation_survives_method_cas_reader or no_reconciliation_request_does_not_invent_limitation' -q --junitxml=/tmp/e02-F-profile-consistency-20261007/report-review/report-removal.xml --basetemp=/tmp/e02-F-profile-consistency-20261007/report-review/report-removal-tmp > /tmp/e02-F-profile-consistency-20261007/report-review/report-removal.stdout 2> /tmp/e02-F-profile-consistency-20261007/report-review/report-removal.stderr",
+    "cwd": "/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine",
+    "returncode": 120,
+    "classification": "ERROR/incomplete; stdout/stderr/XML zero bytes; measured /tmp100% full; no product verdict"
+  },
+  {
+    "phase": "final corrected actual consumer",
+    "target_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "command": "TMPDIR=/dev/shm/e02-F-profile-consistency-report POLISYOS_METRICS_PORT=19187 PYTHONPATH=/dev/shm/e02-F-report-export-852/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /dev/shm/e02-F-profile-consistency-report/final_report_consumer.py /dev/shm/e02-F-report-export-852/policy-engine/src > /dev/shm/e02-F-profile-consistency-report/final-report-consumer.attempt2.stdout 2> /dev/shm/e02-F-profile-consistency-report/final-report-consumer.attempt2.stderr",
+    "cwd": "/dev/shm/e02-F-profile-consistency-report",
+    "returncode": 0,
+    "classification": "PASS3 independent actual registry/MethodJob/CAS typed readers"
+  },
+  {
+    "phase": "final complete retained-marker removal",
+    "target_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "command": "TMPDIR=/dev/shm/e02-F-profile-consistency-report POLISYOS_METRICS_PORT=19188 PYTHONPATH=/dev/shm/e02-F-profile-consistency-report:/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py -k 'requested_pag_reconciliation_limitation_survives_method_cas_reader or no_reconciliation_request_does_not_invent_limitation' -q -p report_origin_plugin --junitxml=/dev/shm/e02-F-profile-consistency-report/report-removal.attempt2.xml --basetemp=/dev/shm/e02-F-profile-consistency-report/report-removal-tmp > /dev/shm/e02-F-profile-consistency-report/report-removal.attempt2.stdout 2> /dev/shm/e02-F-profile-consistency-report/report-removal.attempt2.stderr",
+    "cwd": "/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine",
+    "returncode": 1,
+    "classification": "2expectedFAIL(requested prior/hint) +1PASS(no-request);1 retained unit-marker harness warning"
+  },
+  {
+    "phase": "final independent child reader",
+    "target_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "command": "TMPDIR=/dev/shm/e02-F-profile-consistency-report POLISYOS_METRICS_PORT=19187 PYTHONPATH=/dev/shm/e02-F-report-export-852/policy-engine/src /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /dev/shm/e02-F-profile-consistency-report/fresh_report_reader.py > /dev/shm/e02-F-profile-consistency-report/fresh-report-reader.stdout 2> /dev/shm/e02-F-profile-consistency-report/fresh-report-reader.stderr",
+    "cwd": "/dev/shm/e02-F-profile-consistency-report",
+    "returncode": 0,
+    "classification": "PASS3 in distinct reader PID; hashes bound actual CAS raw bytes and canonical reader"
+  }
+]

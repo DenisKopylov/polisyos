@@ -1,0 +1,54 @@
+[
+  {
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+      "check",
+      "src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+      "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+      "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+      "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "outcome": "PASS",
+    "returncode": 0,
+    "outputs": "qualified-ruff",
+    "reason_for_repeat": "narrow routine quality command custody captured, no numerical or installed suites repeated"
+  },
+  {
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/ruff",
+      "format",
+      "--check",
+      "src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+      "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+      "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+      "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "outcome": "PASS",
+    "returncode": 0,
+    "outputs": "qualified-format",
+    "reason_for_repeat": "narrow routine quality command custody captured, no numerical or installed suites repeated"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+      "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "outcome": "PASS",
+    "returncode": 0,
+    "outputs": "qualified-diff",
+    "reason_for_repeat": "narrow routine quality command custody captured, no numerical or installed suites repeated"
+  }
+]

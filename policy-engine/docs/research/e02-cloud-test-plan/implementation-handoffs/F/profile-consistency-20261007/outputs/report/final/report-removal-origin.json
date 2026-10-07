@@ -1,0 +1,19 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "mutant": true,
+  "runtime_pid": 1017009,
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "elapsed_seconds": 8.867621294019045,
+  "pytest_exitstatus": 1,
+  "loaded_polisyos_modules": 785,
+  "origin_errors": [],
+  "selected_module_origins": {
+    "polisyos.foundry.methods.catalog.causal.discovery_pipeline": "/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation": "/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "polisyos.scientist.compute.runner": "/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/src/polisyos/scientist/compute/runner.py",
+    "polisyos.ir.analytics.causal_discovery": "/tmp/e02-F-profile-consistency-20261007/report-review/removal852/policy-engine/src/polisyos/ir/analytics/causal_discovery.py"
+  },
+  "mutant_file_sha256": "d70991244d46dc1b26534d66125d7030b8f0216cb28b38ce49c450e1390c6509"
+}

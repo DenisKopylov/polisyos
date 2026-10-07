@@ -1,0 +1,60 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "producer_pid": 1016715,
+  "reader_pid": 1017207,
+  "distinct_process": true,
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "cases": [
+    {
+      "case": "no_request",
+      "artifact_id": "sha256:9ca40f23d4c65c869e6741ba3ee6dbd188e0ef86e16273dc1a544347b0c5c0a4",
+      "bytes": 8198,
+      "sha256": "9ca40f23d4c65c869e6741ba3ee6dbd188e0ef86e16273dc1a544347b0c5c0a4",
+      "warnings": [],
+      "reconciliation": null
+    },
+    {
+      "case": "literature_prior",
+      "artifact_id": "sha256:ae633f5529cbcd5da9179904842ae7b0dea6fcb8a32c88483a1b27cd1e48a820",
+      "bytes": 8838,
+      "sha256": "ae633f5529cbcd5da9179904842ae7b0dea6fcb8a32c88483a1b27cd1e48a820",
+      "warnings": [
+        "reconciliation_not_applied:unsupported_profile"
+      ],
+      "reconciliation": {
+        "applied": false,
+        "detail": "ValueError: Unsupported graph reconciliation profile: graph_type=pag; requires declared static DAG/ADMG",
+        "input_graph_type": "pag",
+        "output_graph_type": "pag",
+        "reason": "unsupported_profile",
+        "requested": true,
+        "status": "not_applied"
+      }
+    },
+    {
+      "case": "llm_hint",
+      "artifact_id": "sha256:92ba44722dd8e01c87a07e118e027357a76adfa02b7cd967910155cd0cd62f35",
+      "bytes": 8836,
+      "sha256": "92ba44722dd8e01c87a07e118e027357a76adfa02b7cd967910155cd0cd62f35",
+      "warnings": [
+        "reconciliation_not_applied:unsupported_profile"
+      ],
+      "reconciliation": {
+        "applied": false,
+        "detail": "ValueError: Unsupported graph reconciliation profile: graph_type=pag; requires declared static DAG/ADMG",
+        "input_graph_type": "pag",
+        "output_graph_type": "pag",
+        "reason": "unsupported_profile",
+        "requested": true,
+        "status": "not_applied"
+      }
+    }
+  ],
+  "polisyos_module_count": 84,
+  "origin_errors": 0,
+  "reader_module_origin": "/dev/shm/e02-F-report-export-852/policy-engine/src/polisyos/ir/analytics/causal_discovery.py",
+  "loaded_via_actual_CAS_api": true,
+  "authority_scope": "report limitation/readback only; no causal/identification authority"
+}

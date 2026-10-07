@@ -1,0 +1,27 @@
+{
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "complete_configured_export_denominator": 6977,
+  "checks": {
+    "healthy": {
+      "checked_tracked_files": 6977,
+      "changed_paths": [],
+      "original_git_archive_source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "scope": "tracked src, architecture, tests and pyproject only; generated caches excluded by construction; pytest.ini not exported"
+    },
+    "removal": {
+      "checked_tracked_files": 6977,
+      "changed_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+          "expected_git_blob": "b75b58d0d1d8e90f11f64f5265eb5146fa5aca85",
+          "actual_git_blob": "7450ad107756d5e255cf3e84a8f4998bb783f3b8",
+          "actual_sha256": "d70991244d46dc1b26534d66125d7030b8f0216cb28b38ce49c450e1390c6509"
+        }
+      ],
+      "original_git_archive_source": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "scope": "tracked src, architecture, tests and pyproject only; generated caches excluded by construction; pytest.ini not exported"
+    }
+  },
+  "pytest_ini_boundary": "Default pytest.ini excluded from this removal harness; one unit-marker warning retained, no default pytest configuration PASS asserted."
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "argv": [
+      "git",
+      "fetch",
+      "origin"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                codex/e02-F-closeout-20261006 -> FETCH_HEAD\n"
+  },
+  {
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-F-closeout-20261006",
+      "refs/heads/codex/e02-integration",
+      "refs/heads/main"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d\trefs/heads/codex/e02-F-closeout-20261006\n2abc17f46a033a7879663486ff9946a95786601f\trefs/heads/codex/e02-integration\n198076863e143dea9f89f02734b13d50dae3eed5\trefs/heads/main\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "origin/codex/e02-integration",
+      "origin/codex/e02-integration^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": "2abc17f46a033a7879663486ff9946a95786601f\n375301dd0c86a6168f4f747d8c56d9e0acb9567c\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--short",
+      "--branch"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": "## codex/e02-F-closeout-20261006\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/profile-consistency-20261007/\n?? policy-engine/workers/dowhy-014/.venv\n",
+    "stderr": ""
+  }
+]

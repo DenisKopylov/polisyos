@@ -1,0 +1,195 @@
+{
+  "schema": "policyos.e02.independent_consumer_review.v1",
+  "reviewer": "/root/report_review",
+  "canonical_author": "/root/discovery",
+  "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "leaf_sha": "8a5539cf4874da26c58caa14ca3f22fa0baccf2b",
+  "verdict": "GO_BOUNDED_SOURCE_AND_ACTUAL_REPORT_CONSUMER",
+  "repo_edits": false,
+  "production_inputs": false,
+  "checks": [
+    {
+      "check": "independent MethodJob/CAS report",
+      "result": "PASS",
+      "cases": 3,
+      "output": "final-report-consumer.attempt2.stdout"
+    },
+    {
+      "check": "distinct child CAS report reader",
+      "result": "PASS",
+      "cases": 3,
+      "output": "fresh-report-reader.stdout"
+    },
+    {
+      "check": "retained-marker runtime carry removal",
+      "result": "PASS discriminator;2expectedFAIL+1positivePASS",
+      "output": "report-removal.attempt2.stdout",
+      "warning": "1PytestUnknownMarkWarning due exported harness omitting pytest.ini; no default profile/quality PASS asserted"
+    }
+  ],
+  "commands": "commands.json",
+  "moderate_deciding_artifacts": [
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/commands.json",
+      "bytes": 6946,
+      "sha256": "646bb4dccdcb7b636355f62cee1ee41e6e7f7e19116e511dacb91f5cdbc1a91f"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/discovery-final-review.json",
+      "bytes": 6013,
+      "sha256": "9771d620dfcd23bd01ab8726fe5d7bba318e9ffe508a0e83f145f50e70389f46"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final_report_consumer.py",
+      "bytes": 5873,
+      "sha256": "b9dccd8ef3dbe47a30d334383fb8e25fdcf5fa69ea1e1ec8b5c1a2e9ff7547da"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final-report-consumer.attempt2.stdout",
+      "bytes": 5705,
+      "sha256": "3f89346c547347cc38c4e351f63fed4c3988cc46caf99792a2924959b6c6c936"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final-report-consumer.attempt2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final-report-consumer.json",
+      "bytes": 4096,
+      "sha256": "af5a343cc4b249c8eaa57187dc5dab89f67e1ead6d768029932b86c342f48859"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final-cas-no_request.json",
+      "bytes": 8198,
+      "sha256": "9ca40f23d4c65c869e6741ba3ee6dbd188e0ef86e16273dc1a544347b0c5c0a4"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final-cas-literature_prior.json",
+      "bytes": 8838,
+      "sha256": "ae633f5529cbcd5da9179904842ae7b0dea6fcb8a32c88483a1b27cd1e48a820"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/final-cas-llm_hint.json",
+      "bytes": 8836,
+      "sha256": "92ba44722dd8e01c87a07e118e027357a76adfa02b7cd967910155cd0cd62f35"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/fresh_report_reader.py",
+      "bytes": 3031,
+      "sha256": "d211577f8f2514502de0ee37e227fc61e62e8023e20381529ede68df4dd7f1f6"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/fresh-report-reader.stdout",
+      "bytes": 2344,
+      "sha256": "0f05be85a8b1646934d4120850c62a7e93edc1f755bb2044b62b4a60940acc2e"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/fresh-report-reader.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/fresh-report-reader.json",
+      "bytes": 2344,
+      "sha256": "0f05be85a8b1646934d4120850c62a7e93edc1f755bb2044b62b4a60940acc2e"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/report_origin_plugin.py",
+      "bytes": 1712,
+      "sha256": "48fc74d04875ee7d2bbf3af435f03cc793b42d49a22d3f2b7f8862e7c606d4c4"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/report-removal.attempt2.stdout",
+      "bytes": 4227,
+      "sha256": "6a4af8f337d181789013fa94c14c710b0a47f00320a40f7f6260cfd46c2e0176"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/report-removal.attempt2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/report-removal.attempt2.xml",
+      "bytes": 2286,
+      "sha256": "39b2dbb62066736244c08148490b1309a6ac67528ac60a34aa712686e00993aa"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/report-removal-origin.json",
+      "bytes": 1342,
+      "sha256": "f1ac93dfb40fd51d1cda97fb3ca84ea89836aa79cfe476c8729b02df2e853633"
+    },
+    {
+      "path": "/dev/shm/e02-F-profile-consistency-report/source-input-byte-check.json",
+      "bytes": 1338,
+      "sha256": "664f98b41b10d1becdc87575ecc4d077124bea9245adf988ab87ed8cd92f890c"
+    }
+  ],
+  "prior_harness_custody": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-review-receipt.json",
+  "storage_relocations": [
+    "/workspace/e02-F-report-storage-relocation-20261007/receipt.json",
+    "/workspace/e02-F-report-storage-relocation-20261007/second-receipt.json"
+  ],
+  "authority_scope": "requested reconciliation report limitation/compatibility only; no causal or institutional admission",
+  "formal_G_closure": false,
+  "bounds": [
+    "This is bounded report/wiring validity; no general PAG identification, causal authority, real missingness inference or production calibration.",
+    "New final installed graph/report consumer qualification still belongs final-wave evidence, not this source GO.",
+    "Generic MethodJob and typed report/CAS readback is actual available consumer; no specialized Scientist Node/report authority consumer invented.",
+    "Whole35 outcomes/G acceptance/formal closures unchanged; source GO does not grant acceptance.",
+    "Independent removal uses isolated export excluding default pytest.ini; one unit-marker warning retained. This does not establish default pytest configuration or repository-wide quality PASS."
+  ],
+  "retained_initial_final_harness_and_source_review_artifacts": [
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/final_report_consumer.py",
+      "bytes": 5792,
+      "sha256": "042d8d68cdb19447021fc49da00e775120a7c30a5920705834f7f8ab9fdad24c"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/final-report-consumer.stdout",
+      "bytes": 715,
+      "sha256": "4aeef323b4ec31e6dccc6903e9f982dd1bea03c5847e570a18b9a35226d3fb64"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/final-report-consumer.stderr",
+      "bytes": 3648,
+      "sha256": "366e73fdf74f473d32d685b4404a33a570b6ef1a9165ec75e808730a92308fe9"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/report-removal.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/report-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/report-removal.xml",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/report-removal-mutation.json",
+      "bytes": 1078,
+      "sha256": "ecb71d3fe8ff356bd54aa0bf8a77c163bcf80eb50ee1b72f34560cbe269338f5"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/discovery-source-review.json",
+      "bytes": 5011,
+      "sha256": "48b1908ee4031223593c806908990ce6d0cd8fa076a7edf89bfbfa182a25d9fc"
+    },
+    {
+      "path": "/workspace/e02-F-report-storage-relocation-20261007/receipt.json",
+      "bytes": 831,
+      "sha256": "ec8a46573f0a1075540c448e4fa99dfa2bf4cc6701a447a445011aa82089e5c6"
+    },
+    {
+      "path": "/workspace/e02-F-report-storage-relocation-20261007/second-receipt.json",
+      "bytes": 895,
+      "sha256": "c76365d8543955bc1956ddd19e03c60423a51e7866b79f169cd4fff99ab185d3"
+    }
+  ]
+}

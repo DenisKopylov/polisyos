@@ -1,0 +1,401 @@
+{
+  "schema": "e02.F.read_only_original35_audit.v1",
+  "reader": "F direct ledger helper, not author of source/ledger",
+  "candidate": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+  "candidate_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+  "slice_base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "denominator": {
+    "full_finding_TSV": 282,
+    "full_bundle_TSV": 127,
+    "F_IDs": 35,
+    "F_bundles": 17,
+    "F_bindings": 36,
+    "F_unique_original_blocks": 35
+  },
+  "checks": [
+    {
+      "ID": "B204",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B205",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B206",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B207",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B208",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B209",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B210",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B211",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B212",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B213",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B214",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "limited",
+      "F_technical": "limited"
+    },
+    {
+      "ID": "B215",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B216",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B217",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B218",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B219",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B220",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B221",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B222",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B223",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B224",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B225",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B54",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "B56",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "UNRUN",
+      "F_original": "limited",
+      "F_technical": "limited"
+    },
+    {
+      "ID": "LA-001",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-002",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-003",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-004",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-007",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-016",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-017",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-019",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-020",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-035",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    },
+    {
+      "ID": "LA-037",
+      "original_byte_binding": "PASS",
+      "owner_binding": "PASS",
+      "index_per_ID": "PASS",
+      "component_tree": "PASS",
+      "check_state": "PASS",
+      "F_original": "closed",
+      "F_technical": "closed"
+    }
+  ],
+  "counts": {
+    "check_result": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "F_finding_outcome": {
+      "closed": 33,
+      "limited": 2
+    },
+    "F_technical_recommendation": {
+      "closed": 33,
+      "limited": 2
+    }
+  },
+  "formal_G_closures": 0,
+  "4ee_runtime_to_2c_delta_paths": [],
+  "new_delta_paths": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "changed_per_IDs": [],
+  "limits": [
+    "Byte/owner/component-tree audit is metadata verification, not a new runtime or scientific PASS.",
+    "Historical 4ee/native+wheel evidence remains exact-source only; new profile/report delta needs new behavioral checks.",
+    "B214 broad family/completion/authority and B56 admitted shared workload remain limited.",
+    "No repository-wide constructed/external client absence asserted."
+  ]
+}

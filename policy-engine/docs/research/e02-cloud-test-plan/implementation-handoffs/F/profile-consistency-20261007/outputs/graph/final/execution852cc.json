@@ -1,0 +1,137 @@
+{
+  "quota": "none; sequential only shared runtime history",
+  "result": "complete",
+  "runs": [
+    {
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-profile-consistency-20261007/adversary/probe.py",
+        "--source",
+        "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc",
+        "--out",
+        "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1",
+        "--expect",
+        "repaired"
+      ],
+      "children_max_rss_kib": 111668,
+      "cwd": "/tmp/e02-F-profile-consistency-20261007/adversary/candidate852cc",
+      "expected_returncode": 0,
+      "harness_sha256": "1fb8031a8031c05446708172a6bfa523e0eec9a141b3f1acba935a57861cc74e",
+      "label": "repaired-attempt1",
+      "metrics_port": "19753",
+      "outputs": {
+        "stderr": {
+          "bytes": 2136,
+          "path": "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1.stderr",
+          "sha256": "72b9fd4ef299ccb043544bd5c7deccb9dea6654163557011bb21670ac9d43a85"
+        },
+        "stdout": {
+          "bytes": 0,
+          "path": "/tmp/e02-F-profile-consistency-20261007/adversary/repaired-attempt1.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reported_outcome": "ERROR/incomplete; report missing",
+      "returncode": 1,
+      "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "wall_seconds": 1.5132241249084473
+    },
+    {
+      "TMPDIR": "/dev/shm/e02-F-profile-consistency-adversary/tmp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-F-profile-consistency-adversary/probe.py",
+        "--source",
+        "/dev/shm/e02-F-profile-consistency-adversary/candidate852cc",
+        "--out",
+        "/dev/shm/e02-F-profile-consistency-adversary/repaired-attempt2",
+        "--expect",
+        "repaired"
+      ],
+      "children_max_rss_kib": 1195484,
+      "cwd": "/dev/shm/e02-F-profile-consistency-adversary/candidate852cc",
+      "expected_returncode": 0,
+      "failed_expectations": 0,
+      "harness_sha256": "1fb8031a8031c05446708172a6bfa523e0eec9a141b3f1acba935a57861cc74e",
+      "label": "repaired-attempt2",
+      "metrics_port": "19755",
+      "origin_count": 970,
+      "origin_errors": [],
+      "original_mgraph_readable": true,
+      "outputs": {
+        "stderr": {
+          "bytes": 0,
+          "path": "/dev/shm/e02-F-profile-consistency-adversary/repaired-attempt2.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 8637,
+          "path": "/dev/shm/e02-F-profile-consistency-adversary/repaired-attempt2.stdout",
+          "sha256": "c4583f9709455e161308041b62e86de9e0cb8b806dfc5cf366ec53a10ae55e6c"
+        }
+      },
+      "positive": {
+        "actual_job_node_fresh_store_reader": true,
+        "actual_ref": "sha256:d99ad6ce12582d96b2714723799cfa56ce84d12933e4036e5457d0c96319ed6e",
+        "declared": "admg",
+        "mgraph_key_absent": true,
+        "same_node_names_and_relations": true
+      },
+      "reported_outcome": "PASS",
+      "returncode": 0,
+      "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "wall_seconds": 12.809126138687134
+    },
+    {
+      "TMPDIR": "/dev/shm/e02-F-profile-consistency-adversary/tmp",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-F-profile-consistency-adversary/probe.py",
+        "--source",
+        "/dev/shm/e02-F-profile-consistency-adversary/candidate852cc",
+        "--out",
+        "/dev/shm/e02-F-profile-consistency-adversary/retained-marker-mutant-attempt1",
+        "--expect",
+        "repaired",
+        "--remove-known-profile-guard"
+      ],
+      "children_max_rss_kib": 1195484,
+      "cwd": "/dev/shm/e02-F-profile-consistency-adversary/candidate852cc",
+      "expected_returncode": 1,
+      "failed_expectations": 12,
+      "harness_sha256": "1fb8031a8031c05446708172a6bfa523e0eec9a141b3f1acba935a57861cc74e",
+      "label": "retained-marker-mutant-attempt1",
+      "metrics_port": "19756",
+      "origin_count": 970,
+      "origin_errors": [],
+      "original_mgraph_readable": true,
+      "outputs": {
+        "stderr": {
+          "bytes": 314,
+          "path": "/dev/shm/e02-F-profile-consistency-adversary/retained-marker-mutant-attempt1.stderr",
+          "sha256": "5104592572891d31ca06dd29d73e006e73553882bdc65ce565fe1fa563e98168"
+        },
+        "stdout": {
+          "bytes": 15009,
+          "path": "/dev/shm/e02-F-profile-consistency-adversary/retained-marker-mutant-attempt1.stdout",
+          "sha256": "b8baaef59b53d68620bcecf8d75a47e15ce5aaadd53ad711e7f39688493806a9"
+        }
+      },
+      "positive": {
+        "actual_job_node_fresh_store_reader": true,
+        "actual_ref": "sha256:d99ad6ce12582d96b2714723799cfa56ce84d12933e4036e5457d0c96319ed6e",
+        "declared": "admg",
+        "mgraph_key_absent": true,
+        "same_node_names_and_relations": true
+      },
+      "reported_outcome": "FAIL",
+      "returncode": 1,
+      "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+      "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+      "wall_seconds": 9.740241765975952
+    }
+  ],
+  "serialized_resource": "/dev/shm/e02-F-profile-consistency-adversary/candidate852cc/policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl"
+}

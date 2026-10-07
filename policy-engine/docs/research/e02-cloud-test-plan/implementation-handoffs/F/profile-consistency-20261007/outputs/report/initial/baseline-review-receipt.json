@@ -1,0 +1,129 @@
+{
+  "schema": "policyos.e02.independent_review_baseline.v1",
+  "reviewer": "/root/report_review",
+  "source_sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+  "tree_sha": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+  "G_dependency_sha": "2abc17f46a033a7879663486ff9946a95786601f",
+  "repo_edits": false,
+  "production_inputs": false,
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/importer-check.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/failure-query.txt",
+      "bytes": 19253,
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/source-consumers-at-base2c.txt",
+      "bytes": 1116,
+      "sha256": "bdce6740805107b81b31c7d5bbada7689f886dbc0afc05589e3762d9a6436400"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline_consumer.py",
+      "bytes": 3405,
+      "sha256": "dd2e1d9e57d802d913ae020c194ab76e727c3b74a25b699e0bb1724694611f89"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.stderr",
+      "bytes": 2144,
+      "sha256": "9253d286fb0642c22e5c8dfca6ddf78bac0f13df7d634e0c5893d3ce85456f0f"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.attempt2.stdout",
+      "bytes": 706,
+      "sha256": "392249e2db4bd218904c01130427ceae6b0071dbeba2bab4ca88a660a2c92d0b"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-consumer.attempt2.stderr",
+      "bytes": 3875,
+      "sha256": "f354fc88cb23c25e2c8bd99e59fa7756d2ecb131ff99d88dd9143bd578ec043c"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline_pure_report.py",
+      "bytes": 1779,
+      "sha256": "122b5af7b81252b381b012b82a76293284c7999f9d22f986082361c6fd1f5fe2"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-pure-report.stdout",
+      "bytes": 5829,
+      "sha256": "8b8c97bad87627668bfd6bdfea8e600dc5590a639fb0503f3b0921792f81c78f"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-pure-report.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-pure-report.json",
+      "bytes": 20651,
+      "sha256": "f41e358a6b9078d2f77f7045be040d4619fd45ebc96947f7107ffc5b096275c2"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-empty-report.stdout",
+      "bytes": 1649,
+      "sha256": "8520f359406b73c0734f835523237044904876e5d69b40abcd1e459ae2d1a7cb"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/baseline-empty-report.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/environment.json",
+      "bytes": 537,
+      "sha256": "6987c1f94bc198e0651a475d441b15ae3b4ee03c8bc72b2456815b1b5811b36d"
+    },
+    {
+      "path": "/tmp/e02-F-profile-consistency-20261007/report-review/proposal.md",
+      "bytes": 7032,
+      "sha256": "459c9fad0da47764f110d4551a64fde3ff30c0904866c1dabaae1245d9e3cb37"
+    }
+  ],
+  "observations": [
+    {
+      "attempt": "isolated-src-import",
+      "outcome": "ERROR",
+      "classification": "missing canonical architecture resource in source export; before runtime",
+      "complete_stdout": "baseline-consumer.stdout",
+      "complete_stderr": "baseline-consumer.stderr"
+    },
+    {
+      "attempt": "actual registered MethodJob with real configured PC",
+      "outcome": "FAIL",
+      "classification": "actual declared output-slot contract missing discovery_pipeline_report after real backend execution",
+      "complete_stdout": "baseline-consumer.attempt2.stdout",
+      "complete_stderr": "baseline-consumer.attempt2.stderr"
+    },
+    {
+      "attempt": "actual documented pure_step three requests with real PC",
+      "outcome": "PASS",
+      "classification": "baseline observational witness: all return partial PAG with no requested reconciliation limitation; not fixed property PASS",
+      "complete_stdout": "baseline-pure-report.stdout",
+      "complete_stderr": "baseline-pure-report.stderr",
+      "complete_reports": "baseline-pure-report.json"
+    },
+    {
+      "attempt": "actual empty-report branch requested prior/unknown configured algorithm",
+      "outcome": "PASS",
+      "classification": "baseline observational witness: empty PAG/all_algorithms_failed, requested reconciliation limitation absent; no optional-backend claim",
+      "complete_stdout": "baseline-empty-report.stdout",
+      "complete_stderr": "baseline-empty-report.stderr"
+    }
+  ],
+  "limitations": [
+    "No new discovery implementation reviewed yet.",
+    "Generic CAS/typed report consumer at baseline fails declared slot; positive whole chain awaits canonical producer companion.",
+    "No policy/identification authority consumer or production calibration asserted.",
+    "Literal census over2700 tracked src Python files does not resolve constructed/external consumers.",
+    "Unchanged historical source4ee numerical/installed/catalog receipts are not rerun or retargeted."
+  ]
+}

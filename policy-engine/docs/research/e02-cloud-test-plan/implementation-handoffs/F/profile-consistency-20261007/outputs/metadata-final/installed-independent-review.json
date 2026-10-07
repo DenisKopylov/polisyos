@@ -1,0 +1,267 @@
+{
+  "schema": "policyos.e02.independent_evidence_review.v1",
+  "unit": "F",
+  "reviewer": "/root/report_review",
+  "non_author": true,
+  "review_mode": "Read-only metadata/actual-output review; no tests/backend rerun or repository changes",
+  "decision": "GO_BOUNDED_INSTALLED_PACKET",
+  "blocking_issues": [],
+  "reviewed_carrier": {
+    "branch": "codex/e02-F-fry-20261006",
+    "sha": "5bce2ea7066d5dc57c0a454de1580d71c79104af",
+    "tree": "caf0958c2fe69033fbc4c79d97925b78d0a8d757",
+    "remote_readback_sha": "5bce2ea7066d5dc57c0a454de1580d71c79104af",
+    "role": "Receipt/output-only carrier; not merged, no product-source candidate ancestry inference"
+  },
+  "external_product_source": {
+    "sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+    "slice_base": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+    "paths": [
+      "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+    ],
+    "path_count": 9
+  },
+  "receipt_identity": {
+    "bytes": 84033,
+    "sha256": "fd782de18d26d14a33536ef0104c87a8798503c4bd4bd60290db0d1309dd277f"
+  },
+  "output_manifest_identity": {
+    "bytes": 178251,
+    "sha256": "11d11b41954f85e7fe80aedd11db87aeb181337e6679cf4c5351822282bb83c2"
+  },
+  "byte_custody": {
+    "carrier": "5bce2ea7066d5dc57c0a454de1580d71c79104af",
+    "carrier_tree": "caf0958c2fe69033fbc4c79d97925b78d0a8d757",
+    "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "source_tree": "52fb13e9e12d80e4b1af5580f61d15310535e5e8",
+    "transport_files": 256,
+    "carrier_changed_paths": 258,
+    "stored_bytes": 1012431,
+    "decoded_bytes": 4160847,
+    "all_stored_and_decoded_byte_hash_bindings_pass": true,
+    "actual_carrier_receipt_footprint_exact": true,
+    "product_source_or_test_writes": 0,
+    "external_product_footprint_exact": 9,
+    "categories": {
+      "original-harness": 8,
+      "original-setup": 9,
+      "original-wheel": 29,
+      "retry-harness": 14,
+      "retry-wheel": 145,
+      "native-report-CAS": 51
+    }
+  },
+  "source_archive_site_guard": {
+    "review_action": "Read-only current archive/site/carrier metadata byte verification, no test/backend execution",
+    "source_sha": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2",
+    "wheel": {
+      "bytes": 15148329,
+      "sha256": "529ef8c597d18d75641d50e462bd6e8f59f10e77fd9695b47dcfc0114f43a3f2"
+    },
+    "archive_owned_files": 3464,
+    "installed_python_files": 3147,
+    "carrier_files": 55,
+    "errors": [],
+    "literal_dependency_pth": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n",
+    "current_dependency_metadata_addendum_not_historical_reexecution": [
+      {
+        "path": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/causal_learn-0.1.4.4.dist-info/METADATA",
+        "bytes": 4557,
+        "sha256": "1c076fa50605cdade6d662f8873b707b2e0c264cb25206b97bc1524759b06ca7",
+        "Name": "causal-learn",
+        "Version": "0.1.4.4"
+      }
+    ],
+    "tracked_product_and_resources_exact_Git_bindings": 3464,
+    "carrier_tests_helpers_exact_Git_bindings": 55,
+    "source_binding_errors": []
+  },
+  "deciding_results": {
+    "native_installed_cases": {
+      "check": "PASS",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_warnings": 1,
+      "warning": "UnknownMarkWarning(unit) in isolated copied test carrier; not hidden or default pytest-config compliance claimed",
+      "stdout": "retry-wheel/native-retry.stdout.txt",
+      "xml": "retry-wheel/native-junit.xml",
+      "defined_selectors_match_collect_proof": true
+    },
+    "retained_marker_control": {
+      "check": "FAIL",
+      "expected": true,
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "detection_result": "PASS",
+      "runtime_property_removed": "Known typed-profile consistency guard in actual producer and Node imported alias, in memory only",
+      "retained": "Declared DAG/ADMG family, static endpoint/lag checks, original file bytes, enum/strings/diagnostics/metadata, real SDK/job/CAS routes",
+      "actual_failure": "Maintained retagged-MGraph test refusal assertion: actual JobResult issues=[] and persisted method_result_ref exists",
+      "test_or_fixture_replacement": false,
+      "source_disk_mutation": false,
+      "warnings": 2,
+      "warning_classes": [
+        "UnknownMarkWarning(unit)",
+        "PytestAssertRewriteWarning(jaxtyping)"
+      ],
+      "raw_job_warning": "legacy_method_adapter_ref",
+      "stdout": "retry-wheel/removal.stdout.txt",
+      "xml": "retry-wheel/removal-junit.xml"
+    },
+    "separate_child_graph_reader": {
+      "check": "PASS",
+      "parent_pid": 1017218,
+      "reader_pid": 1017239,
+      "isolated": 1,
+      "selected_ref": {
+        "artifact_id": "sha256:bfa2daae26cf6e897fa231c785a72c6b1e9ddfb0f1e10e6cd33a90a8d4c15bbc",
+        "kind": "ir.causal_graph_model",
+        "media_type": "application/json"
+      },
+      "literal_relation_oracle": [
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ],
+        [
+          "Y",
+          "X",
+          "tail",
+          "arrow",
+          null
+        ]
+      ],
+      "original_MGraph_preserved_and_extracted": true,
+      "retagged_producer_and_Node_refuse_no_publication": true,
+      "complete_typed_model_matches_parent": true,
+      "detached_rows_do_not_rewrite_model": true,
+      "report_child_claim": false
+    },
+    "report_actual_method_CAS_consumers": [
+      {
+        "case": "test_no_reconciliation_request0",
+        "artifact_sha256": "82cd05ff005ac9d2d123341609f3daf7678f7aeb2ac00f401267d3eb9ba696be",
+        "canonical_slot_legacy_value_equal": true,
+        "preserved_graph_type": "pag",
+        "requested": false,
+        "limitation": null,
+        "warnings": []
+      },
+      {
+        "case": "test_requested_pag_reconciliat1",
+        "artifact_sha256": "5428a30bba6931bf97b7a81e28e3d705e47e0f4af45b9d12b85b18334c3674ec",
+        "canonical_slot_legacy_value_equal": true,
+        "preserved_graph_type": "pag",
+        "requested": true,
+        "limitation": {
+          "applied": false,
+          "detail": "ValueError: Unsupported graph reconciliation profile: graph_type=pag; requires declared static DAG/ADMG",
+          "input_graph_type": "pag",
+          "output_graph_type": "pag",
+          "reason": "unsupported_profile",
+          "requested": true,
+          "status": "not_applied"
+        },
+        "warnings": [
+          "reconciliation_not_applied:unsupported_profile"
+        ]
+      },
+      {
+        "case": "test_requested_pag_reconciliat0",
+        "artifact_sha256": "72476478d5275b9df704b5b27556fc4240deb7a8ef66cc91a39a3d8d56163209",
+        "canonical_slot_legacy_value_equal": true,
+        "preserved_graph_type": "pag",
+        "requested": true,
+        "limitation": {
+          "applied": false,
+          "detail": "ValueError: Unsupported graph reconciliation profile: graph_type=pag; requires declared static DAG/ADMG",
+          "input_graph_type": "pag",
+          "output_graph_type": "pag",
+          "reason": "unsupported_profile",
+          "requested": true,
+          "status": "not_applied"
+        },
+        "warnings": [
+          "reconciliation_not_applied:unsupported_profile"
+        ]
+      }
+    ]
+  },
+  "runtime_origin_census": {
+    "counts": {
+      "retry-wheel/native-proof.json": 979,
+      "retry-wheel/removal-proof.json": 970,
+      "retry-wheel/fresh-profile-corrected/fresh-bridge-proof.json": 970,
+      "retry-wheel/fresh-profile-corrected/fresh-reader-proof.json": 84
+    },
+    "errors": [],
+    "scope": "All polisyos/tools loaded origins bind to candidate installed site; borrowed dependency site explicitly disclosed, not an editable product fallback",
+    "python": "3.14.7",
+    "PYTHONPATH": "absent",
+    "literal_dependency_pth": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n",
+    "metrics_port": "9476",
+    "no_compute_quotas": true
+  },
+  "output_reference_mapping": {
+    "matched_deciding_refs": 35,
+    "mismatches": [],
+    "external_archive_and_carrier_refs": "Independently verified archive/site/carrier current bytes; source-bound Git carriers reusable, not missing deciding outputs",
+    "workspace_read_refs": "Tracked admission snapshots embed read text/hash; historical worktree state not retargeted to current state"
+  },
+  "raw_CAS_custody": {
+    "CAS_blob_count": 38,
+    "CAS_blob_errors": [],
+    "CAS_manifest_count": 76,
+    "CAS_manifest_errors": []
+  },
+  "preserved_attempts": [
+    {
+      "check": "ERROR",
+      "state": "incomplete",
+      "attempt": "Original /tmp native capture ENOSPC",
+      "native_exit": "unknown",
+      "JUnit_bytes": 0,
+      "product_outcome": "unknown",
+      "complete_capture_error_retained": true
+    },
+    {
+      "check": "ERROR",
+      "state": "harness_error",
+      "attempt": "First fresh-child issue serializer treated dict JobResult issues as DTOs before child launch",
+      "product_outcome": "not inferred",
+      "correction": "Serializer handles existing dicts and uses distinct new output directory only; no product source/test change or repeated native17"
+    }
+  ],
+  "limitations": [
+    "852 rebuilt-sdist remains UNRUN; old51991/91 and4ee16 are not transferred to852.",
+    "Python3.14 DoWhy/EconML remain UNRUN; unchanged selected3.12 worker is not rerun or claimed here.",
+    "One installed native report consumer reopens CAS in producer process; this packet separate-child proof is graph reader only. Independent source report child evidence lives in separate root-linked helper packet.",
+    "causal-learn0.1.4.4 is measured from current borrowed dependency METADATA in review addendum; original environment JSON enumerates selected packages but not causal-learn, so this is qualified current metadata rather than a retrospective exact historical backend-version assertion.",
+    "No institutional/causal authority positive, B214 broad completion contract or B56 shared admission workload proof.",
+    "ScannerERROR/-9, RuffFAIL103, public-surfaceFAIL38 and P41not_established retained; native installed scope does not establish whole-head quality or G acceptance.",
+    "Four historical unavailable175c references remain non-deciding; no product closure verdict inferred from this packet."
+  ],
+  "recommendation": "Root may link exact fetchable receipt carrier5b and bounded native/source/custody results; G acceptance/formal closures unchanged. No source or cumulative-carrier merge requested.",
+  "review_outputs": [
+    "byte-review.json",
+    "source-custody-review.json",
+    "current-archive-site-review.json",
+    "output-reference-review.json"
+  ],
+  "review_completed_utc": "2026-10-07T20:07:54.601070+00:00"
+}

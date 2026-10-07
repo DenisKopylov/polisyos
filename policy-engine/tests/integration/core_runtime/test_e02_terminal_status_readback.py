@@ -8,6 +8,7 @@ claim that the board or ordinary run-details API displays these nested statuses.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -22,12 +23,12 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 from tests.unit.runtime.quality.test_generation_cycle import (
+    _budget,
     _BudgetExhaustedValuePort,
     _CounterexampleAwareGenerator,
+    _problem,
     _ReadyValuePort,
     _StableShadowGrounding,
-    _budget,
-    _problem,
 )
 
 pytestmark = pytest.mark.integration
@@ -48,6 +49,7 @@ async def test_n6_terminal_decision_and_iteration_survive_history_readback(
     expected_terminal: str,
     expected_decision: str,
     expected_iteration: str,
+    tmp_path: Path,
 ) -> None:
     """A real bounded N6 run retains each terminal's distinct typed projection."""
 
@@ -63,11 +65,22 @@ async def test_n6_terminal_decision_and_iteration_survive_history_readback(
     assert cycle.voi_decision.next_action == "stop"
     assert cycle.refinement_decision.decision == expected_decision
     assert cycle.search_iteration.status == expected_iteration
-    assert run.schema_version == generation.GENERATION_CYCLE_SCHEMA_VERSION
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.source_custody_limitation is not None
 
-    # Exercise the current versioned N6 history reader on the producer's JSON
-    # wire, then inspect the parsed consumer result rather than the source DTO.
-    persisted = json.loads(json.dumps(run.model_dump(mode="json")))
+    # Exercise the current versioned N6 history reader on a persisted JSON
+    # representation, then inspect the parsed consumer result rather than the
+    # source DTO. This file is a test fixture, not an artifact-store authority.
+    persisted_path = tmp_path / "generation-cycle-run.json"
+    persisted_path.write_text(
+        json.dumps(run.model_dump(mode="json")), encoding="utf-8"
+    )
+    persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
+    assert (
+        persisted["schema_version"]
+        == "policyos.runtime.generation_cycle_controller.v4"
+    )
+    assert persisted["source_custody_limitation"] is not None
     history_issues = validate_generation_cycle_run_history(persisted)
     assert history_issues == (), history_issues
     replayed = GenerationCycleRun.from_persisted_payload(persisted)
@@ -76,18 +89,52 @@ async def test_n6_terminal_decision_and_iteration_survive_history_readback(
     assert replayed_cycle.refinement_decision.decision == expected_decision
     assert replayed_cycle.search_iteration.status == expected_iteration
 
-    # Current-source history must reject a real producer record whose terminal
-    # and refinement are unchanged but whose sibling search projection is flipped.
-    # Historical v1/v2/v3 fixtures remain governed by their frozen replay tests.
-    mismatched_projection = json.loads(json.dumps(persisted))
-    mismatched_projection["cycles"][0]["search_iteration"]["status"] = (
-        "abstained" if expected_iteration == "stopped" else "stopped"
+    # Current-source history must reject a real producer record when one valid
+    # sibling projection changes while the other terminal projections remain
+    # untouched. Frozen historical v1/v2 fixtures are exercised separately.
+
+    def flip_iteration_status(cycle: dict[str, Any]) -> None:
+        cycle["search_iteration"]["status"] = (
+            "abstained" if expected_iteration == "stopped" else "stopped"
+        )
+
+    def flip_refinement_decision(cycle: dict[str, Any]) -> None:
+        cycle["refinement_decision"]["decision"] = (
+            "abstain" if expected_decision == "stop" else "stop"
+        )
+
+    def diverge_terminal_from_voi(cycle: dict[str, Any]) -> None:
+        cycle["terminal_kind"] = (
+            "budget_exhausted"
+            if expected_terminal != "budget_exhausted"
+            else "frontier_stable"
+        )
+
+    mismatched_projections = (
+        (
+            "search-iteration status",
+            "generation_cycle_terminal_projection_mismatch",
+            flip_iteration_status,
+        ),
+        (
+            "refinement decision",
+            "generation_cycle_terminal_projection_mismatch",
+            flip_refinement_decision,
+        ),
+        (
+            "terminal kind versus VOI terminal",
+            "voi_cycle_identity_mismatch",
+            diverge_terminal_from_voi,
+        ),
     )
-    refusal = validate_generation_cycle_run_history(mismatched_projection)
-    assert refusal, (
-        "history replay accepted a producer-owned terminal whose SearchIteration status "
-        f"was changed from {expected_iteration!r}"
-    )
+    for projection_name, expected_issue, mutate_cycle in mismatched_projections:
+        mismatched_projection = json.loads(persisted_path.read_text(encoding="utf-8"))
+        mutate_cycle(mismatched_projection["cycles"][0])
+        refusal = validate_generation_cycle_run_history(mismatched_projection)
+        assert any(issue.get("code") == expected_issue for issue in refusal), (
+            f"history replay did not report {expected_issue!r} after changing only "
+            f"the {projection_name} projection: {refusal!r}"
+        )
 
 
 @pytest.mark.asyncio

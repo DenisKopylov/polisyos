@@ -1,0 +1,1 @@
+python3 -m ruff check src/polisyos/ir/artifacts/io.py tests/unit/core/artifacts/test_ir_adapter.py && python3 -m ruff format --check src/polisyos/ir/artifacts/io.py tests/unit/core/artifacts/test_ir_adapter.py

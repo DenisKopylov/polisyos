@@ -1,0 +1,103 @@
+{
+  "io_source": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos/policy-engine/src/polisyos/ir/artifacts/io.py",
+  "negative_profiles": {
+    "absent_profile": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "boolean_depth": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "extra_profile_field": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "missing_separator_field": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "negative_depth": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "separator_bool": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "separator_list_len_1": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "separator_list_len_3": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "separator_nonstring": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "unsupported_name": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "unsupported_version": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_boolean_field_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_depth_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_ensure_ascii_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_exclude_none_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_forbid_nan_inf_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_name_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_sort_keys_type": {
+      "byte_reads": 0,
+      "refused": true
+    },
+    "wrong_version_type": {
+      "byte_reads": 0,
+      "refused": true
+    }
+  },
+  "positive": {
+    "byte_reads": 1,
+    "full_mapping_unchanged": true,
+    "manifest_reads": 1,
+    "manifest_ref": "sha256:e1b6a767efda695ed26993a0a7ddd323c19c0cc20f97685ee2a8e203e531f766",
+    "payload_equal": true,
+    "profile_max_depth": 129,
+    "separators_json_value": [
+      ",",
+      ":"
+    ],
+    "typed_ref": "sha256:e1b6a767efda695ed26993a0a7ddd323c19c0cc20f97685ee2a8e203e531f766"
+  },
+  "pydantic": "2.12.5",
+  "python": "3.14.0",
+  "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "remove_property_keep_markers": {
+    "byte_reads_after_removal": 0,
+    "candidate_mapping_with_normalizer": "passes",
+    "normalizer_removed_in_memory": "unsupported_ir_canon_profile",
+    "on_disk_positive_and_negative_test_markers_remain": true
+  }
+}

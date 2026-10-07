@@ -1,0 +1,1 @@
+PYTHONPATH=src python3 -m pytest tests/unit/core/artifacts/test_ir_adapter.py::test_ir_json_reader_accepts_unmodified_json_mode_manifest_mapping -q -p no:cacheprovider --junitxml=../.tmp/e02-C4/raw/canon/mapping-red.junit.xml

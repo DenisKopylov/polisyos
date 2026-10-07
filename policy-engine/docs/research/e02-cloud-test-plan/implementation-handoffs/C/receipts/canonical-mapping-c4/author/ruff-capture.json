@@ -1,0 +1,5 @@
+{
+  "numeric_exit_status_recorded": false,
+  "result": "Ruff check and format check passed as observed in the command output.",
+  "separate_stderr_capture": false
+}

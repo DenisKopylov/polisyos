@@ -1,0 +1,27 @@
+{
+  "branch": "codex/e02-C-canon-20261006",
+  "head": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+  "label": "post",
+  "lock_inputs": {
+    "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+  },
+  "pydantic": "2.12.5",
+  "pytest": "9.0.2",
+  "python": {
+    "executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "version": "3.14.0"
+  },
+  "pythonpath": "src",
+  "selector_input_files": {
+    "src/polisyos/ir/artifacts/io.py": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+    "tests/unit/core/artifacts/test_ir_adapter.py": "db25fc7dc21dfde8056df039bad1f6786a4f9175f0f0c36aec7b7241a4ec4efe",
+    "tests/unit/fabric/test_entity_resolution.py": "5959bb0d5a542c398fd0b646ffecaf87ec828b017915773036ac829b73af243e",
+    "tests/unit/ir/analytics/test_ncm.py": "edbe539dd990297cec3e0685410e08996bd744a278098be81f2bd4393329fbd8"
+  },
+  "src_python_file_count": 2698,
+  "status_porcelain": "",
+  "tracked_python_file_count": 5904,
+  "tracked_python_source_denominator_sha256": "aca658c3a9bfd207b495e7ab08f81c8f33c2f046b5da012fbbd32a1862c4d900",
+  "tree": "2d27c9c182cf550088c5a8c072dc2f36df84e20d"
+}

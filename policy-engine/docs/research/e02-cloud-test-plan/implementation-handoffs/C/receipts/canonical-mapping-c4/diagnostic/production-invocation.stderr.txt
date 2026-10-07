@@ -1,0 +1,5 @@
+Exception ignored while calling GC callback <function _xla_gc_callback at 0x11a3890c0>:
+Traceback (most recent call last):
+  File "/opt/homebrew/lib/python3.14/site-packages/jax/_src/lib/__init__.py", line 124, in _xla_gc_callback
+    def _xla_gc_callback(*args):
+KeyboardInterrupt: 

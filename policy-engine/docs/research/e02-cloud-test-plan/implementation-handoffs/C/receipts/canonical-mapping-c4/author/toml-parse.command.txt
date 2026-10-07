@@ -1,0 +1,7 @@
+python3 - <<'PY'
+import tomllib
+from pathlib import Path
+p=Path('release-fragments/unreleased/2026-10-07-e02-canon-json-mapping.toml')
+tomllib.loads(p.read_text())
+print('release fragment TOML parse: PASS')
+PY

@@ -1,0 +1,12 @@
+..............................................                           [100%]
+=============================== warnings summary ===============================
+../../../../../../../opt/homebrew/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /opt/homebrew/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../../../../opt/homebrew/lib/python3.14/site-packages/jax/_src/config.py:283
+  /opt/homebrew/lib/python3.14/site-packages/jax/_src/config.py:283: DeprecationWarning: Setting `jax_pmap_shmap_merge` is deprecated in JAX v0.9.0 and will be removed in JAX v0.10.0.
+    value = self._parser(value)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

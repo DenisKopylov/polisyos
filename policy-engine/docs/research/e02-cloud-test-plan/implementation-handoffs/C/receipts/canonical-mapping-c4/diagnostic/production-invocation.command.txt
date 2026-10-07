@@ -1,0 +1,1 @@
+PYTHONPATH=src python3 -m polisyos.runtime.quality.production_invocation --base 79cbb05c90026973a32022ca02c63877b2cde1a5 --receipt ../.tmp/e02-C4/raw/canon/production-invocation.json

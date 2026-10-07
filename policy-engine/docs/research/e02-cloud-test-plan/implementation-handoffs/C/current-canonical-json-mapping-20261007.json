@@ -1,0 +1,598 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "current-canonical-json-mapping-20261007",
+  "status": "candidate_only_not_integrated",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAN-01"
+  ],
+  "criterion_ids": [
+    "LA-021"
+  ],
+  "criterion_base": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "criterion_source": {
+    "bundle": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAN-01.md",
+      "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "span": "LA-021, beginning near line 63"
+    },
+    "authoritative_original": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "span": "LA-021 near lines 990-1018",
+      "source_entry_commit": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "source_entry_tree": "c9a5e4620abb8e643f25614a7df600ad499bf0c8"
+    },
+    "prior_profile_task_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json",
+    "profile_task_input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json",
+      "git_blob_sha1": "32cab69568cde50256c2910696b879882d3db024",
+      "carried_from_previous_handoff": true
+    }
+  },
+  "c4_source_base": {
+    "commit": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+    "tree_sha": "e494bbace790b9e5d15e253ac4a4834479774318",
+    "relation": "direct parent of candidate"
+  },
+  "parent_source_candidate": {
+    "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "tree_sha": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+    "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-ir-20261007.json"
+  },
+  "previous_handoff_preserved": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-ir-20261007.json",
+    "sha256": "f724aae6ae824b9643d8ec92615fd0328ca5d914e0724b18ba5060e91d877491",
+    "git_blob_sha1": "3740eb0cf5b6e2899eaaf89e86f35449801795db",
+    "candidate_commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "preserved_unchanged": true
+  },
+  "g_evidence_pin": {
+    "commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "tree_sha": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d",
+    "read_only_sources": [
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/independent-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/report.md"
+    ],
+    "finding": "The exact persisted full JSON-mode manifest Mapping has separators as a two-string list; strict IR tuple validation refused it before payload-byte access."
+  },
+  "candidate_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+  "candidate_tree_sha": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+  "branch": "codex/e02-C-canon-20261006",
+  "pull_request": null,
+  "implementation_commits": [
+    "e3cb3fafc847b94a5d4b3adc03b814b4c711920c"
+  ],
+  "changed_paths_from_c4_source_base": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-canon-json-mapping.toml",
+      "sha256": "d2fed2be4c8ba1e07d50a60ef1823d768f9c61a95b588e4395cbc27508255d38",
+      "git_blob_sha1": "6ca6d2bbfac10afd73dd2c7d4d8af875329cb89b",
+      "bytes": 1199
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/README.md",
+      "sha256": "a756614e2b2a7b7de6f9a1d1c5aba5c61c1bb7d932b5bec41a23a452ec5b5bf6",
+      "git_blob_sha1": "4972213bcffd1f117370d161dbbf21226631384d",
+      "bytes": 4014
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+      "git_blob_sha1": "00a9b82ae827cae69acc2420ac887ae82802f5c5",
+      "bytes": 6825
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "sha256": "db25fc7dc21dfde8056df039bad1f6786a4f9175f0f0c36aec7b7241a4ec4efe",
+      "git_blob_sha1": "eadf0f52778561418dd77e64945f084d855d4beb",
+      "bytes": 22381
+    }
+  ],
+  "delta_statistics_from_c4_source_base": {
+    "files": 4,
+    "insertions": 130,
+    "deletions": 0
+  },
+  "implementation": {
+    "change": "At the shared IR reader Mapping intake, convert separators only when it is a built-in list of exactly two built-in strings; validate every other field and the supported profile with the existing strict CanonInfo path before reading bytes.",
+    "non_mutation": "The reader shallow-copies the Mapping before replacing the copied separators value. The caller\u2019s full manifest Mapping and persisted bytes are unchanged.",
+    "profileless_behavior": "Missing profiles continue to fail before payload-byte access. No historical profileless support promise was introduced.",
+    "surface_classification": "internal: polisyos.ir.artifacts is not a supported entrypoint; no new public schema or migration.",
+    "release_fragment": "policy-engine/release-fragments/unreleased/2026-10-07-e02-canon-json-mapping.toml",
+    "release_fragment_details": {
+      "id": "2026-10-07-e02-canon-json-mapping",
+      "title": "IR canonical JSON Mapping compatibility",
+      "type": "fixed",
+      "component": "ir-artifacts",
+      "owner": "team-polisyos",
+      "summary": "The exported get_json_artifact reader now accepts the JSON-mode Mapping form of a supported canonical profile while preserving strict profile checks.",
+      "evidence": [
+        "tests/unit/core/artifacts/test_ir_adapter.py"
+      ],
+      "compatibility": "For JSON-mode Mapping manifests, only separators lists containing exactly two strings are normalized before strict profile validation; missing or unsupported profiles still fail before payload bytes are read. Historical profile-less artifact support has not been established.",
+      "change_class": "internal",
+      "surface_classification": "internal: polisyos.ir.artifacts is not a supported entrypoint",
+      "migration": "No migration is needed for supported JSON-mode Mapping manifests.",
+      "api": "The existing get_json_artifact helper reads Mapping manifests produced by CanonInfo.model_dump(mode='json') without changing persisted bytes or supported IR canon profiles.",
+      "limitations": "Historical profile-less artifact readability remains unestablished and unsupported.",
+      "generated_client_compatibility": "not_applicable"
+    }
+  },
+  "bounded_verdict": "GO for this JSON-mode Mapping reader property only; full LA-021 remains HELD.",
+  "property": {
+    "statement": "An unchanged complete ArtifactManifest.model_dump(mode=\"json\") Mapping from the typed CAS can be consumed by get_json_artifact when its profile is supported; the payload and manifest Mapping remain unchanged and all other profile fields stay strict.",
+    "actual_code": "One shared IR profile intake normalizes the narrowly specified JSON representation and then performs existing strict complete-profile validation before get_bytes.",
+    "p37_predicate_basis": "recomputed",
+    "p37_basis_detail": "The positive witness starts from a real typed FileSystemCAS write, derives the artifact ID from typed CoreArtifactRef, obtains the persisted manifest, and passes the complete untouched JSON-mode Mapping. The profile is validated as codec-ABI input; it is not authority, issuer, provenance, or permission evidence.",
+    "p38_divergence": {
+      "property": "A complete JSON-mode Mapping representing the supported IR profile is accepted by the ordinary IR reader, while unsupported or malformed profiles refuse before payload-byte reads.",
+      "prior_measurement": "Strict tuple acceptance was applied directly to the JSON-mode list representation and rejected an otherwise valid supported profile before bytes.",
+      "divergent_case": "CanonInfo.model_dump(mode=\"json\") emits separators as [\",\", \":\"] while the Python model field is a tuple.",
+      "class_fix": "Normalize only a two-string separators list at shared Mapping intake; preserve strict validation for all other fields and profile identity."
+    },
+    "p40_bucket": "Same shared canonical-profile-intake class, one representation level deeper; no historical artifact compatibility contract was added."
+  },
+  "controls": {
+    "author_full_mapping_positive": "Real FileSystemCAS IR write; typed CoreArtifactRef; complete manifest.model_dump(mode=\"json\") is passed unchanged to the public reader; payload round-trips and the wrapper delegates one byte read to the same CAS.",
+    "independent_full_mapping_positive": {
+      "manifest_ref_matches_typed_ref": true,
+      "payload_equal": true,
+      "mapping_unchanged": true,
+      "manifest_reads": 1,
+      "payload_byte_reads": 1,
+      "profile_max_depth": 129,
+      "json_separators": [
+        ",",
+        ":"
+      ]
+    },
+    "independent_profile_negatives": [
+      "absent_profile",
+      "boolean_depth",
+      "extra_profile_field",
+      "missing_separator_field",
+      "negative_depth",
+      "separator_bool",
+      "separator_list_len_1",
+      "separator_list_len_3",
+      "separator_nonstring",
+      "unsupported_name",
+      "unsupported_version",
+      "wrong_boolean_field_type",
+      "wrong_depth_type",
+      "wrong_ensure_ascii_type",
+      "wrong_exclude_none_type",
+      "wrong_forbid_nan_inf_type",
+      "wrong_name_type",
+      "wrong_sort_keys_type",
+      "wrong_version_type"
+    ],
+    "negative_result": "All 19 independent malformed, unsupported, or absent-profile variants are refused before payload-byte reads.",
+    "normalizer_removal_control": "Independent reviewer executed candidate source in memory with only the normalization block removed. With positive and negative markers left on disk, the same valid full Mapping failed unsupported_ir_canon_profile with zero payload-byte reads.",
+    "raw_core_boundary": "A raw Core float_hex write remains outside this C-owned Mapping repair and is not admitted by the IR decoder. B owns Core storage/admission. This handoff does not claim a full writer strangle.",
+    "historical_profileless": "No actual historical artifact/reference or owner-supported compatibility contract was provided; profileless input remains unsupported/not established."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "One shared profile intake accepts only the exact JSON-mode representation needed by the typed manifest and runs real persisted positive, strict negative, and remove-the-property controls.",
+    "p35_denominator": "5,904 tracked policy-engine src/tools/tests Python files, including 2,698 tracked src Python files, with a complete tracked-content aggregate hash recorded before and after the frozen selector.",
+    "p41": "The final 46-test run is bound to the exact source candidate by matching pre/post commit/tree and source-input hashes. The production-invocation static diagnostic is not candidate-bound and is not used as a passing gate."
+  },
+  "source_and_environment": {
+    "tracked_python_denominator": {
+      "paths": "All tracked policy-engine/src/**/*.py, tools/**/*.py, and tests/**/*.py files.",
+      "tracked_python_files": 5904,
+      "src_python_files": 2698,
+      "aggregate_sha256": "aca658c3a9bfd207b495e7ab08f81c8f33c2f046b5da012fbbd32a1862c4d900",
+      "pre_post_equal": true,
+      "selector_input_files": {
+        "src/polisyos/ir/artifacts/io.py": "d5126942fc680556cb8ed6b9044afde88696846a6e6748de36c3859e774d35f3",
+        "tests/unit/core/artifacts/test_ir_adapter.py": "db25fc7dc21dfde8056df039bad1f6786a4f9175f0f0c36aec7b7241a4ec4efe",
+        "tests/unit/fabric/test_entity_resolution.py": "5959bb0d5a542c398fd0b646ffecaf87ec828b017915773036ac829b73af243e",
+        "tests/unit/ir/analytics/test_ncm.py": "edbe539dd990297cec3e0685410e08996bd744a278098be81f2bd4393329fbd8"
+      }
+    },
+    "runtime": {
+      "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "python": "3.14.0",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "ruff": "0.15.0",
+      "PYTHONPATH": "src",
+      "worktree_venv": "absent",
+      "provisioning": "none; no install or environment provisioning was performed",
+      "observed_manifest_hashes": {
+        "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "lock_used_to_build_environment": false
+    }
+  },
+  "verification": {
+    "author_final_frozen_selector": {
+      "result": "46 tests; failures=0; errors=0; skipped=0",
+      "elapsed_seconds": 18.212,
+      "timeout_seconds": 180,
+      "candidate_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "candidate_tree_sha": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "pre_post_head_tree_equal": true,
+      "receipt_dir": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/argv.json",
+          "sha256": "8d8f963a49248939609b00c489f8f0fbd552cc19bf279a74318e9052854d25cf",
+          "bytes": 654
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/exitcode.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/post-inputs.json",
+          "sha256": "1b0d1854826f5d848a04c44098129fbbbdc9f6094b7d47a95c4a9cd8eaa2f2ee",
+          "bytes": 1244
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/pre-inputs.json",
+          "sha256": "c85ce7c3ced77721ce4b359ef6a3cd5e40b8fbcdb45d29a6934a30c885fa057c",
+          "bytes": 1243
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/pytest.junit.xml",
+          "sha256": "952ce57ef1b6d2e1e4dbe836d0bbaaad4632b5cd9a5f981e7a98489ed109bc04",
+          "bytes": 7762
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/run-status.json",
+          "sha256": "f8eb6e3c0ea14b86b8a80414f5e64363a132ac791d60a8b2efa35277a9347117",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/stdout.txt",
+          "sha256": "2903fe24236a0abcbf5187a007f327f24ec0b5f7ff6a2e24c5abb995172610be",
+          "bytes": 835
+        }
+      ]
+    },
+    "author_test_first_mapping_red": {
+      "base_source_commit": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+      "result": "Expected red: one positive full JSON-mode manifest Mapping test failed at strict tuple validation before payload bytes.",
+      "exit_code": 1,
+      "receipt_dir": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/command.txt",
+          "sha256": "698bc6d76ead63fa45c8bf519a5fdc82d124e46d78ab20d555c79d580f0b3d9a",
+          "bytes": 226
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/exitcode.txt",
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+          "bytes": 2
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml",
+          "sha256": "4c3df05aafa77d3fed50561a86bb832fb914deb86199e4fb10bad83454a20a4a",
+          "bytes": 4980
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt",
+          "sha256": "40137972d3abf77640bc7f6a78da2c73ddf1965934b7285e5c3ef3857012c8d5",
+          "bytes": 5334
+        }
+      ]
+    },
+    "independent_review": {
+      "verdict": "GO for the bounded Mapping intake property; LA-021 overall HELD (independent verdict reported to author by root).",
+      "review_report_sha256": "28a0f716289433dc4d9cd318865b77d554bf4609f5f17c773d2216b4c1a37cf7",
+      "review_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/review-report.md",
+      "focused_tests": "14 passed, 30 deselected in 0.14s; reviewer-reported exit 0; no JUnit emitted and stderr was not separately captured.",
+      "actual_probe": "Real temporary FileSystemCAS depth-129 round-trip; 19 strict pre-byte negative profiles; full Mapping unchanged; removal control fails with markers kept.",
+      "oracle_script_sha256": "313ce03b42deda32563c262fa71c5bc3e296872a431a86a522d4ed52cde0f3f7",
+      "oracle_output_sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/capture-status.json",
+          "sha256": "c26931c43b95e6fb6a93b74cf94294cedd730679beb1b6f4a3477d99474579fb",
+          "bytes": 493
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/focused-tests.command.txt",
+          "sha256": "ae8725cd21f01101a5fe6895b7e744c48af3d863cebd6a4e94140c180ace9306",
+          "bytes": 392
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/focused-tests.stdout.txt",
+          "sha256": "ec13b07075705e78575f94e56c86cd546af8215e824ae1c5993f7ecd1fa49666",
+          "bytes": 114
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.command.txt",
+          "sha256": "43db627087733f74368aaafadbe56383e65d637f2e574473b79960f90376b7e0",
+          "bytes": 187
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.py",
+          "sha256": "313ce03b42deda32563c262fa71c5bc3e296872a431a86a522d4ed52cde0f3f7",
+          "bytes": 7690
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.stdout.json",
+          "sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+          "bytes": 2475
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/review-report.md",
+          "sha256": "28a0f716289433dc4d9cd318865b77d554bf4609f5f17c773d2216b4c1a37cf7",
+          "bytes": 5539
+        }
+      ]
+    },
+    "author_ruff_and_toml": {
+      "ruff": "check and format check passed as recorded in the command output; separate stderr and numeric exit fields were not preserved by the original wrapper.",
+      "toml": "Release fragment TOML parsed successfully as recorded; separate stderr and numeric exit fields were not preserved by the original wrapper.",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff-capture.json",
+          "sha256": "45a5f26484adf7dbf581900c215908727666edcbc46e13724f0cba56eb47dd83",
+          "bytes": 165
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff.command.txt",
+          "sha256": "6deb54dd1be737485a348a0dd646e23f189c5eb8630ee581e1f631c8190ca3a8",
+          "bytes": 210
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff.output.txt",
+          "sha256": "afa20b27dacc9bf0aba3c1d265964c21e04ab42f6e39e2dd4769718ceded003a",
+          "bytes": 45
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse-capture.json",
+          "sha256": "323238e488566477d655235c254dc4a588840089cbd811f27be5e0995295b7fd",
+          "bytes": 167
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse.command.txt",
+          "sha256": "617919571251910bb4f204ec3c11b597435560e67e89988a72e9e90228b0e959",
+          "bytes": 210
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse.output.txt",
+          "sha256": "db8835aeb9b1ec3ef8f5702aa82f7f15a351f40567254a0fc87a943272dc3b71",
+          "bytes": 34
+        }
+      ]
+    }
+  },
+  "production_invocation_diagnostic": {
+    "classification": "assessment_not_established_for_frozen_candidate",
+    "measurement": "Static direct-call reachability only; not a runtime invocation result.",
+    "captured_stdout_reports": "status=passed; coverage=partial; runtime_invocation_established=false.",
+    "cli_exit_status": "unknown; no exitcode file was captured.",
+    "stderr": "A 284-byte KeyboardInterrupt traceback occurred in the XLA GC callback after one SIGINT; the process later emitted a JSON receipt, but the shell exit was not captured.",
+    "receipt_sha256": "85080d3fdc1cac8b4d9d675f2a9c04f7fda64f2fd80738966dcf7cdf240cac26",
+    "receipt_bytes": 170895992,
+    "local_raw_receipt_path": ".tmp/e02-C4/raw/canon/production-invocation.json",
+    "local_raw_receipt_ignored": true,
+    "reported_current_source_digest": "456b008262c01be1f4ff1bad4d72b9603b0ab0190c48c2ec80406136d3dc269f",
+    "frozen_candidate_source_digest": "aca658c3a9bfd207b495e7ab08f81c8f33c2f046b5da012fbbd32a1862c4d900",
+    "source_binding": "mismatch; not candidate-bound",
+    "compact_receipt_files": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.command.txt",
+        "sha256": "c6781649c70d5e52ba2913952f8ebf61c9666f5157588417be07d7731649c39f",
+        "bytes": 183
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.stdout.txt",
+        "sha256": "2761d0383ca7c1940f0f4d501962331152d493250d14ae6ca7927705fc0665eb",
+        "bytes": 1336
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.stderr.txt",
+        "sha256": "1a2d983124eae8bfb6901007f89f98611aa5bfcbc11628612e12361f7c6a2f59",
+        "bytes": 284
+      }
+    ],
+    "use_for_candidate_acceptance": false
+  },
+  "finding_disposition": {
+    "LA-021": "HELD",
+    "closure_ids": [],
+    "bounded_mapping_property": "GO at the shared IR Mapping intake.",
+    "why_full_finding_remains_held": "The B-owned raw Core writer/admission boundary remains an unstrangled bypass; no owner-supported historical profileless artifact or compatibility promise was provided. The C54/closure ledger is unchanged."
+  },
+  "capability_reality": {
+    "bounded_mapping_reader": "implemented and verified with a real persisted CAS artifact, ordinary reader, strict negatives, and a property-removal control; API/dashboard surface is surface_out_of_scope.",
+    "full_LA_021": "held; Core-owned byte-write/profile-admission contract and historical profileless support remain not established.",
+    "closure_ledger_updated": false,
+    "remaining_typed_labels": [
+      "verification_missing",
+      "surface_out_of_scope"
+    ]
+  },
+  "related_owner_input": {
+    "B_packet_commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+    "B_packet_tree_prefix": "a5a019",
+    "used_as_C4_dependency": false,
+    "C4_changed_B_owned_paths": false
+  },
+  "receipts_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4",
+  "receipt_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/README.md",
+      "sha256": "aa36a08cbc2fef615edf82aaae414f87c96138cb432e77c4e71412d7a4708d74",
+      "bytes": 2509
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff-capture.json",
+      "sha256": "45a5f26484adf7dbf581900c215908727666edcbc46e13724f0cba56eb47dd83",
+      "bytes": 165
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff.command.txt",
+      "sha256": "6deb54dd1be737485a348a0dd646e23f189c5eb8630ee581e1f631c8190ca3a8",
+      "bytes": 210
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/ruff.output.txt",
+      "sha256": "afa20b27dacc9bf0aba3c1d265964c21e04ab42f6e39e2dd4769718ceded003a",
+      "bytes": 45
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse-capture.json",
+      "sha256": "323238e488566477d655235c254dc4a588840089cbd811f27be5e0995295b7fd",
+      "bytes": 167
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse.command.txt",
+      "sha256": "617919571251910bb4f204ec3c11b597435560e67e89988a72e9e90228b0e959",
+      "bytes": 210
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/toml-parse.output.txt",
+      "sha256": "db8835aeb9b1ec3ef8f5702aa82f7f15a351f40567254a0fc87a943272dc3b71",
+      "bytes": 34
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.command.txt",
+      "sha256": "c6781649c70d5e52ba2913952f8ebf61c9666f5157588417be07d7731649c39f",
+      "bytes": 183
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.stderr.txt",
+      "sha256": "1a2d983124eae8bfb6901007f89f98611aa5bfcbc11628612e12361f7c6a2f59",
+      "bytes": 284
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.stdout.txt",
+      "sha256": "2761d0383ca7c1940f0f4d501962331152d493250d14ae6ca7927705fc0665eb",
+      "bytes": 1336
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/argv.json",
+      "sha256": "8d8f963a49248939609b00c489f8f0fbd552cc19bf279a74318e9052854d25cf",
+      "bytes": 654
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/exitcode.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/post-inputs.json",
+      "sha256": "1b0d1854826f5d848a04c44098129fbbbdc9f6094b7d47a95c4a9cd8eaa2f2ee",
+      "bytes": 1244
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/pre-inputs.json",
+      "sha256": "c85ce7c3ced77721ce4b359ef6a3cd5e40b8fbcdb45d29a6934a30c885fa057c",
+      "bytes": 1243
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/pytest.junit.xml",
+      "sha256": "952ce57ef1b6d2e1e4dbe836d0bbaaad4632b5cd9a5f981e7a98489ed109bc04",
+      "bytes": 7762
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/run-status.json",
+      "sha256": "f8eb6e3c0ea14b86b8a80414f5e64363a132ac791d60a8b2efa35277a9347117",
+      "bytes": 99
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/stdout.txt",
+      "sha256": "2903fe24236a0abcbf5187a007f327f24ec0b5f7ff6a2e24c5abb995172610be",
+      "bytes": 835
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/capture-status.json",
+      "sha256": "c26931c43b95e6fb6a93b74cf94294cedd730679beb1b6f4a3477d99474579fb",
+      "bytes": 493
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/focused-tests.command.txt",
+      "sha256": "ae8725cd21f01101a5fe6895b7e744c48af3d863cebd6a4e94140c180ace9306",
+      "bytes": 392
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/focused-tests.stdout.txt",
+      "sha256": "ec13b07075705e78575f94e56c86cd546af8215e824ae1c5993f7ecd1fa49666",
+      "bytes": 114
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.command.txt",
+      "sha256": "43db627087733f74368aaafadbe56383e65d637f2e574473b79960f90376b7e0",
+      "bytes": 187
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.py",
+      "sha256": "313ce03b42deda32563c262fa71c5bc3e296872a431a86a522d4ed52cde0f3f7",
+      "bytes": 7690
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.stdout.json",
+      "sha256": "86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0",
+      "bytes": 2475
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/review-report.md",
+      "sha256": "28a0f716289433dc4d9cd318865b77d554bf4609f5f17c773d2216b4c1a37cf7",
+      "bytes": 5539
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/command.txt",
+      "sha256": "698bc6d76ead63fa45c8bf519a5fdc82d124e46d78ab20d555c79d580f0b3d9a",
+      "bytes": 226
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/exitcode.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml",
+      "sha256": "4c3df05aafa77d3fed50561a86bb832fb914deb86199e4fb10bad83454a20a4a",
+      "bytes": 4980
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt",
+      "sha256": "40137972d3abf77640bc7f6a78da2c73ddf1965934b7285e5c3ef3857012c8d5",
+      "bytes": 5334
+    }
+  ]
+}

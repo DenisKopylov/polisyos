@@ -1,0 +1,14 @@
+{
+  "focused_tests": {
+    "junit_emitted": false,
+    "reported_exit": 0,
+    "result": "14 passed, 30 deselected in 0.14s",
+    "stderr_separately_captured": false
+  },
+  "mapping_oracle": {
+    "junit_emitted": false,
+    "reported_exit": 0,
+    "result": "positive real-CAS round-trip; 19 malformed, unsupported, or profileless variants refused before payload bytes; in-memory normalizer removal kept markers and failed before payload bytes",
+    "stderr_separately_captured": false
+  }
+}

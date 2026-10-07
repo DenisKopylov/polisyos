@@ -2,17 +2,19 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from typing import Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
+from polisyos.foundry.methods.catalog.causal.admg_ops import _validate_static_admg
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     CompositionFailureCardBundle,
     persist_composition_failure_card_bundle,
@@ -33,8 +35,8 @@ from polisyos.foundry.methods.catalog.causal.query_preservation import (
     update_query_preservation_cache,
 )
 from polisyos.ir.analytics.alignment_certification import (
+    AlignmentReport,
     AlignmentVerificationConfig,
-    load_alignment_report,
     persist_alignment_report,
 )
 from polisyos.ir.analytics.causal_graph import (
@@ -44,15 +46,14 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.cross_graph import (
+    CompositionCertificate,
+    InterfaceMapping,
     SCMFragment,
-    load_composition_certificate,
-    load_interface_mapping,
-    load_scm_fragment,
     persist_composition_certificate,
     persist_interface_mapping,
     persist_scm_fragment,
 )
-from polisyos.ir.analytics.literature import load_literature_causal_prior
+from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.ir.analytics.negative_certificate import persist_negative_certificate
 from polisyos.ir.registry.refs import (
     AlignmentReportRef,
@@ -149,100 +150,131 @@ def _optional_int(value: Any, *, default: int) -> int:
         return int(default)
 
 
-def _extract_graph(payload: Any) -> CausalGraphModel | None:
+def _extract_graph(payload: Any) -> CausalGraphModel:
     if isinstance(payload, CausalGraphModel):
-        return payload
-    if isinstance(payload, dict):
-        if {"graph_type", "nodes", "edges"}.issubset(payload.keys()):
-            try:
-                return CausalGraphModel.model_validate(payload)
-            except _RECONCILE_VALIDATION_ERRORS:
-                return None
-        for key in ("graph", "causal_graph", "reconciled_graph", "literature_prior_graph"):
-            if key not in payload:
-                continue
-            try:
-                return CausalGraphModel.model_validate(payload[key])
-            except _RECONCILE_VALIDATION_ERRORS:
-                continue
-    return None
+        return CausalGraphModel.model_validate(payload.model_dump(mode="json"))
+    if not isinstance(payload, dict):
+        raise ValueError("Supplied data causal graph must be a typed graph or graph payload")
+    if {"graph_type", "nodes", "edges"}.issubset(payload):
+        return CausalGraphModel.model_validate(payload)
+    graphs = [
+        CausalGraphModel.model_validate(payload[key])
+        for key in ("graph", "causal_graph", "reconciled_graph", "literature_prior_graph")
+        if key in payload
+    ]
+    if not graphs or any(graph != graphs[0] for graph in graphs[1:]):
+        raise ValueError("Supplied graph payload is absent or has conflicting graph projections")
+    return graphs[0]
+
+
+def _selected_ref(ref: Any, *, kind: str) -> ArtifactRef:
+    typed_ref = (
+        ref
+        if isinstance(ref, ArtifactRef)
+        else ArtifactRef.model_validate(
+            {"artifact_id": ref, "kind": kind, "media_type": "application/json"}
+            if isinstance(ref, str)
+            else ref.model_dump(mode="json")
+            if isinstance(ref, BaseModel)
+            else ref
+        )
+    )
+    if typed_ref.kind != kind:
+        raise ValueError("Supplied source reference has incompatible declared kind")
+    return typed_ref
+
+
+def _resolve_typed_source(ctx: ExecutionContext, ref: Any, *, kind: str, model: Any) -> Any:
+    typed_ref = _selected_ref(ref, kind=kind)
+    manifest = ctx.store.get_manifest(typed_ref)
+    if (
+        manifest.kind != kind
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != kind
+    ):
+        raise ValueError("Source reference has incompatible actual manifest/schema")
+    # Pass the whole selected ref: CAS checks the actual bytes and manifest view.
+    value = model.model_validate(from_canonical_bytes(ctx.store.get_bytes(typed_ref)))
+    if value.schema_version != manifest.artifact_schema.version:
+        raise ValueError("Source body version differs from actual manifest schema version")
+    return value
+
+
+def _resolve_graph_ref(ctx: ExecutionContext, ref: Any) -> CausalGraphModel:
+    graph = _resolve_typed_source(ctx, ref, kind="ir.causal_graph_model", model=CausalGraphModel)
+    if graph.schema_version != "1.0":
+        raise ValueError("Unsupported causal graph schema version")
+    _validate_static_admg(graph)
+    return graph
 
 
 def _load_data_graph(
     ctx: ExecutionContext, state: ExperimentState
 ) -> tuple[CausalGraphModel | None, Any | None]:
-    if "data_causal_graph" in state.params:
-        graph = _extract_graph(state.params.get("data_causal_graph"))
-        if graph is not None:
-            return graph, None
-
+    supplied = "data_causal_graph" in state.params
+    graph = _extract_graph(state.params["data_causal_graph"]) if supplied else None
     method_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_METHOD_RESULT_REF)
     if method_ref is not None:
-        try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(method_ref.artifact_id))
-            graph = _extract_graph(payload)
-            if graph is not None:
-                return graph, method_ref
-        except _RECONCILE_LOAD_ERRORS:
-            logger.debug(
-                "Failed to load data causal graph from causal method result %s",
-                method_ref,
-                exc_info=True,
-            )
-
-    return None, None
+        manifest = ctx.store.get_manifest(method_ref)
+        if (
+            not manifest.kind.startswith("scientist.method_result.causal")
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "polisyos.scientist.MethodResult"
+            or manifest.artifact_schema.version != "0.1.0"
+        ):
+            raise ValueError("Data graph method reference has incompatible actual manifest/schema")
+        actual = _extract_graph(from_canonical_bytes(ctx.store.get_bytes(method_ref)))
+        if graph is not None and graph != actual:
+            raise ValueError("Supplied data graph differs from current method-result CAS content")
+        return actual, method_ref
+    return graph, None
 
 
 def _parse_llm_hints(raw: Any) -> list[LLMStructuralHint]:
     if not isinstance(raw, list):
-        return []
-    hints: list[LLMStructuralHint] = []
-    for item in raw:
-        try:
-            hints.append(LLMStructuralHint.model_validate(item))
-        except _RECONCILE_VALIDATION_ERRORS:
-            continue
-    return hints
+        raise ValueError("Supplied LLM structural hints must be a list")
+    return [LLMStructuralHint.model_validate(item) for item in raw]
 
 
 def _composition_requested(state: ExperimentState) -> bool:
     return "scm_fragment_refs" in state.params or "scm_fragments" in state.params
 
 
-def _parse_fragment_ref(value: Any) -> SCMFragmentRef | None:
+def _parse_fragment_ref(value: Any) -> ArtifactRef | None:
     try:
-        if isinstance(value, str):
-            return SCMFragmentRef.model_validate({"artifact_id": value})
-        return SCMFragmentRef.model_validate(value)
+        return _selected_ref(value, kind="ir.scm_fragment")
     except _RECONCILE_VALIDATION_ERRORS:
         return None
 
 
 def _load_scm_fragments(ctx: ExecutionContext, state: ExperimentState) -> list[SCMFragment]:
+    supplied = "scm_fragments" in state.params
     raw_fragments = state.params.get("scm_fragments")
-    if isinstance(raw_fragments, list):
-        fragments: list[SCMFragment] = []
-        for item in raw_fragments:
-            try:
-                fragments.append(
-                    item if isinstance(item, SCMFragment) else SCMFragment.model_validate(item)
-                )
-            except _RECONCILE_VALIDATION_ERRORS:
-                continue
-        return fragments
-
-    raw_refs = state.params.get("scm_fragment_refs")
-    if not isinstance(raw_refs, list):
-        return []
-    fragments = []
-    for item in raw_refs:
-        ref = _parse_fragment_ref(item)
-        if ref is None:
-            continue
-        try:
-            fragments.append(load_scm_fragment(ctx.store, ref))
-        except _RECONCILE_LOAD_ERRORS:
-            continue
+    fragments: list[SCMFragment] = []
+    if supplied:
+        if not isinstance(raw_fragments, list):
+            raise ValueError("Supplied SCM fragments must be a list")
+        fragments = [
+            SCMFragment.model_validate(
+                item.model_dump(mode="json") if isinstance(item, SCMFragment) else item
+            )
+            for item in raw_fragments
+        ]
+    if "scm_fragment_refs" in state.params:
+        raw_refs = state.params["scm_fragment_refs"]
+        if not isinstance(raw_refs, list):
+            raise ValueError("Supplied SCM fragment references must be a list")
+        resolved: list[SCMFragment] = []
+        for item in raw_refs:
+            ref = _parse_fragment_ref(item)
+            if ref is None:
+                raise ValueError("Supplied SCM fragment reference is malformed")
+            resolved.append(
+                _resolve_typed_source(ctx, ref, kind="ir.scm_fragment", model=SCMFragment)
+            )
+        if supplied and fragments != resolved:
+            raise ValueError("Supplied fragments differ from actual fragment CAS content")
+        return resolved
     return fragments
 
 
@@ -253,7 +285,7 @@ def _load_fragment_graphs(
     graphs: dict[str, CausalGraphModel] = {}
     for fragment in fragments:
         ref = CausalGraphModelRef.model_validate({"artifact_id": fragment.graph_ref})
-        graphs[fragment.fragment_id] = load_causal_graph_model(ctx.store, ref)
+        graphs[fragment.fragment_id] = _resolve_graph_ref(ctx, ref)
     return graphs
 
 
@@ -270,7 +302,9 @@ def _resolve_fragment_provenance(
             if ref is None:
                 continue
             try:
-                fragment = load_scm_fragment(ctx.store, ref)
+                fragment = _resolve_typed_source(
+                    ctx, ref, kind="ir.scm_fragment", model=SCMFragment
+                )
             except _RECONCILE_LOAD_ERRORS:
                 continue
             source_fragment_refs[fragment.fragment_id] = str(ref.artifact_id)
@@ -297,17 +331,13 @@ def _load_precomputed_alignment(
     mapping_ref = state.artifacts_index.get(ARTIFACT_INTERFACE_MAPPING_REF)
 
     if report_ref is not None:
-        try:
-            report = load_alignment_report(ctx.store, AlignmentReportRef.model_validate(report_ref))
-        except _RECONCILE_LOAD_ERRORS:
-            report = None
+        report = _resolve_typed_source(
+            ctx, report_ref, kind="ir.alignment_report", model=AlignmentReport
+        )
     if mapping_ref is not None:
-        try:
-            mapping = load_interface_mapping(
-                ctx.store, InterfaceMappingRef.model_validate(mapping_ref)
-            )
-        except _RECONCILE_LOAD_ERRORS:
-            mapping = None
+        mapping = _resolve_typed_source(
+            ctx, mapping_ref, kind="ir.interface_mapping", model=InterfaceMapping
+        )
     return report, mapping, report_ref, mapping_ref
 
 
@@ -412,6 +442,14 @@ def _persist_query_preservation_artifacts(
     return projection_refs, negative_refs, artifacts
 
 
+def _composition_source_basis(certificate: CompositionCertificate) -> dict[str, Any]:
+    """Keep the entire producer contract; query caches are recomputed separately."""
+    return certificate.model_dump(
+        mode="json",
+        exclude={"checked_queries", "query_certificates", "failure_card_bundle_ref"},
+    )
+
+
 def _apply_query_preservation_hook(
     ctx: ExecutionContext,
     state: ExperimentState,
@@ -424,60 +462,124 @@ def _apply_query_preservation_hook(
         return None
 
     try:
-        composed_graph = load_causal_graph_model(
-            ctx.store,
-            CausalGraphModelRef.model_validate(graph_ref_payload),
+        composed_graph = _resolve_graph_ref(ctx, graph_ref_payload)
+        certificate = _resolve_typed_source(
+            ctx,
+            certificate_ref_payload,
+            kind="ir.composition_certificate",
+            model=CompositionCertificate,
         )
-        certificate = load_composition_certificate(
-            ctx.store,
-            CompositionCertificateRef.model_validate(certificate_ref_payload),
+        interface_mapping = _resolve_typed_source(
+            ctx,
+            mapping_ref_payload,
+            kind="ir.interface_mapping",
+            model=InterfaceMapping,
         )
-        interface_mapping = load_interface_mapping(
-            ctx.store,
-            InterfaceMappingRef.model_validate(mapping_ref_payload),
+        if not certificate.source_fragment_refs:
+            raise ValueError("Current composition source provenance is required for graph reuse")
+        fragments = []
+        for fragment_id, artifact_id in sorted(certificate.source_fragment_refs.items()):
+            fragment = _resolve_typed_source(
+                ctx,
+                artifact_id,
+                kind="ir.scm_fragment",
+                model=SCMFragment,
+            )
+            if fragment.fragment_id != fragment_id:
+                raise ValueError("Composition source fragment identity differs from its CAS body")
+            fragments.append(fragment)
+        actual_graph_refs = {
+            fragment.fragment_id: str(fragment.graph_ref) for fragment in fragments
+        }
+        if actual_graph_refs != certificate.source_fragment_graph_refs:
+            raise ValueError("Composition graph sources differ from actual fragment CAS content")
+        fragment_graphs = _load_fragment_graphs(ctx, fragments)
+        alignment_ref = state.artifacts_index.get(ARTIFACT_ALIGNMENT_REPORT_REF)
+        if alignment_ref is None:
+            raise ValueError("Actual alignment report is required for graph reuse")
+        alignment = _resolve_typed_source(
+            ctx,
+            alignment_ref,
+            kind="ir.alignment_report",
+            model=AlignmentReport,
         )
+        reproduced = ComposeSCMFragments.pure_step(
+            FragmentCompositionData(
+                fragments=fragments,
+                fragment_graphs=fragment_graphs,
+                alignment_report=alignment,
+                interface_mapping=interface_mapping,
+                source_fragment_refs=dict(certificate.source_fragment_refs),
+                source_fragment_graph_refs=actual_graph_refs,
+                metadata={
+                    "alignment_report_ref": str(
+                        _selected_ref(alignment_ref, kind="ir.alignment_report").artifact_id
+                    ),
+                    "interface_mapping_ref": str(
+                        _selected_ref(mapping_ref_payload, kind="ir.interface_mapping").artifact_id
+                    ),
+                },
+                direct_stitch_pairs=_parse_direct_stitch_pairs(
+                    state.params.get("direct_stitch_pairs")
+                ),
+            ),
+            params={},
+        )
+        if reproduced.get("composed_graph") != composed_graph:
+            raise ValueError("Cached graph differs from actual composition source content")
+        expected_certificate = reproduced["composition_certificate"].model_copy(
+            update={
+                "composed_graph_ref": str(
+                    _selected_ref(graph_ref_payload, kind="ir.causal_graph_model").artifact_id
+                )
+            }
+        )
+        # Failure-card refs are persistence outputs: compare their complete bodies.
+        cards = reproduced.get("failure_cards", [])
+        if cards or certificate.failure_card_bundle_ref is not None:
+            if certificate.failure_card_bundle_ref is None:
+                raise ValueError("Actual composition failure-card bundle is missing")
+            bundle = _resolve_typed_source(
+                ctx,
+                certificate.failure_card_bundle_ref,
+                kind="ir.composition_failure_card_bundle",
+                model=CompositionFailureCardBundle,
+            )
+            expected_bundle = CompositionFailureCardBundle(
+                cards=cards,
+                metadata={
+                    "composition_status": expected_certificate.status,
+                    "structure_status": expected_certificate.structure_status,
+                    "review_status": expected_certificate.review_status,
+                    "source_fragment_ids": sorted(fragment.fragment_id for fragment in fragments),
+                },
+            )
+            if bundle != expected_bundle:
+                raise ValueError("Cached failure cards differ from actual composition result")
+        # Only query caches and the separately validated persistence pointer are
+        # operational. All producer semantics, source refs and metadata must agree.
+        if _composition_source_basis(certificate) != _composition_source_basis(
+            expected_certificate
+        ):
+            raise ValueError("Cached certificate differs from actual composition result")
+        if expected_certificate.status == "broken":
+            raise ValueError("Actual composition result refuses graph admission")
+        # Evaluate fresh: an old operational query cache is not source authority.
+        certificate = expected_certificate.model_copy(
+            update={
+                "failure_card_bundle_ref": certificate.failure_card_bundle_ref,
+            }
+        )
+        _validate_static_admg(composed_graph)
     except _RECONCILE_LOAD_ERRORS as exc:
         return NodeOutcome(
             status="fail",
             state=state,
             error=NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
-                message=f"failed to load composition artifacts for query preservation: {exc}",
+                message=f"failed to reconcile composition graph content: {exc}",
             ),
         )
-
-    fragments = _load_scm_fragments(ctx, state)
-    fragment_graphs: dict[str, CausalGraphModel] = {}
-    if certificate.source_fragment_refs:
-        try:
-            provenance_fragments: list[SCMFragment] = []
-            for fragment_id, artifact_id in sorted(certificate.source_fragment_refs.items()):
-                loaded = load_scm_fragment(
-                    ctx.store,
-                    SCMFragmentRef.model_validate({"artifact_id": artifact_id}),
-                )
-                if loaded.fragment_id == fragment_id:
-                    provenance_fragments.append(loaded)
-            provenance_graph_refs = certificate.source_fragment_graph_refs or {
-                fragment.fragment_id: str(fragment.graph_ref) for fragment in provenance_fragments
-            }
-            fragment_graphs = {
-                fragment_id: load_causal_graph_model(
-                    ctx.store,
-                    CausalGraphModelRef.model_validate({"artifact_id": graph_ref}),
-                )
-                for fragment_id, graph_ref in sorted(provenance_graph_refs.items())
-            }
-            if provenance_fragments:
-                fragments = provenance_fragments
-        except _RECONCILE_LOAD_ERRORS:
-            fragment_graphs = {}
-
-    if not fragment_graphs and fragments:
-        try:
-            fragment_graphs = _load_fragment_graphs(ctx, fragments)
-        except _RECONCILE_LOAD_ERRORS:
-            fragment_graphs = {}
 
     traces = evaluate_query_preservation_batch(
         queries,
@@ -509,8 +611,18 @@ def _apply_query_preservation_hook(
 
     new_state = branch_state(state, write_paths=_SPEC.state_writes).state
     new_state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = certificate_ref
+    new_state.params["needs_expert_review"] = bool(reproduced.get("needs_expert_review", False))
+    new_state.params["reconciliation_warnings"] = list(reproduced.get("warnings", []))
+    new_state.params["composition_blocking_reasons"] = list(reproduced.get("blocking_reasons", []))
     diagnostics = dict(new_state.params.get("reconciliation_diagnostics", {}))
-    diagnostics["query_preservation_statuses"] = dict(query_statuses)
+    diagnostics.update(
+        {
+            "composition_status": certificate.status,
+            "structure_status": certificate.structure_status,
+            "review_status": certificate.review_status,
+            "query_preservation_statuses": dict(query_statuses),
+        }
+    )
     diagnostics["query_preservation_reasons"] = {
         fingerprint: trace.reason_code for fingerprint, trace in sorted(traces.items())
     }
@@ -562,18 +674,54 @@ class ReconcileCausalGraphNode:
         query_preservation_queries = _parse_query_preservation_queries(
             state.params.get("query_preservation_queries")
         )
+        cached_ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
+        cached_graph = None
+        try:
+            if cached_ref is not None:
+                cached_graph = _resolve_graph_ref(ctx, cached_ref)
+        except _RECONCILE_LOAD_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"failed to resolve current reconciled graph: {exc}",
+                ),
+            )
+        has_current_data = (
+            "data_causal_graph" in state.params
+            or ARTIFACT_CAUSAL_METHOD_RESULT_REF in state.artifacts_index
+        )
         if (
-            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index
+            cached_graph is not None
             and query_preservation_queries
+            and not (has_current_data or _composition_requested(state))
         ):
             hook_outcome = _apply_query_preservation_hook(ctx, state, query_preservation_queries)
             if hook_outcome is not None:
                 return hook_outcome
-        if ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index:
-            return NodeOutcome(status="ok", state=state)
+        if cached_graph is not None and not (has_current_data or _composition_requested(state)):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message="Current source is required to reconcile cached graph content",
+                ),
+            )
 
         if _composition_requested(state):
-            fragments = _load_scm_fragments(ctx, state)
+            try:
+                fragments = _load_scm_fragments(ctx, state)
+            except _RECONCILE_LOAD_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=f"failed to load current fragment sources: {exc}",
+                    ),
+                )
             direct_stitch_pairs = _parse_direct_stitch_pairs(
                 state.params.get("direct_stitch_pairs")
             )
@@ -600,10 +748,10 @@ class ReconcileCausalGraphNode:
                     ),
                 )
 
-            alignment_report, interface_mapping, alignment_report_ref, interface_mapping_ref = (
-                _load_precomputed_alignment(ctx, state)
-            )
             try:
+                alignment_report, interface_mapping, alignment_report_ref, interface_mapping_ref = (
+                    _load_precomputed_alignment(ctx, state)
+                )
                 verification_config = AlignmentVerificationConfig.model_validate(
                     state.params.get("alignment_verification_config", {})
                 )
@@ -615,7 +763,7 @@ class ReconcileCausalGraphNode:
                         artifact_store=ctx.store,
                     )
                 )
-            except _RECONCILE_VALIDATION_ERRORS as exc:
+            except _RECONCILE_LOAD_ERRORS as exc:
                 return NodeOutcome(
                     status="fail",
                     state=state,
@@ -802,7 +950,17 @@ class ReconcileCausalGraphNode:
                 events=[NodeEvent(level="info", message=message)],
             )
 
-        data_graph, data_graph_ref = _load_data_graph(ctx, state)
+        try:
+            data_graph, data_graph_ref = _load_data_graph(ctx, state)
+        except _RECONCILE_LOAD_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"failed to load current data causal graph: {exc}",
+                ),
+            )
         if data_graph is None:
             return NodeOutcome(
                 status="skip",
@@ -821,13 +979,24 @@ class ReconcileCausalGraphNode:
         literature_prior = None
         if literature_prior_ref is not None:
             try:
-                literature_prior = load_literature_causal_prior(ctx.store, literature_prior_ref)
-            except _RECONCILE_LOAD_ERRORS:
-                literature_prior = None
-
-        llm_hints = _parse_llm_hints(state.params.get("llm_structural_hints"))
+                manifest = ctx.store.get_manifest(literature_prior_ref)
+                if manifest.kind != "ir.literature_causal_prior":
+                    raise ValueError("Supplied literature prior has incompatible actual manifest")
+                literature_prior = LiteratureCausalPrior.model_validate(
+                    from_canonical_bytes(ctx.store.get_bytes(literature_prior_ref))
+                )
+            except _RECONCILE_LOAD_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=f"failed to load supplied literature prior: {exc}",
+                    ),
+                )
 
         try:
+            llm_hints = _parse_llm_hints(state.params.get("llm_structural_hints", []))
             request = GraphReconciliationData(
                 data_graph=data_graph,
                 literature_prior=literature_prior,
@@ -874,15 +1043,56 @@ class ReconcileCausalGraphNode:
 
         inputs: list[InputRef] = []
         if data_graph_ref is not None:
-            inputs.append(InputRef(artifact_id=str(data_graph_ref.artifact_id), role="data_graph"))
+            inputs.append(
+                InputRef(
+                    artifact_id=str(data_graph_ref.artifact_id),
+                    role="data_graph",
+                    manifest_profile_sha256=data_graph_ref.manifest_profile_sha256,
+                )
+            )
         if literature_prior_ref is not None:
             inputs.append(
                 InputRef(
                     artifact_id=str(literature_prior_ref.artifact_id),
                     role="literature_prior",
+                    manifest_profile_sha256=literature_prior_ref.manifest_profile_sha256,
                 )
             )
-        graph_ref = persist_causal_graph_model(ctx.store, reconciled_graph, inputs=inputs)
+        try:
+            # The digest describes the actual typed request, not a caller-supplied seal.
+            request_bytes = json.dumps(
+                request.model_dump(mode="json"),
+                sort_keys=True,
+                ensure_ascii=False,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+            reconciled_graph = CausalGraphModel.model_validate(
+                reconciled_graph.model_dump(mode="json")
+            )
+            _validate_static_admg(reconciled_graph)
+            metadata = dict(reconciled_graph.metadata)
+            metadata["reconciliation_input_sha256"] = hashlib.sha256(request_bytes).hexdigest()
+            reconciled_graph = reconciled_graph.model_copy(update={"metadata": metadata})
+            reuse = (
+                cached_graph == reconciled_graph
+                and cached_ref is not None
+                and (ctx.store.get_manifest(cached_ref).inputs == inputs)
+            )
+            graph_ref = (
+                cached_ref
+                if reuse
+                else persist_causal_graph_model(ctx.store, reconciled_graph, inputs=inputs)
+            )
+        except _RECONCILE_LOAD_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"failed to admit reconciled graph content: {exc}",
+                ),
+            )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref

@@ -130,8 +130,8 @@
     {
       "finding_id": "B214",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
-      "bytes": 23032,
-      "sha256": "76dd2c1e8c8d854f74f911da7a0f34d7deb2edbb22f9f7a104c4f103cea5786a"
+      "bytes": 23731,
+      "sha256": "0ea28cd0d3de5ced4ecb51efe5026327a5c5171e3daad3dd5d6201e4183e0afe"
     },
     {
       "finding_id": "B215",
@@ -154,8 +154,8 @@
     {
       "finding_id": "B218",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
-      "bytes": 22240,
-      "sha256": "447e1d5cb53c27020c18316202f4cd66fcadb548d421fd6f599eb9a9e8ff1808"
+      "bytes": 22939,
+      "sha256": "3f5bf2a8157298dd10a987dad810af3badb27bd6660660357efdb3aa5991082a"
     },
     {
       "finding_id": "B219",
@@ -326,6 +326,30 @@
       "code_candidate_sha": null,
       "code_candidate_tree": null,
       "role": "Source-bound bounded delta/consumer evidence; no formal G closure"
+    },
+    {
+      "lane": "Graph",
+      "git_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+      "bytes": 89153,
+      "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+      "git_blob": "df227f1efbd870db9c2de811c3ed472b2a532716",
+      "tree": "014203f04f72a477407df231372775f403e0cefb",
+      "code_candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "code_candidate_tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "role": "Full source-bound corrective or independent evidence; not G finding acceptance"
+    },
+    {
+      "lane": "Original35",
+      "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007.json",
+      "bytes": 88220,
+      "sha256": "5dac5481a7b825187f82918f54a6e438a6f8ca2a22496c9eb98b800aa8ba40cc",
+      "git_blob": "298c54a19207493d690be201b45988aece22f093",
+      "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7",
+      "code_candidate_sha": "f3d4dad8dfa0980763d87050418c902908af25d2",
+      "code_candidate_tree": "e27319ced3d236253e835fad174be283a2701361",
+      "role": "Full source-bound corrective or independent evidence; not G finding acceptance"
     }
   ],
   "prior_full_deciding_registry": {

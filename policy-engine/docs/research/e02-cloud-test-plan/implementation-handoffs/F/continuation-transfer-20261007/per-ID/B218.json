@@ -208,5 +208,18 @@
     "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
     "not_new_numerical_proof": true
   },
-  "new_property_followups_not_automatically_original_reopen": []
+  "new_property_followups_not_automatically_original_reopen": [
+    {
+      "lane": "Graph",
+      "git_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+      "bytes": 89153,
+      "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+      "git_blob": "df227f1efbd870db9c2de811c3ed472b2a532716",
+      "tree": "014203f04f72a477407df231372775f403e0cefb",
+      "code_candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "code_candidate_tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "role": "Full source-bound corrective or independent evidence; not G finding acceptance"
+    }
+  ]
 }

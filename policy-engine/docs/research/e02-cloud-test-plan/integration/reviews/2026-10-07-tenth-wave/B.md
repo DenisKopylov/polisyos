@@ -48,7 +48,7 @@ Cumulative union содержит 18 continuation delta-строк: 15 в `conti
 Особые owner boundaries:
 
 - B66 — независимый B→A consumer packet на source f796: 3 PASS/1 FAIL. При неизвестной стоимости `None` реальный A `_sum_call_events` выдаёт `0.0`; отдельный served downstream admission остаётся UNRUN. Это A/G задача, не дефект нового Decimal decoder.
-- B120 находится вне этих 60 строк и относится к D `CTL-03`. В текущем `closure-decisions/D.md` B120 остаток — evaluator retry/cache-ledger admission и независимый фактический spend provider для D controller; метка `bridge_missing`. HTTP→ledger→fresh-reader тест выше полезен для B transport, но не исполняет реальный D controller/evaluator и не закрывает B120.
+- B120 находится вне этих 60 строк и относится к D `CTL-03`. Позднейшая G сверка исходного B120 снимает лишнее требование универсального production spend provider; exact D680 уже имеет G-native10-case default-factory proof (см. eleventh-wave/B120-correction.md). Остаток — G source acceptance и exact integrated consumer verification, а не отсутствие native bridge. HTTP→ledger→fresh-reader тест выше полезен для B transport, но не исполняет реальный D controller/evaluator и не закрывает B120.
 - B13/B154 остаются A/G served producer/publisher и локальными read-only inputs; B14/B24 — native Mac receipts; B87 — B/NET-01 finding; C — canonical production retry-owner writer (старый physical pool теряет retry owner при `permitfree=1`); B89 — отдельный cap3 checkpoint → cap1 restart budget failure, не cleanup.
 - B61/B67/B68/B148 остаются held из-за отсутствующей внешней версии/permission/tenant ownership law. Не получать authority из readable/hash-identical bytes и не придумывать policy для зелёного теста.
 

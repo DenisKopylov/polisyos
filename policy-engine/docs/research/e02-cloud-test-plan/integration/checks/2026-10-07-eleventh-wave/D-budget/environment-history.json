@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.environment-snapshot-history.v1",
+  "scope": "Publication metadata reconciliation only; no test, source, project Git, or final-receipt changes.",
+  "execution_snapshot": {
+    "original_final_receipt_reference": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/environment-readback.json",
+      "bytes": 695,
+      "sha256": "439c7b05cb6671edc23bcddc87d0c110f1ca2bafba17d2db82291270b7b26586"
+    },
+    "recovered_byte_exact_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/environment-readback-execution.json",
+    "bytes": 695,
+    "sha256": "439c7b05cb6671edc23bcddc87d0c110f1ca2bafba17d2db82291270b7b26586",
+    "reconstruction": "Removed only distribution_inventory and pip_freeze_probe from the later augmented JSON and serialized with the original indent=2 plus trailing newline. Result length and SHA-256 exactly match the already-issued final-receipt reference.",
+    "underlying_environment_fields_identical": true
+  },
+  "post_execution_augmentation": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/environment-readback.json",
+    "bytes": 1326,
+    "sha256": "99425cf697e74e41d70f1d1823cdc28568cce251cab26c92560a7612acd3acd2",
+    "additional_fields": [
+      "distribution_inventory",
+      "pip_freeze_probe"
+    ],
+    "underlying_execution_fields_unchanged": true
+  },
+  "safe_publication_mapping": {
+    "use_for_final_receipt_execution_binding": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/environment-readback-execution.json",
+    "use_for_later_dependency_inventory_context": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/environment-readback.json",
+    "basis": "The final receipt binds the 695-byte execution snapshot by SHA; the current 1326-byte file is a later augmentation and does not replace that byte-bound object."
+  },
+  "integrity_controls": {
+    "final_receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/final-receipt.json",
+    "final_receipt_sha256_before_and_after": "181a2a60c53003f732ca3a1b3bdd26e293329a226e29b1dae9d4752c4beeb4fe",
+    "deciding_junit_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/owner-budget-factory.attempt-02.junit.xml",
+    "deciding_junit_sha256": "a540cfc627c54d2e133fd29598f6638cc2103f082e5261969b856ee2aa285a08"
+  }
+}

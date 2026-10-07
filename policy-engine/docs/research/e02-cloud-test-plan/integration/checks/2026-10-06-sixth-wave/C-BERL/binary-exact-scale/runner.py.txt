@@ -1,0 +1,44 @@
+from __future__ import annotations
+import hashlib, json, os, platform, resource, subprocess, sys, time
+from datetime import datetime, timezone
+from pathlib import Path
+root=Path(__file__).resolve().parent
+probe=root/'probe.py'
+source=Path('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/1548-C-berl-falsifier/selected-source').resolve()
+env={
+ 'PATH':os.environ.get('PATH','/usr/bin:/bin'),
+ 'PYTHONPATH':str(source),
+ 'PYTHONDONTWRITEBYTECODE':'1',
+ 'PYTHONNOUSERSITE':'1',
+ 'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1','VECLIB_MAXIMUM_THREADS':'1',
+ 'LANG':'C','LC_ALL':'C',
+}
+command=[sys.executable,str(probe)]
+start_utc=datetime.now(timezone.utc).isoformat()
+start=time.monotonic()
+p=subprocess.Popen(command,cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+timed_out=False
+try:
+ out,err=p.communicate(timeout=15.0)
+except subprocess.TimeoutExpired:
+ timed_out=True;p.terminate()
+ try: out,err=p.communicate(timeout=1.0)
+ except subprocess.TimeoutExpired: p.kill();out,err=p.communicate()
+wall=time.monotonic()-start
+(root/'stdout.txt').write_bytes(out);(root/'stderr.txt').write_bytes(err)
+r=resource.getrusage(resource.RUSAGE_CHILDREN); raw=int(r.ru_maxrss); rss=raw if platform.system()=='Darwin' else raw*1024
+try: semantic=json.loads(out.decode())
+except (UnicodeDecodeError,json.JSONDecodeError): semantic=None
+record={
+ 'command':command,'cwd':str(root),'interpreter':sys.executable,'interpreter_version':sys.version,'interpreter_prefix':sys.prefix,
+ 'host_platform':platform.platform(),'host_machine':platform.machine(),'environment':env,
+ 'start_utc':start_utc,'end_utc':datetime.now(timezone.utc).isoformat(),'timeout_seconds':15.0,'timed_out':timed_out,
+ 'wall_seconds':wall,'child_pid':p.pid,'exit_code':p.returncode,'peak_rss_raw':raw,
+ 'peak_rss_units':'bytes' if platform.system()=='Darwin' else 'KiB','peak_rss_mib':round(rss/(1024*1024),3),
+ 'stdout_path':str(root/'stdout.txt'),'stdout_bytes':len(out),'stdout_sha256':hashlib.sha256(out).hexdigest(),
+ 'stderr_path':str(root/'stderr.txt'),'stderr_bytes':len(err),'stderr_sha256':hashlib.sha256(err).hexdigest(),
+ 'semantic_output':semantic,'resource_scope':'one child probe; no children before it',
+}
+(root/'execution.json').write_text(json.dumps(record,indent=2)+'\\n')
+print(json.dumps({'exit_code':p.returncode,'timed_out':timed_out,'wall_seconds':wall,'peak_rss_mib':record['peak_rss_mib'],'stdout_bytes':len(out),'stdout_sha256':record['stdout_sha256'],'stderr_bytes':len(err),'stderr_sha256':record['stderr_sha256'],'target_status':(semantic or {}).get('target',{}).get('status'),'source_qualified':(semantic or {}).get('source_qualification',{}).get('all_three_git_modules_source_qualified')},sort_keys=True))
+raise SystemExit(p.returncode if not timed_out else 124)

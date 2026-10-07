@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-07T06:34:18.197163+00:00",
+  "outcome": "PASS",
+  "changed_current_acceptance_scalars": [
+    "B05",
+    "B11",
+    "B16",
+    "B28",
+    "B30",
+    "B31",
+    "LA-004",
+    "LA-035",
+    "LA-046"
+  ],
+  "count": 9,
+  "all_other_parsed_values_unchanged": true,
+  "historical_status_fields_unchanged": true,
+  "source_hashes_and_task_refs_unchanged": true,
+  "JSON_reformat": "not performed;9wholeline substitutions",
+  "scope": "documentation semantics, no runtime or finding closure"
+}

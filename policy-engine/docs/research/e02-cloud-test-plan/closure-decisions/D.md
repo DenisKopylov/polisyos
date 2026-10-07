@@ -1,3 +1,5 @@
+Current criterion-scope correction: [B109/B111/B100 errata](../integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
 # D — поиск, оптимизатор, перенос истории и funnel
 
 **Исполнение:** читать вместе с [методами](method-decisions.md), [runtime-профилями](runtime-profiles.md), [семантикой](semantic-decisions.md), [контрактами](cross-unit-contracts.md) и [приёмкой](verification-and-closeout.md). Команды и новые test paths ниже — задачи следующей реализации; этот документ их не исполнял. Полный исходный критерий и маршрутизация: [coverage.json](coverage.json), immutable source G97.

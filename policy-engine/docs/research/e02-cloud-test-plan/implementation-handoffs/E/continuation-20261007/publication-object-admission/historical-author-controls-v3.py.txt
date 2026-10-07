@@ -1,0 +1,72 @@
+"""Author affected utility controls; independent acceptance is a separate review."""
+import ast,copy,hashlib,importlib.util,json,subprocess,sys
+from pathlib import Path
+from unittest.mock import patch
+REPO=Path('/workspace/e02-E-cal05-20261006');OUT=Path('/workspace/e02-E-pr38-r3-receipts/utility-delta-11');PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/'
+def load(relative,name):
+ path=REPO/PREFIX/relative
+ spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ return module
+core=load('core-import-route-r3/validate.py','current_core');frc=load('continuation-20261007/frc-native-cas/validate.py','current_frc');helper=load('core-import-route-r3/controls/full-python-delta.py','current_census')
+receipt=json.loads((REPO/PREFIX/'core-import-route-r3.json').read_text());frcroot=REPO/PREFIX/'continuation-20261007/frc-native-cas';frcreceipt=json.loads((frcroot/'implementation-handoff.json').read_text());frcrecords=json.loads((frcroot/'deciding-output-index.json').read_text())['records'];rows=[]
+def case(name,fn):
+ calls=[]
+ def spy(*args,**kwargs):calls.append([str(item) for item in args]);raise RuntimeError('Git callback reached')
+ with patch.object(core,'_git',spy),patch.object(frc.subprocess,'check_output',spy),patch.object(helper,'_git',spy):
+  try:fn()
+  except ValueError as exc:error=type(exc).__name__;reason=str(exc)
+  except Exception as exc:error=type(exc).__name__;reason=str(exc)
+  else:error=None;reason=None
+ row={'name':name,'callback_count':len(calls),'error':error,'reason':reason,'passed':len(calls)==0 and error=='ValueError'};rows.append(row)
+ if not row['passed']:raise AssertionError(row)
+for value in ['--output=outside',None,True,'f'*39,'f'*41]:
+ for key in ['implementation_commits','slice_base_sha','candidate_tree_sha']:
+  damaged=copy.deepcopy(receipt)
+  if key=='implementation_commits':damaged[key][-1]=value
+  else:damaged[key]=value
+  case('core_'+key+'_'+repr(value),lambda damaged=damaged:core.validate(REPO,damaged))
+ if value is not None:case('core_historical_revision_'+repr(value),lambda value=value:core.validate(REPO,receipt,value))
+ case('frc_candidate_'+repr(value),lambda value=value:frc.validate(frcroot,REPO,frcrecords,{**frcreceipt,'candidate_sha':value}))
+ case('imports_ref_'+repr(value),lambda value=value:helper._imports(REPO,value,'policy-engine/src/polisyos/calibration/continuous.py'))
+ case('resolve_ref_'+repr(value),lambda value=value:helper._resolve(REPO,value))
+ case('last_build_ref_'+repr(value),lambda value=value:helper.build(REPO,'539ee6d6aad7f9db4c03dc520fc515dabef8d799',[('healthy','origin/main'),('bad',value)]))
+for value in [None,True,'.','../outside','/outside','--output=outside','a:b','a/./b','a b','']:
+ for key in ['footprint','assets']:
+  damaged=copy.deepcopy(receipt);damaged[key][-1]['path']=value
+  case('core_'+key+'_path_'+repr(value),lambda damaged=damaged:core.validate(REPO,damaged))
+ damaged=copy.deepcopy(receipt);damaged['changed_paths'][-1]=value
+ case('core_changed_path_'+repr(value),lambda damaged=damaged:core.validate(REPO,damaged))
+ damaged=copy.deepcopy(frcrecords);damaged[-1]['path']=value
+ case('frc_output_path_'+repr(value),lambda damaged=damaged:frc.validate(frcroot,REPO,damaged,frcreceipt))
+ damaged=copy.deepcopy(frcreceipt);next(item for item in damaged['checks'] if 'junit' in item)['junit']=value
+ case('frc_JUnit_path_'+repr(value),lambda damaged=damaged:frc.validate(frcroot,REPO,frcrecords,damaged))
+ case('imports_path_'+repr(value),lambda value=value:helper._imports(REPO,'539ee6d6aad7f9db4c03dc520fc515dabef8d799',value))
+for family in ['core','frc']:
+ damaged=copy.deepcopy(receipt if family=='core' else frcrecords)
+ if family=='core':damaged['assets'][-1]['bytes']=True;fn=lambda:core.validate(REPO,damaged)
+ else:damaged[-1]['bytes']=True;fn=lambda:frc.validate(frcroot,REPO,damaged,frcreceipt)
+ case(family+'_bool_size',fn)
+damaged=copy.deepcopy(frcreceipt);next(item for item in damaged['checks'] if 'junit' in item)['states']['PASS']=True
+case('frc_bool_count',lambda:frc.validate(frcroot,REPO,frcrecords,damaged))
+# Healthy historical replay is distinct from checking the modified current copied helper.
+core.validate(REPO,receipt,'8fa11f569ebb2c952948e09d4db5c1f37be84b83')
+try:core.validate(REPO,receipt)
+except ValueError as exc:
+ if str(exc)!='deciding output mismatch':raise
+ rows.append({'name':'current_old_copy_index_refused','passed':True,'reason':str(exc)})
+else:raise AssertionError('historical index silently admitted current changed helper')
+frc.validate(frcroot,REPO,frcrecords,frcreceipt)
+# Effective admission removals retain actual bodies and healthy source metadata.
+for module,function,guard,args in [(core,'validate','_admit_receipt',(REPO,{**receipt,'slice_base_sha':'--output=outside'})),(helper,'_imports','_admit_sha',(REPO,'--output=outside','policy-engine/src/polisyos/calibration/continuous.py'))]:
+ tree=ast.parse(Path(module.__file__).read_text());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==function)
+ node.body=[n for n in node.body if not(isinstance(n,ast.Expr) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Name) and n.value.func.id==guard)]
+ namespace=dict(module.__dict__);calls=[]
+ def spy(*args,**kwargs):calls.append(args);raise RuntimeError('callback reached after property removal')
+ namespace['_git']=spy;exec(compile(ast.Module(body=[node],type_ignores=[]),'<effective-admission-removal>','exec'),namespace)
+ try:namespace[function](*args)
+ except RuntimeError:pass
+ if len(calls)!=1:raise AssertionError('effective removal did not escape callback-zero discriminator')
+ rows.append({'name':function+'_effective_admission_removal','callback_count':len(calls),'required_property_passed':False,'negative_detected':True,'passed':True})
+files=[Path(module.__file__) for module in [core,frc,helper]]
+record={'author_controls':True,'independent_review':False,'python_optimized':not __debug__,'source_files':[{'path':str(path.relative_to(REPO)),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()} for path in files],'count':len(rows),'passed':all(row['passed'] for row in rows),'controls':rows}
+print(json.dumps(record,indent=2))

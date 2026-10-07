@@ -1,0 +1,871 @@
+{
+  "author_controls": true,
+  "independent_review": false,
+  "python_optimized": true,
+  "source_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 6227,
+      "sha256": "6edb519a852d99eb9b3aed89b96a8a675c106247742b9c39c8c6081205199db0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "bytes": 7529,
+      "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "bytes": 7046,
+      "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9"
+    }
+  ],
+  "count": 121,
+  "passed": true,
+  "controls": [
+    {
+      "name": "core_implementation_commits_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_historical_revision_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_implementation_commits_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git reference must be a supported named ref or complete SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_implementation_commits_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_historical_revision_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git reference must be a supported named ref or complete SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_implementation_commits_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_historical_revision_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_'fffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_implementation_commits_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_historical_revision_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_'fffffffffffffffffffffffffffffffffffffffff'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_implementation_commits_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_historical_revision_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git reference must be a supported named ref or complete SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_[]",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_implementation_commits_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_slice_base_sha_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_candidate_tree_sha_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "core_historical_revision_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "frc_candidate_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source identity must be an exact hexadecimal hash",
+      "passed": true
+    },
+    {
+      "name": "imports_ref_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "resolve_ref_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git reference must be a supported named ref or complete SHA",
+      "passed": true
+    },
+    {
+      "name": "last_build_ref_{}",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object identity must be a complete lowercase commit SHA",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "imports_path_None",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a nonempty relative string",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "imports_path_True",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a nonempty relative string",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'.'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'.'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'.'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'.'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'.'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'.'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'../outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'../outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'../outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'../outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'../outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'../outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'/outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'/outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'/outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'/outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'/outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'/outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'--output=outside'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'a:b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'a:b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'a:b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'a:b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'a:b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'a:b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'a/./b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'a/./b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'a/./b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'a/./b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'a/./b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'a/./b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_'a b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_'a b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_'a b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_'a b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_'a b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be canonical and repository relative",
+      "passed": true
+    },
+    {
+      "name": "imports_path_'a b'",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a canonical relative file path",
+      "passed": true
+    },
+    {
+      "name": "core_footprint_path_''",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "core_assets_path_''",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "core_changed_path_''",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "frc_output_path_''",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "frc_JUnit_path_''",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output path must be a canonical repository-relative string",
+      "passed": true
+    },
+    {
+      "name": "imports_path_''",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "Git object path must be a nonempty relative string",
+      "passed": true
+    },
+    {
+      "name": "core_bool_size",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "source/asset size must be a nonnegative integer",
+      "passed": true
+    },
+    {
+      "name": "frc_bool_size",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "output size must be a nonnegative integer",
+      "passed": true
+    },
+    {
+      "name": "frc_bool_count",
+      "callback_count": 0,
+      "error": "ValueError",
+      "reason": "JUnit state counts must be nonnegative integers",
+      "passed": true
+    },
+    {
+      "name": "current_old_copy_index_refused",
+      "passed": true,
+      "reason": "deciding output mismatch"
+    },
+    {
+      "name": "validate_effective_admission_removal",
+      "callback_count": 1,
+      "required_property_passed": false,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "name": "_imports_effective_admission_removal",
+      "callback_count": 1,
+      "required_property_passed": false,
+      "negative_detected": true,
+      "passed": true
+    }
+  ]
+}

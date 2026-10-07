@@ -1,0 +1,8 @@
+{
+  "asset_count": 48,
+  "total_bytes": 966076,
+  "additional_static_calls": 17,
+  "patch_apply": 0,
+  "controls_per_mode": 15,
+  "packet": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/owner-packet.json"
+}

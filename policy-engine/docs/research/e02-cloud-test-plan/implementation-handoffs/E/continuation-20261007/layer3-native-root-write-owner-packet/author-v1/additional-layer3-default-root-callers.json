@@ -1,0 +1,177 @@
+{
+  "query_basis": "all tracked policy_design_case_layer3_ Python modules under tests/repo_quality; AST validate_layer3_* first positional REPO_ROOT and literal write=True; excludes G6/G7/G8 current packet",
+  "denominator": 17,
+  "rows": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g2_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g2_readiness.py",
+      "bytes": 10737,
+      "sha256": "72aaa98f17cba387fcccd3ab61ca3ac0de93a238847974847e641f8c13a8050c",
+      "function": "test_layer3_g2_write_path_includes_binding_consumer_toml_and_manifest_records",
+      "line": 137,
+      "call": "validator.validate_layer3_g2_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g2_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g2_readiness.py",
+      "bytes": 10737,
+      "sha256": "72aaa98f17cba387fcccd3ab61ca3ac0de93a238847974847e641f8c13a8050c",
+      "function": "test_layer3_g2_readiness_fails_when_write_path_omits_binding_or_consumer_records",
+      "line": 161,
+      "call": "validator.validate_layer3_g2_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py",
+      "bytes": 10910,
+      "sha256": "b7029c20e125437aeb6c54270ebf9d5ac861795bf70769a28e8129bf2e2f89b0",
+      "function": "test_layer3_g3_write_path_includes_resolution_bridge_consumer_toml_and_manifest_records",
+      "line": 194,
+      "call": "validator.validate_layer3_g3_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py",
+      "bytes": 10910,
+      "sha256": "b7029c20e125437aeb6c54270ebf9d5ac861795bf70769a28e8129bf2e2f89b0",
+      "function": "test_layer3_g3_readiness_fails_when_write_path_omits_resolution_or_consumer_records",
+      "line": 218,
+      "call": "validator.validate_layer3_g3_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py",
+      "bytes": 15640,
+      "sha256": "0e7abee3acea8eff3063b7a2d8f66177a7a2167649f4ac70b719cd8438650fe1",
+      "function": "test_layer3_g4_write_path_must_include_every_expected_artifact",
+      "line": 343,
+      "call": "validator.validate_layer3_g4_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py",
+      "bytes": 15640,
+      "sha256": "0e7abee3acea8eff3063b7a2d8f66177a7a2167649f4ac70b719cd8438650fe1",
+      "function": "test_layer3_g4_write_path_omission_keeps_readiness_red",
+      "line": 364,
+      "call": "validator.validate_layer3_g4_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_readiness_passes_for_persisted_runtime_bundle",
+      "line": 191,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_readiness_mirrors_g4_exact_artifact_and_drift_scaffold",
+      "line": 204,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_write_path_must_include_every_expected_artifact",
+      "line": 226,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_generated_artifacts_and_inventory_are_registered",
+      "line": 237,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_public_surface_denies_raw_payload_and_downstream_authority",
+      "line": 255,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_uses_conversion_route_registry_not_adapter_registry",
+      "line": 274,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_public_projection_reuses_runtime_projection_authority_checks",
+      "line": 296,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_s12_s14_projection_contracts_preserve_limits",
+      "line": 314,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "bytes": 15988,
+      "sha256": "cb5f2d656224c02fb8b8058213672ba3360fd4956d43a9f3a854ace5d31ae53d",
+      "function": "test_layer3_g5_task7_conformance_performance_and_closeout_are_persisted",
+      "line": 332,
+      "call": "validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_gl_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_gl_readiness.py",
+      "bytes": 15958,
+      "sha256": "5d31fe4917c24c459badc68df64e821e1cc746b0e759d0a7348e24e21bef7dcc",
+      "function": "test_layer3_gl_write_path_includes_every_required_runtime_artifact",
+      "line": 214,
+      "call": "validator.validate_layer3_gl_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_gl_readiness.py",
+      "git_ref": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd:policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_gl_readiness.py",
+      "bytes": 15958,
+      "sha256": "5d31fe4917c24c459badc68df64e821e1cc746b0e759d0a7348e24e21bef7dcc",
+      "function": "test_layer3_gl_readiness_fails_when_write_path_omits_consumer_or_authority_records",
+      "line": 235,
+      "call": "validator.validate_layer3_gl_readiness(REPO_ROOT, write=True)",
+      "observation": "static default-root write=True call only; no actual native-caller attribution"
+    }
+  ],
+  "scope": "not a full repository write-caller census; canonical G/test owners must extend fixture class to these source-proven neighboring readiness callers"
+}

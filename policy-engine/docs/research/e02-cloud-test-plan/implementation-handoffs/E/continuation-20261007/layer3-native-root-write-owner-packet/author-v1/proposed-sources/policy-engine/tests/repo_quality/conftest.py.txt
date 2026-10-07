@@ -1,0 +1,65 @@
+from __future__ import annotations
+
+import hashlib
+import os
+import subprocess
+import tarfile
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+os.environ.setdefault("HYPOTHESIS_STORAGE_DIRECTORY", str(REPO_ROOT / "_cache" / "hypothesis"))
+
+from hypothesis import settings
+from hypothesis.database import DirectoryBasedExampleDatabase
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+settings.register_profile(
+    "repo_quality",
+    database=DirectoryBasedExampleDatabase(str(REPO_ROOT / "_cache" / "hypothesis" / "repo_quality")),
+)
+settings.load_profile("repo_quality")
+
+
+def _layer3_artifact_fingerprints(root: Path) -> dict[str, str]:
+    directory = root / "architecture" / "policy_design_case"
+    return {
+        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(directory.iterdir())
+        if path.is_file() and path.name.startswith(("layer3_g6_", "layer3_g7_", "layer3_g8_"))
+    }
+
+
+@pytest.fixture(scope="module")
+def layer3_readiness_repo(tmp_path_factory: pytest.TempPathFactory):
+    """Give readiness write tests an exact tracked source snapshot, outside the checkout."""
+    checkout = REPO_ROOT.resolve()
+    repository = Path(subprocess.check_output(
+        ["git", "-C", str(checkout), "rev-parse", "--show-toplevel"], text=True
+    ).strip())
+    commit = subprocess.check_output(
+        ["git", "-C", str(repository), "rev-parse", "HEAD"], text=True
+    ).strip()
+    product = checkout.relative_to(repository).as_posix()
+    fixture_root = tmp_path_factory.mktemp("layer3-readiness-repo")
+    archive = fixture_root.parent / (fixture_root.name + ".tar")
+    before = _layer3_artifact_fingerprints(checkout)
+    with archive.open("wb") as stream:
+        subprocess.run(
+            ["git", "-C", str(repository), "archive", "--format=tar", f"{commit}:{product}"],
+            stdout=stream, check=True,
+        )
+    with tarfile.open(archive) as stream:
+        stream.extractall(fixture_root, filter="data")
+    if fixture_root.resolve().is_relative_to(checkout):
+        raise RuntimeError("readiness fixture must be outside the source checkout")
+    try:
+        yield fixture_root
+    finally:
+        after = _layer3_artifact_fingerprints(checkout)
+        if after != before:
+            raise AssertionError("readiness tests changed source-checkout Layer3 artifacts")

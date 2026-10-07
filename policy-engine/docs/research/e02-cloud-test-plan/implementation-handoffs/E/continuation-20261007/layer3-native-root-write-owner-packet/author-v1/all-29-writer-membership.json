@@ -1,0 +1,437 @@
+[
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 139777,
+      "sha256": "fb4ba97a337093cb22e91e0e3fbed496a28adce73daeab48738cea2a442a8889"
+    },
+    "physical_observation": {
+      "bytes": 139777,
+      "sha256": "f0672ef489b8cb10b7b7d604e2a8855a276f43e2d19a19bc38b323062c1b3bff"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 3548,
+      "sha256": "bb4571f1ec81efbbffe906705d309ac7ada972a2b79aa61d36411753349fef03"
+    },
+    "physical_observation": {
+      "bytes": 3548,
+      "sha256": "b91141c44a6e52f31d943e7ccf1c2676d066cef9c35bb738fc769a5f66e97046"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 4172,
+      "sha256": "7c3469f44d11394b592f120f9dc413a9cb39204f8e47ae1614414efcb872dece"
+    },
+    "physical_observation": {
+      "bytes": 4172,
+      "sha256": "e5a208b88c4aa31e5073453a8d63572ff59ff68763a89031f46d8b161436e9d5"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 8225,
+      "sha256": "6a9bc65031fd7ab4c38760243af9c166841fe8bb2fc8d33225c4d138af66dd75"
+    },
+    "physical_observation": {
+      "bytes": 8225,
+      "sha256": "691cf35b77e787c3b8fa3aea5d659f9a2d30b221985b183e857029550ae55eab"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 89288,
+      "sha256": "467850d0b35a58e5c2e87382b56f4286dd01852f6f4d645c07a4596202671570"
+    },
+    "physical_observation": {
+      "bytes": 89288,
+      "sha256": "283be5f0d5d33271126002e7ea0219f2e0b693e8ecec452a88999b93876902ac"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 51341,
+      "sha256": "67f716a067f482821309ae947bb6c229cee3d70b141fd1f2aa0a0fe0ea1786ca"
+    },
+    "physical_observation": {
+      "bytes": 51341,
+      "sha256": "d9ca47c7b6a97d475a602b07da459045835df8a9f23c02addb576c03a5383cf6"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 3730,
+      "sha256": "1fc77900795a092593716072a2c0a1a50f3e4b7c24b134fc58c3f4308913ba6e"
+    },
+    "physical_observation": {
+      "bytes": 3730,
+      "sha256": "bbabd431bc0887dec6c5b4a550a7e46253240959ab717e021d4fd612cd64b289"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 13719,
+      "sha256": "b00fbc1c2810fc66e0e326f33fb8870980f9a402b7eb6415f53c9b6309c06c37"
+    },
+    "physical_observation": {
+      "bytes": 13719,
+      "sha256": "27e4f9424d9e4f83edae5c1803c0a64cd22c6b7777d9e538e821d0bf7d244f52"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json",
+    "family": 6,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 2150,
+      "sha256": "d51bb662e6b971a44318773289d8e6859a22c1028de1253cf176ccbcb35bf3bd"
+    },
+    "physical_observation": {
+      "bytes": 2150,
+      "sha256": "4ab1b19e9eb178ab3c1ef3f3fbe8b3df5959fc7b4e99db350c68f9af91231cf0"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 5002,
+      "sha256": "dc3b65b13656337a0d34da74daa0489b7cbd923efbb7b01d665b425e3c817907"
+    },
+    "physical_observation": {
+      "bytes": 4384,
+      "sha256": "7b60ab0c489b238a4256dac917a82e0a9af8551ae5f00b2ea0899f26bb948ca7"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 1290,
+      "sha256": "5c3deb8a780fbf9543f7530335d2953f16693d880f718846a124e85b7f1e12b4"
+    },
+    "physical_observation": {
+      "bytes": 756,
+      "sha256": "7f08f6facd976ea02361ef7cdaacf793711e9eaedd1fc41e7c41da4718e0b297"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 715,
+      "sha256": "cce56d5a9b07758fbb6798c7324cf36fae80bf7bce39fe0388b23ef53750c05f"
+    },
+    "physical_observation": {
+      "bytes": 1148,
+      "sha256": "b87fa9405be5c3db54d7a3b08d0809496db548bad69cad1de04089c5e3a1021b"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 10036,
+      "sha256": "42909cc6bfdde96635256705840f1e009a827431d79bdfdf552a2076c92209b5"
+    },
+    "physical_observation": {
+      "bytes": 10036,
+      "sha256": "375d894e970b2bcac3d8996e4400a0e01404c858142b681f2b4d4c72796c979f"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 6446,
+      "sha256": "c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+    },
+    "physical_observation": {
+      "bytes": 6446,
+      "sha256": "7be348d6796719d800df8be8386e16160bb44cf935f32d8680b36e5452b446a7"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 1236,
+      "sha256": "a91ecc2dbed896e096b4f6ba083916ca4f18d04b916c4eef8c08b14d352c0ff0"
+    },
+    "physical_observation": {
+      "bytes": 1290,
+      "sha256": "91ba19c232804d35bee17e4c6071ee835b2a93048ccd8f3943f82417e5ec3fb9"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 3374,
+      "sha256": "c012b4f26fc199ce9b5d1e937dcb2f026d495b3e9e4ed0114c9a46b51407ab4d"
+    },
+    "physical_observation": {
+      "bytes": 3852,
+      "sha256": "1718ee4f238cbdf5dd205c74cd21b18cd25f266c8d2b1eee19b81c8e4a126409"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 4574,
+      "sha256": "4c6cde26ae15e62c88fdf142c33b22fb71c8318c86693791e828b1edf70df604"
+    },
+    "physical_observation": {
+      "bytes": 5052,
+      "sha256": "775e839b2b7452ab73621ec2eb29469367c9fb7d4539e5f486d5c32e1f5b8612"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 15916,
+      "sha256": "de3da70e1892bb67f30d2ce93871561220e2e314726bd1926ce31bdc28b7f738"
+    },
+    "physical_observation": {
+      "bytes": 15841,
+      "sha256": "2ea7326347d68148b371891f95ff8a3082ad14aa676fe5f242071b4e7d54de19"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 4747,
+      "sha256": "d1d3757e5ed87dc53c90a0f57bedf3672b95dc79b456458c145bbb310877b047"
+    },
+    "physical_observation": {
+      "bytes": 4747,
+      "sha256": "a4003d67481963624389e7b202a134ded4c2c77423270a30bdee0c62ce91ad9e"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 51494,
+      "sha256": "29b520f1fdfd89e42e38f11470415763e872e4ae2868957802f437e7536c2dae"
+    },
+    "physical_observation": {
+      "bytes": 51494,
+      "sha256": "de149a913493971d285d2160c4c90e483e25bb1ef221b537be5b2db3431cf7e6"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 24026,
+      "sha256": "0cce8c70210d12d515e7980fe6548da47f78adfee29735ccc11e569525db3b2d"
+    },
+    "physical_observation": {
+      "bytes": 24026,
+      "sha256": "92351c88eeb78dfd971e3ae1a53cab5abce7d1b3eff49b55a7f463a6bab10700"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 6021,
+      "sha256": "2b59355414f7a8570681725d58b04b8a8e1e6b48a78e8561a8b595e394f98123"
+    },
+    "physical_observation": {
+      "bytes": 6514,
+      "sha256": "c60fc484762a146f169214de2e8518a2179dc19e1ab868ecaa7d6e37db122b12"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+    "family": 7,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 4018,
+      "sha256": "06f6777c88666723b1b50862ad88e816739267d702ab6a80f8cd6e808c012a35"
+    },
+    "physical_observation": {
+      "bytes": 5016,
+      "sha256": "2b266c1caa354a009553d9de81e8f962a42d30cf9ad992bf8a249d0a79392cc1"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+    "family": 8,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 4328,
+      "sha256": "a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033"
+    },
+    "physical_observation": {
+      "bytes": 4240,
+      "sha256": "5ea8e86752b58ad3ec7f3132838b36ba6d51e46f4258c8f43ba270402f840658"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+    "family": 8,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 4008,
+      "sha256": "c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f"
+    },
+    "physical_observation": {
+      "bytes": 3949,
+      "sha256": "533a8a23e0cbbc0f068eb67027626a2c42a4c80fb20442c894395a4c0c93ccd1"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+    "family": 8,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 39666,
+      "sha256": "4ec015b52e282137d5ecb79b73d36aab4929debeccb9a6978bc7b6bf2069097e"
+    },
+    "physical_observation": {
+      "bytes": 39666,
+      "sha256": "4f402a896eddfc6c5454ca34e6171d9931b638b4f4e06c1fa4e0d40451681b89"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+    "family": 8,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 12452,
+      "sha256": "021578dde505d2b04ad80a0c31135fa05e51b502af12e1dbce6e19902f9e47c4"
+    },
+    "physical_observation": {
+      "bytes": 12452,
+      "sha256": "8c0d6f46072aa94b5ceb7cbb66cdd1550bfdd940d2a9af0ce4faee959b30a2d6"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+    "family": 8,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 168010,
+      "sha256": "bb39238b94b43b69753eea8afe77ddbd782e4dc9eb95f73b0d5301acb32bbcfa"
+    },
+    "physical_observation": {
+      "bytes": 168010,
+      "sha256": "d4324311f626d87ef88dbbd848c464b0dff537db89e873ee992ade2d62694b28"
+    },
+    "different_from_frozen": true
+  },
+  {
+    "path": "policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+    "family": 8,
+    "validator": "policy-engine/tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+    "writer_membership": true,
+    "original": {
+      "bytes": 8861,
+      "sha256": "e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8"
+    },
+    "physical_observation": {
+      "bytes": 8861,
+      "sha256": "daec96524cea710a80662b9809467602cfb92829cb1048c98812cc1c359e7427"
+    },
+    "different_from_frozen": true
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/workspace/e02-E-continuation-20261006",
+    "apply",
+    "--check",
+    "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/canonical-owner-test-isolation.patch"
+  ],
+  "exit_code": 0,
+  "outcome": "PASS",
+  "source_mutation": false,
+  "stdout": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

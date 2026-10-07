@@ -1,0 +1,70 @@
+from __future__ import annotations
+import ast,difflib,hashlib,io,json,subprocess,tarfile,tempfile,types
+from pathlib import Path
+OUT=Path(__file__).resolve().parent
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+SHA='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+p='policy-engine/tests/repo_quality/conftest.py'
+v1=(OUT/'proposed-sources'/(p+'.txt')).read_text()
+v2=v1.replace('    fixture_root = tmp_path_factory.mktemp("layer3-readiness-repo")\n','''    base = tmp_path_factory.getbasetemp().resolve()\n    if base.is_relative_to(checkout):\n        raise RuntimeError("readiness temporary base must be outside the source checkout")\n    fixture_root = tmp_path_factory.mktemp("layer3-readiness-repo")\n    if fixture_root.resolve().is_relative_to(checkout):\n        raise RuntimeError("readiness fixture must be outside the source checkout")\n''').replace('    if fixture_root.resolve().is_relative_to(checkout):\n        raise RuntimeError("readiness fixture must be outside the source checkout")\n    try:\n','    try:\n')
+(OUT/'proposed-conftest-v2.py.txt').write_text(v2)
+changes={p:v2}
+for fam in (6,7,8):
+ q=f'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g{fam}_readiness.py';changes[q]=(OUT/'proposed-sources'/(q+'.txt')).read_text()
+patch=''.join(''.join(difflib.unified_diff(subprocess.check_output(['git','-C',str(ROOT),'show',SHA+':'+q]).decode().splitlines(keepends=True),new.splitlines(keepends=True),fromfile='a/'+q,tofile='b/'+q)) for q,new in changes.items())
+(OUT/'canonical-owner-test-isolation-v2.patch').write_text(patch)
+rows=[]
+def req(c,m):
+ if not c:raise ValueError(m)
+def runcase(mode,remove=False):
+ catalog=Path(tempfile.mkdtemp(prefix='fixture-v2-'+mode+'-',dir=OUT));checkout=catalog/'source-standin';(checkout/'architecture/policy_design_case').mkdir(parents=True)
+ original=checkout/'architecture/policy_design_case/layer3_g6_readiness_manifest.json';original.write_text('SOURCE-ORIGINAL\n')
+ outside=catalog/'pytest-temp';outside.mkdir()
+ wrong=checkout/'pytest-temp'
+ counters={'getbasetemp':0,'mktemp':0,'archive':0,'extract':0,'readonly_git':0}
+ class Factory:
+  def getbasetemp(self):counters['getbasetemp']+=1;return wrong if mode=='base-inside' else outside
+  def mktemp(self,name):
+   counters['mktemp']+=1
+   result=checkout/'misdirected-fixture' if mode=='returned-inside' else (wrong if mode=='base-inside' else outside)/name
+   result.mkdir(parents=True);return result
+ class Git:
+  def check_output(self,argv,text):
+   counters['readonly_git']+=1
+   return str(catalog)+'\n' if argv[-1]=='--show-toplevel' else SHA+'\n'
+  def run(self,argv,stdout,check):
+   counters['archive']+=1
+   with tarfile.open(fileobj=stdout,mode='w') as stream:
+    b=b'FIXTURE-ORIGINAL\n';item=tarfile.TarInfo('architecture/policy_design_case/layer3_g6_readiness_manifest.json');item.size=len(b);stream.addfile(item,io.BytesIO(b))
+ class Archive:
+  def open(self,archive):
+   real=tarfile.open(archive)
+   class Handle:
+    def __enter__(self):return self
+    def __exit__(self,*args):real.close()
+    def extractall(self,destination,filter):counters['extract']+=1;real.extractall(destination,filter=filter)
+   return Handle()
+ ns={'Path':Path,'REPO_ROOT':checkout,'subprocess':Git(),'hashlib':hashlib,'tarfile':Archive()}
+ t=ast.parse(v2)
+ helper=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name=='_layer3_artifact_fingerprints')
+ fixture=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name=='layer3_readiness_repo');fixture.decorator_list=[]
+ if remove:
+  # Effective removal of both the base and returned-root admission predicates.
+  fixture.body=[n for n in fixture.body if not isinstance(n,ast.If)]
+ unit=ast.parse('from __future__ import annotations\n');unit.body += [helper,fixture]
+ exec(compile(ast.fix_missing_locations(unit),'<fixture-v3-observer-exact-v2-functions>','exec'),ns)
+ observed=None;yielded=None;gen=ns['layer3_readiness_repo'](Factory())
+ try:
+  yielded=next(gen);(yielded/'architecture/policy_design_case/layer3_g6_readiness_manifest.json').write_text('FIXTURE-WRITTEN\n');next(gen)
+ except StopIteration:observed='completed'
+ except Exception as e:observed=type(e).__name__+': '+str(e)
+ if mode=='healthy':req(observed=='completed' and counters['archive']==1 and counters['extract']==1 and original.read_text()=='SOURCE-ORIGINAL\n','healthy construction/extraction')
+ elif not remove:req(observed.startswith('RuntimeError:') and counters['archive']==0 and counters['extract']==0 and (counters['mktemp']==0 if mode=='base-inside' else counters['mktemp']==1),'refusal must precede source copy callbacks')
+ else:req(counters['archive']==1 and counters['extract']==1 and yielded.resolve().is_relative_to(checkout.resolve()),'admission removal must reach actual forbidden in-checkout source-copy callback')
+ return {'mode':mode,'property_removed':remove,'actual_counters':counters,'observed':observed,'fixture_root':str(yielded) if yielded else None,'catalog':str(catalog),'source_original_unchanged':original.read_text()=='SOURCE-ORIGINAL\n','defining_archive_outside_checkout':'FAIL' if yielded and yielded.resolve().is_relative_to(checkout.resolve()) else 'PASS','actual_yielded_root_inside_checkout':bool(yielded and yielded.resolve().is_relative_to(checkout.resolve())),'source_callback_root':'source stand-in under /tmp; no actual ROOT path','git_identity':'test-double Git callbacks for admission ordering only; not actual full native Git-fixture construction'}
+for mode,remove in [('healthy',False),('base-inside',False),('returned-inside',False),('base-inside',True),('returned-inside',True)]:rows.append(runcase(mode,remove))
+check=subprocess.run(['git','-C',str(ROOT),'apply','--check',str(OUT/'canonical-owner-test-isolation-v2.patch')],capture_output=True)
+req(check.returncode==0,'patch must apply unchanged source')
+(OUT/'fixture-v2-apply.stdout.txt').write_bytes(check.stdout);(OUT/'fixture-v2-apply.stderr.txt').write_bytes(check.stderr)
+result={'outcome':'PASS','normal_or_optimized':'optimized' if __debug__ is False else 'normal','controls':len(rows),'source_commit':SHA,'source_tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','patch_sha256':hashlib.sha256(patch.encode()).hexdigest(),'cases':rows,'apply_check':{'exit_code':check.returncode,'argv':check.args},'original_v1_guard_order':'CHANGE_REQUIRED; containment admission occurred after archive/extract. V1source/controls/custody preserved','historical_v2_observer_qualification':'base-inside+removal factory previously returned outside/name; that actual row established missed refusal only, not inside extraction. V2 raw/source reports preserved unchanged; V3 consistent factory path and actual containment recorded.','native_fixture_outcome':'UNRUN; no full Git snapshot construction or runtime producer executed','root_actual_writes':0,'upstream_limit':'getbasetemp() is the existing pytest-owned base getter/creator; pytest --basetemp admission is separate. This fixture refuses its returned in-checkout base before mktemp or archive writes.'}
+print(json.dumps(result,indent=2))

@@ -1,0 +1,121 @@
+{
+  "outcome": "PASS",
+  "normal_or_optimized": "optimized",
+  "controls": 5,
+  "source_commit": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "patch_sha256": "d82a99f193316df37dda4cb079c92da3a667fea069333edf87a11d84a9e5f3f2",
+  "cases": [
+    {
+      "mode": "healthy",
+      "property_removed": false,
+      "actual_counters": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1,
+        "readonly_git": 2
+      },
+      "observed": "completed",
+      "fixture_root": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-healthy-do22e777/pytest-temp/layer3-readiness-repo",
+      "catalog": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-healthy-do22e777",
+      "source_original_unchanged": true,
+      "defining_archive_outside_checkout": "PASS",
+      "actual_yielded_root_inside_checkout": false,
+      "source_callback_root": "source stand-in under /tmp; no actual ROOT path",
+      "git_identity": "test-double Git callbacks for admission ordering only; not actual full native Git-fixture construction"
+    },
+    {
+      "mode": "base-inside",
+      "property_removed": false,
+      "actual_counters": {
+        "getbasetemp": 1,
+        "mktemp": 0,
+        "archive": 0,
+        "extract": 0,
+        "readonly_git": 2
+      },
+      "observed": "RuntimeError: readiness temporary base must be outside the source checkout",
+      "fixture_root": null,
+      "catalog": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-base-inside-s9cd7scm",
+      "source_original_unchanged": true,
+      "defining_archive_outside_checkout": "PASS",
+      "actual_yielded_root_inside_checkout": false,
+      "source_callback_root": "source stand-in under /tmp; no actual ROOT path",
+      "git_identity": "test-double Git callbacks for admission ordering only; not actual full native Git-fixture construction"
+    },
+    {
+      "mode": "returned-inside",
+      "property_removed": false,
+      "actual_counters": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 0,
+        "extract": 0,
+        "readonly_git": 2
+      },
+      "observed": "RuntimeError: readiness fixture must be outside the source checkout",
+      "fixture_root": null,
+      "catalog": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-returned-inside-boe0r2vj",
+      "source_original_unchanged": true,
+      "defining_archive_outside_checkout": "PASS",
+      "actual_yielded_root_inside_checkout": false,
+      "source_callback_root": "source stand-in under /tmp; no actual ROOT path",
+      "git_identity": "test-double Git callbacks for admission ordering only; not actual full native Git-fixture construction"
+    },
+    {
+      "mode": "base-inside",
+      "property_removed": true,
+      "actual_counters": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1,
+        "readonly_git": 2
+      },
+      "observed": "completed",
+      "fixture_root": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-base-inside-7aeu_hgb/source-standin/pytest-temp/layer3-readiness-repo",
+      "catalog": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-base-inside-7aeu_hgb",
+      "source_original_unchanged": true,
+      "defining_archive_outside_checkout": "FAIL",
+      "actual_yielded_root_inside_checkout": true,
+      "source_callback_root": "source stand-in under /tmp; no actual ROOT path",
+      "git_identity": "test-double Git callbacks for admission ordering only; not actual full native Git-fixture construction"
+    },
+    {
+      "mode": "returned-inside",
+      "property_removed": true,
+      "actual_counters": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1,
+        "readonly_git": 2
+      },
+      "observed": "completed",
+      "fixture_root": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-returned-inside-wim19zwk/source-standin/misdirected-fixture",
+      "catalog": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v2-returned-inside-wim19zwk",
+      "source_original_unchanged": true,
+      "defining_archive_outside_checkout": "FAIL",
+      "actual_yielded_root_inside_checkout": true,
+      "source_callback_root": "source stand-in under /tmp; no actual ROOT path",
+      "git_identity": "test-double Git callbacks for admission ordering only; not actual full native Git-fixture construction"
+    }
+  ],
+  "apply_check": {
+    "exit_code": 0,
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/e02-E-continuation-20261006",
+      "apply",
+      "--check",
+      "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/canonical-owner-test-isolation-v2.patch"
+    ]
+  },
+  "original_v1_guard_order": "CHANGE_REQUIRED; containment admission occurred after archive/extract. V1source/controls/custody preserved",
+  "historical_v2_observer_qualification": "base-inside+removal factory previously returned outside/name; that actual row established missed refusal only, not inside extraction. V2 raw/source reports preserved unchanged; V3 consistent factory path and actual containment recorded.",
+  "native_fixture_outcome": "UNRUN; no full Git snapshot construction or runtime producer executed",
+  "root_actual_writes": 0,
+  "upstream_limit": "getbasetemp() is the existing pytest-owned base getter/creator; pytest --basetemp admission is separate. This fixture refuses its returned in-checkout base before mktemp or archive writes."
+}

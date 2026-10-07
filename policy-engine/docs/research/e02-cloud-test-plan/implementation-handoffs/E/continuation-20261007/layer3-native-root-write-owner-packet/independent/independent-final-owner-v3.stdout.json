@@ -1,0 +1,25 @@
+{
+  "disposition": "GO owner-ready V2 tests-only proposal and corrected V3 observer packet; full native fixture/complete inputisolation/currentP41 cause not_established/UNRUN remain separate",
+  "patch": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/canonical-owner-test-isolation-v2.patch",
+    "bytes": 5068,
+    "sha256": "d82a99f193316df37dda4cb079c92da3a667fea069333edf87a11d84a9e5f3f2"
+  },
+  "final_receipt": {
+    "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-final-owner-review-v3.json",
+    "bytes": 15456,
+    "sha256": "1a82fdfbc58158f8569181015fb9d08d5a501ad5d3810597699eeb40ad9bfd2f"
+  },
+  "normal": {
+    "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-normal.json",
+    "bytes": 13849,
+    "sha256": "9478bdc83bacbf5690abfe73f2960807d2c77dc8f0420d7f917a2ec36efd8404"
+  },
+  "optimized": {
+    "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-optimized.json",
+    "bytes": 13848,
+    "sha256": "ea0a9c01aa47af65ee813cd198b5968cb2d0b36065db1cf22f7a0094f75393d9"
+  },
+  "actual_source_ROOT_writes": 0,
+  "historical_V1late_refusal_and_V2observer_mislabel_preserved": true
+}

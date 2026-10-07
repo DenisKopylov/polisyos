@@ -1,0 +1,57 @@
+{
+  "assets": [
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare_fixture_guard_v3.py.txt",
+      "portable_path": "prepare_fixture_guard_v3.py.txt",
+      "bytes": 7065,
+      "sha256": "f9cc12a6b1679e17e3ea3150648e63b9e737ff76280503b4c9f1ff4a62f87df0"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v3-controls.normal.json",
+      "portable_path": "fixture-v3-controls.normal.json",
+      "bytes": 5554,
+      "sha256": "b3a50aa81dae182b8dff93bac967192cefa4f8c6ab3ae050adca0f0c932f5050"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v3-controls.optimized.json",
+      "portable_path": "fixture-v3-controls.optimized.json",
+      "bytes": 5557,
+      "sha256": "c95b3bcbdd5acf7c9e11eae0ebdfed956ba7c58834fe47bda3cafd3e0dbfbc8c"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v3-controls.normal.stderr.txt",
+      "portable_path": "fixture-v3-controls.normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-v3-controls.optimized.stderr.txt",
+      "portable_path": "fixture-v3-controls.optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/owner-packet-v3.json",
+      "portable_path": "owner-packet-v3.json",
+      "bytes": 8486,
+      "sha256": "7e8469dd9053c14997e3a2042be6fb5496c7bedf3a9bf4b0faf039a139a57c91"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-read-alias-companion-v2.json",
+      "portable_path": "fixture-read-alias-companion-v2.json",
+      "bytes": 17904,
+      "sha256": "fb9c791f576a106560c890f000181db1eda59ae391eb5a4fff421932953fc85e"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-selection-read-alias-companion-v2.json",
+      "portable_path": "publication-selection-read-alias-companion-v2.json",
+      "bytes": 503,
+      "sha256": "59ebdf7cafea7f3ff9e4c0a256d38f049c303abd603097b4d8fa8bdb1e670723"
+    }
+  ],
+  "asset_count": 8,
+  "total_bytes": 45069,
+  "historical_v2_raw_preserved": "publication-selection-v2-delta.json/8119bdf2b024de276f7934d73f13def95b0764a1b97879ef6473346252ba2d30",
+  "proposal_patch_unchanged": "canonical-owner-test-isolation-v2.patch/d82a99f193316df37dda4cb079c92da3a667fea069333edf87a11d84a9e5f3f2",
+  "current_outcome": "owner-ready unapplied V2proposal with corrected V3observer; full native fixture selectors UNRUN; actual native P41 not_established"
+}

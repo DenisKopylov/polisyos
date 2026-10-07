@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare_packet.py", line 76, in <module>
+    if Path(rel) not in ns['EXPECTED_ARTIFACT_PATHS']:raise ValueError('not an exact admitted writer path '+p)
+                        ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'EXPECTED_ARTIFACT_PATHS'

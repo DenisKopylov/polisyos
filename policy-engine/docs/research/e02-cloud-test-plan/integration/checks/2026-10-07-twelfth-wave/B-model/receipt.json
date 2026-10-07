@@ -1,0 +1,594 @@
+{
+  "candidate": {
+    "c44_oracle_test_excluded": {
+      "reason": "Its committed state_branching.py blob predates the d18 ordinary-model wrapper and does not match this candidate.",
+      "source_blob": "6f5bd398af2b70cae72754a782e224b990638541",
+      "test_blob": "65010871b31be0a88b070b5222d83709633b5b81"
+    },
+    "commit": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+    "source_blobs": {
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md": "d670a631351088fda0e3d42cce6d48536b71c143",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357"
+    },
+    "tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54"
+  },
+  "direct_probe": {
+    "authorized_nested_model_delete": {
+      "base_unchanged": true,
+      "branch_unchanged": true,
+      "error": {
+        "message": "model field deletion is not replayable",
+        "type": "TypeError"
+      },
+      "journal_after": [],
+      "journal_unchanged": true,
+      "pass": true
+    },
+    "authorized_root_delete": {
+      "base_unchanged": true,
+      "branch_unchanged": true,
+      "error": {
+        "message": "model field deletion is not replayable",
+        "type": "TypeError"
+      },
+      "journal_after": [],
+      "journal_unchanged": true,
+      "pass": true
+    },
+    "maxrss_native_bytes": 78135296,
+    "overall": "COUNTEREXAMPLE_OR_LIMITATION",
+    "root_model_supported_profile": {
+      "admitted": true,
+      "after_negative": {
+        "artifacts_index": {},
+        "budgets": {},
+        "capability_manifest_ref": null,
+        "causal_capability_contract_ref": null,
+        "causal_method_fqn": null,
+        "causal_method_params": {},
+        "champion_policy_dossier_ref": null,
+        "constitution_hash": null,
+        "control_job_id": null,
+        "critic_knowledge_base_ref": null,
+        "evaluator_report_ref": null,
+        "execution_plan_ref": null,
+        "execution_profile": null,
+        "inputs": {},
+        "iteration_state_ref": null,
+        "last_checkpoint_ref": null,
+        "legal_candidate_pack_ref": null,
+        "legal_source_pack_ref": null,
+        "memory_index_ref": null,
+        "method_catalog_snapshot_ref": null,
+        "observational_data_ref": null,
+        "params": {
+          "holder": {
+            "count": 2,
+            "sibling": 9
+          }
+        },
+        "policy_brief_ref": null,
+        "policy_option_set_ref": null,
+        "policy_output_bundle_ref": null,
+        "policy_request_ref": null,
+        "preflight_report_ref": null,
+        "reports_index": {},
+        "reproducibility_manifest_ref": null,
+        "run_id": "B-model-root-model",
+        "schema_version": "1.3",
+        "source_verification_report_ref": null,
+        "verified_policy_report_ref": null
+      },
+      "after_positive": {
+        "artifacts_index": {},
+        "budgets": {},
+        "capability_manifest_ref": null,
+        "causal_capability_contract_ref": null,
+        "causal_method_fqn": null,
+        "causal_method_params": {},
+        "champion_policy_dossier_ref": null,
+        "constitution_hash": null,
+        "control_job_id": null,
+        "critic_knowledge_base_ref": null,
+        "evaluator_report_ref": null,
+        "execution_plan_ref": null,
+        "execution_profile": null,
+        "inputs": {},
+        "iteration_state_ref": null,
+        "last_checkpoint_ref": null,
+        "legal_candidate_pack_ref": null,
+        "legal_source_pack_ref": null,
+        "memory_index_ref": null,
+        "method_catalog_snapshot_ref": null,
+        "observational_data_ref": null,
+        "params": {
+          "holder": {
+            "count": 2,
+            "sibling": 9
+          }
+        },
+        "policy_brief_ref": null,
+        "policy_option_set_ref": null,
+        "policy_output_bundle_ref": null,
+        "policy_request_ref": null,
+        "preflight_report_ref": null,
+        "reports_index": {},
+        "reproducibility_manifest_ref": null,
+        "run_id": "B-model-root-model",
+        "schema_version": "1.3",
+        "source_verification_report_ref": null,
+        "verified_policy_report_ref": null
+      },
+      "base_after": {
+        "artifacts_index": {},
+        "budgets": {},
+        "capability_manifest_ref": null,
+        "causal_capability_contract_ref": null,
+        "causal_method_fqn": null,
+        "causal_method_params": {},
+        "champion_policy_dossier_ref": null,
+        "constitution_hash": null,
+        "control_job_id": null,
+        "critic_knowledge_base_ref": null,
+        "evaluator_report_ref": null,
+        "execution_plan_ref": null,
+        "execution_profile": null,
+        "inputs": {},
+        "iteration_state_ref": null,
+        "last_checkpoint_ref": null,
+        "legal_candidate_pack_ref": null,
+        "legal_source_pack_ref": null,
+        "memory_index_ref": null,
+        "method_catalog_snapshot_ref": null,
+        "observational_data_ref": null,
+        "params": {
+          "holder": {
+            "count": 1,
+            "sibling": 9
+          }
+        },
+        "policy_brief_ref": null,
+        "policy_option_set_ref": null,
+        "policy_output_bundle_ref": null,
+        "policy_request_ref": null,
+        "preflight_report_ref": null,
+        "reports_index": {},
+        "reproducibility_manifest_ref": null,
+        "run_id": "B-model-root-model",
+        "schema_version": "1.3",
+        "source_verification_report_ref": null,
+        "verified_policy_report_ref": null
+      },
+      "base_before": {
+        "artifacts_index": {},
+        "budgets": {},
+        "capability_manifest_ref": null,
+        "causal_capability_contract_ref": null,
+        "causal_method_fqn": null,
+        "causal_method_params": {},
+        "champion_policy_dossier_ref": null,
+        "constitution_hash": null,
+        "control_job_id": null,
+        "critic_knowledge_base_ref": null,
+        "evaluator_report_ref": null,
+        "execution_plan_ref": null,
+        "execution_profile": null,
+        "inputs": {},
+        "iteration_state_ref": null,
+        "last_checkpoint_ref": null,
+        "legal_candidate_pack_ref": null,
+        "legal_source_pack_ref": null,
+        "memory_index_ref": null,
+        "method_catalog_snapshot_ref": null,
+        "observational_data_ref": null,
+        "params": {
+          "holder": {
+            "count": 1,
+            "sibling": 9
+          }
+        },
+        "policy_brief_ref": null,
+        "policy_option_set_ref": null,
+        "policy_output_bundle_ref": null,
+        "policy_request_ref": null,
+        "preflight_report_ref": null,
+        "reports_index": {},
+        "reproducibility_manifest_ref": null,
+        "run_id": "B-model-root-model",
+        "schema_version": "1.3",
+        "source_verification_report_ref": null,
+        "verified_policy_report_ref": null
+      },
+      "base_unchanged": true,
+      "branch_before": {
+        "artifacts_index": {},
+        "budgets": {},
+        "capability_manifest_ref": null,
+        "causal_capability_contract_ref": null,
+        "causal_method_fqn": null,
+        "causal_method_params": {},
+        "champion_policy_dossier_ref": null,
+        "constitution_hash": null,
+        "control_job_id": null,
+        "critic_knowledge_base_ref": null,
+        "evaluator_report_ref": null,
+        "execution_plan_ref": null,
+        "execution_profile": null,
+        "inputs": {},
+        "iteration_state_ref": null,
+        "last_checkpoint_ref": null,
+        "legal_candidate_pack_ref": null,
+        "legal_source_pack_ref": null,
+        "memory_index_ref": null,
+        "method_catalog_snapshot_ref": null,
+        "observational_data_ref": null,
+        "params": {
+          "holder": {
+            "count": 1,
+            "sibling": 9
+          }
+        },
+        "policy_brief_ref": null,
+        "policy_option_set_ref": null,
+        "policy_output_bundle_ref": null,
+        "policy_request_ref": null,
+        "preflight_report_ref": null,
+        "reports_index": {},
+        "reproducibility_manifest_ref": null,
+        "run_id": "B-model-root-model",
+        "schema_version": "1.3",
+        "source_verification_report_ref": null,
+        "verified_policy_report_ref": null
+      },
+      "journal_after_negative": [
+        {
+          "index": null,
+          "operation": "set",
+          "operation_group": null,
+          "path": "params.holder.root.count",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "scalar",
+          "target_presence": "present",
+          "value": 2,
+          "value_kind": "json"
+        }
+      ],
+      "journal_after_positive": [
+        {
+          "index": null,
+          "operation": "set",
+          "operation_group": null,
+          "path": "params.holder.root.count",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "scalar",
+          "target_presence": "present",
+          "value": 2,
+          "value_kind": "json"
+        }
+      ],
+      "negative_error": {
+        "message": "undeclared state_writes at live paths: ['params.holder.root.sibling']",
+        "type": "ValueError"
+      },
+      "negative_refused_before_change": true,
+      "pass": true,
+      "positive_changed_count": true,
+      "root_after_positive": {
+        "count": 2,
+        "sibling": 9
+      }
+    },
+    "runner_exit_code": 5,
+    "runner_exit_semantics": "Harness deliberately returns 5 when its behavioral discriminator detects a property counterexample.",
+    "validator_sibling": {
+      "after": {
+        "count": 2,
+        "tag": "changed-by-validator"
+      },
+      "base_after": {
+        "count": 1,
+        "tag": "stable"
+      },
+      "base_unchanged": true,
+      "before": {
+        "count": 1,
+        "tag": "stable"
+      },
+      "counterexample": true,
+      "journal": [
+        {
+          "index": null,
+          "operation": "set",
+          "operation_group": null,
+          "path": "params.holder.count",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "scalar",
+          "target_presence": "present",
+          "value": 2,
+          "value_kind": "json"
+        }
+      ],
+      "sibling_changed": true,
+      "sibling_journaled": false
+    }
+  },
+  "environment": {
+    "dependencies_installed": false,
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "production_data_used": false,
+    "python": "Python 3.14.3",
+    "python_executable": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+    "runtime_versions": {
+      "loguru": "0.7.3",
+      "opentelemetry-api": "1.39.1",
+      "opentelemetry-sdk": "1.39.1",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "pytest-asyncio": "1.3.0"
+    },
+    "thread_caps": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "existing_tests": {
+    "cases": 67,
+    "elapsed_seconds": 17.448,
+    "errors": 0,
+    "exact_command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate_runtime.py",
+      "pytest-repaired"
+    ],
+    "exit_code": 1,
+    "failed": 15,
+    "failure_groups": [
+      {
+        "cause": "Real serialized worker path rejects generated _JournaledArtifactRef as unsupported runner-wire model at serialization.py:250.",
+        "count": 5,
+        "selectors": [
+          "test_real_producer_grants_reconcile_with_reopened_cache_intent[None-worker]",
+          "test_real_producer_grants_reconcile_with_reopened_cache_intent[nested_widen-worker]",
+          "test_real_producer_grants_reconcile_with_reopened_cache_intent[release_scope-worker]",
+          "test_real_producer_grants_reconcile_with_reopened_cache_intent[root_replace-worker]",
+          "test_real_producer_grants_reconcile_with_reopened_cache_intent[neighbor_alias-worker]"
+        ]
+      },
+      {
+        "cause": "Async workflow test expected a structured failed result, but unsupported-model admission TypeError propagated.",
+        "count": 9,
+        "selectors": [
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__copy__-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[model_construct-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[model_post_init-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__init_subclass__-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_init_subclass__-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_on_complete__-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_core_schema__-async]",
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_json_schema__-async]"
+        ]
+      },
+      {
+        "cause": "Sequential __new__ case observed one extra custom __new__ invocation before refusal.",
+        "count": 1,
+        "selectors": [
+          "test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-sequential]"
+        ]
+      }
+    ],
+    "failure_ids": [
+      "test_real_producer_grants_reconcile_with_reopened_cache_intent[None-worker]",
+      "test_real_producer_grants_reconcile_with_reopened_cache_intent[nested_widen-worker]",
+      "test_real_producer_grants_reconcile_with_reopened_cache_intent[release_scope-worker]",
+      "test_real_producer_grants_reconcile_with_reopened_cache_intent[root_replace-worker]",
+      "test_real_producer_grants_reconcile_with_reopened_cache_intent[neighbor_alias-worker]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__copy__-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[model_construct-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[model_post_init-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-sequential]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__init_subclass__-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_init_subclass__-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_on_complete__-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_core_schema__-async]",
+      "test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_json_schema__-async]"
+    ],
+    "junit": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/selected-tests-pytest-repaired.junit.xml",
+    "maxrss_native_bytes": 763641856,
+    "passed": 52,
+    "selectors": [
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"
+    ],
+    "skipped": 0,
+    "source_unchanged": true,
+    "test_producer_scope_reconciliation": {
+      "failed": 15,
+      "passed": 44
+    },
+    "test_state_branching": {
+      "failed": 0,
+      "passed": 8
+    },
+    "time_seconds": 14.386,
+    "timeout_seconds": 180,
+    "warnings": 41
+  },
+  "first_collection_attempt": {
+    "cases_run": 0,
+    "exit_code": 2,
+    "one_repair": "Added the five exact d18 closure companions listed above; then ran the final suite once.",
+    "reason": "FileNotFoundError for candidate architecture/production_quality/method_catalog_dependency_digest_domains.toml, a tracked runtime import input outside src."
+  },
+  "g_checkout": {
+    "branch": "codex/e02-integration",
+    "branch_after": "codex/e02-integration",
+    "head_after": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "head_before": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "status_clean": true,
+    "tracked_status_after": ""
+  },
+  "isolation": {
+    "archive_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate",
+    "final_source_manifest": {
+      "added_same_candidate_inputs": [
+        "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml",
+        "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+        "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml",
+        "policy-engine/uv.lock",
+        "policy-engine/tools/devx/foundry/sync_dependency_profile.py"
+      ],
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/source-manifest-final.json",
+      "sha256": "7acd947c73c92b40dd30114ae7d252354ca199050b83696cc465f2d03ee46e92",
+      "tracked_bytes": 56046040,
+      "tracked_files": 2930,
+      "verified_before_and_after_tests": true
+    },
+    "initial_source_manifest": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/source-manifest.json",
+      "sha256": "524317483bd3f9575af0b8e8cc6c0e3a025beb2715dca6387a61f1329c6964ff",
+      "tracked_bytes": 55213066,
+      "tracked_files": 2925
+    },
+    "live_product_paths_removed_from_sys_path": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+    ],
+    "loaded_polisyos_modules": {
+      "origin_errors": 0,
+      "probe": 87,
+      "pytest": 1105
+    },
+    "project_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine"
+  },
+  "no_finding_closure_claimed": true,
+  "raw_artifacts": [
+    {
+      "bytes": 11216,
+      "path": "results/execution-context.json",
+      "sha256": "28bcf32d9a5879fe57d9764b0feb52ae82113744075c1f208c17bb01ff3097d5"
+    },
+    {
+      "bytes": 3203,
+      "path": "results/repair-context.json",
+      "sha256": "fcd709284541f4caf0dd0dfc9a288a56c4c6c5b979e04e6f456f291f52558927"
+    },
+    {
+      "bytes": 46755,
+      "path": "results/import-origins-probe.json",
+      "sha256": "96d05bc2aaa2535b34a1009d5efe0b4d94945637eeed13233a9176307464bd07"
+    },
+    {
+      "bytes": 296563,
+      "path": "results/import-origins-pytest.json",
+      "sha256": "635a27f401c35dd7815358a027da0df65802ad15b9f89fb532c2358714cd2e41"
+    },
+    {
+      "bytes": 613513,
+      "path": "results/import-origins-pytest-repaired.json",
+      "sha256": "e99f6ac71c891855bd7509a95eaab539e3569db36469d86b35a6b8dbe92c6ed7"
+    },
+    {
+      "bytes": 13091,
+      "path": "results/probe.stdout",
+      "sha256": "7e0e0c87b0a417bf38df9a06dfeb59d84bde21959e29b63ca8743b62befe21be"
+    },
+    {
+      "bytes": 11958,
+      "path": "results/probe.stderr",
+      "sha256": "700c9a52ddf1d18e50a8001fa4f3dce4aed2fe56a2d6a432b5917acd7314283e"
+    },
+    {
+      "bytes": 5752,
+      "path": "results/pytest.stdout",
+      "sha256": "1fbfcb5fd67da6c24b6b96cdd3b6b0737c4ec904c5e8076dbceb727a333f28de"
+    },
+    {
+      "bytes": 0,
+      "path": "results/pytest.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 110794,
+      "path": "results/pytest-repaired.stdout",
+      "sha256": "120a33e8cea3b4a19e86978cc3de1f36e1d76fba2909b847367d0eb893d7a694"
+    },
+    {
+      "bytes": 0,
+      "path": "results/pytest-repaired.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 13133,
+      "path": "results/runtime-result-probe.json",
+      "sha256": "daddf0b3045ac1edcec5e054bbb2f880cb334ec6e3da8a90456940befc072268"
+    },
+    {
+      "bytes": 522,
+      "path": "results/runtime-result-pytest.json",
+      "sha256": "d92099affd0b5212a3615e459b59c4e13ba6a9973dd24c058f61a753140766d3"
+    },
+    {
+      "bytes": 522,
+      "path": "results/runtime-result-pytest-repaired.json",
+      "sha256": "ea4738789a7e520a2f0c248a198d7f6538884c472819001f65578f465ec6d512"
+    },
+    {
+      "bytes": 4232,
+      "path": "results/selected-tests.junit.xml",
+      "sha256": "316a5ad01038095acf1d62f6afbbce0ae4d73a226e78fcb902ded27c38101ac9"
+    },
+    {
+      "bytes": 110366,
+      "path": "results/selected-tests-pytest-repaired.junit.xml",
+      "sha256": "27b1b6c7db2918c30e9e1f698bfec3fb4166e92615244a8d667e1cdf4f549d51"
+    },
+    {
+      "bytes": 899010,
+      "path": "source-manifest.json",
+      "sha256": "524317483bd3f9575af0b8e8cc6c0e3a025beb2715dca6387a61f1329c6964ff"
+    },
+    {
+      "bytes": 901655,
+      "path": "source-manifest-final.json",
+      "sha256": "7acd947c73c92b40dd30114ae7d252354ca199050b83696cc465f2d03ee46e92"
+    },
+    {
+      "bytes": 17493,
+      "path": "candidate_runtime.py",
+      "sha256": "a320bfc0cf7b9fbf5b82ee6e004772a4888a774cfef1c491a6e2622eebe4d022"
+    },
+    {
+      "bytes": 5995,
+      "path": "run_checks.py",
+      "sha256": "765c73023c85e8156320911462c59ad1ac455645da60e85185e26a6004d69057"
+    },
+    {
+      "bytes": 5459,
+      "path": "run_repair.py",
+      "sha256": "034eda561c074d6aa948ba3c53996eb9a66ae5f3ce9c654e648eef2c5a49e430"
+    },
+    {
+      "bytes": 4355,
+      "path": "report.md",
+      "sha256": "44e85dd06802091c408a3081c02fbc04241fab31d03a8e2c63e9c87b167a7feb"
+    }
+  ],
+  "resource": {
+    "disk_free_after_final_wave_bytes": 24933957632,
+    "disk_free_after_first_wave_bytes": 24967692288,
+    "disk_free_before_bytes": 24967897088
+  },
+  "task": "G local exact-candidate B model-state check"
+}

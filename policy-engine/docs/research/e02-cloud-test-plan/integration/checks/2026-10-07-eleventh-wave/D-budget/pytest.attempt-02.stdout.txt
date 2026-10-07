@@ -1,0 +1,42 @@
+candidate_sha=68070854bddba2593efaef59a107a3cbe3b08d4d
+candidate_tree=459895cbc549d8f4b6c8fd38510f5ab2cb690c4e
+live_paths_removed=["/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine", "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"]
+candidate_src=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/src
+cwd=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine
+sys_path=["/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results", "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/src", "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/tests/unit/scientist/methods/search", "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python314.zip", "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14", "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/lib-dynload", "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages"]
+pytest_version=9.0.2
+pytest_argv=["--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/owner-budget-factory.attempt-02.junit.xml", "-o", "addopts=", "-q", "-p", "no:cacheprovider", "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"]
+..........                                                               [100%]
+=============================== warnings summary ===============================
+../../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: asyncio_mode
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:86
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py:86: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:128
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py:128: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:156
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py:156: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:188
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py:188: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+10 passed, 6 warnings in 7.81s
+candidate_origin_check=PASS
+candidate_origin_modules=833
+candidate_origin_problems=0
+pytest_exit_code=0

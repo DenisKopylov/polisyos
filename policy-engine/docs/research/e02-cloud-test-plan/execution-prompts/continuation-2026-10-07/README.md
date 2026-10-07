@@ -23,3 +23,10 @@ Pattern pass: P01/P02 — реальная цепочка; P14/P29 — неза�
 - [F: offline executor, известный 519e и восстановление публикации](F-resume-after-offline-519e.md).
 
 Это supplement к полным A–F заданиям; source acceptance и formal closure остаются за G.
+
+## После остановки C54 и PR68
+
+- [C: текущий C54, CAN и NET→ING](C-resume-after-c54-v10.md).
+- [D: exact680, native budget factory и source residuals](D-resume-after-pr68-680.md).
+
+Старые рекомендации/source pins сохраняются; source admission и finding closure остаются раздельными решениями G.

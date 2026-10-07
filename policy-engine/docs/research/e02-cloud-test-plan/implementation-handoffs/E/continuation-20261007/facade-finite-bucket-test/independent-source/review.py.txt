@@ -1,0 +1,193 @@
+from __future__ import annotations
+import ast
+import copy
+import hashlib
+import importlib.metadata
+import inspect
+import json
+import os
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+import time
+from unittest.mock import patch
+import xml.etree.ElementTree as ET
+
+import numpy as np
+from polisyos.foundry.uncertainty import sampling_admission
+from polisyos.ir.analytics import posterior_summary
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path(__file__).parent
+CANDIDATE = 'd0038a6e52867e820fd96f4706746ec501a80273'
+TREE = '7cba4710faa6f504be29ac44a68397afb16e7dd2'
+BASE = '31782b55f8f35556cfc581449b040c393f00c78f'
+TEST = 'policy-engine/tests/unit/calibration/test_evidence_facades.py'
+SELECTOR = 'tests/unit/calibration/test_evidence_facades.py::test_public_finite_law_admission_preserves_atoms_and_domain'
+OLD = Path('/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/review.json')
+OLDHASH = 'c0200a604c643d69c1fac2b043864d7570621e310a4887d9ceec40f324f2d2f0'
+oldbody = OLD.read_bytes()
+assert hashlib.sha256(oldbody).hexdigest() == OLDHASH
+old = json.loads(oldbody)
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+def blob_ref(path, data):
+    return {'path': path, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+def guard():
+    assert git('rev-parse', 'HEAD').decode().strip() == CANDIDATE
+    assert git('rev-parse', 'HEAD^{tree}').decode().strip() == TREE
+    assert git('show', '-s', '--format=%P', CANDIDATE).decode().strip() == BASE
+    changed = git('diff', '--name-only', BASE, CANDIDATE).decode().splitlines()
+    assert changed == [TEST]
+    current = (ROOT / TEST).read_bytes()
+    assert current == git('show', f'{CANDIDATE}:{TEST}')
+    unchanged = []
+    for row in old['source_guard_before']['assets']:
+        if row['path'] == TEST:
+            continue
+        actual = (ROOT / row['path']).read_bytes()
+        assert actual == git('show', f'{BASE}:{row["path"]}') == git('show', f'{CANDIDATE}:{row["path"]}')
+        assert blob_ref(row['path'], actual) == row
+        unchanged.append(row)
+    return {
+        'source': CANDIDATE, 'tree': TREE, 'parent': BASE, 'changed_paths': changed,
+        'test_ref': blob_ref(TEST, current), 'production_unchanged_refs': unchanged,
+        'prior_oracle_ref': blob_ref(str(OLD), oldbody),
+        'status': git('status', '--porcelain=v1', '-uall').decode(),
+    }
+
+before = guard()
+for name in ['pytest-base', 'pytest-cache', 'benchmarks', 'tmp']:
+    if name != 'pytest-base':
+        (OUT / name).mkdir(exist_ok=True)
+env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1',
+           PYTHONPATH=str(ROOT/'policy-engine/src'), TMPDIR=str(OUT/'tmp'),
+           UV_NO_SYNC='1', UV_PROJECT_ENVIRONMENT=str(ROOT/'policy-engine/.venv'))
+argv = [sys.executable, '-m', 'pytest', '-q', SELECTOR,
+        '--junitxml', str(OUT/'pytest.xml'), '--basetemp', str(OUT/'pytest-base'),
+        '-o', f'cache_dir={OUT / "pytest-cache"}',
+        f'--benchmark-storage=file://{OUT / "benchmarks"}']
+started = time.time()
+with (OUT/'pytest.stdout.txt').open('wb') as stdout, (OUT/'pytest.stderr.txt').open('wb') as stderr:
+    run = subprocess.run(argv, cwd=ROOT/'policy-engine', env=env, stdout=stdout, stderr=stderr)
+assert run.returncode == 0
+xml = ET.parse(OUT/'pytest.xml').getroot()
+cases = xml.findall('.//testcase')
+assert len(cases) == 1
+assert not cases[0].findall('failure') and not cases[0].findall('error') and not cases[0].findall('skipped')
+command = {'argv': argv, 'cwd': str(ROOT/'policy-engine'), 'exit_code': run.returncode,
+           'elapsed_seconds': time.time()-started,
+           'env': {key: env.get(key) for key in ('PYTHONPATH','PYTHONDONTWRITEBYTECODE','TMPDIR','UV_NO_SYNC','UV_PROJECT_ENVIRONMENT','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','XLA_FLAGS')},
+           'case': {'classname': cases[0].get('classname'), 'name': cases[0].get('name'), 'status': 'PASS'}}
+(OUT/'command.json').write_text(json.dumps(command, indent=2)+'\n')
+print(json.dumps({'actual_immutable_defining_test': command}, sort_keys=True), flush=True)
+
+# Actual new test must detect removal of the finite-bucket admission. Compile only
+# that genuine function with its two-line predicate removed in this process.
+fn = inspect.getsource(posterior_summary.posterior_sampling_cdf)
+parsed = ast.parse(fn)
+guard_node = next(node for node in ast.walk(parsed) if isinstance(node, ast.If)
+                  and 'array_equal' in ast.unparse(node.test))
+lines = fn.splitlines(keepends=True)
+mutant = ''.join(lines[:guard_node.lineno-1]+lines[guard_node.end_lineno:])
+ns = dict(posterior_summary.__dict__)
+exec(compile(mutant, '<independent-sole-bucket-predicate-removal>', 'exec'), ns)
+mutant_fn = ns['posterior_sampling_cdf']
+(OUT/'removed-function.py.txt').write_text(mutant)
+func = runpy.run_path(str(ROOT/TEST))['test_public_finite_law_admission_preserves_atoms_and_domain']
+with patch.object(posterior_summary, 'posterior_sampling_cdf', mutant_fn), patch.object(sampling_admission, 'posterior_sampling_cdf', mutant_fn):
+    try:
+        func()
+    except BaseException as error:
+        assert 'DID NOT RAISE' in str(error)
+        removal = {'control_status': 'PASS', 'defining_test_status': 'FAIL',
+                   'error_type': type(error).__name__, 'error': str(error),
+                   'inlet': 'sole positive-bucket predicate removed; both genuine import aliases rebound',
+                   'markers_and_positive_gold_retained': True}
+    else:
+        raise AssertionError('new defining test did not detect bucket-property removal')
+print(json.dumps({'effective_property_removal': removal}, sort_keys=True), flush=True)
+
+# Reintroduced old float-cumsum proxy must diverge at the admitted 3atom middle.
+def obsolete_cdf(weights):
+    arr = np.asarray(weights, dtype=np.float64)
+    return np.cumsum(arr / np.sum(arr))
+with patch.object(sampling_admission, 'posterior_sampling_cdf', obsolete_cdf):
+    try:
+        func()
+    except AssertionError as error:
+        proxy = {'control_status':'PASS','defining_test_status':'FAIL','error':str(error),
+                 'case':'three-atom positive cut adjacent to .5', 'old_proxy':'float64 normalization/cumsum'}
+    else:
+        raise AssertionError('new test did not distinguish old floating-CDF proxy')
+print(json.dumps({'proxy_divergence': proxy}, sort_keys=True), flush=True)
+
+# Thin receipt admission is typed and content-bound to recomputed immutable facts.
+# Compare all source/ref fields, not just their marker presence.
+expected = {key: value for key, value in before.items() if key != 'status'}
+def typed_equal(left, right):
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(typed_equal(left[k], right[k]) for k in left)
+    if isinstance(left, list):
+        return len(left)==len(right) and all(typed_equal(a,b) for a,b in zip(left,right,strict=True))
+    return left == right
+
+def admit_source_refs(claim):
+    if not typed_equal(claim, expected):
+        raise ValueError('source/ref claim differs from immutable recomputation')
+    return True
+assert admit_source_refs(expected)
+mutations = []
+def add_negative(name, alter):
+    claim=copy.deepcopy(expected);alter(claim)
+    try:
+        admit_source_refs(claim)
+    except ValueError as error:
+        mutations.append({'name':name,'status':'REFUSED','error':str(error)})
+    else:
+        raise AssertionError(f'{name} escaped typed source/ref guard')
+add_negative('old_source_promoted_as_candidate', lambda x:x.update(source=BASE))
+add_negative('wrong_tree',lambda x:x.update(tree='0'*40))
+add_negative('missing_changed_test',lambda x:x.update(changed_paths=[]))
+add_negative('extra_product_path',lambda x:x['changed_paths'].append('policy-engine/src/polisyos/ir/analytics/posterior_summary.py'))
+add_negative('test_ref_size_bool',lambda x:x['test_ref'].update(bytes=True))
+add_negative('prior_oracle_digest_substitution',lambda x:x['prior_oracle_ref'].update(sha256='0'*64))
+add_negative('unchanged_production_ref_omission',lambda x:x['production_unchanged_refs'].pop())
+add_negative('source_ref_extra_authority',lambda x:x.update(global_wave_pass=True))
+print(json.dumps({'typed_source_ref_negative_controls':mutations},sort_keys=True),flush=True)
+after=guard();assert before==after
+result={
+    'schema':'e02-independent-facade-test-source-review:1','disposition':'GO',
+    'candidate':CANDIDATE,'candidate_tree':TREE,'base':BASE,
+    'before':before,'after':after,'source_unchanged_during_review':True,
+    'actual_defining_test':command,'effective_property_removal':removal,'proxy_divergence':proxy,
+    'typed_source_ref_negative_controls':mutations,
+    'prior_oracle_reuse':{'sha256':OLDHASH,'path':str(OLD),'production_assets_rechecked':4,
+        'reuse_scope':['exact Fraction cuts','native 3atom Sobol257 callbacks128/1/127','4atom UNKNOWN/callback0',
+            'native sole-bucket-predicate removal257callbacks/skipped positive category1'],
+        'original317_facade_test_FAIL_retained':True},
+    'review_findings':[
+        'The changed test derives rational CDF inequalities independently, then asserts exact finite-U cuts and middle bucket.',
+        'The genuine4atom law rejects before any callback in the unchanged runtime; current test checks that same public inlet.',
+        'Public facade identity, original dyadic boundary control, U=1 domain refusal remain in the real test.',
+        'Production source unchanged; no method decision or dependency changes.'],
+    'predicate_basis':[
+        {'predicate':'immutable source/tree/full changed footprint and reused bytes','basis':'recomputed'},
+        {'predicate':'finite rational cut and actual callback law','basis':'independently_reconciled'},
+        {'predicate':'current whole-wave/finding/G formal acceptance','basis':'not_established'}],
+    'environment':{'python':sys.version,'executable':sys.executable,'numpy':np.__version__,
+        'pytest':importlib.metadata.version('pytest'),'pydantic':importlib.metadata.version('pydantic'),'thread_process_cpu_caps':None},
+    'limitations':['Finite-U mesh approximation is the scoped sampling convention; tiny continuum mass is not guaranteed its continuum frequency on a finite net.',
+        'Single test PASS and reused native controls do not make earlier complete1317-case wave current.',
+        'Finding closure and G intake are separate from this companion source GO.'],
+}
+(OUT/'review.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'disposition':'GO','actual_case_counts':{'PASS':1,'FAIL':0,'ERROR':0,'SKIP':0},
+    'negative_source_ref_controls':len(mutations),'effective_removals':1,'proxy_divergence_controls':1,
+    'source_guard_unchanged':True},sort_keys=True))

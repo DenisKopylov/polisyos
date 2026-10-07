@@ -1,0 +1,54 @@
+{
+  "schema": "e02-independent-author-output-ref-readback:1",
+  "candidate": "d0038a6e52867e820fd96f4706746ec501a80273",
+  "author_receipt_ref": {
+    "path": "/tmp/e02-E-facade-test-companion-author-20261007/receipt.json",
+    "bytes": 5621,
+    "sha256": "16ad69b747f3cb1c0ce534594253ecfdf85e3e0608d81d33607a88da4e424724"
+  },
+  "complete_author_output_count": 8,
+  "complete_author_output_bytes": 764,
+  "outputs": [
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.stdout.txt",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.xml",
+      "bytes": 397,
+      "sha256": "2f104f7dbf7080c605188203fed31405080c388a64104eaead9eefa027b7ad1d"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/status-before.nul",
+      "bytes": 243,
+      "sha256": "57a6636290942d3f941cc3041f658545a1915ca5eeea247cc337ba98d5a1e27f"
+    }
+  ],
+  "scope": "author moderate output refs only; actual peer pytest and source identity are separate"
+}

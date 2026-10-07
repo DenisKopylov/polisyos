@@ -5,8 +5,8 @@
   "publication_parent_sha": "3eafb85617738c9b398fe67c70d58b3d0d05a5a9",
   "fixed_selected_outputs": 76,
   "fixed_selected_output_bytes": 5549441,
-  "copied_files": 85,
-  "copied_bytes": 5727628,
+  "copied_files": 90,
+  "copied_bytes": 5740884,
   "copies": [
     {
       "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/plan.json",
@@ -600,6 +600,41 @@
       "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-optimized.stderr.txt",
       "portable_path": "publication-control/prearchive-optimized.stderr.txt",
       "role": "literal publication validator archive or actual prearchive observer output; 80-copy/83-path execution stage is labelled explicitly",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-common-wave-v2.py.txt",
+      "portable_path": "publication-control/validate-common-wave-v2.py.txt",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 8814,
+      "sha256": "0118719cadfa06c3b4f207191f073186e452de264e33bbe7eb9e10cbbd990318"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive.stdout.json",
+      "portable_path": "publication-control/v2-prearchive-normal.stdout.json",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 2221,
+      "sha256": "ee80e741e4343bc2ff45653ec5a86b77c8b2ae36b8702deb85248f5ec7c15aef"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive.stderr.txt",
+      "portable_path": "publication-control/v2-prearchive-normal.stderr.txt",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive-optimized.stdout.json",
+      "portable_path": "publication-control/v2-prearchive-optimized.stdout.json",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
+      "bytes": 2221,
+      "sha256": "ee80e741e4343bc2ff45653ec5a86b77c8b2ae36b8702deb85248f5ec7c15aef"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/validate-v2-prearchive-optimized.stderr.txt",
+      "portable_path": "publication-control/v2-prearchive-optimized.stderr.txt",
+      "role": "literal corrected publication-validator archive or actual 85-copy/88-path prearchive observer output; exact named receipt intake excludes sibling catalog metadata",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }

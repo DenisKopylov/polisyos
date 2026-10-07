@@ -74,8 +74,8 @@
   "A_consumer_boundary": "Native BKT/FRC/S10 group 321 cases: 313 PASS / 8 FAIL. Actual seven-case A contract packet archived; A shared writers untouched. Real producer/CAS witness and preexisting source reviews are separate from A default/HTTP verifier closure.",
   "source_and_owner_inputs": "Source-and-owner inputs are literal frozen records; individual accountable original-criterion decisions remain independent of PASS totals.",
   "copy_index": "copy-index.json",
-  "copied_files": 85,
-  "copied_bytes": 5727628,
+  "copied_files": 90,
+  "copied_bytes": 5740884,
   "selected_output_count": 76,
   "selected_output_bytes": 5549441,
   "changed_paths": [
@@ -123,6 +123,11 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-normal.stdout.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-optimized.stderr.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/prearchive-optimized.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-normal.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-normal.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-optimized.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/v2-prearchive-optimized.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/validate-common-wave-v2.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/publication-control/validate-common-wave.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/source-and-owner-inputs/current-prewave-all-54-owner-dispositions.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/source-and-owner-inputs/source-freeze-64d7444a.json",
@@ -168,7 +173,7 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/plan.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d/wave/wave-started.json"
   ],
-  "path_count": 88,
+  "path_count": 93,
   "active_python_path_count": 0,
   "source_test_delta_paths": [],
   "finding_closure": false,
@@ -187,12 +192,12 @@
   "next_owners": "E root/G bind available successor receipts and current global gate queue; A resolves eight real default-consumer status/reason failures and independently verifies fresh persisted/default/HTTP decisions; canonical generator/Core/IR owners handle their exact companion packets; G accepts code and findings separately.",
   "cleanup": "Source, unique deciding observations and rootenv preserved. Raw temporary/fixture/cache/environment trees excluded from Git; cleanup only after reader custody and actual active-user checks.",
   "publication_receipt_validator": {
-    "archive": "publication-control/validate-common-wave.py.txt",
-    "recorded_execution_stage": "Published normal/-O outputs bind the prearchive 80-copy / 83-path stage; final handoff/index include these five new literal archives. Read-only final recomputation is provided separately to independent reviewer, avoiding self-referential stdout indexing.",
-    "checks": "literal SHA/bytes/path custody; 15 receipts; six original JUnit plus immutable Git3eafb CAL retry; source/tree/stability; 18 corrupt fields refused under normal and optimized Python",
+    "archive": "publication-control/validate-common-wave-v2.py.txt",
+    "recorded_execution_stage": "Current v2 normal/-O outputs bind prearchive 85-copy / 88-path stage; final handoff/index include these five correction archives. Initial v1 outputs remain literal historical80/83 observations in e880. Final current read-only recomputation is given to independent reviewer, without recursive stdout indexing.",
+    "checks": "literal SHA/bytes/path custody;15canonical exact dirname/dirname.json receipts (forward/reverse directory-order equality);six original JUnit plus immutable Git3eafb CALretry;source/tree/stability;19corrupt fields including sibling catalog metadata refused under normal/optimizedPython",
     "command": [
       "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
-      "publication-control/validate-common-wave.py.txt",
+      "publication-control/validate-common-wave-v2.py.txt",
       "--packet",
       "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-wave-64d",
       "--repo",
@@ -201,5 +206,12 @@
     ],
     "optimized_variant": "same argv with -O before archive path",
     "numerical_gate_execution": false
+  },
+  "publication_validator_correction": {
+    "historical_commit": "e8807764d7e527b6cb998cd7296c7f8fd55f9890",
+    "historical_archive": "publication-control/validate-common-wave.py.txt",
+    "property": "Select each canonical observation by exact directory/name.json, so sibling runtime emitter metadata cannot replace a receipt according to filesystem iteration order.",
+    "source_tests_original_checks_changed": false,
+    "historical_stdout_rewritten": false
   }
 }

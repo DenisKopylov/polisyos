@@ -176,6 +176,141 @@ def _simulation_execution_context(
     )
 
 
+def _avg_income_owner_bound_n5_case(
+    problem_seed: DesignProblem,
+) -> tuple[DesignProblem, CycleSubstrateContext, object]:
+    """Bind candidate-only N5 atoms and a limited WMR to the avg-income estimand."""
+
+    from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _cyc01_owner_bound_n5_case,
+    )
+
+    problem, base_context, base_candidate = _cyc01_owner_bound_n5_case(
+        problem_seed=problem_seed
+    )
+    outcome = problem.outcome_of_interest.target_variable
+    if outcome != "avg_income" or problem.outcome_of_interest.metric_id != outcome:
+        raise AssertionError("avg_income_n5_fixture_objective_mismatch")
+    target_slots = tuple(
+        dict.fromkeys(
+            (
+                *(
+                    slot
+                    for atom in base_candidate.intervention_atoms
+                    for slot in atom.target_world_slots
+                ),
+                outcome,
+            )
+        )
+    )
+    world = _build_boundary_world_model_record(
+        repo_root=Path.cwd(),
+        problem=problem,
+        outcome=outcome,
+        policy_slot_ids=target_slots,
+        substrate_registry=base_context.substrate_registry,
+        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
+    )
+    if world.authority_status != "limited":
+        raise AssertionError("avg_income_n5_fixture_world_not_limited")
+    context = build_cycle_substrate_context(
+        design_problem_ref=base_context.design_problem_ref,
+        domain=base_context.domain,
+        substrate_registry=base_context.substrate_registry,
+        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
+        world_model_record=world,
+        intervention_substrate=base_context.intervention_substrate,
+        candidate_levers=base_context.candidate_levers,
+        transport_context=base_context.transport_context,
+        source_pack_content_hash=base_context.source_pack_content_hash,
+        substrate_input_content_hash=base_context.substrate_input_content_hash,
+    )
+    rebound_atoms = []
+    for atom in base_candidate.intervention_atoms:
+        estimand = atom.intended_downstream_estimand.model_copy(
+            update={
+                "outcome_variables": (outcome,),
+                "metric_id": outcome,
+                "unit_id": "usd",
+            }
+        )
+        rebound = atom.model_copy(
+            update={
+                "world_model_record_ref": world.world_model_record_id,
+                "intended_downstream_estimand": estimand,
+            }
+        )
+        rebound = rebound.model_copy(
+            update={"content_hash": intervention_atom_content_hash(rebound)}
+        )
+        rebound_atoms.append(
+            InterventionAtomBinding.model_validate(rebound.model_dump(mode="python"))
+        )
+    atoms = tuple(rebound_atoms)
+    candidate = SimpleNamespace(
+        candidate_id=base_candidate.candidate_id,
+        atom=atoms[0],
+        intervention_atoms=atoms,
+    )
+    return problem, context, candidate
+
+
+def _avg_income_joint_simulation_request(
+    request_builder: Any,
+    *,
+    record: object,
+    world_model_record_ref: str,
+) -> Any:
+    """Project the synthetic candidate-only NCM fixture onto avg_income end to end."""
+
+    request = request_builder(
+        record=record,
+        world_model_record_ref=world_model_record_ref,
+    )
+    plan = request.engine_plan[0]
+    if plan.ncm_spec is None:
+        raise AssertionError("avg_income_n5_fixture_ncm_missing")
+
+    def rename_exact(value: Any) -> Any:
+        replacements = {
+            "firm_survival": "avg_income",
+            "u_survival": "u_avg_income",
+        }
+        if isinstance(value, str):
+            return replacements.get(value, value)
+        if isinstance(value, dict):
+            return {
+                replacements.get(key, key) if isinstance(key, str) else key: rename_exact(item)
+                for key, item in value.items()
+            }
+        if isinstance(value, tuple):
+            return tuple(rename_exact(item) for item in value)
+        if isinstance(value, list):
+            return [rename_exact(item) for item in value]
+        return value
+
+    plan_payload = plan.model_dump(mode="python")
+    plan_payload["objective_ref"] = "objective://avg_income"
+    plan_payload["ncm_spec"] = type(plan.ncm_spec).model_validate(
+        rename_exact(plan_payload["ncm_spec"])
+    )
+    plan_payload["variable_map"] = rename_exact(plan_payload["variable_map"])
+    avg_income_plan = type(plan).model_validate(plan_payload)
+    request_payload = request.model_dump(mode="python")
+    request_payload["selected_outcomes"] = ("avg_income",)
+    request_payload["baseline_state"] = rename_exact(request_payload["baseline_state"])
+    request_payload["world_credal_state_before"] = rename_exact(
+        request_payload["world_credal_state_before"]
+    )
+    request_payload["engine_plan"] = (avg_income_plan,)
+    return type(request).model_validate(request_payload)
+
+
 def _persisted_n5_value_fixture(
     tmp_path: Path,
     *,
@@ -194,15 +329,23 @@ def _persisted_n5_value_fixture(
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from tests.unit.remediation import test_cyc_02 as cyc_02
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        _cyc01_owner_bound_n5_case,
-    )
+
+    def avg_income_case() -> tuple[DesignProblem, CycleSubstrateContext, object]:
+        return _avg_income_owner_bound_n5_case(problem_seed)
+
+    request_builder = cyc_02._request  # noqa: SLF001
+
+    def avg_income_request(*, record: object, world_model_record_ref: str) -> Any:
+        return _avg_income_joint_simulation_request(
+            request_builder,
+            record=record,
+            world_model_record_ref=world_model_record_ref,
+        )
 
     store = FileSystemCAS(tmp_path / "n5-runtime-store")
-    with patch.object(
-        cyc_02,
-        "_cyc01_owner_bound_n5_case",
-        lambda: _cyc01_owner_bound_n5_case(problem_seed=problem_seed),
+    with (
+        patch.object(cyc_02, "_cyc01_owner_bound_n5_case", avg_income_case),
+        patch.object(cyc_02, "_request", avg_income_request),
     ):
         problem, _substrate_context, candidate, simulation, produced, supplied_store = (
             cyc_02._real_n5_observation(  # noqa: SLF001
@@ -219,8 +362,33 @@ def _persisted_n5_value_fixture(
     assert simulation.simulation_ref is not None
     world = simulation.world_model_record
     assert world is not None
+    assert world.authority_status == "limited"
     assert store.has(simulation.simulation_result_ref)
-    expected_atom_ids = (candidate.atom.intervention_id,)
+    assert "simulation_only_k_sim_not_world_evidence" in simulation.authority_blockers
+    candidate_atoms = getattr(candidate, "intervention_atoms", None)
+    if candidate_atoms is None:
+        candidate_atoms = (candidate.atom,)
+    expected_atom_ids = tuple(atom.intervention_id for atom in candidate_atoms)
+    expected_outcomes = (problem.outcome_of_interest.target_variable,)
+    assert problem.outcome_of_interest.target_variable == "avg_income"
+    assert problem.outcome_of_interest.metric_id == "avg_income"
+    assert problem.outcome_of_interest.estimand == "average_treatment_effect"
+    request = problem.runtime_hints["joint_simulation_request"]
+    assert request.world_model_record_ref == world.world_model_record_id
+    assert request.world_model_record.world_model_record_id == world.world_model_record_id
+    assert request.selected_outcomes == expected_outcomes
+    assert tuple(atom.intervention_id for atom in request.intervention_atoms) == expected_atom_ids
+    assert request.engine_plan[0].objective_ref == "objective://avg_income"
+    assert request.engine_plan[0].variable_map["avg_income"] == "avg_income"
+    assert "avg_income" in request.engine_plan[0].ncm_spec.endogenous_vars
+    assert all(
+        atom.intended_downstream_estimand.outcome_variables == expected_outcomes
+        and atom.intended_downstream_estimand.functional == "average_treatment_effect"
+        and atom.intended_downstream_estimand.metric_id == "avg_income"
+        and atom.intended_downstream_estimand.unit_id == "usd"
+        and atom.status == "candidate_unverified"
+        for atom in candidate_atoms
+    )
     loaded = load_joint_simulation_result(
         simulation.simulation_result_ref,
         store=store,
@@ -228,10 +396,14 @@ def _persisted_n5_value_fixture(
         expected_world_model_record_ref=world.world_model_record_id,
         expected_receipt_payload_hash=simulation.simulation_ref,
         expected_atom_ids=expected_atom_ids,
-        expected_selected_outcomes=produced.selected_outcomes,
+        expected_selected_outcomes=expected_outcomes,
     )
     assert loaded.receipt.payload_hash == simulation.simulation_ref
+    assert loaded.world_model_record_ref == world.world_model_record_id
+    assert loaded.world_model_record_content_hash == world.content_hash
     assert loaded.atom_ids == expected_atom_ids
+    assert loaded.selected_outcomes == expected_outcomes
+    assert produced.selected_outcomes == expected_outcomes
     execution_context = simulation_value_execution_context(
         candidate=candidate,
         simulation=simulation,
@@ -306,6 +478,9 @@ def _bounded_n8_owner_projection(
         ObservationProvenanceClass,
     )
 
+    outcome = problem.outcome_of_interest.target_variable
+    if outcome != "avg_income":
+        raise AssertionError("bounded_n8_fixture_outcome_mismatch")
     rows = []
     for unit_index in range(3):
         for period_id in range(4):
@@ -324,7 +499,7 @@ def _bounded_n8_owner_projection(
     rows_payload = [row.model_dump(mode="json") for row in rows]
     profile_payload = {
         "schema_version": "policyos.runtime.value_data_profile.v1",
-        "outcome": "avg_income",
+        "outcome": outcome,
         "rows": rows_payload,
         "owner_row_count": len(rows_payload),
         "unit_count": 3,
@@ -353,16 +528,16 @@ def _bounded_n8_owner_projection(
         receipt_content_sha256=_hash("3"),
         passport_ref=passport_ref,
         passport_content_sha256=_hash("4"),
-        variable_id="avg_income",
+        variable_id=outcome,
         epoch_id=1,
         passport_id="fixture-passport",
         admission_content_sha256=_hash("5"),
         observations=(
             CanonicalAcquisitionObservation(
-                observation_id="fixture-active-avg-income",
-                dataset_id="fixture-acquired-avg-income",
-                raw_variable="avg_income",
-                canonical_var="avg_income",
+                observation_id=f"fixture-active-{outcome}",
+                dataset_id=f"fixture-acquired-{outcome}",
+                raw_variable=outcome,
+                canonical_var=outcome,
                 country_code="AM",
                 year=2024,
                 value=1.0,
@@ -3377,6 +3552,212 @@ def test_n8_default_registry_refuses_unbound_entrypoint_closure_with_real_n5(
     assert "entry_point_source_byte_closure_not_established" in observation.reason
     assert observation.method_selection_receipt is None
     assert observation.value_receipt is None
+
+
+def test_n8_intake_rejects_outcome_candidate_and_atom_mismatches(
+    tmp_path: Path,
+) -> None:
+    """The default N8 bridge rejects content-valid N5 bytes bound to other inputs."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        _DefaultSimulationBoundFoundryValuePort,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    candidate, problem, simulation, _execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    gateway_calls: list[str] = []
+
+    class GatewayMustNotRun:
+        def load_value_data_profile(self, **_kwargs: Any) -> ValueDataProfile:
+            gateway_calls.append("load_value_data_profile")
+            raise AssertionError("mismatched N5 intake reached the owner gateway")
+
+    intake = _DefaultSimulationBoundFoundryValuePort(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=None,
+        artifact_store=store,
+        owner_gateway=GatewayMustNotRun(),
+    )
+
+    wrong_outcome_problem = problem.model_copy(
+        update={
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable="firm_survival",
+                metric_id="firm_survival",
+                estimand=problem.outcome_of_interest.estimand,
+                direction=problem.outcome_of_interest.direction,
+            )
+        }
+    )
+    outcome_mismatch = intake(
+        candidate=candidate,
+        simulation=simulation,
+        problem=wrong_outcome_problem,
+        cycle_index=0,
+    )
+    assert outcome_mismatch.status == "value_blocked"
+    assert outcome_mismatch.authority_blockers == (
+        "joint_simulation_result_integrity_invalid",
+    )
+    assert "selected_outcomes_binding_mismatch" in outcome_mismatch.reason
+    assert outcome_mismatch.value_ref is None
+
+    wrong_candidate = SimpleNamespace(
+        candidate_id=f"{candidate.candidate_id}_sibling",
+        atom=candidate.atom,
+        intervention_atoms=(candidate.atom,),
+    )
+    candidate_mismatch = intake(
+        candidate=wrong_candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+    assert candidate_mismatch.status == "value_blocked"
+    assert candidate_mismatch.authority_blockers == (
+        "value_candidate_simulation_mismatch",
+    )
+    assert candidate_mismatch.value_ref is None
+
+    foreign_atom_draft = candidate.atom.model_copy(
+        update={"intervention_id": f"{candidate.atom.intervention_id}_sibling"}
+    )
+    foreign_atom_hash = intervention_atom_content_hash(foreign_atom_draft)
+    foreign_atom = InterventionAtomBinding.model_validate(
+        {
+            **foreign_atom_draft.model_dump(mode="python"),
+            "atom_id": f"atom_{foreign_atom_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": foreign_atom_hash,
+        }
+    )
+    atom_mismatch_candidate = SimpleNamespace(
+        candidate_id=candidate.candidate_id,
+        atom=foreign_atom,
+        intervention_atoms=(foreign_atom,),
+    )
+    atom_mismatch = intake(
+        candidate=atom_mismatch_candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+    assert atom_mismatch.status == "value_blocked"
+    assert atom_mismatch.authority_blockers == (
+        "joint_simulation_result_atom_binding_mismatch",
+    )
+    assert atom_mismatch.value_ref is None
+    assert gateway_calls == []
+
+
+def test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings(
+    tmp_path: Path,
+) -> None:
+    """Direct Foundry N8 intake re-resolves N5 bytes for the active problem."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+        tmp_path,
+        problem_seed=_avg_income_problem(),
+    )
+    wrong_outcome_problem = problem.model_copy(
+        update={
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable="firm_survival",
+                metric_id="firm_survival",
+                estimand=problem.outcome_of_interest.estimand,
+                direction=problem.outcome_of_interest.direction,
+            )
+        }
+    )
+    assert (
+        simulation_evaluation_input_ref(
+            simulation,
+            artifact_store=store,
+            candidate=candidate,
+            problem=wrong_outcome_problem,
+        )
+        is None
+    )
+    with pytest.raises(ValueError, match="eval_safety_simulation_input_unresolved"):
+        simulation_value_execution_context(
+            candidate=candidate,
+            simulation=simulation,
+            problem=wrong_outcome_problem,
+            artifact_store=store,
+        )
+
+    gateway_calls: list[str] = []
+
+    class GatewayMustNotRun:
+        def load_value_data_profile(self, **_kwargs: Any) -> ValueDataProfile:
+            gateway_calls.append("load_value_data_profile")
+            raise AssertionError("unbound N5 input reached the owner gateway")
+
+    wrong_problem_context = execution_context.model_copy(
+        update={
+            "design_problem_ref": gy_content_hash(
+                wrong_outcome_problem.model_dump(mode="json")
+            )
+        }
+    )
+    observation = FoundryValuePort(
+        evaluation_context=wrong_problem_context,
+        owner_gateway=GatewayMustNotRun(),
+        artifact_store=store,
+    )(
+        candidate=candidate,
+        simulation=simulation,
+        problem=wrong_outcome_problem,
+        cycle_index=0,
+    )
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "eval_safety_simulation_provenance_mismatch",
+    )
+    assert gateway_calls == []
+
+    foreign_atom_draft = candidate.atom.model_copy(
+        update={"intervention_id": f"{candidate.atom.intervention_id}_sibling"}
+    )
+    foreign_atom_hash = intervention_atom_content_hash(foreign_atom_draft)
+    foreign_atom = InterventionAtomBinding.model_validate(
+        {
+            **foreign_atom_draft.model_dump(mode="python"),
+            "atom_id": f"atom_{foreign_atom_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": foreign_atom_hash,
+        }
+    )
+    atom_mismatch_candidate = SimpleNamespace(
+        candidate_id=candidate.candidate_id,
+        atom=foreign_atom,
+        intervention_atoms=(foreign_atom,),
+    )
+    assert (
+        simulation_evaluation_input_ref(
+            simulation,
+            artifact_store=store,
+            candidate=atom_mismatch_candidate,
+            problem=problem,
+        )
+        is None
+    )
+    with pytest.raises(ValueError, match="eval_safety_simulation_input_unresolved"):
+        simulation_value_execution_context(
+            candidate=atom_mismatch_candidate,
+            simulation=simulation,
+            problem=problem,
+            artifact_store=store,
+        )
 
 
 def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() -> None:

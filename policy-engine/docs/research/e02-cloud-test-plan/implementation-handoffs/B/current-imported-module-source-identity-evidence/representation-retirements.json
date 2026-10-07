@@ -1,0 +1,51 @@
+{
+  "retirements": [
+    {
+      "original": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/stdout.txt",
+        "bytes": 6051,
+        "sha256": "9ffcb61d5af4a4eb03d050d492254310dcc9d6f95607f5390801fe2b5f7a2d5a"
+      },
+      "representation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/stdout.lossless.json",
+        "bytes": 6516,
+        "sha256": "2f5a8a946e8f876bdd99e4702dd6c8e6224fef2c90ff3364d7ba018b162b5139"
+      },
+      "decoded_identity": "independently_reconciled",
+      "reason": "forward lossless UTF8 JSON representation retains native whitespace; original raw objects immutable"
+    },
+    {
+      "original": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/stdout.txt",
+        "bytes": 28268,
+        "sha256": "912ab1dbab34c31a4c1ec05f0b2b0abe7067b8b09f8c1baa524d8167c9bb1a58"
+      },
+      "representation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/stdout.lossless.json",
+        "bytes": 28990,
+        "sha256": "2d3ef8a10a61b5ed5180e3b673f5f0b6c8ff25ff800a469c51ec89f2d3ffc39b"
+      },
+      "decoded_identity": "independently_reconciled",
+      "reason": "forward lossless UTF8 JSON representation retains native whitespace; original raw objects immutable"
+    },
+    {
+      "original": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/stdout.txt",
+        "bytes": 16305,
+        "sha256": "cd085ef87dd70d09faaef96817d4c70e5594f3ca8ef565bc71522fb57a8ea051"
+      },
+      "representation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/stdout.lossless.json",
+        "bytes": 16856,
+        "sha256": "34d992d061548ea2117b0e12aad876044663109ebd5b2b6355b59a4af52236ef"
+      },
+      "decoded_identity": "independently_reconciled",
+      "reason": "forward lossless UTF8 JSON representation retains native whitespace; original raw objects immutable"
+    }
+  ],
+  "native_rerun": false,
+  "data_trimmed": false
+}

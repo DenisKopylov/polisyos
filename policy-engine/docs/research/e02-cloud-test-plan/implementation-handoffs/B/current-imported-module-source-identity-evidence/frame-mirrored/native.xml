@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.444" timestamp="2026-10-07T08:26:46.497339+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.backends.test_module_source_identity" name="test_returned_frame_namespace_refuses_before_replacement_effect" time="0.367"><failure message="AssertionError: Builtin-returned frame namespace admitted a physically executed replacement helper&#10;assert None is not None">tests/unit/foundry/methods/backends/test_module_source_identity.py:134: in test_returned_frame_namespace_refuses_before_replacement_effect
+    assert observed["refusal"] is not None, (
+E   AssertionError: Builtin-returned frame namespace admitted a physically executed replacement helper
+E   assert None is not None</failure></testcase></testsuite></testsuites>

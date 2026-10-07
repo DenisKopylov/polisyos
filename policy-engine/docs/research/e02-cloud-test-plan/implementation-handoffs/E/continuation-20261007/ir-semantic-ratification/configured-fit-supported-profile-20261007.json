@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.E.configured_fit_supported_profile_decision.v1",
+  "owner": "E",
+  "scope": "E configured finite-corpus inlet only; existing producer contract is unchanged",
+  "appointment_ref": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "prior_scoped_decision": "a6701835f15944f860033df64fdf06c0350a972d",
+  "counterexample_source": {
+    "sha": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "tree": "5bc2352671f5172a88268ec45d8dd537b4e048fe",
+    "check_status": "FAIL defining admission controls; healthy native42 PASS is separate"
+  },
+  "existing_producer": {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/advanced.py",
+    "source_sha": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "bytes": 128190,
+    "sha256": "2a2db025e2f187b6ad70eee1a90f288347ece06b797d9af7bf3b2583547f4b11",
+    "property_paths": [
+      "_REFERENCE_SAMPLER_CONTRACT",
+      "_reference_sampler_reproducibility",
+      "_reference_sampler_contract",
+      "_run_reference_hmc",
+      "_run_reference_nuts"
+    ]
+  },
+  "supported_methods": [
+    "bayesian.sampling.hmc@1.0.0",
+    "bayesian.sampling.nuts@1.0.0"
+  ],
+  "decision": {
+    "runtime_backend": "numpy reference sampler only",
+    "recorded_contract_version": "foundry.bayesian.reference_sampler.v1",
+    "version_admission": "Require supported literal version in recorded reproducibility and its content-bound determinism envelope; reject missing/unknown versions before envelope publication or evaluator callback.",
+    "complete_parameter_records": [
+      "intercept",
+      "coefficients",
+      "sigma"
+    ],
+    "rank_admission": {
+      "intercept": 2,
+      "sigma": 2,
+      "coefficients": 3
+    },
+    "axes": "intercept/sigma: chain,draw; coefficients: chain,draw,parameter; common exact chain/draw counts and positive dimensions; reject additional or missing records and unknown ranks before publication.",
+    "source_authority": "Recorded result/evidence/source relationships are checked; admitting this finite corpus does not establish source law, noise model, mixing, scientific fit or institutional authority.",
+    "future_contracts": "Unsupported future producer version/profile refuses at this inlet; canonical producer owner can declare compatibility separately.",
+    "guard_location": "Shared E fit corpus admission before any envelope store.put_json or downstream nominal/evaluator callback; retain unchanged real HMC/NUTS positives and fresh complete joint-law readback."
+  },
+  "required_negative_controls": [
+    "coherently content-rebound unsupported top and inner contract versions",
+    "rank4 coefficient corpus under current three-axis declaration",
+    "missing sigma with coherently rebound posterior means/digests",
+    "missing/extra parameter record",
+    "remove shared profile admission while retaining all unrelated content/source guards"
+  ],
+  "source_fix_and_independent_review_state": "UNRUN; this decision grants no candidate PASS or finding closure",
+  "ledger_or_G_acceptance_changed": false,
+  "predicate_basis": {
+    "existing_producer_profile": "recomputed",
+    "input_observation_truth": "not_established",
+    "formal_finding_closure": "not_established"
+  }
+}

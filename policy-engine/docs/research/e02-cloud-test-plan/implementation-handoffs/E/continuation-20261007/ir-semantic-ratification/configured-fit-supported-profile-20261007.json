@@ -18,8 +18,8 @@
       "_REFERENCE_SAMPLER_CONTRACT",
       "_reference_sampler_reproducibility",
       "_reference_sampler_contract",
-      "_run_reference_hmc",
-      "_run_reference_nuts"
+      "_hmc_reference_trace",
+      "_nuts_reference_trace"
     ]
   },
   "supported_methods": [

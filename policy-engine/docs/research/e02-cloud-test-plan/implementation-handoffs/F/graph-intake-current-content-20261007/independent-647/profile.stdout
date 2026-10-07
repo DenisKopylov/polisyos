@@ -1,0 +1,22 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "origins": {
+    "polisyos.ir.analytics.causal_graph": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "polisyos.ir.analytics.cross_graph": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/cross_graph.py",
+    "polisyos.ir.analytics.alignment_certification": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/alignment_certification.py",
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "polisyos.foundry.methods.catalog.causal.query_preservation": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+    "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  },
+  "backend_presence": {
+    "dowhy": false,
+    "econml": false
+  },
+  "packages": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "networkx": "3.6.1",
+    "pydantic": "2.12.5"
+  }
+}

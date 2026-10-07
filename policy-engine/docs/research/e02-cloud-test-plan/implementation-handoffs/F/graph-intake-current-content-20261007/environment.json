@@ -1,0 +1,22 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "package_distribution_versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "networkx": "3.6.1",
+    "dowhy": null,
+    "econml": null
+  },
+  "module_origins": {
+    "polisyos.foundry.methods.catalog.causal.graph_reconciliation": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "polisyos.ir.analytics.causal_graph": "/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "numpy": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+    "scipy": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py"
+  },
+  "optional_backend_scope": "DoWhy/EconML excluded by baseline Python3.14 marker; absence is not a positive backend witness. Actual selected method backend is Numpy."
+}

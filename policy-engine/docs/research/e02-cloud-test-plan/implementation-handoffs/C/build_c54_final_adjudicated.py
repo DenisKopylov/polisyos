@@ -53,14 +53,14 @@ C3_FINAL_OUTPUT_MARKDOWN = (
 )
 C3_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication-input.v1"
 C3_FINAL_CUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication.v1"
-C4_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication-input.v1"
-C4_FINAL_CUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication.v1"
+C4_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication-input.v2"
+C4_FINAL_CUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication.v2"
 C4_FINAL_INPUT_PATH = (
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
     "C54-c4-current-root-adjudication-input.json"
 )
-C4_FINAL_OUTPUT_JSON = ".tmp/e02-C4/raw/census/C54-current-root-adjudication-20261007-v1.json"
-C4_FINAL_OUTPUT_MARKDOWN = ".tmp/e02-C4/raw/census/C54-current-root-adjudication-20261007-v1.md"
+C4_FINAL_OUTPUT_JSON = ".tmp/e02-C4/raw/census/C54-current-root-adjudication-20261007-v2.json"
+C4_FINAL_OUTPUT_MARKDOWN = ".tmp/e02-C4/raw/census/C54-current-root-adjudication-20261007-v2.md"
 C4_G_SNAPSHOT_COMMIT = "83e7c0e934d0b40644dec8a24264a0602ef013e7"
 C4_G_SNAPSHOT_TREE = "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
 C2_C3_SOURCE_SHA256 = "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
@@ -725,7 +725,11 @@ def render_c3_markdown(cut: dict, c2_cut: dict, c3_input: dict, cycle_label: str
                 "G capability / owner | C source family | Prior C2 verdict | "
                 "Current evidence basis | Current code outcome | Current verdict and reason | "
                 "Missing input / skipped backend | "
-                "Remaining verification | Deciding evidence | Next owner |"
+                + (
+                    "Remaining verification | Next action | Deciding evidence | Next owner |"
+                    if cycle_label == "C4"
+                    else "Remaining verification | Deciding evidence | Next owner |"
+                )
             )
             if final_mode
             else (
@@ -737,7 +741,7 @@ def render_c3_markdown(cut: dict, c2_cut: dict, c3_input: dict, cycle_label: str
             )
         ),
         (
-            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
+            "| " + " | ".join(["---"] * (15 if final_mode and cycle_label == "C4" else 14)) + " |"
             if final_mode
             else "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
         ),
@@ -856,6 +860,7 @@ def render_c3_markdown(cut: dict, c2_cut: dict, c3_input: dict, cycle_label: str
                         )
                     ),
                     markdown_cell(current["remaining_verification"]),
+                    *([markdown_cell(current["next_action"])] if cycle_label == "C4" else []),
                     "<br>".join(current_refs),
                     markdown_cell(current["next_owner"]),
                 ]
@@ -1308,9 +1313,20 @@ def apply_c3_root_adjudications(
             "remaining_verification",
             override.get("remaining_verification", c2_row["remaining_verification"]),
         )
-        next_owner = context_update.get(
-            "next_owner", override.get("next_owner", c2_row["next_owner"])
-        )
+        if cycle_label == "C4":
+            next_action = decision.get("next_action")
+            next_owner = decision.get("next_owner")
+            if not isinstance(next_action, str) or not next_action.strip():
+                raise RuntimeError(f"C4 next action is missing: {finding_id}")
+            if not isinstance(next_owner, str) or not next_owner.strip():
+                raise RuntimeError(f"C4 next owner is missing: {finding_id}")
+            if next_action.strip() == remaining.strip():
+                raise RuntimeError(f"C4 next action aliases remaining verification: {finding_id}")
+        else:
+            next_action = remaining
+            next_owner = context_update.get(
+                "next_owner", override.get("next_owner", c2_row["next_owner"])
+            )
         if not all(
             isinstance(item, str) and item.strip()
             for item in (code_outcome, missing, remaining, next_owner)
@@ -1333,7 +1349,13 @@ def apply_c3_root_adjudications(
             current["current_status"] = "current_root_adjudicated"
             current["scoped_proven_part"] = code_outcome
             current["missing_input_or_skipped_backend"] = missing
-            current["next_action"] = remaining
+            current["next_action"] = next_action
+            current["next_action_source_pointer"] = (
+                f"/root_current_adjudications/{finding_id}/next_action"
+            )
+            current["next_owner_source_pointer"] = (
+                f"/root_current_adjudications/{finding_id}/next_owner"
+            )
             current["evidence_classification"] = derived_basis
             current["criterion_ids"] = [item["criterion_id"] for item in row["criterion_refs"]]
         row["current_root_verdict"] = {

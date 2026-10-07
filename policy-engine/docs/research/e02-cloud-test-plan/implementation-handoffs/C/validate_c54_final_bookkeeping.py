@@ -35,8 +35,8 @@ C3_CUT_SCHEMA = "policyos.e02.c54.c3.current-evidence-census.v2"
 C3_INPUT_SCHEMA = "policyos.e02.c54.c3.current-evaluation-input.v2"
 C3_FINAL_CUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication.v1"
 C3_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication-input.v1"
-C4_FINAL_CUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication.v1"
-C4_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication-input.v1"
+C4_FINAL_CUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication.v2"
+C4_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication-input.v2"
 C3_INPUT_PATH = (
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
     "C54-c3-current-evaluation-input.json"
@@ -2323,10 +2323,26 @@ def run_c3(
                 else override.get("remaining_verification", c2["remaining_verification"])
             )
             expected_next_owner = (
-                expected_context_update["next_owner"]
-                if expected_context_update
-                else override.get("next_owner", c2["next_owner"])
+                final_decision.get("next_owner")
+                if c4_mode
+                else (
+                    expected_context_update["next_owner"]
+                    if expected_context_update
+                    else override.get("next_owner", c2["next_owner"])
+                )
             )
+            expected_next_action = (
+                final_decision.get("next_action") if c4_mode else expected_remaining_text
+            )
+            if c4_mode and (
+                not isinstance(expected_next_action, str)
+                or not expected_next_action.strip()
+                or not isinstance(expected_next_owner, str)
+                or not expected_next_owner.strip()
+            ):
+                raise AssertionError((finding_id, "C4 decision lacks a next action or owner"))
+            if c4_mode and expected_next_action.strip() == expected_remaining_text.strip():
+                raise AssertionError((finding_id, "C4 next action aliases remaining verification"))
             if current.get("code_outcome") != expected_code_outcome:
                 raise AssertionError((finding_id, "final current code outcome differs from source"))
             if current.get("current_capability_label") != expected_capability:
@@ -2375,8 +2391,16 @@ def run_c3(
                     raise AssertionError((finding_id, "C4 scoped proven part differs"))
                 if current.get("missing_input_or_skipped_backend") != expected_missing:
                     raise AssertionError((finding_id, "C4 missing-input alias differs"))
-                if current.get("next_action") != expected_remaining_text:
-                    raise AssertionError((finding_id, "C4 next-action alias differs"))
+                if current.get("next_action") != expected_next_action:
+                    raise AssertionError((finding_id, "C4 next action differs from root decision"))
+                if current.get("next_action_source_pointer") != (
+                    f"/root_current_adjudications/{finding_id}/next_action"
+                ):
+                    raise AssertionError((finding_id, "C4 next-action source pointer differs"))
+                if current.get("next_owner_source_pointer") != (
+                    f"/root_current_adjudications/{finding_id}/next_owner"
+                ):
+                    raise AssertionError((finding_id, "C4 next-owner source pointer differs"))
                 if current.get("evidence_classification") != expected_basis:
                     raise AssertionError((finding_id, "C4 evidence classification differs"))
                 if current.get("criterion_ids") != row_criterion_ids:

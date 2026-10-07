@@ -1,0 +1,151 @@
+{
+  "schema": "policyos.e02.instrumentation_status.v1",
+  "source_candidate_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "source_candidate_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "actual_instrument_attempts": [
+    {
+      "command": {
+        "literal_argv": "not_established until retained physical driver is recovered",
+        "retained_instrument_directory": "/tmp/e02-B-tenth-wave-20261007/model-oracle-preparation",
+        "do_not_execute_placeholder": true
+      },
+      "target_sha": "ec898674b0a062366af5e7134bf5d3416c0da726",
+      "outcome": "ERROR",
+      "physical_stdout": {
+        "path": "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-ec898674-c44",
+        "native_bytes": 5469,
+        "native_sha256": "e8c706893942031520bf86573048612dbc45a36c0c8e9f51dcc75dfe6baf48c6",
+        "receiver_availability": "not_established"
+      },
+      "phase": "pytest collection",
+      "observed_partition": "0 collected/1 collection ERROR",
+      "cause_in_log": "Canonical production_quality/method_catalog_dependency_digest_domains.toml omitted by incomplete source projection",
+      "product_bodies": "UNRUN",
+      "qualification": "Instrument/projected input ERROR, not product acceptance or inherited-red claim."
+    },
+    {
+      "command": {
+        "literal_argv": "not_established until retained physical driver is recovered",
+        "retained_instrument_directory": "/tmp/e02-B-tenth-exe-ec898-capture",
+        "do_not_execute_placeholder": true
+      },
+      "target_sha": "ec898674b0a062366af5e7134bf5d3416c0da726",
+      "outcome": "ERROR",
+      "phase": "before pytest/import/collection",
+      "exit": 1,
+      "stdout_path": "/tmp/e02-B-tenth-exe-ec898-capture/native.txt",
+      "stdout_bytes": 63243,
+      "stdout_sha256": "not_established; prefix3080ff20 is not a complete hash",
+      "junit": "absent",
+      "qualification": "Preflight failed on omitted declared closure; no test body or native outcome."
+    },
+    {
+      "command": [
+        "git",
+        "--git-dir=/tmp/e02-B-tenth-wave-20261007/transport.git",
+        "ls-tree",
+        "-r",
+        "-z",
+        "6b87fcd2471191acf2c879356e7fd0129fc9a2ee"
+      ],
+      "outcome": "ERROR",
+      "observed_terminal": "Python CalledProcessError: died with Signals.SIGKILL9",
+      "sender_and_causal_mechanism": "not_established"
+    },
+    {
+      "command": [
+        "git",
+        "--git-dir=/tmp/e02-B-tenth-wave-20261007/transport.git",
+        "-c",
+        "core.packedGitWindowSize=1m",
+        "-c",
+        "core.packedGitLimit=1m",
+        "ls-tree",
+        "-r",
+        "-z",
+        "6b87fcd2471191acf2c879356e7fd0129fc9a2ee"
+      ],
+      "outcome": "PASS",
+      "exit": 0,
+      "output_path": "/tmp/e02-B-tenth-wave-20261007/final-tracked-files.zlist",
+      "receiver_sha256": "not_established",
+      "qualification": "Only exact tree listing completed; per-command Git cache buffers, no process/CPU/thread/runtime quota and no persistent configuration."
+    },
+    {
+      "command": {
+        "literal_executed_driver": "not_established; root temporary heredoc attempted custody",
+        "required_recovery": "Recover actualdriver/output or run new recorded streamingdriver with freshreceipt"
+      },
+      "outcome": "ERROR",
+      "terminal": "No completion output; exec session30584 pending before transport disconnect",
+      "qualification": "Instrument should stream128KiB chunks. Full archive/projection custody remains not_established. No inferred native cases."
+    }
+  ],
+  "resource_observation": {
+    "observed_memory_current": 17176956928,
+    "observed_memory_max": 17179869184,
+    "memory_events": {
+      "oom": 23,
+      "oom_kill": 19
+    },
+    "shmem_bytes": 15702130688,
+    "swap_total": 0,
+    "ps_largest_rss_bytes": 34271232,
+    "attribution": "Aggregate measurements are exact contemporaneous observations, not causal proof of any selected process signal. No sender established."
+  },
+  "reclaim_attempt": {
+    "path": "/sys/fs/cgroup/memory.reclaim",
+    "requested_bytes": 1073741824,
+    "no_quota_change": true,
+    "no_deletion": true,
+    "status": "refused",
+    "exception": "PermissionError(13,'Permission denied')",
+    "literal_full_json": {
+      "path": "/tmp/e02-B-tenth-wave-20261007/resource-reclaim-attempt.json",
+      "receiver_availability": "not_established"
+    }
+  },
+  "cloud_status_history": [
+    "official running/offline",
+    "official running/connected, pwd exit0",
+    "official running/offline after custody attempt",
+    "official starting/offline"
+  ],
+  "product_validation": "Final source native/removal/affected consumers UNRUN; no fabricated JUnit/count; G broad replay still pending.",
+  "cleanup": {
+    "deleted_paths": [],
+    "trash_available": "not_established; no use",
+    "candidates": [
+      {
+        "path": "/tmp/e02-B-tenth-wave-20261007/frozen-source-native.tar",
+        "observed_bytes": 105984000,
+        "sha256": "2db11e4fd69cfcdb37dc2f49fd6d77690a43d3bb737d01e73aa8b9e72d11b197",
+        "uniqueness": "reproducible ec898 tracked subset archive; retain its failed-projection identity and all unique deciding outputs",
+        "purpose": "partial native input snapshot",
+        "action": "LIST ONLY"
+      },
+      {
+        "path": "/dev/shm/e02-B-fulltracked-native-6b87fcd24711.tar",
+        "observed_bytes": 635658240,
+        "sha256": "not_established",
+        "completion": "not_established",
+        "uniqueness": "regenerable from full tracked source tree; current exact physical custody unresolved",
+        "purpose": "full frozen source archive",
+        "action": "LIST ONLY"
+      },
+      {
+        "path": "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711",
+        "observed_bytes": "not_established",
+        "uniqueness": "regenerable tracked projection; do not conflate expected619286899 source bytes with measured directory size",
+        "purpose": "complete intended native source inputs",
+        "action": "LIST ONLY"
+      }
+    ],
+    "retain": [
+      "all unique stdout/XML/physical fixtures/drivers/profiles",
+      "all useful code/docs/Git objects/admission JSON",
+      "production data (none transferred)"
+    ],
+    "policy": "Latest task cleanup requires list-only in cloud without native Trash; no candidate removed."
+  }
+}

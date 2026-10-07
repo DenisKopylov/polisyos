@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.native_plan.v1",
+  "status": "UNRUN; this is a literal planned child contour, NOT an executable-ready outer runner or observed denominator",
+  "source_candidate_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "source_candidate_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "prepared_local_tree_carrier": "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+  "carrier_rule": "Prepared local child argv remains6b87 because its exact Git object already existed locally; root published0bf is exactly same tree. A fresh G run must bind its real fetched/admitted SHA and new immutable retained output prefix; do not claim executing6b87 if unavailable.",
+  "native_child_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/pytest-child.py",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711",
+    "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/module-origins.json",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+    "--noconftest",
+    "-c",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/pytest.ini",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/pytest-tmp",
+    "--junitxml",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/native.xml",
+    "--benchmark-storage=file:///tmp/e02-B-tenth-wave-20261007/model-oracle-native-full-6b87-ed065/benchmark-storage"
+  ],
+  "removal_child_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/model-tracking-removal-child.py",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/pytest-child.py",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711",
+    "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/module-origins.json",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py::test_ordinary_model_fields_refuse_or_journal_before_real_completion[False-count-sync]",
+    "--noconftest",
+    "-c",
+    "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/pytest.ini",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/pytest-tmp",
+    "--junitxml",
+    "/tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/native.xml",
+    "--benchmark-storage=file:///tmp/e02-B-tenth-wave-20261007/model-oracle-removal-full-6b87-ed065/benchmark-storage"
+  ],
+  "selector": "Whole20-prepared-case file; actual collection count/nodeids must come from complete native/JUnit. Matched source-derived removal nodeid is provisional until actual mainXML confirms collection.",
+  "cwd": "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/src:/tmp/e02-B-tenth-wave-20261007/fulltracked-source-6b87fcd24711/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_DIR": "/tmp/e02-B-tenth-wave-20261007/transport.git",
+    "strip_inherited_git_object_index_worktree_bindings": true,
+    "previous_interpreter": "Python3.14.2/pytest9.0.2; current full-profile not established"
+  },
+  "prepared_driver": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/model-oracle-preparation/run_model_oracle_fullarchive_ed065.py",
+    "bytes": 11565,
+    "sha256": "9765102b19a903d0aa0b13d6ab652ebee79bf2268dbaa092df7f58418ece9419",
+    "ready": false,
+    "missing_inputs": "Full physical archive pathname+complete source admission+SHA not supplied; driver per-file/archive read_bytes must be forward-only corrected to streaming and recorded before619MB input. Original driver retained."
+  },
+  "removal_adapter": {
+    "bytes": 2769,
+    "sha256": "2a632e26442f3300ee97ea1f4aea50615881cbc2757d4347f7705a916c4f4789",
+    "behavior": "Only in-memory final BaseModel branch of _wrap_mutable_value→returnvalue; unchanged disk source/preflight/grant/container/cache/callback admission predicates."
+  },
+  "profile_omissions": "Bounded independent contour --noconftest omits repository conftest fixture lifecycle; it cannot replace normal author defining/13affected consumers or completeB/native/gates. Source/test behavior still calls actual production CAS/cache/executors, not marker/mocked replacement.",
+  "required_author_normal_contour": {
+    "prepared_cases": 59,
+    "actual_collected": "UNRUN",
+    "affected_modules": 13,
+    "literal_module_list_and_driver": "Not available from physical retained profile after offline; EXE must supply exact full list/profile before execution; no invented selector."
+  },
+  "canonical_default_contracts": {
+    "NodeInvocation": "timeout_s=None;retry=None;params={};depends_on=[]",
+    "WorkflowSpec": "error_policy=fail_fast;schema1.0",
+    "AsyncWorkflowExecutor": "workflow_timeout_s=None;semaphore_timeout_s=None;budget_middleware=None;deadlineNone;storeunbounded=True;existing constructor parallelism default unchanged, no new process/thread/CPU quota",
+    "FileSystemCAS": "tenant/cell/ownership_enforced defaultNone in this fixture; no B148 authority",
+    "PutOptions": "test.model_scope_effect/test.model_scope_completion mediaapplication/json; fresh typed full ArtifactRefs retained"
+  },
+  "future_receiver": "B EXE author native, B CMP independent oracle/removal, G acceptance/fullbroad after source freeze",
+  "evidence_rule": "Fullstdout/XML/actualcase partitions/input hash/origins/exit/resource receipt and actual complete artifact bytes are required. No nativePASS from preparedcasecounts, command plan or Git tree equality."
+}

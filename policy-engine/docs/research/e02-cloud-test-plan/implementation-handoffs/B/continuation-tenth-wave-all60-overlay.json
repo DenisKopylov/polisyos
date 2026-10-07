@@ -1,0 +1,799 @@
+{
+  "schema": "policyos.e02.all60_technical_overlay.v1",
+  "unit": "B",
+  "mode": "bounded technical recommendations, not G acceptance",
+  "source_candidate_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "source_candidate_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "closure_ids": [],
+  "formal_closure": false,
+  "finding_count": 60,
+  "bundle_count": 25,
+  "original_index": {
+    "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+    "sha256": "9aaddf14128afba95a4a5993f9effa141a302047420a0660b9280d4a05b25e70",
+    "bytes": 78194
+  },
+  "changed_decision_ids": [
+    "B59"
+  ],
+  "unchanged_59_role": "Literal original recommendation, exact criterion and deciding refs, backend/input omissions and next owner are resolved via immutable per-ID pointers; no whole-B review or current-source restamp.",
+  "technical_counts": {
+    "closed": 47,
+    "limited": 7,
+    "held": 4,
+    "open": 2
+  },
+  "technical_status_groups": {
+    "closed": [
+      "B37",
+      "B38",
+      "B39",
+      "B40",
+      "B42",
+      "B43",
+      "B44",
+      "B45",
+      "B46",
+      "B47",
+      "B48",
+      "B49",
+      "B50",
+      "B51",
+      "B52",
+      "B53",
+      "B55",
+      "B57",
+      "B58",
+      "B60",
+      "B62",
+      "B63",
+      "B64",
+      "B65",
+      "B69",
+      "B70",
+      "B71",
+      "B72",
+      "B73",
+      "B75",
+      "B76",
+      "B77",
+      "B78",
+      "B90",
+      "B91",
+      "B92",
+      "B93",
+      "B94",
+      "B95",
+      "B96",
+      "B149",
+      "B150",
+      "B151",
+      "B152",
+      "B153",
+      "B155",
+      "LA-057"
+    ],
+    "limited": [
+      "B13",
+      "B14",
+      "B24",
+      "B66",
+      "B74",
+      "B89",
+      "B154"
+    ],
+    "held": [
+      "B61",
+      "B67",
+      "B68",
+      "B148"
+    ],
+    "open": [
+      "B59",
+      "B87"
+    ]
+  },
+  "decisions_by_id": {
+    "B13": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B13"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B14": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B14"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B24": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B24"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B37": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B37"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B38": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B38"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B39": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B39"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B40": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B40"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B42": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B42"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B43": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B43"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B44": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B44"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B45": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B45"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B46": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B46"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B47": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B47"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B48": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B48"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B49": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B49"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B50": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B50"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B51": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B51"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B52": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B52"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B53": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B53"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B55": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B55"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B57": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B57"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B58": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B58"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B59": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B59"
+      },
+      "technical_decision": "open",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure.",
+      "withdraw_current_closed_recommendation": true,
+      "previous_profile": "The original immutable branch-isolation proposal remains a historical bounded result; ordinary model/copy-update controls distinguish an additional owned-object-graph escape.",
+      "implementation_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "implementation_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+      "source_state": "generic finite model graph repair implemented; independent source review NONBLOCKING; native acceptance verification_required",
+      "P40_classification": "Same owned-object-graph quantity as prior dict/list live aliases, not a new case-by-kind fix. One generic model protocol; unsupported hooks/reflection outside declared finite profile.",
+      "missing_input_or_admission": "Complete final source-bound author59/independent20/actual consumer and matched generic-removal outputs; original12FAIL physical outputs must become independently fetchable.",
+      "next_owner": "B EXE canonical writer + B CMP independent native oracle; G code acceptance and formal closure",
+      "backend_scope": "Sequential and async actual node producers; serialized shared-worker entrypoint, not deployed Ray/Temporal or separate OS process. Reflection/direct base-class mutation not a Python sandbox guarantee."
+    },
+    "B60": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B60"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B61": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B61"
+      },
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B62": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B62"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B63": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B63"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B64": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B64"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B65": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B65"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B66": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B66"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B67": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B67"
+      },
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B68": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B68"
+      },
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B69": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B69"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B70": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B70"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B71": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B71"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B72": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B72"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B73": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B73"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B74": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B74"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B75": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B75"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B76": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B76"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B77": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B77"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B78": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B78"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B87": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B87"
+      },
+      "technical_decision": "open",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B89": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B89"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B90": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B90"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B91": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B91"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B92": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B92"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B93": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B93"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B94": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B94"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B95": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B95"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B96": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B96"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B148": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B148"
+      },
+      "technical_decision": "held",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B149": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B149"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B150": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B150"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B151": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B151"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B152": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B152"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B153": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B153"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B154": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B154"
+      },
+      "technical_decision": "limited",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "B155": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/B155"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    },
+    "LA-057": {
+      "decision_ref": {
+        "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+        "pointer": "/decisions_by_id/LA-057"
+      },
+      "technical_decision": "closed",
+      "formal_closure": false,
+      "formal_authority": "G, with canonical semantic owner where held",
+      "interpretation": "Immutable bounded technical recommendation only; no new native execution, G code acceptance or formal closure."
+    }
+  },
+  "cross_owner_residuals": {
+    "B66": "A/G actual served admission; A helper maps None to0.0 on original f7963PASS/1FAIL; served UNRUN.",
+    "B87": "B NET-01 finding; C owns production retry-owner repair for orphan physical handle with free permit.",
+    "B89": "Separate cap3 checkpoint to cap1 restart budget admission failure; no cleanup conclusion.",
+    "B13": "A/G served read-only local input recovery.",
+    "B154": "A/G actual all-confirmations publisher consumes typed partial/aborted result.",
+    "B14": "Native Mac receipt unavailable.",
+    "B24": "Native Mac receipt unavailable.",
+    "B61": "Canonical SKG/G consumed immutable versioned snapshot/epoch plus permission law required.",
+    "B67": "Institutional owner actor/scope/purpose/epoch/exact evidence authorization required.",
+    "B68": "B67 authority plus independently evidenced repetition/scoped single-flight required.",
+    "B148": "Canonical cross-tenant/first-for-tenant ownership law required.",
+    "B78": "External status/idempotency authority is unavailable; retain exact bounded typed-unknown refusal.",
+    "D_B120": "Outside B60; D CTL-03 controller/evaluator retry/cache-ledger and production provider bridge remains missing."
+  },
+  "verification": {
+    "new_final_producer_native": "UNRUN",
+    "full_B_new_candidate": "UNRUN; G performs one expensive replay after source acceptance/freeze",
+    "P41": "not_established; no inherited-red attribution",
+    "old_full_native": "6fa only:3986=1326PASS+10FAIL+2650ERROR,0SKIP; not this source",
+    "old_JIT_bound": "Existing immutable late JIT128=127PASS/1frameFAIL remains old source; B74LIMITED. New current imported-module four-case4PASS + removal1actualFAIL retain590."
+  },
+  "production_data": "Local read-only G only; not transferred",
+  "absent_distributions": [
+    "numba",
+    "dask",
+    "distributed",
+    "dowhy",
+    "econml",
+    "temporalio"
+  ]
+}

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -39,6 +40,7 @@ from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 _WRITE_PATHS = ["params.owned", "params.alias", "artifacts_index.bundle"]
 _CONTOURS = ("sequential", "async", "worker")
 _REFUSALS = ("nested_widen", "release_scope", "root_replace", "neighbor_alias")
+_REPLAY_KEY = sha256(b"scope-real-outcome").hexdigest()
 
 
 class _ScopeProducer:
@@ -199,12 +201,12 @@ def _assert_reopened_consumer(root: Path, outcome: NodeOutcome, initial: Experim
         "alias": {"id": "old", "v": 5},
     }
     writer = NodeResultCache(store, initial.run_id)
-    ref = writer.put("scope-real-outcome", "scientist.scope_reconciliation@1.0.0", outcome)
+    ref = writer.put(_REPLAY_KEY, "scientist.scope_reconciliation@1.0.0", outcome)
     reopened = FileSystemCAS(root)
     reader = NodeResultCache(reopened, initial.run_id)
     assert reopened.verify(ref).ok
     assert reader.load_entry(ref)
-    cached = reader.get("scope-real-outcome")
+    cached = reader.get(_REPLAY_KEY)
     assert cached is not None
     journal = mutation_journal_for_state(cached.state)
     assert journal is not None

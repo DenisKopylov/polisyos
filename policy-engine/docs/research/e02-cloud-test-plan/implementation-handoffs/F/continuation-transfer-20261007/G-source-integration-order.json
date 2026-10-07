@@ -1,7 +1,7 @@
 {
   "schema": "e02.F.source-order.v3",
-  "source_product_freeze": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
-  "source_product_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "source_product_freeze": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_product_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
   "carrier_is_not_unified_method_candidate": true,
   "upstream_original_history_required": true,
   "entries": [
@@ -1231,6 +1231,46 @@
       "not_G_acceptance": true,
       "historical_previous_published_head": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
       "transport_policy": "Ordinary merge/preserve original source ancestry. This complete leaf diff is an inventory, not authorization to overwrite accepted G/canonical providers. Review runtime delta/source/test/mandatory companions separately."
+    },
+    {
+      "lane": "F-root-focused-graph-profile",
+      "topic": "codex/e02-F-closeout-20261006",
+      "published_head_or_product_source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "true_slice_dependency_base": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "implementation_commits": [
+        "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "6beacc8b42dacabff214901919203323f07d1fef"
+      ],
+      "complete_diff_footprint_paths": [
+        "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "policy-engine/docs/reference/foundry/state.md",
+        "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+        "policy-engine/src/polisyos/foundry/methods/README.md",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "receipt": {
+        "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+        "bytes": 38873,
+        "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+        "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+      },
+      "upstream_history": "Preserve36b/e1/6be and ordinarymerge parents; cumulative historical carriers are not owner patches",
+      "checks": {
+        "graph": "62PASS",
+        "natural_experiment": "3PASS",
+        "real_configured_worker": "3PASS",
+        "new_source_wheel": "16PASS +differentPIDreaderPASS",
+        "property_removal": "2expectednativeFAIL/5positivePASS +1expectedinstalledFAIL"
+      },
+      "remaining": "New rebuilt-sdistUNRUN; G integratedfreeze after acceptance; B214/B56 ownertriggers separate"
     }
   ],
   "frozen421_and_ROOT072": "Historicalfullcarrierprovenance; canonicalcurrentlyacceptedLexsource preserved, no competing3ddeimport",
@@ -1285,5 +1325,98 @@
     "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
     "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
     "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+  },
+  "historical_measured_source519": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "existing_entries_unchanged": true
+  },
+  "focused_continuation": {
+    "source": {
+      "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "not_a_transfer_of_old_numerical_waves": true
+    },
+    "receipt": {
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+    },
+    "G_dependency_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "affected_IDs": [
+      "B204",
+      "B212",
+      "B213",
+      "B214",
+      "B218",
+      "LA-037"
+    ],
+    "unchanged_per_ID_bytes": 29,
+    "actual_checks": {
+      "graph": "62PASS",
+      "natural_experiment": "3PASS",
+      "real_configured_worker": "3PASS",
+      "new_source_wheel": "16PASS +differentPIDreaderPASS",
+      "property_removal": "2expectednativeFAIL/5positivePASS +1expectedinstalledFAIL"
+    },
+    "new_sdist": "UNRUN",
+    "G_new_runtime_source_accepted": 0,
+    "formal_G_closures": 0,
+    "prior_Lex_accepted_source_preserved": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "scope": "Historical519 whole91/91 consumers retained at their own source; current4ee is focused delta, not rerun/relabelled whole suite"
+  },
+  "B218_status_supersession": {
+    "role": "Explicit append-only supersession of the original B218 recommendation only",
+    "from": {
+      "F_recommendation": "limited",
+      "refs": [
+        {
+          "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+          "json_pointer": "/per_id/4"
+        },
+        {
+          "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+          "bytes": 150755,
+          "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+          "git_blob": "54111f5b33cea1e28a2e82e3b5c29a2707406bc0",
+          "json_pointer": "/per_finding/1"
+        },
+        {
+          "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B218.json",
+          "bytes": 39221,
+          "sha256": "655fab3290e09a951357d6fe5645e635ef86dd23acfbf4347a3cd127b2cdf4ea",
+          "git_blob": "c58731ffc67bd7502fd72cef7f0495601e06eb24"
+        }
+      ]
+    },
+    "to": {
+      "F_original_bounded_recommendation": "closed",
+      "check": "PASS",
+      "already_recorded_at": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+        "bytes": 26151,
+        "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d",
+        "git_blob": "d27c2609ebd43bf2354c6e0be5dbb778f4c4dcca"
+      }
+    },
+    "criterion": "Actual lag1/lag2/positive-self-lag representation, NetworkX/CAS export and roundtrip, exact static refusal without temporal conversion",
+    "new_affected_check": "4ee graph62PASS includes original GRF03 representation/reverse controls and actual static intake refusals",
+    "separate_capability": {
+      "protected_temporal_readiness": "UNRUN",
+      "outcome": "limited",
+      "serialization_is_identification": false
+    },
+    "historical_literals_preserved": true,
+    "G_formal_closure": "not_issued"
   }
 }

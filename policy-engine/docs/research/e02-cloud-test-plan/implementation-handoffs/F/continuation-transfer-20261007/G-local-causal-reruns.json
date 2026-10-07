@@ -1,7 +1,7 @@
 {
   "schema": "e02.F.minimal-owner-inputs.v2",
-  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
-  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
   "no_self_issued_authority": true,
   "packets": [
     {
@@ -10,12 +10,12 @@
         "B214"
       ],
       "status": "limited",
-      "owner": "Existing F reconcile_causal_graph/causal graph owner; A/C only for their requested protected consumer contract",
+      "owner": "A/C/F canonical graph-family and requested consumer/output contract owners; G only integration/local execution",
       "needed": [
-        "Explicit supported sound DAG extension or conditional partial-model semantics and bounded applicable profile",
-        "Original-card capability/falsifier for unsupported tail-tail/circle/cycle/compact lag; independent oracle and actual consumer"
+        "Tracked graph-family/identified-versus-conditional/partial output and authority-projection contract",
+        "Query whose effect differs across admissible completions, bounded profile and independent oracle; no arbitrary DAG completion"
       ],
-      "current_result": "Current resolved CAS content/composition basis and fullcertificate/freshquery cache fixed on647; early typed static refusal prevents uncertainty erasure. No universal PAG/temporal identification implementation commissioned.",
+      "current_result": "Current resolved CAS content/composition basis and fullcertificate/freshquery cache fixed on647; early typed static refusal prevents uncertainty erasure. No universal PAG/temporal identification implementation commissioned. New4ee rejects unsupported semantic graph families before cutoff/rewrite/persistence, preserves original MGraph and same-shapeADMG positive; broad contract stilllimited.",
       "data_transfer": "none",
       "unknown_input_refs": null,
       "local_command": null
@@ -30,9 +30,10 @@
       "needed": [
         "Typed actual study/source refs and complete admitted input identity set",
         "Models/folds/repeats/seeds/competing jobs; existing budget admission/context and same scheduler/pool path",
-        "Full all-results/CAS/wait/admission/wall/RSS/active/wait denominator; no omitted or reduced scientific folds"
+        "Full all-results/CAS/wait/admission/wall/RSS/active/wait denominator; no omitted or reduced scientific folds",
+        "Canonical Runtime/Scientist shared admission/cap and full workload/input roster; serial folds retained, no second scheduler/CPU money alias"
       ],
-      "current_result": "Actual configured/default nativeTMLE folds and combinedreport consumer measured; older fixture4study24fold not common production admission. Real pool attempt failed execution_context_missing before0fits.",
+      "current_result": "Actual configured/default nativeTMLE folds and combinedreport consumer measured; older fixture4study24fold not common production admission. Real pool attempt failed execution_context_missing before0fits. This narrow continuation does not commission workload/cap or alter folds. G measures local read-only active/wait/wall/RSS/all-results only after canonical packet.",
       "data_transfer": "production inputs remain local read-only",
       "unknown_input_refs": null,
       "local_command": null
@@ -123,5 +124,16 @@
     "Allcomputed/externalclients or repository-wide reflectionzero for maintainedLA007/019/020migrationwindow",
     "Actuallegal authority corpus for genericdedupe/normdiff supportedrelocation",
     "Global scheduler or artificially reducedfoldcount for B56"
-  ]
+  ],
+  "historical_source519": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d"
+  },
+  "focused_receipt": {
+    "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 38873,
+    "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+    "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+  }
 }

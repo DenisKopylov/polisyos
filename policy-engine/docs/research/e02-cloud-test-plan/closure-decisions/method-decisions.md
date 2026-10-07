@@ -485,6 +485,8 @@ Current B120 qualification: D680’s canonical owner→public SearchLoopRunner�
 
 **Proxy negative.** Producer/reader digest removal, stale/coherently forged diagnostic payload, cluster-as-HC1 и fixed95 critical removal FAIL при retained status/fields. Current worker/caller checks имеют собственные SHA; broad real parallel-trends admission UNRUN.
 
+**Focused after25c / B204.** Companione1 changes only clean_rollout checker:2preperiods require passedFalse/statistic/pNone/not_testable/insufficient_pre_periods/identification_authorityFalse; ATT2/seed11 unchanged. Exact4ee affected benchmark3PASS; independent four-meansATT and10retained-report falsifiers passed. Base-red is retained, P41not_established.
+
 <a id="f-m4"></a>
 
 ### F-M4 — Dedicated DiD ownership и maintained request migration
@@ -535,6 +537,8 @@ Current B120 qualification: D680’s canonical owner→public SearchLoopRunner�
 
 **Runtime/authority.** DoWhy0.14 excludes Python3.14; application markers remain excluded and are not positive witnesses. Explicit locked3.12 computation profile is not whole-app downgrade or parallel fake backend. Source423 finite original criteria B212/B213 recommended closed. Whole Runtime-admitted Node и real identification/evaluator/appointment/fresh challenge остаются отдельными UNRUN contracts.
 
+**Focused after25c / B212/B213.** Exact4ee changed `test_dowhy_worker.py` selected3tests actuallyPASS on configured Python3.12.14/DoWhy0.14 with3.14.7parent, realselected defaults/estimand/contrast/CAS/freshreader. Point-only negative executes genuine estimate then test-controlled CI/SE accessors returnNone; no mockfit or naturally-point-only claim. Optionalinprocess3.14/wholeNode/identification admissionUNRUN.
+
 <a id="f-m8"></a>
 
 ### F-M8 — Static ADMG separation/surgery and exact empty sibling scope
@@ -554,6 +558,8 @@ Current B120 qualification: D680’s canonical owner→public SearchLoopRunner�
 **Cache property.** CACHE213/e2c stores deeply immutable JSON tuples and returns fresh plain tuple/dict rows; native75PASS/independent23PASS, nested/weakref/warm-copy controls, three retained-marker removals FAIL. Preceding mutable-row FAIL is preserved, not overridden by old6d overclaim; Kuzu row/CSV ABI values unchanged, no liveKuzu run.
 
 **Profiles.** Known reverse default normalizes correctly; canonical DAG Scientist Node profile does not admit every known PAG/CPDAG type. Lag1/2/self-lag remain representation/export facts; STATIC518 refuses compact temporal inference. B218 original lag/self-lag representation/export/static-refusal criterion recommended closed. B214 remains limited for explicit sound partial/conditional extension capability. Intake647 validates current selected CAS/composition bodies and preserves known endpoints; unresolved marks/compact lag typed-refuse before static persistence. Serialization не identification.
+
+**Focused after25c / B214/B218.** Canonical reconciliation36b admits only declared DAG/ADMG beforeconfidence/rewrite/persistence, includingdirect/supplied/selectedcache anddefensiveCompose; ordinaryFragmentCompositionData already guards unsupportedtype. ActualscoredMGraph extractor discriminator/refusal/noCASpublication, retainedoriginal andsame-formADMGfreshchild positive;62native/16wheelPASS and2native/1installedguard-removalFAIL. SharedADMGhelper/otherIDconsumers unchanged. Broad B214 A/C/F completion semantics/output contract remainslimited. **B218 supersession:** historicalbf335#/per_id/4,204426#/per_finding/1 andROOT072limited are explicitly superseded only for original lag1/lag2/self-lag export/staticrefusal by25c boundedclosed/PASS. Protectedtemporal readinessUNRUN/limited, serialization≠identification, noGclosure.
 
 <a id="f-m10"></a>
 
@@ -588,6 +594,8 @@ Current B120 qualification: D680’s canonical owner→public SearchLoopRunner�
 **LA-037 consumer.** Native IR five object/builders, direct Trinity binding, both known wrappers direct toIR, native income_tax→layout→patch/state/CAS; real maintained page with three Python directives and five layout anchors. Installed wheel/sdist each13PASS only for exactly byte-identical three IR owner/wrapper files, not newly installed Treasury/monitor behavior. Layout-body removal fails actual consumers even with builder/type markers.
 
 **Limits.** Original finite LA-002/037 migration complete; strict full docs/architecture/production gates separate. Compatibility addresses stay supported until their owner lifecycle decision; no invented retirement date or new economic law.
+
+**Focused after25c / LA-037.** Docs6be final3pages agree on nativeIRowner, directFoundryfacade, same-objectlegacyalias andfinite tracked lifecycle;bothimportaddresses retained. Native6PASS/scopedMkDocs5anchors/independentreview, no product/layout algorithmdelta. Unknownexternalcensus is not a prerequisite for bounded original no-two-hop migration.
 
 <a id="f-m13"></a>
 
@@ -628,3 +636,5 @@ Current B120 qualification: D680’s canonical owner→public SearchLoopRunner�
 **Negative/limits.** Clone/export/bridge removals with identical labels must fail actual consumer calls. Exact empty siblings already absent198; preserve nonempty packages. No blanket arbitrary third-party private ABI guarantee, full hosted docs/authority acceptance or P41 inheritance from overlapping failures.
 
 Recovered graph fresh-child exact receipt: `installed-default-resource-recovery-20261007.json@c4ddc4bcbddc2a7526f541d51196b176e4311362` (20686B/SHA256 `90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88`), actual519 ONEwheel selected Node/CAS→different-PID `-I` reader, 970/83 own origins/zero escapes. Separate from native91+91; old unknown pre-outage attempt remains UNRUN.
+
+F focused-after25c deciding outputs: `graph-profile-20261007.json@e89d449acc6eedb1629c42c428689f7c578fce26`, exact source `4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d` / tree `551d4e760dc1168f6ad8182c9b176f00e94a2281`. New wheel16/worker3/benchmark3/graph62 are separate finite denominators; no new sdist or global scanner/authority PASS. Historicalquality/P41 and B214/B56 triggers remain as documented in F ledger.

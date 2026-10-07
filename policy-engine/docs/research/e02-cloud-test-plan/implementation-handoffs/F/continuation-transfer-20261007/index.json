@@ -3,7 +3,7 @@
   "unit": "F",
   "role": "Original-card criterion decisions with separate code-ready, check, F outcome, G acceptance; complete rows not summaries",
   "assembled_consumer_ready": true,
-  "assembled_consumer_status": "Verified deciding bytes published at de197; first b5 failure preserved separately; additional wheel graph fresh-child has separate frozen recovery review.",
+  "assembled_consumer_status": "Verified deciding bytes published at de197; first b5 failure preserved separately; additional wheel graph fresh-child has separate frozen recovery review. New4ee focused graph/native/worker/wheel delta passed; new rebuilt-sdistUNRUN. Historical519 whole-wave readiness is not promoted to a new whole-head package qualification.",
   "slice_base_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
   "slice_base_tree": "f2b9b2d4bcc24a2feeae6f4873b61845a07cc090",
   "product_source": {
@@ -566,13 +566,50 @@
       },
       "original_missing_input": null,
       "original_next_owner": null,
-      "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+      "next_concrete_result": "G review exact focused4ee source and affected consumer receipts; composed replay after integration freeze",
       "root_assembled_source": {
         "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
         "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
         "not_new_numerical_proof": true
       },
-      "new_property_followups_not_automatically_original_reopen": []
+      "new_property_followups_not_automatically_original_reopen": [
+        {
+          "lane": "Graph-profile-and-focused-companions",
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+          "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+        }
+      ],
+      "focused_continuation": {
+        "source": {
+          "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "not_a_transfer_of_old_numerical_waves": true
+        },
+        "receipt": {
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        },
+        "implementation": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "check": "PASS",
+        "consumer": "Unchanged StandardDifferenceInDifferences → report → actual clean_rollout benchmark checker",
+        "result": "Two preperiods: passedFalse/statisticNone/pNone/statusnot_testable/reasoninsufficient_pre_periods/identification_authorityFalse; original ATT2 DGP unchanged. Full affected benchmark3/3PASS.",
+        "oracle_negative": "Independent four-means ATT1.9972170388636759 matches native1.997217038863679;10 retained-report diagnostic tamper controls refuse; unchanged25c checker FAIL retained.",
+        "limitation": "Non-testability/nonrejection is not untreated parallel-trends authority. Base-red attribution remains P41not_established.",
+        "code_ready": true,
+        "G_new_code_acceptance": "not_issued",
+        "G_formal_finding_closure": "not_issued",
+        "no_original_criterion_rebinding": true
+      }
     },
     {
       "finding_id": "B205",
@@ -1134,13 +1171,50 @@
       },
       "original_missing_input": null,
       "original_next_owner": null,
-      "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+      "next_concrete_result": "G review exact focused4ee source and affected consumer receipts; composed replay after integration freeze",
       "root_assembled_source": {
         "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
         "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
         "not_new_numerical_proof": true
       },
-      "new_property_followups_not_automatically_original_reopen": []
+      "new_property_followups_not_automatically_original_reopen": [
+        {
+          "lane": "Graph-profile-and-focused-companions",
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+          "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+        }
+      ],
+      "focused_continuation": {
+        "source": {
+          "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "not_a_transfer_of_old_numerical_waves": true
+        },
+        "receipt": {
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        },
+        "implementation": "unchanged423 worker; changed test body qualified on4ee",
+        "check": "PASS",
+        "consumer": "Actual configured Python3.12/DoWhy0.14 estimator → Python3.14 report/CAS → fresh3.14 reader",
+        "result": "Three exact-source selected tests PASS. Point-only negative executes genuine CausalModel estimate then controlled interval/SE accessors returnNone; point survives, CI absent, non-gating.",
+        "oracle_negative": "Actual backend fit, full request/result/CI/fresh-reader guards; controlled accessor-unavailability is a real-backend post-fit negative, not mock fitting or naturally missing-CI positive.",
+        "limitation": "Optional in-process3.14 DoWhy/EconML and genuine identification/Runtime admission remainUNRUN.",
+        "code_ready": true,
+        "G_new_code_acceptance": "not_issued",
+        "G_formal_finding_closure": "not_issued",
+        "no_original_criterion_rebinding": true
+      }
     },
     {
       "finding_id": "B213",
@@ -1205,13 +1279,50 @@
       },
       "original_missing_input": null,
       "original_next_owner": null,
-      "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+      "next_concrete_result": "G review exact focused4ee source and affected consumer receipts; composed replay after integration freeze",
       "root_assembled_source": {
         "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
         "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
         "not_new_numerical_proof": true
       },
-      "new_property_followups_not_automatically_original_reopen": []
+      "new_property_followups_not_automatically_original_reopen": [
+        {
+          "lane": "Graph-profile-and-focused-companions",
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+          "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+        }
+      ],
+      "focused_continuation": {
+        "source": {
+          "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "not_a_transfer_of_old_numerical_waves": true
+        },
+        "receipt": {
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        },
+        "implementation": "unchanged423 worker; changed test body qualified on4ee",
+        "check": "PASS",
+        "consumer": "Actual selected identify_effect/estimate_effect defaults → canonical typed factory → parent CAS → fresh3.14 reader",
+        "result": "Focused3PASS genuine configured3.12/DoWhy0.14; selected ATE/control0/treatment1/targetate binding and fresh-reader assertions executed on exact4ee.",
+        "oracle_negative": "Real selected fit/public builder ABI and persisted interval/non-gating reader checks; previous broader independent OLS/estimand negatives retain their own unchanged source bindings.",
+        "limitation": "No new general mediation profile, actual real-source scientific identification or wholeNode admission proof.",
+        "code_ready": true,
+        "G_new_code_acceptance": "not_issued",
+        "G_formal_finding_closure": "not_issued",
+        "no_original_criterion_rebinding": true
+      }
     },
     {
       "finding_id": "B214",
@@ -1276,7 +1387,7 @@
       },
       "original_missing_input": "Supported sound extension/declared conditional partial-model route and exact finite capability discrimination need owner clarification; no protected-authority prerequisite.",
       "original_next_owner": "Existing F graph-reconciliation/causal method owner; A/C protected contract only for requested broader route",
-      "next_concrete_result": "Define supported sound partial/conditional extension capability and exact bounded discriminator; existing unresolved marks/static lag typed refuse, no arbitrary completion",
+      "next_concrete_result": "A/C/F tracked graph-family/identified-conditional-partial output and authority-projection contract with completion-distinguishing query; G affected freeze only after exact owner slices accepted",
       "root_assembled_source": {
         "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
         "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
@@ -1342,9 +1453,45 @@
           "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
           "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
           "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+        },
+        {
+          "lane": "Graph-profile-and-focused-companions",
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+          "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
         }
       ],
-      "current_intake_followup": "Exact graph647 current selected CAS/manifest/body/result and composition basis recomputation fixes measured stale/fake/ref/endpoint/current certificate escape. This bounded delta does not establish original general sound partial/conditional extension capability."
+      "current_intake_followup": "Exact graph647 current selected CAS/manifest/body/result and composition basis recomputation fixes measured stale/fake/ref/endpoint/current certificate escape. This bounded delta does not establish original general sound partial/conditional extension capability.",
+      "focused_continuation": {
+        "source": {
+          "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "not_a_transfer_of_old_numerical_waves": true
+        },
+        "receipt": {
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        },
+        "implementation": "36b18cc142aff77a5825126b4f07bafec09a5180",
+        "check": "PASS",
+        "consumer": "Scored real build_mgraph → registered job → direct/supplied/selected-CAS ReconcileCausalGraphNode; same-shape ADMG → CAS → different-PID reader",
+        "result": "Declared DAG/ADMG family admission now precedes confidence/rewrites/persistence. MGraph/PAG/CPDAG refuse without publishing reconciled graph; original MGraph remains readable; ADMG/DAG/reverse positives preserved.",
+        "oracle_negative": "Actual missingness extractor and graph-family identity; independent guard removal2behavioralFAIL/5positivePASS, installed removal1FAIL;62native+16installedPASS and real fresh-child readback.",
+        "limitation": "Reconciliation-only family invariant. Broad sound partial/conditional extension and authority projection remainlimited; A/C/F tracked family/output contract and query whose effects differ across admissible completions are the trigger. No new general ID engine.",
+        "code_ready": true,
+        "G_new_code_acceptance": "not_issued",
+        "G_formal_finding_closure": "not_issued",
+        "no_original_criterion_rebinding": true
+      }
     },
     {
       "finding_id": "B215",
@@ -1622,7 +1769,7 @@
       },
       "original_missing_input": null,
       "original_next_owner": null,
-      "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+      "next_concrete_result": "G review exact reconciliation boundary; protected temporal readiness requires its separately appointed consumer/input contract",
       "root_assembled_source": {
         "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
         "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
@@ -1688,8 +1835,95 @@
           "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
           "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
           "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+        },
+        {
+          "lane": "Graph-profile-and-focused-companions",
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+          "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
         }
-      ]
+      ],
+      "focused_continuation": {
+        "source": {
+          "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "not_a_transfer_of_old_numerical_waves": true
+        },
+        "receipt": {
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        },
+        "implementation": "36b graph companion; original SCM6d/STATIC518 unchanged",
+        "check": "PASS",
+        "consumer": "Existing compact lag/self-lag graph export/NetworkX/CAS roundtrip plus actual static reconciliation refusal",
+        "result": "Append explicit historical limited→current bounded-original closed supersession. New4ee static lag refusal validated; historical original lag persistence proof preserved.",
+        "oracle_negative": "Actual lag1/lag2/positive-self-lag and static refusal; known reverse control preserved in affected62PASS; original graph source scope unchanged.",
+        "limitation": "Protected temporal readiness separateUNRUN/limited; serialization does not prove identification.",
+        "code_ready": true,
+        "G_new_code_acceptance": "not_issued",
+        "G_formal_finding_closure": "not_issued",
+        "no_original_criterion_rebinding": true
+      },
+      "status_supersession": {
+        "role": "Explicit append-only supersession of the original B218 recommendation only",
+        "from": {
+          "F_recommendation": "limited",
+          "refs": [
+            {
+              "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+              "bytes": 150139,
+              "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+              "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+              "json_pointer": "/per_id/4"
+            },
+            {
+              "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+              "bytes": 150755,
+              "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+              "git_blob": "54111f5b33cea1e28a2e82e3b5c29a2707406bc0",
+              "json_pointer": "/per_finding/1"
+            },
+            {
+              "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B218.json",
+              "bytes": 39221,
+              "sha256": "655fab3290e09a951357d6fe5645e635ef86dd23acfbf4347a3cd127b2cdf4ea",
+              "git_blob": "c58731ffc67bd7502fd72cef7f0495601e06eb24"
+            }
+          ]
+        },
+        "to": {
+          "F_original_bounded_recommendation": "closed",
+          "check": "PASS",
+          "already_recorded_at": {
+            "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+            "bytes": 26151,
+            "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d",
+            "git_blob": "d27c2609ebd43bf2354c6e0be5dbb778f4c4dcca"
+          }
+        },
+        "criterion": "Actual lag1/lag2/positive-self-lag representation, NetworkX/CAS export and roundtrip, exact static refusal without temporal conversion",
+        "new_affected_check": "4ee graph62PASS includes original GRF03 representation/reverse controls and actual static intake refusals",
+        "separate_capability": {
+          "protected_temporal_readiness": "UNRUN",
+          "outcome": "limited",
+          "serialization_is_identification": false
+        },
+        "historical_literals_preserved": true,
+        "G_formal_closure": "not_issued"
+      }
     },
     {
       "finding_id": "B219",
@@ -3633,13 +3867,50 @@
       },
       "original_missing_input": null,
       "original_next_owner": null,
-      "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+      "next_concrete_result": "G review finite IR facade lifecycle docs; preserve both import addresses under existing compatibility window",
       "root_assembled_source": {
         "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
         "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
         "not_new_numerical_proof": true
       },
-      "new_property_followups_not_automatically_original_reopen": []
+      "new_property_followups_not_automatically_original_reopen": [
+        {
+          "lane": "Graph-profile-and-focused-companions",
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+          "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "role": "New property/consumer and companion proof, not new finding ID or G acceptance"
+        }
+      ],
+      "focused_continuation": {
+        "source": {
+          "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+          "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+          "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "not_a_transfer_of_old_numerical_waves": true
+        },
+        "receipt": {
+          "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+          "bytes": 38873,
+          "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+          "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+        },
+        "implementation": "6beacc8b42dacabff214901919203323f07d1fef",
+        "check": "PASS",
+        "consumer": "IR.kernel.slots → direct compiler/Foundry facade and same-object legacy alias → actual Trinity/native layout consumers and scoped MkDocs page",
+        "result": "Three finaldocs agree on IRowner, one direct facade, same-object compatibility alias, both preserved addresses and explicit finite tracked lifecycle; no two-hop algorithm.",
+        "oracle_negative": "Native6PASS/scopedMkDocs5anchors; independent object/import/document review; all3148Python product blobs identical25c/519; no new layout law.",
+        "limitation": "Known maintained internal window only; no universal external-caller census or automatic removal of either supported address.",
+        "code_ready": true,
+        "G_new_code_acceptance": "not_issued",
+        "G_formal_finding_closure": "not_issued",
+        "no_original_criterion_rebinding": true
+      }
     }
   ],
   "current_receipt_registry": [
@@ -3762,6 +4033,17 @@
       "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
       "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
       "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+    },
+    {
+      "lane": "Graph-profile-and-focused-companions",
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e",
+      "code_candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "code_candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "role": "Exact focused continuation, independent source/installed reviews and lossless complete outputs"
     }
   ],
   "prior_full_deciding_registry": {
@@ -3816,8 +4098,8 @@
     {
       "finding_id": "B204",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
-      "bytes": 17977,
-      "sha256": "a8b3fb41f8a690eb238a59cacaff7c3f15ac957079ef5118ed78a321ce41375f"
+      "bytes": 20203,
+      "sha256": "668646210c8856f6bad6df5ffe0661779dcbeeb2aee16698bd732eb6c70a7298"
     },
     {
       "finding_id": "B205",
@@ -3864,20 +4146,20 @@
     {
       "finding_id": "B212",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
-      "bytes": 25002,
-      "sha256": "b9ef3166c5c5b94bf59103c728e34f121cf11da27abf1cdc26daed7f8bfc7208"
+      "bytes": 27232,
+      "sha256": "3fb36b2be2aa5b8848cb612baa555c5dc738e8f26ad705b894cd75345aded3f2"
     },
     {
       "finding_id": "B213",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
-      "bytes": 24849,
-      "sha256": "e5f654ce950fd867b84573038c47e5b1a66e0e3f9acc5f2e2213d68e403a7703"
+      "bytes": 27074,
+      "sha256": "0b0b7b7083da99cb9cbfc01ca96cf4ee4eb2ed8d1fb2ef68f4e6d0c3789200c1"
     },
     {
       "finding_id": "B214",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
-      "bytes": 26943,
-      "sha256": "0e14cf984e41da503c7e184d62aaeb0396483ea4e1c75cc594c44f0d4b4a3cd7"
+      "bytes": 29420,
+      "sha256": "280ab9fb143ac455a59eff4661d4a137d5260e4c74a037996d06b76340787ed3"
     },
     {
       "finding_id": "B215",
@@ -3900,8 +4182,8 @@
     {
       "finding_id": "B218",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
-      "bytes": 26151,
-      "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d"
+      "bytes": 30879,
+      "sha256": "e79a8ce73652dfd391960441f12a5ab480b1be328f01fa5479229ae08426bc7e"
     },
     {
       "finding_id": "B219",
@@ -4020,8 +4302,8 @@
     {
       "finding_id": "LA-037",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
-      "bytes": 14768,
-      "sha256": "fe80993be60bbf30f0243a8afa87b8d94db5f57e28399144d5031699be3e5382"
+      "bytes": 17007,
+      "sha256": "08cd5aa8730c52f624b27048687e88bde6c2f40c5f0d4cb4552cb32ec196fdf4"
     }
   ],
   "assembled_consumer_scope": "Only source519 exact installed-default91/profile plus six retained-marker controls and independent replay; no G assembled acceptance, global gate PASS or real identification.",
@@ -4062,5 +4344,93 @@
     "code_candidate_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
     "code_candidate_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
     "role": "Actual graph ONEwheel registered MethodJob→Node→selectedCAS→different-PID isolated child; complete independent recovery review/guards, old unknown attempt UNRUN; no sdist-child or authority positive."
+  },
+  "focused_continuation": {
+    "source": {
+      "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "not_a_transfer_of_old_numerical_waves": true
+    },
+    "receipt": {
+      "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+      "bytes": 38873,
+      "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+      "git_blob": "268b4b5a0119dabaee1a96e6bc7e5d914bc40e5e"
+    },
+    "G_dependency_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "affected_IDs": [
+      "B204",
+      "B212",
+      "B213",
+      "B214",
+      "B218",
+      "LA-037"
+    ],
+    "unchanged_per_ID_bytes": 29,
+    "actual_checks": {
+      "graph": "62PASS",
+      "natural_experiment": "3PASS",
+      "real_configured_worker": "3PASS",
+      "new_source_wheel": "16PASS +differentPIDreaderPASS",
+      "property_removal": "2expectednativeFAIL/5positivePASS +1expectedinstalledFAIL"
+    },
+    "new_sdist": "UNRUN",
+    "G_new_runtime_source_accepted": 0,
+    "formal_G_closures": 0,
+    "prior_Lex_accepted_source_preserved": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "scope": "Historical519 whole91/91 consumers retained at their own source; current4ee is focused delta, not rerun/relabelled whole suite"
+  },
+  "B218_status_supersession": {
+    "role": "Explicit append-only supersession of the original B218 recommendation only",
+    "from": {
+      "F_recommendation": "limited",
+      "refs": [
+        {
+          "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+          "bytes": 150139,
+          "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+          "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+          "json_pointer": "/per_id/4"
+        },
+        {
+          "git_ref": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+          "bytes": 150755,
+          "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e",
+          "git_blob": "54111f5b33cea1e28a2e82e3b5c29a2707406bc0",
+          "json_pointer": "/per_finding/1"
+        },
+        {
+          "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B218.json",
+          "bytes": 39221,
+          "sha256": "655fab3290e09a951357d6fe5645e635ef86dd23acfbf4347a3cd127b2cdf4ea",
+          "git_blob": "c58731ffc67bd7502fd72cef7f0495601e06eb24"
+        }
+      ]
+    },
+    "to": {
+      "F_original_bounded_recommendation": "closed",
+      "check": "PASS",
+      "already_recorded_at": {
+        "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+        "bytes": 26151,
+        "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d",
+        "git_blob": "d27c2609ebd43bf2354c6e0be5dbb778f4c4dcca"
+      }
+    },
+    "criterion": "Actual lag1/lag2/positive-self-lag representation, NetworkX/CAS export and roundtrip, exact static refusal without temporal conversion",
+    "new_affected_check": "4ee graph62PASS includes original GRF03 representation/reverse controls and actual static intake refusals",
+    "separate_capability": {
+      "protected_temporal_readiness": "UNRUN",
+      "outcome": "limited",
+      "serialization_is_identification": false
+    },
+    "historical_literals_preserved": true,
+    "G_formal_closure": "not_issued"
   }
 }

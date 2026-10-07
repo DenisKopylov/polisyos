@@ -1,0 +1,12 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-closed-additions-custody-independent-doe/normal/independent-review.json",
+    "bytes": 113191,
+    "sha256": "4183810db93f70b896a644602a37c13821df611b02083b1f8a20cec0d680e9e2"
+  },
+  "verdict": "GO bounded literal DOC custody",
+  "candidate": "737ea6b8ec43f5dff64bd5ccbb3a357b4fb6c3d5",
+  "tree": "bc06dc4ef6ec474a68b9cff5b8d61ff2b13f2acc",
+  "controls": 14,
+  "paths": 160
+}

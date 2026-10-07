@@ -1,0 +1,146 @@
+from pathlib import Path
+import copy
+import hashlib
+import json
+import subprocess
+
+R = Path('/workspace/e02-E-continuation-20261006')
+S = Path('/tmp/e02-E-api-companions-thirteenth-20261007')
+F = Path('/tmp/e02-E-fit-packet-thirteenth-20261007')
+OWNER_SHA = '19f54b441e79bc5d20bed32a118a31936baa3e5f842bbc6b9d3f2c4d9ea2f268'
+SELECTION_SHA = '4e9168816be35036d90b7c8562e89fe610aed55afc99195f3489c5edb09e888b'
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def file_ref(path):
+    data = Path(path).read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': sha(data)}
+
+def git(*args, allowed_error=False):
+    q = subprocess.run(['git', *args], cwd=R, capture_output=True)
+    if not allowed_error:
+        assert q.returncode == 0, (args, q.stderr)
+    return q
+
+def validate_assets(selection):
+    for row in selection['assets']:
+        actual = file_ref(row['source_path'])
+        assert actual['bytes'] == row['bytes'], row['source_path']
+        assert actual['sha256'] == row['sha256'], row['source_path']
+    assert len({row['portable_path'] for row in selection['assets']}) == len(selection['assets'])
+    assert sum(row['bytes'] for row in selection['assets']) == selection['bytes']
+
+owner_ref = file_ref(F / 'owner-handoff-v3.json')
+selection_ref = file_ref(F / 'publication-selection.json')
+assert owner_ref['sha256'] == OWNER_SHA
+assert selection_ref['sha256'] == SELECTION_SHA
+owner = json.loads((F / 'owner-handoff-v3.json').read_text())
+selection = json.loads((F / 'publication-selection.json').read_text())
+validate_assets(selection)
+corrupt = copy.deepcopy(selection)
+corrupt['assets'][0]['sha256'] = '0' * 64
+try:
+    validate_assets(corrupt)
+except AssertionError:
+    corrupt_control = 'REJECTED'
+else:
+    raise AssertionError('Corrupt-field negative did not fail')
+identity = json.loads((F / 'source-identity-and-patch-check.json').read_text())
+source_checks = []
+for commit_row in identity['refs']:
+    commit = commit_row['commit']
+    assert git('rev-parse', commit + '^{tree}').stdout.decode().strip() == commit_row['tree']
+    for row in commit_row['paths']:
+        q = git('show', commit + ':' + row['path'], allowed_error=True)
+        if row.get('state') == 'absent':
+            assert q.returncode != 0
+            source_checks.append({'commit': commit, 'path': row['path'], 'state': 'absent'})
+        else:
+            assert q.returncode == 0
+            assert len(q.stdout) == row['bytes'] and sha(q.stdout) == row['sha256']
+            assert git('rev-parse', commit + ':' + row['path']).stdout.decode().strip() == row['blob']
+            source_checks.append({'commit': commit, 'path': row['path'], 'state': 'matching exact Git body'})
+
+diag = json.loads((F / 'native-input-diagnostic-v2/diagnostic.json').read_text())
+expected = ['ordinary_float_features', 'ordinary_float_target', 'retained_integer_native', 'mismatched_kind', 'mismatched_media_type', 'missing_selected_view', 'malformed_float_hex_value', 'missing_float_hex_value', 'unsupported_canonical_tag']
+assert [row['case'] for row in diag['rows']] == expected
+assert diag['complete_case_denominator'] == 9
+assert diag['sampler_calls'] == diag['evaluator_calls'] == diag['fit_or_envelope_publication_calls'] == 0
+for row in diag['rows']:
+    if 'payload_hex' in row:
+        payload = bytes.fromhex(row['payload_hex'])
+        assert sha(payload) == row['payload_sha256']
+        assert row['ref']['artifact_id'] == 'sha256:' + row['payload_sha256']
+rows = {row['case']: row for row in diag['rows']}
+assert rows['ordinary_float_features']['actual_native_loader_numeric']['exception'] == 'TypeError'
+assert rows['ordinary_float_features']['existing_core_decoder_numeric']['value'] == [[-1.0], [0.0], [1.0], [-0.5], [0.5]]
+assert rows['ordinary_float_target']['actual_native_loader_numeric']['exception'] == 'TypeError'
+assert rows['ordinary_float_target']['existing_core_decoder_numeric']['value'] == [-0.2, 0.1, 0.2, -0.1, 0.0]
+assert rows['retained_integer_native']['actual_native_loader'] == {'features': [[1], [2]]}
+for name in ['mismatched_kind', 'mismatched_media_type', 'missing_selected_view']:
+    assert rows[name]['actual_native_loader']['status'] == 'RETURNED'
+    assert rows[name]['existing_core_complete_ref_read']['status'] == 'RAISED'
+for name in ['malformed_float_hex_value', 'missing_float_hex_value', 'unsupported_canonical_tag']:
+    assert rows[name]['actual_native_loader']['status'] == 'RETURNED'
+    assert rows[name]['existing_core_decoder']['status'] == 'RAISED'
+receipt = json.loads((F / 'native-input-v2-complete-receipt.json').read_text())
+for row in receipt['commands']:
+    assert sha((F / row['full_stdout']).read_bytes()) == row['stdout_sha256']
+    assert sha((F / row['full_stderr']).read_bytes()) == row['stderr_sha256']
+    assert row['exit_code'] == 0
+assert owner['post_owner_publication_acceptance']['status'] == 'UNRUN'
+assert owner['capability_state'] == 'bridge_missing'
+runner = git('show', owner['source_roles']['E_receipt_head'] + ':' + owner['observed_source_state']['protected_path']).stdout.decode()
+assert 'def _load_input_refs(' in runner and 'store.get_bytes(ref.artifact_id)' in runner
+assert 'ValueError,' in runner and 'OSError,' in runner
+patch = (F / 'float-materializer-typed-ref-supplement.patch').read_text()
+assert '+        payload = store.get_bytes(ref)' in patch
+assert '+            loaded[slot_name] = from_canonical_bytes(payload)' in patch
+assert '+        except (KeyError, TypeError) as exc:' in patch
+assert '+            raise ValueError(' in patch
+review = {
+    'schema': 'policyos.e02.immutable_owner_packet_independent_review.v1',
+    'reviewer': '/root/api_companions',
+    'author': '/root/fit_packet',
+    'review_role': 'Independent source and deciding-receipt review; reviewer did not author fit packet or patch',
+    'immutable_inputs': [owner_ref, selection_ref],
+    'review_target': 'Native finite-float Scientist materializer owner packet v3; unapplied protected writer patch and proposed companion tests',
+    'decision': 'GO for canonical owner intake of the bounded reviewable packet; not implementation acceptance or finding closure',
+    'blocking_findings': [],
+    'checks': {
+        'asset_denominator': len(selection['assets']),
+        'asset_total_bytes': selection['bytes'],
+        'all_declared_asset_sizes_hashes_and_portable_paths_recomputed': True,
+        'corrupt_asset_hash_negative': corrupt_control,
+        'source_identity_denominator': len(source_checks),
+        'exact_five_source_refs_by_five_commits_reconciled': source_checks,
+        'native_cases': expected,
+        'malformed_raw_hex_content_IDs_recomputed': 3,
+        'full_four_command_stdout_stderr_hashes_recomputed': True,
+        'source_current_behavior_diverges_from_core_decoder_or_complete_ref_guard': True,
+        'structured_runner_refusal_catches_ValueError_and_OSError_before_backend': True,
+        'retained_integer_native_control_present': True,
+        'sampler_backend_or_numerical_reexecution_by_reviewer': False,
+        'apply_check_by_reviewer': 'UNRUN; supplied exact owner receipt reviewed, patch not applied',
+        'new_finite_float_HMC_NUTS_to_fresh_Node_native_witness': 'UNRUN after canonical protected writer publication'
+    },
+    'scope_reasoning': [
+        'Existing ordinary finite-float tags remain dictionaries in plain JSON native loading; Core canonical decode resolves the supplied finite fixture without a new codec or sampler library.',
+        'The supplement retains complete ArtifactRef before decode, so kind/media-type/missing selected view continue to use the existing Core integrity path. Converting malformed tag KeyError/TypeError to ValueError reaches existing structured JobResult refusal before backend invocation.',
+        'Nine native observations are successful reproduction of current defects, not repaired-source PASS. Apply-check only proves patch applicability. New float HMC/NUTS and publication-removal tests remain owner-run UNRUN.',
+        'Configured integer fit corpus evidence is retained as a bounded earlier witness; neither tagged numeric decoding nor callback counts confer factual source-fit, law, production or institutional authority.',
+        'Selected valid source-profile lineage remains explicitly unsupported for fit Binding; decoder-only work does not claim valid view adoption or fabricate manifest lineage.'
+    ],
+    'next_owner': 'Canonical Scientist compute/input-materializer writer via G, then independent immutable implementation reviewer and E actual configured float HMC/NUTS→same CAS→fresh Node controls',
+    'gate_eligible': False,
+    'scientific_fit_validity': 'not_established',
+    'finding_closure': 'No historical ledger or G formal intake change',
+    'predicate_basis': 'independently_reconciled',
+    'P41': 'not_established',
+    'source_or_generated_mutation': False,
+    'source_read_lease': 'CLOSED'
+}
+path = S / 'fit-owner-packet-independent-review.json'
+path.write_text(json.dumps(review, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'review': file_ref(path), 'assets': len(selection['assets']), 'asset_bytes': selection['bytes'], 'native_cases': len(expected), 'source_inputs': len(source_checks), 'decision': review['decision']}, indent=2))

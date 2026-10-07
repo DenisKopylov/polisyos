@@ -1,0 +1,359 @@
+{
+  "schema": "policyos.e02.current_import_debt_disposition.v1",
+  "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "verdict": "GO bounded import census and source/writer qualification only",
+  "original12": {
+    "repaired_supported_route": 11,
+    "owner_export_pending": 1
+  },
+  "current_full_denominators": {
+    "full_changed_path_rows": 7468,
+    "changed_python_rows": 378,
+    "python_role_counts": {
+      "companion_utility": 245,
+      "test": 73,
+      "product_source": 60
+    },
+    "all_current_tracked_product_python": 2703,
+    "current_E_source_paths": 55,
+    "original_E_changed_source_paths": 36,
+    "new_static_cross_root_edges_all_source_vs_main": 23,
+    "new_static_cross_root_edges_current_E_source": 23,
+    "new_E_static_deep_edges": 2
+  },
+  "current_actual_writer_counts": {
+    "A": 2,
+    "B": 13,
+    "E": 349,
+    "G": 12,
+    "F": 2
+  },
+  "current_actual_writer_role_counts": {
+    "A": {
+      "companion_utility": 1,
+      "test": 1
+    },
+    "B": {
+      "companion_utility": 2,
+      "source": 4,
+      "test": 7
+    },
+    "E": {
+      "companion_utility": 230,
+      "test": 64,
+      "source": 55
+    },
+    "G": {
+      "companion_utility": 12
+    },
+    "F": {
+      "source": 1,
+      "test": 1
+    }
+  },
+  "current_new_E_static_edges": {
+    "total": 23,
+    "admitted_entrypoint": 21,
+    "private_owner_dependency": 2
+  },
+  "owner_ready_IR_seams": [
+    {
+      "id": "historical12_forecast_bundle_loader",
+      "historical12_member": true,
+      "canonical_writer": {
+        "logical": "@ir-owners / team-polisyos IR API",
+        "public_surface_inventory_review": "@architecture-owners / team-architecture",
+        "fallback": "@platform-owners",
+        "enforceable_GitHub_reviewer": "@DenisKopylov",
+        "ownership_sources": [
+          ".github/CODEOWNERS",
+          "policy-engine/docs/reference/ownership.md",
+          "policy-engine/architecture/public_surface/contract.toml"
+        ]
+      },
+      "minimum_input": "Admit one existing loader alias for the historical12 edge, or the recommended existing writer+loader pair for the real ForecastOwner producer/readback and bridge. No new data, noise law, wire functional or consumer authority is required for these identity aliases.",
+      "next_result": "IR owner commits exact native writer/loader identity exports through admitted IR root/analytics/API plus required API/inventory/release companions; E rewires actual bridge/ForecastOwner and affected fresh configured-CAS selectors; canonical architecture recomputation then decides its own outcome.",
+      "capability_state": "surface_missing",
+      "public_lease_granted_here": false
+    },
+    {
+      "id": "separate_existing_IR_nominal_CanonSpec",
+      "historical12_member": false,
+      "canonical_writer": {
+        "logical": [
+          "@ir-owners",
+          "@core-owners",
+          "@architecture-owners"
+        ],
+        "enforced_reviewer": "@DenisKopylov",
+        "fallback": "@platform-owners",
+        "generic_lease_transferred_by_B201_B202_semantic_appointment": false
+      },
+      "minimum_input": "Canonical IR/Core/API owner chooses narrow existing IR CanonSpec root export or explicit admission of existing IR subfacade, preserving nominal IR class/codec law. Existing Core canon runtime object alone is not nominally interchangeable with IR CanonSpec.",
+      "next_result": "Same nominal IR class at the public entrypoint; scoped caller has no new reportArgumentType diagnostics; actual configuredCAS/fresh FRC readers retain finite payload/ref/manifest and malformed/NaN/kind/schema refusals.",
+      "capability_state": "surface_missing",
+      "public_lease_granted_here": false
+    }
+  ],
+  "additional_BKT_private_executor_seam": {
+    "id": "BKT_native_replay_existing_snapshot_helpers",
+    "historical12_member": false,
+    "introduced_current_E_static_deep_edge": true,
+    "actual_caller": {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+      "exists": true,
+      "blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+    },
+    "actual_private_import_rows": [
+      {
+        "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+        "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+        "source_root": "scientist",
+        "target_module": "polisyos.foundry.execute.executor",
+        "target_root": "foundry",
+        "line": 35,
+        "symbols": [
+          "get_state_path",
+          "load_state_snapshot",
+          "put_state_snapshot"
+        ],
+        "kind": "static-from",
+        "canonical_collect_deep_import_edges_scope": true,
+        "cross_root": true,
+        "admitted_current_supported_entrypoint": false
+      }
+    ],
+    "closest_admitted_entrypoint": "polisyos.foundry.execute",
+    "actual_complete_current_lazy_map": {
+      "ResolvedExecutionPosture": [
+        "polisyos.foundry.execute.api",
+        "ResolvedExecutionPosture"
+      ],
+      "execute": [
+        "polisyos.foundry.execute.api",
+        "execute"
+      ],
+      "resolve_execution_posture": [
+        "polisyos.foundry.execute.api",
+        "resolve_execution_posture"
+      ]
+    },
+    "required_existing_native_definitions": [
+      {
+        "name": "get_state_path",
+        "line": 183,
+        "signature": "def get_state_path(obj: Any, path: str) -> Any",
+        "native_definition_sha256": "8b846307b313fe6ed4a6ef429fe93bd1f70956af025e1da491890110a50ae590",
+        "executor_reexport_import_row": {
+          "source_path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+          "source_module": "polisyos.foundry.execute.executor",
+          "source_root": "foundry",
+          "target_module": "polisyos.foundry.execute._internal.models",
+          "target_root": "foundry",
+          "line": 16,
+          "symbols": [
+            "ApplyArtifacts",
+            "ExecuteArtifacts",
+            "ExecutionStrictness",
+            "FailureCard",
+            "FailureKind",
+            "FailureSeverity",
+            "artifact_id",
+            "get_state_path",
+            "load_model",
+            "load_payload",
+            "load_tensor",
+            "put_tensor",
+            "set_state_path"
+          ],
+          "kind": "static-from",
+          "canonical_collect_deep_import_edges_scope": true,
+          "cross_root": false,
+          "admitted_current_supported_entrypoint": false
+        },
+        "native_definition_source": {
+          "path": "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+          "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+          "exists": true,
+          "blob": "b4a35571e566ea5fa8e7c3cbfea88a35d9a20422",
+          "bytes": 8195,
+          "sha256": "449df348760ee9e633813c194d1c55f03f2b509a8e2a0045fa6ece11f0ba56d8"
+        },
+        "current_supported_facade_binding": null
+      },
+      {
+        "name": "load_state_snapshot",
+        "line": 56,
+        "signature": "def load_state_snapshot(store: FileSystemCAS, *, snapshot_ref: ArtifactRef | ArtifactID | str) -> GlobalState",
+        "native_definition_sha256": "421b7c0f098422a68d7d9addfeab5df3c7b405c9e2c3d7e209bd472df933c21e",
+        "executor_reexport_import_row": {
+          "source_path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+          "source_module": "polisyos.foundry.execute.executor",
+          "source_root": "foundry",
+          "target_module": "polisyos.foundry.execute._internal.snapshots",
+          "target_root": "foundry",
+          "line": 55,
+          "symbols": [
+            "export_seed_state_npz",
+            "import_seed_state_npz",
+            "load_state_snapshot",
+            "put_state_snapshot"
+          ],
+          "kind": "static-from",
+          "canonical_collect_deep_import_edges_scope": true,
+          "cross_root": false,
+          "admitted_current_supported_entrypoint": false
+        },
+        "native_definition_source": {
+          "path": "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+          "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+          "exists": true,
+          "blob": "d6a470a7b2bc1e59624050e6cec23fe2b19afe64",
+          "bytes": 15962,
+          "sha256": "63b92ac4e2210911cdab437dcbc6d2bb8bc81c4abe507a50e8222667203c7aa1"
+        },
+        "current_supported_facade_binding": null
+      },
+      {
+        "name": "put_state_snapshot",
+        "line": 140,
+        "signature": "def put_state_snapshot(store: FileSystemCAS, *, state: Any, step: int | None=None, inputs: list[InputRef] | None=None) -> ArtifactRef",
+        "native_definition_sha256": "bfcd2fff7e200f695af43e84077ba7d7122f7c5adb3337c98fb1d8de78be19b1",
+        "executor_reexport_import_row": {
+          "source_path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+          "source_module": "polisyos.foundry.execute.executor",
+          "source_root": "foundry",
+          "target_module": "polisyos.foundry.execute._internal.snapshots",
+          "target_root": "foundry",
+          "line": 55,
+          "symbols": [
+            "export_seed_state_npz",
+            "import_seed_state_npz",
+            "load_state_snapshot",
+            "put_state_snapshot"
+          ],
+          "kind": "static-from",
+          "canonical_collect_deep_import_edges_scope": true,
+          "cross_root": false,
+          "admitted_current_supported_entrypoint": false
+        },
+        "native_definition_source": {
+          "path": "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+          "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+          "exists": true,
+          "blob": "d6a470a7b2bc1e59624050e6cec23fe2b19afe64",
+          "bytes": 15962,
+          "sha256": "63b92ac4e2210911cdab437dcbc6d2bb8bc81c4abe507a50e8222667203c7aa1"
+        },
+        "current_supported_facade_binding": null
+      }
+    ],
+    "native_definition_source": {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+      "exists": true,
+      "blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7",
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+    },
+    "canonical_writer": {
+      "logical": "@foundry-owners / Foundry execution API and snapshot owner",
+      "public_surface_review": "@architecture-owners",
+      "enforced_reviewer": "@DenisKopylov",
+      "fallback": "@platform-owners"
+    },
+    "minimum_input": "Canonical Foundry API owner admits same three existing helper objects through the existing supported execute facade with API/public companions. Then E changes the exact native_replay import; no second executor/runtime and no invented E facade lease.",
+    "next_checkable_result": "Fresh-process identity at supported facade, old exports preserved; actual immutable masked replay/config seed/snapshot K3 producer and fresh persisted trajectory reader with wrong kind/config/clock/lineage and route-removal refusals; canonical architecture recomputation after owner commit.",
+    "existing_owner_packet": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/owner-export-packet.json",
+      "bytes": 4522,
+      "sha256": "7531f33b5bf12a524a0f4d2f68b66a4b4b1864af90fcf286191300f2c13368e7"
+    },
+    "existing_unapplied_owner_patches": [
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/canonical-owner-exports.patch",
+        "bytes": 2029,
+        "sha256": "4fb418b33121c9b7abe38cdff6ae8083fd78f92045ec68a0a38f49cefdf0870f"
+      },
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/E-consumers-after-owner-exports.patch",
+        "bytes": 2028,
+        "sha256": "91f366fec701106259e9a24c55064d633d403cd282157dc87359f4ff42472698"
+      }
+    ],
+    "public_lease_granted_here": false,
+    "capability_state": "surface_missing",
+    "closest_nonadmitted_route": "foundry.execute.api imports load/put incidentally, lacks get_state_path, and is not a supported_entrypoint. Incidental object presence does not establish public admission."
+  },
+  "actual_canonical_isolated_collector": {
+    "scope": "Actual pinned collect_deep_import_edges and helper/class AST, all2703 immutable Git-backed source paths, real current supported_entrypoints. Isolated function only, no global architecture CLI/gate or product imports.",
+    "actual_source_function_AST_sha256": "ddf00d671049a4bd8f57eb7be913f4f7de1ecaaea1ce10b6a70880e70fbb10d6",
+    "actual_count": 3455,
+    "independent_count": 3455,
+    "full_exact_pair_equality": true,
+    "complete_actual_output": {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/actual-isolated-canonical-static-complete-output.json",
+      "bytes": 983652,
+      "sha256": "cfe72ce70f5122b2374b14eb02762ad51e009751012f8512bd8d96c6c62916c0"
+    }
+  },
+  "actual_checks": {
+    "normal_source_policy_controls": 20,
+    "optimized_source_policy_controls": 20,
+    "normal_writer_controls": 5,
+    "optimized_writer_controls": 5,
+    "ROOT_metadata_count": 207,
+    "ROOT_metadata_unchanged": true,
+    "unsafe_Git_classes_child_callback_count": 0,
+    "source_root_literal_dynamic_and_relative_import_controls": "PASS",
+    "actual_isolated_canonical_collector_equality": "PASS",
+    "global_architecture_CLI_by_this_observer": "UNRUN"
+  },
+  "gate_and_finding_boundary": "No full architecture PASS or inherited P41 attribution, no original finding closure or formal G intake. Canonical final gate and real owner implementation remain separate. Variable/wrapper dynamic imports are unmeasured and explicitly retained.",
+  "qualified_source_reports": [
+    {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/current-import-debt-reconciliation.json",
+      "bytes": 235253,
+      "sha256": "436b275617c8d3152155ef911de88c92ac1539573253663b4d1a08c2bbd66657"
+    },
+    {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/current-import-debt-reconciliation.json",
+      "bytes": 235271,
+      "sha256": "4ebe8200d139a2cc6f22cb2759e7e5b46f282493b29782e056aa723d6b2ed1eb"
+    }
+  ],
+  "CURRENT_writer_qualification": [
+    {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/writer-qualification-v4.json",
+      "bytes": 430880,
+      "sha256": "b5640d9de1f581fee1f2e44bea75a6462e2ea261fff62aaa89c108d7f1e91376"
+    },
+    {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/writer-qualification-v4.json",
+      "bytes": 430886,
+      "sha256": "2c5c97969f5d5cc5c7f5e1f03181168ec97d9a5fc23b98d92d6a2a67acbdb237"
+    }
+  ],
+  "patch_applicability_only": {
+    "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/current-patch-readonly-applicability.json",
+    "bytes": 2311,
+    "sha256": "542f2e7c1624b4ab8e6a645e9fac9581ead36fabe5d6b087172f4752f78690f3"
+  },
+  "history": {
+    "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/observer-history-qualification.json",
+    "bytes": 1848,
+    "sha256": "2989d0bcceb8830bc0ecb4427216a3a8058e03d3fe0682d76502bdfea021febf"
+  },
+  "full_static_and_footprint_archive_custody": {
+    "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/closed-static-context-archive-index.json",
+    "bytes": 2365,
+    "sha256": "53f9877d39fe41e41881d000d8075a4ae40952d0a3637d4386fbd25547e28fe9"
+  },
+  "production_data_or_backend_tests_or_product_imports": false,
+  "source_Git_or_environment_mutations": false
+}

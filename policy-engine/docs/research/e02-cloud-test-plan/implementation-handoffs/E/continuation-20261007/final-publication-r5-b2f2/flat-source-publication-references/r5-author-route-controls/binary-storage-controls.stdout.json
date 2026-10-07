@@ -1,0 +1,73 @@
+{
+  "outcome": "PASS preparation route controls only",
+  "cases": [
+    {
+      "property": "invalid UTF8 preserves literal binary role",
+      "actual": "f/stderr.bin",
+      "expected": "f/stderr.bin",
+      "outcome": "PASS"
+    },
+    {
+      "property": "NUL framed Git input is binary despite valid UTF8",
+      "actual": "f/source-nul.bin",
+      "expected": "f/source-nul.bin",
+      "outcome": "PASS"
+    },
+    {
+      "property": "ASCII binary control is not UTF8 text",
+      "actual": "f/control.bin",
+      "expected": "f/control.bin",
+      "outcome": "PASS"
+    },
+    {
+      "property": "empty original stream remains text",
+      "actual": "f/empty.stdout.txt",
+      "expected": "f/empty.stdout.txt",
+      "outcome": "PASS"
+    },
+    {
+      "property": "invalid JSON diagnostic remains text",
+      "actual": "f/error.stdout.txt",
+      "expected": "f/error.stdout.txt",
+      "outcome": "PASS"
+    },
+    {
+      "property": "healthy JSON retains JSON role",
+      "actual": "f/healthy.json",
+      "expected": "f/healthy.json",
+      "outcome": "PASS"
+    },
+    {
+      "property": "literal script remains passive",
+      "actual": "f/recipe.py.txt",
+      "expected": "f/recipe.py.txt",
+      "outcome": "PASS"
+    },
+    {
+      "property": "canonical pure route refusal",
+      "input": "../x.txt",
+      "outcome": "PASS"
+    },
+    {
+      "property": "canonical pure route refusal",
+      "input": "/x.txt",
+      "outcome": "PASS"
+    },
+    {
+      "property": "canonical pure route refusal",
+      "input": "a/./x.txt",
+      "outcome": "PASS"
+    },
+    {
+      "property": "canonical pure route refusal",
+      "input": "a\\x.txt",
+      "outcome": "PASS"
+    }
+  ],
+  "old_proxy_divergence": {
+    "actual_old_route": "f/source-nul.txt",
+    "new_expected_route": "f/source-nul.bin"
+  },
+  "destination_writes": 0,
+  "source_or_numeric_execution": false
+}

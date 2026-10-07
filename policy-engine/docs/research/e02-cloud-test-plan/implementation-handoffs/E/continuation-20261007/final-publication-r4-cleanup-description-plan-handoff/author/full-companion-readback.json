@@ -1,0 +1,12 @@
+{
+  "outcome": "PASS complete207path copier literalreadback",
+  "files": 207,
+  "bytes": 4092916,
+  "source_native_numeric_gate_execution": false,
+  "base7f_companion_gap_preserved": true,
+  "current_metadata_files": 11,
+  "current_carriers": 196,
+  "author_healthy": 2,
+  "author_negative_per_mode": 15,
+  "metadata_negative_per_mode": 8
+}

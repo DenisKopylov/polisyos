@@ -1,0 +1,42 @@
+{
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_owner_packet_routes.py",
+    "--candidate",
+    "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "--repo",
+    "/workspace/e02-E-frc-20261006",
+    "--packet",
+    "/workspace/e02-E-cal-review-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/owner-export-packet.json",
+    "--output",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/owner-packet-status-700.json"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006",
+  "started_utc": "2026-10-07T08:59:38.595955+00:00",
+  "ended_utc": "2026-10-07T08:59:39.430346+00:00",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-owner-packet.stdout",
+    "bytes": 5357,
+    "sha256": "ec7554f9354907ff459cef5401cdf12298dba2675021989f4351f3d902b456a0"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-owner-packet.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "literal_observer_source": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/check_owner_packet_routes.py",
+      "bytes": 3878,
+      "sha256": "4d74d2f2b69eb7e885e3a353c16996356e9c0db6e4c69492209b6b57a94600bd"
+    }
+  ],
+  "execution_environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "task_imposed_worker_process_thread_or_CPU_cap": false
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer.tar.gz",
+    "bytes": 1294819,
+    "sha256": "d58fdf51b9d560ba27ade1e808f976f6f0ceea6d1dc285054bfe0b434fed5a13"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-full-inventory.json",
+    "bytes": 1755487,
+    "sha256": "f2ede3a1b112dce5caffe26ef587d7ebbec167df9a20ed43a21481848ce1aeca"
+  },
+  "members": 4564,
+  "verified_file_bytes": 5740519,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

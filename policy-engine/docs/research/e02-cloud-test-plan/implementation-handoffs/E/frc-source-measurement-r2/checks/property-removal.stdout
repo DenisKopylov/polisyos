@@ -1,0 +1,119 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_measurement_admission_precedes_any_method_callback[wrong_unit] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-184/test_measurement_admission_pre0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f42e207a9e0>
+defect = 'wrong_unit'
+
+    @pytest.mark.parametrize(
+        "defect",
+        [
+            "missing_schema",
+            "wrong_kind",
+            "wrong_profile",
+            "malformed_schema",
+            "missing_unit",
+            "wrong_unit",
+            "wrong_target",
+            "unsupported_scale",
+            "legacy_request",
+        ],
+    )
+    def test_measurement_admission_precedes_any_method_callback(tmp_path: Path, monkeypatch, defect):
+        """Present refs/metric names cannot replace resolved schema and unit identity."""
+    
+        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        request, _ = _configured(store, [31.0, 32.0, 33.0, 34.0])
+        source = get_json_artifact(store, request.observed_source_ref.artifact_id)
+        schema = get_json_artifact(store, source["data_schema_ref"]["artifact_id"])
+        kind, schema_name = "fabric.data_schema", "polisyos.fabric.DataSchema"
+        if defect == "missing_schema":
+            source.pop("data_schema_ref")
+        elif defect == "wrong_kind":
+            kind = "fake.data_schema"
+        elif defect == "wrong_profile":
+            schema_name = "fake.DataSchema"
+            # CAS identity is byte-based; change a valid schema metadata field so
+            # this writes a new wrong-profile manifest rather than reusing v1.
+            schema["description"] = "wrong manifest profile fixture"
+        elif defect == "malformed_schema":
+            schema["fields"] = "not-fields"
+        elif defect == "missing_unit":
+            schema["fields"][0].pop("unit")
+        elif defect == "wrong_unit":
+            request = request.model_copy(update={"target_unit": "percent"})
+        elif defect == "wrong_target":
+            request = request.model_copy(update={"target_metric": "other_metric"})
+        elif defect == "unsupported_scale":
+            request = request.model_copy(update={"target_scale": "percent_to_ratio"})
+        elif defect == "legacy_request":
+            request = request.model_copy(update={"schema_version": "1.0"})
+        if defect in {"wrong_kind", "wrong_profile", "malformed_schema", "missing_unit"}:
+            source["data_schema_ref"] = put_json_artifact(
+                store,
+                schema,
+                kind=kind,
+                schema_name=schema_name,
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+        source_ref = put_json_artifact(
+            store,
+            source,
+            kind="fabric.data_snapshot",
+            schema_name="polisyos.fabric.DataSnapshot",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        request = request.model_copy(
+            update={"observed_source_ref": DataSnapshotRef(artifact_id=source_ref["artifact_id"])}
+        )
+        callback_count = 0
+    
+        def counted(*args, **kwargs):
+            nonlocal callback_count
+            callback_count += 1
+            raise AssertionError("preflight must precede numerical callback")
+    
+        monkeypatch.setattr(MethodDispatcher, "dispatch", counted)
+        with pytest.raises((ValueError, TypeError)):
+>           ForecastOwner(store).run(request)
+
+tests/unit/scientist/methods/backtesting/test_forecast_owner.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/backtesting/forecast_owner.py:872: in run
+    dispatcher_result = MethodDispatcher.get_instance().dispatch(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<polisyos.foundry.methods.backends.dispatch.MethodDispatcher object at 0x7f42e1da4ec0>,)
+kwargs = {'method_class': <class 'polisyos.foundry.methods.catalog.forecasting.univariate.ExponentialSmoothingEstimator'>, 'par..., conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False), ...}
+
+    def counted(*args, **kwargs):
+        nonlocal callback_count
+        callback_count += 1
+>       raise AssertionError("preflight must precede numerical callback")
+E       AssertionError: preflight must precede numerical callback
+
+tests/unit/scientist/methods/backtesting/test_forecast_owner.py:234: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.advanced.prophet@1.0.0 lazy=True namespace=forecasting.advanced override=False tags=['additive', 'advanced', 'builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'prophet', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.decomposition.stl@1.0.0 lazy=True namespace=forecasting.decomposition override=False tags=['builtin', 'decomposition', 'domain:forecasting', 'family:forecasting', 'forecasting', 'seasonal', 'stl', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.ensemble.simple_average@1.0.0 lazy=True namespace=forecasting.ensemble override=False tags=['builtin', 'domain:forecasting', 'ensemble', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.hybrid.guarded_neural@1.0.0 lazy=True namespace=forecasting.hybrid override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hybrid', 'neural', 'time-series', 'trust-region'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.multivariate.vec_forecast@1.0.0 lazy=True namespace=forecasting.multivariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'multivariate', 'time-series', 'var', 'vec'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.bottom_up@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'hierarchical', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.reconciliation.general_linear_projection@1.0.0 lazy=True namespace=forecasting.reconciliation override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'general-linear', 'grouped', 'reconciliation', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.regime_shift.hybrid@1.0.0 lazy=True namespace=forecasting.regime_shift override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'regime-switching', 'structural-breaks', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'exponential-smoothing', 'family:forecasting', 'forecasting', 'time-series'] version=1.0.0
+2026-10-06 13:40:34 [info     ] method_registered              backend=numpy fqn=forecasting.univariate.theta@1.0.0 lazy=True namespace=forecasting.univariate override=False tags=['builtin', 'domain:forecasting', 'family:forecasting', 'forecasting', 'theta', 'time-series'] version=1.0.0
+=============================== warnings summary ===============================
+../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_measurement_admission_precedes_any_method_callback[wrong_unit]

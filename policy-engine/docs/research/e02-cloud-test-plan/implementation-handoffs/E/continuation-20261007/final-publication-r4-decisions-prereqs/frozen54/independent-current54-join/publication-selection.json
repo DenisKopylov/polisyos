@@ -1,0 +1,204 @@
+{
+  "schema": "policyos.e02.E.independent_final_join_publication_selection.v1",
+  "reviewer": "imports_r4",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "disposition": "GO for docmerge prerequisite footprint and frozen current54 V2 join integrity, with explicit later-current supplemental correction",
+  "complete_deciding_assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_doc_merge_prerequisites.v3.py.txt",
+      "bytes": 8406,
+      "sha256": "6607ebf61de85f0fa31daa7f7b1c5c3d2460a81cfa1d1e23b733c98127c6c334"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-prerequisites-v3.json",
+      "bytes": 425375,
+      "sha256": "efb44a320545b1f1c63b9ee1c382a15ebe9b5fb789802d7ab7deb024f94a0769"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stdout.txt",
+      "bytes": 428,
+      "sha256": "cc33b741d72e330f5f1c22a91838fb7df4e07f5fb890ba28d6c63690b3629aac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_current54_independent.v2.py.txt",
+      "bytes": 19504,
+      "sha256": "8df5f6cf073e82bf00037d036c8958dc7a0f449dda5c548155b402b745505c99"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.json",
+      "bytes": 74182,
+      "sha256": "217eac581654df16c444b610c442c7ea51b9a9dff3bf64186b93c8812f774a59"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stdout.txt",
+      "bytes": 208,
+      "sha256": "38e3b0547727ea93fc8a1389a349b21dae7590d841bae0cba55ba84002cb1e9d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.json",
+      "bytes": 74181,
+      "sha256": "b036e3919e18c522b9288d1aee44126b528d65621681e092c7a2822d98bf92cc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stdout.txt",
+      "bytes": 211,
+      "sha256": "da570c8187144373203f278d1dccfb43aed79529dd900b22340d60bb5ce9ad20"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/FRC-a502-publication-validation.stdout.txt",
+      "bytes": 821,
+      "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.json",
+      "bytes": 3488,
+      "sha256": "7873aab3d96cdcdecbd7a2d1facb30668780aceb7fb86ec28c8b1ceaefef3e33"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stdout.txt",
+      "bytes": 204,
+      "sha256": "fb88cf21659752f82f976b35e0ce316a658d53722e63ee49d7de7e3550def131"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.json",
+      "bytes": 3487,
+      "sha256": "81d15325e92e1ea69833d2757e79b0f8664ed4ae3aa3cab5696d517724471043"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stdout.txt",
+      "bytes": 207,
+      "sha256": "e3db222ab81828a0f98039e2e972083721b1e044b51a26572f618f27fe1d8a7a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/publish_independent_selection.v1.py.txt",
+      "bytes": 6222,
+      "sha256": "506cf55cf8ffe555ab0e3aacf4b6dae9ebbc059b7276a72d57f9a745f4cdcc3a"
+    }
+  ],
+  "asset_count": 19,
+  "asset_bytes": 616924,
+  "failed_attempts_preserved_separately": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/failed-doc-census-rename-v1/doc-merge-review-v1.stderr.txt",
+      "bytes": 458,
+      "sha256": "11f6bff8ff71d9b19e30fb49d5c5970307c272e9f21e1444bad3f94817cc0468"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/failed-doc-census-rename-v1/doc-merge-review-v1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/failed-doc-census-rename-v1/review_doc_merge_prerequisites.py.txt",
+      "bytes": 7355,
+      "sha256": "8dca339467d959eef5871bbb4d9d7e47ba3c089845c333150911b118036f56cc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/failed-doc-census-rename-v2/doc-merge-review-v2.stderr.txt",
+      "bytes": 577,
+      "sha256": "0bf9616daa8d1819e906804f113ef6d9191bec5d6f0a5ca3d777a19708bf23a4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/failed-doc-census-rename-v2/doc-merge-review-v2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/failed-doc-census-rename-v2/review_doc_merge_prerequisites.v2.py.txt",
+      "bytes": 8116,
+      "sha256": "1cfaf255ecadda78165347a7614193ccd83e37677eb3ef58e4b528d63f0bf603"
+    }
+  ],
+  "excluded_successful_prior_draft": "current54 normal v1 retains earlier14 controls; final v2 adds three semantic-scope corruption controls, no original bytes rewritten",
+  "git_copy_binding": {
+    "revision": "a5021561c7630b8a1e721e34307d30550825b07d",
+    "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-validation.stdout",
+    "portable_path": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/FRC-a502-publication-validation.stdout.txt",
+    "source_sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5",
+    "source_bytes": 821,
+    "copy_byte_equal": true
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-S",
+        "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_doc_merge_prerequisites.v3.py.txt"
+      ],
+      "stdout": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stdout.txt",
+      "stderr": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/doc-merge-review-v3.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-S",
+        "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_current54_independent.v2.py.txt"
+      ],
+      "stdout": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stdout.txt",
+      "stderr": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-normal-v2.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-S",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/final-join-independent/review_current54_independent.v2.py.txt"
+      ],
+      "stdout": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stdout.txt",
+      "stderr": "/workspace/e02-E-pr38-r3-receipts/final-join-independent/current54-independent-optimized-v2.stderr.txt",
+      "exit_code": 0
+    }
+  ],
+  "external_interpreter": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "stdlib_only": true,
+    "ROOT_venv_used_or_imported": false
+  },
+  "docmerge_counts": {
+    "G": 21,
+    "FRC": 387,
+    "DOE_full_old_new": 272,
+    "complete_union": 680,
+    "destination_only_prior_proxy": 676,
+    "R100_byte_preserved_stdout_role_renames": 4,
+    "active_Python_after_merge": 361
+  },
+  "proof_reuse": "No product/test/source/facade/schema body deltas; exact64d numeric/native receipts retain original source identity. Parent performs ordinary append merges only after its active frozen native users close. Full361 lint/format warranted for one new executable doc validator. No new global/numeric gate by this reviewer.",
+  "owner_decisions": "Exact accountable-owner input dispositions preserved; historical49partial4held1closed distinct from proposed43closed9limited2held. This integrity review does not amend formal ledger.",
+  "current_supplement_required": [
+    "Immutable V2 cleanup instruction is superseded by latest human cloud-only delete authorization; root/criteria current layer must preserve historicalV2 and bind actual closed cleanup phases. Local Trash-only/no emptying remains.",
+    "Immutable initial37 observations21FAIL15PASS1UNRUN remain unchanged. Later architecture/browser/page/backend retries retain distinct exact receipts/current attempts; prerequisite install is not full workspace check PASS.",
+    "Full102 ABI generation packet remains authoritative; no fabricated count correction."
+  ],
+  "P41": "not_established without exact base/full input/environment replay",
+  "cleanup": "Only scratch observer/text receipts created; no root tracked writes, checkout/Git mutations, source/native env users, product tests, production data reads, deletion or cleanup action."
+}

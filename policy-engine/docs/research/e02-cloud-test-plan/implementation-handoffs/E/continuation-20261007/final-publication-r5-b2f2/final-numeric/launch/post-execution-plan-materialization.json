@@ -1,0 +1,97 @@
+{
+  "schema": "policyos.e02.post_execution_exact_plan_materialization.v1",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "source_plan": {
+    "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/final-numeric-selector-plan.json",
+    "bytes": 229702,
+    "sha256": "7e4cdaf703bda4b7104945dcc34222f0d1ec99cd4d3a10fad2967571e5c0058e",
+    "mtime_unix": 1791390067.957329
+  },
+  "wave_started_unix": 1791390068.033514,
+  "materialized_utc": "2026-10-07T16:30:03Z",
+  "destination": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/plan.json",
+  "all_actual_receipts": [
+    {
+      "name": "pcl-continuous-persistence",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9595,
+      "sha256": "bcdda6d8383bfaac986a17022645362d968ae9a9c4a3c982927490ace70db840",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "ddm-runtime-and-facade",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9828,
+      "sha256": "9feca71fa2ce13a50631b94bce85e609edd471ff4de86ebe7f044f38fc01e4db",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10815,
+      "sha256": "f3942245f7ec9b6b4eecf291562a3a8f6d5172fcd6be63ea0bd8d729d2ff4c69",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "cal-and-welfare-consumer",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 9313,
+      "sha256": "46665040423f12158dc05042fdfecd1c9204e64e9be57a1809c29a427468531d",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "mc-joint-law-support-and-scientist-consumer",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10945,
+      "sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "doe-salib-and-consumer-factory",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9988,
+      "sha256": "3b85afc393b2472fc432d0f21dff5c243b63a584c774317dfb39f397f31fbf20",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "g-checkpoint10-controlplanestore-companion",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 9191,
+      "sha256": "5ce60e37e217b270e9150693502117a5359de365f0d4f6756cde28a60aa9857a",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    },
+    {
+      "name": "results-importer",
+      "receipt": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/results-importer/results-importer.json",
+      "bytes": 8238,
+      "sha256": "c221d23b584f73e0f62e5ea13c4a1f1af71a6b16acdfb11f82508ae4a98862dd",
+      "command_equal": true,
+      "cwd_equal": true,
+      "source_immutable": true
+    }
+  ],
+  "input_unchanged": true,
+  "canonical_cli_materialization_boundary": "Direct reviewed execute(plan) lacked wave/plan.json; original prepared bytes are post-terminal copied exactly. No pre-launch wave/plan existence claimed. Original collectorERROR retained. Actual test executor argv/source/readback independently bound.",
+  "numeric_reexecuted": false,
+  "source_or_environment_modified": false,
+  "basis": {
+    "source_plan_hash_and_receipt_bindings": "recomputed",
+    "wave_plan_prelaunch_existence": "not_established",
+    "after_terminal_bytecopy": "recomputed"
+  }
+}

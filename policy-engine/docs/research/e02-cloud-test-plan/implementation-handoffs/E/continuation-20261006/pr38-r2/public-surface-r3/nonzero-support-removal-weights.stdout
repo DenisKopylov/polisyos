@@ -1,0 +1,6 @@
+{"removed_property": "nonzero-preservation only", "exports_retained": 19, "source_files_unchanged": true, "weights": [0.0, 1.0], "positive_input": true}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/nonzero_support_independent_probe.py", line 104, in <module>
+    assert observed[0] > 0, 'present-but-fake canonical helpers erase a positive category'
+           ^^^^^^^^^^^^^^^
+AssertionError: present-but-fake canonical helpers erase a positive category

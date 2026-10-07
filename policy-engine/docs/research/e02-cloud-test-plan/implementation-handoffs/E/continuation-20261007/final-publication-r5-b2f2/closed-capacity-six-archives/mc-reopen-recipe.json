@@ -1,0 +1,10 @@
+{
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/mc.tar.gz",
+    "bytes": 22894367,
+    "sha256": "9ba9e2f132fc7504341c32d4496cba5eb5299bbd39277000a2235b5c9db5c1ba"
+  },
+  "top_level_member": "mc",
+  "fresh_reopen_command": "mkdir -p /tmp/e02-E-reopen-mc-fresh && tar -xzf /workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/mc.tar.gz -C /tmp/e02-E-reopen-mc-fresh",
+  "qualification": "Choose a genuinely fresh empty extraction directory; absolute historical symlink strings are preserved and are not followed by archive/readback. Reopen restores all archived catalog bytes/modes/link strings and exact PAX mtime; no promise of historical external target availability."
+}

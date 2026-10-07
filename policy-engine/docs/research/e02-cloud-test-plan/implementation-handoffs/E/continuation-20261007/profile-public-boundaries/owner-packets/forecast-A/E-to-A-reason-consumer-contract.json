@@ -1,0 +1,748 @@
+{
+  "A_required_successor": {
+    "additional_exact_packet_selectors": [
+      "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]"
+    ],
+    "execution": "A applies reviewed narrow reason patch or equivalent canonical fix; real configured/default consumer; persist its decision; fresh grade/S6/default/HTTP read resolves evidence and recomputes",
+    "independent_recomputation": [
+      "profile/source/metric/field/unit/scale",
+      "train/holdout source positions and horizon",
+      "source rows→issued intervals pairing and requested/eligible/observed denominator",
+      "numerator/counts/pass-rate/threshold/floor",
+      "report/model/method/rule identities",
+      "purpose/may_not_use_for and six distinct role values"
+    ],
+    "minimum_configuration": [
+      "A/G must compose admitted E upstream source: A332 lacks authentic forecast helper and to_s10_input_fields adapter; existing ForecastOwner/forecast_bridge blobs differ. Source dependency is not missing production data.",
+      "same runtime configured CAS immutable source/schema/model/policy/request/profile/rule/receipt/evidence refs",
+      "trusted A composition selects allowed predictive-calibration purpose/profile threshold outside E payload",
+      "A verifier code/config identity and persisted neutral verification decision"
+    ],
+    "production_requirement": "No production dataset or WMR authority is a prerequisite for this generic exact reason/CAS wiring witness. Model-specific empirical calibration claims retain their separate original-criterion local read-only recipe.",
+    "retained_tests_in_current_A": [
+      "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+      "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero"
+    ]
+  },
+  "E_dependencies": [
+    {
+      "blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "bytes": 59611,
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "bytes": 81721,
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea",
+      "bytes": 4547,
+      "path": "policy-engine/tests/_helpers/forecast.py",
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "bytes": 16018,
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    }
+  ],
+  "G_review": "2abc17f46a033a7879663486ff9946a95786601f",
+  "P41_introducing_red_cause": "not_established",
+  "adapter_fields": {
+    "authority_scope": "predictive_only",
+    "empirical_calibration_evidence_ref": "receipt.empirical_evidence_ref (EmpiricalCalibrationEvidenceRef)",
+    "expected_rule_version_ref": "persisted request.calibration_rule.rule_id",
+    "forecast_candidate_receipt_ref": "separate ForecastCandidateReceiptRef",
+    "measurement_binding": "resolved source schema/metric/field/unit/type/source_native and optional decimal-storage-scale",
+    "temporal_roles": "persisted request.ForecastTemporalRoles, six named distinct timezone-aware roles",
+    "verifier_provenance": "not_established"
+  },
+  "applicable_A_packet": {
+    "applied": false,
+    "behavioral_acceptance": "UNRUN; A reviews/applies on its admitted composed source then runs narrow native packet once",
+    "native_baseline_test": {
+      "already_committed_git_blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "already_committed_git_path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "already_committed_git_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "bytes": 16018,
+      "path": "authentic-native-packet/test_frc_01-b2.py.txt",
+      "publication_rule": "Reuse exact original committed Git bytes; do not duplicate old source/card/wave payload.",
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9"
+    },
+    "patch": {
+      "bytes": 2456,
+      "path": "A332-status-reason-carry.patch.txt",
+      "sha256": "52e5e0ea89c013bb139fdeba75f429f2b09b8ce79c8276404f8e698838f2ca34"
+    },
+    "patch_base": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+    "patch_context_check": {
+      "bytes": 728,
+      "path": "A332-patch-check-receipt.json",
+      "sha256": "ef2c6218d39e061b4d3147bf30398f975f683eb4d4af6e13dbc0468d51d4938c"
+    },
+    "patch_scope": "only existing projection failure-code carry, explicit missing-reference cause and disposition resolver-priority; keep loaded-floor failure in the ordinary evidence branch",
+    "protected_writer": "A",
+    "tests": {
+      "already_committed_git_blob": "6046e1770339def66d96c457778e2cbb03078d6f",
+      "already_committed_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "already_committed_git_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "bytes": 5982,
+      "path": "authentic-native-packet/a-status-reason-tests.py.txt",
+      "publication_rule": "Reuse exact original committed Git bytes; do not duplicate old source/card/wave payload.",
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    }
+  },
+  "authentic_historical_CAS_refs": {
+    "claim": "These exact refs came from the actual configured CAS run in the historical receipt. Their identifiers alone are not current store resolution, current A execution, trusted verifier provenance or production evidence.",
+    "healthy": {
+      "actual_source_holdout": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "candidate_ref": {
+        "artifact_id": "sha256:2592a156800c62dabfdaaf037c19f6e0cb5129f286292f73e8e98d8aacd82b6a",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "case": "healthy",
+      "consumer_disposition_reason": "persisted predictive interval observations were recomputed from held-out data",
+      "consumer_limitations": [],
+      "consumer_tier": "observable_calibrated",
+      "default_HTTP_verified": false,
+      "denominator": 4,
+      "empirical_ref": {
+        "artifact_id": "sha256:944958f8cc7164970de4a7e63ea0bf8ae6dc083e4f4860a3395a74607f685e95",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "expected_points": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "issued_intervals": [
+        [
+          31.0,
+          31.0
+        ],
+        [
+          32.0,
+          32.0
+        ],
+        [
+          33.0,
+          33.0
+        ],
+        [
+          34.0,
+          34.0
+        ]
+      ],
+      "manual_hits": 4,
+      "outcome": "PASS",
+      "producer_failure_codes": [],
+      "six_roles": {
+        "calibration_window_end": "2026-01-03T00:00:00Z",
+        "calibration_window_start": "2026-01-02T00:00:00Z",
+        "data_valid_time": "2026-01-01T00:00:00Z",
+        "observation_time": "2026-01-06T00:00:00Z",
+        "policy_effective_time": "2026-01-04T00:00:00Z",
+        "prediction_time": "2026-01-05T00:00:00Z"
+      },
+      "unit": {
+        "data_type": "float64",
+        "decimal_storage_scale": null,
+        "field_id": "metric",
+        "scale": "source_native",
+        "schema_id": "test.forecast",
+        "schema_ref": {
+          "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_version": "1.0.0",
+        "target_metric": "metric",
+        "unit_id": "count"
+      }
+    },
+    "literal_receipt": {
+      "already_committed_git_blob": "2d7d903fde8ab098aa27239061da1152666ee986",
+      "already_committed_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/native-fRC-review-results.json",
+      "already_committed_git_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "bytes": 10648,
+      "path": "authentic-native-packet/independent-review/native-fRC-review-results.json",
+      "publication_rule": "Reuse exact original committed Git bytes; do not duplicate old source/card/wave payload.",
+      "sha256": "d12b4bf0fcbafcb6e864e9f5af444dc64989497b8423b1510bd4b15507da529e"
+    },
+    "resolved_floor_limited": {
+      "actual_source_holdout": [
+        1000.0,
+        1000.0,
+        1000.0,
+        1000.0
+      ],
+      "candidate_ref": {
+        "artifact_id": "sha256:4f9babc81daa2fbe02fedde6aee66e43d591f9ca52e615754ca99ff6b2b113d3",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "case": "floor_limited",
+      "consumer_disposition_reason": "empirical calibration evidence is limited: calibration_floor_not_met",
+      "consumer_limitations": [
+        "s10://calibration/insufficient-history"
+      ],
+      "consumer_tier": "blocked",
+      "default_HTTP_verified": false,
+      "denominator": 4,
+      "empirical_ref": {
+        "artifact_id": "sha256:6e59c20094ed8e861f3336d4b4fecab45826c687993bc1645a89ee5139551764",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "expected_points": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "issued_intervals": [
+        [
+          31.0,
+          31.0
+        ],
+        [
+          32.0,
+          32.0
+        ],
+        [
+          33.0,
+          33.0
+        ],
+        [
+          34.0,
+          34.0
+        ]
+      ],
+      "manual_hits": 0,
+      "outcome": "PASS",
+      "producer_failure_codes": [
+        "calibration_floor_not_met"
+      ],
+      "six_roles": {
+        "calibration_window_end": "2026-01-03T00:00:00Z",
+        "calibration_window_start": "2026-01-02T00:00:00Z",
+        "data_valid_time": "2026-01-01T00:00:00Z",
+        "observation_time": "2026-01-06T00:00:00Z",
+        "policy_effective_time": "2026-01-04T00:00:00Z",
+        "prediction_time": "2026-01-05T00:00:00Z"
+      },
+      "unit": {
+        "data_type": "float64",
+        "decimal_storage_scale": null,
+        "field_id": "metric",
+        "scale": "source_native",
+        "schema_id": "test.forecast",
+        "schema_ref": {
+          "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_version": "1.0.0",
+        "target_metric": "metric",
+        "unit_id": "count"
+      }
+    },
+    "source_candidate": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+    "source_tree": "0b79095f9293a04ca263356b24d22478b46e6688"
+  },
+  "authority_boundary": {
+    "denied": [
+      "causal_effect_authority",
+      "treatment_assignment_authority",
+      "s10_authority",
+      "policy/recommendation/production authority"
+    ],
+    "gate_eligibility": "producer receipt, credible flag, hash/role/schema and floor/status are not A verifier or institutional authority",
+    "preserve": "prediction can proceed to typed terminal causal/treatment refusal; predictive sibling cannot remove that refusal",
+    "producer_verifier_provenance": "not_established",
+    "purpose": "predictive_calibration only"
+  },
+  "canonical_writers": {
+    "A": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    ],
+    "E": [
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+    ]
+  },
+  "check_status_is_finding_outcome": false,
+  "cleanup": "Listed only; no permanent deletion and no local Trash action performed.",
+  "cleanup_candidates": [
+    "ignored-patch-check-input (complete exact A source mirror used only for read-only git apply --check; no active users after receipt)"
+  ],
+  "complete_original_input_refs": {
+    "G_review_source": "2abc17f46a033a7879663486ff9946a95786601f",
+    "assets": [
+      {
+        "bytes": 83181,
+        "portable_path": "literal-JUnit/bkt-frc-s10-and-adjacent-report-consumers.xml",
+        "sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8",
+        "source_blob": "bc958a597694702469fbdfa65053172f2fb0b835",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 13208,
+        "portable_path": "literal-JUnit/cal-and-welfare-consumer.xml",
+        "sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b",
+        "source_blob": "079b8cb77bba7f2bf6d20cefba1826f526582bbf",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/cal-and-welfare-consumer/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 12578,
+        "portable_path": "literal-JUnit/ddm-runtime-and-facade.xml",
+        "sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7",
+        "source_blob": "b7a44861971feaf6741749da453a57c3fc9b8c04",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/ddm-runtime-and-facade/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 36925,
+        "portable_path": "literal-JUnit/doe-salib-and-consumer-factory.xml",
+        "sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563",
+        "source_blob": "a4cfec6db2b0d9bd0a56a86d96e0ccb32e96cc35",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/doe-salib-and-consumer-factory/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 10247,
+        "portable_path": "literal-JUnit/g-checkpoint10-controlplanestore-companion.xml",
+        "sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71",
+        "source_blob": "3ce7bf0b0195919a45e98ee9a1ac060c025186bf",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 102935,
+        "portable_path": "literal-JUnit/mc-joint-law-support-and-scientist-consumer.xml",
+        "sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+        "source_blob": "31d19423f5d9423c0b3dd5151730fbfc047982ec",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 15383,
+        "portable_path": "literal-JUnit/pcl-continuous-persistence.xml",
+        "sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4",
+        "source_blob": "3118e6340f1ef7e302439b7ac6f4280a25b6dae5",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/pcl-continuous-persistence/pytest.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 119161,
+        "portable_path": "G-authoritative/E54-current-decisions.json",
+        "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c",
+        "source_blob": "4dc2adb6f38f2c1674ec1c8b616d1985914e2b9e",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+        "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+      },
+      {
+        "bytes": 8193,
+        "portable_path": "G-authoritative/E-gates-A-consumers.md",
+        "sha256": "f697df3a2aa624fe6722837ae056a3be7d09d30ad934768a52e19edd771e86a9",
+        "source_blob": "2b87c5582dbfdcdf4505dc738f24a1441edd965e",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-gates-A-consumers.md",
+        "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+      },
+      {
+        "bytes": 8548,
+        "portable_path": "G-authoritative/E-to-A-reason-carry.md",
+        "sha256": "6a392432cb49295afa685e1a8640dd22a4adbbd9b6cb680002e54c083941147d",
+        "source_blob": "0ab214e1912d71f032c90013e84f191768343ff8",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.md",
+        "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+      },
+      {
+        "bytes": 12254,
+        "portable_path": "G-authoritative/README.md",
+        "sha256": "e06ce2ae2053b5fb4a79e349ecf561248bbfa4eb7059bac4accab6fb7d95f99d",
+        "source_blob": "ab2e1d7d3fb9ed5864bf6896180832adc65fa63a",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/README.md",
+        "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+      },
+      {
+        "bytes": 20737,
+        "portable_path": "original-cards/FRC-01.md",
+        "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee",
+        "source_blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+        "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+      },
+      {
+        "bytes": 19111,
+        "portable_path": "original-cards/FRC-02.md",
+        "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6",
+        "source_blob": "7b7ccd45665e14e2e898182454bb1d94f5259c8d",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+        "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+      },
+      {
+        "bytes": 12413,
+        "portable_path": "original-owners/bundle-owners.tsv",
+        "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+        "source_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+      },
+      {
+        "bytes": 9504,
+        "portable_path": "original-owners/finding-owners.tsv",
+        "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+        "source_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+      },
+      {
+        "bytes": 5746,
+        "portable_path": "authentic-native-packet/a-owner-contract.json",
+        "sha256": "f4981ba0117e18a80290555c545bf11d666a8585395cb5f4ada7fed796163fd1",
+        "source_blob": "f47621903cd61cc843aeb8b61480dd677e0291d2",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-owner-contract.json",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 5982,
+        "portable_path": "authentic-native-packet/a-status-reason-tests.py.txt",
+        "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+        "source_blob": "6046e1770339def66d96c457778e2cbb03078d6f",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 3003,
+        "portable_path": "authentic-native-packet/README.md",
+        "sha256": "a405099a42b989c9900edacdc9e221727b0d028818d76e0ff482c3886b672c50",
+        "source_blob": "d18691bc14af3eda03ea2302549cba29d9adda78",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/README.md",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 22657,
+        "portable_path": "authentic-native-packet/implementation-handoff.json",
+        "sha256": "20fba51cc630a938871576cdd4dc9f9766a7f41269b015aa14c002d0b26e215b",
+        "source_blob": "7fa3f74c606856cd209c818d8b2fca5bd6f91563",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/implementation-handoff.json",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 4135,
+        "portable_path": "authentic-native-packet/checks/native-core-route-final.json",
+        "sha256": "faa5de6ed915077d31709986b8fde12682dc389525610ad2a9efbee082f7666b",
+        "source_blob": "179e9d3c85c25c58236f303ef1165605ea1b4879",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.json",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 8342,
+        "portable_path": "authentic-native-packet/checks/native-core-route-final.xml",
+        "sha256": "81efbdf536b5db0b30863a7c678406277159f94f41f643e75156e8aa385fe5f7",
+        "source_blob": "8db868cb50640aa873dd06ff5d0c23bdf582c0a5",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 3057,
+        "portable_path": "authentic-native-packet/checks/native-core-route-final.stdout",
+        "sha256": "23a1ab3af253ebb722030c074aaccc99a3e8286d3024923a80be354f4f0e66c2",
+        "source_blob": "9bb2f7ceea422e2783838cf0c449b61dbbcc2c56",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 0,
+        "portable_path": "authentic-native-packet/checks/native-core-route-final.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stderr",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 20923,
+        "portable_path": "authentic-native-packet/independent-review/frc-independent-review-1eba9f9e.json",
+        "sha256": "1c1b75c3b8fb77251df7fc475885894d1f7598b1141046ccf75f3a03db67cf46",
+        "source_blob": "4b2d5cc745db7b0933017f0d3701807671d1ff1a",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/frc-independent-review-1eba9f9e.json",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 10648,
+        "portable_path": "authentic-native-packet/independent-review/native-fRC-review-results.json",
+        "sha256": "d12b4bf0fcbafcb6e864e9f5af444dc64989497b8423b1510bd4b15507da529e",
+        "source_blob": "2d7d903fde8ab098aa27239061da1152666ee986",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/native-fRC-review-results.json",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 11146,
+        "portable_path": "authentic-native-packet/independent-review/probe_native_frc.py.txt",
+        "sha256": "b506635baada115153afaf03bbdd3e8d6c59ef781b7c5616532ad51db84d710e",
+        "source_blob": "306887b49827d80ad4880e796228abcbb8117fec",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/probe_native_frc.py.txt",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 4727,
+        "portable_path": "authentic-native-packet/independent-review/candidate-1eba-final.stdout.txt",
+        "sha256": "832dea50b5f4917d344fa041fa189dfdc245f32d75f56ab645d16fe73fbe5a1b",
+        "source_blob": "5f9fd300bfad6f491daaeb445f627791b4cbf94d",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stdout.txt",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 415,
+        "portable_path": "authentic-native-packet/independent-review/candidate-1eba-final.stderr.txt",
+        "sha256": "40e5860a66ceceac7a1d275f51ac24b7d3c22f64c04ddc26908048c4d8a80168",
+        "source_blob": "b30b2ccd0ad634dc51835f6dc5c7ac1ec11b0fbc",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stderr.txt",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      },
+      {
+        "bytes": 4547,
+        "portable_path": "authentic-native-packet/configured_forecast_request.py.txt",
+        "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+        "source_blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea",
+        "source_path": "policy-engine/tests/_helpers/forecast.py",
+        "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+      },
+      {
+        "bytes": 16018,
+        "portable_path": "authentic-native-packet/test_frc_01-b2.py.txt",
+        "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+        "source_blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+        "source_path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+      },
+      {
+        "bytes": 574927,
+        "portable_path": "literal-wave-publication-receipt.json",
+        "sha256": "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f",
+        "source_blob": "8475b151d347eeb1f294eac40e9fae510fee264b",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/publication-receipt.json",
+        "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+      }
+    ],
+    "bytes": 1180651,
+    "carrier": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "files": 31,
+    "production_data": false,
+    "runtime_rerun": false,
+    "schema": "policyos.e02.literal_input_index.v1",
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "current_A_E_composition_prerequisites": {
+    "bytes": 4107,
+    "path": "current-A-E-upstream-composition-prerequisites.json",
+    "sha256": "ad6109931563c7a01e50a23ba64c9672855a19468544b00c9794d4e8ff3ba748"
+  },
+  "current_A_product_checks": "UNRUN",
+  "current_A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "current_A_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "finding_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "finding_outcomes": {
+    "B32": {
+      "E_proposal": "limited",
+      "G_accepted": false,
+      "historical": "partial"
+    },
+    "LA-051": {
+      "E_proposal": "limited",
+      "G_accepted": false,
+      "historical": "partial"
+    }
+  },
+  "independent_oracle": {
+    "existing_receipts": [
+      "authentic-native-packet/checks/native-core-route-final.json",
+      "authentic-native-packet/checks/native-core-route-final.xml",
+      "authentic-native-packet/independent-review/frc-independent-review-1eba9f9e.json"
+    ],
+    "floor_negative": "same training/profile/method/horizon and heldout[1000]*4 independently yield0/4; resolved floor cause calibration_floor_not_met stays distinct from missing ref",
+    "healthy": "source holdout31..34 and bounds[(31,31),(32,32),(33,33),(34,34)] independently yield4/4; fresh receipt/evidence distinct and same six roles; retained terminal denials",
+    "receipt_qualification": "These retain their own historical source/environment identities; b2 wave is separately pinned. No current A product runtime was run here.",
+    "source": "native test_calibration_time_roles_are_preserved_from_bound_evidence reads original source row bytes and issued persisted bounds from different artifacts with Core canonical decoder; it does not use producer hit/result loop"
+  },
+  "negative_and_removal_controls": [
+    "Retain unresolved/malformed historical hand-built mapping as rejection; no calibration record and no admission. It is never the authentic positive.",
+    "Remove empirical ref while retaining real candidate receipt, request/time/unit/rule/profile markers: named missing-ref refusal before calibration publication.",
+    "Five actual gateway variants missing_ref/unresolved_ref/wrong_kind/wrong_time/wrong_rule preserve exactly the same decisive typed reason in blocked tier, S6 and forecast_authority_disposition_reason.",
+    "Resolved authentic0/4 floor failure retains calibration_floor_not_met; changing nominal confidence alone supplies no observations and must not become empirical coverage.",
+    "Integrity-valid forged producer credible/status/floor/count/unit/split/horizon/purpose/profile fields cannot bypass A recomputation from content-bound rows and admitted config.",
+    "Isolated removal of reason-carry/projection guard with named markers/blocked tier/S6 retained must make reason-conservation test fail; do not merely check string presence in source.",
+    "Fresh default/HTTP persistence reader resolves/re-verifies configured CAS again; missing artifact/changed resolver reason/stale mismatch must change current output; terminal causal/treatment/policy refusal remains."
+  ],
+  "new_E_dependency_readback": {
+    "bytes": 3602,
+    "path": "b2-to-b305-FRC-unchanged-dependency-basis.json",
+    "sha256": "8daba7df47c8cd1c1d9cbb9a32f7c2748e23ede459bedf73717df1bfccda5485"
+  },
+  "new_runtime_evidence": false,
+  "next_owner": "A canonical generation-cycle and HTTP writer via Git/G intake; G independently accepts source and original finding criteria separately",
+  "original_criteria": [
+    {
+      "card": "original-cards/FRC-01.md",
+      "criterion": "Use bound actual time roles and evidence; absent credibility remains unknown; no fixed June2/now substitution; no conditional simulation empirical record; keep historical replay and denials.",
+      "id": "B32",
+      "source_locator": "B_r19 lines607–620"
+    },
+    {
+      "accountable_bundle": "FRC-02",
+      "cards": [
+        "original-cards/FRC-01.md",
+        "original-cards/FRC-02.md"
+      ],
+      "criterion": "Replace estimator-shape calibration pass with one compatible actual producer and named estimand; observed numerator/denominator, model/rule/report/time/source binding; source observations determine suitability and nominal confidence cannot fabricate observed coverage.",
+      "id": "LA-051",
+      "source_locator": "LA_r09 lines3712–3746"
+    }
+  ],
+  "own_future_commit_sha": null,
+  "owner": "A",
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "predicate_basis": {
+    "A_verifier_profile_authority": "not_established",
+    "case_identity_join": "recomputed",
+    "current_A_runtime": "not_established",
+    "past_native_oracle": "independently_reconciled",
+    "source_delta": "recomputed"
+  },
+  "producer_artifact_bridge_consumer": {
+    "artifacts": [
+      {
+        "kind": "ir.forecast_owner_request",
+        "schema_version": "2.0"
+      },
+      {
+        "kind": "ir.forecast_calibration_profile",
+        "schema_version": "1.0"
+      },
+      {
+        "kind": "ir.forecast_candidate_receipt",
+        "schema_version": "1.0"
+      },
+      {
+        "kind": "ir.empirical_calibration_evidence",
+        "schema_version": "1.1"
+      },
+      {
+        "kind": "ir.backtest_report"
+      },
+      {
+        "kind": "ir.forecasting_uncertainty_bundle"
+      }
+    ],
+    "backend": "existing registered forecasting.univariate.exponential_smoothing@1.0.0, Foundry MethodDispatcher NumPy ETS/Holt kernel",
+    "bridge": "ForecastOwnerResult.to_s10_input_fields(new FileSystemCAS instance at same CAS root) resolves fresh candidate/evidence/request/measurement binding before projecting A fields",
+    "consumer": "RealValueOwnerGateway.produce_forecast_inputs already exists and resolves through injected canonical empirical loader; A must preserve verified resolution/floor reason through ForecastSupport, S6 and persisted default/HTTP readback",
+    "estimand": "predictive_interval_coverage; predictive output intervals retain source_native count units; not causal effect CI",
+    "identity": "candidate receipt and neutral empirical evidence are separate distinct content-bound refs; all nested source/schema/model/policy/method/rule/profile/report artifacts persist in the same configured CAS",
+    "minimum_capability_labels": [
+      "verification_missing"
+    ],
+    "named_code_gap": "A reason/projection carry is lossy; do not replace this observed existing consumer with blanket consumer_missing.",
+    "producer": "ForecastOwner(configured CAS, empirical_profile_ref=configured profile).run(admitted ForecastOwnerRequest)",
+    "profile": "ForecastCalibrationProfile v1.0 outside request, exact persisted request_ref; purpose predictive_calibration; threshold0.8 declared synthetic fixture configuration, not institutional admission",
+    "source": "same configured CAS DataSnapshot(data_ref, data_schema_ref); metric 1..30 + explicit holdout; schema metric/float64/count/source_native; 30/4 train/holdout; seed17; horizon4",
+    "surface": "native typed ForecastSupport/calibration record exists; ordinary default/HTTP grade/S6/persistence/fresh recomputation of the current composed source is UNRUN"
+  },
+  "reason_cases": {
+    "association": {
+      "bytes": 154790,
+      "path": "all-eight-failure-identities.json",
+      "sha256": "cf5374ee26e5587c2919a67ffab3e0386c0567e0cc6f767e2454d99f785ed9fa"
+    },
+    "current_A_status": "all exact current A selectors UNRUN; four selected S10 functions literal unchanged2605→332 despite surrounding generation-cycle source delta",
+    "full83": {
+      "bytes": 116518,
+      "path": "full83-FRC-case-association.json",
+      "sha256": "2944947a4568ea640b07d75982b2507129ee8eb3bf1597fa8cb7d5ad4a212d6f"
+    },
+    "old_association": "both IDs had the same three failures (not six); five packet resolver/disposition variants are now included in each navigation set",
+    "per_finding_links": {
+      "B32": 8,
+      "LA-051": 8
+    },
+    "unique_b2_failures": 8,
+    "unique_observations_after_join": 8,
+    "updated_source_observation": "Current _s10_empirical_projection computes failure_codes but omits them from returned projection; updated _s10_limitation_refs cannot source codes from absent key. Disposition still favors generic report reason over typed resolver fallback. These are source observations, not measured A failures."
+  },
+  "receipt_carrier": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "schema": "policyos.e02.owner_dependency_packet.v1",
+  "six_time_roles": {
+    "admission": "data_valid_time < calibration_window_start < calibration_window_end <= prediction_time < observation_time; policy_effective_time <= prediction_time; all six distinct and aware",
+    "claim": "These are explicitly supplied synthetic role values, not observed production events or now defaults.",
+    "fixture_values": {
+      "calibration_window_end": "2026-01-03T00:00:00Z",
+      "calibration_window_start": "2026-01-02T00:00:00Z",
+      "data_valid_time": "2026-01-01T00:00:00Z",
+      "observation_time": "2026-01-06T00:00:00Z",
+      "policy_effective_time": "2026-01-04T00:00:00Z",
+      "prediction_time": "2026-01-05T00:00:00Z"
+    },
+    "ordered_names": [
+      "data_valid_time",
+      "calibration_window_start",
+      "calibration_window_end",
+      "policy_effective_time",
+      "prediction_time",
+      "observation_time"
+    ]
+  },
+  "source_candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "unit": "E"
+}

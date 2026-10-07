@@ -1,0 +1,36 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recomputed-wave-optimized.json",
+    "bytes": 78548,
+    "sha256": "227a2aac7fab78e3817e92a85e64186188e0fff5d7259d55a28eed0c055c56d0"
+  },
+  "case_index": {
+    "path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/case-index-optimized.json",
+    "bytes": 447116,
+    "sha256": "df2beee6e2666425dcb68966880f20690056b048da0dc2387d559e5e0099c47e"
+  },
+  "native_counts": {
+    "cases": 1458,
+    "passed": 1457,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "A_packet_counts": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "numeric_counts": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jobs": 8,
+  "controls": 9,
+  "source_unchanged": true
+}

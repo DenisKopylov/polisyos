@@ -1,0 +1,162 @@
+{
+  "schema": "policyos.e02.E.final_publication_pre_fetch.v1",
+  "time_utc": "2026-10-07T16:57:37.223827+00:00",
+  "frozen_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "refs": {
+    "origin/main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a"
+    },
+    "origin/codex/e02-E-continuation-20261006": {
+      "sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+    }
+  },
+  "source_head_and_tracked_status_unchanged": true,
+  "unique_untracked_preserved": true,
+  "events": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=normal"
+      ],
+      "exit_code": 0,
+      "stdout": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=no"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/main:refs/remotes/origin/main",
+        "refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration",
+        "refs/heads/codex/e02-E-continuation-20261006:refs/remotes/origin/codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n   75ccf4dd2..6e8725faa  codex/e02-integration -> origin/codex/e02-integration\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main"
+      ],
+      "exit_code": 0,
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "2b754a92c27959e2e747738d47ed0b419f3b6dd8\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-integration"
+      ],
+      "exit_code": 0,
+      "stdout": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-integration^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "f79fc5304324b92aeed741d7abdd6fc6f54a130a\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0,
+      "stdout": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-E-continuation-20261006^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "4cbbed1d9392832729cab92c6615f9a1d03a41c7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "origin/main"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=normal"
+      ],
+      "exit_code": 0,
+      "stdout": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+      "stderr": ""
+    }
+  ],
+  "future_doc_head_not_asserted": true
+}

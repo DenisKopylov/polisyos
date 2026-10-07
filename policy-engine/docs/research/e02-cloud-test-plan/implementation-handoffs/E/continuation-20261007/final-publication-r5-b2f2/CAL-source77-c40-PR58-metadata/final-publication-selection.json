@@ -1,0 +1,786 @@
+{
+  "schema": "e02.E.source_DOC_PR_metadata_publication_selection.v1",
+  "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "source_tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "DOC": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+  "DOC_tree": "b596c99e8edc0e6735c942f0415fb50ecccfa331",
+  "handoff_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/configured-bayesian-fit/",
+  "PR": "https://github.com/DenisKopylov/polisyos/pull/58",
+  "PR_head": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+  "scope": "Closed source-first/topic publication, separate passive DOC commit/readback and current own PR title/body; metadata only, no native/backend/gate repetition",
+  "source_native_decisions_reused_from": [
+    "independent-review-77b4.json@4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f",
+    "independent-publication-review-77b4-v3.json@8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f"
+  ],
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/after-head.stderr.txt",
+      "portable_path": "source-publication-77b4/after-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/after-head.stdout.txt",
+      "portable_path": "source-publication-77b4/after-head.stdout.txt",
+      "bytes": 82,
+      "sha256": "5166b74d659b481c28f342a58c8bf85ad5abff64b20d82c02756ba151d0cf617",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/after-remote.stderr.txt",
+      "portable_path": "source-publication-77b4/after-remote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/after-remote.stdout.txt",
+      "portable_path": "source-publication-77b4/after-remote.stdout.txt",
+      "bytes": 77,
+      "sha256": "fd946c6bfd17eead6a4fd780dde7b85674baffb381d429bb5bfe96f9f25b86bb",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/after-status.stderr.txt",
+      "portable_path": "source-publication-77b4/after-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/after-status.stdout.txt",
+      "portable_path": "source-publication-77b4/after-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/before-head.stderr.txt",
+      "portable_path": "source-publication-77b4/before-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/before-head.stdout.txt",
+      "portable_path": "source-publication-77b4/before-head.stdout.txt",
+      "bytes": 82,
+      "sha256": "5166b74d659b481c28f342a58c8bf85ad5abff64b20d82c02756ba151d0cf617",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/before-remote.stderr.txt",
+      "portable_path": "source-publication-77b4/before-remote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/before-remote.stdout.txt",
+      "portable_path": "source-publication-77b4/before-remote.stdout.txt",
+      "bytes": 77,
+      "sha256": "cc10b4901208929279eab6c60d35ccbda8616513d92b2fb30c17e213dd3a4aa7",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/before-status.stderr.txt",
+      "portable_path": "source-publication-77b4/before-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/before-status.stdout.txt",
+      "portable_path": "source-publication-77b4/before-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/push.stderr.txt",
+      "portable_path": "source-publication-77b4/push.stderr.txt",
+      "bytes": 106,
+      "sha256": "cc547c174aa5413e12d1aac60f6cb0e2c1c12fa40aa2e5a1ac81db14532c8b4d",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/push.stdout.txt",
+      "portable_path": "source-publication-77b4/push.stdout.txt",
+      "bytes": 486,
+      "sha256": "d26a3e4536d557df96173a59a91f5685df7a422d1d31d68f091afdb188059eeb",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/receipt.json",
+      "portable_path": "source-publication-77b4/receipt.json",
+      "bytes": 3436,
+      "sha256": "4b690cab3ee7e7a618a215d1af0d4d6e0332fbd5483c353f381a753157060e8f",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/remote-ancestor.stderr.txt",
+      "portable_path": "source-publication-77b4/remote-ancestor.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/remote-ancestor.stdout.txt",
+      "portable_path": "source-publication-77b4/remote-ancestor.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/after-head.stderr.txt",
+      "portable_path": "doc-publication/after-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/after-head.stdout.txt",
+      "portable_path": "doc-publication/after-head.stdout.txt",
+      "bytes": 82,
+      "sha256": "c7c9b39bd56705252d0f1d24d7accdb8b74e2a987a430a202a6e334d057c8ee5",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/after-status.stderr.txt",
+      "portable_path": "doc-publication/after-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/after-status.stdout.txt",
+      "portable_path": "doc-publication/after-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/commit.stderr.txt",
+      "portable_path": "doc-publication/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "dfed807a0ac0b88af1aff8586e8effdddd81639eebf2d924c5ee0782052ea59a",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/commit.stdout.txt",
+      "portable_path": "doc-publication/commit.stdout.txt",
+      "bytes": 207386,
+      "sha256": "809d73103207f7faba38a9987ee8d8fa5b36973dadaf17aa49cbd42b7fb29d07",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/delta.stderr.txt",
+      "portable_path": "doc-publication/delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/delta.stdout.txt",
+      "portable_path": "doc-publication/delta.stdout.txt",
+      "bytes": 188004,
+      "sha256": "2b0605191e9de0a66265443808690a88fe0b5642d6eb956179b1406c916ad101",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/head.stderr.txt",
+      "portable_path": "doc-publication/head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/head.stdout.txt",
+      "portable_path": "doc-publication/head.stdout.txt",
+      "bytes": 82,
+      "sha256": "c7c9b39bd56705252d0f1d24d7accdb8b74e2a987a430a202a6e334d057c8ee5",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/parent.stderr.txt",
+      "portable_path": "doc-publication/parent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/parent.stdout.txt",
+      "portable_path": "doc-publication/parent.stdout.txt",
+      "bytes": 41,
+      "sha256": "e33677b339c332207a19425c8dc92617dcd6de3d9cabb0bd750859fd49147f9b",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/precommit-footprint.json",
+      "portable_path": "doc-publication/precommit-footprint.json",
+      "bytes": 316671,
+      "sha256": "7d352f51df3157ba9793f57d14f9726b647105420cce3b822b6495c3cbe8eee4",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/push.stderr.txt",
+      "portable_path": "doc-publication/push.stderr.txt",
+      "bytes": 106,
+      "sha256": "fc8efa81b899aac79df500a9ddb13da6d8b98f1f3232fc100287f778d575f1ee",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/push.stdout.txt",
+      "portable_path": "doc-publication/push.stdout.txt",
+      "bytes": 486,
+      "sha256": "e2664f22c6d4b212aed0c78752a22dcaf01e9d34b23245f70d1d874e82d8ad8d",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/readback.json",
+      "portable_path": "doc-publication/readback.json",
+      "bytes": 198155,
+      "sha256": "7765b726b213dcabfac2ed26bca8e26fb9fd433eb61411f5fba6fa61c7f85ad7",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/remote.stderr.txt",
+      "portable_path": "doc-publication/remote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/remote.stdout.txt",
+      "portable_path": "doc-publication/remote.stdout.txt",
+      "bytes": 77,
+      "sha256": "16ca65e06508bcb0fb3b15617bc00167f01a7e2fad4216cf75ba7a109f38da1c",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/status.stderr.txt",
+      "portable_path": "doc-publication/status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/status.stdout.txt",
+      "portable_path": "doc-publication/status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/before.stderr.txt",
+      "portable_path": "pr58-current-description/before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/before.stdout.txt",
+      "portable_path": "pr58-current-description/before.stdout.txt",
+      "bytes": 2580,
+      "sha256": "9e09030b00501f869e6d05f1a6c42ec4bb6a5d9417b724f32dbdda78e2235341",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/edit.stderr.txt",
+      "portable_path": "pr58-current-description/edit.stderr.txt",
+      "bytes": 206,
+      "sha256": "9c4f5d81ed2acfc14cd655978ab0fe9f7fe985bba53d8d843aafdf989f122e2c",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/edit.stdout.txt",
+      "portable_path": "pr58-current-description/edit.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/receipt.json",
+      "portable_path": "pr58-current-description/receipt.json",
+      "bytes": 4295,
+      "sha256": "e5d8cae45698686171c4c59b77b812d2dbf10273d850952480191efe954ff970",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-after.stderr.txt",
+      "portable_path": "pr58-current-description/rest-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-after.stdout.txt",
+      "portable_path": "pr58-current-description/rest-after.stdout.txt",
+      "bytes": 19495,
+      "sha256": "fb53c3e050aa820fc18586166e670d5232aa213ef2332949e5018d3ec4330402",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-before.stderr.txt",
+      "portable_path": "pr58-current-description/rest-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-before.stdout.txt",
+      "portable_path": "pr58-current-description/rest-before.stdout.txt",
+      "bytes": 18086,
+      "sha256": "07221a6d655571c11a08a16db09ae989e096a9a6e382ebafa7d42d37d6101c45",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-edit.stderr.txt",
+      "portable_path": "pr58-current-description/rest-edit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-edit.stdout.txt",
+      "portable_path": "pr58-current-description/rest-edit.stdout.txt",
+      "bytes": 19495,
+      "sha256": "fb53c3e050aa820fc18586166e670d5232aa213ef2332949e5018d3ec4330402",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-payload.json",
+      "portable_path": "pr58-current-description/rest-payload.json",
+      "bytes": 3789,
+      "sha256": "25ccbd3cd0a38842746c9e5013ab629dec8fa9e6f2b0093465bf83d6c3612b80",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/status-after.stderr.txt",
+      "portable_path": "pr58-current-description/status-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/status-after.stdout.txt",
+      "portable_path": "pr58-current-description/status-after.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/update_via_rest.py",
+      "portable_path": "pr58-current-description/update_via_rest.py.txt",
+      "bytes": 3845,
+      "sha256": "f56470c6677e8aa8270e8c42ed13473b051e96107d066d0292a2dc36985255fb",
+      "role": "actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/after-head.stderr.txt",
+      "portable_path": "final-publication-readback/after-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/after-head.stdout.txt",
+      "portable_path": "final-publication-readback/after-head.stdout.txt",
+      "bytes": 82,
+      "sha256": "c7c9b39bd56705252d0f1d24d7accdb8b74e2a987a430a202a6e334d057c8ee5",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/after-status.stderr.txt",
+      "portable_path": "final-publication-readback/after-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/after-status.stdout.txt",
+      "portable_path": "final-publication-readback/after-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/before-head.stderr.txt",
+      "portable_path": "final-publication-readback/before-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/before-head.stdout.txt",
+      "portable_path": "final-publication-readback/before-head.stdout.txt",
+      "bytes": 82,
+      "sha256": "c7c9b39bd56705252d0f1d24d7accdb8b74e2a987a430a202a6e334d057c8ee5",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/before-status.stderr.txt",
+      "portable_path": "final-publication-readback/before-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/before-status.stdout.txt",
+      "portable_path": "final-publication-readback/before-status.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-0.stderr.txt",
+      "portable_path": "final-publication-readback/doc-file-0.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-0.stdout.txt",
+      "portable_path": "final-publication-readback/doc-file-0.stdout.txt",
+      "bytes": 2108,
+      "sha256": "6b7f1d8a7517be7f3f5abaf6dbcfd667a2cd5dac07e83c861e2c5b8eb4c45502",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-1.stderr.txt",
+      "portable_path": "final-publication-readback/doc-file-1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-1.stdout.txt",
+      "portable_path": "final-publication-readback/doc-file-1.stdout.txt",
+      "bytes": 6567,
+      "sha256": "55dd769d34a2cdb4ca66a7c0d49f5a30b7c97e69ebfeaf883de006e9a7eca373",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-2.stderr.txt",
+      "portable_path": "final-publication-readback/doc-file-2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-2.stdout.txt",
+      "portable_path": "final-publication-readback/doc-file-2.stdout.txt",
+      "bytes": 18180,
+      "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-3.stderr.txt",
+      "portable_path": "final-publication-readback/doc-file-3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-3.stdout.txt",
+      "portable_path": "final-publication-readback/doc-file-3.stdout.txt",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-4.stderr.txt",
+      "portable_path": "final-publication-readback/doc-file-4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-4.stdout.txt",
+      "portable_path": "final-publication-readback/doc-file-4.stdout.txt",
+      "bytes": 24832,
+      "sha256": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-5.stderr.txt",
+      "portable_path": "final-publication-readback/doc-file-5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-file-5.stdout.txt",
+      "portable_path": "final-publication-readback/doc-file-5.stdout.txt",
+      "bytes": 34293,
+      "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-parent.stderr.txt",
+      "portable_path": "final-publication-readback/doc-parent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/doc-parent.stdout.txt",
+      "portable_path": "final-publication-readback/doc-parent.stdout.txt",
+      "bytes": 41,
+      "sha256": "e33677b339c332207a19425c8dc92617dcd6de3d9cabb0bd750859fd49147f9b",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/pr58.stderr.txt",
+      "portable_path": "final-publication-readback/pr58.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/pr58.stdout.txt",
+      "portable_path": "final-publication-readback/pr58.stdout.txt",
+      "bytes": 2580,
+      "sha256": "9e09030b00501f869e6d05f1a6c42ec4bb6a5d9417b724f32dbdda78e2235341",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/receipt.json",
+      "portable_path": "final-publication-readback/receipt.json",
+      "bytes": 1297503,
+      "sha256": "b1fce7ed184db0e4d18e67144969d7a9a1f7dde2ebf02414ec64cec568e8e4ec",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/remote-topic.stderr.txt",
+      "portable_path": "final-publication-readback/remote-topic.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/remote-topic.stdout.txt",
+      "portable_path": "final-publication-readback/remote-topic.stdout.txt",
+      "bytes": 77,
+      "sha256": "16ca65e06508bcb0fb3b15617bc00167f01a7e2fad4216cf75ba7a109f38da1c",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-ancestor.stderr.txt",
+      "portable_path": "final-publication-readback/source-ancestor.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-ancestor.stdout.txt",
+      "portable_path": "final-publication-readback/source-ancestor.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-doc-delta.stderr.txt",
+      "portable_path": "final-publication-readback/source-doc-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-doc-delta.stdout.txt",
+      "portable_path": "final-publication-readback/source-doc-delta.stdout.txt",
+      "bytes": 188004,
+      "sha256": "2b0605191e9de0a66265443808690a88fe0b5642d6eb956179b1406c916ad101",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-0.stderr.txt",
+      "portable_path": "final-publication-readback/source-file-0.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-0.stdout.txt",
+      "portable_path": "final-publication-readback/source-file-0.stdout.txt",
+      "bytes": 2108,
+      "sha256": "6b7f1d8a7517be7f3f5abaf6dbcfd667a2cd5dac07e83c861e2c5b8eb4c45502",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-1.stderr.txt",
+      "portable_path": "final-publication-readback/source-file-1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-1.stdout.txt",
+      "portable_path": "final-publication-readback/source-file-1.stdout.txt",
+      "bytes": 6567,
+      "sha256": "55dd769d34a2cdb4ca66a7c0d49f5a30b7c97e69ebfeaf883de006e9a7eca373",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-2.stderr.txt",
+      "portable_path": "final-publication-readback/source-file-2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-2.stdout.txt",
+      "portable_path": "final-publication-readback/source-file-2.stdout.txt",
+      "bytes": 18180,
+      "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-3.stderr.txt",
+      "portable_path": "final-publication-readback/source-file-3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-3.stdout.txt",
+      "portable_path": "final-publication-readback/source-file-3.stdout.txt",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-4.stderr.txt",
+      "portable_path": "final-publication-readback/source-file-4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-4.stdout.txt",
+      "portable_path": "final-publication-readback/source-file-4.stdout.txt",
+      "bytes": 24832,
+      "sha256": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-5.stderr.txt",
+      "portable_path": "final-publication-readback/source-file-5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-file-5.stdout.txt",
+      "portable_path": "final-publication-readback/source-file-5.stdout.txt",
+      "bytes": 34293,
+      "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-tree.stderr.txt",
+      "portable_path": "final-publication-readback/source-tree.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback/source-tree.stdout.txt",
+      "portable_path": "final-publication-readback/source-tree.stdout.txt",
+      "bytes": 41,
+      "sha256": "0d3eb8d1d7e8a6c8010da3a329946ec9e422ddf4e031a7b3d1a9f1c3a99ad044",
+      "role": "actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/record_published_source_and_docs.py",
+      "portable_path": "record_published_source_and_docs.py.txt",
+      "bytes": 4942,
+      "sha256": "5b2aedd3dcaddb1e2ea0eced2790232821e04268c24658fa6ab01ed4c2b04071",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-readback-builder.stdout.json",
+      "portable_path": "final-readback-builder.stdout.json",
+      "bytes": 309,
+      "sha256": "adf44be1e382758a362c7b7d320c3d6821ae978c60d909ee1a0ac1a328b6989f",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-readback-builder.stderr.txt",
+      "portable_path": "final-readback-builder.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-body.md",
+      "portable_path": "pr58-current-body.md",
+      "bytes": 3685,
+      "sha256": "55e0ef421ab2312d321b11cb5e0646ec05b477c23869c620ef84e3d03a8830d9",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-summary.json",
+      "portable_path": "final-publication-summary.json",
+      "bytes": 1959,
+      "sha256": "8fa13c3285d00278462a6162837d64142a22fcc04008baa66e9ff47dc71ed4bd",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/validate_publication_readback_summary.py",
+      "portable_path": "validate_publication_readback_summary.py.txt",
+      "bytes": 7715,
+      "sha256": "2e58d2c30aa80582673e0b86093a7f0bedca7aab35dda07fe3fb5fa67a9afd8a",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/publication-summary-controls-normal.stdout.json",
+      "portable_path": "publication-summary-controls-normal.stdout.json",
+      "bytes": 1684,
+      "sha256": "e9b900d54cb5da4cfbf88d8ad42ba1e3db2929e66836487f2f0ae1569570b5d2",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/publication-summary-controls-normal.stderr.txt",
+      "portable_path": "publication-summary-controls-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/publication-summary-controls-optimized.stdout.json",
+      "portable_path": "publication-summary-controls-optimized.stdout.json",
+      "bytes": 1684,
+      "sha256": "e9b900d54cb5da4cfbf88d8ad42ba1e3db2929e66836487f2f0ae1569570b5d2",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/publication-summary-controls-optimized.stderr.txt",
+      "portable_path": "publication-summary-controls-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current publication summary/author pure typed corrupt-field and effective removal controls; not independent review"
+    },
+    {
+      "source_path": "/tmp/e02-E-bayesian-fit-bridge-r6/ignored-raw-readback-index.json",
+      "portable_path": "ignored-raw-readback-index.json",
+      "bytes": 431848,
+      "sha256": "b0c51945428776b47c7e0cdcb34b8c73a64644348ca3af6893f724743aff1acb",
+      "role": "complete ignored raw capture identity/reproduce index; raw content deliberately excluded"
+    }
+  ],
+  "logical_count": 108,
+  "byte_unique_count": 39,
+  "unique_bytes": 2807820,
+  "author_controls_each_mode": 10,
+  "author_is_not_independent_reviewer": true,
+  "attachment": "Root completed actual native PR58 attachment; no reconstructed unavailable app tool bytes",
+  "history": "original pre-description PR snapshot, gh deprecated-Projects edit failure and source/DOC original commands retained; later REST capture qualifies current title/body only",
+  "limitations": [
+    "Finding outcome and global gate outcome remain separate",
+    "No full backend/numeric replay by this metadata reader",
+    "Complete 962 publication raw Git byte captures excluded as redundant ignored content; full metadata/input hashes are selected"
+  ],
+  "tool_inspection_observer_error": "One tool-only inspection requested nonexistent files field in prior Ruff selector (actual assets), acknowledged; no separately captured source/CLI asset or native regression claimed"
+}

@@ -1,0 +1,89 @@
+"""Actual current encoded selector inlet and binary role controls; no native backend."""
+import ast
+import copy
+import gzip
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+
+P = Path('/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt')
+OUT = Path('/tmp/e02-E-r5-DOC-independent-fe9a-20261007') / ('registered-optimized' if not __debug__ else 'registered-normal')
+OUT.mkdir()
+loader = importlib.machinery.SourceFileLoader('_actual_current_encoded_admission', str(P))
+spec = importlib.util.spec_from_loader(loader.name, loader)
+m = importlib.util.module_from_spec(spec)
+loader.exec_module(m)
+body = b'{"fixture":"custody-only, no authority"}\n'
+original = OUT / 'original.json'
+original.write_bytes(body)
+(OUT / 'assets').mkdir()
+literal = OUT / 'assets/literal.txt'
+literal.write_bytes(body)
+compressed = OUT / 'assets/compressed.bin'
+compressed.write_bytes(gzip.compress(body, mtime=0))
+rows = []
+for encoding, path in [('literal', literal), ('gzip', compressed)]:
+    data = path.read_bytes()
+    rows.append({'logical_name': encoding + '/original.json', 'original_path': str(original), 'portable_path': 'assets/' + path.name,
+                 'bytes': len(data), 'sha256': m.sha(data), 'encoding': encoding, 'decoded_bytes': len(body), 'decoded_sha256': m.sha(body)})
+doc = {'schema': 'policyos.e02.final3.moderate_literal_selection.v1', 'assets': rows}
+entry = {'family': 'fixture', 'path': str(OUT / 'selector.json'), 'member_schema': doc['schema'], 'member_class': 'assets', 'members': 2}
+healthy = m.expand_registered(entry, doc)
+if len(healthy) != 2 or [r['storage_mode'] for r in healthy] != ['literal', 'gzip_literal_archive'] or [r['selected_record'] for r in healthy] != rows:
+    raise ValueError('healthy_actual_registered_raw_Counter')
+controls = [{'case': 'actual_literal_and_gzip', 'state': 'GO', 'members': 2}]
+changes = [('unsupported_encoding', 'encoding', 'zip'), ('boolean_stored_size', 'bytes', True), ('boolean_decoded_size', 'decoded_bytes', True),
+           ('stored_hash', 'sha256', '0' * 64), ('decoded_hash', 'decoded_sha256', '0' * 64), ('decoded_size', 'decoded_bytes', len(body) + 1),
+           ('relative_original', 'original_path', 'relative.json'), ('original_traversal', 'original_path', '/tmp/../fake.json'), ('original_NUL', 'original_path', '/tmp/\0fake.json'),
+           ('stored_traversal', 'portable_path', '../x.bin'), ('stored_absolute', 'portable_path', '/tmp/x.bin'), ('logical_boolean', 'logical_name', True), ('logical_traversal', 'logical_name', '../fake')]
+mutants = []
+for name, key, value in changes:
+    current = copy.deepcopy(doc)
+    current['assets'][1][key] = value
+    mutants.append((name, current))
+current = copy.deepcopy(doc)
+current['assets'].pop()
+mutants.append(('complete_member_count', current))
+current = copy.deepcopy(doc)
+current['schema'] = 'unknown'
+mutants.append(('registered_schema', current))
+for name, current in mutants:
+    try:
+        m.expand_registered(entry, current)
+    except (ValueError, OSError) as exc:
+        controls.append({'case': name, 'state': 'REFUSED', 'exception': type(exc).__name__, 'reason': str(exc)})
+    else:
+        raise RuntimeError('invalid_registered_member_admitted')
+lookup = {(m.sha(p.read_bytes()), len(p.read_bytes())): p.read_bytes() for p in [literal, compressed]}
+tree = ast.parse(P.read_text())
+fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'expand_registered')
+hits = 0
+for statement in ast.walk(fn):
+    if isinstance(statement, ast.For):
+        for i, child in enumerate(statement.body):
+            if isinstance(child, ast.If) and 'complete decoded original byte identity' in ast.unparse(child):
+                statement.body[i] = ast.Pass()
+                hits += 1
+if hits != 1:
+    raise RuntimeError('actual_single_decoded_identity_If')
+ns = {'__name__': '_actual_decoder_removed', '__file__': str(P)}
+exec(compile(ast.fix_missing_locations(tree), str(P) + ':decoded_if_removed', 'exec'), ns)
+wrong = copy.deepcopy(doc)
+wrong['assets'][1]['decoded_sha256'] = '0' * 64
+actual = ns['expand_registered'](entry, wrong, lookup)
+if actual[1]['original']['sha256'] != '0' * 64 or actual[1]['selected_record'] != wrong['assets'][1]:
+    raise RuntimeError('removal_ineffective')
+controls.append({'case': 'actual_decoded_If_removed', 'state': 'ADMITTED_PROPERTY_FAIL', 'stored_bytes_and_marker_refs_kept': True})
+routes = []
+for name, data, expected in [('stderr.txt', b'\xff\xfe\x00', 'fixture/stderr.bin'), ('git-nul.txt', b'path\0body\0', 'fixture/git-nul.bin'),
+                             ('control.txt', b'a\x1bb', 'fixture/control.bin'), ('empty.stdout.json', b'', 'fixture/empty.stdout.txt'), ('error.stdout.json', b'ERROR\n', 'fixture/error.stdout.txt'),
+                             ('healthy.json', b'{"ok":true}', 'fixture/healthy.json'), ('script.py', b'pass\n', 'fixture/script.py.txt')]:
+    actual = m.passive('fixture', name, data)
+    if actual != expected:
+        raise ValueError('literal_binary_passive_role')
+    routes.append({'case': name, 'actual': actual, 'expected': expected, 'state': 'GO'})
+print(json.dumps({'schema': 'policyos.e02.independent.r5.encoded_inlet.v1', 'DOC_candidate': 'fe9a8c5ee73c9ae0d122fdfd0e0b736c0e938386', 'source': 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641',
+                  'program_sha256': hashlib.sha256(P.read_bytes()).hexdigest(), 'optimization_mode': not __debug__, 'controls': controls, 'binary_roles': routes,
+                  'native_backend_executed': False, 'publication_destination_writes': 0}, indent=2, sort_keys=True))

@@ -1,0 +1,211 @@
+"""Canonical runtime projection delta after the immutable Profile2 typing append."""
+
+from __future__ import annotations
+
+import difflib
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+REPO = Path("/workspace/e02-E-mc-20261006")
+PRODUCT = REPO / "policy-engine"
+RECEIPTS = Path("/workspace/e02-E-pr38-r3-receipts")
+OUT = RECEIPTS / "ir-compat-independent/generator-3932cded"
+CANDIDATE = "3932cded22a29254a7dfced99723e147d6fea7cb"
+TREE = "8d19c30199666cf97dd3934f60d772baa3071f7e"
+PREVIOUS = "ca17a489559eb574285bb1c7291cc3c56a9e29da"
+ALLOWED_DOCS = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/"
+    "E/continuation-20261007/finite-posterior-law/"
+)
+GIT = shutil.which("git")
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def record(path: Path) -> dict[str, object]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def git(*args: str) -> bytes:
+    require(GIT is not None, "resolved Git executable required")
+    return subprocess.run(  # noqa: S603 -- resolved executable and fixed exact-SHA/read-only argv below
+        [GIT, *args], cwd=REPO, check=True, capture_output=True, shell=False
+    ).stdout
+
+
+def source_guard() -> dict[str, object]:
+    status = git("status", "--porcelain", "--untracked-files=all").decode()
+    require(
+        all(line.startswith("?? " + ALLOWED_DOCS) for line in status.splitlines()),
+        "only author-owned untracked handoff docs allowed",
+    )
+    live_head = git("rev-parse", "HEAD").decode().strip()
+    head_delta = git("diff", "--name-only", CANDIDATE, live_head).decode().splitlines()
+    require(all(path.startswith(ALLOWED_DOCS) for path in head_delta), "tracked product drift")
+    require(git("rev-parse", CANDIDATE + "^{tree}").decode().strip() == TREE, "tree drift")
+    return {
+        "status": status,
+        "live_head": live_head,
+        "candidate_to_live_head_paths": head_delta,
+        "tracked_source_clean": True,
+    }
+
+
+def main() -> None:
+    require(not OUT.exists(), "append-only scratch output required")
+    OUT.mkdir()
+    old_packet_path = RECEIPTS / "ir-compat-independent/generator-ca17a489/generator-packet.json"
+    require(
+        record(old_packet_path)["sha256"]
+        == "7673b9a04f5d4a836332908aa072851a168b2ede81cd8625738b14e32d7cc69f",
+        "old canonical projection drift",
+    )
+    old = json.loads(old_packet_path.read_bytes())
+    require(old["candidate"] == PREVIOUS, "previous source identity")
+    raw_schemas = RECEIPTS / "mc-joint-law-r5"
+    before_schemas, after_schemas = (
+        raw_schemas / f"dto-schemas-{side}.json" for side in ["before", "after"]
+    )
+    for path in [before_schemas, after_schemas]:
+        require(
+            record(path)["sha256"]
+            == "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd",
+            "complete103 schema equality input drift",
+        )
+    before = source_guard()
+    changed = git("diff", "--name-only", PREVIOUS, CANDIDATE).decode().splitlines()
+    require(
+        changed == ["policy-engine/src/polisyos/ir/analytics/posterior_summary.py"],
+        "typing delta footprint",
+    )
+    refs = []
+    for entry in old["source_inputs"]:
+        path = str(entry["path"])
+        blob = git("show", CANDIDATE + ":" + path)
+        require((REPO / path).read_bytes() == blob, "physical source drift: " + path)
+        ref = {"path": path, "bytes": len(blob), "sha256": hashlib.sha256(blob).hexdigest()}
+        require(
+            path.endswith("posterior_summary.py") or ref == entry,
+            "non-model canonical generator input changed: " + path,
+        )
+        refs.append(ref)
+    for entry in old["existing_environment"]["distributions"]:
+        require(
+            record(Path(entry["path"])) == {k: entry[k] for k in ["path", "bytes", "sha256"]},
+            "existing DoE184 metadata drift",
+        )
+    output = OUT / "runtime_api_v1.openapi.json"
+    executable = "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python"
+    argv = [
+        executable,
+        "-B",
+        str(PRODUCT / "tools/ops_runners/runtime/export_runtime_openapi.py"),
+        "--output",
+        str(output),
+        "--scratch-root",
+        str(OUT / "runtime-state"),
+    ]
+    env = dict(os.environ)
+    caps = [
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+        "BLIS_NUM_THREADS",
+        "POLISYOS_PYTEST_WORKERS",
+        "XLA_FLAGS",
+    ]
+    for name in caps:
+        env.pop(name, None)
+    env["PYTHONPATH"] = str(PRODUCT / "src") + ":" + str(PRODUCT)
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env["POLISYOS_METRICS_PORT"] = "0"
+    started = time.perf_counter()
+    proc = subprocess.run(  # noqa: S603 -- exact existing interpreter/canonical source and admitted scratch-only argv
+        argv, cwd=PRODUCT, env=env, capture_output=True, check=False, shell=False
+    )
+    elapsed = time.perf_counter() - started
+    (OUT / "runtime-export.stdout.txt").write_bytes(proc.stdout)
+    (OUT / "runtime-export.stderr.txt").write_bytes(proc.stderr)
+    require(proc.returncode == 0, "actual canonical runtime export unavailable")
+    payload = json.loads(output.read_bytes())
+    old_output = (
+        RECEIPTS
+        / "ir-compat-independent/generator-ca17a489/projected/schemas/runtime_api_v1.openapi.json"
+    )
+    patch = "".join(
+        difflib.unified_diff(
+            old_output.read_text().splitlines(keepends=True),
+            output.read_text().splitlines(keepends=True),
+            fromfile="ca17/projected/runtime_api_v1.openapi.json",
+            tofile="3932/projected/runtime_api_v1.openapi.json",
+        )
+    )
+    patch_path = OUT / "runtime-projection-delta.patch"
+    patch_path.write_text(patch)
+    after = source_guard()
+    for entry in old["existing_environment"]["distributions"]:
+        require(
+            record(Path(entry["path"])) == {k: entry[k] for k in ["path", "bytes", "sha256"]},
+            "DoE184 metadata changed during export",
+        )
+    result = {
+        "schema": "policyos.e02.E.canonical_runtime_typed_delta_projection.v1",
+        "candidate": CANDIDATE,
+        "tree": TREE,
+        "previous_candidate": PREVIOUS,
+        "old_complete103_projection": record(old_packet_path),
+        "complete103_schema_equality": {
+            "before": record(before_schemas),
+            "after": record(after_schemas),
+        },
+        "reuse_scope": (
+            "Canonical ABI snapshots/full manifests and unchanged public input bindings. "
+            "Runtime export is a new affected-source observation."
+        ),
+        "source_inputs": refs,
+        "source_guard_before": before,
+        "source_guard_after": after,
+        "argv": argv,
+        "cwd": str(PRODUCT),
+        "exit_code": proc.returncode,
+        "wall_seconds": elapsed,
+        "outcome": "PASS",
+        "scope": "Canonical projection only; no endpoint execution/client test/global gate PASS",
+        "runtime_output": record(output),
+        "runtime_delta_from_ca17": record(patch_path),
+        "runtime_schema_components": len(payload.get("components", {}).get("schemas", {})),
+        "stdout": record(OUT / "runtime-export.stdout.txt"),
+        "stderr": record(OUT / "runtime-export.stderr.txt"),
+        "configured_metrics_port": "0",
+        "observability_disabled": False,
+        "caps": {name: env.get(name) for name in caps},
+        "existing_DoE184_all_METADATA_unchanged": True,
+        "ROOT_source_or_environment_used_or_changed": False,
+        "broad_or_numeric_wave_repeated": False,
+        "public_capability_state": "surface_missing",
+        "next_owner": (
+            "G canonical generator/public inventory and runtime API/client writer applies "
+            "full-source projection and checks clients after merge."
+        ),
+        "observer": record(Path(__file__)),
+        "observer_python": sys.version,
+        "observer_executable": sys.executable,
+    }
+    (OUT / "runtime-delta-receipt.json").write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(OUT / "runtime-delta-receipt.json")) + "\n")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,782 @@
+{
+  "schema": "policyos.e02.terminal_generated_input_custody_and_byte_restore.v1",
+  "started_at": "2026-10-07T14:04:21.075997+00:00",
+  "completed_at": "2026-10-07T14:04:21.596268+00:00",
+  "root": "/workspace/e02-E-continuation-20261006",
+  "branch": "codex/e02-E-continuation-20261006",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "source_git_HEAD_tree_changed": false,
+  "tracked_root_clean_after": true,
+  "exact29_terminal_equals_midrun": true,
+  "observed_midrun": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json",
+    "bytes": 24848,
+    "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0"
+  },
+  "native_writer_PID_states": [
+    {
+      "pid": 536903,
+      "exists": false
+    },
+    {
+      "pid": 536937,
+      "exists": false
+    },
+    {
+      "pid": 536940,
+      "exists": false
+    }
+  ],
+  "restored_count": 29,
+  "rows": [
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/09853a9044d30ca782211fc67cd1227fd4a72361c8a0defd7cc9215b11396d49.terminal.json",
+        "bytes": 139777,
+        "sha256": "f0672ef489b8cb10b7b7d604e2a8855a276f43e2d19a19bc38b323062c1b3bff"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/09853a9044d30ca782211fc67cd1227fd4a72361c8a0defd7cc9215b11396d49.git64d.json",
+        "bytes": 139777,
+        "sha256": "fb4ba97a337093cb22e91e0e3fbed496a28adce73daeab48738cea2a442a8889"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694681458913,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json",
+        "bytes": 139777,
+        "sha256": "fb4ba97a337093cb22e91e0e3fbed496a28adce73daeab48738cea2a442a8889"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d9cd9f9ebca24f826881d38b1779b5ec91ec3626cadb5e89acb117eab7b1360d.terminal.json",
+        "bytes": 3548,
+        "sha256": "b91141c44a6e52f31d943e7ccf1c2676d066cef9c35bb738fc769a5f66e97046"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d9cd9f9ebca24f826881d38b1779b5ec91ec3626cadb5e89acb117eab7b1360d.git64d.json",
+        "bytes": 3548,
+        "sha256": "bb4571f1ec81efbbffe906705d309ac7ada972a2b79aa61d36411753349fef03"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694672072136,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+        "bytes": 3548,
+        "sha256": "bb4571f1ec81efbbffe906705d309ac7ada972a2b79aa61d36411753349fef03"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/902a5e9bcab71d2495872b84e33e33658abc12d402c0e98aabe5f4dd43dfea1c.terminal.json",
+        "bytes": 4172,
+        "sha256": "e5a208b88c4aa31e5073453a8d63572ff59ff68763a89031f46d8b161436e9d5"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/902a5e9bcab71d2495872b84e33e33658abc12d402c0e98aabe5f4dd43dfea1c.git64d.json",
+        "bytes": 4172,
+        "sha256": "7c3469f44d11394b592f120f9dc413a9cb39204f8e47ae1614414efcb872dece"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694666904193,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+        "bytes": 4172,
+        "sha256": "7c3469f44d11394b592f120f9dc413a9cb39204f8e47ae1614414efcb872dece"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c8e6cbaf1b4ceac9be6940e4a5fd3d17fea595f0122e357eb18e3afee036a6db.terminal.json",
+        "bytes": 8225,
+        "sha256": "691cf35b77e787c3b8fa3aea5d659f9a2d30b221985b183e857029550ae55eab"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c8e6cbaf1b4ceac9be6940e4a5fd3d17fea595f0122e357eb18e3afee036a6db.git64d.json",
+        "bytes": 8225,
+        "sha256": "6a9bc65031fd7ab4c38760243af9c166841fe8bb2fc8d33225c4d138af66dd75"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694676739638,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+        "bytes": 8225,
+        "sha256": "6a9bc65031fd7ab4c38760243af9c166841fe8bb2fc8d33225c4d138af66dd75"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/ab77d8b8f26f7b7181392c0957c521aac066f2806b99afdd993b4fcf8fb0da81.terminal.json",
+        "bytes": 89288,
+        "sha256": "283be5f0d5d33271126002e7ea0219f2e0b693e8ecec452a88999b93876902ac"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/ab77d8b8f26f7b7181392c0957c521aac066f2806b99afdd993b4fcf8fb0da81.git64d.json",
+        "bytes": 89288,
+        "sha256": "467850d0b35a58e5c2e87382b56f4286dd01852f6f4d645c07a4596202671570"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694665142910,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+        "bytes": 89288,
+        "sha256": "467850d0b35a58e5c2e87382b56f4286dd01852f6f4d645c07a4596202671570"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d59a1f09181e5be969449ddf7296b3e4909af2f2298137cf2c152a7512715ab6.terminal.json",
+        "bytes": 51341,
+        "sha256": "d9ca47c7b6a97d475a602b07da459045835df8a9f23c02addb576c03a5383cf6"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d59a1f09181e5be969449ddf7296b3e4909af2f2298137cf2c152a7512715ab6.git64d.json",
+        "bytes": 51341,
+        "sha256": "67f716a067f482821309ae947bb6c229cee3d70b141fd1f2aa0a0fe0ea1786ca"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694689389371,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+        "bytes": 51341,
+        "sha256": "67f716a067f482821309ae947bb6c229cee3d70b141fd1f2aa0a0fe0ea1786ca"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/a6cf9a2d763107cc99d52637ce4f1a3ec13bf889b114edc746a84c34cfbfaeb8.terminal.json",
+        "bytes": 3730,
+        "sha256": "bbabd431bc0887dec6c5b4a550a7e46253240959ab717e021d4fd612cd64b289"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/a6cf9a2d763107cc99d52637ce4f1a3ec13bf889b114edc746a84c34cfbfaeb8.git64d.json",
+        "bytes": 3730,
+        "sha256": "1fc77900795a092593716072a2c0a1a50f3e4b7c24b134fc58c3f4308913ba6e"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694696023229,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+        "bytes": 3730,
+        "sha256": "1fc77900795a092593716072a2c0a1a50f3e4b7c24b134fc58c3f4308913ba6e"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/1646795ad693ed6d028f5ce18ab06616418dd7a1d060b27c9ef510d704927160.terminal.json",
+        "bytes": 13719,
+        "sha256": "27e4f9424d9e4f83edae5c1803c0a64cd22c6b7777d9e538e821d0bf7d244f52"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/1646795ad693ed6d028f5ce18ab06616418dd7a1d060b27c9ef510d704927160.git64d.json",
+        "bytes": 13719,
+        "sha256": "b00fbc1c2810fc66e0e326f33fb8870980f9a402b7eb6415f53c9b6309c06c37"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694678097419,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json",
+        "bytes": 13719,
+        "sha256": "b00fbc1c2810fc66e0e326f33fb8870980f9a402b7eb6415f53c9b6309c06c37"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/83f90a6176152a34fe51d4f07efcfbf9a057a428784cfe443a3f8ecfd0766e24.terminal.json",
+        "bytes": 2150,
+        "sha256": "4ab1b19e9eb178ab3c1ef3f3fbe8b3df5959fc7b4e99db350c68f9af91231cf0"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/83f90a6176152a34fe51d4f07efcfbf9a057a428784cfe443a3f8ecfd0766e24.git64d.json",
+        "bytes": 2150,
+        "sha256": "d51bb662e6b971a44318773289d8e6859a22c1028de1253cf176ccbcb35bf3bd"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377694656683188,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json",
+        "bytes": 2150,
+        "sha256": "d51bb662e6b971a44318773289d8e6859a22c1028de1253cf176ccbcb35bf3bd"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/af05a3f929903727fa3cda0506956e0e475f3376b641b7f6f19c0fd2a76e3cb8.terminal.json",
+        "bytes": 4384,
+        "sha256": "7b60ab0c489b238a4256dac917a82e0a9af8551ae5f00b2ea0899f26bb948ca7"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/af05a3f929903727fa3cda0506956e0e475f3376b641b7f6f19c0fd2a76e3cb8.git64d.json",
+        "bytes": 5002,
+        "sha256": "dc3b65b13656337a0d34da74daa0489b7cbd923efbb7b01d665b425e3c817907"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696569903191,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+        "bytes": 5002,
+        "sha256": "dc3b65b13656337a0d34da74daa0489b7cbd923efbb7b01d665b425e3c817907"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c1178ad2e54efc1120ae446978cc6b5d2323c510ada1f0e65afffaf09acbcdf5.terminal.json",
+        "bytes": 756,
+        "sha256": "7f08f6facd976ea02361ef7cdaacf793711e9eaedd1fc41e7c41da4718e0b297"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c1178ad2e54efc1120ae446978cc6b5d2323c510ada1f0e65afffaf09acbcdf5.git64d.json",
+        "bytes": 1290,
+        "sha256": "5c3deb8a780fbf9543f7530335d2953f16693d880f718846a124e85b7f1e12b4"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696587680984,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+        "bytes": 1290,
+        "sha256": "5c3deb8a780fbf9543f7530335d2953f16693d880f718846a124e85b7f1e12b4"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/f1ac438a4b911d389e1990df4cf998a6262a458943073617c52e5edfafb63de9.terminal.json",
+        "bytes": 1148,
+        "sha256": "b87fa9405be5c3db54d7a3b08d0809496db548bad69cad1de04089c5e3a1021b"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/f1ac438a4b911d389e1990df4cf998a6262a458943073617c52e5edfafb63de9.git64d.json",
+        "bytes": 715,
+        "sha256": "cce56d5a9b07758fbb6798c7324cf36fae80bf7bce39fe0388b23ef53750c05f"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696578487474,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+        "bytes": 715,
+        "sha256": "cce56d5a9b07758fbb6798c7324cf36fae80bf7bce39fe0388b23ef53750c05f"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c2190acd141ca8e33b3abd073c054e9318bdb1d5c5391e5e6cd1468d5c428298.terminal.json",
+        "bytes": 10036,
+        "sha256": "375d894e970b2bcac3d8996e4400a0e01404c858142b681f2b4d4c72796c979f"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c2190acd141ca8e33b3abd073c054e9318bdb1d5c5391e5e6cd1468d5c428298.git64d.json",
+        "bytes": 10036,
+        "sha256": "42909cc6bfdde96635256705840f1e009a827431d79bdfdf552a2076c92209b5"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696597629540,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+        "bytes": 10036,
+        "sha256": "42909cc6bfdde96635256705840f1e009a827431d79bdfdf552a2076c92209b5"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c3d16e657ef6199c15a4e168f7b4710c246fea635648df5ab4fcafd3785f0b01.terminal.json",
+        "bytes": 6446,
+        "sha256": "7be348d6796719d800df8be8386e16160bb44cf935f32d8680b36e5452b446a7"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c3d16e657ef6199c15a4e168f7b4710c246fea635648df5ab4fcafd3785f0b01.git64d.json",
+        "bytes": 6446,
+        "sha256": "c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696608033272,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+        "bytes": 6446,
+        "sha256": "c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/52c5df2a96a09b6b66affc71830035ac322851384394b0148ea576e6c5454398.terminal.json",
+        "bytes": 1290,
+        "sha256": "91ba19c232804d35bee17e4c6071ee835b2a93048ccd8f3943f82417e5ec3fb9"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/52c5df2a96a09b6b66affc71830035ac322851384394b0148ea576e6c5454398.git64d.json",
+        "bytes": 1236,
+        "sha256": "a91ecc2dbed896e096b4f6ba083916ca4f18d04b916c4eef8c08b14d352c0ff0"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696574916799,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+        "bytes": 1236,
+        "sha256": "a91ecc2dbed896e096b4f6ba083916ca4f18d04b916c4eef8c08b14d352c0ff0"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/1b151ab49f66094e0fa59bb8ad07c9e98da69b5b2b4c86e10b7e3285edd6f27f.terminal.json",
+        "bytes": 3852,
+        "sha256": "1718ee4f238cbdf5dd205c74cd21b18cd25f266c8d2b1eee19b81c8e4a126409"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/1b151ab49f66094e0fa59bb8ad07c9e98da69b5b2b4c86e10b7e3285edd6f27f.git64d.json",
+        "bytes": 3374,
+        "sha256": "c012b4f26fc199ce9b5d1e937dcb2f026d495b3e9e4ed0114c9a46b51407ab4d"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696576096771,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+        "bytes": 3374,
+        "sha256": "c012b4f26fc199ce9b5d1e937dcb2f026d495b3e9e4ed0114c9a46b51407ab4d"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/260e6dde1610ddf1cd531076b7287b08e8d382357ac080d4d05714e18cdac29b.terminal.json",
+        "bytes": 5052,
+        "sha256": "775e839b2b7452ab73621ec2eb29469367c9fb7d4539e5f486d5c32e1f5b8612"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/260e6dde1610ddf1cd531076b7287b08e8d382357ac080d4d05714e18cdac29b.git64d.json",
+        "bytes": 4574,
+        "sha256": "4c6cde26ae15e62c88fdf142c33b22fb71c8318c86693791e828b1edf70df604"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696577311184,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+        "bytes": 4574,
+        "sha256": "4c6cde26ae15e62c88fdf142c33b22fb71c8318c86693791e828b1edf70df604"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/4ae440442ff879cfbe78b0a4c4ad13fb09b4f1f8c94787a505dd0278e7197616.terminal.json",
+        "bytes": 15841,
+        "sha256": "2ea7326347d68148b371891f95ff8a3082ad14aa676fe5f242071b4e7d54de19"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/4ae440442ff879cfbe78b0a4c4ad13fb09b4f1f8c94787a505dd0278e7197616.git64d.json",
+        "bytes": 15916,
+        "sha256": "de3da70e1892bb67f30d2ce93871561220e2e314726bd1926ce31bdc28b7f738"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696573512855,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+        "bytes": 15916,
+        "sha256": "de3da70e1892bb67f30d2ce93871561220e2e314726bd1926ce31bdc28b7f738"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d61d707bb204a952bb50451f774fd2838f00d65f8bf7c39f0ee9e7ec370cf699.terminal.json",
+        "bytes": 4747,
+        "sha256": "a4003d67481963624389e7b202a134ded4c2c77423270a30bdee0c62ce91ad9e"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d61d707bb204a952bb50451f774fd2838f00d65f8bf7c39f0ee9e7ec370cf699.git64d.json",
+        "bytes": 4747,
+        "sha256": "d1d3757e5ed87dc53c90a0f57bedf3672b95dc79b456458c145bbb310877b047"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696593557891,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json",
+        "bytes": 4747,
+        "sha256": "d1d3757e5ed87dc53c90a0f57bedf3672b95dc79b456458c145bbb310877b047"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c805d80588ce284ae871d52605e5000f48c2718bc4cb41e1da51eb1372dd89ff.terminal.json",
+        "bytes": 51494,
+        "sha256": "de149a913493971d285d2160c4c90e483e25bb1ef221b537be5b2db3431cf7e6"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/c805d80588ce284ae871d52605e5000f48c2718bc4cb41e1da51eb1372dd89ff.git64d.json",
+        "bytes": 51494,
+        "sha256": "29b520f1fdfd89e42e38f11470415763e872e4ae2868957802f437e7536c2dae"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696595095348,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+        "bytes": 51494,
+        "sha256": "29b520f1fdfd89e42e38f11470415763e872e4ae2868957802f437e7536c2dae"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/1a7206b32b9e867b14ab6b9c6ea83b62c53e752ad868c374300bee492ae84998.terminal.json",
+        "bytes": 24026,
+        "sha256": "92351c88eeb78dfd971e3ae1a53cab5abce7d1b3eff49b55a7f463a6bab10700"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/1a7206b32b9e867b14ab6b9c6ea83b62c53e752ad868c374300bee492ae84998.git64d.json",
+        "bytes": 24026,
+        "sha256": "0cce8c70210d12d515e7980fe6548da47f78adfee29735ccc11e569525db3b2d"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696599020138,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json",
+        "bytes": 24026,
+        "sha256": "0cce8c70210d12d515e7980fe6548da47f78adfee29735ccc11e569525db3b2d"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/7d1c97414529a9b723b9d18439344f8ced2256f50425be16e02a041ead2fc692.terminal.json",
+        "bytes": 6514,
+        "sha256": "c60fc484762a146f169214de2e8518a2179dc19e1ab868ecaa7d6e37db122b12"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/7d1c97414529a9b723b9d18439344f8ced2256f50425be16e02a041ead2fc692.git64d.json",
+        "bytes": 6021,
+        "sha256": "2b59355414f7a8570681725d58b04b8a8e1e6b48a78e8561a8b595e394f98123"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696580689189,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+        "bytes": 6021,
+        "sha256": "2b59355414f7a8570681725d58b04b8a8e1e6b48a78e8561a8b595e394f98123"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/be5483c73b44c170f3db771f6b985fa25ea0cfd9b64dfea41d90c602594072da.terminal.json",
+        "bytes": 5016,
+        "sha256": "2b266c1caa354a009553d9de81e8f962a42d30cf9ad992bf8a249d0a79392cc1"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/be5483c73b44c170f3db771f6b985fa25ea0cfd9b64dfea41d90c602594072da.git64d.json",
+        "bytes": 4018,
+        "sha256": "06f6777c88666723b1b50862ad88e816739267d702ab6a80f8cd6e808c012a35"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696589994737,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+        "bytes": 4018,
+        "sha256": "06f6777c88666723b1b50862ad88e816739267d702ab6a80f8cd6e808c012a35"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/e50c3eed9a1970cc357a8786566ce23119f0518559d193eef27b3428668e0aa1.terminal.json",
+        "bytes": 4240,
+        "sha256": "5ea8e86752b58ad3ec7f3132838b36ba6d51e46f4258c8f43ba270402f840658"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/e50c3eed9a1970cc357a8786566ce23119f0518559d193eef27b3428668e0aa1.git64d.json",
+        "bytes": 4328,
+        "sha256": "a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696669212935,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+        "bytes": 4328,
+        "sha256": "a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/45a05043dd35577e09eaedffc099dcc15d55178fdeeeb5f5c6e7aad9c186323a.terminal.json",
+        "bytes": 3949,
+        "sha256": "533a8a23e0cbbc0f068eb67027626a2c42a4c80fb20442c894395a4c0c93ccd1"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/45a05043dd35577e09eaedffc099dcc15d55178fdeeeb5f5c6e7aad9c186323a.git64d.json",
+        "bytes": 4008,
+        "sha256": "c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696670861732,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+        "bytes": 4008,
+        "sha256": "c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d266c824112631b51a1160d558dccecc11e050a96ea619f57d555ee5ab60f8be.terminal.json",
+        "bytes": 39666,
+        "sha256": "4f402a896eddfc6c5454ca34e6171d9931b638b4f4e06c1fa4e0d40451681b89"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/d266c824112631b51a1160d558dccecc11e050a96ea619f57d555ee5ab60f8be.git64d.json",
+        "bytes": 39666,
+        "sha256": "4ec015b52e282137d5ecb79b73d36aab4929debeccb9a6978bc7b6bf2069097e"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696662869359,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+        "bytes": 39666,
+        "sha256": "4ec015b52e282137d5ecb79b73d36aab4929debeccb9a6978bc7b6bf2069097e"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/8418ef725bc33876fe8e4db5283ca4b98950ddc4e4f2fbd994275d4c3c19a095.terminal.json",
+        "bytes": 12452,
+        "sha256": "8c0d6f46072aa94b5ceb7cbb66cdd1550bfdd940d2a9af0ce4faee959b30a2d6"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/8418ef725bc33876fe8e4db5283ca4b98950ddc4e4f2fbd994275d4c3c19a095.git64d.json",
+        "bytes": 12452,
+        "sha256": "021578dde505d2b04ad80a0c31135fa05e51b502af12e1dbce6e19902f9e47c4"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696667888557,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+        "bytes": 12452,
+        "sha256": "021578dde505d2b04ad80a0c31135fa05e51b502af12e1dbce6e19902f9e47c4"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/cb86884299b4b957a011fa352bf289bad08bf242de03b8aaa72fa8404ffb57aa.terminal.json",
+        "bytes": 168010,
+        "sha256": "d4324311f626d87ef88dbbd848c464b0dff537db89e873ee992ade2d62694b28"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/cb86884299b4b957a011fa352bf289bad08bf242de03b8aaa72fa8404ffb57aa.git64d.json",
+        "bytes": 168010,
+        "sha256": "bb39238b94b43b69753eea8afe77ddbd782e4dc9eb95f73b0d5301acb32bbcfa"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696666016281,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+        "bytes": 168010,
+        "sha256": "bb39238b94b43b69753eea8afe77ddbd782e4dc9eb95f73b0d5301acb32bbcfa"
+      }
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+      "terminal": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/7fe405d8427e3a09a4c744b815184df645214d78a488e2b717cf52d17a7fcae4.terminal.json",
+        "bytes": 8861,
+        "sha256": "daec96524cea710a80662b9809467602cfb92829cb1048c98812cc1c359e7427"
+      },
+      "git64d": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/7fe405d8427e3a09a4c744b815184df645214d78a488e2b717cf52d17a7fcae4.git64d.json",
+        "bytes": 8861,
+        "sha256": "e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8"
+      },
+      "mode": 384,
+      "mtime_ns": 1791377696682448186,
+      "terminal_matches_midrun": true,
+      "restored": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+        "bytes": 8861,
+        "sha256": "e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8"
+      }
+    }
+  ],
+  "unique_untracked_preserved": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png",
+        "bytes": 95619,
+        "sha256": "bca4e97502d258faa0810b745ff38453d66c82125e7d5462b9a53f486e22cc23"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock",
+      "saved": {
+        "path": "/tmp/e02-E-terminal-root-restore-20261007/unique/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_preserved": true
+    }
+  ],
+  "status_before": {
+    "path": "/tmp/e02-E-terminal-root-restore-20261007/status-before.nul",
+    "bytes": 2775,
+    "sha256": "8c62a15d3f0775c673f3166a997195c6486b250780283fd2132d01c536c4a8bd"
+  },
+  "status_after": {
+    "path": "/tmp/e02-E-terminal-root-restore-20261007/status-after.nul",
+    "bytes": 178,
+    "sha256": "02d2cff93c80d34314b0a7d55adc6c9773982f3e9dfa70bea0be091e6d6c948f"
+  },
+  "process_before": {
+    "path": "/tmp/e02-E-terminal-root-restore-20261007/process-before.txt",
+    "bytes": 54794,
+    "sha256": "3231ee5bfc50d677fd3152473a0376271dd446502c037c7b6e3b4b9a52700f8c"
+  },
+  "process_after": {
+    "path": "/tmp/e02-E-terminal-root-restore-20261007/process-after.txt",
+    "bytes": 54794,
+    "sha256": "0b8849efa1325af0659e05f7daed2850fd7c3abcfb27db037476926db03f537c"
+  },
+  "method": "Save original terminal/Git bodies; write only admitted29 generated JSON paths to exact immutable Git64d bytes via atomic file replacement. No Git reset/checkout/rebase/history rewrite.",
+  "historical_full_input_immutability": false,
+  "native_outcome": "FAIL",
+  "native_exit_code": 137,
+  "native_JUnit_counts": null,
+  "native_full_scope_completion_established": false,
+  "native_caller_attribution": "not_established",
+  "global_quiescence_claimed": false,
+  "restoration_does_not_retroactively_validate_native_run": true
+}

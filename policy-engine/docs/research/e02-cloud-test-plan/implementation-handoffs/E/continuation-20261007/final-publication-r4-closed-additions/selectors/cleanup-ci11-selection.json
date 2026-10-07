@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.closed_ci11_cleanup_append_selection.v1",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_ci11_generated_site_cleanup.py",
+      "portable_path": "closed_ci11_generated_site_cleanup.py.txt",
+      "bytes": 12097,
+      "sha256": "1b2b7e8c6cc4a64b20d4c66959ff41e163063f3527c54b0591f7885781b78a99"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site-cleanup.stdout.txt",
+      "portable_path": "closed-ci11-generated-site-cleanup.stdout.txt",
+      "bytes": 1060,
+      "sha256": "e48d323c4cea644c5fcb6d65cff3d4ba1660c54d3fd62173c63a1ba415297632"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site-cleanup.stderr.txt",
+      "portable_path": "closed-ci11-generated-site-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-result.json",
+      "portable_path": "cleanup-result.json",
+      "bytes": 2053,
+      "sha256": "20986075a881a248b477cc81a1bb3c7f90391128cd4719c4acf513588ed4c72f"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/immediate-process-proof.json",
+      "portable_path": "immediate-process-proof.json",
+      "bytes": 2509,
+      "sha256": "9563111a9e97e7842ca9b77b214c21d22d9f7bdb34a2068b770029bdad8e5e98"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-moderate-append-summary.json",
+      "portable_path": "cleanup-moderate-append-summary.json",
+      "bytes": 33594,
+      "sha256": "1653752c956071509e7588560bada15b9ad85154357a4a901a86e73191717501"
+    }
+  ],
+  "count": 6,
+  "total_bytes": 51313,
+  "prior_cleanup_selection_preserved": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/publication-selection.json",
+    "bytes": 5755,
+    "sha256": "2f702525f55ebcf5723e186d0e469974fb1115eb6241b8d7649e7c4aa631c574"
+  },
+  "large_inventory_assets_policy": "Full20MBfilehash/inode/source/unknownasset metadata ignored; complete refs and allunknownassetbytes retained. No second643MBarchive needed for sourcebound/declaredgeneratedoutputs."
+}

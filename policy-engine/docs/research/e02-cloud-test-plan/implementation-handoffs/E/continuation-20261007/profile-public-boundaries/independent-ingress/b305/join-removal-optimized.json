@@ -1,0 +1,132 @@
+{
+  "candidate": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "environment": {
+    "argv": [
+      "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal.py",
+      "b305cef2fe2b6f7740d1fe8fd07c4a8901374252"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "optimization": 1,
+  "outcomes": {
+    "FAIL": 0,
+    "PASS": 4
+  },
+  "rows": [
+    {
+      "after": "lowered_without_profile",
+      "before": "typed_refusal",
+      "before_error": "Profile2 multi-envelope join requires an explicit mixture contract",
+      "case": "unequal_totals",
+      "check_outcome": "PASS",
+      "input_profile_markers_retained": true,
+      "output_metadata": {
+        "join_representation": "best_available_outer_hull",
+        "joined_from": 2
+      },
+      "output_ref": "sha256:1b9c22f50736a70641097050558bd9472b4d1d558e7d85dde53ce9a927544179",
+      "profile_present": false,
+      "samples": [
+        2.0,
+        10.0,
+        14.0
+      ],
+      "weights": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "after": "lowered_without_profile",
+      "before": "typed_refusal",
+      "before_error": "Profile2 multi-envelope join requires an explicit mixture contract",
+      "case": "reversed",
+      "check_outcome": "PASS",
+      "input_profile_markers_retained": true,
+      "output_metadata": {
+        "join_representation": "best_available_outer_hull",
+        "joined_from": 2
+      },
+      "output_ref": "sha256:5b15b27aaedde414369a95b526442850f98968ae5c7becaad42dcb04a7fc7b86",
+      "profile_present": false,
+      "samples": [
+        10.0,
+        14.0,
+        2.0
+      ],
+      "weights": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "after": "lowered_without_profile",
+      "before": "typed_refusal",
+      "before_error": "Profile2 multi-envelope join requires an explicit mixture contract",
+      "case": "profile_generic",
+      "check_outcome": "PASS",
+      "input_profile_markers_retained": true,
+      "output_metadata": {
+        "join_representation": "best_available_outer_hull",
+        "joined_from": 2
+      },
+      "output_ref": "sha256:1b9c22f50736a70641097050558bd9472b4d1d558e7d85dde53ce9a927544179",
+      "profile_present": false,
+      "samples": [
+        2.0,
+        10.0,
+        14.0
+      ],
+      "weights": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "after": "lowered_without_profile",
+      "before": "typed_refusal",
+      "before_error": "Profile2 multi-envelope join requires an explicit mixture contract",
+      "case": "generic_profile",
+      "check_outcome": "PASS",
+      "input_profile_markers_retained": true,
+      "output_metadata": {
+        "join_representation": "best_available_outer_hull",
+        "joined_from": 2
+      },
+      "output_ref": "sha256:5b15b27aaedde414369a95b526442850f98968ae5c7becaad42dcb04a7fc7b86",
+      "profile_present": false,
+      "samples": [
+        10.0,
+        14.0,
+        2.0
+      ],
+      "weights": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
+  ],
+  "schema": "policyos.e02.independent_join_guard_removal.v1",
+  "scope": "no mixture estimand inferred; control deliberately exposes loss of typed declaration at retained-marker public join",
+  "source_after": {
+    "all_git_blobs_bound": true,
+    "bytes": 55109306,
+    "errors": [],
+    "full_path_gitblob_size_frame_sha256": "67977eacfbd8d57b11d065de8f5f2075b648443a04cfee40ebfa3ca23293fc9e",
+    "paths": 2917
+  },
+  "source_before": {
+    "all_git_blobs_bound": true,
+    "bytes": 55109306,
+    "errors": [],
+    "full_path_gitblob_size_frame_sha256": "67977eacfbd8d57b11d065de8f5f2075b648443a04cfee40ebfa3ca23293fc9e",
+    "paths": 2917
+  },
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084"
+}

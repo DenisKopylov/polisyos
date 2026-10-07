@@ -1,0 +1,18 @@
+from __future__ import annotations
+import copy,hashlib,json,pathlib,sys,types
+D=pathlib.Path('/tmp/e02-E-validator-format-independent-r4');P=D/'immutable-old212-publication';R=pathlib.Path('/workspace/e02-E-frc-20261006');source=(P/'validate.py').read_bytes()
+if hashlib.sha256(source).hexdigest()!='21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d':raise ValueError('exact old source')
+m=types.ModuleType('old212_source_path_probe');m.__file__=str(P/'validate.py');exec(compile(source,m.__file__,'exec'),m.__dict__);receipt=json.loads((P/'implementation-handoff.json').read_text());original=m.subprocess.check_output;out=[]
+for value in [None,'.',False]:
+ bad=copy.deepcopy(receipt);bad['source_footprint'][-1]['path']=value;callbacks=[]
+ def spy(argv,**kwargs):
+  callbacks.append(argv)
+  if argv[1]=='rev-parse':return receipt['candidate_tree_sha']+'\n'
+  if argv[1]=='diff':return '\n'.join(receipt['changed_paths'])+'\n'
+  raise RuntimeError('unexpected dynamic Git child')
+ m.subprocess.check_output=spy
+ try:m.validate(P,R,bad)
+ except Exception as e:out.append({'value':value,'exception':type(e).__name__,'reason':str(e),'actual_callback_count':len(callbacks),'callbacks':callbacks,'malformed_whole_record_preflight_zero_callback_property':'PASS' if len(callbacks)==0 else 'FAIL','corruption_eventually_refused':True})
+ else:raise RuntimeError('malformed record accepted')
+ finally:m.subprocess.check_output=original
+print(json.dumps({'schema':'policyos.e02.exact_Git212_malformed_late_source_path_probe.v1','mode':'optimized' if sys.flags.optimize else 'normal','source_sha256':hashlib.sha256(source).hexdigest(),'input_root':str(P),'immutable_219_Git_input_identity':'old212-git-replay-normal.stdout.json','controls':out,'probe_uses_real_validate_copy_index_and_output_reads':True,'actual_Git_children_called':False,'scope':'Typed malformed record path preflight; eventual refusal is preserved, no source authority or code/gate/finding closure claim. Safe admitted SHA read-only rev-parse/diff spies measure ordering only.','ROOT_or_FRC_source_environment_written':False},indent=2))

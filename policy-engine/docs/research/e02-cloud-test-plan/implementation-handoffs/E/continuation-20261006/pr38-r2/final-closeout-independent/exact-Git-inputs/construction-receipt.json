@@ -1,0 +1,72 @@
+{
+  "schema": "e02.E.final_closeout_construction_receipt.v2",
+  "source_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "evidence_input_checkpoint": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+  "closeout_output_checkpoint": null,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "commands": [
+    {
+      "argv": [
+        "policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py"
+      ],
+      "exit_code": 0,
+      "stdout": "build-final.stdout.json"
+    },
+    {
+      "argv": [
+        "policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--negative-controls"
+      ],
+      "exit_code": 0,
+      "stdout": "validation-final.stdout.json"
+    },
+    {
+      "argv": [
+        "policy-engine/.venv/bin/ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py"
+      ],
+      "exit_code": 0,
+      "stdout": "ruff-final.stdout.txt"
+    },
+    {
+      "argv": [
+        "policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/build_final.py",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/final-a9-v2/validate.py"
+      ],
+      "exit_code": 0,
+      "stdout": "format-final.stdout.txt"
+    }
+  ],
+  "metadata_validation": "PASS_metadata_source_and_actual_output_recomputation",
+  "negative_control_count": 22,
+  "author_check_is_independent_closeout_review": false,
+  "no_product_checks_or_root_mutations": true,
+  "prepared_script_history": {
+    "initial_own_ruff_diagnostics": 172,
+    "initial_history_file": "ruff.initial.json",
+    "final_own_scope_files": 2,
+    "final_own_ruff": "PASS",
+    "final_own_format": "PASS",
+    "rule": "Own preparation history is separate from actual a9 full317 Ruff7951/formatFAIL; no waiver or filename hiding. Scalar annotations/string wrapping/defusedxml parser/read-only Git argv reviewed by author controls, independent packet review remains next."
+  },
+  "next_owner": "Root commits exact READY bytes append-only; DDM independent closeout reviewer validates original criteria/owner/source/evidence on that Git checkpoint; G accepts code separately and accountable owners adjudicate findings."
+}

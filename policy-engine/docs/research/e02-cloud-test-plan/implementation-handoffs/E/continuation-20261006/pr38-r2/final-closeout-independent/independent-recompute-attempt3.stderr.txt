@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 246, in <module>
+    main()
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 182, in main
+    require(len(all_joins) == 55, "55 original body joins")
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 30, in require
+    raise ValueError(reason)
+ValueError: 55 original body joins

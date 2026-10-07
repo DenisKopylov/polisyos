@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.six_chain_independent_final_custody.v1",
+  "outcome": "GO",
+  "candidate": "3d0029873afc25b998a3deaf5f05ea25e6f5285e",
+  "tree": "2e9734dfa44b2cd3687d680d1cb7b4145566cf3d",
+  "base": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "prior_historical_reds": [
+    "7f872:207Gitfiles but205copier replay, companion omission",
+    "343:fake cached selfcompanion accepted/persisted207 despite trustedprogram source; exactnativecontrol saved"
+  ],
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree_source": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "counts": {
+    "DOC_paths": 207,
+    "DOC_bytes": 4093123,
+    "activePython": 0,
+    "logical_rows": 237,
+    "selected_originals": 231,
+    "selectors": 6,
+    "unique_carriers": 196,
+    "aliases": 41,
+    "mandatory_metadata": 11,
+    "negative_refusals_per_mode": 24,
+    "healthy_per_mode": 1,
+    "effective_unique_predicate_removals_per_mode": 3
+  },
+  "qualified_scope": "Complete actualimmutableGit/current/original selectedSourceCounter/literalbytes and native copierCLI only. No source/core/runtime/numeric/backend/gate action; no new cleanup/body update/lint execution. LintPLAN_ONLY/newMCsource separate/noformalGclosure; ROOT29generatedinputdrift fullclean/fullinputimmutablefalse/currentcallerP41not_established.",
+  "P37_basis": {
+    "literal_hashes_counts_Git_cli_sourcebindings": "recomputed",
+    "source_selection_copy_original_reconciliation": "independently_reconciled",
+    "ROOT_full_input_caller_global_finding_authority": "not_established"
+  }
+}

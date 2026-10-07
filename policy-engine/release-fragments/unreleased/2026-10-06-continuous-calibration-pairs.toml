@@ -1,0 +1,27 @@
+id = "2026-10-06-continuous-calibration-pairs"
+title = "Reconcile continuous calibration receipts against persisted pairs"
+type = "fixed"
+component = "calibration"
+owner = "team-polisyos-calibration"
+summary = "Continuous diagnostics retain requested, eligible, observed and missing pair counts. Configured CAS persistence binds exact ordered inputs; readback recomputes the report and receipt before consumption. Bare JSON reports and self-provided positive continuous receipts remain unverified until pair reconciliation."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.calibration.evaluate_continuous and compute_calibration_curve; internal: continuous persistence helpers and Foundry interval diagnostics"
+compatibility = "Live continuous evaluation retains descriptive receipt tiers. Raw continuous report readback is now unverified; consumers must use the pair-aware loader. Multidimensional observations and reversed interval bounds reject rather than flatten or count as misses. Binary/multiclass receipt behavior and the supported Scientist alias are unchanged."
+migration = "Persist live reports with persist_continuous_evaluation on the existing configured store and reopen with load_continuous_evaluation. Historical raw reports require their original ordered pairs for re-evaluation; no stored historical bytes are rewritten."
+api = "No HTTP API or public IR wire schema changed. The supported calibration facade remains experimental."
+limitations = "Receipt purpose is descriptive predictive calibration, gate_eligible=false. Source/split/horizon/time declarations are retained as caller assertions, not admitted production authority. Higher GARCH method runners currently have no configured artifact-store seam; lifecycle wiring belongs to the Foundry composition owner."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/research/e02-cloud-test-plan/closure-decisions/E.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "continuous-calibration-pairs-reconciliation"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.calibration.compute_calibration_curve and evaluate_continuous"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable; unbound continuous receipts cannot grant calibration evidence"
+release_note = "Raw continuous reports remain unverified until exact pairs are recomputed; reversed bounds and multidimensional outcomes reject."
+public_surface_inventory_reviewed = true

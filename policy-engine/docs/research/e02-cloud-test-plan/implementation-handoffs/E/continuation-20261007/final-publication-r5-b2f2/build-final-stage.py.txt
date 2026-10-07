@@ -1,0 +1,185 @@
+import argparse
+import ast
+import datetime
+import difflib
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import platform
+import re
+import subprocess
+from pathlib import Path
+
+S = Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2'
+OLD_COMMIT = 'c229fe8c0cc31c910de2bd2dc0e84e30be87da2c'
+OLD_PATH = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt'
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args]).decode().strip()
+
+
+def snapshot():
+    return {'head': git('rev-parse', 'HEAD'), 'tree': git('rev-parse', 'HEAD^{tree}'),
+            'tracked_status': git('status', '--porcelain=v1', '-uno'),
+            'observed_at': datetime.datetime.now(datetime.UTC).isoformat(), 'atomic': False}
+
+
+def load(path):
+    loader = importlib.machinery.SourceFileLoader('final_r5_custody', str(path))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--queue', required=True)
+parser.add_argument('--expected-queue-sha256', required=True)
+parser.add_argument('--output', required=True)
+args = parser.parse_args()
+queue_path, output = Path(args.queue), Path(args.output)
+if queue_path.parent != S or output.parent != S or output.exists():
+    raise ValueError('fresh explicit scratch-only final preparation route')
+queue_body = queue_path.read_bytes()
+if hashlib.sha256(queue_body).hexdigest() != args.expected_queue_sha256:
+    raise ValueError('fixed complete author input queue')
+old_path = ROOT / OLD_PATH
+old_body = old_path.read_bytes()
+if old_body != subprocess.check_output(['git', '-C', str(ROOT), 'show', OLD_COMMIT + ':' + OLD_PATH]):
+    raise ValueError('immutable original c229 mechanism identity')
+m = load(old_path)
+queue = m.strict_json(queue_body)
+if queue['source'] != SOURCE or queue['tree'] != TREE:
+    raise ValueError('whole frozen source identity')
+unclosed = [row for row in queue['pending'] if row['family'] != 'assembled-r5-custody']
+if unclosed:
+    raise ValueError('final input and peer selectors are not all closed: ' + repr(unclosed))
+before = snapshot()
+if before['head'] != SOURCE or before['tree'] != TREE or before['tracked_status']:
+    raise ValueError('actual immutable source before DOC-only assembly')
+
+# Reuse the reviewed helper bodies. Only the registered encoded-asset adapter
+# and finite binary route are added to the existing copier mechanism.
+preparer = ast.parse((S / 'prepare-flat-inventory.py.txt').read_text())
+functions = [node for node in preparer.body if isinstance(node, ast.FunctionDef) and node.name in ('finite_storage_route', 'registered_expand')]
+scope = {'mechanism': m, 'original_passive': m.passive, 'original_expand': m.expand, 'Path': Path}
+exec(compile(ast.Module(body=functions, type_ignores=[]), '<actual r5 registered helpers>', 'exec'), scope)
+m.passive, m.expand = scope['finite_storage_route'], scope['registered_expand']
+expected, rows = [], []
+for entry in queue['closed_selector_inputs']:
+    body = m.admit_body(entry, None)
+    doc = m.strict_json(body)
+    expected.append(entry)
+    rows.extend(m.expand(entry, doc))
+    rows.append(m.selector_row(entry))
+
+flat_path = S / 'flat-final-with-controls-selection.json'
+flat_body = flat_path.read_bytes()
+flat_doc = m.strict_json(flat_body)
+entry = {'family': 'flat-source-publication-references', 'path': str(flat_path),
+         'bytes': len(flat_body), 'sha256': m.sha(flat_body), 'input_kind': 'flat-reference',
+         'member_class': 'files', 'members': len(flat_doc['files'])}
+expected.append(entry)
+rows.extend(m.expand(entry, flat_doc))
+rows.append(m.selector_row(entry))
+seen = {}
+for row in rows:
+    key = (row['stored']['sha256'], row['stored']['bytes'])
+    prior = seen.setdefault(row['logical_destination'], key)
+    if prior != key:
+        raise ValueError('distinct literal contents collide at one route')
+    m.admit_body(row['stored'], None)
+logical, copies = m.carriers(rows)
+counts = {'logical_count': len(rows), 'original_logical_bytes': sum(row['original']['bytes'] for row in rows),
+          'stored_logical_bytes': sum(row['stored']['bytes'] for row in rows),
+          'unique_payload_files': len(copies), 'unique_payload_bytes': sum(row['stored']['bytes'] for row in copies),
+          'deduplicated_occurrences': len(rows) - len(copies)}
+after = snapshot()
+if (after['head'], after['tree'], after['tracked_status']) != (before['head'], before['tree'], before['tracked_status']):
+    raise ValueError('actual immutable source after literal input admission')
+q = queue['final_qualification']
+header = {'schema': 'policyos.e02.final_b2_selector_custody.v1', 'publication_base': SOURCE,
+          'publication_base_tree': TREE, 'proposed_git_prefix': PREFIX,
+          'ROOT_before': before, 'ROOT_after': after,
+          'input_closure_queue': {'path': str(queue_path), 'bytes': len(queue_body), 'sha256': m.sha(queue_body)},
+          'environment': {'python': platform.python_version(), 'platform': platform.platform(),
+                          'backend': 'stdlib literal JSON/hash/gzip custody only; no numerical backend execution'},
+          'source_native_numeric_globalgate_execution': False, 'ROOT_source_env_locks_outputs_written': False,
+          'new_active_Python': 0, 'formal_G_or_finding_acceptance_created_by_carrier': False,
+          'payload_complete': True,
+          'immutable_Git_DOC_custody_review_complete': False,
+          'predicate_basis': queue['final_predicate_basis']}
+manifest = header | {'selection_inputs': expected, 'logical_sources': logical, 'canonical_copies': copies,
+                     'qualification': q} | counts
+output.mkdir()
+for row in copies:
+    body = m.admit_body(row['stored'], None)
+    path = output / 'payload' / row['destination']
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(body)
+
+metadata = ['manifest.json', 'copy-final-publication.py.txt', 'build-final-stage.py.txt', 'README.md',
+            'qualification.json', 'build.stdout.json', 'implementation-handoff.json',
+            'input-closure-queue.json', 'source-handoff-Git-references.json', 'supplemental-c229-functions.patch.txt']
+(output / 'manifest.json').write_text(json.dumps(manifest, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
+(output / 'qualification.json').write_text(json.dumps(q, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
+(output / 'input-closure-queue.json').write_bytes(queue_body)
+(output / 'source-handoff-Git-references.json').write_bytes((S / 'source-handoff-Git-references.json').read_bytes())
+(output / 'build-final-stage.py.txt').write_bytes(Path(__file__).read_bytes())
+summary = counts | {'metadata_files': len(metadata), 'expected_git_paths': len(copies) + len(metadata)}
+(output / 'build.stdout.json').write_text(json.dumps(summary, indent=2) + '\n')
+(output / 'README.md').write_text(queue['final_readme'])
+handoff = {'schema': 'policyos.e02.final_deciding_receipt_source_handoff.v1',
+           'base': SOURCE, 'candidate': SOURCE, 'candidate_tree': TREE,
+           'candidate_scope': 'scientific source already published and reviewed; this separate passive DOC carrier has no future commit SHA',
+           'canonical_writer': 'E cloud root; passive custody assembly by frc_r4',
+           'original_bundles': 22, 'original_findings': 54, 'original_links': 55,
+           'changed_footprint': sorted([row['destination'] for row in copies] + metadata),
+           'active_Python_paths': [], 'source_handoffs': 'source-handoff-Git-references.json',
+           'runtime_property': 'literal full original selector/member Counter, stored+decoded identity, typed whole metadata and complete companion admission before destination writes',
+           'commands_outputs_environment_input': 'original selectors, complete literal outputs and manifest exact identities; no source or numerical replay by this carrier',
+           'independent_oracle_negative_removal': 'original scoped peer receipts plus supplemental metadata-class controls; carrier immutable Git review occurs after Root DOC commit',
+           'source_math_and_check_dispositions': q,
+           'predicate_basis': queue['final_predicate_basis'],
+           'implementation_commit_of_scientific_candidate': SOURCE,
+           'future_own_publication_SHA': None,
+           'limitations_next_owner': queue['final_limitations_next_owner']}
+(output / 'implementation-handoff.json').write_text(json.dumps(handoff, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
+
+program = old_body.decode()
+old_tree = ast.parse(program)
+old_functions = {node.name: ast.get_source_segment(program, node) for node in old_tree.body if isinstance(node, ast.FunctionDef)}
+route_code = ast.unparse(next(node for node in functions if node.name == 'finite_storage_route')).replace('def finite_storage_route(', 'def passive(').replace('original_passive(', '_original_passive(')
+encoded_node = next(node for node in functions if node.name == 'registered_expand')
+encoded_node.body = [node for node in encoded_node.body if not (isinstance(node, ast.If) and 'entry.get' in ast.unparse(node.test))]
+encoded_code = ast.unparse(encoded_node).replace('def registered_expand(', 'def expand_registered(').replace('mechanism.identity', 'identity').replace('mechanism.admit_body', 'admit_body').replace('mechanism.gzip', 'gzip').replace('mechanism.sha', 'sha').replace('finite_storage_route(', 'passive(')
+program = program.replace(old_functions['passive'], old_functions['passive'].replace('def passive(', 'def _original_passive(', 1) + '\n\n' + route_code)
+expand_code = old_functions['expand'].replace("    family, selector_path = spec['family'], spec['path']", "    if spec.get('member_schema') == 'policyos.e02.final3.moderate_literal_selection.v1':\n        return expand_registered(spec, doc, lookup)\n    family, selector_path = spec['family'], spec['path']", 1)
+program = program.replace(old_functions['expand'], encoded_code + '\n\n' + expand_code)
+function_patch = ''.join(difflib.unified_diff((old_functions['passive'] + '\n\n' + old_functions['expand'] + '\n').splitlines(True), (old_functions['passive'].replace('def passive(', 'def _original_passive(', 1) + '\n\n' + route_code + '\n\n' + encoded_code + '\n\n' + expand_code + '\n').splitlines(True), fromfile='c229-reviewed-functions.py.txt', tofile='r5-registered-functions.py.txt'))
+(output / 'supplemental-c229-functions.patch.txt').write_text(function_patch)
+program = program.replace("metadata['copy-closed-controls.py.txt']", "metadata['copy-final-publication.py.txt']")
+for key, value in [('EXPECTED', expected), ('FIXED_HEADER', header), ('QUALIFICATION', q), ('PREFIX', PREFIX), ('METADATA', metadata)]:
+    program = re.sub('^' + key + r' = .*$', lambda match, k=key, v=value: k + ' = ' + repr(v), program, count=1, flags=re.MULTILINE)
+fixed = {}
+for name in metadata:
+    if name not in ('manifest.json', 'copy-final-publication.py.txt', 'build.stdout.json'):
+        body = (output / name).read_bytes()
+        fixed[name] = {'bytes': len(body), 'sha256': m.sha(body)}
+program = re.sub(r'^FIXED_METADATA = .*$', lambda match: 'FIXED_METADATA = ' + repr(fixed), program, count=1, flags=re.MULTILINE)
+(output / 'copy-final-publication.py.txt').write_text(program)
+final = load(output / 'copy-final-publication.py.txt')
+actual = final.validate(output / 'manifest.json', final.strict_json((output / 'manifest.json').read_bytes()), 'stage')
+if final.canonical(actual) != final.canonical(counts):
+    raise ValueError('complete staged counts mismatch')
+print(json.dumps(summary | {'output': str(output), 'copier_bytes': len(program.encode()),
+                           'copier_sha256': m.sha(program.encode()),
+                           'original_c229_bytes': len(old_body), 'original_c229_sha256': m.sha(old_body),
+                           'source_native_numeric_execution': False, 'Root_or_leaf_written': False,
+                           'independent_Git_DOC_candidate_review': 'pending after Root commit'}, indent=2))

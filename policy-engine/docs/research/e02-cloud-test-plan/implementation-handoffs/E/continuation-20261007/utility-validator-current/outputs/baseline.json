@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.validator_format_baseline.v1",
+  "source_sha256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+  "input_files": 220,
+  "input_bytes": 3369616,
+  "normal_optimized_checks": [
+    {
+      "name": "normal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GIT_OPTIONAL_LOCKS": "0"
+      }
+    },
+    {
+      "name": "optimized",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GIT_OPTIONAL_LOCKS": "0"
+      }
+    }
+  ],
+  "healthy14controls_each": true,
+  "all_source_and_input_unchanged": true,
+  "source_native_numeric_gate_execution": false,
+  "ROOT_source_env_locks_written": false,
+  "scope": "purepublicationutility oldexactsource baseline; no defining scientifictest execution"
+}

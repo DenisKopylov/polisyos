@@ -1,0 +1,155 @@
+[
+  {
+    "family": 6,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "function": "test_layer3_g6_readiness_passes_for_persisted_runtime_bundle",
+    "line": 100,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py::test_layer3_g6_readiness_passes_for_persisted_runtime_bundle",
+    "source_call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 6,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "function": "test_layer3_g6_readiness_mirrors_exact_artifact_and_drift_scaffold",
+    "line": 135,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py::test_layer3_g6_readiness_mirrors_exact_artifact_and_drift_scaffold",
+    "source_call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 6,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "function": "test_layer3_g6_readiness_requires_registered_artifacts_inventory_and_docs",
+    "line": 146,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py::test_layer3_g6_readiness_requires_registered_artifacts_inventory_and_docs",
+    "source_call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 6,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "function": "test_layer3_g6_write_path_must_include_every_expected_artifact",
+    "line": 245,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py::test_layer3_g6_write_path_must_include_every_expected_artifact",
+    "source_call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": [
+      "monkeypatch.setattr(\n        validator,\n        \"_write_artifacts\",\n        lambda _repo_root, _bundle: [\n            path.as_posix() for path in expected_paths if path != omitted\n        ],\n    )"
+    ]
+  },
+  {
+    "family": 7,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "function": "test_layer3_g7_readiness_passes_current_blocked_runtime_bundle",
+    "line": 210,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py::test_layer3_g7_readiness_passes_current_blocked_runtime_bundle",
+    "source_call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 7,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "function": "test_layer3_g7_readiness_writes_exact_artifact_and_drift_scaffold",
+    "line": 240,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py::test_layer3_g7_readiness_writes_exact_artifact_and_drift_scaffold",
+    "source_call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 7,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "function": "test_layer3_g7_write_path_must_include_every_expected_artifact",
+    "line": 297,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py::test_layer3_g7_write_path_must_include_every_expected_artifact",
+    "source_call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": [
+      "monkeypatch.setattr(\n        validator,\n        \"_write_artifacts\",\n        lambda _repo_root, _bundle: [\n            path.as_posix() for path in expected_paths if path != omitted\n        ],\n    )"
+    ]
+  },
+  {
+    "family": 7,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "function": "test_layer3_g7_route_registry_is_generated_route_contract_registry",
+    "line": 307,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py::test_layer3_g7_route_registry_is_generated_route_contract_registry",
+    "source_call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 7,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "function": "test_layer3_g7_readiness_writes_complete_conformance_negative_matrix",
+    "line": 338,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py::test_layer3_g7_readiness_writes_complete_conformance_negative_matrix",
+    "source_call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 7,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "function": "test_layer3_g7_readiness_fails_when_conformance_negative_is_missing",
+    "line": 385,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py::test_layer3_g7_readiness_fails_when_conformance_negative_is_missing",
+    "source_call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 8,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+    "function": "test_layer3_g8_readiness_writes_and_fails_current_unmeasured_blocker_search",
+    "line": 51,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py::test_layer3_g8_readiness_writes_and_fails_current_unmeasured_blocker_search",
+    "source_call": "validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": []
+  },
+  {
+    "family": 8,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+    "function": "test_layer3_g8_write_path_must_include_every_expected_artifact",
+    "line": 107,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py::test_layer3_g8_write_path_must_include_every_expected_artifact",
+    "source_call": "validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": [
+      "monkeypatch.setattr(\n        validator,\n        \"_write_artifacts\",\n        lambda _repo_root, _bundle: [\n            path.as_posix() for path in expected_paths if path != omitted\n        ],\n    )",
+      "monkeypatch.setattr(validator, \"_write_json\", lambda _path, _payload: None)"
+    ]
+  },
+  {
+    "family": 8,
+    "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+    "function": "test_layer3_g8_readiness_fails_when_conformance_negative_is_missing",
+    "line": 146,
+    "supplied_root": "REPO_ROOT",
+    "write": true,
+    "nodeid": "tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py::test_layer3_g8_readiness_fails_when_conformance_negative_is_missing",
+    "source_call": "validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)",
+    "writer_intercepts_in_test": [
+      "monkeypatch.setattr(\n        validator,\n        \"_write_artifacts\",\n        lambda _repo_root, _bundle: [\n            path.as_posix()\n            for path in validator.EXPECTED_ARTIFACT_PATHS\n            if path != validator.READINESS_MANIFEST_PATH\n        ],\n    )",
+      "monkeypatch.setattr(validator, \"_write_json\", capture_write_json)"
+    ]
+  }
+]

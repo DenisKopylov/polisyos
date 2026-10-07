@@ -1,0 +1,154 @@
+{
+  "schema": "policyos.e02.full_backend_terminal_receipt_decode.v3",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "native_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.json",
+    "bytes": 8998,
+    "sha256": "702ac93791ad935f5e67763854197c10ebdbad2aae26fc2a6336f62769165793"
+  },
+  "native_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt",
+    "bytes": 15566,
+    "sha256": "3509ee3c1b920a7d60fcda80866ffcdb2e595ded5efb604ddab44f893888b96a"
+  },
+  "native_JUnit": null,
+  "native_JUnit_present": false,
+  "measured_case_count": null,
+  "whole_native_scope_completion_established": false,
+  "native_test_failure_IDs_measured": false,
+  "Git_config_hash_size_only": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/raw/workspace14-declared-deps-retry.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28"
+  },
+  "private_config_contents_published": false,
+  "admitted_launch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/launch.json",
+    "bytes": 3601,
+    "sha256": "a2e4f4fbdba4dad96cf5de0fa7c2df0cc7c5bfeeb4976c4a5aea93472060a194"
+  },
+  "check_outcome": "FAIL",
+  "exit_code": 137,
+  "independent_JUnit_counts": null,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "pytest-xdist": "3.8.0"
+    },
+    "selected_variables": {
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp",
+      "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/ruff-cache",
+      "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+      "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+      "UV_CACHE_DIR": null,
+      "PNPM_HOME": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "POLISYOS_METRICS_PORT": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "POLISYOS_PYTEST_DIST": null,
+      "PYTEST_ADDOPTS": null
+    }
+  },
+  "installed_metadata_terminal_readback": {
+    "postinstall207_snapshot": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "bytes": 70628,
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+    },
+    "all207_metadata_record_bodies_match_terminal_readback": true,
+    "existing203_and_protected_metadata": {
+      "ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+        "bytes": 1740,
+        "sha256": "01e311f58d25e4919d1a09ed447819d0a23d8cfd8e790e6f95701a119a5e3c29"
+      },
+      "scope": "Earlier actual203→207 four-wheel install; independent of native case outcomes"
+    }
+  },
+  "source_identity_before": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "source_identity_after": {
+    "tracked_paths": 17016,
+    "bytes": 524101584,
+    "framed_sha256": "3c54b078973ecca2f985dbefe8befbca24306080e6965d2acbf0deef2ba11219"
+  },
+  "source_immutable": false,
+  "source_identity_flag_scope": "Literal wrapper start/end flag; not fullrun immutability.",
+  "source_input_immutable": false,
+  "code_source_HEAD_tree_unchanged": true,
+  "code_source_identity_scope": "Recorded Git HEAD/tree identity only; not all physical product/test code or generated input bytes over the whole run.",
+  "observed_generated_input_drift": {
+    "observation": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json",
+      "bytes": 24848,
+      "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0"
+    },
+    "changed_tracked_generated_inputs": 29,
+    "code_HEAD_tree_unchanged_at_observation": true,
+    "observed_product_or_test_Python_change": false,
+    "source_input_immutable": false,
+    "source_input_admission_outcome": "FAIL",
+    "cause_attribution": "not_established; independent read-only tracing requested",
+    "snapshot_scope": "Exact midrun29 JSON bytes; not an atomic whole-run snapshot.",
+    "whole_run_frozen_input_PASS_permitted": false
+  },
+  "source_input_admission_outcome": "FAIL",
+  "whole_run_frozen_input_PASS_permitted": false,
+  "receipt_recomputation_outcome": "PASS",
+  "receipt_recomputation_scope": "Custody/count/status only; source-input admission fails.",
+  "wall_seconds": 10328.49144244194,
+  "original_workspace14_FAIL2_collection_retained": true,
+  "original37_outcomes_rewritten": false,
+  "owner54_dispositions_rewritten": false,
+  "later_IR_counterexample_or_fix_decision_inferred": false,
+  "P41": "not_established; no cause attribution from progress markers or path intersection",
+  "case_index_scope": "Literal native JUnit identities when available; without JUnit, an empty index is unmeasured, never zero cases or a PASS. No finding closure.",
+  "native_termination_cause": "not_established; no inference from exit137 or OOM counters",
+  "prior_actual_decoder_V2_observer_ERROR": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v2.stderr.txt",
+    "bytes": 652,
+    "sha256": "5a2fe82d9ab8ffb6afcba0fc08f8eeed247b63cec4048e505cfdbf91b363eb30"
+  },
+  "ROOT_interpreter_reexecuted_by_decoder": false,
+  "native_tests_reexecuted_by_decoder": false,
+  "decoder_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v3.py.txt",
+    "bytes": 24112,
+    "sha256": "62cafcbf1506978947bafb7fa4b88c92857840a2b6cbb25c08e9bb1c498c171c"
+  },
+  "observer_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "actual_native_case_index": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-case-index-v3.json",
+    "bytes": 180,
+    "sha256": "20ee84f7a2d56adee761a8c0218ab6f5adc6ba7b505a98657084e1beccf9e1f1"
+  }
+}

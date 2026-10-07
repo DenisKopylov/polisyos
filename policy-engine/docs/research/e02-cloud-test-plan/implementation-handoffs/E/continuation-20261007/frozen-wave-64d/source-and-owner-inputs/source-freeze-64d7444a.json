@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.reviewed-source-freeze.v1",
+  "frozen_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "frozen_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "comparison_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "G_checkpoint": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "source_IR_candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "source_utility_candidate": "ba0ec650b3308a4faa9893f645d2cb6c83041662",
+  "IR_16_path_composed_bytes_equal": true,
+  "tracked_source_clean": true,
+  "independent_reviews": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/independent-review-700f9d5a.json",
+      "bytes": 22450,
+      "sha256": "1d76a62ffd20593ddd2f5d4c1a2fcb03f490bbf2a0eb6505dc687148e9ebc14e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/independent-ir-review-700.json",
+      "bytes": 73767,
+      "sha256": "6bf238d1837987f116e9b04493c442d5345438536c2b5fa36c0b4861b03fd742"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/final-independent-review.json",
+      "bytes": 35520,
+      "sha256": "71fb6518a31061a7871af7bd8dafdd0fbf379cb865173398b3164c281c1eb46b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review-normal.json",
+      "bytes": 4622,
+      "sha256": "5d49df28f0e4f06c0f23638ba105423020f28c6c830cfcdedfc4532ef3206314"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-utility-independent/review-optimized.json",
+      "bytes": 4621,
+      "sha256": "fc29b6d97722bab623ccde0c1000a648b5e53cb6a6dd66c94f07015a320ff422"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/independent-wrapper-review.json",
+      "bytes": 6545,
+      "sha256": "c0795ffc368e4ede4c052574aa782c336bcee2457464dbe62da5360e9af2a8be"
+    }
+  ],
+  "all_executable_source_reviews_complete": true,
+  "generated_public_surface": "surface_missing; canonical owner packet unapplied, not global GO",
+  "freeze_time_unix": 1791364153.847402,
+  "wave_plan": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-prepared-plan-64d7444a.json",
+    "bytes": 201583,
+    "sha256": "e9779679ee75c23151a7eb57aca123fe3918b78b28f3a61b082c15e7627fcd23"
+  },
+  "wave_output_root": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007",
+  "all54_dispositions_pending_deciding_wave": true,
+  "source_edit_policy": "No source/docs commits or tracked writes in root during frozen execution; leaf docs-only handoffs may continue independently.",
+  "resource_observation": {
+    "cpu_count": 5,
+    "affinity_count": 5,
+    "cgroup": {
+      "cpu.max": "400000 100000",
+      "memory.max": "17179869184",
+      "memory.current": "12570234880",
+      "memory.events": "low 0\nhigh 0\nmax 149387\noom 13\noom_kill 2\noom_group_kill 0",
+      "pids.max": "max",
+      "pids.current": "395"
+    },
+    "df": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   23G  6.9G  77% /\n"
+  },
+  "finding_closure": false,
+  "observer_correction": {
+    "first_prepare_assertion": "ASSERTION_ERROR: selector occurrence counted across numeric and Ruff/format jobs; no check executed",
+    "correction": "Restrict occurrence assertion to kind=numerical; exactly once in MC group. Ruff selectors legitimately include the same file.",
+    "product_defect": false
+  }
+}

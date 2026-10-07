@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.independent.moderate_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review.json",
+      "portable_path": "review.json",
+      "bytes": 111045,
+      "sha256": "f0a5caecb27f348072695a80c75f944f44ab34c4c428796c0893c0e808e5bf1e",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review-optimized.json",
+      "portable_path": "review-optimized.json",
+      "bytes": 111045,
+      "sha256": "f0a5caecb27f348072695a80c75f944f44ab34c4c428796c0893c0e808e5bf1e",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review-normal.stdout.txt",
+      "portable_path": "review-normal.stdout.txt",
+      "bytes": 594,
+      "sha256": "1cd548b8cee98b1f225168f060a02a16f41ecdbad757dd51bc58f882cfa6d7ad",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review-normal.stderr.txt",
+      "portable_path": "review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review-optimized.stdout.txt",
+      "portable_path": "review-optimized.stdout.txt",
+      "bytes": 604,
+      "sha256": "a3675b215a7bc870160f8e28aba70cc59de5cbbd9853624b886b03ae8409c76c",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review-optimized.stderr.txt",
+      "portable_path": "review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review_freeze.py.txt",
+      "portable_path": "review_freeze.py.txt",
+      "bytes": 9610,
+      "sha256": "2b6f2dce64c3262756049568836b0cea417c8a48a24b199f40d912f3929190ad",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-freeze-b2-independent-20261007/commands.json",
+      "portable_path": "commands.json",
+      "bytes": 405,
+      "sha256": "f89a3bd5d7cac37a2c3f3a15393bbee7fdbb191947dcc86053839c7c4bcc1e5f",
+      "role": "independent closed read-only custody/typed-control output"
+    }
+  ],
+  "logical_count": 8,
+  "bytes": 233303,
+  "scope": "No runtime/finding/G acceptance inferred from custody GO."
+}

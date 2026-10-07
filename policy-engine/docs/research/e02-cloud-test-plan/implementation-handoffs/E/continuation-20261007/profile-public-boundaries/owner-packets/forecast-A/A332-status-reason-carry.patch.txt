@@ -1,0 +1,48 @@
+--- a/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
++++ b/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+@@ -12123,6 +12123,7 @@
+         "pass_rate": pass_rate,
+         "floor_passed": floor_passed,
+         "calibration_status": calibration_status,
++        "failure_codes": list(failure_codes),
+         "forecast_tier": forecast_tier,
+         "counterfactual_credibility": "credible" if usable else "insufficient_history",
+         "interval_coverage_metric": pass_rate if denominator else None,
+@@ -12248,6 +12249,9 @@
+         and temporal_roles is not None
+         and calibration_refs is not None
+     )
++    if not calibration_bound and calibration_status is not None:
++        # Preserve explicit missing-reference refusal through tier, S6, and disposition.
++        empirical_evidence_error = empirical_evidence_error or "empirical_evidence_ref_missing"
+     calibration_record_available = (
+         calibration_bound
+         and type(evidence.get("denominator")) is int
+@@ -12369,15 +12373,18 @@
+         outcome_distribution_refs=[f"distribution://{report_ref}"],
+         welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
+         forecast_tier=effective_forecast_tier,
+-        forecast_authority_disposition_reason=str(
+-            evidence.get("forecast_authority_disposition_reason")
+-            or (
+-                "S10 estimator diagnostics retained; empirical calibration evidence is "
+-                "not established."
+-                if empirical_evidence_error is None and not calibration_bound
+-                else "S10 owner forecast over Foundry method output"
+-            )
+-            + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
++        forecast_authority_disposition_reason=(
++            f"S10 empirical calibration refused: {empirical_evidence_error}"
++            if empirical_evidence_error is not None
++            else str(
++                evidence.get("forecast_authority_disposition_reason")
++                or (
++                    "S10 estimator diagnostics retained; empirical calibration evidence is "
++                    "not established."
++                    if not calibration_bound
++                    else "S10 owner forecast over Foundry method output"
++                )
++            )
+         ),
+         method_family=method_family,
+         observable_subset_ref=f"s10://n8/{outcome}/observable-subset",

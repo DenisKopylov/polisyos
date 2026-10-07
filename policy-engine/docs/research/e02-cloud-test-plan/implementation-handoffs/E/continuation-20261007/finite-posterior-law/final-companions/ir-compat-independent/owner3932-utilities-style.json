@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.E.scoped_packet_utility_style.v1",
+  "scope": "Three new .py.txt publication observers only, not global Ruff or format gate",
+  "outcome": "PASS",
+  "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "checks": [
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify_projection_3932.py.txt",
+        "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-sparse-owner3932.py.txt",
+        "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-check.stdout.txt",
+      "stderr": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-check.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify_projection_3932.py.txt",
+        "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-sparse-owner3932.py.txt",
+        "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-format.stdout.txt",
+      "stderr": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/owner3932-utilities-format.stderr.txt"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/qualify_projection_3932.py.txt",
+      "bytes": 10040,
+      "sha256": "b25b48ce94511ad7c972f244bb27d29621d32efae7ed28b322b609e5039b1c24"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-sparse-owner3932.py.txt",
+      "bytes": 16845,
+      "sha256": "2526ff89c6ec189015c304790e88ba789cee3f84cab01dfbc886588df4f8b5b2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/validate-owner3932-packets.py.txt",
+      "bytes": 13024,
+      "sha256": "4e3e354f50d16e12bf2defab996cf6e97caec963b934cee243e94b435007fcdb"
+    }
+  ]
+}

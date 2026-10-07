@@ -1,0 +1,306 @@
+{
+  "schema_version": "1.0",
+  "reviewer": "independent cal_uq_r3; not FRC author; no children",
+  "reviewed_source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "reviewed_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+  "slice_base": "22998874b5f32434c462065baaca44a78e967f91",
+  "lane": "/workspace/e02-E-frc-20261006",
+  "receipt_head": "f73e554bfe567aec29aff957a2c026f1537e4834",
+  "source_test_delta_to_receipt_head": [],
+  "verdict": "GO",
+  "scope": "bounded E source-admitted NumPy ETS producer, configured CAS artifacts, neutral replay/adapter",
+  "excludes": [
+    "own CAL source review",
+    "A source writes",
+    "global static guard",
+    "production history",
+    "served HTTP/default producer",
+    "trusted issuer/S10 verifier admission"
+  ],
+  "independent_oracle": {
+    "input": "training revenue(t)=11+2t, t=0..31; horizon5; holdout at t=32..36",
+    "alpha": 0.4,
+    "beta": 0.2,
+    "seed": 20261009,
+    "derivation": "Initialization level=11 and trend=2. If level(t-1)=11+2(t-1) and trend=2, both Holt update operands equal y(t)=11+2t, so updated level=y(t), trend=2. Induction gives final level73 and all rolling-origin residuals0. Absolute residual conformal quantile is0, hence future point/lower/upper are [75,77,79,81,83].",
+    "expected": [
+      75.0,
+      77.0,
+      79.0,
+      81.0,
+      83.0
+    ],
+    "hit_law": "five exact points yield5/5; add100 to five observations yields0/5",
+    "nominal_distinction": "nominal .8 and .95 on the same all-miss observation rows both yield empirical coverage0",
+    "backend": "real NumPy ETS MethodDispatcher",
+    "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0"
+  },
+  "verification": {
+    "independent_native": "20 PASS; includes13 zero-callback schema/unit/scale negatives, populated DTO property removal, false-coverage CAS receipt, native oracle and A adapter/purpose guards",
+    "corrupt_receipt": "1 PASS on fresh CAS: raw existing candidate bytes changed behind its same ref; loader refuses",
+    "repository": "32 PASS",
+    "a_actual_cas_packet": "5 PASS",
+    "a_status_reason": "2 FAIL owned by A, freshly reproduced",
+    "v1_replay": "fresh exact58e2 native v1 producer -> current8486 reader PASS; identical candidate ref and CAS bytes preserved",
+    "ruff": "PASS",
+    "format": "PASS",
+    "all_tracked_source_unchanged": true,
+    "all_loaded_polysios_origins_exact": true,
+    "source_hash": "ed8075405990aed40912eaa1f30bf4122bc20c0ac5caf6fc85c6ed839c62d4a1",
+    "source_files": 2911,
+    "origins": 1443,
+    "no_artificial_caps": true
+  },
+  "p37_basis": [
+    "resolved Fabric DataSchema target/declared numeric coordinate/unit identity/source_native scale before numerical dispatcher",
+    "independently derived forecast and conformal interval bounds from ordered train rows",
+    "fresh source values and persisted interval artifacts determine exact hit count and denominator",
+    "configured CAS candidate and evidence have separate content identities, exact manifest/schema/kind checks, fresh replay",
+    "A field names and six original source-provided times survive live resolver/gateway; explicit predictive-only authority denials remain"
+  ],
+  "property_removal": "Remove only unit equality by returning a fully populated real binding DTO relabeled percent: numerical callback executes once and preflight refusal oracle would fail. No markers or DTO fields removed.",
+  "negative_controls": [
+    "13 strict pre-callback invalid schema/unit/scale/ref/profile/legacy admission fixtures",
+    "schema-valid/hash-valid false coverage5/5 on all-miss source with exact candidate edges refused on fresh reader",
+    "existing candidate byte corruption refused on fresh reader",
+    "causal/treatment/S10 evidence scope model validation refuses; no claimed authority",
+    "changed result time roles refused by fresh adapter",
+    "A missingref/wrongkind/badtime/wrongrule packet refusals"
+  ],
+  "historical_replay": {
+    "producer_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "reader_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "archived_paths": [
+      "policy-engine/src",
+      "policy-engine/architecture",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+    ],
+    "archive_sha256": "5cb3c7618b74d7aaeb173d01a3c5e129e907a5d1eac42e51247ef6df60251032",
+    "producer": {
+      "stage": "legacy-producer",
+      "request_version": "1.0",
+      "candidate_ref": {
+        "artifact_id": "sha256:ef261b4ac91e166425f054eb26a6dddc36c9c244c82fdbbf855f99e386a7fdf7",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "denominator": 4
+    },
+    "reader": {
+      "stage": "candidate-legacy-read",
+      "candidate_ref": {
+        "artifact_id": "sha256:ef261b4ac91e166425f054eb26a6dddc36c9c244c82fdbbf855f99e386a7fdf7",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "verifier_provenance": "not_established",
+      "authority_scope": "predictive_only",
+      "outcome": "PASS"
+    },
+    "cas_file_count": 89,
+    "cas_bytes_unchanged": true,
+    "cas_content_sha256": "6089d77f613c6f04867cb39a51a24957e8b64922f9bbf374b054611e94f5555d",
+    "old_PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-git-blob-overlay-58e2/policy-engine/src",
+    "new_PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+    "cleanup_candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-git-blob-overlay-58e2",
+      "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-native-cas-58e2"
+    ],
+    "no_production_inputs": true
+  },
+  "residuals": [
+    {
+      "owner": "A",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "trigger": "calibration_status limit but empirical_evidence_ref absent",
+      "actual": "tier blocked, s6_limitation_refs empty",
+      "needed": "derive both status/reason views from explicit empirical_evidence_ref_missing; distinguish missing ref from resolved limited evidence"
+    },
+    {
+      "owner": "A",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "trigger": "native ETS observed coverage0/4, real CAS evidence resolved",
+      "actual": "record calibration_status limit; S6 reason insufficient-history",
+      "needed": "retain measured calibration_floor_not_met in the canonical failure/status projection"
+    },
+    {
+      "owner": "A",
+      "needed": "connect configured producer in default lifecycle, independently resolve/recompute source/split/rows/counts/threshold/time/purpose and verifier provenance, fresh served read, terminal causal refusal; custom gateway resolver positive is only bounded predictive wiring"
+    },
+    {
+      "owner": "G + local production source owner",
+      "needed": "read-only exact candidate check on issuer-declared production history/schema/units/split/horizon/model/rule/six actual time roles; cloud synthetic fixtures are mathematical evidence only"
+    }
+  ],
+  "p40": "Source-schema binding is tested as the whole quantity, not names/hash presence; a DTO-preserving unit-equality removal is detected",
+  "p41": "No claim that old FRC01 red or all original production acceptance criteria were replayed; historical producer executed anew only for explicit v1 replay property",
+  "finding_statuses_changed": false,
+  "finding_closure_claim": false,
+  "capability_state": {
+    "producer": "bounded supported",
+    "candidate_and_empirical_persist_reload": "supported",
+    "neutral_adapter": "supported",
+    "verifier_provenance": "not_established",
+    "served_default_bridge": "consumer_missing owner A",
+    "authority_scope": "predictive_only",
+    "bridge_status": "bridge_pending"
+  },
+  "harness_errors": [
+    {
+      "log": "independent-native.log",
+      "state": "ERROR; normalize_artifact_ref returned dict, fixture expected DTO; corrected scratch only, exact subsequent20 PASS"
+    },
+    {
+      "log": "corrupt-candidate.log",
+      "state": "ERROR; ArtifactIntegrityError imported from nonexistent errors module; changed scratch import to real public core.artifacts export; exact subsequent1 PASS"
+    }
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "deleted": false,
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-git-blob-overlay-58e2",
+      "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-native-cas-58e2",
+      "/tmp/pytest-of-agent/pytest-191/test_adapter_fresh_refs_time_r0/cas",
+      "/tmp/pytest-of-agent/pytest-191/test_fresh_cas_rejects_valid_h0/cas",
+      "/tmp/pytest-of-agent/pytest-191/test_native_ets_from_source_to0/cas",
+      "/tmp/pytest-of-agent/pytest-191/test_native_ets_from_source_to1/cas",
+      "/tmp/pytest-of-agent/pytest-191/test_nominal_without_changed_o0/cas",
+      "/tmp/pytest-of-agent/pytest-191/test_nominal_without_changed_o1/cas"
+    ],
+    "preserve": "scripts, deciding stdout, receipts, source/doc code, unique inputs; no production data present"
+  },
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent_frc_tests.bounded20.py",
+      "sha256": "467c70ee85b0d7df5c6ceb84708d76a4a4b0fbe32abe8f7ff1460b49dd1b882e",
+      "bytes": 15457
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent_frc_tests.py",
+      "sha256": "760d1109e00e842cd35bf5dbfcbca5af674b033ea9c058451e0568aaec5b4066",
+      "bytes": 16043
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/run_review.py",
+      "sha256": "fb606331c4fbb54f692eed914204ecbb8060f1d52e137d66da5aa9bec71b9fea",
+      "bytes": 2448
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy_pipeline.py",
+      "sha256": "90d5515db07f3874102ae499650ae567921bfc9d299c8af7eb9b4ca921d72bce",
+      "bytes": 2735
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy_probe.py",
+      "sha256": "824de1c6711a63240ef70fb0fe58d6b473b8ec487551400dbfac02e966587eaa",
+      "bytes": 1538
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-cas-contract-tests.py",
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac",
+      "bytes": 4327
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-status-reason-tests.py",
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4",
+      "bytes": 3114
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent-native-compact.json",
+      "sha256": "35987b8dad5762913bab5b8e873feb6c50580b7cbc245c47a637cde59bec1718",
+      "bytes": 20106
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-replay-details.json",
+      "sha256": "4678765d570604c83eefe5f083df5b6ec8a08e93d9a4f06fbd3f6376a01cd52b",
+      "bytes": 1747
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent-native-corrected.log",
+      "sha256": "b02728e28d2d798bebadb380abc324e24d8493d1793c21bfe370d5cb6923fcef",
+      "bytes": 100
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent-native-corrected-receipt.json",
+      "sha256": "103ae3b1fb11c010f9114a2c56032d2e93717d298b9ffabd74285c542ada11d8",
+      "bytes": 2969
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/corrupt-candidate-corrected.log",
+      "sha256": "5e4420effb17d982018e3feba47d2a223633cd5e92ed78633ebee85db665cab1",
+      "bytes": 114
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/corrupt-candidate-corrected-receipt.json",
+      "sha256": "30db4eb0e4c0233f92d3dcc3c127f1e982c6bd084babd265560568337e4505d9",
+      "bytes": 3010
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/repository-targeted.log",
+      "sha256": "29817a48c8dc1ec315a74fd7eff22b54410c2a4e6d2b7c6ae489a4feee767b9b",
+      "bytes": 597
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/repository-targeted-receipt.json",
+      "sha256": "1fc1b4ffb4f8f29084d84e85e19764ccf20bc6f9e7597189f7e1c6107ff8f6ad",
+      "bytes": 3033
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-cas-contract.log",
+      "sha256": "7b458c2b5db11ac5ea366847c8ca53323b32bbca588f8fe26aa97b6cf8b5f9a2",
+      "bytes": 109
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-cas-contract-receipt.json",
+      "sha256": "bac844abcc481f81900b0f6dce599216a111b4ed743577078bf5710222bcc8ac",
+      "bytes": 2938
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-status-reason.log",
+      "sha256": "20611198e77abb5a5d45d44a6d04a8154b425f653d273e6c4c661ee767b2afc5",
+      "bytes": 7090
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/a-status-reason-receipt.json",
+      "sha256": "0f254dad54c3a75a653e11b5e0e26846c6c395bf099e9587b11179241737f45d",
+      "bytes": 2942
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-replay.log",
+      "sha256": "7e6d9556538ff55b5937ab3c135516aa10c400d7ded39190002d05d2d39f5a5f",
+      "bytes": 4673
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/legacy-replay-receipt.json",
+      "sha256": "89bbdd2d966f0fc352dc1591e1ff0c0b9533c87c1feb95f13e11200034802bca",
+      "bytes": 2864
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-style.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-style-receipt.json",
+      "sha256": "280468288f715afe0068a42362a1387b8342b401a8b551e2e79b964307c7a281",
+      "bytes": 3118
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-format.log",
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+      "bytes": 26
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/frc-format-receipt.json",
+      "sha256": "714483bb0e8e9d26e97ff8067bbcb74deaad247002c5ec225279d26c34ffd54b",
+      "bytes": 3136
+    }
+  ]
+}

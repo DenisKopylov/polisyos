@@ -1,0 +1,1069 @@
+{
+  "observations": [
+    {
+      "name": "pytest",
+      "scope": "historical first actual float-tagged source materializer attempt; setup ERROR before new consumer; protected owner packet",
+      "counts": {
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 15,
+        "SKIP": 0
+      },
+      "input_selectors": [
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "actual_cases": [
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes",
+          "time": "5.818"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[axes]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[dtype]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[byte_length]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[chain_rows]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[stale_digest]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nonfinite]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[seed]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[params]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[source]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[wrong_pair]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[kind]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[duplicate_source]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[missing_ref]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[True]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[32]",
+          "time": "0.001"
+        }
+      ],
+      "assets": [
+        {
+          "path": "pytest.stdout.txt",
+          "bytes": 165175,
+          "sha256": "9fb4c0aa65714784b5d0792e20f7807ab955acfbe57969536d2a9d3cd6a38855"
+        },
+        {
+          "path": "pytest.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pytest.junit.xml",
+          "bytes": 43415,
+          "sha256": "20858eeb5dda18f359615c19498023b4e6743ab9ffbc4468829e08aabd1a5149"
+        }
+      ],
+      "command_line_custody": "complete original tool argv not separately saved; portable reconstructed recipe supplied; independent immutable review captures exact current argv"
+    },
+    {
+      "name": "pytest-r2",
+      "scope": "historical HMC-only source observation before NUTS controls",
+      "counts": {
+        "PASS": 18,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input_selectors": [
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "actual_cases": [
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes",
+          "time": "8.630"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[axes]",
+          "time": "0.068"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[dtype]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[byte_length]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[chain_rows]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[stale_digest]",
+          "time": "0.060"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nonfinite]",
+          "time": "0.066"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[seed]",
+          "time": "0.060"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[params]",
+          "time": "0.059"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[source]",
+          "time": "0.058"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[wrong_pair]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[kind]",
+          "time": "0.053"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[duplicate_source]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[missing_ref]",
+          "time": "0.078"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected",
+          "time": "0.224"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[True]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[inf]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[32]",
+          "time": "0.001"
+        }
+      ],
+      "assets": [
+        {
+          "path": "pytest-r2.stdout.txt",
+          "bytes": 132480,
+          "sha256": "54f20ee09a328f4fa07a903c8dd53c6e752b95c4a99d70874060a276edb343ea"
+        },
+        {
+          "path": "pytest-r2.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pytest-r2.junit.xml",
+          "bytes": 3289,
+          "sha256": "e80e61e15e2e294bcee50580c1261b1992744f4cee91fe35e11575874700a012"
+        }
+      ],
+      "command_line_custody": "complete original tool argv not separately saved; portable reconstructed recipe supplied; independent immutable review captures exact current argv"
+    },
+    {
+      "name": "pytest-r3",
+      "scope": "historical HMC/NUTS source observation before expanded guards/facade route",
+      "counts": {
+        "PASS": 33,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input_selectors": [
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "actual_cases": [
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[hmc]",
+          "time": "9.981"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-axes]",
+          "time": "0.101"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-dtype]",
+          "time": "0.102"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-byte_length]",
+          "time": "0.099"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-chain_rows]",
+          "time": "0.098"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-stale_digest]",
+          "time": "0.098"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-nonfinite]",
+          "time": "0.118"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-seed]",
+          "time": "0.112"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-params]",
+          "time": "0.102"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-source]",
+          "time": "0.091"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-wrong_pair]",
+          "time": "0.068"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-kind]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-duplicate_source]",
+          "time": "0.075"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-missing_ref]",
+          "time": "0.055"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected[hmc]",
+          "time": "0.210"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[nuts]",
+          "time": "3.659"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-axes]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-dtype]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-byte_length]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-chain_rows]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-stale_digest]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-nonfinite]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-seed]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-params]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-source]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-wrong_pair]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-kind]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-duplicate_source]",
+          "time": "0.069"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-missing_ref]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected[nuts]",
+          "time": "0.210"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[True]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[32]",
+          "time": "0.001"
+        }
+      ],
+      "assets": [
+        {
+          "path": "pytest-r3.stdout.txt",
+          "bytes": 136095,
+          "sha256": "8ae9d92c5c44a9ba1e21f49b13965a5e1f93c1093633da903f82d00495a1e582"
+        },
+        {
+          "path": "pytest-r3.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pytest-r3.junit.xml",
+          "bytes": 5948,
+          "sha256": "94e3650481604c7d1a1ef99f7f4524110bad00602652ff98c1346fb1c3070aa5"
+        }
+      ],
+      "command_line_custody": "complete original tool argv not separately saved; portable reconstructed recipe supplied; independent immutable review captures exact current argv"
+    },
+    {
+      "name": "pytest-final",
+      "scope": "historical affected 64-case family wave before only Core-root/Foundry-public import-route and facade-identity changes",
+      "counts": {
+        "PASS": 64,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input_selectors": [
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ],
+      "actual_cases": [
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[hmc]",
+          "time": "7.979"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-axes]",
+          "time": "0.066"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-dtype]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-byte_length]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-chain_rows]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-stale_digest]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-nonfinite]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-seed]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-params]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-source]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-wrong_pair]",
+          "time": "0.067"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-kind]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-duplicate_source]",
+          "time": "0.068"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-missing_ref]",
+          "time": "0.057"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-schema]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-source_view]",
+          "time": "0.057"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-requested_prior]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-mixed_group]",
+          "time": "0.120"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected[hmc]",
+          "time": "0.207"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[nuts]",
+          "time": "2.583"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-axes]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-dtype]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-byte_length]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-chain_rows]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-stale_digest]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-nonfinite]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-seed]",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-params]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-source]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-wrong_pair]",
+          "time": "0.067"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-kind]",
+          "time": "0.058"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-duplicate_source]",
+          "time": "0.069"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-missing_ref]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-schema]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-source_view]",
+          "time": "0.057"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-requested_prior]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-mixed_group]",
+          "time": "0.118"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected[nuts]",
+          "time": "0.206"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[True]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[32]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_propagate_uncertainty_node_updates_simulation_result",
+          "time": "0.899"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_real_posterior_producer_fresh_node_preserves_joint_rows[1-0.0]",
+          "time": "0.441"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_real_posterior_producer_fresh_node_preserves_joint_rows[-1-4.0]",
+          "time": "0.141"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_reads_named_mean_instead_of_generic_median",
+          "time": "0.174"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[mean]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[profile]",
+          "time": "0.060"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[carrier]",
+          "time": "0.060"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[rows]",
+          "time": "0.058"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[digest]",
+          "time": "0.060"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[consistent_joint]",
+          "time": "0.058"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[rename]",
+          "time": "0.058"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[raw_bool]",
+          "time": "0.059"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[raw_string]",
+          "time": "0.066"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[inline_bool]",
+          "time": "0.077"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_actual_node_refuses_forged_profile_before_evaluator[inline_string]",
+          "time": "0.070"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_multicoordinate_profile_digest_and_missing_projection_refuse_before_builder",
+          "time": "0.138"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_propagate_uncertainty_node",
+          "name": "test_posterior_canonical_ir_store_adapter_transport",
+          "time": "0.077"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_calibration_report_consumer",
+          "name": "test_actual_legacy_consumer_accepts_valid_canonical_report",
+          "time": "0.012"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_calibration_report_consumer",
+          "name": "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.funnel_calibration_report-polisyos.foundry.CalibrationReport-2.0]",
+          "time": "0.050"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_calibration_report_consumer",
+          "name": "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.FunnelCalibrationReport-2.0]",
+          "time": "0.052"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_calibration_report_consumer",
+          "name": "test_legacy_node_refuses_same_bytes_wrong_cas_profile_before_dispatch[foundry.calibration_report-polisyos.foundry.CalibrationReport-1.0]",
+          "time": "0.051"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_calibration_report_consumer",
+          "name": "test_actual_tied_calibrator_v2_reaches_fresh_legacy_node",
+          "time": "4.487"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_calibration_report_consumer",
+          "name": "test_invalid_explicit_report_cannot_hide_behind_valid_snapshot",
+          "time": "0.062"
+        }
+      ],
+      "assets": [
+        {
+          "path": "pytest-final.stdout.txt",
+          "bytes": 139563,
+          "sha256": "84c91f315e8e7cbdf53f36e2cbea1136cdf37698172c5cca1d1bba4176f4b5b5"
+        },
+        {
+          "path": "pytest-final.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pytest-final.junit.xml",
+          "bytes": 11465,
+          "sha256": "28e38e0cd3cc870d9043c02c31d4874c7c48df4e6e0e1df1503f41fc8b444d4a"
+        }
+      ],
+      "command_line_custody": "complete original tool argv not separately saved; portable reconstructed recipe supplied; independent immutable review captures exact current argv"
+    },
+    {
+      "name": "pytest-source",
+      "scope": "final physical source precommit42-case observation; physical bytes now equal immutable6638; no retrospectively captured pre-run source/environment frame",
+      "counts": {
+        "PASS": 42,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input_selectors": [
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "actual_cases": [
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[hmc]",
+          "time": "7.816"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-axes]",
+          "time": "0.083"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-dtype]",
+          "time": "0.070"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-byte_length]",
+          "time": "0.071"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-chain_rows]",
+          "time": "0.068"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-stale_digest]",
+          "time": "0.069"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-nonfinite]",
+          "time": "0.096"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-seed]",
+          "time": "0.065"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-params]",
+          "time": "0.070"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-source]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-wrong_pair]",
+          "time": "0.067"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-kind]",
+          "time": "0.056"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-duplicate_source]",
+          "time": "0.074"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-missing_ref]",
+          "time": "0.055"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-schema]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-source_view]",
+          "time": "0.057"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-requested_prior]",
+          "time": "0.055"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[hmc-mixed_group]",
+          "time": "0.122"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected[hmc]",
+          "time": "0.264"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[nuts]",
+          "time": "2.601"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-axes]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-dtype]",
+          "time": "0.060"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-byte_length]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-chain_rows]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-stale_digest]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-nonfinite]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-seed]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-params]",
+          "time": "0.062"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-source]",
+          "time": "0.059"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-wrong_pair]",
+          "time": "0.063"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-kind]",
+          "time": "0.054"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-duplicate_source]",
+          "time": "0.066"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-missing_ref]",
+          "time": "0.054"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-schema]",
+          "time": "0.061"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-source_view]",
+          "time": "0.055"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-requested_prior]",
+          "time": "0.053"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_adversarial_fit_refuses_before_publication_or_evaluator[nuts-mixed_group]",
+          "time": "0.115"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_whole_relationship_admission_removal_is_detected[nuts]",
+          "time": "0.199"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[True]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_effective_parameter_profile_rejects_non_real_values_before_store[32]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+          "name": "test_public_uncertainty_and_calibration_facades_preserve_typed_identity",
+          "time": "0.001"
+        }
+      ],
+      "assets": [
+        {
+          "path": "pytest-source.stdout.txt",
+          "bytes": 138303,
+          "sha256": "4dcf55f413b2ed067ed0b7da94292f78016be35465f55035bf0577752c3cafe6"
+        },
+        {
+          "path": "pytest-source.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pytest-source.junit.xml",
+          "bytes": 7528,
+          "sha256": "0b7b42f70aec7a72bad7e96b8e8bd10a17971d11961cb9ecc2eab283b7b098c3"
+        }
+      ],
+      "command_line_custody": "complete original tool argv not separately saved; portable reconstructed recipe supplied; independent immutable review captures exact current argv"
+    }
+  ],
+  "final_reproduction_recipe": {
+    "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+    "argv": [
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+      "--basetemp",
+      "/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base-source",
+      "--junitxml",
+      "/tmp/e02-E-bayesian-fit-bridge-r6/pytest-source.junit.xml"
+    ],
+    "environment_overrides": {
+      "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "POLISYOS_METRICS_PORT": "0"
+    },
+    "scope": "reconstructed portable reproduction recipe; do not overwrite closed output roots during a repeat; no resource pins"
+  },
+  "backend": "actual configured MethodBackend HMC and NUTS NumPy reference sampler; current fixture integer numeric sources",
+  "global_wave": false,
+  "source_freeze": "6638e18a3295e43a89b0ae6adba32e62952154bb"
+}

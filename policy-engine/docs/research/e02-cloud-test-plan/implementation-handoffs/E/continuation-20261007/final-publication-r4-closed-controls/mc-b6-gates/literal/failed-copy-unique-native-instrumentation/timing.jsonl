@@ -1,0 +1,2 @@
+{"category": "workspace", "duration_ms": 238.541, "exit_code": 0, "mode": "default", "output_format": "text", "preflight_status": "ok", "regime": "unknown", "started_at": "2026-10-07T11:56:55.904229+00:00", "status": "ok", "tool": "workspace.doctor"}
+{"category": "workspace", "duration_ms": 261.795, "exit_code": 0, "mode": "default", "output_format": "text", "preflight_status": "ok", "regime": "unknown", "started_at": "2026-10-07T11:58:28.349962+00:00", "status": "ok", "tool": "workspace.doctor"}

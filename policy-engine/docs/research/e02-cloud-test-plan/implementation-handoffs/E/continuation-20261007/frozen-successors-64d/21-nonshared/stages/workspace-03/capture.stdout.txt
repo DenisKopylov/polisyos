@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "-m", "tools.quality.lint.lint_foundry", "--repo-root", "."], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 80.65206694602966, "source_immutable": true}

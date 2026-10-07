@@ -1,0 +1,69 @@
+{
+  "source_sha": "dee36f110824425f8f612874cb111398d9546e7d",
+  "tree": "c545506928e0c1036a2ce266d34f2995779928bb",
+  "observer": {
+    "path": "/tmp/e02-E-ir-composition-r4-20261007/old-exact-source-replay/replay.py",
+    "sha256": "e97bb55e708034c32f393e76ad06525c228f533ab50affa650c761099a7be795"
+  },
+  "rows": [
+    {
+      "name": "finite_exact_mean_identity_push",
+      "expected": {
+        "exact_mean": 1.6e+308,
+        "median": 1.6e+308,
+        "bounds": [
+          1.6e+308,
+          1.6e+308
+        ]
+      },
+      "refused": true,
+      "exception_type": "ValidationError",
+      "exception": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate must be finite [type=value_error, input_value={'numeric_policy': Numeri...d_cert_policy': 'auto'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+    },
+    {
+      "name": "inverse_cdf_q034_identity_push",
+      "expected": {
+        "mean": 0.6666666666666666,
+        "median": 1.0,
+        "bounds": [
+          1.0,
+          1.0
+        ],
+        "finite_q": 0.34
+      },
+      "refused": true,
+      "exception_type": "ValidationError",
+      "exception": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate (0.6666666666666666) must lie within confidence_interval [0.010000000000000009, 0.49] [type=value_error, input_value={'numeric_policy': Numeri...d_cert_policy': 'auto'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+    },
+    {
+      "name": "changed_carrier_fresh_CAS_push",
+      "expected": {
+        "profile_matches_fresh_carrier": true
+      },
+      "refused": true,
+      "exception_type": "ValueError",
+      "exception": "posterior summary profile/carrier binding is invalid"
+    },
+    {
+      "name": "dropped_carrier_fresh_CAS_interval",
+      "expected": {
+        "stale_profile_for_removed_carrier": false
+      },
+      "refused": true,
+      "exception_type": "ValueError",
+      "exception": "posterior summary exact carrier is missing"
+    },
+    {
+      "name": "pullback_large_finite_selected_mean",
+      "expected": {
+        "finite_point": 1.6e+308,
+        "constraint_only": true,
+        "stale_profile": false
+      },
+      "refused": true,
+      "exception_type": "ValidationError",
+      "exception": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate must be finite [type=value_error, input_value={'numeric_policy': Numeri..._back_map': '<lambda>'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+    }
+  ],
+  "production_evidence": false
+}

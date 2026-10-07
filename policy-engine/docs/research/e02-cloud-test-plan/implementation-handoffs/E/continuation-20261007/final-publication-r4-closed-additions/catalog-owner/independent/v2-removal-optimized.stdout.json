@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.independent_catalog_summary_class_probe.v2",
+  "outcome": "PASS",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "optimized": 1,
+  "healthy_claim_count": 65,
+  "controls": [
+    {
+      "name": "full_original_HTTP_counts_1585_to_one_PASS",
+      "current_expected_refusal_outcome": "PASS",
+      "current_reason": "summary_mismatch:native_full_HTTP.full_original_counts",
+      "removed_expected_refusal_outcome": "FAIL",
+      "removed_validator_admitted": true,
+      "effective_removal_discriminator": "PASS",
+      "closed_native_HTTP_refs_unchanged": true,
+      "authority_denial_markers_preserved": true
+    },
+    {
+      "name": "main_catalog_observations_zero_to_hundred",
+      "current_expected_refusal_outcome": "PASS",
+      "current_reason": "summary_mismatch:minimum_fixture_inputs.actual_catalog_counts",
+      "removed_expected_refusal_outcome": "FAIL",
+      "removed_validator_admitted": true,
+      "effective_removal_discriminator": "PASS",
+      "closed_native_HTTP_refs_unchanged": true,
+      "authority_denial_markers_preserved": true
+    },
+    {
+      "name": "extra_product_patch_path",
+      "current_expected_refusal_outcome": "PASS",
+      "current_reason": "summary_mismatch:source_footprint",
+      "removed_expected_refusal_outcome": "FAIL",
+      "removed_validator_admitted": true,
+      "effective_removal_discriminator": "PASS",
+      "closed_native_HTTP_refs_unchanged": true,
+      "authority_denial_markers_preserved": true
+    }
+  ],
+  "effective_removal_unique_predicate": "summary_receipt = admit_summary_claims(base, packet)",
+  "removal_exact_AST_delta": true,
+  "original_source": {
+    "path": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/validate_closed_catalog_packet_v2.py",
+    "bytes": 15716,
+    "sha256": "bdfba9995c408064c21e9bd7e779b7ad8705f4100f17c34592ebe41afd1b24c7"
+  },
+  "mutant_source": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-summary-inlet-removed.py.txt",
+    "bytes": 15684,
+    "sha256": "baa09d25d0a97adeb00b0c1fb4d096a99764173df808066949e1c32ea327e36f"
+  },
+  "no_native_selectors_or_ROOT_interpreter": true
+}

@@ -1,0 +1,1 @@
+{"output": "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-b4af26cf/cascade-controls-final-v4-1186.json", "bounded_controls": 29, "index_census_counts": [[9, 9], [9, 9], [0, 0]]}

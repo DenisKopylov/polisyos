@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+    "--checker",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash/synthetic_checker.py",
+    "--expected-checker-sha256",
+    "0000000000000000000000000000000000000000000000000000000000000000",
+    "--catalog",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash/catalog.json",
+    "--",
+    "0"
+  ],
+  "cwd": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash",
+  "environment": {
+    "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash/stage-tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 1,
+  "input": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash/synthetic_checker.py",
+    "bytes": 699,
+    "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+  },
+  "hook": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+    "bytes": 5478,
+    "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+  },
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/wrong-source-hash/stderr.txt",
+    "bytes": 545,
+    "sha256": "b0bb9aa6a8bc4a7d24a217e8edd070651edd8e702affdae1d71b6a91d2872ee0"
+  },
+  "callback_invoked": false,
+  "catalog": null
+}

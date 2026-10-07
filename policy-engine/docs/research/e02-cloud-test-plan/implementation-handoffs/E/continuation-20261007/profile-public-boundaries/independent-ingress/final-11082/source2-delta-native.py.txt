@@ -1,0 +1,66 @@
+"""Independent actual producer scalar compatibility and raw forged CAS controls."""
+import copy
+from decimal import Decimal
+from fractions import Fraction
+import json
+from pathlib import Path
+import sys
+import time
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+BASE=Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+candidate=sys.argv[1]
+sys.path.insert(0,str(ROOT/'policy-engine/src'))
+from probe import source_binding
+before=source_binding(candidate)
+if not before['all_git_blobs_bound']:raise RuntimeError(before)
+import numpy as np
+from polisyos.core import artifacts as cas
+from polisyos.core import canon
+from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import load_posterior_summary_envelope,posterior_nominal_mean
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+rows=[]
+# Each expected scalar is stipulated independently, preserving the legacy
+# diagnostic conversion contract. No noise-law/covariance authority is inferred.
+values=(('Decimal',Decimal('0.25'),0.25),('Fraction',Fraction(1,4),0.25),
+ ('numpy_float32',np.float32(.25),.25),('numpy_float64',np.float64(.25),.25),
+ ('int',2,2.),('bool',True,1.),('numeric_string','0.25',.25),('numeric_bytes',b'0.25',.25))
+for name,value,expected in values:
+ result=summarize_bayesian_calibration_posterior({'x':[0.,1.]},emulator_diagnostics={'emulator_noise_std':value})
+ diagnostic=result.uncertainty_decomposition['x'];actual=diagnostic['diagnostics']['aleatoric_std']
+ flags=all(not diagnostic[k]['gate_eligible'] and diagnostic[k]['metadata']['noise_law_established'] is False for k in ('total','epistemic','aleatoric'))
+ rows.append({'case':'scalar_compatibility/'+name,'expected_std':expected,'actual_std':actual,
+  'diagnostic_non_gating_unknown_noise_law':flags,'check_outcome':'PASS' if actual==expected and flags else 'FAIL',
+  'scope':'existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim'})
+try:summarize_bayesian_calibration_posterior({'x':[0.,1.]},emulator_diagnostics={'emulator_noise_std':1+2j})
+except TypeError as exc:error={'type':type(exc).__name__,'message':str(exc)}
+else:error=None
+rows.append({'case':'scalar_compatibility/builtin_complex','expected':'TypeError','actual':error,'check_outcome':'PASS' if error else 'FAIL'})
+valid=summarize_bayesian_calibration_posterior({'x':[0.,0.,100.]}).parameter_envelopes['x']
+for mutation in ('mean','profile','carrier','rows','required','context'):
+ payload=copy.deepcopy(valid.model_dump(mode='python'))
+ if mutation=='mean':payload['metadata']['posterior_summary_profile']['posterior_mean']=123.
+ elif mutation=='profile':payload['metadata']['posterior_summary_profile']['profile_version']='999.0'
+ elif mutation=='carrier':payload['distribution_payload']=None
+ elif mutation=='rows':payload['distribution_payload']['samples']=(100.,0.,0.)
+ elif mutation=='required':del payload['metadata']['posterior_summary_profile']
+ else:payload['metadata']['posterior_summary_profile']['context']['purpose']='forged'
+ target=BASE/'source2-six-forgery-CAS'/mutation
+ store=cas.FileSystemCAS(target)
+ record=store.put_json(payload,cas.PutOptions(kind='ir.uncertainty_envelope',media_type='application/json',schema=cas.SchemaInfo(name='ir.uncertainty_envelope',version='1.1')),canon_spec=canon.CanonSpec(forbid_floats=False))
+ integrity=store.verify(record).ok
+ ref=UncertaintyEnvelopeRef.model_validate(record.model_dump(include={'artifact_id','kind','media_type'}))
+ try:posterior_nominal_mean(load_posterior_summary_envelope(cas.FileSystemCAS(target),ref))
+ except ValueError as exc:error={'type':type(exc).__name__,'message':str(exc)}
+ else:error=None
+ rows.append({'case':'raw_integrity_valid_forgery/'+mutation,'input_ref':str(ref.artifact_id),'actual_CAS_integrity':integrity,
+  'refusal':error,'derived_publications':0,'check_outcome':'PASS' if integrity and error else 'FAIL'})
+after=source_binding(candidate)
+if not after['all_git_blobs_bound']:raise RuntimeError(after)
+result={'schema':'policyos.e02.independent_source2_delta_native.v1','candidate':candidate,'rows':rows,
+ 'outcomes':{state:sum(r['check_outcome']==state for r in rows) for state in ('PASS','FAIL')},
+ 'source_before':before,'source_after':after,'argv':sys.argv,'optimization':sys.flags.optimize,
+ 'python':sys.version,'numpy':np.__version__,'scope':'six actual raw CAS forgery axes and nine scalar legacy diagnostic compatibility controls, not maintained pytest/G acceptance or settled exact-ratio revalidation'}
+(BASE/'source2-delta-native.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'candidate':candidate,'outcomes':result['outcomes'],'cases':len(rows)},indent=2))
+sys.exit(0 if result['outcomes']['FAIL']==0 else 1)

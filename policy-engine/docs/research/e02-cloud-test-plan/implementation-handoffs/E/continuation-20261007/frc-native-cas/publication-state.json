@@ -1,0 +1,24 @@
+{
+  "source_candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "source_candidate_tree_sha": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "source_review": "GO; independent-review/frc-independent-review-1eba9f9e.json",
+  "current_evidence_delta_review": "GO; evidence-delta-review/frc-evidence-delta-review.json supersedes pending-request wording retained in fixed reviewed implementation-handoff.json",
+  "evidence_builder_recomputed_outputs": "24 author + 16 independent refs; four author and six independently tested corrupt controls refused",
+  "git_diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "outcome": "FAIL",
+    "exit_code": 2,
+    "diagnostic_count": 14,
+    "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.stdout:25: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.stdout:59: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.xml:21: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.xml:52: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout:7: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout:22: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout:44: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml:3: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml:18: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml:40: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.stdout.txt:25: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.stdout.txt:59: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.xml:21: trailing whitespace.\n+E         \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.xml:52: trailing whitespace.\n+E         \n",
+    "stderr": "",
+    "scope": "14 trailing whitespace diagnostics only in verbatim author/reviewer pytest stdout and JUnit; original bytes and output hashes retained. No source whitespace diagnostic; no global gate waiver claimed."
+  },
+  "A_shared_source_edited": false,
+  "default_HTTP_verifier": "verification_missing; next owner A",
+  "finding_ledger": "B32/LA-051 partial retained, proposed limited; acceptance separate"
+}

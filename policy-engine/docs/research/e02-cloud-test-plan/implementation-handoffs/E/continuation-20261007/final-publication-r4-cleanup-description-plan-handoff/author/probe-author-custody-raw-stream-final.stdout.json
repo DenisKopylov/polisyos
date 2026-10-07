@@ -1,0 +1,11 @@
+{
+  "healthy": 2,
+  "negative_per_mode": 15,
+  "all_refused_before_write": true,
+  "effective_removals": [
+    "Counter-effective-removal",
+    "header-effective-removal",
+    "qualification-effective-removal"
+  ],
+  "source_native_numeric_gate_execution": false
+}

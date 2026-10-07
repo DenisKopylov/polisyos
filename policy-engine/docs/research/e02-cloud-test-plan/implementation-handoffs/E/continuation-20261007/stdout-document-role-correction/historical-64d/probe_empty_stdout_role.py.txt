@@ -1,0 +1,149 @@
+"""Read-only exact-Git replay of historical stdout document-role refusal."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+OUT = Path("/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007")
+SHA = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+PREFIX = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261006/pr38-r2/final-closeout-independent/"
+)
+
+
+def git(*args: str) -> bytes:
+    return subprocess.run(
+        ["git", "-C", str(ROOT), *args], check=True, capture_output=True
+    ).stdout
+
+
+def binding(path: str) -> dict[str, object]:
+    blob = git("show", f"{SHA}:{path}")
+    physical = (ROOT / path).read_bytes()
+    if blob != physical:
+        raise ValueError(f"physical input differs from frozen Git blob: {path}")
+    return {
+        "repo_path": path,
+        "git_blob": git("rev-parse", f"{SHA}:{path}").decode().strip(),
+        "bytes": len(blob),
+        "sha256": hashlib.sha256(blob).hexdigest(),
+    }
+
+
+def main() -> None:
+    sys.dont_write_bytecode = True
+    if git("rev-parse", "HEAD").decode().strip() != SHA:
+        raise ValueError("candidate HEAD changed")
+    if git("rev-parse", "HEAD^{tree}").decode().strip() != TREE:
+        raise ValueError("candidate tree changed")
+    helper_path = "policy-engine/tools/lib/document_references.py"
+    helper_binding = binding(helper_path)
+    spec = importlib.util.spec_from_file_location(
+        "exact_frozen_document_references", ROOT / helper_path
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError("missing canonical loader")
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+    paths = [PREFIX + f"independent-recompute-attempt{i}.stdout.json" for i in range(1, 5)]
+    sources = [binding(path) for path in paths]
+    controls = []
+    for path, source in zip(paths, sources, strict=True):
+        raw = (ROOT / path).read_bytes()
+        if raw != b"":
+            raise ValueError("historical stdout was altered")
+        old_role = Path(path.removeprefix("policy-engine/"))
+        new_role = old_role.with_suffix(".txt")
+        try:
+            helper.reference_scan_text(old_role, raw.decode())
+        except json.JSONDecodeError as error:
+            controls.append({
+                "case": "actual_current_misclassified_empty_stdout",
+                "path": path,
+                "outcome": "PASS",
+                "observed_refusal": type(error).__name__,
+                "message": str(error),
+                "original_bytes_preserved": True,
+            })
+        else:
+            raise ValueError("actual malformed-JSON refusal disappeared")
+        scanned = helper.reference_scan_text(new_role, raw.decode())
+        if scanned != "":
+            raise ValueError("corrected text role must preserve empty stdout")
+        controls.append({
+            "case": "same_empty_bytes_correct_stdout_text_role",
+            "current_path": "policy-engine/" + str(new_role),
+            "outcome": "PASS",
+            "scan_result": scanned,
+            "source_sha256": source["sha256"],
+        })
+        try:
+            helper.reference_scan_text(old_role, raw.decode())
+        except json.JSONDecodeError:
+            controls.append({
+                "case": "remove_path_role_correction_preserve_hash_bytes_markers",
+                "outcome": "PASS",
+                "discriminator_result": "FAIL",
+                "actual_canonical_refusal_restored": True,
+            })
+        else:
+            raise ValueError("effective role-correction removal failed to discriminate")
+        forged = b'{"outcome":"PASS"}\n'
+        accepted_text = helper.reference_scan_text(old_role, forged.decode())
+        if accepted_text != forged.decode():
+            raise ValueError("forged body probe did not reach actual generic parser")
+        if hashlib.sha256(forged).hexdigest() == source["sha256"]:
+            raise ValueError("forge did not alter source identity")
+        controls.append({
+            "case": "fake_json_pass_body_parses_but_is_not_historical_stdout",
+            "outcome": "PASS",
+            "canonical_parser_accepts_syntax_only": True,
+            "source_byte_identity_refuses_forgery": True,
+            "forged_sha256": hashlib.sha256(forged).hexdigest(),
+            "historical_sha256": source["sha256"],
+        })
+    graph_path = OUT / "empty-json-current-physical-reference-graph.txt"
+    graph = graph_path.read_text()
+    references = []
+    for line in graph.splitlines():
+        path, line_number, value = line.split(":", 2)
+        references.append({"repo_path": path, "line": int(line_number), "text": value})
+    graph_inputs = [binding(path) for path in sorted({r["repo_path"] for r in references})]
+    payload = {
+        "schema": "policyos.e02.E.stdout_document_role_readonly_probe.v1",
+        "candidate_sha": SHA,
+        "candidate_tree": TREE,
+        "source_bindings": [helper_binding, *sources, *graph_inputs],
+        "reference_graph": {
+            "physical_rg_complete_output": str(graph_path),
+            "bytes": graph_path.stat().st_size,
+            "sha256": hashlib.sha256(graph_path.read_bytes()).hexdigest(),
+            "all_matched_physical_files_byte_equal_frozen_git": True,
+            "rows": references,
+        },
+        "controls": controls,
+        "full_inventory_gate": {
+            "actual_frozen_workspace09": "FAIL",
+            "repair_source_and_full_recomputing_gate": "UNRUN",
+            "reason": "No tracked source writes during active freeze wave.",
+        },
+        "scope": "Bounded canonical reference parser and exact historical input roles; not full inventory PASS.",
+        "no_product_source_modified": True,
+        "no_parser_exception_widening": True,
+        "finding_closure": "No finding decision follows from these checks.",
+    }
+    output = OUT / "empty-json-role-controls-64d.json"
+    output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+    print(json.dumps({"output": str(output), "controls": len(controls), "reference_rows": len(references), "matched_files": len(graph_inputs)}))
+
+
+if __name__ == "__main__":
+    main()

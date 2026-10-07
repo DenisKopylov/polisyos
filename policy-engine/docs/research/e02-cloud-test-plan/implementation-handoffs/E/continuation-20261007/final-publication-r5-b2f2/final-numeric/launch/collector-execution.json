@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "--repo",
+    "/workspace/e02-E-continuation-20261006",
+    "--candidate",
+    "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "--wave-root",
+    "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z",
+    "--publication-root",
+    "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "bytes": 41358,
+    "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+  },
+  "started_utc": "2026-10-07T16:29:13Z",
+  "source_freeze": "External exact parent freeze plus literal launch/source admission; unchanged canonical collector optional legacy freeze adapter not used; supplied parent freeze schema differs.",
+  "exit_code": 1,
+  "finished_utc": "2026-10-07T16:29:13Z",
+  "outputs": [
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stderr.txt",
+      "bytes": 1749,
+      "sha256": "603a1a40adef801f635d8300e04ecddb00e84738bf736d4b51f275343e0f2e1c"
+    }
+  ]
+}

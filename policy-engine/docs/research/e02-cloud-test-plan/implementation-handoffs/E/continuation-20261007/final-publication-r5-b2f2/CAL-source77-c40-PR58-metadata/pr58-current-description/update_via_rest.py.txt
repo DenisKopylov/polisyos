@@ -1,0 +1,55 @@
+import hashlib
+import json
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path('/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description')
+BODY = Path('/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-body.md')
+TITLE = 'E02 E: admit calibration inputs and bind fitted uncertainty draws'
+HEAD = 'c40b2f5767bb5810bc8ac4c2ead9510f8c01430b'
+URL = 'https://github.com/DenisKopylov/polisyos/pull/58'
+REPO = Path('/workspace/e02-E-cal-20261006')
+commands = []
+
+def record(name, argv, stdin=None):
+    run = subprocess.run(argv, input=stdin, cwd=REPO, capture_output=True, check=False)
+    out = ROOT / (name + '.stdout.txt')
+    err = ROOT / (name + '.stderr.txt')
+    out.write_bytes(run.stdout)
+    err.write_bytes(run.stderr)
+    commands.append({'argv': argv, 'cwd': str(REPO), 'exit_code': run.returncode,
+                     'stdout': {'path': str(out), 'bytes': len(run.stdout), 'sha256': hashlib.sha256(run.stdout).hexdigest()},
+                     'stderr': {'path': str(err), 'bytes': len(run.stderr), 'sha256': hashlib.sha256(run.stderr).hexdigest()}})
+    if run.returncode:
+        raise ValueError(f'{name} failed: {run.returncode}')
+    return run.stdout
+
+original = json.loads((ROOT / 'before.stdout.txt').read_text())
+current = json.loads(record('rest-before', ['gh', 'api', 'repos/DenisKopylov/polisyos/pulls/58']))
+if current['head']['sha'] != HEAD or current['body'] != original['body'] or current['title'] != original['title']:
+    raise ValueError('PR changed since original readback; no edit performed')
+body = BODY.read_text()
+payload = json.dumps({'title': TITLE, 'body': body}).encode()
+(ROOT / 'rest-payload.json').write_bytes(payload)
+updated = json.loads(record('rest-edit', ['gh', 'api', '--method', 'PATCH', 'repos/DenisKopylov/polisyos/pulls/58', '--input', '-'], payload))
+after = json.loads(record('rest-after', ['gh', 'api', 'repos/DenisKopylov/polisyos/pulls/58']))
+if after['head']['sha'] != HEAD or after['body'] != body or after['title'] != TITLE:
+    raise ValueError('PR readback differs from admitted title/body/head')
+status = record('status-after', ['git', 'status', '--porcelain=v1'])
+if status:
+    raise ValueError('CAL worktree not clean after metadata update')
+receipt = {'schema': 'e02.E.pr_description_publication.v1', 'at_utc': datetime.now(timezone.utc).isoformat(),
+           'url': URL, 'branch': after['head']['ref'], 'head': HEAD, 'base': after['base']['ref'],
+           'publication_scope': 'PR title/body only', 'source_or_environment_write': False,
+           'previous_title': original['title'], 'current_title': TITLE,
+           'body': {'path': str(BODY), 'bytes': len(body.encode()), 'sha256': hashlib.sha256(body.encode()).hexdigest()},
+           'original_before': {'path': str(ROOT / 'before.stdout.txt'), 'sha256': hashlib.sha256((ROOT / 'before.stdout.txt').read_bytes()).hexdigest()},
+           'failed_graphql_cli': {'stdout': str(ROOT / 'edit.stdout.txt'), 'stderr': str(ROOT / 'edit.stderr.txt'),
+                                  'reason': 'gh pr edit queries deprecated Projects classic projectCards; REST edit used after exact unchanged-body/head check'},
+           'commands': commands, 'exact_title_body_head_readback': True,
+           'limitations': ['Metadata publication does not establish finding closure or full gate PASS', 'App attachment was already completed by Root; no repeat attachment claim'],
+           'source_candidate': '77b4d68ec37e3f34b84ce4fd1787746e3d5f5322', 'documentation_candidate': HEAD}
+(ROOT / 'receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'receipt': str(ROOT / 'receipt.json'), 'bytes': (ROOT / 'receipt.json').stat().st_size,
+                  'sha256': hashlib.sha256((ROOT / 'receipt.json').read_bytes()).hexdigest(), 'url': URL}))

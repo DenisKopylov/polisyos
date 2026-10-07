@@ -1,0 +1,4 @@
+[codex/e02-E-frc-20261006 2350edfba] fix(e02-E): format publication validator and preflight source receipt
+ 3 files changed, 3180 insertions(+), 24 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff-format-current.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-copy-index-format-current.json

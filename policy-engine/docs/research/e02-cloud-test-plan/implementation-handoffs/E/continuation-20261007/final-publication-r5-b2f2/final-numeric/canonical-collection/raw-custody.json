@@ -1,0 +1,50 @@
+[
+  {
+    "path": "raw/pcl-continuous-persistence.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/ddm-runtime-and-facade.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/bkt-frc-s10-and-adjacent-report-consumers.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/cal-and-welfare-consumer.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/mc-joint-law-support-and-scientist-consumer.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/doe-salib-and-consumer-factory.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/g-checkpoint10-controlplanestore-companion.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/results-importer.git-config-private.nul",
+    "bytes": 5315,
+    "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+    "publication": "private_excluded_hash_size_only"
+  }
+]

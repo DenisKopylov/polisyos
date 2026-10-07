@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 287, in <module>
+    main()
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 255, in main
+    raise ValueError('trusted executing program companion identity')
+ValueError: trusted executing program companion identity

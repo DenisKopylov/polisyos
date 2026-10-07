@@ -1,0 +1,51 @@
+{
+  "label": "style",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+    "check",
+    "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "tests/unit/scientist/nodes/test_calibration_report_consumer.py"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 0.17086592900159303,
+  "maxrss_kib": 31268,
+  "source_base": "902d9f6b224f0fbeec709bc3683910fa08eba4b7",
+  "source_candidate": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+  "source_tree": "5ca96536971c4e96bea84d83690d28a14a44c36e",
+  "before": {
+    "head": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+    "tree": "5ca96536971c4e96bea84d83690d28a14a44c36e",
+    "src_file_count": 2912,
+    "src_sha256": "3d60769e3bf3ccaf64c84712fbcacda102708dc272c86e79b4b4afb015a224c2",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/scientist/nodes/README.md": "97af4f97c3217bfb04a23ce07dab8c58dd7585312f0d46e5c9855c3b7d95464e",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "4bb1198495bfa96234f00d7a857f5d02ef7e258919a68d5e60a46724482e3ab6"
+    },
+    "diff_from_frozen": ""
+  },
+  "after": {
+    "head": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+    "tree": "5ca96536971c4e96bea84d83690d28a14a44c36e",
+    "src_file_count": 2912,
+    "src_sha256": "3d60769e3bf3ccaf64c84712fbcacda102708dc272c86e79b4b4afb015a224c2",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/scientist/nodes/README.md": "97af4f97c3217bfb04a23ce07dab8c58dd7585312f0d46e5c9855c3b7d95464e",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "4bb1198495bfa96234f00d7a857f5d02ef7e258919a68d5e60a46724482e3ab6"
+    },
+    "diff_from_frozen": ""
+  },
+  "source_unchanged": true,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+    "UV_NO_SYNC": "1",
+    "LEGACY_REVIEW_OUTPUT": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/style-origins-artifacts.json",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+}

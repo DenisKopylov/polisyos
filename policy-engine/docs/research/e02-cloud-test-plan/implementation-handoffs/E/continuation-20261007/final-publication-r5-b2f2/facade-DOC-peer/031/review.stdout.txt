@@ -1,0 +1,19 @@
+{
+  "disposition": "GO bounded immutable DOC custody only",
+  "publication_candidate": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "publication_tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+  "paths": 61,
+  "logical_members": 79,
+  "copies": 57,
+  "copy_bytes": 382298,
+  "aliases": 22,
+  "healthy_modes": 2,
+  "actual_corrupt_refusals": 20,
+  "effective_guard_removals": 2,
+  "native_tests_rerun": false,
+  "review": {
+    "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.json",
+    "bytes": 64255,
+    "sha256": "a939c238acf54879ea461239195e784064b4b8e01f7e6e19f56da062529dc646"
+  }
+}

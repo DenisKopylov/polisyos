@@ -1,0 +1,8 @@
+{
+  "candidate": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "optimization": 1,
+  "outcomes": {
+    "PASS": 4,
+    "FAIL": 0
+  }
+}

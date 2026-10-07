@@ -1,0 +1,58 @@
+"""Build an unapplied custody-only delta to the immutable actual wave recipe."""
+from pathlib import Path
+import difflib
+import hashlib
+import json
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = Path('/tmp/e02-E-final-composed-wave-refresh-20261007.py')
+EXPECTED = 'b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0'
+HELPER = '''
+def materialize_admitted_execution_plan(plan_path, wave, plan):
+    """Persist exact admitted bytes before the canonical executor callback."""
+    expected = (json.dumps(plan, indent=2) + '\\n').encode()
+    admitted = plan_path.read_bytes()
+    req(admitted == expected, 'prepared plan bytes differ from actual execution argument')
+    req(Path(plan['output_root']).resolve() == wave.resolve(), 'execution output binding differs')
+    req(not wave.exists() and not wave.is_symlink(), 'exclusive never-existing wave required before plan materialization')
+    wave.mkdir(parents=True, exist_ok=False)
+    with (wave / 'plan.json').open('xb') as stream:
+        stream.write(admitted)
+    req((wave / 'plan.json').read_bytes() == admitted and plan_path.read_bytes() == admitted,
+        'exact admitted plan bytes changed during materialization')
+
+'''
+
+
+def main():
+    old = SOURCE.read_bytes()
+    if hashlib.sha256(old).hexdigest() != EXPECTED:
+        raise ValueError('frozen source differs before future patch construction')
+    text = old.decode()
+    if text.count('\ndef main():') != 1 or text.count('        raise SystemExit(asyncio.run(planner.execute(plan)))') != 1:
+        raise ValueError('source layout differs; no blind patch')
+    new = text.replace('\ndef main():', '\n' + HELPER + 'def main():', 1)
+    new = new.replace('        raise SystemExit(asyncio.run(planner.execute(plan)))',
+                      '        materialize_admitted_execution_plan(plan_path, wave, plan)\n'
+                      '        raise SystemExit(asyncio.run(planner.execute(plan)))', 1)
+    destination = ROOT / 'future-final-composed-wave-refresh.py.txt'
+    with destination.open('x') as stream:
+        stream.write(new)
+    patch = ''.join(difflib.unified_diff(text.splitlines(True), new.splitlines(True),
+                                       fromfile=str(SOURCE), tofile=str(SOURCE)))
+    with (ROOT / 'future-plan-custody.patch.txt').open('x') as stream:
+        stream.write(patch)
+    metadata = dict(scope='Unapplied FUTURE custody-only recipe correction; original current b943 unchanged',
+                    original=dict(path=str(SOURCE), bytes=len(old), sha256=EXPECTED),
+                    future=dict(path=str(destination), bytes=len(new.encode()), sha256=hashlib.sha256(new.encode()).hexdigest()),
+                    actual_current_wave_repeated=False, source_environment_library_mutation=False,
+                    changes=['Persist actual admitted serialized plan before canonical execute',
+                             'Reject substituted same-count plan/preexisting fake wave before execute callback'],
+                    canonical_executor_source='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py',
+                    current_source_sha='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641')
+    (ROOT / 'future-patch-source.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    print(json.dumps(metadata))
+
+
+if __name__ == '__main__':
+    main()

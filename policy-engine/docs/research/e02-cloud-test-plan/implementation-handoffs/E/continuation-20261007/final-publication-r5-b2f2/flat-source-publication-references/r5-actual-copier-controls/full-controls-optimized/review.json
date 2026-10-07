@@ -1,0 +1,551 @@
+{
+  "schema": "policyos.e02.final_r5_actual_copier_controls.v1",
+  "source_candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "copier": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+    "bytes": 38490,
+    "sha256": "e0c4d2b0fe37c5cc1e61dab3cb3b9badc927315aade0526e870e17c399fee713"
+  },
+  "manifest": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/manifest.json",
+    "bytes": 1558202,
+    "sha256": "ee6ccf691dae4509becb8e7f7f16d1e60102d6e28db8e849daa280f3f9ef6d94"
+  },
+  "normal_or_optimized": true,
+  "rows": [
+    {
+      "name": "healthy-stage",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/healthy-stage/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/healthy-stage-destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "expected_exit": 0,
+      "PASS": true,
+      "copied_files": 589,
+      "copied_bytes": 40369630
+    },
+    {
+      "name": "source-zero",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/source-zero/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/source-zero-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "ROOT-after-zero",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ROOT-after-zero/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ROOT-after-zero-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "root-execution-true",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/root-execution-true/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/root-execution-true-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "gate-PASS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/gate-PASS/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/gate-PASS-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "case-PASS-bool",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/case-PASS-bool/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/case-PASS-bool-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "ledger-closed-bool",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ledger-closed-bool/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ledger-closed-bool-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "G-accepted-true",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/G-accepted-true/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/G-accepted-true-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "UNRUN-zero",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/UNRUN-zero/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/UNRUN-zero-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "logical-total-plus1",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/logical-total-plus1/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/logical-total-plus1-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "payload-total-plus1",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/payload-total-plus1/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/payload-total-plus1-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "mandatory-selector-omission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/mandatory-selector-omission/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/mandatory-selector-omission-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "decoded-original-digest",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/decoded-original-digest/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/decoded-original-digest-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "unsafe-carrier-route",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/unsafe-carrier-route/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/unsafe-carrier-route-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "wrong-layout",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/wrong-layout/manifest.json",
+        "--layout",
+        "published",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/wrong-layout-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "ambiguous-layout",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ambiguous-layout/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ambiguous-layout-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "missing-copy-final-publication-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-copy-final-publication-py-txt/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-copy-final-publication-py-txt-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "fake-copy-final-publication-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-copy-final-publication-py-txt/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-copy-final-publication-py-txt-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "missing-supplemental-c229-functions-patch-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-supplemental-c229-functions-patch-txt/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-supplemental-c229-functions-patch-txt-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "fake-supplemental-c229-functions-patch-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-supplemental-c229-functions-patch-txt/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-supplemental-c229-functions-patch-txt-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "missing-build-final-stage-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-build-final-stage-py-txt/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-build-final-stage-py-txt-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "fake-build-final-stage-py-txt",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-build-final-stage-py-txt/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-build-final-stage-py-txt-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "missing-implementation-handoff-json",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-implementation-handoff-json/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-implementation-handoff-json-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "fake-implementation-handoff-json",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-implementation-handoff-json/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-implementation-handoff-json-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "retotalled-genuine-member-omission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/retotalled-genuine-member-omission/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/retotalled-genuine-member-omission-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "sole-Counter-removal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-guard-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-removal/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-removal-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 0,
+      "PASS": false,
+      "required_property_outcome": "FAIL: a genuine omitted member is admitted only after sole Counter guard removal"
+    }
+  ],
+  "actual_corrupt_refusals": 24,
+  "healthy_full_files": 589,
+  "original_member_omitted": {
+    "family": "final-three-gates-complete",
+    "selection_source_path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/publication-selection.json",
+    "member_class": "assets",
+    "original": {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/receipt.json",
+      "bytes": 97015,
+      "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+    },
+    "stored": {
+      "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6.txt",
+      "bytes": 97015,
+      "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+    },
+    "storage_mode": "literal",
+    "logical_destination": "final-three-gates-complete/assets/60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6.txt",
+    "selected_record": {
+      "logical_name": "attempts/architecture/receipt.json",
+      "original_path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/receipt.json",
+      "portable_path": "assets/60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6.txt",
+      "bytes": 97015,
+      "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6",
+      "encoding": "literal",
+      "decoded_bytes": 97015,
+      "decoded_sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+    },
+    "canonical_destination": "final-three-gates-complete/assets/60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6.txt",
+    "deduplicated": false
+  },
+  "Counter_guard_removed_only": true,
+  "marker_or_payload_substitution_for_removal": false,
+  "source_native_numeric_gate_execution": false,
+  "ROOT_or_leaf_written": false,
+  "all_controls_PASS": false
+}

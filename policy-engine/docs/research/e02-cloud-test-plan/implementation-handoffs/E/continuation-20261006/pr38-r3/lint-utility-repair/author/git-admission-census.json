@@ -1,0 +1,4100 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-compiled_model_removal.py",
+    "calls": [
+      {
+        "line": 37,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', source_sha + ':' + source_path], cwd='/workspace/e02-E-backtest-20261006')"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order_falsifier.final.py",
+    "calls": [
+      {
+        "line": 37,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', source_sha + ':' + source_path], cwd='/workspace/e02-E-backtest-20261006')"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_binding_v3.py",
+    "calls": [
+      {
+        "line": 67,
+        "call": "git_bytes('show', lookup)"
+      },
+      {
+        "line": 50,
+        "call": "git_bytes('rev-parse', CURRENT_SHA + '^{tree}')"
+      },
+      {
+        "line": 64,
+        "call": "git_bytes('rev-parse', lookup)"
+      },
+      {
+        "line": 53,
+        "call": "git_bytes('rev-list', '--parents', '-n', '1', CURRENT_SHA)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 23,
+        "source": "def git_bytes(*arguments: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git is unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(REPO), *arguments]\n    return subprocess.check_output(command)"
+      },
+      {
+        "name": "admit_git_ref",
+        "line": 58,
+        "source": "def admit_git_ref(ref: dict, *, expected_commit: str, expected_path: str) -> None:\n    if ref['commit'] != expected_commit:\n        raise BindingAdmissionError('Git ref candidate differs from its declared current role')\n    if ref['path'] != expected_path:\n        raise BindingAdmissionError('Git ref path differs from its canonical role')\n    lookup = ref['commit'] + ':' + expected_path\n    actual_blob = git_bytes('rev-parse', lookup).decode().strip()\n    if ref['git_blob'] != actual_blob:\n        raise BindingAdmissionError('declared Git blob differs from computed source blob')\n    value = git_bytes('show', lookup)\n    if len(value) != ref['bytes'] or hashlib.sha256(value).hexdigest() != ref['sha256']:\n        raise BindingAdmissionError('Git source content hash/size mismatch')"
+      },
+      {
+        "name": "validate",
+        "line": 72,
+        "source": "def validate(binding: dict, packet: dict) -> None:\n    admit_pin(binding['current_committed_source'])\n    admit_pin(packet['current_committed_source'])\n    canonical_binding, _ = load_original()\n    if binding['actual_working_HEAD_initial'] != CURRENT_SHA:\n        raise BindingAdmissionError('initial current-source observation differs from candidate')\n    expected_sources = {row['path'] for row in canonical_binding['source_rows']}\n    observed_sources = [row['path'] for row in binding['source_rows']]\n    if binding['selected_source_denominator'] != 29 or binding['unchanged_selected_source_denominator'] != 29 or len(observed_sources) != 29 or (set(observed_sources) != expected_sources):\n        raise BindingAdmissionError('current source path denominator mismatch')\n    for row in binding['source_rows']:\n        path = row['path']\n        current = row['current_source']\n        historical = row['failed5e_source']\n        admit_git_ref(current, expected_commit=CURRENT_SHA, expected_path=path)\n        admit_git_ref(historical, expected_commit=HISTORICAL_SHA, expected_path=path)\n        if current['sha256'] != historical['sha256']:\n            raise BindingAdmissionError('source reuse content differs from historical role')\n        if current['git_blob'] != historical['git_blob']:\n            raise BindingAdmissionError('source reuse blob differs from historical role')\n    expected_r"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.py",
+    "calls": [
+      {
+        "line": 44,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "line": 52,
+        "call": "git('show', ref['commit'] + ':' + ref['path'])"
+      },
+      {
+        "line": 89,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 188,
+        "call": "git('show', PUBLISHED + ':' + FAILED + 'checks/' + bkt['name'] + '/pytest.xml')"
+      },
+      {
+        "line": 389,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(REPO), 'apply', '--check', str(patch)], capture_output=True, check=False)"
+      },
+      {
+        "line": 186,
+        "call": "git('show', PUBLISHED + ':' + FAILED + 'plan.json')"
+      },
+      {
+        "line": 205,
+        "call": "git('show', WAVE + ':' + ref['source'])"
+      },
+      {
+        "line": 377,
+        "call": "git('show', WAVE + ':policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py')"
+      },
+      {
+        "line": 197,
+        "call": "git('show', WAVE + ':' + path)"
+      },
+      {
+        "line": 453,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 87,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 88,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 468,
+        "call": "git('diff', '--name-only', CURRENT, head)"
+      },
+      {
+        "line": 54,
+        "call": "git('rev-parse', ref['commit'] + ':' + ref['path'])"
+      },
+      {
+        "line": 451,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 452,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 43,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-01/review_assembly_delta.py",
+    "calls": [
+      {
+        "line": 70,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *argv])"
+      },
+      {
+        "line": 91,
+        "call": "git('cat-file', 'blob', oid)"
+      },
+      {
+        "line": 126,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(repo), 'merge-base', '--is-ancestor', BASE, FINAL], check=False)"
+      },
+      {
+        "line": 80,
+        "call": "git('ls-tree', '-r', '-z', sha)"
+      },
+      {
+        "line": 73,
+        "call": "git(*argv)"
+      },
+      {
+        "line": 779,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(repo), 'merge-base', '--is-ancestor', sha, FINAL], check=False)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 69,
+        "source": "def git(*argv: str) -> bytes:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 103,
+        "source": "def load(path: str) -> dict[str, object]:\n    return json.loads(blob(FINAL, path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-02/review_assembly_delta.py",
+    "calls": [
+      {
+        "line": 70,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *argv])"
+      },
+      {
+        "line": 91,
+        "call": "git('cat-file', 'blob', oid)"
+      },
+      {
+        "line": 126,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(repo), 'merge-base', '--is-ancestor', BASE, FINAL], check=False)"
+      },
+      {
+        "line": 80,
+        "call": "git('ls-tree', '-r', '-z', sha)"
+      },
+      {
+        "line": 73,
+        "call": "git(*argv)"
+      },
+      {
+        "line": 778,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(repo), 'merge-base', '--is-ancestor', sha, FINAL], check=False)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 69,
+        "source": "def git(*argv: str) -> bytes:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 103,
+        "source": "def load(path: str) -> dict[str, object]:\n    return json.loads(blob(FINAL, path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/review_assembly_delta.py",
+    "calls": [
+      {
+        "line": 70,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *argv])"
+      },
+      {
+        "line": 91,
+        "call": "git('cat-file', 'blob', oid)"
+      },
+      {
+        "line": 126,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(repo), 'merge-base', '--is-ancestor', BASE, FINAL], check=False)"
+      },
+      {
+        "line": 80,
+        "call": "git('ls-tree', '-r', '-z', sha)"
+      },
+      {
+        "line": 73,
+        "call": "git(*argv)"
+      },
+      {
+        "line": 795,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(repo), 'merge-base', '--is-ancestor', sha, FINAL], check=False)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 69,
+        "source": "def git(*argv: str) -> bytes:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 103,
+        "source": "def load(path: str) -> dict[str, object]:\n    return json.loads(blob(FINAL, path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+    "calls": [
+      {
+        "line": 38,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args])"
+      },
+      {
+        "line": 46,
+        "call": "git('show', sha + ':' + path)"
+      },
+      {
+        "line": 59,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(LANE), 'merge-base', '--is-ancestor', sha, CANDIDATE])"
+      },
+      {
+        "line": 79,
+        "call": "git('diff', '--name-only', sha, CANDIDATE, '--', path)"
+      },
+      {
+        "line": 42,
+        "call": "git(*args)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 37,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+    "calls": [
+      {
+        "line": 55,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + p], cwd=R)"
+      },
+      {
+        "line": 248,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + rel], cwd=R)"
+      },
+      {
+        "line": 261,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge_identity_review.py",
+    "calls": [
+      {
+        "line": 42,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', ref + ':' + path], cwd=R)"
+      },
+      {
+        "line": 235,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication_review20.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      },
+      {
+        "line": 32,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', BASE, REF], cwd=R, text=True)"
+      },
+      {
+        "line": 122,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "validate",
+        "line": 70,
+        "source": "def validate(x: object, doc: object, fragment: object) -> None:\n    if not x == json.loads((observed_o / 'generated-bf3/inventory.json').read_text()):\n        raise AssertionError\n    if not entry(x, 'polisyos.calibration')['export_count'] == 29:\n        raise AssertionError\n    if not entry(x, 'polisyos.foundry.uncertainty')['export_count'] == 20:\n        raise AssertionError\n    if 'load_foundry_calibration_report' not in entry(x, 'polisyos.foundry.uncertainty')['exports']:\n        raise AssertionError\n    if not re.search('Exports: 20 names declared', doc):\n        raise AssertionError\n    if not fragment['surface_classification'] == 'public_stable':\n        raise AssertionError"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/routing_removal_control.py",
+    "calls": [
+      {
+        "line": 33,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/collector_controls.py",
+    "calls": [
+      {
+        "line": 41,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + REL], cwd=ROOT)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody_review.py",
+    "calls": [
+      {
+        "line": 54,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', ref + ':' + str(path)], cwd=ROOT)"
+      },
+      {
+        "line": 163,
+        "call": "git(source, FROZEN)"
+      },
+      {
+        "line": 171,
+        "call": "git(p['source'], FROZEN)"
+      },
+      {
+        "line": 61,
+        "call": "git(row['copied_path'])"
+      },
+      {
+        "line": 75,
+        "call": "git(idx.relative_to(ROOT))"
+      },
+      {
+        "line": 105,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', FROZEN + '^{tree}'], cwd=ROOT, text=True)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 53,
+        "source": "def git(path: object, ref: object=REF) -> object:\n    return subprocess.check_output([_resolve_executable('git'), 'show', ref + ':' + str(path)], cwd=ROOT)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+    "calls": [
+      {
+        "line": 154,
+        "call": "git_bytes(repo, 'show', candidate + ':' + packet['source'])"
+      },
+      {
+        "line": 232,
+        "call": "git_bytes(repo, 'show', candidate + ':policy-engine/' + relative)"
+      },
+      {
+        "line": 394,
+        "call": "git_bytes(repo, 'show', candidate + ':' + name)"
+      },
+      {
+        "line": 606,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 337,
+        "call": "git_bytes(repo, 'show', candidate + ':' + review['path'])"
+      },
+      {
+        "line": 297,
+        "call": "git_bytes(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 398,
+        "call": "git_bytes(repo, 'rev-parse', candidate + ':' + name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 94,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.check_output(command)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/reader_custody.py",
+    "calls": [
+      {
+        "line": 74,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=ROOT, text=True)"
+      },
+      {
+        "line": 195,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=ROOT, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+    "calls": [
+      {
+        "line": 154,
+        "call": "git_bytes(repo, 'show', candidate + ':' + packet['source'])"
+      },
+      {
+        "line": 232,
+        "call": "git_bytes(repo, 'show', candidate + ':policy-engine/' + relative)"
+      },
+      {
+        "line": 394,
+        "call": "git_bytes(repo, 'show', candidate + ':' + name)"
+      },
+      {
+        "line": 606,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 337,
+        "call": "git_bytes(repo, 'show', candidate + ':' + review['path'])"
+      },
+      {
+        "line": 297,
+        "call": "git_bytes(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 398,
+        "call": "git_bytes(repo, 'rev-parse', candidate + ':' + name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 94,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.check_output(command)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_inputs.py",
+    "calls": [
+      {
+        "line": 45,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(REPO), *args], capture_output=True, check=True)"
+      },
+      {
+        "line": 52,
+        "call": "git('show', FREEZE + ':' + path)"
+      },
+      {
+        "line": 256,
+        "call": "git('merge-base', '--is-ancestor', row['sha'], FREEZE)"
+      },
+      {
+        "line": 260,
+        "call": "git('show', FREEZE + ':' + row['source'])"
+      },
+      {
+        "line": 340,
+        "call": "git('show', FREEZE + ':' + path)"
+      },
+      {
+        "line": 58,
+        "call": "git('ls-tree', '-rz', '--full-tree', FREEZE)"
+      },
+      {
+        "line": 161,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 224,
+        "call": "git('show', FREEZE + ':' + path)"
+      },
+      {
+        "line": 311,
+        "call": "git('show', FREEZE + ':' + row['path'])"
+      },
+      {
+        "line": 174,
+        "call": "git('ls-remote', 'origin', 'refs/heads/codex/e02-E-continuation-20261006')"
+      },
+      {
+        "line": 190,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], FREEZE, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 56,
+        "call": "git('ls-files', '-z')"
+      },
+      {
+        "line": 217,
+        "call": "git('ls-tree', '-r', '--name-only', FREEZE)"
+      },
+      {
+        "line": 157,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 159,
+        "call": "git('rev-parse', FREEZE + '^{tree}')"
+      },
+      {
+        "line": 243,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', BASE, FREEZE, '--', 'policy-engine')"
+      },
+      {
+        "line": 344,
+        "call": "git('rev-parse', FREEZE + ':' + path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 44,
+        "source": "def git(*args: str) -> bytes:\n    result = subprocess.run([_resolve_executable('git'), '-C', str(REPO), *args], capture_output=True, check=True)\n    return result.stdout"
+      },
+      {
+        "name": "git_json",
+        "line": 51,
+        "source": "def git_json(path: str) -> object:\n    return json.loads(git('show', FREEZE + ':' + path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+    "calls": [
+      {
+        "line": 233,
+        "call": "git('config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 228,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 226,
+        "call": "git('rev-parse', 'HEAD')"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_owner_cases.py",
+    "calls": [
+      {
+        "line": 33,
+        "call": "git('show', FREEZE + ':' + path)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/build_packet.py",
+    "calls": [
+      {
+        "line": 53,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "line": 57,
+        "call": "git('show', f'{ref}:{path}')"
+      },
+      {
+        "line": 1599,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 1743,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 1772,
+        "call": "git('rev-parse', SNAPSHOT + '^{tree}')"
+      },
+      {
+        "line": 1774,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 62,
+        "call": "git('rev-parse', key)"
+      },
+      {
+        "line": 159,
+        "call": "git('rev-parse', SOURCE + ':' + old['path'])"
+      },
+      {
+        "line": 611,
+        "call": "git('rev-parse', impl + '^{tree}')"
+      },
+      {
+        "line": 1584,
+        "call": "git('diff', '--name-only', '1e942ff624ae7cb6c71227d48eef760687e17d2b^', '1e942ff624ae7cb6c71227d48eef760687e17d2b')"
+      },
+      {
+        "line": 1571,
+        "call": "git('rev-parse', '1e942ff624ae7cb6c71227d48eef760687e17d2b^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 52,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "name": "read",
+        "line": 56,
+        "source": "def read(path: object, ref: object=SNAPSHOT) -> object:\n    data = git('show', f'{ref}:{path}')\n    key = f'{ref}:{path}'\n    inputs[key] = {'source_sha': ref, 'path': path, 'git_blob': git('rev-parse', key).decode().strip(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}\n    return data"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+    "calls": [
+      {
+        "line": 76,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "line": 80,
+        "call": "git(repo, 'show', f'{sha}:{path}')"
+      },
+      {
+        "line": 106,
+        "call": "git(repo, 'show', key)"
+      },
+      {
+        "line": 123,
+        "call": "git(repo, 'show', snapshot + ':' + E02 + 'execution-organization/finding-owners.tsv')"
+      },
+      {
+        "line": 136,
+        "call": "git(repo, 'show', snapshot + ':' + E02 + 'execution-organization/bundle-owners.tsv')"
+      },
+      {
+        "line": 92,
+        "call": "git(repo, 'rev-parse', snapshot + '^{tree}')"
+      },
+      {
+        "line": 97,
+        "call": "git(repo, 'rev-parse', source + '^{tree}')"
+      },
+      {
+        "line": 231,
+        "call": "git(repo, 'show', snapshot + ':' + criterion['path'])"
+      },
+      {
+        "line": 112,
+        "call": "git(repo, 'rev-parse', key)"
+      },
+      {
+        "line": 321,
+        "call": "git(repo, 'rev-parse', c['implementation_sha'] + '^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 65,
+        "source": "def git(repo: object, *args: str) -> bytes:\n    require(len(args) == 2 and args[0] in {'show', 'rev-parse'}, 'only read-only object Git commands admitted')\n    object_name = args[1]\n    if ':' in object_name:\n        sha, path = object_name.split(':', 1)\n        admit_source(sha, path)\n    else:\n        admit_source(object_name.removesuffix('^{tree}'))\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "name": "load",
+        "line": 79,
+        "source": "def load(repo: object, sha: str, path: object) -> object:\n    return json.loads(git(repo, 'show', f'{sha}:{path}'))"
+      },
+      {
+        "name": "check",
+        "line": 83,
+        "source": "def check(packet: object, index: object, repo: object) -> dict[str, object]:\n    admit_source(packet['input_snapshot_sha'])\n    admit_source(packet['assembled_source_sha'])\n    for record in index['inputs']:\n        admit_source(record['source_sha'], record['path'])\n    snapshot = packet['input_snapshot_sha']\n    source = packet['assembled_source_sha']\n    require(git(repo, 'rev-parse', snapshot + '^{tree}').decode().strip() == packet['input_snapshot_tree'], 'snapshot tree mismatch')\n    require(git(repo, 'rev-parse', source + '^{tree}').decode().strip() == packet['assembled_source_tree'], 'source tree mismatch')\n    require(index['input_snapshot_sha'] == snapshot, 'input index snapshot mismatch')\n    indexed = {(r['source_sha'], r['path']): r for r in index['inputs']}\n    require(len(indexed) == len(index['inputs']), 'duplicate exact source input')\n    for record in index['inputs']:\n        key = f\"{record['source_sha']}:{record['path']}\"\n        data = git(repo, 'show', key)\n        require(len(data) == record['bytes'] and hashlib.sha256(data).hexdigest() == record['sha256'], 'source input size/hash mismatch:' + key)\n        require(git(repo, 'rev-parse', key).decode().strip() == record['git_blob'], 'source Git blob mismatch:' + key)\n    coverage = load(repo, snapshot, E02 + 'closure-decisions/coverage.json')\n    expected = {r['id']: r for r in coverage['findings'] if r['unit"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/build_final.py",
+    "calls": [
+      {
+        "line": 40,
+        "call": "subprocess.check_output([git_executable, '-C', str(REPO), *args])"
+      },
+      {
+        "line": 48,
+        "call": "git('show', sha + ':' + path)"
+      },
+      {
+        "line": 1314,
+        "call": "tracked(R2 + 'corrected-wave-source-footprint.json', evidence_checkpoint)"
+      },
+      {
+        "line": 301,
+        "call": "tracked(old['path'], old['source_sha'], False)"
+      },
+      {
+        "line": 308,
+        "call": "tracked(E02 + path, json_value=False)"
+      },
+      {
+        "line": 335,
+        "call": "tracked(p, G if k.startswith('G_') else SOURCE, k != 'G_owner')"
+      },
+      {
+        "line": 479,
+        "call": "tracked(full, json_value=False)"
+      },
+      {
+        "line": 1262,
+        "call": "tracked(index_path, evidence_checkpoint)"
+      },
+      {
+        "line": 1280,
+        "call": "tracked(record['repository_path'], evidence_checkpoint, False)"
+      },
+      {
+        "line": 315,
+        "call": "tracked(ref.split('@')[0], json_value=False)"
+      },
+      {
+        "line": 317,
+        "call": "tracked(ref['path'], json_value=False)"
+      },
+      {
+        "line": 1268,
+        "call": "tracked(record['copied_path'], evidence_checkpoint, False)"
+      },
+      {
+        "line": 52,
+        "call": "git('rev-parse', sha + ':' + path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 36,
+        "source": "def git(*args: str) -> bytes:\n    git_executable = shutil.which('git')\n    if git_executable is None:\n        raise RuntimeError('Git executable unavailable')\n    return subprocess.check_output([git_executable, '-C', str(REPO), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+    "calls": [
+      {
+        "line": 87,
+        "call": "subprocess.check_output([git_executable, '-C', str(repo), *args])"
+      },
+      {
+        "line": 111,
+        "call": "git(str(repo), 'show', record['evidence_git_commit'] + ':' + record['repository_path'])"
+      },
+      {
+        "line": 171,
+        "call": "git(str(repo), 'show', key[0] + ':' + key[1])"
+      },
+      {
+        "line": 184,
+        "call": "git(str(repo), 'show', SOURCE + ':' + E02 + 'closure-decisions/coverage.json')"
+      },
+      {
+        "line": 201,
+        "call": "git(str(repo), 'show', SOURCE + ':' + CONT + 'closure-frozen/all-54-closeout.json')"
+      },
+      {
+        "line": 190,
+        "call": "git(str(repo), 'show', SOURCE + ':' + E02 + 'execution-organization/' + label + '-owners.tsv')"
+      },
+      {
+        "line": 159,
+        "call": "git(str(repo), 'rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 290,
+        "call": "git(str(repo), 'show', SOURCE + ':' + fragment['path'])"
+      },
+      {
+        "line": 177,
+        "call": "git(str(repo), 'rev-parse', key[0] + ':' + key[1])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 72,
+        "source": "@cache\ndef git(repo: str, *args: str) -> bytes:\n    require(len(args) == 2 and args[0] in {'show', 'rev-parse'}, 'only read-only object Git commands admitted')\n    object_name = args[1]\n    if ':' in object_name:\n        sha, path = object_name.split(':', 1)\n        admit_source(sha, path)\n    else:\n        sha = object_name.removesuffix('^{tree}')\n        admit_source(sha)\n    git_executable = shutil.which('git')\n    if git_executable is None:\n        raise RuntimeError('Git executable unavailable')\n    return subprocess.check_output([git_executable, '-C', str(repo), *args])"
+      },
+      {
+        "name": "read",
+        "line": 91,
+        "source": "@cache\ndef read(path: str) -> bytes:\n    return Path(path).read_bytes()"
+      },
+      {
+        "name": "check",
+        "line": 141,
+        "source": "def check(packet: dict[str, object], recipes: dict[str, object], index: dict[str, object], case_index: dict[str, object], lint: dict[str, object], repo: Path) -> dict[str, object]:\n    admit_index(index, packet)\n    require(packet['assembled_source_sha'] == SOURCE and packet['final_frozen_source_sha'] == SOURCE, 'wrong final source SHA')\n    require(packet['assembled_source_tree'] == TREE and packet['final_frozen_source_tree'] == TREE, 'wrong final source tree')\n    require(git(str(repo), 'rev-parse', SOURCE + '^{tree}').decode().strip() == TREE, 'actual Git source tree mismatch')\n    require(index['input_snapshot_sha'] == SOURCE, 'input index wrong source')\n    require(packet['evidence_publication']['evidence_git_checkpoint'] is None, 'fake publication checkpoint')\n    bound = {}\n    for record in index['inputs']:\n        key = (record['source_sha'], record['path'])\n        require(key not in bound, 'duplicate Git source input')\n        data = git(str(repo), 'show', key[0] + ':' + key[1])\n        require(ident(data) == {k: record[k] for k in ['bytes', 'sha256']}, 'source whole-file hash/size mismatch')\n        require(git(str(repo), 'rev-parse', key[0] + ':' + key[1]).decode().strip() == record['git_blob'], 'source Git blob mismatch')\n        bound[key] = record\n    portable = exact_portable(index, repo)\n    coverage = json.loads(git(str(repo), 'show', SOURCE + ':' + E02 + 'cl"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/freeze_review_index.py",
+    "calls": [
+      {
+        "line": 62,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(args.repo), 'show', record['source_sha'] + ':' + record['git_path']])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "verify",
+        "line": 34,
+        "source": "def verify(record: object, root: object) -> None:\n    actual = digest((root / record['relative_path']).read_bytes())\n    if actual != {'bytes': record['bytes'], 'sha256': record['sha256']}:\n        raise ValueError('Indexed review payload differs: ' + record['relative_path'])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/build_packet.py",
+    "calls": [
+      {
+        "line": 53,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "line": 57,
+        "call": "git('show', f'{ref}:{path}')"
+      },
+      {
+        "line": 1599,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 1743,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 1772,
+        "call": "git('rev-parse', SNAPSHOT + '^{tree}')"
+      },
+      {
+        "line": 1774,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 62,
+        "call": "git('rev-parse', key)"
+      },
+      {
+        "line": 159,
+        "call": "git('rev-parse', SOURCE + ':' + old['path'])"
+      },
+      {
+        "line": 611,
+        "call": "git('rev-parse', impl + '^{tree}')"
+      },
+      {
+        "line": 1584,
+        "call": "git('diff', '--name-only', '1e942ff624ae7cb6c71227d48eef760687e17d2b^', '1e942ff624ae7cb6c71227d48eef760687e17d2b')"
+      },
+      {
+        "line": 1571,
+        "call": "git('rev-parse', '1e942ff624ae7cb6c71227d48eef760687e17d2b^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 52,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "name": "read",
+        "line": 56,
+        "source": "def read(path: object, ref: object=SNAPSHOT) -> object:\n    data = git('show', f'{ref}:{path}')\n    key = f'{ref}:{path}'\n    inputs[key] = {'source_sha': ref, 'path': path, 'git_blob': git('rev-parse', key).decode().strip(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}\n    return data"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/validate.py",
+    "calls": [
+      {
+        "line": 76,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "line": 80,
+        "call": "git(repo, 'show', f'{sha}:{path}')"
+      },
+      {
+        "line": 106,
+        "call": "git(repo, 'show', key)"
+      },
+      {
+        "line": 123,
+        "call": "git(repo, 'show', snapshot + ':' + E02 + 'execution-organization/finding-owners.tsv')"
+      },
+      {
+        "line": 136,
+        "call": "git(repo, 'show', snapshot + ':' + E02 + 'execution-organization/bundle-owners.tsv')"
+      },
+      {
+        "line": 92,
+        "call": "git(repo, 'rev-parse', snapshot + '^{tree}')"
+      },
+      {
+        "line": 97,
+        "call": "git(repo, 'rev-parse', source + '^{tree}')"
+      },
+      {
+        "line": 231,
+        "call": "git(repo, 'show', snapshot + ':' + criterion['path'])"
+      },
+      {
+        "line": 112,
+        "call": "git(repo, 'rev-parse', key)"
+      },
+      {
+        "line": 321,
+        "call": "git(repo, 'rev-parse', c['implementation_sha'] + '^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 65,
+        "source": "def git(repo: object, *args: str) -> bytes:\n    require(len(args) == 2 and args[0] in {'show', 'rev-parse'}, 'only read-only object Git commands admitted')\n    object_name = args[1]\n    if ':' in object_name:\n        sha, path = object_name.split(':', 1)\n        admit_source(sha, path)\n    else:\n        admit_source(object_name.removesuffix('^{tree}'))\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "name": "load",
+        "line": 79,
+        "source": "def load(repo: object, sha: str, path: object) -> object:\n    return json.loads(git(repo, 'show', f'{sha}:{path}'))"
+      },
+      {
+        "name": "check",
+        "line": 83,
+        "source": "def check(packet: object, index: object, repo: object) -> dict[str, object]:\n    admit_source(packet['input_snapshot_sha'])\n    admit_source(packet['assembled_source_sha'])\n    for record in index['inputs']:\n        admit_source(record['source_sha'], record['path'])\n    snapshot = packet['input_snapshot_sha']\n    source = packet['assembled_source_sha']\n    require(git(repo, 'rev-parse', snapshot + '^{tree}').decode().strip() == packet['input_snapshot_tree'], 'snapshot tree mismatch')\n    require(git(repo, 'rev-parse', source + '^{tree}').decode().strip() == packet['assembled_source_tree'], 'source tree mismatch')\n    require(index['input_snapshot_sha'] == snapshot, 'input index snapshot mismatch')\n    indexed = {(r['source_sha'], r['path']): r for r in index['inputs']}\n    require(len(indexed) == len(index['inputs']), 'duplicate exact source input')\n    for record in index['inputs']:\n        key = f\"{record['source_sha']}:{record['path']}\"\n        data = git(repo, 'show', key)\n        require(len(data) == record['bytes'] and hashlib.sha256(data).hexdigest() == record['sha256'], 'source input size/hash mismatch:' + key)\n        require(git(repo, 'rev-parse', key).decode().strip() == record['git_blob'], 'source Git blob mismatch:' + key)\n    coverage = load(repo, snapshot, E02 + 'closure-decisions/coverage.json')\n    expected = {r['id']: r for r in coverage['findings'] if r['unit"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/review_publication.py",
+    "calls": [
+      {
+        "line": 33,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "line": 111,
+        "call": "git(args.repo, 'show', revision + ':' + base + 'output-publication-correction.json')"
+      },
+      {
+        "line": 181,
+        "call": "git(args.repo, 'show', revision + '^:' + base + 'validate_review_copies.py')"
+      },
+      {
+        "line": 128,
+        "call": "git(args.repo, 'show', correction_sha + ':' + record['published_path'])"
+      },
+      {
+        "line": 155,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(args.repo), 'cat-file', '-e', prior_sha + ':' + record['old_path']], capture_output=True, check=False)"
+      },
+      {
+        "line": 64,
+        "call": "git(args.repo, 'show', revision + ':' + base + 'validate_review_copies.py')"
+      },
+      {
+        "line": 70,
+        "call": "git(args.repo, 'show', revision + ':' + base + 'independent-reviews/copy-index.json')"
+      },
+      {
+        "line": 117,
+        "call": "git(args.repo, 'show', prior_sha + ':' + base + 'independent-reviews/copy-index.json')"
+      },
+      {
+        "line": 52,
+        "call": "git(args.repo, 'rev-parse', '6994b1f4a')"
+      },
+      {
+        "line": 53,
+        "call": "git(args.repo, 'rev-parse', '6994b1f4a^')"
+      },
+      {
+        "line": 54,
+        "call": "git(args.repo, 'rev-parse', 'origin/main')"
+      },
+      {
+        "line": 216,
+        "call": "git(args.repo, 'rev-parse', revision + '^{tree}')"
+      },
+      {
+        "line": 198,
+        "call": "git(args.repo, 'rev-parse', revision + '^')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 32,
+        "source": "def git(repo: object, *args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/validate_independently_f445.py",
+    "calls": [
+      {
+        "line": 56,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "line": 106,
+        "call": "git(repo, 'show', sha + ':' + record['git_path'])"
+      },
+      {
+        "line": 120,
+        "call": "git(repo, 'show', sha + ':' + summary_path)"
+      },
+      {
+        "line": 130,
+        "call": "git(repo, 'show', correction['historical_published_head'] + ':' + summary_path)"
+      },
+      {
+        "line": 136,
+        "call": "git(repo, 'show', sha + ':' + stdout_path)"
+      },
+      {
+        "line": 241,
+        "call": "git(args.repo, 'show', packet['input_snapshot_sha'] + ':' + ddm_review_path)"
+      },
+      {
+        "line": 60,
+        "call": "git(repo, 'show', sha + ':' + path)"
+      },
+      {
+        "line": 142,
+        "call": "git(repo, 'show', correction['historical_published_head'] + ':' + stdout_path)"
+      },
+      {
+        "line": 78,
+        "call": "git(repo, 'show', source_sha + ':' + card_path)"
+      },
+      {
+        "line": 70,
+        "call": "git(repo, 'show', packet['input_snapshot_sha'] + ':' + ref['path'])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 55,
+        "source": "def git(repo: object, *args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(repo), *args])"
+      },
+      {
+        "name": "load_git",
+        "line": 59,
+        "source": "def load_git(repo: object, sha: str, path: object) -> object:\n    return json.loads(git(repo, 'show', sha + ':' + path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py",
+    "calls": [
+      {
+        "line": 35,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *argv])"
+      },
+      {
+        "line": 39,
+        "call": "git('show', sha + ':' + path)"
+      },
+      {
+        "line": 160,
+        "call": "git('rev-parse', CURRENT + ':' + bkt_path)"
+      },
+      {
+        "line": 250,
+        "call": "git('rev-parse', value['implementation_sha'] + '^{commit}')"
+      },
+      {
+        "line": 253,
+        "call": "git('rev-parse', resolved + '^{tree}')"
+      },
+      {
+        "line": 275,
+        "call": "git('rev-parse', fake['implementation_sha'] + ':policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py')"
+      },
+      {
+        "line": 282,
+        "call": "git('rev-parse', CURRENT + ':policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py')"
+      },
+      {
+        "line": 46,
+        "call": "git('rev-parse', CURRENT + '^{tree}')"
+      },
+      {
+        "line": 119,
+        "call": "git('rev-parse', CURRENT + ':' + path)"
+      },
+      {
+        "line": 93,
+        "call": "git('rev-parse', review_source + ':' + path)"
+      },
+      {
+        "line": 94,
+        "call": "git('rev-parse', CURRENT + ':' + path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 34,
+        "source": "def git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *argv])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+    "calls": [
+      {
+        "line": 40,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args])"
+      },
+      {
+        "line": 47,
+        "call": "git('ls-files', 'policy-engine/src')"
+      },
+      {
+        "line": 49,
+        "call": "git('show', BASE + ':' + p)"
+      },
+      {
+        "line": 133,
+        "call": "git('show', BASE + ':' + str(Path(p).relative_to(LANE)))"
+      },
+      {
+        "line": 140,
+        "call": "git('rev-parse', BASE + '^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 39,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize_review.py",
+    "calls": [
+      {
+        "line": 43,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args])"
+      },
+      {
+        "line": 51,
+        "call": "git('show', ref + ':' + path)"
+      },
+      {
+        "line": 47,
+        "call": "git(*args)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 42,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent_budget_tests.py",
+    "calls": [
+      {
+        "line": 451,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(lane), 'show', candidate + ':' + str(path.relative_to(lane))])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/run_review.py",
+    "calls": [
+      {
+        "line": 88,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 51,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 52,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 55,
+        "call": "git('diff', SOURCE, '--', 'policy-engine/src')"
+      },
+      {
+        "line": 42,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args], text=True)"
+      },
+      {
+        "line": 48,
+        "call": "git('ls-files', 'policy-engine/src')"
+      },
+      {
+        "line": 58,
+        "call": "git('diff', '--name-only', BASE, SOURCE, '--', 'policy-engine/src')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 41,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), *args], text=True).strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+    "calls": [
+      {
+        "line": 44,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', sha + ':policy-engine/src/polisyos/' + p])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+    "calls": [
+      {
+        "line": 48,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "line": 52,
+        "call": "git('show', f'{sha}:{path}')"
+      },
+      {
+        "line": 76,
+        "call": "git('ls-tree', '-r', '--name-only', E_SHA, '--', 'policy-engine/src/polisyos')"
+      },
+      {
+        "line": 82,
+        "call": "git('grep', '-l', '-E', '|'.join(sorted(symbols)), E_SHA, '--', 'policy-engine/src/polisyos')"
+      },
+      {
+        "line": 89,
+        "call": "git('rev-parse', f'{E_SHA}^{{tree}}')"
+      },
+      {
+        "line": 124,
+        "call": "git('rev-parse', f'{E_SHA}:{p}')"
+      },
+      {
+        "line": 155,
+        "call": "git('rev-parse', f'{E_SHA}:{path}')"
+      },
+      {
+        "line": 189,
+        "call": "git('rev-parse', f'{D_SHA}:{path}')"
+      },
+      {
+        "line": 585,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 586,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 589,
+        "call": "git('diff', '--name-only', E_SHA, 'HEAD', '--', 'policy-engine/src')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 47,
+        "source": "def git(*args: str) -> bytes:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+    "calls": [
+      {
+        "line": 113,
+        "call": "git_bytes(repo, 'show', candidate + ':' + packet['source'])"
+      },
+      {
+        "line": 189,
+        "call": "git_bytes(repo, 'show', candidate + ':policy-engine/' + relative)"
+      },
+      {
+        "line": 344,
+        "call": "git_bytes(repo, 'show', candidate + ':' + name)"
+      },
+      {
+        "line": 287,
+        "call": "git_bytes(repo, 'show', candidate + ':' + review['path'])"
+      },
+      {
+        "line": 250,
+        "call": "git_bytes(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 348,
+        "call": "git_bytes(repo, 'rev-parse', candidate + ':' + name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 53,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.check_output(command)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+    "calls": [
+      {
+        "line": 113,
+        "call": "git_bytes(repo, 'show', candidate + ':' + packet['source'])"
+      },
+      {
+        "line": 189,
+        "call": "git_bytes(repo, 'show', candidate + ':policy-engine/' + relative)"
+      },
+      {
+        "line": 344,
+        "call": "git_bytes(repo, 'show', candidate + ':' + name)"
+      },
+      {
+        "line": 542,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 287,
+        "call": "git_bytes(repo, 'show', candidate + ':' + review['path'])"
+      },
+      {
+        "line": 250,
+        "call": "git_bytes(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 348,
+        "call": "git_bytes(repo, 'rev-parse', candidate + ':' + name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 53,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.check_output(command)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_inputs.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(REPO), *args], capture_output=True, check=True)"
+      },
+      {
+        "line": 59,
+        "call": "git('show', FREEZE + ':' + path)"
+      },
+      {
+        "line": 252,
+        "call": "git('merge-base', '--is-ancestor', row['sha'], FREEZE)"
+      },
+      {
+        "line": 256,
+        "call": "git('show', FREEZE + ':' + row['source'])"
+      },
+      {
+        "line": 305,
+        "call": "git('show', FREEZE + ':' + row['path'])"
+      },
+      {
+        "line": 323,
+        "call": "git('show', FREEZE + ':' + path)"
+      },
+      {
+        "line": 65,
+        "call": "git('ls-tree', '-rz', '--full-tree', FREEZE)"
+      },
+      {
+        "line": 157,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 220,
+        "call": "git('show', FREEZE + ':' + path)"
+      },
+      {
+        "line": 170,
+        "call": "git('ls-remote', 'origin', 'refs/heads/codex/e02-E-continuation-20261006')"
+      },
+      {
+        "line": 186,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], FREEZE, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 63,
+        "call": "git('ls-files', '-z')"
+      },
+      {
+        "line": 213,
+        "call": "git('ls-tree', '-r', '--name-only', FREEZE)"
+      },
+      {
+        "line": 153,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 155,
+        "call": "git('rev-parse', FREEZE + '^{tree}')"
+      },
+      {
+        "line": 239,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', BASE, FREEZE, '--', 'policy-engine')"
+      },
+      {
+        "line": 327,
+        "call": "git('rev-parse', FREEZE + ':' + path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 51,
+        "source": "def git(*args: str) -> bytes:\n    result = subprocess.run([_resolve_executable('git'), '-C', str(REPO), *args], capture_output=True, check=True)\n    return result.stdout"
+      },
+      {
+        "name": "git_json",
+        "line": 58,
+        "source": "def git_json(path: str) -> object:\n    return json.loads(git('show', FREEZE + ':' + path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+    "calls": [
+      {
+        "line": 233,
+        "call": "git('config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 228,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 226,
+        "call": "git('rev-parse', 'HEAD')"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+    "calls": [
+      {
+        "line": 50,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "line": 72,
+        "call": "git('show', ref + ':' + path)"
+      },
+      {
+        "line": 55,
+        "call": "git('ls-tree', '-rz', ref)"
+      },
+      {
+        "line": 122,
+        "call": "git('status', '--porcelain=v1', '--untracked-files=no')"
+      },
+      {
+        "line": 138,
+        "call": "git('diff', '--name-only', BASE, CANDIDATE)"
+      },
+      {
+        "line": 673,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(ROOT), 'merge-base', '--is-ancestor', ref, CANDIDATE], check=False)"
+      },
+      {
+        "line": 689,
+        "call": "git('rev-parse', 'origin/main')"
+      },
+      {
+        "line": 86,
+        "call": "git('rev-parse', ref + ':' + path)"
+      },
+      {
+        "line": 117,
+        "call": "git('rev-parse', '--git-path', 'config')"
+      },
+      {
+        "line": 120,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 121,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 496,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', plan['comparison_base'], CANDIDATE, '--', 'policy-engine')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 49,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "name": "load",
+        "line": 90,
+        "source": "def load(rel: object) -> object:\n    return json.loads(data(PREFIX + rel))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py",
+    "calls": [
+      {
+        "line": 40,
+        "call": "subprocess.check_output([git_executable, '-C', str(REPO), *args])"
+      },
+      {
+        "line": 48,
+        "call": "git('show', sha + ':' + path)"
+      },
+      {
+        "line": 1314,
+        "call": "tracked(R2 + 'corrected-wave-source-footprint.json', evidence_checkpoint)"
+      },
+      {
+        "line": 301,
+        "call": "tracked(old['path'], old['source_sha'], False)"
+      },
+      {
+        "line": 308,
+        "call": "tracked(E02 + path, json_value=False)"
+      },
+      {
+        "line": 335,
+        "call": "tracked(p, G if k.startswith('G_') else SOURCE, k != 'G_owner')"
+      },
+      {
+        "line": 479,
+        "call": "tracked(full, json_value=False)"
+      },
+      {
+        "line": 1262,
+        "call": "tracked(index_path, evidence_checkpoint)"
+      },
+      {
+        "line": 1280,
+        "call": "tracked(record['repository_path'], evidence_checkpoint, False)"
+      },
+      {
+        "line": 315,
+        "call": "tracked(ref.split('@')[0], json_value=False)"
+      },
+      {
+        "line": 317,
+        "call": "tracked(ref['path'], json_value=False)"
+      },
+      {
+        "line": 1268,
+        "call": "tracked(record['copied_path'], evidence_checkpoint, False)"
+      },
+      {
+        "line": 52,
+        "call": "git('rev-parse', sha + ':' + path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 36,
+        "source": "def git(*args: str) -> bytes:\n    git_executable = shutil.which('git')\n    if git_executable is None:\n        raise RuntimeError('Git executable unavailable')\n    return subprocess.check_output([git_executable, '-C', str(REPO), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py",
+    "calls": [
+      {
+        "line": 87,
+        "call": "subprocess.check_output([git_executable, '-C', str(repo), *args])"
+      },
+      {
+        "line": 111,
+        "call": "git(str(repo), 'show', record['evidence_git_commit'] + ':' + record['repository_path'])"
+      },
+      {
+        "line": 171,
+        "call": "git(str(repo), 'show', key[0] + ':' + key[1])"
+      },
+      {
+        "line": 184,
+        "call": "git(str(repo), 'show', SOURCE + ':' + E02 + 'closure-decisions/coverage.json')"
+      },
+      {
+        "line": 201,
+        "call": "git(str(repo), 'show', SOURCE + ':' + CONT + 'closure-frozen/all-54-closeout.json')"
+      },
+      {
+        "line": 190,
+        "call": "git(str(repo), 'show', SOURCE + ':' + E02 + 'execution-organization/' + label + '-owners.tsv')"
+      },
+      {
+        "line": 159,
+        "call": "git(str(repo), 'rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 290,
+        "call": "git(str(repo), 'show', SOURCE + ':' + fragment['path'])"
+      },
+      {
+        "line": 177,
+        "call": "git(str(repo), 'rev-parse', key[0] + ':' + key[1])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 72,
+        "source": "@cache\ndef git(repo: str, *args: str) -> bytes:\n    require(len(args) == 2 and args[0] in {'show', 'rev-parse'}, 'only read-only object Git commands admitted')\n    object_name = args[1]\n    if ':' in object_name:\n        sha, path = object_name.split(':', 1)\n        admit_source(sha, path)\n    else:\n        sha = object_name.removesuffix('^{tree}')\n        admit_source(sha)\n    git_executable = shutil.which('git')\n    if git_executable is None:\n        raise RuntimeError('Git executable unavailable')\n    return subprocess.check_output([git_executable, '-C', str(repo), *args])"
+      },
+      {
+        "name": "read",
+        "line": 91,
+        "source": "@cache\ndef read(path: str) -> bytes:\n    return Path(path).read_bytes()"
+      },
+      {
+        "name": "check",
+        "line": 141,
+        "source": "def check(packet: dict[str, object], recipes: dict[str, object], index: dict[str, object], case_index: dict[str, object], lint: dict[str, object], repo: Path) -> dict[str, object]:\n    admit_index(index, packet)\n    require(packet['assembled_source_sha'] == SOURCE and packet['final_frozen_source_sha'] == SOURCE, 'wrong final source SHA')\n    require(packet['assembled_source_tree'] == TREE and packet['final_frozen_source_tree'] == TREE, 'wrong final source tree')\n    require(git(str(repo), 'rev-parse', SOURCE + '^{tree}').decode().strip() == TREE, 'actual Git source tree mismatch')\n    require(index['input_snapshot_sha'] == SOURCE, 'input index wrong source')\n    require(packet['evidence_publication']['evidence_git_checkpoint'] is None, 'fake publication checkpoint')\n    bound = {}\n    for record in index['inputs']:\n        key = (record['source_sha'], record['path'])\n        require(key not in bound, 'duplicate Git source input')\n        data = git(str(repo), 'show', key[0] + ':' + key[1])\n        require(ident(data) == {k: record[k] for k in ['bytes', 'sha256']}, 'source whole-file hash/size mismatch')\n        require(git(str(repo), 'rev-parse', key[0] + ':' + key[1]).decode().strip() == record['git_blob'], 'source Git blob mismatch')\n        bound[key] = record\n    portable = exact_portable(index, repo)\n    coverage = json.loads(git(str(repo), 'show', SOURCE + ':' + E02 + 'cl"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 472,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 473,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 285,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 289,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 417,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 394,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 477,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 478,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 285,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 289,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 422,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 399,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 477,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 478,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 285,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 289,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 422,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 399,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 480,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 481,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 285,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 289,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 425,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 402,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 489,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 490,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 294,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 298,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 434,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 411,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 573,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 574,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 377,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 381,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 517,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 494,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "line": 50,
+        "call": "git('show', commit + ':' + path)"
+      },
+      {
+        "line": 611,
+        "call": "git('rev-parse', '4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:' + path)"
+      },
+      {
+        "line": 612,
+        "call": "git('rev-parse', SOURCE + ':' + path)"
+      },
+      {
+        "line": 404,
+        "call": "git('rev-parse', COMMIT + '^{tree}')"
+      },
+      {
+        "line": 409,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 548,
+        "call": "git('rev-parse', record['source_sha'] + ':' + record['path'])"
+      },
+      {
+        "line": 524,
+        "call": "git('rev-parse', SOURCE + ':' + card)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 45,
+        "source": "@cache\ndef git(*argv: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *argv])"
+      },
+      {
+        "name": "load",
+        "line": 61,
+        "source": "def load(name: str) -> object:\n    return json.loads((HERE / 'exact-Git-inputs' / name).read_bytes())"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+    "calls": [
+      {
+        "line": 65,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "line": 71,
+        "call": "git('show', ref + ':' + path)"
+      },
+      {
+        "line": 99,
+        "call": "git('ls-tree', '-rz', ref)"
+      },
+      {
+        "line": 132,
+        "call": "git('status', '--porcelain=v1', '--untracked-files=no')"
+      },
+      {
+        "line": 144,
+        "call": "git('diff', '--name-only', BASE, DOC)"
+      },
+      {
+        "line": 145,
+        "call": "git('diff', '--name-only', DOC, NOW)"
+      },
+      {
+        "line": 418,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(ROOT), 'merge-base', '--is-ancestor', ref, NOW], check=False)"
+      },
+      {
+        "line": 168,
+        "call": "git('diff', '--name-only', BASE, NOW, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 85,
+        "call": "git('rev-parse', ref + ':' + path)"
+      },
+      {
+        "line": 130,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 131,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 316,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', MAIN, NOW, '--', 'policy-engine')"
+      },
+      {
+        "line": 414,
+        "call": "git('rev-parse', 'origin/main')"
+      },
+      {
+        "line": 246,
+        "call": "git('rev-parse', A + '^{tree}')"
+      },
+      {
+        "line": 128,
+        "call": "git('rev-parse', '--git-path', 'config')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 64,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "name": "read",
+        "line": 68,
+        "source": "def read(path: object, ref: object=NOW) -> object:\n    key = (ref, path)\n    if key not in cache:\n        cache[key] = git('show', ref + ':' + path)\n    return cache[key]"
+      },
+      {
+        "name": "load",
+        "line": 89,
+        "source": "def load(path: object) -> object:\n    return json.loads(read(path))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/plan_wave.py",
+    "calls": [
+      {
+        "line": 63,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 127,
+        "call": "git(repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 129,
+        "call": "git(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 190,
+        "call": "git_result(repo, 'merge-base', '--is-ancestor', sha, candidate)"
+      },
+      {
+        "line": 378,
+        "call": "git(repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 509,
+        "call": "git_bytes(repo, 'show', plan['candidate_sha'] + ':' + row['source'])"
+      },
+      {
+        "line": 142,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], candidate, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 177,
+        "call": "git_bytes(repo, 'show', candidate + ':' + path)"
+      },
+      {
+        "line": 213,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 261,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', args.comparison_base, candidate, '--', 'policy-engine')"
+      },
+      {
+        "line": 130,
+        "call": "git(repo, 'ls-tree', '-r', '--name-only', candidate)"
+      },
+      {
+        "line": 69,
+        "call": "git_bytes(repo, *argv)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 51,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 61,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 68,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+    "calls": [
+      {
+        "line": 32,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 93,
+        "call": "git(args.repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 117,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 155,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 211,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 212,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 91,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 247,
+        "call": "git(args.repo, 'rev-parse', args.candidate + '^{tree}')"
+      },
+      {
+        "line": 43,
+        "call": "git_bytes(repo, 'ls-files', '-z')"
+      },
+      {
+        "line": 111,
+        "call": "git(args.repo, 'rev-parse', args.candidate + ':' + name)"
+      },
+      {
+        "line": 38,
+        "call": "git_bytes(repo, *argv)"
+      },
+      {
+        "line": 130,
+        "call": "git_result(args.repo, 'config', '--get', name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 20,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 30,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 37,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/freeze_packet.py",
+    "calls": [
+      {
+        "line": 80,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + name], cwd=R)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/harness_review.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      },
+      {
+        "line": 60,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', BASE, REF], cwd=R, text=True)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "load",
+        "line": 69,
+        "source": "def load(name: str, path: object) -> object:\n    spec = importlib.util.spec_from_file_location(name, path)\n    m = importlib.util.module_from_spec(spec)\n    sys.modules[name] = m\n    spec.loader.exec_module(m)\n    return m"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/plan_wave.py",
+    "calls": [
+      {
+        "line": 63,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 127,
+        "call": "git(repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 129,
+        "call": "git(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 190,
+        "call": "git_result(repo, 'merge-base', '--is-ancestor', sha, candidate)"
+      },
+      {
+        "line": 378,
+        "call": "git(repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 509,
+        "call": "git_bytes(repo, 'show', plan['candidate_sha'] + ':' + row['source'])"
+      },
+      {
+        "line": 142,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], candidate, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 177,
+        "call": "git_bytes(repo, 'show', candidate + ':' + path)"
+      },
+      {
+        "line": 213,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 261,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', args.comparison_base, candidate, '--', 'policy-engine')"
+      },
+      {
+        "line": 130,
+        "call": "git(repo, 'ls-tree', '-r', '--name-only', candidate)"
+      },
+      {
+        "line": 69,
+        "call": "git_bytes(repo, *argv)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 51,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 61,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 68,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+    "calls": [
+      {
+        "line": 32,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 93,
+        "call": "git(args.repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 117,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 155,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 211,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 212,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 91,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 247,
+        "call": "git(args.repo, 'rev-parse', args.candidate + '^{tree}')"
+      },
+      {
+        "line": 43,
+        "call": "git_bytes(repo, 'ls-files', '-z')"
+      },
+      {
+        "line": 111,
+        "call": "git(args.repo, 'rev-parse', args.candidate + ':' + name)"
+      },
+      {
+        "line": 38,
+        "call": "git_bytes(repo, *argv)"
+      },
+      {
+        "line": 130,
+        "call": "git_result(args.repo, 'config', '--get', name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 20,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 30,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 37,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/plan_wave.py",
+    "calls": [
+      {
+        "line": 63,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 146,
+        "call": "git(repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 148,
+        "call": "git(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 209,
+        "call": "git_result(repo, 'merge-base', '--is-ancestor', sha, candidate)"
+      },
+      {
+        "line": 397,
+        "call": "git(repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 529,
+        "call": "git_bytes(repo, 'show', plan['candidate_sha'] + ':' + row['source'])"
+      },
+      {
+        "line": 161,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], candidate, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 196,
+        "call": "git_bytes(repo, 'show', candidate + ':' + path)"
+      },
+      {
+        "line": 232,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 280,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', args.comparison_base, candidate, '--', 'policy-engine')"
+      },
+      {
+        "line": 149,
+        "call": "git(repo, 'ls-tree', '-r', '--name-only', candidate)"
+      },
+      {
+        "line": 69,
+        "call": "git_bytes(repo, *argv)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 51,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 61,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 68,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/probe_native_parent.py",
+    "calls": [
+      {
+        "line": 51,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), 'show', BASE + ':' + PREFIX + name])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/probe_native_parent_r2.py",
+    "calls": [
+      {
+        "line": 50,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), 'show', BASE + ':' + PREFIX + name])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+    "calls": [
+      {
+        "line": 32,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 93,
+        "call": "git(args.repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 117,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 155,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 211,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 212,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 91,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 247,
+        "call": "git(args.repo, 'rev-parse', args.candidate + '^{tree}')"
+      },
+      {
+        "line": 43,
+        "call": "git_bytes(repo, 'ls-files', '-z')"
+      },
+      {
+        "line": 111,
+        "call": "git(args.repo, 'rev-parse', args.candidate + ':' + name)"
+      },
+      {
+        "line": 38,
+        "call": "git_bytes(repo, *argv)"
+      },
+      {
+        "line": 130,
+        "call": "git_result(args.repo, 'config', '--get', name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 20,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 30,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 37,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/plan_wave.py",
+    "calls": [
+      {
+        "line": 63,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 127,
+        "call": "git(repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 129,
+        "call": "git(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 190,
+        "call": "git_result(repo, 'merge-base', '--is-ancestor', sha, candidate)"
+      },
+      {
+        "line": 378,
+        "call": "git(repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 509,
+        "call": "git_bytes(repo, 'show', plan['candidate_sha'] + ':' + row['source'])"
+      },
+      {
+        "line": 142,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], candidate, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 177,
+        "call": "git_bytes(repo, 'show', candidate + ':' + path)"
+      },
+      {
+        "line": 213,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 261,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', args.comparison_base, candidate, '--', 'policy-engine')"
+      },
+      {
+        "line": 130,
+        "call": "git(repo, 'ls-tree', '-r', '--name-only', candidate)"
+      },
+      {
+        "line": 69,
+        "call": "git_bytes(repo, *argv)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 51,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 61,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 68,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+    "calls": [
+      {
+        "line": 32,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 93,
+        "call": "git(args.repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 117,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 155,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 211,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 212,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 91,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 247,
+        "call": "git(args.repo, 'rev-parse', args.candidate + '^{tree}')"
+      },
+      {
+        "line": 43,
+        "call": "git_bytes(repo, 'ls-files', '-z')"
+      },
+      {
+        "line": 111,
+        "call": "git(args.repo, 'rev-parse', args.candidate + ':' + name)"
+      },
+      {
+        "line": 38,
+        "call": "git_bytes(repo, *argv)"
+      },
+      {
+        "line": 130,
+        "call": "git_result(args.repo, 'config', '--get', name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 20,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 30,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 37,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+    "calls": [
+      {
+        "line": 57,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "line": 205,
+        "call": "git('show', BASE + ':' + PREFIX + 'plan_wave.py')"
+      },
+      {
+        "line": 213,
+        "call": "git('show', BASE + ':' + PREFIX + name)"
+      },
+      {
+        "line": 229,
+        "call": "git('show', SOURCE + ':' + PREFIX + 'plan_wave.py')"
+      },
+      {
+        "line": 200,
+        "call": "git('show', SOURCE + ':' + PREFIX + 'plan_wave.py')"
+      },
+      {
+        "line": 77,
+        "call": "git('status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 216,
+        "call": "git('show', SOURCE + ':' + PREFIX + name)"
+      },
+      {
+        "line": 68,
+        "call": "git('ls-files', '-z')"
+      },
+      {
+        "line": 75,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 76,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 186,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 188,
+        "call": "git('rev-parse', SOURCE + '^')"
+      },
+      {
+        "line": 191,
+        "call": "git('diff', '--name-only', BASE, SOURCE)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 56,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_consumer_boundary.py",
+    "calls": [
+      {
+        "line": 55,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'ls-files', '-z', 'policy-engine/src'], cwd=ROOT)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+    "calls": [
+      {
+        "line": 80,
+        "call": "subprocess.run([_resolve_executable('git'), 'diff', '--quiet', SOURCE, 'HEAD', '--', 'policy-engine/src'], cwd=ROOT)"
+      },
+      {
+        "line": 450,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', 'HEAD'], cwd=ROOT, text=True)"
+      },
+      {
+        "line": 88,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'status', '--porcelain', '--', 'policy-engine/src'], cwd=ROOT)"
+      },
+      {
+        "line": 62,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'ls-files', '-z', 'policy-engine/src'], cwd=ROOT)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_pipeline.py",
+    "calls": [
+      {
+        "line": 49,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(lane), 'archive', sha, *paths])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py",
+    "calls": [
+      {
+        "line": 58,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 59,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 63,
+        "call": "git('diff', '8486baad6fdef8063cfaad80b15f6b6d8532460a', '--', 'policy-engine/src')"
+      },
+      {
+        "line": 41,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(lane), *args], text=True)"
+      },
+      {
+        "line": 47,
+        "call": "git('ls-files', 'policy-engine/src/polisyos')"
+      },
+      {
+        "line": 49,
+        "call": "git('diff', '--name-only', '22998874b5f32434c462065baaca44a78e967f91', '8486baad6fdef8063cfaad80b15f6b6d8532460a', '--', 'policy-engine/src')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 40,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(lane), *args], text=True).strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.attempt1.py",
+    "calls": [
+      {
+        "line": 253,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', '22998874b5f32434c462065baaca44a78e967f91:' + str(relative)], cwd=LEAF)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.py",
+    "calls": [
+      {
+        "line": 253,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', '22998874b5f32434c462065baaca44a78e967f91:' + str(relative)], cwd=LEAF)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/run_checks.py",
+    "calls": [
+      {
+        "line": 41,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', '22998874b5f32434c462065baaca44a78e967f91', '74b26eb067dea76d90b134641e66537759e4dc0f'], cwd=leaf, text=True)"
+      },
+      {
+        "line": 143,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=leaf, text=True)"
+      },
+      {
+        "line": 93,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=leaf, text=True)"
+      },
+      {
+        "line": 60,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', '74b26eb067dea76d90b134641e66537759e4dc0f:' + p], cwd=leaf)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.initial.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), 'archive', BASE, 'policy-engine/src', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock'])"
+      },
+      {
+        "line": 106,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), 'rev-parse', BASE + '^{tree}'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), 'archive', BASE, 'policy-engine/src', 'policy-engine/architecture', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock'])"
+      },
+      {
+        "line": 107,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(LANE), 'rev-parse', BASE + '^{tree}'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/run_review.py",
+    "calls": [
+      {
+        "line": 58,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 59,
+        "call": "git('rev-parse', 'HEAD^{tree}')"
+      },
+      {
+        "line": 63,
+        "call": "git('diff', '884681db485b7466b183a206f83bbe0635f86ca3', '--', 'policy-engine/src')"
+      },
+      {
+        "line": 41,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(lane), *args], text=True)"
+      },
+      {
+        "line": 47,
+        "call": "git('ls-files', 'policy-engine/src/polisyos')"
+      },
+      {
+        "line": 49,
+        "call": "git('diff', '--name-only', '5d4e01011a0b7e0a3954decdb622a9e9cf1fb787', '884681db485b7466b183a206f83bbe0635f86ca3', '--', 'policy-engine/src')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 40,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(lane), *args], text=True).strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classify_lint.py",
+    "calls": [
+      {
+        "line": 42,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "line": 46,
+        "call": "git('show', sha + ':' + path)"
+      },
+      {
+        "line": 186,
+        "call": "git('diff', '--name-only', '--diff-filter=ACMR', BASE, SOURCE, '--', 'policy-engine/')"
+      },
+      {
+        "line": 200,
+        "call": "git('ls-tree', '-r', '--name-only', SOURCE, PREFIX)"
+      },
+      {
+        "line": 50,
+        "call": "git('rev-parse', sha + ':' + path)"
+      },
+      {
+        "line": 303,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 41,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "name": "load",
+        "line": 57,
+        "source": "def load(sha: str, path: object) -> object:\n    return json.loads(blob(sha, path))"
+      },
+      {
+        "name": "validate",
+        "line": 143,
+        "source": "def validate(report: object, actual: object) -> str:\n    if report['source_sha'] != SOURCE or report['publication_sha'] != PUBLICATION:\n        raise ValueError('Source/publication identity changed')\n    if report['denominator'] != actual['denominator']:\n        raise ValueError('Full changed Python denominator changed')\n    if report['ruff'] != actual['ruff'] or report['format'] != actual['format']:\n        raise ValueError('Diagnostic or format counts/classes differ from full stdout')\n    if report['paths'] != actual['paths']:\n        raise ValueError('Exact path/code/custody/usage rows changed or omitted')\n    for row in report['paths']:\n        if row['path'] not in report['denominator']['paths']:\n            raise ValueError('Reported diagnostic path escapes admitted denominator')\n    return 'ACCEPTED_exact_read_only_metadata'"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/finalize_packet.py",
+    "calls": [
+      {
+        "line": 97,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', native['framing_HEAD'] + '^{tree}'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/freeze_source.py",
+    "calls": [
+      {
+        "line": 97,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(ROOT), 'apply', '--check', str(OUT / 'owned-facade-route.patch')], capture_output=True)"
+      },
+      {
+        "line": 51,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + relative])"
+      },
+      {
+        "line": 44,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(ROOT), 'cat-file', '-e', BASE + ':' + relative], capture_output=True)"
+      },
+      {
+        "line": 63,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', BASE + ':' + relative], text=True)"
+      },
+      {
+        "line": 112,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/generate_and_collect.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "read",
+        "line": 96,
+        "source": "def read(path: object, *args: object, **kwargs: object) -> object:\n    if path in values:\n        return values[path]\n    if path.is_relative_to(ROOT / 'policy-engine/src'):\n        baseline = original(str(path.relative_to(ROOT)))\n        if not path.read_bytes() == baseline:\n            raise AssertionError\n        return baseline.decode()\n    return original_read(path, *args, **kwargs)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/hooks/origin_plugin.py",
+    "calls": [
+      {
+        "line": 56,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + relative])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/release_and_refs.py",
+    "calls": [
+      {
+        "line": 175,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/run_native.py",
+    "calls": [
+      {
+        "line": 91,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(PRODUCT), 'rev-parse', 'HEAD'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/finalize_packet.py",
+    "calls": [
+      {
+        "line": 97,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', native['framing_HEAD'] + '^{tree}'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/freeze_source.py",
+    "calls": [
+      {
+        "line": 97,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(ROOT), 'apply', '--check', str(OUT / 'owned-facade-route.patch')], capture_output=True)"
+      },
+      {
+        "line": 51,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + relative])"
+      },
+      {
+        "line": 44,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(ROOT), 'cat-file', '-e', BASE + ':' + relative], capture_output=True)"
+      },
+      {
+        "line": 63,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', BASE + ':' + relative], text=True)"
+      },
+      {
+        "line": 112,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/generate_and_collect.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "read",
+        "line": 96,
+        "source": "def read(path: object, *args: object, **kwargs: object) -> object:\n    if path in values:\n        return values[path]\n    if path.is_relative_to(ROOT / 'policy-engine/src'):\n        baseline = original(str(path.relative_to(ROOT)))\n        if not path.read_bytes() == baseline:\n            raise AssertionError\n        return baseline.decode()\n    return original_read(path, *args, **kwargs)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/hooks/origin_plugin.py",
+    "calls": [
+      {
+        "line": 56,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + relative])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/release_and_refs.py",
+    "calls": [
+      {
+        "line": 175,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/run_native.py",
+    "calls": [
+      {
+        "line": 91,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(PRODUCT), 'rev-parse', 'HEAD'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/check_selected_routes.py",
+    "calls": [
+      {
+        "line": 51,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      },
+      {
+        "line": 57,
+        "call": "git(path)"
+      },
+      {
+        "line": 101,
+        "call": "git(contract_path)"
+      },
+      {
+        "line": 142,
+        "call": "git(welfare_path)"
+      },
+      {
+        "line": 114,
+        "call": "git(relative)"
+      },
+      {
+        "line": 153,
+        "call": "git(path)"
+      },
+      {
+        "line": 193,
+        "call": "git(cal)"
+      },
+      {
+        "line": 275,
+        "call": "git(path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 50,
+        "source": "def git(path: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      },
+      {
+        "name": "load",
+        "line": 56,
+        "source": "def load(name: str, path: object) -> object:\n    if not (ROOT / path).read_bytes() == git(path):\n        raise AssertionError\n    spec = importlib.util.spec_from_file_location(name, ROOT / path)\n    module = importlib.util.module_from_spec(spec)\n    sys.modules[name] = module\n    spec.loader.exec_module(module)\n    return module"
+      },
+      {
+        "name": "read",
+        "line": 109,
+        "source": "def read(path: object, *args: object, **kwargs: object) -> object:\n    if path in overrides:\n        return overrides[path]\n    if path.is_relative_to(ROOT / 'policy-engine/src'):\n        relative = path.relative_to(ROOT).as_posix()\n        original = git(relative)\n        if not path.read_bytes() == original:\n            raise AssertionError\n        observed_source_reads.add(relative)\n        return original.decode()\n    return reader(path, *args, **kwargs)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/check_selected_routes.py",
+    "calls": [
+      {
+        "line": 51,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      },
+      {
+        "line": 57,
+        "call": "git(path)"
+      },
+      {
+        "line": 97,
+        "call": "git(contract_path)"
+      },
+      {
+        "line": 138,
+        "call": "git(welfare_path)"
+      },
+      {
+        "line": 110,
+        "call": "git(relative)"
+      },
+      {
+        "line": 145,
+        "call": "git(path)"
+      },
+      {
+        "line": 179,
+        "call": "git(cal)"
+      },
+      {
+        "line": 258,
+        "call": "git(path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 50,
+        "source": "def git(path: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      },
+      {
+        "name": "load",
+        "line": 56,
+        "source": "def load(name: str, path: object) -> object:\n    if not (ROOT / path).read_bytes() == git(path):\n        raise AssertionError\n    spec = importlib.util.spec_from_file_location(name, ROOT / path)\n    module = importlib.util.module_from_spec(spec)\n    sys.modules[name] = module\n    spec.loader.exec_module(module)\n    return module"
+      },
+      {
+        "name": "read",
+        "line": 105,
+        "source": "def read(path: object, *args: object, **kwargs: object) -> object:\n    if path in overrides:\n        return overrides[path]\n    if path.is_relative_to(ROOT / 'policy-engine/src'):\n        relative = path.relative_to(ROOT).as_posix()\n        original = git(relative)\n        if not path.read_bytes() == original:\n            raise AssertionError\n        observed_source_reads.add(relative)\n        return original.decode()\n    return reader(path, *args, **kwargs)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/run_independent_native.py",
+    "calls": [
+      {
+        "line": 91,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(PRODUCT), 'show', BASE + ':policy-engine/' + relative])"
+      },
+      {
+        "line": 141,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(PRODUCT), 'rev-parse', 'HEAD'])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/hooks/origin_plugin.py",
+    "calls": [
+      {
+        "line": 56,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + relative])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/generate_and_collect.py",
+    "calls": [
+      {
+        "line": 52,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'show', BASE + ':' + path])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "read",
+        "line": 96,
+        "source": "def read(path: object, *args: object, **kwargs: object) -> object:\n    if path in values:\n        return values[path]\n    if path.is_relative_to(ROOT / 'policy-engine/src'):\n        baseline = original(str(path.relative_to(ROOT)))\n        if not path.read_bytes() == baseline:\n            raise AssertionError\n        return baseline.decode()\n    return original_read(path, *args, **kwargs)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/run_independent_native.py",
+    "calls": [
+      {
+        "line": 91,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(PRODUCT), 'show', BASE + ':policy-engine/' + relative])"
+      },
+      {
+        "line": 144,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(PRODUCT), 'rev-parse', 'HEAD'])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/bind_source_checkpoint.py",
+    "calls": [
+      {
+        "line": 36,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "line": 62,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'cat-file', '--batch'], input=('\\n'.join(refs) + '\\n').encode())"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/build_packet.py",
+    "calls": [
+      {
+        "line": 37,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', ref + ':' + path], cwd=ROOT)"
+      },
+      {
+        "line": 140,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', CURRENT + '^{tree}'], cwd=ROOT, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/edge_probe.py",
+    "calls": [
+      {
+        "line": 53,
+        "call": "subprocess.run([_resolve_executable('git'), 'show', ref + ':' + path], cwd=ROOT, capture_output=True)"
+      },
+      {
+        "line": 221,
+        "call": "git('rev-parse', CURRENT + '^{tree}')"
+      },
+      {
+        "line": 132,
+        "call": "git('diff', '--name-only', BASE, FROZEN, '--', 'policy-engine/src')"
+      },
+      {
+        "line": 214,
+        "call": "git('rev-parse', ref + '^{tree}')"
+      },
+      {
+        "line": 49,
+        "call": "subprocess.check_output([_resolve_executable('git'), *args], cwd=ROOT, text=True)"
+      },
+      {
+        "line": 189,
+        "call": "git('diff', '--name-only', SLICE, ref, '--', 'policy-engine/src')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 48,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), *args], cwd=ROOT, text=True).strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/prepare_future_fixture.py",
+    "calls": [
+      {
+        "line": 49,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', refbase + ':' + p], cwd=R)"
+      },
+      {
+        "line": 35,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', ref + ':' + p], cwd=R)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/review_owned_companion.py",
+    "calls": [
+      {
+        "line": 36,
+        "call": "subprocess.check_output([_resolve_executable('git'), *args], cwd=R)"
+      },
+      {
+        "line": 40,
+        "call": "git('show', ref + ':' + path)"
+      },
+      {
+        "line": 64,
+        "call": "git('diff', '--name-only', BASE, CANDIDATE)"
+      },
+      {
+        "line": 176,
+        "call": "git('rev-parse', CANDIDATE + '^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 35,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), *args], cwd=R)"
+      },
+      {
+        "name": "validate",
+        "line": 100,
+        "source": "def validate(inv: object, readme: object) -> None:\n    for m, (names, mode, _p) in truth.items():\n        e = entry(inv, m)\n        if not e['exports'] == names:\n            raise AssertionError((m, 'names'))\n        if not e['export_count'] == len(names):\n            raise AssertionError((m, 'count'))\n        if not e['facade_mode_observed'] == mode:\n            raise AssertionError((m, 'mode'))\n    if not (re.search('Exports: (\\\\d+) names', readme) and int(re.search('Exports: (\\\\d+) names', readme)[1]) == len(truth['polisyos.foundry.uncertainty'][0])):\n        raise AssertionError('README count')"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/source_fixture_identity.py",
+    "calls": [
+      {
+        "line": 53,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'ls-tree', '-r', '-z', ref, '--', *paths], cwd=R)"
+      },
+      {
+        "line": 85,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', ref + '^{tree}'], cwd=R, text=True)"
+      },
+      {
+        "line": 88,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', ref + ':policy-engine/src'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/validate_packet.py",
+    "calls": [
+      {
+        "line": 34,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', d['source_scope']['publication_companion_sha'] + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "validate",
+        "line": 31,
+        "source": "def validate(d: object) -> None:\n    if not d['schema'] == 'e02.E.public_surface_import_owner_packet.v1':\n        raise AssertionError\n    actual = subprocess.check_output([_resolve_executable('git'), 'rev-parse', d['source_scope']['publication_companion_sha'] + '^{tree}'], cwd=R, text=True).strip()\n    if not actual == d['source_scope']['publication_companion_tree']:\n        raise AssertionError('candidate tree')\n    rows = d['edge_symbol_owner_matrix']\n    original = [r for r in rows if r['scope'] == 'original audit12']\n    bkt = [r for r in rows if r['scope'] == 'BKT separate family delta']\n    frc = [r for r in rows if r['scope'] == 'FRC separate family delta']\n    if not (len(original) == 12 and len(bkt) == 7 and (len(frc) == 1)):\n        raise AssertionError\n    pending = [r for r in rows if r['status'] == 'pending_owner_admission']\n    if not d['denominators']['targeted_current_pending_owner_edges'] == len(pending) == 14:\n        raise AssertionError('pending denominator')\n    if not sum((r['status'] == 'pending_owner_admission' for r in original)) == d['denominators']['original12_remaining_owner_edges'] == 9:\n        raise AssertionError\n    if not sum((r['status'] == 'resolved_existing_E_facade' for r in original)) == d['denominators']['original12_resolved_edges'] == 3:\n        raise AssertionError\n    if not sum((r['status'] == 'pending_owner_admission' for r in bkt))"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/admission_probe.py",
+    "calls": [
+      {
+        "line": 54,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + p], cwd=R)"
+      },
+      {
+        "line": 183,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + rel], cwd=R)"
+      },
+      {
+        "line": 194,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/complex_covariance_new-ec042.py",
+    "calls": [
+      {
+        "line": 53,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', EXPECTED + ':' + p], cwd=ROOT)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/complex_covariance_old-c0f.py",
+    "calls": [
+      {
+        "line": 53,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', EXPECTED + ':' + p], cwd=ROOT)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/longdouble_support_probe.py",
+    "calls": [
+      {
+        "line": 33,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + p], cwd=R)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_pinned5cd_probe.py",
+    "calls": [
+      {
+        "line": 68,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/nonzero_support_independent_probe.py",
+    "calls": [
+      {
+        "line": 69,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + p], cwd=R)"
+      },
+      {
+        "line": 57,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', 'HEAD'], cwd=R, text=True)"
+      },
+      {
+        "line": 234,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', ACTUAL + ':' + rel], cwd=R)"
+      },
+      {
+        "line": 247,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/real_domain_independent_probe.py",
+    "calls": [
+      {
+        "line": 69,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + p], cwd=R)"
+      },
+      {
+        "line": 199,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + rel], cwd=R)"
+      },
+      {
+        "line": 212,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+    "calls": [
+      {
+        "line": 73,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + p], cwd=R)"
+      },
+      {
+        "line": 266,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + rel], cwd=R)"
+      },
+      {
+        "line": 279,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/publication_review.py",
+    "calls": [
+      {
+        "line": 62,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      },
+      {
+        "line": 34,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', BASE, REF], cwd=R, text=True)"
+      },
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', BASE, REF, '--', 'policy-engine/src/**/*.py'], cwd=R, text=True)"
+      },
+      {
+        "line": 144,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "validate",
+        "line": 88,
+        "source": "def validate(data: object, documentation: str, fragments: object) -> None:\n    if not data == json.loads((observed_o / 'generated-43c/inventory.json').read_text()):\n        raise AssertionError\n    if not entry(data, 'polisyos.calibration')['export_count'] == 29:\n        raise AssertionError\n    if 'load_foundry_calibration_report' not in entry(data, 'polisyos.calibration')['exports']:\n        raise AssertionError\n    if not entry(data, 'polisyos.foundry.uncertainty')['export_count'] == 19:\n        raise AssertionError\n    if not re.search('Exports: 19 names declared', documentation):\n        raise AssertionError\n    for name, classification in [('2026-10-06-e02-calibration-reader-facade', 'public_experimental'), ('2026-10-06-e02-finite-law-admission-facade', 'public_stable')]:\n        if not fragments[name]['surface_classification'] == classification:\n            raise AssertionError\n        if fragments[name]['public_surface_inventory_reviewed'] is not True:\n            raise AssertionError"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/edge_identity_review.py",
+    "calls": [
+      {
+        "line": 49,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', ref + ':' + path], cwd=R)"
+      },
+      {
+        "line": 244,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/publication_review20.py",
+    "calls": [
+      {
+        "line": 46,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      },
+      {
+        "line": 32,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', BASE, REF], cwd=R, text=True)"
+      },
+      {
+        "line": 122,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', REF + '^{tree}'], cwd=R, text=True)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "validate",
+        "line": 70,
+        "source": "def validate(x: object, doc: object, fragment: object) -> None:\n    if not x == json.loads((observed_o / 'generated-bf3/inventory.json').read_text()):\n        raise AssertionError\n    if not entry(x, 'polisyos.calibration')['export_count'] == 29:\n        raise AssertionError\n    if not entry(x, 'polisyos.foundry.uncertainty')['export_count'] == 20:\n        raise AssertionError\n    if 'load_foundry_calibration_report' not in entry(x, 'polisyos.foundry.uncertainty')['exports']:\n        raise AssertionError\n    if not re.search('Exports: 20 names declared', doc):\n        raise AssertionError\n    if not fragment['surface_classification'] == 'public_stable':\n        raise AssertionError"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review_flag_companion.py",
+    "calls": [
+      {
+        "line": 49,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', PARENT + ':' + PATH], cwd=R)"
+      },
+      {
+        "line": 50,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', CANDIDATE + ':' + PATH], cwd=R)"
+      },
+      {
+        "line": 36,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'rev-parse', CANDIDATE + '^'], cwd=R, text=True)"
+      },
+      {
+        "line": 44,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', PARENT, CANDIDATE], cwd=R, text=True)"
+      },
+      {
+        "line": 66,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'diff', '--name-only', CANONICAL, CANDIDATE, '--', 'policy-engine/src'], cwd=R, text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/routing_removal_control.py",
+    "calls": [
+      {
+        "line": 40,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', REF + ':' + path], cwd=R)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapt_publication_freeze.py",
+    "calls": [
+      {
+        "line": 134,
+        "call": "git_bytes('show', lookup)"
+      },
+      {
+        "line": 126,
+        "call": "git_bytes('rev-parse', CURRENT_SHA + '^{tree}')"
+      },
+      {
+        "line": 135,
+        "call": "git_bytes('rev-parse', lookup)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 47,
+        "source": "def git_bytes(*arguments: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(REPO), *arguments]\n    return subprocess.check_output(command)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/prepare_companion.py",
+    "calls": [
+      {
+        "line": 39,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      },
+      {
+        "line": 183,
+        "call": "subprocess.run([_resolve_executable('git'), '-C', str(REPO), 'apply', '--check', str(ROOT / 'ddm-release-companion.patch')], check=True)"
+      },
+      {
+        "line": 68,
+        "call": "git('show', BASE + ':' + path)"
+      },
+      {
+        "line": 200,
+        "call": "git('rev-parse', BASE + '^{tree}')"
+      },
+      {
+        "line": 74,
+        "call": "git('rev-parse', BASE + ':' + path)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 38,
+        "source": "def git(*args: object) -> object:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(REPO), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.py",
+    "calls": [
+      {
+        "line": 44,
+        "call": "subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      },
+      {
+        "line": 48,
+        "call": "git('show', ref + ':' + path)"
+      },
+      {
+        "line": 62,
+        "call": "git('diff', '--name-only', BASE, SOURCE)"
+      },
+      {
+        "line": 410,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      },
+      {
+        "line": 56,
+        "call": "git('rev-parse', ref + ':' + path)"
+      },
+      {
+        "line": 71,
+        "call": "git('rev-parse', SOURCE + '^')"
+      },
+      {
+        "line": 74,
+        "call": "git('rev-parse', SOURCE + '^{tree}')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 43,
+        "source": "def git(*args: str) -> bytes:\n    return subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), *args])"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "calls": [
+      {
+        "line": 154,
+        "call": "git_bytes(repo, 'show', candidate + ':' + packet['source'])"
+      },
+      {
+        "line": 232,
+        "call": "git_bytes(repo, 'show', candidate + ':policy-engine/' + relative)"
+      },
+      {
+        "line": 394,
+        "call": "git_bytes(repo, 'show', candidate + ':' + name)"
+      },
+      {
+        "line": 606,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 337,
+        "call": "git_bytes(repo, 'show', candidate + ':' + review['path'])"
+      },
+      {
+        "line": 297,
+        "call": "git_bytes(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 398,
+        "call": "git_bytes(repo, 'rev-parse', candidate + ':' + name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_bytes",
+        "line": 94,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.check_output(command)"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "calls": [
+      {
+        "line": 64,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 158,
+        "call": "git(repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 160,
+        "call": "git(repo, 'rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 221,
+        "call": "git_result(repo, 'merge-base', '--is-ancestor', sha, candidate)"
+      },
+      {
+        "line": 412,
+        "call": "git(repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 544,
+        "call": "git_bytes(repo, 'show', plan['candidate_sha'] + ':' + row['source'])"
+      },
+      {
+        "line": 173,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', proposal['delta_selection_base'], candidate, '--', 'policy-engine/tests')"
+      },
+      {
+        "line": 208,
+        "call": "git_bytes(repo, 'show', candidate + ':' + path)"
+      },
+      {
+        "line": 244,
+        "call": "git_bytes(repo, 'show', candidate + ':' + source)"
+      },
+      {
+        "line": 295,
+        "call": "git(repo, 'diff', '--name-only', '--diff-filter=ACMR', args.comparison_base, candidate, '--', 'policy-engine')"
+      },
+      {
+        "line": 161,
+        "call": "git(repo, 'ls-tree', '-r', '--name-only', candidate)"
+      },
+      {
+        "line": 70,
+        "call": "git_bytes(repo, *argv)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 52,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 62,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 69,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "calls": [
+      {
+        "line": 32,
+        "call": "git_result(repo, *argv)"
+      },
+      {
+        "line": 93,
+        "call": "git(args.repo, 'status', '--porcelain', '--untracked-files=no')"
+      },
+      {
+        "line": 117,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 155,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 211,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 212,
+        "call": "git_bytes(args.repo, 'config', '--null', '--list', '--show-origin', '--show-scope')"
+      },
+      {
+        "line": 91,
+        "call": "git(args.repo, 'rev-parse', 'HEAD')"
+      },
+      {
+        "line": 247,
+        "call": "git(args.repo, 'rev-parse', args.candidate + '^{tree}')"
+      },
+      {
+        "line": 43,
+        "call": "git_bytes(repo, 'ls-files', '-z')"
+      },
+      {
+        "line": 111,
+        "call": "git(args.repo, 'rev-parse', args.candidate + ':' + name)"
+      },
+      {
+        "line": 38,
+        "call": "git_bytes(repo, *argv)"
+      },
+      {
+        "line": 130,
+        "call": "git_result(args.repo, 'config', '--get', name)"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git_result",
+        "line": 20,
+        "source": "def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:\n    \"\"\"Run a resolved Git binary with structured repository-owned arguments.\"\"\"\n    executable = shutil.which('git')\n    if executable is None:\n        raise FileNotFoundError('Git executable unavailable')\n    command = [str(Path(executable).resolve()), '-C', str(repo), *argv]\n    return subprocess.run(command, capture_output=True, check=False)"
+      },
+      {
+        "name": "git_bytes",
+        "line": 30,
+        "source": "def git_bytes(repo: Path, *argv: str) -> bytes:\n    \"\"\"Return complete Git output bytes, preserving command failure.\"\"\"\n    result = git_result(repo, *argv)\n    result.check_returncode()\n    return result.stdout"
+      },
+      {
+        "name": "git",
+        "line": 37,
+        "source": "def git(repo: Path, *argv: str) -> str:\n    return git_bytes(repo, *argv).decode().strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/run_check.py",
+    "calls": [
+      {
+        "line": 51,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 80,
+        "call": "git('rev-parse', args.candidate + '^{tree}')"
+      },
+      {
+        "line": 81,
+        "call": "git('rev-parse', 'HEAD')"
+      },
+      {
+        "line": 36,
+        "call": "subprocess.check_output([shutil.which('git') or '/usr/bin/git', '-C', str(args.repo), *argv], text=True)"
+      },
+      {
+        "line": 41,
+        "call": "git('ls-files', 'policy-engine/src', 'policy-engine/tests')"
+      }
+    ],
+    "functions": [
+      {
+        "name": "git",
+        "line": 34,
+        "source": "def git(*argv: str) -> str:\n    return subprocess.check_output([shutil.which('git') or '/usr/bin/git', '-C', str(args.repo), *argv], text=True).strip()"
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+    "calls": [
+      {
+        "line": 23,
+        "call": "subprocess.check_output(['/usr/bin/git', 'show', f'{base}:{path}'], text=True)"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact-source-replay.py",
+    "calls": [
+      {
+        "line": 60,
+        "call": "subprocess.check_output([_resolve_executable('git'), 'show', f'{SOURCE}:{path}'])"
+      }
+    ],
+    "functions": []
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py",
+    "calls": [
+      {
+        "line": 75,
+        "call": "subprocess.check_call(['/usr/bin/git', '-C', str(repo), 'merge-base', '--is-ancestor', receipt['slice_base_sha'], candidate])"
+      },
+      {
+        "line": 62,
+        "call": "subprocess.check_output(['/usr/bin/git', '-C', str(repo), 'show', publication_revision + ':' + relative])"
+      },
+      {
+        "line": 92,
+        "call": "subprocess.check_output(['/usr/bin/git', '-C', str(repo), 'show', candidate + ':' + source['path']])"
+      },
+      {
+        "line": 73,
+        "call": "git('rev-parse', candidate + '^{tree}')"
+      },
+      {
+        "line": 86,
+        "call": "git('diff', '--name-only', receipt['slice_base_sha'], candidate)"
+      },
+      {
+        "line": 52,
+        "call": "subprocess.check_output(['/usr/bin/git', '-C', str(repo), *args], text=True)"
+      },
+      {
+        "line": 90,
+        "call": "git('rev-parse', candidate + ':' + source['path'])"
+      }
+    ],
+    "functions": [
+      {
+        "name": "verify",
+        "line": 31,
+        "source": "def verify(repo: Path, receipt: dict, index: dict, *, publication_revision: str | None=None) -> dict:\n    \"\"\"Reject a stale or forged footprint, source identity, or evidence digest.\"\"\"\n    candidate = receipt['candidate_sha']\n    admit_identity(candidate)\n    admit_identity(receipt['slice_base_sha'])\n    if publication_revision is not None:\n        admit_identity(publication_revision)\n    for source in receipt['source_environment_input_identity']['source_inputs']:\n        admit_identity(candidate, source['path'])\n    for path in receipt['complete_base_candidate_diff_paths']:\n        admit_identity(candidate, path)\n    references = list(index['files'])\n    for check in receipt['checks']:\n        references.extend([check['output'], check['execution_receipt']])\n    for reference in references:\n        admit_identity(candidate, reference['path'])\n\n    def git(*args: str) -> str:\n        return subprocess.check_output(['/usr/bin/git', '-C', str(repo), *args], text=True).strip()\n\n    def publication_bytes(relative: str) -> bytes:\n        if publication_revision is None:\n            path = (repo / relative).resolve()\n            path.relative_to(repo.resolve())\n            return path.read_bytes()\n        return subprocess.check_output(['/usr/bin/git', '-C', str(repo), 'show', publication_revision + ':' + relative])\n\n    def check_ref(ref: dict) -> None:\n        data = publication_byt"
+      },
+      {
+        "name": "git",
+        "line": 51,
+        "source": "def git(*args: str) -> str:\n    return subprocess.check_output(['/usr/bin/git', '-C', str(repo), *args], text=True).strip()"
+      }
+    ]
+  }
+]

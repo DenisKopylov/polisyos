@@ -1,0 +1,21 @@
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/docs/reference/public-surface.md:2425:load_foundry_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/docs/reference/public-surface.md:5404:load_foundry_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/docs/reference/public-surface.md:5440:load_foundry_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml:6:summary = "The admitted Foundry uncertainty facade exports load_foundry_calibration_report; Calibration re-exports the same object and the legacy uncertainty Node uses it before dispatch."
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml:10:migration = "Use polisyos.calibration.load_foundry_calibration_report for Foundry report readback."
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml:26:release_note = "Calibration re-exports the strict canonical Foundry calibration reader by identity through the admitted Foundry uncertainty facade."
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml:10:migration = "Use polisyos.foundry.uncertainty.load_foundry_calibration_report for calibrated input readback."
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/calibration/README.md:31:`load_foundry_calibration_report` is the canonical Foundry CAS reader exported
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/calibration/__init__.py:41:from polisyos.foundry.uncertainty import load_foundry_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/calibration/__init__.py:66:    "load_foundry_calibration_report",
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/foundry/uncertainty/README.md:78:`load_foundry_calibration_report` exposes the canonical report reader for
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/foundry/uncertainty/README.md:79:uncertainty consumers. Calibration re-exports the same object; both entrypoints
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/foundry/uncertainty/__init__.py:5:from ..calibration.report import load_calibration_report as load_foundry_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/foundry/uncertainty/__init__.py:56:    "load_foundry_calibration_report",
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:12:from polisyos.calibration import load_foundry_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:336:        report = load_foundry_calibration_report(ctx.store, calibration_ref)
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/tests/unit/calibration/test_evidence_facades.py:18:    assert calibration.load_foundry_calibration_report is owner.load_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/tests/unit/calibration/test_evidence_facades.py:19:    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/tests/unit/calibration/test_evidence_facades.py:20:    assert "load_foundry_calibration_report" in uncertainty.__all__
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/tests/unit/calibration/test_evidence_facades.py:21:    assert "load_foundry_calibration_report" in calibration.__all__
+5e3e3727685132f270a3a07b9f63dd962a88cd96:policy-engine/tests/unit/calibration/test_evidence_facades.py:28:        calibration.load_foundry_calibration_report(store, wrong)

@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.E.continuation-checkpoint.v1",
+  "base_sha": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+  "candidate_sha": "93d3b713abc5e40a0ef85d7fb86e568b36a3e124",
+  "candidate_tree": "211636937e6e9c3d9fcb8480084d624c7ae746f3",
+  "integrated_G_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "publication_branch": "codex/e02-E-continuation-20261006",
+  "merge_method": "ordinary append-only merge; no source implementation change",
+  "historical_numeric_source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "historical_evidence_publication": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+  "baseline_importer_outcome": "PASS",
+  "baseline_evidence_grade": "transfer_and_navigation_only",
+  "raw_archives_received": 0,
+  "admission_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/admissions/root-resume.json",
+      "bytes": 123265,
+      "sha256": "bc2fc8cfce646d89a14bd0c3cb1e972a8dbf6458cb2ca637bbd954978ddfddee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/admissions/doe-resume.json",
+      "bytes": 123184,
+      "sha256": "cff079e1ab957c5f15f4b5c3085facc5a54181e4ca20852fb6f8d2b4c8456180"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/admissions/frc-resume.json",
+      "bytes": 123184,
+      "sha256": "d28d61f54bbfa5aead7cfe173144cc5b90692a0ab61634a38082046344d82815"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/admissions/imports-resume.json",
+      "bytes": 123245,
+      "sha256": "6343213ac7339487a2a78e416a0d42de12dafcbf6a80f72306fb8a179795ceb3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/admissions/lint-cal05-resume.json",
+      "bytes": 123202,
+      "sha256": "624c18b80adab3107a78b8b08106a01cc4e301f06bf958e0ec4ebb81e9e0115b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/admissions/lint-resume.json",
+      "bytes": 123166,
+      "sha256": "152b47fe2053b2138ad5c565d8a373c56c6b3fb25ffdeea0e6a561aedc9a83d7"
+    }
+  ],
+  "inactive_divergent_lane": {
+    "path": "/workspace/e02-E-assessment",
+    "branch": "codex/e02-E-assessment",
+    "premerge_head": "8520e63ca6d854943d29abd94804b7f0e355b963",
+    "ordinary_merge_target": "93d3b713abc5e40a0ef85d7fb86e568b36a3e124",
+    "conflict_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-05-predictive-calibration-inputs.toml",
+      "policy-engine/src/polisyos/calibration/curve.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "policy-engine/tests/unit/calibration/test_continuous.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "policy-engine/tests/unit/remediation/test_bkt_03.py"
+    ],
+    "state": "preserved pending canonical-owner reconciliation; no edits or old commits imported into active E topic",
+    "cleanup_eligible": false,
+    "lint_assignment": "admitted clean ancestor cal05 lane replaces this unused attempted lane"
+  },
+  "capability_state": "verification_missing",
+  "scope": "Git/admission/baseline import custody only; no new numeric PASS or finding closure",
+  "next_work": [
+    "existing public import routes",
+    "real ForecastOwner/ETS/CAS fresh consumer witness and A packet",
+    "Morris actual analysis-work admission",
+    "E publication utility lint correction",
+    "independent source reviews then one frozen broad wave"
+  ]
+}

@@ -1,0 +1,516 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "doe-block-replay-20261006",
+  "closure_ids": [
+    "B97",
+    "B98",
+    "B99",
+    "B100",
+    "B101",
+    "B102",
+    "B103",
+    "B104",
+    "B105"
+  ],
+  "bundle_ids": [
+    "DOE-01",
+    "DOE-02",
+    "DOE-03"
+  ],
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "integration_dependency_sha": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "implementation_commits": [
+    "f07b7d485531b96a206ae9b2aad7acf5f2755324"
+  ],
+  "candidate_tree_sha": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+  "branch": "codex/e02-E-doe-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/39",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py"
+  ],
+  "mandatory_companions": {
+    "source_commit": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+      "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py"
+    ],
+    "handoff_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/",
+    "scripts": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_controls.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_witness.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_old_source.py"
+    ]
+  },
+  "original_criteria": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "ref": "028829629a9c30454e44d25e7bea7be3ea05b561",
+      "git_blob": "12d257bab0c7037328730072e54e90f8269df1c8"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+      "ref": "028829629a9c30454e44d25e7bea7be3ea05b561",
+      "git_blob": "15a7f1540e00b15b4905d9569cafa6425e185793"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md",
+      "ref": "028829629a9c30454e44d25e7bea7be3ea05b561",
+      "git_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235"
+    }
+  ],
+  "baseline_navigation": {
+    "importer_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "outcome": "PASS",
+    "verification_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json@028829629a9c30454e44d25e7bea7be3ea05b561",
+    "finding_queries": [
+      "B100",
+      "B102",
+      "B105"
+    ],
+    "source_identity_limitation": "Source-reported compact results, 0 VM raw archives; no baseline result is a candidate PASS. Full immutable source/cell/environment refs remain in tracked sources.json/cells.tsv/routes.tsv and previous doe-ordered-20261006.json."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/remediation/test_doe_01.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/remediation/test_doe_03.py",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/doe/frozen-native.xml"
+      ],
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/environment.json",
+      "input_closure": "Entire tests/unit/scientist/methods/doe plus autotune sensitivity_bridge and DOE-01/02/03 remediation; locked SALib1.5.2; synthetic known mathematical laws",
+      "outcome": "PASS",
+      "result": "123 passed / 0 failed / 0 skipped; 5 disclosed warnings",
+      "execution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.execution.json",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.stdout.txt",
+      "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.xml"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::TestS2InteractionRanking::test_native_interaction_matches_independent_anova_oracle",
+        "-p",
+        "doe_block_replay_controls"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:docs/research/e02-cloud-test-plan/implementation-handoffs/E",
+        "E02_DOE_BLOCK_CONTROL": "interaction"
+      },
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "control_verdict": "PASS (runtime property removed, witness fails)",
+      "result": "1 failed, zero-valued S1 differs from 12/25",
+      "exit_code": 1,
+      "control_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_controls.py",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/interaction-removal-final.stdout.txt",
+      "historical_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/interaction-removal.stdout.txt"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_refuses_broken_block_membership_or_interior_roles",
+        "-p",
+        "doe_block_replay_controls"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:docs/research/e02-cloud-test-plan/implementation-handoffs/E",
+        "E02_DOE_BLOCK_CONTROL": "blocks"
+      },
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "control_verdict": "PASS (runtime property removed, witness fails)",
+      "result": "3 failed, missing expected refusals",
+      "exit_code": 1,
+      "control_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_controls.py",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/block-admission-removal-final.stdout.txt",
+      "historical_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/block-admission-removal.stdout.txt"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_sobol_whole_paired_block_replay_keeps_estimands_and_rebinds_content",
+        "-p",
+        "doe_block_replay_controls"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:docs/research/e02-cloud-test-plan/implementation-handoffs/E",
+        "E02_DOE_BLOCK_CONTROL": "readback"
+      },
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "control_verdict": "PASS (runtime property removed, witness fails)",
+      "result": "1 failed, integrity-valid stale receipt consumed",
+      "exit_code": 1,
+      "control_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_controls.py",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/recompute-readback-removal-final.stdout.txt",
+      "historical_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/recompute-readback-removal.stdout.txt"
+    },
+    {
+      "command": [
+        "python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_old_source.py",
+        "--source-root",
+        "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src"
+      ],
+      "target_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "target_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "outcome": "FAIL",
+      "result": "Old valid paired-block replay refuses; interaction analytic oracle passes. 1 failed / 1 passed; all 293 imported polisyos.* modules source-bound to exact58e archive.",
+      "exit_code": 1,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/exact-58e-final.stdout.txt",
+      "harness_correction": "Initial PYTHONPATH-only selector was overridden by tests/conftest.py; initial 2 PASS are non-deciding (source binding not established). Preserve original stdout. Corrected harness preloads old package and reconciles every loaded polisyos.* module path.",
+      "historical_nondeciding_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/exact-58e-falsifier.stdout.txt",
+      "slice_base_same_mechanism_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/base-falsifier.stdout.txt",
+      "historical_corrected_inline_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/exact-58e-falsifier-corrected.stdout.txt",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src"
+      }
+    },
+    {
+      "command": [
+        "python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_witness.py",
+        "produce",
+        "--cas-root",
+        "/workspace/e02-E-pr38-r2-receipts/doe/configured-cas",
+        "--packet",
+        "/workspace/e02-E-pr38-r2-receipts/doe/producer-packet.json"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "PASS",
+      "result": "Actual SensitivityBridge6144callbacks→CAS; fresh Python process→_load_analysis→from_artifact→single/batch candidates; content-valid S2=.99 receipt refuses at actual reader.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/fresh-process.stdout.txt",
+      "input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_witness.py"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "ruff",
+        "check"
+      ],
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "PASS",
+      "input_closure": "Changed source/tests, separately all3 evidence scripts",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/ruff.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/evidence-ruff.stdout.txt"
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "ruff",
+        "format",
+        "--check"
+      ],
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "PASS",
+      "input_closure": "Changed source/tests, separately all3 evidence scripts",
+      "output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/format.stdout.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/evidence-format.stdout.txt"
+      ]
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "outcome": "UNRUN",
+      "detail": "Started but ongoing at receipt boundary; unified exec session98867, PID84764, cwd product lane. Root owns completion/correctly configured follow-up. Original omitted UV_NO_SYNC=1 and nested generator invoked uv sync --frozen; do not treat absent completion as PASS or inherited FAIL.",
+      "live_output_path": "/workspace/e02-E-pr38-r2-receipts/doe/architecture.stdout.txt",
+      "P41": "not_established",
+      "next_owner": "E root"
+    }
+  ],
+  "property": {
+    "statement": "Independent x,zUniform[0,1], y=x+z+2xz native SALib1.5.2 indices agree with ANOVA truth; whole paired Saltelli blocks can be permuted while preserving point estimands and changing actual order/content identities. Missing/duplicate/interior-modified blocks refuse; old receipt rejects fresh content.",
+    "runtime_path": [
+      "SensitivityBridge.analyze_search_space",
+      "generate_sensitivity_samples (SALib.sample.sobol)",
+      "analyze_sensitivity (SALib.analyze.sobol)",
+      "_persist_analysis (configured CAS)",
+      "fresh-process _load_analysis",
+      "SensitivityAwareCandidateGenerator.from_artifact",
+      "generate/generate_batch _sensitivity refs"
+    ],
+    "independent_oracle": {
+      "derivation": "Centered Y=1.5+2Xc+2Zc+2XcZc; orthogonal variance components1/3,1/3,1/36; total25/36",
+      "S1": [
+        0.48,
+        0.48
+      ],
+      "S2": 0.04,
+      "ST": [
+        0.52,
+        0.52
+      ],
+      "absolute_numerical_tolerance": 0.01,
+      "point_reorder_tolerance": 1e-12
+    },
+    "proxy_divergence": "A shaped SALib ResultDict/list of interaction tuples can carry zeros instead of correct ANOVA indices; old shape-only test remained green. CAS integrity is also compatible with forged S2 or stale result after complete paired reorder; fresh recomputation rejects.",
+    "negative_controls": [
+      "Zero numerical indices while retaining result shapes",
+      "Remove exact block membership with metadata markers intact",
+      "Remove numerical recomputation while retaining CAS kind/schema/hash",
+      "Paired interior role swap",
+      "Duplicate or missing complete block",
+      "Fresh integrity-valid stale receipt",
+      "Fresh integrity-valid forged S2"
+    ]
+  },
+  "predicate_basis": {
+    "block_membership": "recomputed exact float64 canonical block bytes with multiplicity/interior order",
+    "ordered_content_identity": "recomputed; actual X/Y rows hashed without sorting or replacing stored law",
+    "numeric_truth": "independently_reconciled against separate finite analytic ANOVA law",
+    "reader_numeric_result": "recomputed from resolved complete plan/X/Y through real SALib analyzer",
+    "production_population_law": "not_established; input_law is consumer_asserted experimental purpose",
+    "default_search_invocation": "not_established; D-owned bridge_missing"
+  },
+  "compatibility": {
+    "receipt_kind_schema": "doe_sensitivity_analysis/1.0 unchanged",
+    "canonical_seeded_v1_replay": "unchanged metadata/results and writer/loader; fresh original and newly reordered receipt both tested",
+    "new_admitted_boundary": "Exact canonical full-block multiset only; arbitrary resampling/row permutations not admitted"
+  },
+  "capability_state_or_finding_state": "E numeric producer/artifact/fresh-reader witness established; default Search bridge_missing with owner D; individual finding acceptance pending",
+  "finding_decisions": [
+    {
+      "id": "B97",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B98",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B99",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B100",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "D Search/autotune",
+      "next_result": "Default Search native driver persists/reopens exact analysis ref and visibly consumes ranking under matched experimental law"
+    },
+    {
+      "id": "B101",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B102",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B103",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B104",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    },
+    {
+      "id": "B105",
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "decision_authority": "Accountable finding owner acceptance remains pending; code acceptance separately G",
+      "next_owner": "Scientist DoE accountable owner via E/G",
+      "next_result": "Individual acceptance of original criterion using this source plus unchanged native controls; no automatic partial→closed"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "D applies existing configured-store producer/from_artifact wiring at SearchLoopRunner.run and proves actual default/native Search behavior and persisted exact ref; packet=policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/D-consumer-packet.md",
+    "Core/IR facades/admission are root-coordinated; this source adds no cross-root import and does not edit shared facades.",
+    "Population source law, evaluator provenance, history, and causal/treatment/policy authority are not established by this synthetic exploratory parameter experiment.",
+    "Morris whole-trajectory/unit-rescaling controls reused in native123PASS; nonuniform Morris uncertainty and seeded FAST remain explicitly unavailable in prior supported boundary.",
+    "E root owns ongoing architecture session and all independent review/combined source freeze/common wave; no author self-review."
+  ],
+  "publication": {
+    "source_push": "PASS append-only",
+    "remote_branch_readback_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+    "remote_source_readback": "git show origin/codex/e02-E-doe-20261006:policy-engine/src/polisyos/scientist/methods/doe/analysis.py read back after fetch",
+    "artifact_attach": "Tool invoked for PR39 but remained pending>60s and call interrupted; PR39 was attached in previous root turn. Root may attach again."
+  },
+  "cleanup": {
+    "action": "none; native Trash unavailable; no permanent deletion",
+    "candidates_after_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/doe/configured-cas",
+      "/workspace/e02-E-pr38-r2-receipts/doe/producer-packet.json",
+      "pytest temp stores belonging to native/removal checks"
+    ],
+    "shared_old_source": "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source remains active/shared; MC/root ownership, no removal",
+    "preserve": "Code/docs/Git receipts/logs and unique inputs; no Trash emptying"
+  },
+  "output_integrity": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/D-consumer-packet.md": {
+      "bytes": 4742,
+      "sha256": "d3442144c5c6dde10980a21818fdbef03ea130c298744e8484c39ba0b44eeedc"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/base-falsifier.stdout.txt": {
+      "bytes": 3406,
+      "sha256": "add4e3cdf685a9f654cfcfde434030214f3b4b13dd2159f14748742935d6145f"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/block-admission-removal-final.stdout.txt": {
+      "bytes": 4346,
+      "sha256": "b247ced7e7a95493517f935d0b15c4c2e388773feaaa62c0b787bfaf51e33691"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/block-admission-removal.stdout.txt": {
+      "bytes": 4346,
+      "sha256": "d5ec8785ed9a2328dfa22dff635c0c8bd6d444dadceaac62804858bcb0c7b141"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/environment.json": {
+      "bytes": 881,
+      "sha256": "2eb5a97e4eabbba1063ebee037ca997f0dc62e61dbee953ec9b6a931fcba2b24"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/evidence-format.stdout.txt": {
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/evidence-ruff.stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/exact-58e-falsifier-corrected.stdout.txt": {
+      "bytes": 3741,
+      "sha256": "510fa7782e27d53a45a8727387633f8409667219d0e843de029ba9802e492270"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/exact-58e-falsifier.stdout.txt": {
+      "bytes": 98,
+      "sha256": "c8719b53b3343e3e4de42c39b9968cdbaeec68f285d730b435dc36438c047820"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/exact-58e-final.stdout.txt": {
+      "bytes": 3739,
+      "sha256": "cbc658baa99956ac6911fd1c939524c990821885be7be4a2b6b951c51ea50f4f"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/format.stdout.txt": {
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/fresh-process.stdout.txt": {
+      "bytes": 1302,
+      "sha256": "62399c80f3fd48b50c470fb1441bb0d90116cede6164a8628dccb4a8f177359a"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.execution.json": {
+      "bytes": 750,
+      "sha256": "2ae3a4b156fe1a3b4c7de03e7f1d3d0c49c4da0078e5a0c32f5c47db4092bc80"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.stdout.txt": {
+      "bytes": 1621,
+      "sha256": "0dd1b3cac80bc105672865868b987db8a241ce7eeaf1689373e488807c020b33"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/frozen-native.xml": {
+      "bytes": 19356,
+      "sha256": "aee3dbd8b32bbbbe9865bf42bcade515b9b00390e2e2e1e124417b35ba310805"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/interaction-removal-final.stdout.txt": {
+      "bytes": 2129,
+      "sha256": "70afd25c0a209083a20ff0aa981c793d842d78385b539e2efe8c5b9de2732c2d"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/interaction-removal.stdout.txt": {
+      "bytes": 2129,
+      "sha256": "d20c9a852cc8d4e5738afb3e378529b92cf2228015b82d28ac958dffe8106435"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/recompute-readback-removal-final.stdout.txt": {
+      "bytes": 3600,
+      "sha256": "e79506fa3b2cba7072a4086cdcacf04eb5ae1dcd0ab5d9b10c061792b5b3f6a6"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/recompute-readback-removal.stdout.txt": {
+      "bytes": 3600,
+      "sha256": "533b4dbc3f18fd9e23e5998eab1a8e9efc6e011ff379b194b0c0eed7f9b32cbb"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/ruff.stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  "workspace_admission": {
+    "mode": "resume",
+    "branch": "codex/e02-E-doe-20261006",
+    "path": "/workspace/e02-E-doe-20261006",
+    "status": "admitted",
+    "full_json_path": "/workspace/e02-E-pr38-r2-receipts/doe-resume.json",
+    "full_json_sha256": "c050bb5de6c90b581743db7ab33aceaa714990f38fd56ca958880e41a1a579a1",
+    "full_json_owner": "E root retains complete admission JSON; no new checkout created"
+  }
+}

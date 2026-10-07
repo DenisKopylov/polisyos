@@ -1,0 +1,22 @@
+import copy,hashlib,json
+from pathlib import Path
+S=Path('/tmp/e02-E-layer3-root-write-attribution-64d-20261007');O=Path('/tmp/e02-E-layer3-owner-independent-64d')
+def ref(p):p=Path(p);b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def need(c,m):
+ if not c:raise ValueError(m)
+p=S/'publication-selection-v3-delta.json';sel=json.loads(p.read_text())
+for a in sel['assets']:
+ r=ref(a['original_path']);need(r['bytes']==a['bytes'] and r['sha256']==a['sha256'],'currentV3selectedasset')
+packet=json.loads((S/'owner-packet-v3.json').read_text());need(packet['historical_v2_observer']['qualification'].startswith('base-inside removal factory returned outside child'),'preciseoldV2mislabel preserved')
+need(packet['owner_patch']['applied'] is False,'proposalunapplied')
+for mode in ['normal','optimized']:
+ d=json.loads((S/f'fixture-v3-controls.{mode}.json').read_text());need(d['controls']==5,'actualV3fivecases')
+ for c in d['cases']:
+  if c['property_removed']:
+   need(c['actual_yielded_root_inside_checkout'] is True and c['actual_counters']['archive']==1 and c['actual_counters']['extract']==1 and c['defining_archive_outside_checkout']=='FAIL','actualV3consistentcontainment')
+  else:need(c['actual_yielded_root_inside_checkout'] is False,'nonremovedactualoutsideornoyield')
+raw_normal=O/'independent-owner-review-normal.json';raw_opt=O/'independent-owner-review-optimized.json';n=json.loads(raw_normal.read_text());m=json.loads(raw_opt.read_text())
+need(len(n['fixture_controls'])==6 and len(m['fixture_controls'])==6,'bothindependentactual6controls')
+r=copy.deepcopy(n);r['schema']='policyos.e02.independent_G_layer3_test_isolation_owner_packet_review.v3';r['closed_author_current_V3_companion']=ref(S/'owner-packet-v3.json');r['closed_author_V3_selector']=ref(p);r['author_original_V2_mislabel']='Raw base-inside removal previously had outside child; missingrefusal confirmed but archivedlocationFAIL label was false. CorrectiveV3 consistentfactory control and independent6case observations now distinguish it; originalrawbytes retained.'
+r['complete_independent_normal_optimized']={'normal':ref(raw_normal),'optimized':ref(raw_opt),'writer_control_count_each':15,'fixture_admission_control_count_each':6,'no_full_nativeproduct_archive_or_runtimebundle_execution':True};r['final_disposition']='GO owner-ready V2 tests-only proposal and corrected V3 observer packet; full native fixture/complete inputisolation/currentP41 cause not_established/UNRUN remain separate'
+p=O/'independent-final-owner-review-v3.json';p.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'disposition':r['final_disposition'],'patch':r['current_patch'],'final_receipt':ref(p),'normal':ref(raw_normal),'optimized':ref(raw_opt),'actual_source_ROOT_writes':0,'historical_V1late_refusal_and_V2observer_mislabel_preserved':True},indent=2))

@@ -1,0 +1,84 @@
+{
+  "actual_ruff_config": "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+  "actual_ruff_config_sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+  "checks": [
+    {
+      "name": "ruff-check",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/plan_wave.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/run_check.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/uncapped_umbrella.py"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/final-ruff-check.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "ruff-format-check",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/plan_wave.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/run_check.py",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/uncapped_umbrella.py"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/final-ruff-format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "name": "git-apply-check",
+      "argv": [
+        "git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/wave-controls-configured-repair-final.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/final-git-apply-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "preimage_sha256": "bac7106ab2a58cafa920c3db05b4a55c29ea50bba36b915970f1050edb502878",
+      "postimage_sha256": "e10d05cdaec06a039721a24045fa785d5b9d39ecaeb6645caaeef59a5c6aa020",
+      "postimage_bytes": 22011,
+      "syntax_ast_parse": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "preimage_sha256": "56240a2b6396610022a8bd9bef6abb964308f1f6aea33b1004af2caa9f9193d7",
+      "postimage_sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6",
+      "postimage_bytes": 11192,
+      "syntax_ast_parse": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "preimage_sha256": "3ca556f1ffad614d5848d00f2ce44931fbd248abca2e3a80f99b9d182d0b79ab",
+      "postimage_sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173",
+      "postimage_bytes": 7225,
+      "syntax_ast_parse": true
+    }
+  ],
+  "only_three_harness_files_checked": true,
+  "full_211_path_gate_UNRUN": true,
+  "author_check_not_independent_review": true
+}

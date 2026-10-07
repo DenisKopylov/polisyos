@@ -1,0 +1,76 @@
+from __future__ import annotations
+import __future__
+import ast
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import uncertainty as u
+from polisyos.ir.analytics import posterior_summary as ps
+from polisyos.core import artifacts
+ROOT=Path('/workspace/e02-E-doe-20261006'); OUT=Path(__file__).parent
+SHA='c539dba7d25b1495f80587422145cbd55e5f03e6'; TREE='33973d4d8552da4bcef7a458b417a948bfe196fc';BASE='bfbd53a1f45795ad6901bc4bb7685237b0c3d20b'
+def git(*a):return subprocess.check_output(['git',*a],cwd=ROOT)
+def guard():
+ assert git('rev-parse','HEAD').decode().strip()==SHA
+ assert git('rev-parse','HEAD^{tree}').decode().strip()==TREE
+ paths=git('diff','--name-only',BASE,SHA).decode().splitlines();assert len(paths)==5
+ rows=[]
+ for path in paths:
+  b=(ROOT/path).read_bytes();assert b==git('show',f'{SHA}:{path}')
+  rows.append({'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return {'sha':SHA,'tree':TREE,'files':rows,'status':git('status','--porcelain=v1','-uall').decode()}
+before=guard();rows=[]
+source=summarize_bayesian_calibration_posterior({'x':[0.0,1.0]},weights=[1.0,2.0],credible_mass=.32,draw_ids=['r0','r1']).parameter_envelopes['x']
+for variant in ('missing_profile_with_required_marker','unknown_profile_without_recognized_outer_markers'):
+ md=dict(source.metadata)
+ md.pop('posterior_summary_profile_id');md.pop('posterior_summary_profile_version')
+ if variant.startswith('missing'):md.pop('posterior_summary_profile')
+ else:md['posterior_summary_profile']={**md['posterior_summary_profile'],'profile_id':'urn:unsupported-posterior-law:9','profile_version':'9.0'}
+ assert md['posterior_summary_profile_required'] is True
+ forged=source.model_copy(update={'metadata':md});calls=[]
+ result=u.push_forward_envelope(lambda x:calls.append(x) or x,forged)
+ assert len(calls)==2
+ ref=u.persist_uncertainty_envelope(artifacts.FileSystemCAS(OUT/variant),result)
+ try:u.load_uncertainty_envelope(artifacts.FileSystemCAS(OUT/variant),ref)
+ except ValueError as e:late_error=str(e)
+ else:raise AssertionError('fresh strict reader unexpectedly admitted forged result')
+ rows.append({'case':variant,'defining_property':'unsupported declared profile refuses before map callback','outcome':'FAIL',
+   'actual_callbacks':len(calls),'actual_point':result.point_estimate,'actual_interval':result.confidence_interval,
+   'returned_gate_eligible':result.gate_eligible,'persisted_ref':ref.model_dump(mode='json'),'fresh_reader_late_refusal':late_error,
+   'required_marker_retained':True,'profile_discriminator_markers_removed':2})
+ print(json.dumps(rows[-1]),flush=True)
+# Full same-class sibling compression/pullback exposes late-only rejection too.
+md=dict(source.metadata);md.pop('posterior_summary_profile');md.pop('posterior_summary_profile_id');md.pop('posterior_summary_profile_version')
+forged=source.model_copy(update={'metadata':md})
+for operation in ('compress_moments','pull_back'):
+ calls=[]
+ result=u.compress_envelope(forged,target='moments') if operation=='compress_moments' else u.pull_back_envelope(lambda x:calls.append(x) or x,forged,upstream_particles=(0.0,1.0))
+ rows.append({'case':operation,'outcome':'FAIL','returned_with_unknown_declared_profile':True,'actual_callbacks':len(calls),
+              'required_marker_retained':result.metadata.get('posterior_summary_profile_required'),'gate_eligible':result.gate_eligible})
+ print(json.dumps(rows[-1]),flush=True)
+# Exact base function replay shows an unrelated legacy callback-order regression.
+path='policy-engine/src/polisyos/ir/analytics/uncertainty.py';body=git('show',f'{BASE}:{path}').decode();tree=ast.parse(body)
+node=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='push_forward_envelope')
+oldfunction=ast.get_source_segment(body,node)
+ns=dict(u.__dict__);exec(compile(oldfunction,'<exact-base-push-forward>', 'exec',flags=__future__.annotations.compiler_flag),ns)
+legacy=source.model_copy(update={'metadata':{}})
+callback_rows=[]
+for label,fn in [('exact_base',ns['push_forward_envelope']),('current_c539',u.push_forward_envelope)]:
+ calls=[]
+ def bad_first(x):
+  calls.append(x);return object() if x==0.0 else x
+ try:fn(bad_first,legacy)
+ except (TypeError,ValueError) as e:error={'type':type(e).__name__,'message':str(e)}
+ else:raise AssertionError('invalid legacy output unexpectedly admitted')
+ callback_rows.append({'source':label,'callbacks':calls,'error':error})
+assert len(callback_rows[0]['callbacks'])==1 and len(callback_rows[1]['callbacks'])==2
+rows.append({'case':'unprofiled_legacy_callback_order','outcome':'FAIL','base_function_ref':{'source':BASE,'path':path,'function':'push_forward_envelope','sha256':hashlib.sha256(oldfunction.encode()).hexdigest()},'observations':callback_rows})
+print(json.dumps(rows[-1]),flush=True)
+after=guard();assert before==after
+result={'schema':'e02-ir-composition-independent-concrete-gaps:1','disposition':'CHANGE_REQUIRED','source':SHA,'tree':TREE,'base':BASE,'before':before,'after':after,'cases':rows,
+ 'bucket_rules':[{'class':'unsupported declared law fallback','classification':'same profile-admission class at public-composition inlet; strict common reader must precede dispatch'},{'class':'legacy callback execution ordering','classification':'separate source compatibility regression outside Profile2 scope'}],
+ 'scope':'Actual public helpers/real producer/real CAS; no source edits/typecheck/fullsuite or external input authority'}
+(OUT/'gap-review.json').write_text(json.dumps(result,indent=2)+'\n')

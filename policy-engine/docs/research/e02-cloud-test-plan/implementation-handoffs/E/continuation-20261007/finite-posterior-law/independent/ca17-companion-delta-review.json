@@ -1,0 +1,25 @@
+{
+  "schema": "policyos.e02.finite_law_companion_delta_review.v1",
+  "candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "parent_candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "outcome": "GO companion delta",
+  "delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml",
+    "policy-engine/tests/unit/ir/test_posterior_ratio_law.py"
+  ],
+  "changed_product_Python": 0,
+  "unchanged_product_Python": 7,
+  "public_helper_identity": true,
+  "actual_public_ratio_weights": [
+    0.25,
+    0.5
+  ],
+  "actual_public_CDF_cuts": [
+    0.33333333333333337,
+    1.0
+  ],
+  "release_class": "persisted-artifact-format; distinct persistedProfile2 identity/IR ABI generator route with legacyEnvelope1.1",
+  "broader_numerical_checks_repeated": false,
+  "reuse": "Immutable2c32observations and3corrected-narrow delta cases under exactproduct equality; no counts rebranded as executed onca."
+}

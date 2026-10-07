@@ -1,0 +1,268 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "doe-runtime-admission-20261006",
+  "topic": "codex/e02-E-doe-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/39",
+  "base_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "base_tree": "b7dc087f12e08f388a73f582bf4888cda7500be8",
+  "candidate_sha": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "candidate_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "complete_implementation_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-doe-runtime-plan-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/multi_output.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+  ],
+  "companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-runtime-admission-20261006",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-runtime-admission-20261006.json"
+  ],
+  "commands": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/old_falsifier.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "source": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "exit_code": 0,
+      "output": "old-falsifier.stdout",
+      "result": "Actual old source over-cap materialization; not candidate PASS"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_plan_runtime_admission.py",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/targeted-corrected.xml",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/cache-corrected",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/benchmarks-corrected",
+        "--basetemp=/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/targeted-corrected-basetemp"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "exit_code": 0,
+      "output": "targeted-corrected.stdout",
+      "junit": "targeted-corrected.xml",
+      "counts": {
+        "tests": 77,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/doe",
+        "tests/unit/remediation/test_doe_01.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family.xml",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family-cache",
+        "--benchmark-storage=file:///workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family-benchmarks",
+        "--basetemp=/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family-basetemp"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "exit_code": 0,
+      "output": "family.stdout",
+      "junit": "family.xml",
+      "counts": {
+        "tests": 176,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/doe/sampling.py",
+        "src/polisyos/scientist/methods/doe/analysis.py",
+        "src/polisyos/scientist/methods/doe/_receipt.py",
+        "src/polisyos/scientist/methods/doe/adaptive.py",
+        "src/polisyos/scientist/methods/doe/multi_output.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1"
+      },
+      "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "exit_code": 0,
+      "output": "configured-ruff-corrected.stdout",
+      "scope": "Actual configured eight changed Python paths only"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/doe/sampling.py",
+        "src/polisyos/scientist/methods/doe/analysis.py",
+        "src/polisyos/scientist/methods/doe/_receipt.py",
+        "src/polisyos/scientist/methods/doe/adaptive.py",
+        "src/polisyos/scientist/methods/doe/multi_output.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1"
+      },
+      "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "exit_code": 0,
+      "output": "configured-format-corrected.stdout",
+      "scope": "Actual configured eight changed Python paths only"
+    }
+  ],
+  "environment_receipt": "doe-runtime-admission-20261006/environment-source.json",
+  "evidence_counts": {
+    "targeted-corrected.xml": {
+      "tests": 77,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "family.xml": {
+      "tests": 176,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "runtime_property": {
+    "single_predicate": "SensitivityPlan constructor structural validation and estimated_runs <= max_estimated_runs OR admitted explicit allow_large_run",
+    "mechanism": "Reconstruct defensive current scalar/nested plan snapshot before native work; existing mutable API unchanged",
+    "boundaries": [
+      "generate_sensitivity_samples",
+      "analyze_sensitivity",
+      "_analysis_identity",
+      "_build_salib_problem",
+      "_prepare_analysis_inputs",
+      "_persist_analysis",
+      "AdaptiveSampler.run",
+      "MultiOutputAnalyzer.analyze",
+      "RankingStabilityChecker.check"
+    ],
+    "positive": "Native SALib1.5.2 Morris/Sobol and explicit override. Actual callback mutation of original does not change effective admitted snapshot.",
+    "negative": "72 mutated/invalid-plan x boundary cases refuse before SALib/evaluator, including model_copy, model_construct and nested bounds. Removing actual helper code retains object/aliases and emits8 rows against cap2.",
+    "independent_numeric_oracle": "x,z iidU[0,1], y=2x+3z: Morris mu_star2,3;48 rows. Sobol contributions4/13,9/13 abs0.015,1536 rows. Explicit override allows8 against cap2.",
+    "old_exact_source_divergence": "Exacta267 real Morris sampler1 emits8(cap2), Sobol identity sampler1 emits8(cap4), direct analyzer1 succeeds; old compact PASS routes do not establish this candidate property."
+  },
+  "predicate_basis_frozen_P37": {
+    "budget": "Consumer-declared per-design plan; not global cumulative/server/institutional authority budget",
+    "row_identity": "Existing canonical SALib block/sampling/analyzer law and content-binding retained; affected native receipt/order checks rerun due changed inlet",
+    "authority": "No new gating flag, wire semantics or production-law claim"
+  },
+  "pattern_controls": [
+    "P01/P02 actual shared callers and fresh artifact reader in native family",
+    "P04/P05/P09 refusal retains authority limitations",
+    "P27/P31 canonical SALib/Pydantic constructor reused",
+    "P29/P32/P33 property removal plus old exact source falsifier",
+    "P37 frozen per-design predicate basis",
+    "P40 common second-level mutable admission escape repaired across9 boundaries",
+    "P41 exacta267 red; global inherited red not attributed"
+  ],
+  "finding_decisions": [
+    {
+      "finding": "B99",
+      "ledger_status_retained": "partial",
+      "bounded_proposal": "limited pending individual accountable DOE-01 owner acceptance",
+      "owner": "E / DOE-01 / E-W06 / P19 from full owner TSV",
+      "next_result": "Owner assesses shared cap positive/negative/native/readback evidence on final root candidate. This is not collective B97-B105 closure."
+    }
+  ],
+  "independent_review": "Independent CAL reviewer exact70c4 native66 controls PASS; final GO receipt/index separately published by reviewer/root. No self-review.",
+  "capability_state": "Native mechanism and caller/readback checked; existing DOE\u2192D default Search dependency remains active, not replaced by another runtime.",
+  "limitations": [
+    "Per-design guard only; explicit admitted override supported, no global cumulative monetary/server authority budget.",
+    "Generic budget fixture does not need production history; production/population/evaluator law remains not_established.",
+    "Common wave/global architecture/static/API/CI UNRUN here; root freezes and runs once after reviews.",
+    "Initial author test creation used root-relative output path from product cwd, no file created and pytest exit4 missing-file ERROR stdout/XML preserved. Corrected path yields77PASS. Initial configuredRuff I001 repaired without baseline/exception changes.",
+    "Family preserves Morris odd-num_levels and one-trajectory NumPy ddof warnings; no backend skipped."
+  ],
+  "next_owners": {
+    "E_root": "Merge reviewed original source and companion, include new admission test in final wave denominator, freeze after reviews and run common wave once.",
+    "D": "Existing DoE artifact\u2192SearchLoopRunner consumer ranking bridge packet; no second Search runtime.",
+    "G": "Code admission and formal original-criterion finding closure remain separate individual decisions."
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_performed": false,
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/targeted-basetemp",
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/targeted-corrected-basetemp",
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family-basetemp",
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/cache-corrected",
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family-cache",
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/benchmarks-corrected",
+      "/workspace/e02-E-pr38-r2-receipts/doe-budget-20261006/family-benchmarks"
+    ],
+    "preserve": "source/code/docs/original stdout/unique deciding outputs; no active cleanup while review/native inputs used"
+  },
+  "independent_review_refs": {
+    "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+    "reviewer": "CAL / cal_uq_r3, independent from DoE author",
+    "receipt_path": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/doe-budget-independent-review-70c4.json",
+    "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b",
+    "size_bytes": 14630,
+    "root_companion_required": "Copy original reviewer packet/index under root handoff; do not substitute author receipt for review."
+  },
+  "validation": {
+    "script": "doe-runtime-admission-20261006/validate-receipt.py.txt",
+    "command": [
+      "python3",
+      "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-runtime-admission-20261006/validate-receipt.py.txt",
+      "--repo",
+      "/workspace/e02-E-doe-20261006"
+    ],
+    "full_deciding_output": "doe-runtime-admission-20261006/validator.stdout",
+    "outcome": "PASS",
+    "corrupt_fields_refused": [
+      "candidate_tree",
+      "complete_implementation_footprint",
+      "evidence_counts"
+    ],
+    "scope": "Source/tree/footprint/complete moderate evidence hashes + actual JUnit; finding status unchanged"
+  }
+}

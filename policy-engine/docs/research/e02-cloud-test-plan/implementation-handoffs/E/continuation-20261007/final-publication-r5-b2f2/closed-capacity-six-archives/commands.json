@@ -1,0 +1,22 @@
+{
+  "actual_commands": [
+    [
+      "python3",
+      "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/archive_closed_catalogs.py"
+    ],
+    [
+      "python3",
+      "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/validate_closed_custody.py"
+    ],
+    [
+      "python3",
+      "-O",
+      "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/validate_closed_custody.py"
+    ]
+  ],
+  "streaming_buffer_bytes": 1048576,
+  "archive_member_verification": "all six complete native tar readbacks before plaintext retirement, not sampled",
+  "full_inventories": "retained ignored, exact refs in receipt.json",
+  "historical_original_paths": "unavailable until archive reopening, no compressed bytes pretending to be originals",
+  "native_check_or_finding_outcome": "not inferred from cleanup"
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "e02.E.original54.source3-delta.v1",
+  "immutable_reviewed_association_input": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+    "bytes": 243560,
+    "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+  },
+  "base": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "candidate": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "complete_source_delta_from_reviewed_v2": [
+    "M\tpolicy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py"
+  ],
+  "changed_source_identity": {
+    "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "before_bytes": 17634,
+    "before_sha256": "946e9160e69353b747b37de534f986e5b2d18eb0c6a070c6b65e3687f66692b1",
+    "after_bytes": 17806,
+    "after_sha256": "e8e81a9792edcc1a6df4d9783b02e64fc8f756f41d8eafd63d9bde40cd72dee3"
+  },
+  "qualification": "Parent records three typed adapter declaration narrowings only; guard/join/maintained fixture blobs unchanged. Source3 type/native behavior requires measured receipts; no source-shape PASS or inherited-red claim.",
+  "all54_rows_and_criteria_modified": false,
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "retained_E_author_proposals": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2
+  },
+  "formal_G_acceptance": 0,
+  "scientific_authority": "not_established",
+  "product_native_type_and_independent_review_receipt_binding": "pending; append independently reviewed source3 receipts; never rewrite the v2 input"
+}

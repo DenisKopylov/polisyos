@@ -1,0 +1,49 @@
+import pathlib,json,os,hashlib,subprocess,shutil,time
+r=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');parent=r/'architecture-retained-retry2';source=parent/'source';env=parent/'environment';proof=json.loads((r/'completed-retry2-source-copy-preflight.json').read_text());custody=json.loads((r/'completed-retry2-environment-custody.json').read_text());gate=json.loads((r/'architecture-retry2/receipt.json').read_text());mc=pathlib.Path('/workspace/e02-E-mc-20261006')
+if not proof['tracked_files_exact_Git_blob_binding'] or proof['mismatch_paths'] or custody['package_count']!=159 or gate['exit_code']!=1 or gate['canonical_selector_outcome']!='FAIL' or not gate['source_immutable']:raise RuntimeError('closed deciding proof incomplete')
+for row in custody['outputs']:
+ q=pathlib.Path(row['path']);d=q.read_bytes()
+ if len(d)!=row['bytes'] or hashlib.sha256(d).hexdigest()!=row['sha256']:raise RuntimeError('deciding output changed')
+if len(custody['outputs'])!=6:raise RuntimeError('full output denominator unavailable')
+if list(source.rglob('.git')) or list(env.rglob('.git')):raise RuntimeError('Git data is not eligible for deletion')
+unique=r/'completed-retry2-unique-native-instrumentation';unique.mkdir();saved=[]
+for row in proof['untracked_regular_files']:
+ q=source/row['relative'];d=q.read_bytes()
+ if len(d)!=row['bytes'] or hashlib.sha256(d).hexdigest()!=row['sha256']:raise RuntimeError('unique instrumentation changed')
+ target=unique/pathlib.Path(row['relative']).name
+ with target.open('xb') as f:f.write(d)
+ saved.append({'source_path':str(q),'preserved_path':str(target),'bytes':len(d),'sha256':hashlib.sha256(d).hexdigest()})
+users=[];unknown=[];outside=[];scanned=0
+for proc in pathlib.Path('/proc').iterdir():
+ if not proc.name.isdigit():continue
+ try:
+  info=dict(x.split(':',1) for x in (proc/'status').read_text().splitlines() if ':' in x)
+  if info['State'].strip().startswith('Z'):continue
+  uid=int(info['Uid'].split()[0])
+  if uid!=os.getuid():outside.append({'pid':int(proc.name),'uid':uid,'name':info['Name'].strip(),'scope':'host services outside copied-workspace task actor scope'});continue
+  if int(proc.name)==os.getpid():continue
+  scanned+=1;matches=[];cmd=(proc/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
+  for target in (source,env):
+   if str(target) in cmd:matches.append({'target':str(target),'kind':'command'})
+   for key in ('cwd','exe'):
+    try:
+     if os.readlink(proc/key).startswith(str(target)):matches.append({'target':str(target),'kind':key})
+    except FileNotFoundError:pass
+   for fd in (proc/'fd').iterdir():
+    try:
+     if os.readlink(fd).startswith(str(target)):matches.append({'target':str(target),'kind':'fd/'+fd.name})
+    except FileNotFoundError:pass
+  if matches:users.append({'pid':int(proc.name),'matches':matches})
+ except FileNotFoundError:pass
+ except PermissionError as exc:unknown.append({'pid':proc.name,'error':str(exc)})
+if users or unknown:raise RuntimeError('fresh scoped no-active-user proof unavailable: '+json.dumps({'users':users,'unknown':unknown}))
+head=subprocess.check_output(['git','--no-optional-locks','rev-parse','HEAD'],cwd=mc,text=True).strip();status=subprocess.check_output(['git','--no-optional-locks','status','--porcelain'],cwd=mc,text=True)
+if head!=gate['source'] or status:raise RuntimeError('live checkout not exact clean source')
+def state():return {'tmp_free':os.statvfs('/tmp').f_bavail*os.statvfs('/tmp').f_frsize,'memory':{p:pathlib.Path('/sys/fs/cgroup',p).read_text() for p in ('memory.current','memory.max','memory.events','memory.stat')}}
+def ref(q):d=q.read_bytes();return {'path':str(q),'bytes':len(d),'sha256':hashlib.sha256(d).hexdigest()}
+pre={'schema':'policyos.e02.E.completed_canonical_copies_cleanup_preflight.v1','source':head,'tree':gate['tree'],'delete_exact_paths':[str(source),str(env)],'source_Git_blobs':proof['binding_index'],'tracked_Git_duplicate_regular_files':proof['tracked_regular_file_count'],'tracked_Git_duplicate_bytes':proof['tracked_regular_bytes'],'environment_all_distribution_file_index':custody['full_index'],'environment_package_count':custody['package_count'],'environment_regular_files':custody['environment_regular_files'],'environment_regular_bytes':custody['environment_regular_bytes'],'environment_metadata_and_lock_tool_identity':ref(r/'completed-retry2-environment-custody.json'),'all6outputs_preserved':custody['outputs'],'unique_instrumentation_preserved':saved,'native_deciding_receipt':ref(r/'architecture-retry2/receipt.json'),'complete_stdout':gate['stdout'],'complete_stderr':gate['stderr'],'active_task_users':users,'unknown_task_permissions':unknown,'live_task_processes_scanned':scanned,'outside_host_services':outside,'authorization':'Explicit parent and user cloud-only cleanup of repeatable completed PRIVATE environment/source; no original code/docs/Git/shared caches/ROOT/DOE environment permitted','before':state(),'time_unix':time.time()}
+with (r/'completed-retry2-scoped-cleanup-preflight.json').open('x') as f:json.dump(pre,f,indent=2);f.write('\n')
+shutil.rmtree(source);shutil.rmtree(env)
+receipt={'schema':'policyos.e02.E.completed_canonical_copies_cleanup_closed.v1','deleted_exact_paths':[str(source),str(env)],'all_absent':not source.exists() and not env.exists(),'preflight':ref(r/'completed-retry2-scoped-cleanup-preflight.json'),'before':pre['before'],'after':state(),'outputs_and_instrumentation_retained':True,'ROOT207_DOE184_UVcache_MCGit_source_mutated':False,'physical_environment_logical_bytes':custody['environment_regular_bytes'],'physical_source_logical_bytes':proof['tracked_regular_bytes'],'global_event_PID_cause':'not_established: global counters are not PID attribution'}
+with (r/'completed-retry2-cleanup-receipt.json').open('x') as f:json.dump(receipt,f,indent=2);f.write('\n')
+print(json.dumps({'all_absent':receipt['all_absent'],'deleted_exact_paths':receipt['deleted_exact_paths'],'tmp_free_before':receipt['before']['tmp_free'],'tmp_free_after':receipt['after']['tmp_free'],'memory_before':receipt['before']['memory']['memory.current'],'memory_after':receipt['after']['memory']['memory.current']},indent=2))

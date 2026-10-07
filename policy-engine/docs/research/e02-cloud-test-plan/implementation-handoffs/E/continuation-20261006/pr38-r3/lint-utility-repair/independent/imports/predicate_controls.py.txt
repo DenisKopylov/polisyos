@@ -1,0 +1,53 @@
+"""Class controls execute actual old/new guards; optimization never masks refusal."""
+import ast
+import copy
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+import numpy as np
+REPO=Path('/workspace/e02-E-cal05-20261006');ROOT=Path('/workspace/e02-E-pr38-r3-receipts/import-lint-independent');BASE='8047bfdbb1a7e8c4b031384acf6b45e302591620';REF='f3ec0335e992fa7a5107000224f8ba6deefd02e5';PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/'
+def require(value,reason):
+ if not value:raise AssertionError(reason)
+def read(ref,path):return subprocess.check_output(['/usr/bin/git','show',ref+':'+path],cwd=REPO)
+def outcome(node,namespace,optimize):
+ try:exec(compile(ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(node)],type_ignores=[])),'<actual-pinned-guard>','exec',optimize=optimize),namespace)
+ except AssertionError:return 'REFUSED'
+ return 'ACCEPTED'
+results=[]
+# Preserve the ordered native NumPy guard, including its actual outer oracle condition.
+path=PREFIX+'independent-reviews/mc/mc-gaussian-independent.py';old=ast.parse(read(BASE,path));new=ast.parse(read(REF,path));a=next(n for n in ast.walk(old) if isinstance(n,ast.Assert) and 'np.max' in ast.unparse(n.test));b=next(n for n in ast.walk(new) if isinstance(n,ast.If) and 'np.max' in ast.unparse(n.test))
+for optimize in (0,1):
+ for label,y,expected in [('healthy_nullspace',np.array([0.,0.]),'ACCEPTED'),('NaN_negative',np.array([0.,np.nan]),'REFUSED'),('finite_escape',np.array([0.,1e-6]),'REFUSED')]:
+  prior=outcome(a,{'np':np,'y':y,'oracle':0.},optimize);current=outcome(b,{'np':np,'y':y,'oracle':0.},optimize);require(current==expected,'ordered guard changed:'+label);require(prior==expected if not optimize else prior=='ACCEPTED','old assert optimization semantics');results.append({'class':'ordered_numpy_guard','case':label,'optimize':optimize,'old':prior,'candidate':current})
+# Dict constructor-to-literal and explicit A->observed_a binding preserve counts.
+path=PREFIX+'a-generator-owner-independent/review_packet.py';old=ast.parse(read(BASE,path));new=ast.parse(read(REF,path));a=next(n for n in ast.walk(old) if isinstance(n,ast.Assert) and ast.unparse(n.test).startswith("A[0]['actual_case_counts']"));b=next(n for n in ast.walk(new) if isinstance(n,ast.If) and ast.unparse(n.test).startswith("not observed_a[0]['actual_case_counts']"))
+for optimize in (0,1):
+ for errors in (5,4):
+  data=[{'actual_case_counts':{'cases':5,'passed':0,'failed':0,'errors':errors,'skipped':0}}];wanted='ACCEPTED' if errors==5 else 'REFUSED';current=outcome(b,{'observed_a':data},optimize);require(current==wanted,'dict/alias guard changed');results.append({'class':'dict_literal_and_alias','errors':errors,'optimize':optimize,'old':outcome(a,{'A':data},optimize),'candidate':current})
+# Identity helper is an actual always-on conditional, even if proxy values agree.
+path=PREFIX+'owned-facade-independent/test_independent_api.py';new=ast.parse(read(REF,path));helper=next(n for n in new.body if isinstance(n,ast.FunctionDef) and n.name=='_require_same_object');native=lambda value:value;proxy=lambda value:native(value)
+for optimize in (0,1):
+ ns={};exec(compile(ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(helper)],type_ignores=[])),'<actual-owner-identity-helper>','exec',optimize=optimize),ns)
+ ns['_require_same_object'](native,native)
+ try:ns['_require_same_object'](proxy,native)
+ except AssertionError:result='REFUSED'
+ else:raise AssertionError('present numeric proxy accepted as owner')
+ results.append({'class':'identity_helper','optimize':optimize,'healthy':'ACCEPTED','same_value_proxy':result,'marker_value_equal':proxy(0.25)==native(0.25)})
+# NumPy reflected comparison and set comprehensions retain exact supported observations.
+values=np.array([-np.inf,-1.,0.,0.5,1.,np.inf,np.nan]);require(np.array_equal(0<=values,values>=0),'reflected NumPy comparison changed')
+trace=[{'caller':'pure_step'},{'caller':'_evaluate_panel_volatility_scenario'},{'caller':'pure_step'}];require(sorted(set(x['caller'] for x in trace))==sorted({x['caller'] for x in trace}),'set transform changed')
+results.extend([{'class':'numpy_reflected_order','values':['-inf',-1,0,0.5,1,'inf','NaN'],'old_bits':(0<=values).tolist(),'candidate_bits':(values>=0).tolist(),'outcome':'PASS'},{'class':'set_generator_to_comprehension','outcome':'PASS','healthy_unique_callers':sorted({x['caller'] for x in trace})}])
+# Effective removal: replace actual identity function body while keeping name/signature.
+removed=copy.deepcopy(helper);removed.body=[ast.Return(value=ast.Constant(None))];ns={};exec(compile(ast.fix_missing_locations(ast.Module(body=[removed],type_ignores=[])),'<identity-property-removal>','exec'),ns)
+def required_refusal(fn):
+ refused=False
+ try:fn(proxy,native)
+ except AssertionError:refused=True
+ require(refused,'required refusal absent after identity property removed')
+actual_ns={};exec(compile(ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(helper)],type_ignores=[])),'<actual-identity-required-negative>','exec'),actual_ns);required_refusal(actual_ns['_require_same_object'])
+try:required_refusal(ns['_require_same_object'])
+except AssertionError as error:negative={'required_negative_gate':'FAIL','discriminator':'PASS','reason':str(error),'marker_name_retained':'_require_same_object'}
+out={'schema':'policyos.e02.independent_predicate_class_controls.v1','base':BASE,'source_sha':REF,'class_cases':len(results),'results':results,'property_removal':negative,'limits':['Actual guards/helpers extracted from immutable Git, with supported plain JSON/scalar/NumPy observation inputs.','Only class controls, not all historical builders or numerical production witnesses.','Rich custom equality/ordering is not promised; ordered comparisons were not inverted under a NaN total-order assumption.']}
+(ROOT/'predicate-controls.json').write_text(json.dumps(out,indent=2)+'\n');sys.stdout.write(json.dumps(out,indent=2)+'\n')

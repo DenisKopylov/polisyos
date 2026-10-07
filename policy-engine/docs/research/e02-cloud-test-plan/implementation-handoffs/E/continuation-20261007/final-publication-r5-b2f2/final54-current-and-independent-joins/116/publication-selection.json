@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.independent_final54_conservation_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/review.py.txt",
+      "portable_path": "review.py.txt",
+      "bytes": 12424,
+      "sha256": "84cc890a68b62bb62a3cfea5a64d6018ef1cc821ac4bb02e9a45ce170917a885",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/commands.json",
+      "portable_path": "commands.json",
+      "bytes": 1011,
+      "sha256": "1a6c1056a6b18dbc9c3bd9697a279a1f7cc21114bee663f8538e285edf524efc",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/review-normal.json",
+      "portable_path": "review-normal.json",
+      "bytes": 6433,
+      "sha256": "539e886f980648a072db197151f664d57dabd45137482c58822a37d0ad105e7e",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/review-normal.stderr.txt",
+      "portable_path": "review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/review-optimized.json",
+      "portable_path": "review-optimized.json",
+      "bytes": 6432,
+      "sha256": "dc9694cd4a18cbbe243b1d7926ba220c8f8094597ec633f803dec2b328d8b758",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/review-optimized.stderr.txt",
+      "portable_path": "review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/historical-observer-v1.py.txt",
+      "portable_path": "historical-observer-v1.py.txt",
+      "bytes": 11674,
+      "sha256": "db302db9e10f598683b385405e96f2c343e90d2d927cf53b83bb846ad234cae3",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/historical-observer-v1.stdout.txt",
+      "portable_path": "historical-observer-v1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-conservation-independent-b2-20261007/historical-observer-v1.stderr.txt",
+      "portable_path": "historical-observer-v1.stderr.txt",
+      "bytes": 686,
+      "sha256": "a12e6871124e9c8b341755f49652dfe834e073937c40591bf15cac866306eb09",
+      "role": "complete thin conservation/typed negative/removal stdout or exact source/history"
+    }
+  ],
+  "files": 9,
+  "bytes": 38660,
+  "native_rerun": false,
+  "scope": "Thin independent conservation using closed numeric/parents/final3/lint basis; finding owner decisions and G formal intake remain distinct."
+}

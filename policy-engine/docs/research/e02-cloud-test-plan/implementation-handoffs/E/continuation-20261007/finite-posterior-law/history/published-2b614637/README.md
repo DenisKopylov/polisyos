@@ -1,0 +1,13 @@
+# Finite posterior law — corrective E slice
+
+Final source `3932cded22a29254a7dfced99723e147d6fea7cb` contains numeric implementation `2c0fb5e26172129ab3ae032c24b35ed2ced6c80f`, unchanged-product companion `ca17a489559eb574285bb1c7291cc3c56a9e29da` and a separately reviewed independent strict Profile2 DTO. `handoff.json` pins the complete24-path/12-Python source footprint, exact base/tree, deciding observations and next owners.
+
+Profile2 uses exact normalized binary-weight ratios for mean and finite quantiles, upward draw cuts/right buckets and downward quantile cuts/left buckets. Canonical stored weights need not sum to one. Finite uniform-mesh sampling approximates the continuous law; unsupported positive atoms refuse before callbacks. Multiple coordinates require supplied shared row IDs and remain non-gating.
+
+The actual414-case family was executed on2c0. Independent30 retained observations plus3 corrected narrow observations belong to2c0/ca17, with two original observer errors retained. Final3932 has13 affected DTO/CAS/native checks and independent DTO/type/schema/math-reuse reviews. All22 function/method source segments and the old Profile1 class remain exact; no counts are combined into a new final wave. The actual current scoped typecheck is FAIL1 for an existing optional-member issue; the two new incompatible Literal overrides were removed.
+
+Seven literal old700 Profile1 records retain exact decode/display/replay bytes and legacy functionals. Generated multi-coordinate groups retain replay but do not gain stochastic-law authority. Envelope1.1 remains unchanged.
+
+`copy-index.json` preserves original96 observations; `supplementary-copy-index.json` binds the final source delta and independent reviews. Archived `.py.txt` observer bytes add no active Python utility. The original ca17 ready draft and its custody outputs remain historical. `custody/validation-copy-index.json` binds the final positive and ten changed-content refusals under normal and optimized Python.
+
+103 is the complete ABI_MODELS collection;101 is IR_ABI_MODELS. Complete103 Pydantic schema observations compare equal across the typed append. Canonical owner-generated complete103 ca17 projection and actual3932 runtime dependency delta are copied separately. The runtime producer exits0 with1494 components; projected files remain unapplied and surface_missing, and the final directtracked patch/individual row decision are later companions. No generated gate, production law/history or automatic finding closure is claimed. G accepts code separately and owns integration publication. The historical12 import set has one remaining private ForecastBridge loader edge; the CanonSpec seam and native-test API seams have separate owner attribution.

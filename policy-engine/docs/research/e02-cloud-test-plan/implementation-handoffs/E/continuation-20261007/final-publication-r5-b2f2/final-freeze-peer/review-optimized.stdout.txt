@@ -1,0 +1,17 @@
+{
+  "disposition": "GO frozen-source metadata/custody and sparse reviewed-source reuse only",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "full_input_paths": 22005,
+  "record_payload_bytes": 620699802,
+  "passiveDOCdelta": 962,
+  "exactPython/configreuse": 378,
+  "E_python": 349,
+  "Rootmetadata": 207,
+  "control_refusals": 8,
+  "review": {
+    "path": "/tmp/e02-E-final-freeze-b2-independent-20261007/review-optimized.json",
+    "bytes": 111045,
+    "sha256": "f0a5caecb27f348072695a80c75f944f44ab34c4c428796c0893c0e808e5bf1e"
+  }
+}

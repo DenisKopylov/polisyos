@@ -1,0 +1,171 @@
+"""Recompute exact E→A associations from immutable Git JUnit, not runtime PASS.
+
+Only writes this assigned /tmp packet. No Git mutation or protected source edit.
+"""
+from __future__ import annotations
+
+import collections
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+from xml.etree import ElementTree as ET
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path('/tmp/e02-E-forecast-packet-thirteenth-20261007')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+DOC = 'df5258b7ddfade5b952e3b21ef28116ced40fa68'
+G = '2abc17f46a033a7879663486ff9946a95786601f'
+A = '332ba0b91e9a85774d48d101d4af86e3a3baf911'
+PLAN = 'policy-engine/docs/research/e02-cloud-test-plan/'
+R5 = PLAN + 'implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/'
+FRC = PLAN + 'implementation-handoffs/E/continuation-20261007/frc-native-cas/'
+REVIEW = PLAN + 'integration/reviews/2026-10-07-thirteenth-wave/'
+assets = []
+
+
+def run(*args: str) -> bytes:
+    return subprocess.check_output(args, cwd=ROOT)
+
+
+def source(ref: str, path: str) -> bytes:
+    return run('git', 'show', ref + ':' + path)
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def capture(ref: str, path: str, portable: str) -> bytes:
+    data = source(ref, path)
+    target = OUT / portable
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists() and target.read_bytes() != data:
+        raise ValueError('refuse overwriting distinct existing evidence: ' + portable)
+    target.write_bytes(data)
+    assets.append({'source_ref': ref, 'source_path': path,
+                   'source_blob': run('git', 'rev-parse', ref + ':' + path).decode().strip(),
+                   'portable_path': portable, 'bytes': len(data), 'sha256': sha(data)})
+    return data
+
+
+def write(name: str, data: object) -> None:
+    body = json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True) + '\n'
+    (OUT / name).write_text(body)
+
+
+assert run('git', 'rev-parse', SOURCE + '^{tree}').decode().strip() == TREE
+xml_paths = [p for p in run('git', 'ls-tree', '-r', '--name-only', DOC, R5).decode().splitlines()
+             if p.startswith(R5 + 'final-numeric/canonical-collection/checks/')
+             and p.endswith('/pytest.xml')]
+assert len(xml_paths) == 7
+all_cases = []
+failures = []
+old_selector = re.compile(r'test_frc_01|test_frc_02|test_forecast_owner|::test_(actual_ets_cas|actual_resolver|missing_ref_tier|resolved_limited)')
+new_selector = re.compile(old_selector.pattern + r'|::test_native_gateway_tier_s6_and_disposition_share_resolver_reason\[')
+for path in xml_paths:
+    job = Path(path).parent.name
+    data = capture(DOC, path, 'literal-JUnit/' + job + '.xml')
+    for ordinal, case in enumerate(ET.fromstring(data).iter('testcase')):
+        outcome = ('ERROR' if case.find('error') is not None else
+                   'FAIL' if case.find('failure') is not None else
+                   'SKIP' if case.find('skipped') is not None else 'PASS')
+        row = {'job': job, 'ordinal_zero_based': ordinal,
+               'classname': case.get('classname', ''), 'name': case.get('name', ''),
+               'outcome': outcome, 'observed_source': SOURCE, 'observed_tree': TREE,
+               'JUnit_path': path, 'JUnit_carrier': DOC, 'JUnit_sha256': sha(data)}
+        row['identity'] = job + ':' + str(ordinal) + ':' + row['classname'] + '::' + row['name']
+        all_cases.append(row)
+        if outcome != 'PASS':
+            row['failure_message'] = next(iter(case)).get('message', '')
+            row['failure_text'] = next(iter(case)).text or ''
+            failures.append(row)
+counts = collections.Counter(c['outcome'] for c in all_cases)
+assert counts == {'PASS': 1457, 'FAIL': 8}
+assert len({r['identity'] for r in failures}) == 8
+old = [r for r in all_cases if old_selector.search(r['classname'] + '::' + r['name'])]
+new = [r for r in all_cases if new_selector.search(r['classname'] + '::' + r['name'])]
+assert len(old) == 78 and collections.Counter(r['outcome'] for r in old) == {'PASS': 75, 'FAIL': 3}
+assert len(new) == 83 and collections.Counter(r['outcome'] for r in new) == {'PASS': 75, 'FAIL': 8}
+assert {r['identity'] for r in old} < {r['identity'] for r in new}
+assert {r['identity'] for r in failures} <= {r['identity'] for r in new}
+assert [r['ordinal_zero_based'] for r in failures] == [63, 314, 315, 316, 317, 318, 319, 320]
+for index, r in enumerate(failures):
+    r['canonical_reason_writer'] = 'A::runtime/quality/generation_cycle.py'
+    r['affected_finding_links'] = ['B32', 'LA-051']
+    r['current_A_source'] = A
+    r['current_A_execution_outcome'] = 'UNRUN'
+    r['current_A_observation_qualification'] = (
+        'source changed; b2 FAIL is historical for this A candidate' if index < 3 else
+        'source-level resolver/disposition precedence residual, not a measured A FAIL')
+    r['test_provider'] = (
+        'policy-engine/tests/unit/remediation/test_frc_01.py' if index == 0 else
+        FRC + 'a-status-reason-tests.py.txt')
+    r['test_provider_source_ref'] = SOURCE if index == 0 else DOC
+
+review = json.loads(capture(G, REVIEW + 'E54-current-decisions.json', 'G-authoritative/E54-current-decisions.json'))
+assert len(review['per_finding_rows']) == 54
+for path in ['E-gates-A-consumers.md', 'E-to-A-reason-carry.md', 'README.md']:
+    capture(G, REVIEW + path, 'G-authoritative/' + path)
+for path in ['FRC-01.md', 'FRC-02.md']:
+    capture(SOURCE, 'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/' + path,
+            'original-cards/' + path)
+for path in ['bundle-owners.tsv', 'finding-owners.tsv']:
+    capture(SOURCE, PLAN + 'execution-organization/' + path, 'original-owners/' + path)
+for path in ['a-owner-contract.json', 'a-status-reason-tests.py.txt', 'README.md',
+             'implementation-handoff.json', 'checks/native-core-route-final.json',
+             'checks/native-core-route-final.xml', 'checks/native-core-route-final.stdout',
+             'checks/native-core-route-final.stderr',
+             'independent-review/frc-independent-review-1eba9f9e.json',
+             'independent-review/native-fRC-review-results.json',
+             'independent-review/probe_native_frc.py.txt',
+             'independent-review/candidate-1eba-final.stdout.txt',
+             'independent-review/candidate-1eba-final.stderr.txt']:
+    capture(DOC, FRC + path, 'authentic-native-packet/' + path)
+capture(SOURCE, 'policy-engine/tests/_helpers/forecast.py', 'authentic-native-packet/configured_forecast_request.py.txt')
+capture(SOURCE, 'policy-engine/tests/unit/remediation/test_frc_01.py', 'authentic-native-packet/test_frc_01-b2.py.txt')
+capture(DOC, R5 + 'final-numeric/canonical-collection/publication-receipt.json', 'literal-wave-publication-receipt.json')
+
+rows = [r for r in review['per_finding_rows'] if r['id'] in {'B32', 'LA-051'}]
+assert len(rows) == 2
+row_updates = []
+for row in rows:
+    historical = row['current_check_navigation']
+    assert historical['selected_case_count'] == 78
+    assert len(historical['selected_failed_cases']) == 3
+    row_updates.append({'finding_id': row['id'], 'historical_ledger_status': row['historical_ledger_status'],
+                        'E_proposal': row['current_E_proposed_outcome'], 'formal_G_acceptance': False,
+                        'old_navigation_retained': historical,
+                        'new_navigation': {'candidate': SOURCE, 'tree': TREE,
+                                           'selector_rule': new_selector.pattern,
+                                           'selected_case_count': len(new),
+                                           'selected_outcomes': dict(collections.Counter(r['outcome'] for r in new)),
+                                           'selected_case_identities': [r['identity'] for r in new],
+                                           'selected_failed_cases': failures},
+                        'scope': 'Navigation links shared property checks; each assertion does not independently close every original criterion.'})
+write('all-eight-failure-identities.json', {'schema': 'policyos.e02.case_identity_join.v1',
+       'source_candidate': SOURCE, 'source_tree': TREE, 'carrier': DOC,
+       'full_JUnit_denominator': {'files': len(xml_paths), 'cases': len(all_cases), 'outcomes': dict(counts)},
+       'unique_FAIL_cases': failures, 'unique_FAIL_count': len(failures),
+       'per_ID_updates': row_updates,
+       'cross_ID_link_count': 16, 'cross_ID_unique_failure_observation_count': 8,
+       'double_count_rule': 'B32 and LA-051 are two finding associations of the same eight observations; first three never become six observations.',
+       'predicate_basis': 'recomputed', 'runtime_execution': 'No runtime executed for this association repair.'})
+write('full83-FRC-case-association.json', {'schema':'policyos.e02.case_association_basis.v1',
+       'source': SOURCE, 'tree': TREE, 'carrier': DOC,
+       'original_regex': old_selector.pattern, 'updated_regex': new_selector.pattern,
+       'old_count': len(old), 'new_count': len(new),
+       'added_five_identities': sorted({r['identity'] for r in new} - {r['identity'] for r in old}),
+       'cases': new, 'two_ID_links_share_one_set': True, 'predicate_basis':'recomputed'})
+write('literal-input-index.json', {'schema': 'policyos.e02.literal_input_index.v1',
+       'assets': assets, 'files': len(assets), 'bytes': sum(a['bytes'] for a in assets),
+       'source': SOURCE, 'source_tree': TREE, 'carrier': DOC, 'G_review_source': G,
+       'runtime_rerun': False, 'production_data': False})
+print(json.dumps({'outcome':'PASS', 'operation':'immutable Git/XML association recomputation',
+                  'not_runtime_evidence':True,'JUnit_files':7, 'cases':1465,'PASS':1457,'FAIL':8,
+                  'old_FRC_association_cases':78,'new_FRC_association_cases':83,
+                  'new_unique_added_cases':5,'per_ID_failures':{'B32':8,'LA-051':8},
+                  'unique_failure_observations':8,'literal_inputs':len(assets),
+                  'literal_bytes':sum(a['bytes'] for a in assets)}, sort_keys=True))

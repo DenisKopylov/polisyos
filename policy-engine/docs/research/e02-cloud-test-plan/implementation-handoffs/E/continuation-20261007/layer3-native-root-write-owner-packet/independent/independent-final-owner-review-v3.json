@@ -1,0 +1,341 @@
+{
+  "schema": "policyos.e02.independent_G_layer3_test_isolation_owner_packet_review.v3",
+  "disposition": "GO owner-ready bounded V2 write-confinement/admission proposal; full nativefixture/runtimeinput acceptance UNRUN",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "fixed_original_selector_refs": [
+    {
+      "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-selection.json",
+      "bytes": 19426,
+      "sha256": "ebfdd337de6bc01dada000fc7b6f03f596c32002c1618c51331b57b940ff32d3"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-selection-v2-delta.json",
+      "bytes": 3820,
+      "sha256": "8119bdf2b024de276f7934d73f13def95b0764a1b97879ef6473346252ba2d30"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-selection-read-alias-companion-v2.json",
+      "bytes": 503,
+      "sha256": "59ebdf7cafea7f3ff9e4c0a256d38f049c303abd603097b4d8fa8bdb1e670723"
+    }
+  ],
+  "sourcepins_checked": 13,
+  "current_patch": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/canonical-owner-test-isolation-v2.patch",
+    "bytes": 5068,
+    "sha256": "d82a99f193316df37dda4cb079c92da3a667fea069333edf87a11d84a9e5f3f2"
+  },
+  "tests_only_patch_paths": [
+    "policy-engine/tests/repo_quality/conftest.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py"
+  ],
+  "apply_check_exit": 0,
+  "actual_static_callers": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "function": "test_layer3_g6_readiness_passes_for_persisted_runtime_bundle",
+      "line": 100,
+      "family": 6,
+      "call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "function": "test_layer3_g6_readiness_mirrors_exact_artifact_and_drift_scaffold",
+      "line": 135,
+      "family": 6,
+      "call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "function": "test_layer3_g6_readiness_requires_registered_artifacts_inventory_and_docs",
+      "line": 146,
+      "family": 6,
+      "call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "function": "test_layer3_g6_write_path_must_include_every_expected_artifact",
+      "line": 245,
+      "family": 6,
+      "call": "validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "function": "test_layer3_g7_readiness_passes_current_blocked_runtime_bundle",
+      "line": 210,
+      "family": 7,
+      "call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "function": "test_layer3_g7_readiness_writes_exact_artifact_and_drift_scaffold",
+      "line": 240,
+      "family": 7,
+      "call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "function": "test_layer3_g7_write_path_must_include_every_expected_artifact",
+      "line": 297,
+      "family": 7,
+      "call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "function": "test_layer3_g7_route_registry_is_generated_route_contract_registry",
+      "line": 307,
+      "family": 7,
+      "call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "function": "test_layer3_g7_readiness_writes_complete_conformance_negative_matrix",
+      "line": 338,
+      "family": 7,
+      "call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "function": "test_layer3_g7_readiness_fails_when_conformance_negative_is_missing",
+      "line": 385,
+      "family": 7,
+      "call": "validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+      "function": "test_layer3_g8_readiness_writes_and_fails_current_unmeasured_blocker_search",
+      "line": 51,
+      "family": 8,
+      "call": "validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+      "function": "test_layer3_g8_write_path_must_include_every_expected_artifact",
+      "line": 107,
+      "family": 8,
+      "call": "validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+      "function": "test_layer3_g8_readiness_fails_when_conformance_negative_is_missing",
+      "line": 146,
+      "family": 8,
+      "call": "validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)"
+    }
+  ],
+  "selected_static_call_count": 13,
+  "writer_executions": [
+    {
+      "mode": "normal",
+      "raw": {
+        "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-writer-normal.json",
+        "bytes": 43752,
+        "sha256": "21760d9833760cfc08dcf84b35ece3ae583d4795a96d065a33d554880ec5b554"
+      },
+      "controls": 15,
+      "source_baseline_and_target_filebytes_independently_reconciled": true,
+      "complete_declared_outputs": 81,
+      "healthy_source_standin_changes": 0,
+      "removed_binding_source_standin_changes": 81
+    },
+    {
+      "mode": "optimized",
+      "raw": {
+        "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-writer-optimized.json",
+        "bytes": 43752,
+        "sha256": "e7c502eff0fbc30cf690486a0b9b94fe9ca2183ca305cde6f34605e31eeeb4e9"
+      },
+      "controls": 15,
+      "source_baseline_and_target_filebytes_independently_reconciled": true,
+      "complete_declared_outputs": 81,
+      "healthy_source_standin_changes": 0,
+      "removed_binding_source_standin_changes": 81
+    }
+  ],
+  "fixture_controls": [
+    {
+      "name": "v1-late-refusal",
+      "callbacks": {
+        "getbasetemp": 0,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1
+      },
+      "outcome": "RuntimeError: readiness fixture must be outside the source checkout",
+      "returned_fixture": null,
+      "actual_archive_inside_source_standin": true,
+      "actual_changed_source_standin_files": [
+        "misdirected-child.tar",
+        "misdirected-child/architecture/policy_design_case/layer3_g6_readiness_manifest.json"
+      ],
+      "original_declared_source_file_unchanged": true,
+      "gold": "completebefore/afterfilebytes, actualresolvedtargetcontainsroot",
+      "scope": "test-doubleGit tinyarchive; no wholeGitproduct/runtimebundle/nativeexecution",
+      "required_archive_confinement_property": "FAIL"
+    },
+    {
+      "name": "v2-healthy",
+      "callbacks": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1
+      },
+      "outcome": "completed",
+      "returned_fixture": "/tmp/e02-E-layer3-owner-independent-64d/independent-fixture-ph93jf0d/pytest-temp/isolated-child",
+      "actual_archive_inside_source_standin": false,
+      "actual_changed_source_standin_files": [],
+      "original_declared_source_file_unchanged": true,
+      "gold": "completebefore/afterfilebytes, actualresolvedtargetcontainsroot",
+      "scope": "test-doubleGit tinyarchive; no wholeGitproduct/runtimebundle/nativeexecution",
+      "required_archive_confinement_property": "PASS"
+    },
+    {
+      "name": "v2-refuse-base",
+      "callbacks": {
+        "getbasetemp": 1,
+        "mktemp": 0,
+        "archive": 0,
+        "extract": 0
+      },
+      "outcome": "RuntimeError: readiness temporary base must be outside the source checkout",
+      "returned_fixture": null,
+      "actual_archive_inside_source_standin": false,
+      "actual_changed_source_standin_files": [],
+      "original_declared_source_file_unchanged": true,
+      "gold": "completebefore/afterfilebytes, actualresolvedtargetcontainsroot",
+      "scope": "test-doubleGit tinyarchive; no wholeGitproduct/runtimebundle/nativeexecution",
+      "required_archive_confinement_property": "PASS"
+    },
+    {
+      "name": "v2-refuse-returned",
+      "callbacks": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 0,
+        "extract": 0
+      },
+      "outcome": "RuntimeError: readiness fixture must be outside the source checkout",
+      "returned_fixture": null,
+      "actual_archive_inside_source_standin": false,
+      "actual_changed_source_standin_files": [],
+      "original_declared_source_file_unchanged": true,
+      "gold": "completebefore/afterfilebytes, actualresolvedtargetcontainsroot",
+      "scope": "test-doubleGit tinyarchive; no wholeGitproduct/runtimebundle/nativeexecution",
+      "required_archive_confinement_property": "PASS"
+    },
+    {
+      "name": "v2-remove-base",
+      "callbacks": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1
+      },
+      "outcome": "completed",
+      "returned_fixture": "/tmp/e02-E-layer3-owner-independent-64d/independent-fixture-2wml0qpo/product-standin/pytest-temp/isolated-child",
+      "actual_archive_inside_source_standin": true,
+      "actual_changed_source_standin_files": [
+        "pytest-temp/isolated-child.tar",
+        "pytest-temp/isolated-child/architecture/policy_design_case/layer3_g6_readiness_manifest.json"
+      ],
+      "original_declared_source_file_unchanged": true,
+      "gold": "completebefore/afterfilebytes, actualresolvedtargetcontainsroot",
+      "scope": "test-doubleGit tinyarchive; no wholeGitproduct/runtimebundle/nativeexecution",
+      "required_archive_confinement_property": "FAIL"
+    },
+    {
+      "name": "v2-remove-returned",
+      "callbacks": {
+        "getbasetemp": 1,
+        "mktemp": 1,
+        "archive": 1,
+        "extract": 1
+      },
+      "outcome": "completed",
+      "returned_fixture": "/tmp/e02-E-layer3-owner-independent-64d/independent-fixture-3m6bhcu2/product-standin/misdirected-child",
+      "actual_archive_inside_source_standin": true,
+      "actual_changed_source_standin_files": [
+        "misdirected-child.tar",
+        "misdirected-child/architecture/policy_design_case/layer3_g6_readiness_manifest.json"
+      ],
+      "original_declared_source_file_unchanged": true,
+      "gold": "completebefore/afterfilebytes, actualresolvedtargetcontainsroot",
+      "scope": "test-doubleGit tinyarchive; no wholeGitproduct/runtimebundle/nativeexecution",
+      "required_archive_confinement_property": "FAIL"
+    }
+  ],
+  "fixture_control_count": 6,
+  "normal_or_optimized": false,
+  "read_alias_companion": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/fixture-read-alias-companion-v2.json",
+    "bytes": 17904,
+    "sha256": "fb9c791f576a106560c890f000181db1eda59ae391eb5a4fff421932953fc85e"
+  },
+  "canonical_writer": "G/tools repo-quality test owner; runtime root propagation requires canonical runtime/API owners; E has no shared lease",
+  "predicate_basis": [
+    {
+      "predicate": "originalsource/hash/patch/staticcallmembership",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "actualtinyfilesystemwrites/healthybefore-after/removal",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "original61243individualnativecallermutation/P41",
+      "basis": "not_established"
+    },
+    {
+      "predicate": "fullruntimefixture/inputisolation/global/findingauthority",
+      "basis": "not_established"
+    }
+  ],
+  "ROOT_native_backend_or_whole_product_archive_reexecuted": false,
+  "ROOT_source_env_packages_modified": false,
+  "limitations": [
+    "Patch is unapplied canonical owner proposal, not source integration acceptance",
+    "Exact staticcall/outputcontractmembership does not attribute current29changes to anyparticulartest",
+    "Full unchangedruntime fixtures await native3module selectors and completeROOTinputreadclosure",
+    "G6/G8 explicit and implicitDEFAULT_ROOT readaliases remain concrete owner companions; rebindingglobal does notrepairbound defaults",
+    "Wider17scoped neighboring default-rootcalls and GY outside census need canonicalclassisolation",
+    "Hypothesis defaultcache and Gitmetadata assumptions remain upstream/nativeowner considerations",
+    "OriginalV1lateguardred and V2observer base-inside removal mislabel preserved; actualconsistentfactory controls distinguishmissingrefusal fromrealinsidearchive",
+    "Fakepayloadwriter and tinytest-doubleGit controls provide onlymechanical path/admission proof, no production/evidenceauthority"
+  ],
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "closed_author_current_V3_companion": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/owner-packet-v3.json",
+    "bytes": 8486,
+    "sha256": "7e8469dd9053c14997e3a2042be6fb5496c7bedf3a9bf4b0faf039a139a57c91"
+  },
+  "closed_author_V3_selector": {
+    "path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-selection-v3-delta.json",
+    "bytes": 2847,
+    "sha256": "73e9e8dd0dad41b4261cbef4886366f5386905c24964592b4f344cfb63b7ff2f"
+  },
+  "author_original_V2_mislabel": "Raw base-inside removal previously had outside child; missingrefusal confirmed but archivedlocationFAIL label was false. CorrectiveV3 consistentfactory control and independent6case observations now distinguish it; originalrawbytes retained.",
+  "complete_independent_normal_optimized": {
+    "normal": {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-normal.json",
+      "bytes": 13849,
+      "sha256": "9478bdc83bacbf5690abfe73f2960807d2c77dc8f0420d7f917a2ec36efd8404"
+    },
+    "optimized": {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-optimized.json",
+      "bytes": 13848,
+      "sha256": "ea0a9c01aa47af65ee813cd198b5968cb2d0b36065db1cf22f7a0094f75393d9"
+    },
+    "writer_control_count_each": 15,
+    "fixture_admission_control_count_each": 6,
+    "no_full_nativeproduct_archive_or_runtimebundle_execution": true
+  },
+  "final_disposition": "GO owner-ready V2 tests-only proposal and corrected V3 observer packet; full native fixture/complete inputisolation/currentP41 cause not_established/UNRUN remain separate"
+}

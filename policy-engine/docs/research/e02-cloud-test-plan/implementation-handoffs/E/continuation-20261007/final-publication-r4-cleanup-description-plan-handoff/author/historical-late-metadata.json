@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.prewrite_metadata_original_counterexamples.v1",
+  "copier_sha256": "9c8d5a1e78aad650deca77eeddd15c28bfa5159579bb57e9699e03b85c171c2f",
+  "observations": [
+    {
+      "name": "missing-build-stdout",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/stderr.txt"
+    },
+    {
+      "name": "forged-build-count",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/stderr.txt"
+    }
+  ],
+  "source_native_numeric_gate_execution": false,
+  "scope": "author concrete draft utility counterexamples; no product/source/native failure attribution"
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py", line 707, in <module>
+    main()
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py", line 685, in main
+    packet = build(inputs, values)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py", line 460, in build
+    require(
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py", line 81, in require
+    raise ValueError(message)
+ValueError: typed actual complete native plan denominator

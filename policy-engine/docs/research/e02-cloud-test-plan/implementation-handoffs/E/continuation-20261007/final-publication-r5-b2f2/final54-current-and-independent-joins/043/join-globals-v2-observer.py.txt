@@ -1,0 +1,503 @@
+"""Join complete saved gate observations to E's original-row decisions.
+
+This pure receipt builder does not execute a native check or accept a finding.
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import runpy
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+BASE = Path("/tmp/e02-E-final54-b2f2-preparation-20261007")  # noqa: S108 -- fixed closed receipt namespace
+LINT = Path("/tmp/e02-E-final-root-lint-b2f2f65e-20261007")  # noqa: S108 -- fixed closed receipt namespace
+PARENT = Path("/tmp/e02-E-final-parent-admission-b2f2f65e-20261007")  # noqa: S108 -- fixed closed receipt namespace
+SOURCE = "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+TREE = "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+PINS = {
+    "joined_wave": (
+        BASE / "current-all-54-source-wave-b2-v2-normal.json",
+        "5045162856b15e70f1aae8ceab39a4c7af178cc1da6468d73a19802ae6b91502",
+    ),
+    "final3": (
+        Path("/tmp/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json"),  # noqa: S108 -- fixed closed index
+        "f38e680e418519a35e9700e209eb2b729721ddd9021d648aa4ffbff7935404a4",
+    ),
+    "lint_capture": (
+        LINT / "capture-receipt.json",
+        "d973357de8d7bc8507d4fb50e2feeff370c990e1792afac37b57fdab7a6aa01d",
+    ),
+    "lint_owner": (
+        LINT / "owner-packet.json",
+        "4277454bdce47094cee9afd666cf44d9fcfc37953b5838f66a68aaee73eee491",
+    ),
+    "parent_closeout": (
+        PARENT / "closeout.json",
+        "7410cc840682e6e6663ce784cd27b081dc52f386cffdb6a0850b8e7ec80846d7",
+    ),
+}
+STAGE_PINS = {
+    "workspace-verify": "de81c8a947e76375aaee380021dc6143c0e3d69e79bda008c3ee90ec48a74c67",
+    "ci-parity": "8b379810c06e5174e7342de9e529aed386c22d06c3c5330fac6bad17e60a9e8d",
+}
+RECIPE_SHA = "e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+RECIPE_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/co"
+    "ntinuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.js"
+    "on"
+)
+
+
+def require(value: bool, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def ref(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def read_ref(row: dict[str, Any]) -> dict[str, Any]:
+    require(type(row) is dict, "typed input reference")
+    require(type(row.get("bytes")) is int and row["bytes"] >= 0, "integer reference size")
+    require(
+        type(row.get("path")) is str and Path(row["path"]).is_absolute(),
+        "absolute existing receipt path",
+    )
+    require(type(row.get("sha256")) is str and len(row["sha256"]) == 64, "reference SHA256")
+    require(
+        ref(Path(row["path"])) == {key: row[key] for key in ("path", "bytes", "sha256")},
+        "complete byte custody",
+    )
+    return json.loads(Path(row["path"]).read_bytes())
+
+
+def check_output(row: dict[str, Any]) -> None:
+    require(
+        type(row.get("bytes")) is int and row["bytes"] >= 0, "typed complete stdout/stderr size"
+    )
+    require(ref(Path(row["path"])) == row, "complete literal stdout/stderr custody")
+
+
+def native_gate(
+    name: str, row: dict[str, Any], same: Callable[[object, object], bool]
+) -> dict[str, Any]:
+    raw = read_ref(row["receipt"])
+    require(
+        raw["source"] == raw["head_after"] == SOURCE and raw["tree"] == TREE,
+        "current native gate identity",
+    )
+    require(
+        raw["source_immutable"] is True and same(raw["source_before"], raw["source_after"]),
+        "native source guard",
+    )
+    require(raw["ROOT_environment_metadata_unchanged"] is True, "native ROOT metadata guard")
+    require(
+        same(raw["ROOT_environment_metadata_before"], raw["ROOT_environment_metadata_after"]),
+        "all saved native environment records unchanged",
+    )
+    before = raw["ROOT_environment_metadata_before"]
+    metadata_rows = before.get("combined_rows", before.get("metadata_rows"))
+    require(type(metadata_rows) is list and len(metadata_rows) == 210, "210 complete guard rows")
+    package_rows = [item for item in metadata_rows if item["path"].endswith(".dist-info/METADATA")]
+    controls = [item for item in metadata_rows if not item["path"].endswith(".dist-info/METADATA")]
+    require(
+        len(package_rows) == 207
+        and {item["path"] for item in controls}
+        == {"pyvenv.cfg", "bin/python", "bin/polisyos-tools"},
+        "207 package plus3 explicit protected controls",
+    )
+    require(type(raw["exit_code"]) is int and raw["exit_code"] == 1, "literal nonzero native exit")
+    require(raw["outcome"] == raw["canonical_selector_outcome"] == "FAIL", "native terminal FAIL")
+    require(raw["finding_closure"] is False, "native check is not finding closure")
+    for key in ("stdout", "stderr"):
+        check_output(raw[key])
+    for key in ("command", "cwd", "source_before", "source_after", "outcome", "exit_code"):
+        if key in row:
+            require(same(raw[key], row[key]), "native index/raw field: " + key)
+    return {
+        "selector": name,
+        "check_outcome": raw["outcome"],
+        "exit_code": raw["exit_code"],
+        "execution_state": "terminal",
+        "command": raw["command"],
+        "cwd": raw["cwd"],
+        "receipt": row["receipt"],
+        "stdout": raw["stdout"],
+        "stderr": raw["stderr"],
+        "source": SOURCE,
+        "tree": TREE,
+        "source_frame": raw["source_before"],
+        "source_immutable": raw["source_immutable"],
+        "environment": {
+            "package_METADATA_count": 207,
+            "protected_control_count": 3,
+            "saved_before_after_equal": True,
+            "whole_binary_identity": raw["ROOT_environment_full_binary_byte_guard"],
+        },
+        "P41": "not_established",
+        "finding_closure": False,
+    }
+
+
+def admit_complete_claims(
+    observed: dict[str, Any], expected: dict[str, Any], same: Callable[[object, object], bool]
+) -> None:
+    require(
+        same(observed, expected),
+        "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs",
+    )
+
+
+def admit_boundary(packet: dict[str, Any]) -> None:
+    require(packet["candidate"] == SOURCE and packet["tree"] == TREE, "final source identity")
+    require(
+        packet["formal_G_acceptance"] is False and packet["formal_ledger_change"] is False,
+        "owner proposals are separate from G intake",
+    )
+    require(
+        packet["current_numeric_wave"]["counts"]
+        == {"cases": 1465, "passed": 1457, "failed": 8, "errors": 0, "skipped": 0},
+        "unchanged complete native case counts",
+    )
+    require(packet["current_global_gates"]["check_outcome"] == "FAIL", "no full gate PASS")
+
+
+def build() -> tuple[dict[str, Any], dict[str, Any]]:
+    module = runpy.run_path(str(BASE / "prepare_v4.py"), run_name="preparation")
+    wave = runpy.run_path(str(BASE / "join_wave_v2.py"), run_name="actual_wave")
+    values = {}
+    for key, (path, sha) in PINS.items():
+        require(ref(path)["sha256"] == sha, "pinned closed input: " + key)
+        values[key] = json.loads(path.read_bytes())
+    joined, _facts = wave["build"](module)
+    require(
+        module["same"](joined, values["joined_wave"]),
+        "fresh wave join equals immutable saved output",
+    )
+    final3 = values["final3"]
+    require(final3["source"] == SOURCE and final3["tree"] == TREE, "current final3 source")
+    require(
+        set(final3["deciding"]) == {"architecture", "runtime-api-contract", "static-invocation"},
+        "three separate native selectors",
+    )
+    gates = [
+        native_gate(name, final3["deciding"][name], module["same"]) for name in final3["deciding"]
+    ]
+    historical_attempts = copy.deepcopy(final3["historical_attempts"])
+    for row in historical_attempts.values():
+        read_ref(row["receipt"])
+        check_output(row["stdout"])
+        check_output(row["stderr"])
+    lint = values["lint_capture"]
+    lint_owner = values["lint_owner"]
+    require(lint["source"] == SOURCE and lint["tree"] == TREE, "complete lint source")
+    require(
+        lint["source_and_config_before_after_unchanged"] is True
+        and lint["metadata_before_after_unchanged"] is True,
+        "lint source/config/environment guard",
+    )
+    require(module["same"](lint["before"], lint["after"]), "lint complete saved Git identity equal")
+    require(
+        type(lint["complete_changed_python_denominator"]) is int
+        and lint["complete_changed_python_denominator"] == 378,
+        "actual whole378 lint denominator",
+    )
+    lint_inputs = read_ref(lint["inputs"])
+    require(len(lint_inputs["python_rows"]) == 378, "whole actual input row membership")
+    require(
+        len(lint_inputs["environment_metadata"]) == 184,
+        "actual alternate existing DoE environment184",
+    )
+    require(
+        lint["before"]["HEAD"] == SOURCE
+        and lint["before"]["tree"] == TREE
+        and lint["before"]["tracked_status_porcelain"] == "",
+        "lint clean tracked source",
+    )
+    require(
+        [row["name"] for row in lint["checks"]] == ["ruff", "ruff-format"],
+        "two actual lint selectors",
+    )
+    diagnostics = None
+    for row in lint["checks"]:
+        require(type(row["exit_code"]) is int and row["exit_code"] == 1, "literal lint FAIL exit1")
+        require(row["source"] == SOURCE and row["tree"] == TREE, "lint native source")
+        for key in ("stdout", "stderr"):
+            check_output(row[key])
+        require(
+            len(row["argv"]) - row["argv"].index("json") - 1 == 378
+            if row["name"] == "ruff"
+            else len(row["argv"]) - row["argv"].index("--check") - 1 == 378,
+            "all378 argv inputs preserved",
+        )
+        if row["name"] == "ruff":
+            diagnostics = json.loads(Path(row["stdout"]["path"]).read_bytes())
+            require(
+                type(diagnostics) is list and len(diagnostics) == 292, "actual292 Ruff diagnostics"
+            )
+            require(
+                len({item["filename"] for item in diagnostics}) == 14, "actual14 diagnostic paths"
+            )
+        gates.append(
+            {
+                "selector": row["name"],
+                "execution_state": "terminal",
+                "check_outcome": "FAIL",
+                "exit_code": row["exit_code"],
+                "command": row["argv"],
+                "cwd": row["cwd"],
+                "receipt": ref(PINS["lint_capture"][0]),
+                "stdout": row["stdout"],
+                "stderr": row["stderr"],
+                "source": SOURCE,
+                "tree": TREE,
+                "source_immutable": True,
+                "complete_changed_python_denominator": 378,
+                "environment": {
+                    "existing_lane": "DoE",
+                    "package_METADATA_count": 184,
+                    "before_after_unchanged": True,
+                    "ROOT_mutated": False,
+                },
+                "P41": "not_established",
+                "finding_closure": False,
+            }
+        )
+    require(diagnostics is not None, "actual Ruff body decoded")
+    summary = lint_owner["summary"]
+    require(
+        summary["source"] == SOURCE
+        and summary["tree"] == TREE
+        and type(summary["complete_python_input_count"]) is int
+        and summary["complete_python_input_count"] == 378,
+        "lint owner input binding",
+    )
+    require(
+        type(summary["diagnostic_count"]) is int
+        and summary["diagnostic_count"] == len(diagnostics),
+        "owner/raw diagnostic counts",
+    )
+    require(
+        summary["global_pass"] is False and summary["P41"] == "not_established", "no foreign waiver"
+    )
+    require(
+        summary["E_diagnostic_count"] == summary["E_format_path_count"] == 0,
+        "Eclean is bounded, not globalPASS",
+    )
+    parents = values["parent_closeout"]
+    require(parents["source"] == SOURCE and parents["tree"] == TREE, "current parent source")
+    stage_rows = []
+    parent_counts = {}
+    for row in parents["check_outcomes"]:
+        name = row["selector"]
+        receipt = row["receipt"]
+        receipt_ref = {
+            "path": receipt["source_path"],
+            "bytes": receipt["bytes"],
+            "sha256": receipt["sha256"],
+        }
+        gate = native_gate(name, {"receipt": receipt_ref}, module["same"])
+        stage_path = Path(receipt_ref["path"]).parent / "internal-stages.json"
+        require(ref(stage_path)["sha256"] == STAGE_PINS[name], "full pinned stage JSON")
+        stages = json.loads(stage_path.read_bytes())
+        require(
+            stages["required_steps_preserved"] is True and stages["doctor_is_full_ci"] is False,
+            "required steps without CI upgrade",
+        )
+        require(
+            type(stages["exit_code"]) is int
+            and stages["exit_code"] == 1
+            and stages["numerical_thread_caps"] is None,
+            "native uncapped parent FAIL",
+        )
+        require(len(stages["scopes"]) == 1, "one actual scope")
+        actual = Counter()
+        failed = False
+        for ordinal, step in enumerate(stages["scopes"][0]["steps"]):
+            outcome = step["outcome"]
+            require(outcome in {"PASS", "FAIL", "UNRUN"}, "canonical actual stage outcome")
+            if failed:
+                require(outcome == "UNRUN", "native fail-fast successors retain UNRUN")
+            elif outcome == "FAIL":
+                require(
+                    type(step["exit_code"]) is int and step["exit_code"] == 1,
+                    "actual failed stage exit1",
+                )
+                failed = True
+            else:
+                require(
+                    outcome == "PASS" and type(step["exit_code"]) is int and step["exit_code"] == 0,
+                    "literal attempted stage exit0",
+                )
+            actual[outcome] += 1
+            stage_rows.append(
+                {"parent_selector": name, "ordinal_zero_based": ordinal, **copy.deepcopy(step)}
+            )
+        require(
+            module["same"](dict(actual), row["stages"])
+            and sum(actual.values()) == row["full_stage_count"],
+            "full native stages equal closeout",
+        )
+        parent_counts[name] = dict(actual)
+        gate["internal_stages"] = ref(stage_path)
+        gate["stages"] = dict(actual)
+        gates.append(gate)
+    require(
+        len(gates) == 7 and len({row["selector"] for row in gates}) == 7,
+        "seven complete independent selectors",
+    )
+    require(all(row["check_outcome"] == "FAIL" for row in gates), "all7actualFAIL")
+    require(
+        len(stage_rows) == 39
+        and Counter(row["outcome"] for row in stage_rows)
+        == Counter({"PASS": 1, "FAIL": 2, "UNRUN": 36}),
+        "complete current39 stage denominator",
+    )
+    result = copy.deepcopy(joined)
+    result["schema"] = "policyos.e02.E.final54-current-source-cases-and-gates.v1"
+    result["current_global_gates"] = {
+        "candidate": SOURCE,
+        "tree": TREE,
+        "execution_state": "terminal",
+        "check_outcome": "FAIL",
+        "full_global_pass": False,
+        "exact_receipts": gates,
+        "gate_count": 7,
+        "gate_outcome_counts": {"FAIL": 7},
+        "parent_stage_count": 39,
+        "parent_stage_counts": {"PASS": 1, "FAIL": 2, "UNRUN": 36},
+        "parent_counts_by_selector": parent_counts,
+        "exact_parent_stage_rows": stage_rows,
+        "initial_native_attempts": historical_attempts,
+        "rule": (
+            "Seven actual terminal gateFAIL outcomes and39 complete current parent stages"
+            " are check observations.13workspace+23CI fail-fast UNRUN stay unexecuted. Hi"
+            "storical64d standalone37 successors/retries and interrupted fullbackend are "
+            "separate inputs, not current b2 PASS or newly attempted successors."
+        ),
+        "P41_broad_failure_cause": "not_established",
+        "complete_binary_environment_identity": "not_established",
+        "complete_current_final3_index": ref(PINS["final3"][0]),
+        "complete_current_lint_owner_packet": ref(PINS["lint_owner"][0]),
+        "parent_closeout": ref(PINS["parent_closeout"][0]),
+    }
+    result["current_global_owner_actions"] = {
+        "three_import_seams": copy.deepcopy(final3["remaining_API_owner_seams"]),
+        "lint_current_denominator": summary,
+        "architecture_full_native": (
+            "Four required native families/six current outputs completed;151reported rows"
+            "/79paths; independently deciding currentFAIL. Complete output refs remain in"
+            " fixed final3 index; no inherited P41 claim."
+        ),
+        "runtime_generated_surface": (
+            "Current native573schemas and1495confidence dependencies versus tracked1489; "
+            "G canonical generator/_manifest/inventory/OpenAPI owners regenerate nine com"
+            "panions on accepted integration using full manifest. Producer DTO/admitted b"
+            "ounded source acceptance is distinct; source hash5888515d is input identity,"
+            " not consumer authority."
+        ),
+        "static_proxy": (
+            "Current24regressions+95unresolved/119owner rows, full5942current versus5904b"
+            "ase function mapping. Current proxyFAIL does not establish runtime invocatio"
+            "n or a criterion failure by count. E91/B28record refs and actual defining co"
+            "nsumer evidence are separate."
+        ),
+        "A_default_HTTP": copy.deepcopy(result["current_A_default_consumer_boundary"]),
+        "D_Search": result["public_and_external_consumers"]["D_Search"],
+        "C_F": (
+            "Profile2-aware reader adoption and actual alignment/context consumer accepta"
+            "nce are not asserted. Owner uses current typed persisted carrier/profile con"
+            "tract and fresh reader controls; E gatefalse/consumer_asserted never supplie"
+            "s institutional authority."
+        ),
+        "float_materializer": result["public_and_external_consumers"]["materializer"],
+    }
+    recipe_body = module["blob"](RECIPE_SHA, RECIPE_PATH)
+    recipe = json.loads(recipe_body)
+    require(
+        type(recipe["recipes"]) is list and len(recipe["recipes"]) == 6,
+        "exact original six recipes",
+    )
+    result["local_recipe_rebinding"]["source_recipe_identity"] = {
+        "source": RECIPE_SHA,
+        "path": RECIPE_PATH,
+        "bytes": len(recipe_body),
+        "sha256": hashlib.sha256(recipe_body).hexdigest(),
+    }
+    result["local_recipe_rebinding"]["recipes"] = [
+        {
+            "original_recipe": original,
+            "execute_implementation_candidate": SOURCE,
+            "execute_implementation_tree": TREE,
+            "original_implementation_reference_is_historical": True,
+            "read_only_local_only_where_original_criterion_requires_factual_history_or_law": True,
+        }
+        for original in recipe["recipes"]
+    ]
+    result["local_recipe_rebinding"]["additional_scoped_owner_inputs"] = copy.deepcopy(
+        result["remaining_owner_inputs"]
+    )
+    result["local_recipe_rebinding"]["generic_float_materializer_next_owner"] = result[
+        "public_and_external_consumers"
+    ]["materializer"]
+    result["original_owner_fields_qualification"] = (
+        "All original54 owner rows/evidence/criteria stay byte-derived preserved acce"
+        "ptance basis. Current per-role source qualification, each current row addend"
+        "um, actual b2 case navigation and current seven gate receipts define current"
+        " implementation/check context; no old3932/700 chain or case observation is s"
+        "ilently promoted to current source. E bounded proposals are not formal ledge"
+        "r or G acceptance."
+    )
+    for key, (path, _sha) in PINS.items():
+        result["input_records"]["final_" + key] = ref(path)
+    result["predicate_basis"]["current_7gates_39stages"] = (
+        "recomputed from literal complete saved receipts/stdout/stderr/internal-stage"
+        " bodies; no check repeated"
+    )
+    result["predicate_basis"]["current_original54_owner_disposition"] = (
+        "independently_reconciled; E accountable bounded proposal, G intake pending"
+    )
+    result["predicate_basis"]["whole_final_metadata_admission"] = (
+        "recomputed typed whole output against fixed inputs; independent corrupt/ref/"
+        "removal controls separate"
+    )
+    admit_boundary(result)
+    return result, module
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    result, _module = build()
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "check_outcome": "PASS",
+                "metadata_scope": "current54/source/case/gate metadata; no native test executed",
+                "output": ref(args.output),
+                "numeric": result["current_numeric_wave"]["counts"],
+                "globals": result["current_global_gates"]["gate_outcome_counts"],
+                "stages": result["current_global_gates"]["parent_stage_counts"],
+                "E_proposals": result["bounded_E_proposals"],
+                "G_acceptance": False,
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

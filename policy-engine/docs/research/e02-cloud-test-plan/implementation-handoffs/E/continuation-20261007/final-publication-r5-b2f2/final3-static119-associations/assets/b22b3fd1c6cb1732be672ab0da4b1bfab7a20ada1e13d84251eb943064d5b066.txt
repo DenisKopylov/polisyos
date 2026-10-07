@@ -1,0 +1,1 @@
+The original witness-control observer setpath() returned a nested container, causing KeyError(inputs) before any falseclaim admission. Native inputs, mapping and source were unchanged. Original literal helper and zero-length stdout retained; correctedV2 returns complete root mutant. No gate/test rerun.

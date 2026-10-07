@@ -1,0 +1,296 @@
+{
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "jax_enable_x64": false,
+    "devices": [
+      "TFRT_CPU_0"
+    ],
+    "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+    "no_artificial_caps": true
+  },
+  "caller": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+  "canonical_loader": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/foundry/calibration/report.py",
+  "caller_sha256": "4bb1198495bfa96234f00d7a857f5d02ef7e258919a68d5e60a46724482e3ab6",
+  "all_polysios_origins_exact_lane": true,
+  "polisyos_origin_count": 819,
+  "positive": {
+    "test": "real_calibrator_v2_fresh_node",
+    "cas": "/tmp/pytest-of-agent/pytest-203/independent-legacy-native0/cas",
+    "input_ref": {
+      "artifact_id": "sha256:759b9405a2d0340171d41f1326dfb16d2300ecde65b75fdf2684149c54708be5",
+      "kind": "foundry.calibration_report",
+      "media_type": "application/json"
+    },
+    "config_edges": [
+      {
+        "artifact_id": "sha256:e1621b38b7f62396338c6abb744320e578f8e5cee16b0d57dfa939b262645049",
+        "role": "calibration_config"
+      },
+      {
+        "artifact_id": "sha256:cf92c26cb83bb500f9632efd65aea9946f1920d072dfea4b5ece74a3c6a7a241",
+        "role": "calibration_objective_profile"
+      }
+    ],
+    "covariance": [
+      [
+        0.0024999999441206455,
+        0.0024999999441206455
+      ],
+      [
+        0.0024999999441206455,
+        0.0024999999441206455
+      ]
+    ],
+    "independent_marginals_variance": 0.005,
+    "true_tied_difference_variance": 0,
+    "node_status": "ok",
+    "output_ref": {
+      "artifact_id": "sha256:ea59a4e45fda2621d0024daaa339bd3872f662fbe3ad79fe13ada682dc6db438",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "output_gate_eligible": false,
+    "propagation_report_summary": {
+      "incomplete_output_metric_ids": [],
+      "input_envelope_count": 2,
+      "mapped_param_count": 2,
+      "mapped_params": [
+        "A.rate",
+        "B.rate"
+      ],
+      "mapping_status": "resolved",
+      "methods": [
+        "monte_carlo"
+      ],
+      "missing_output_metric_ids": [],
+      "output_metric_count": 1,
+      "schema_version": "1.1",
+      "unmapped_metric_ids": []
+    },
+    "draw_outcome_summary": {
+      "attempted_draw_count": 1000,
+      "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+      "implementation_identity_status": "not_established",
+      "input_identity_status": "content_hashed",
+      "outcome_denominator_complete": true,
+      "requested_draw_count": 1000,
+      "sampling_recipe": {
+        "config": {
+          "adaptive_stopping": {
+            "check_interval": 100,
+            "ci_half_width_target": 0.01,
+            "enabled": false,
+            "max_samples": 10000,
+            "min_samples": 200
+          },
+          "auto_select_strategy": true,
+          "bounded_iid_mean": null,
+          "compute_sensitivity": true,
+          "confidence_level": 0.95,
+          "delta_covariance_jitter": 0.0,
+          "delta_use_full_covariance": true,
+          "mc_batch_size": 200,
+          "mc_min_valid_samples": 50,
+          "mc_n_samples": 1000,
+          "mc_qmc_replicates": 1,
+          "mc_qmc_scramble": true,
+          "mc_sampling_method": "random",
+          "mc_seed": 42,
+          "preferred_method": "delta"
+        },
+        "input_envelope_sha256": {
+          "A.rate": "75be21e4ffc074a913a36fe8af7778bc66dd2a036f4bedc398d6436b8913616a",
+          "B.rate": "2be9b5afdf3077524ecab9df2f2bc1abdc99d4bc746106f75f9fd7d7ba289746"
+        },
+        "input_param_names": [
+          "A.rate",
+          "B.rate"
+        ],
+        "joint_sample_id": null,
+        "sample_axis": "draw"
+      },
+      "schema_version": "1.0",
+      "successful_draw_count": 1000,
+      "unattempted_draw_count": 0
+    },
+    "draw_outcome_sha256": "5d0746b8547c199f79cf4774ae210fb676cfaff4d1534f23fdbb7bd263e22bc5",
+    "requested_draw_records": 1000
+  },
+  "other_native_results": [
+    {
+      "test": "refusal",
+      "defect": "wrong_kind",
+      "ref": {
+        "artifact_id": "sha256:49aecedbe3a407980af5f09dfd00a5ffe238f71e1b7c1a44fb708800d57a2cb6",
+        "kind": "foundry.funnel_calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report manifest kind/schema mismatch",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "wrong_schema",
+      "ref": {
+        "artifact_id": "sha256:0cff1ddaea90f7173453c93c9bd74ad516d86b5500d1c67d65f60ba58c4d5ec6",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report manifest kind/schema mismatch",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "schema_payload_version",
+      "ref": {
+        "artifact_id": "sha256:80f2f23b7413e8c2d4d6e7cac69bfc11e361ea86db927acd3674705a32ad6e95",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report payload/schema version mismatch",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "unsupported_schema_version",
+      "ref": {
+        "artifact_id": "sha256:b188c37fecd01d086809a87f0b3f9118aa3c7b46ee09e99907b29d695294932e",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report manifest kind/schema mismatch",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "missing_config",
+      "ref": {
+        "artifact_id": "sha256:7f8b48f3b98894590fee9b5b45abf2e8bff0828ae0184a3cdfb5c6523299a038",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report requires one calibration_config input",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "duplicate_config",
+      "ref": {
+        "artifact_id": "sha256:8dda05eabec362ffa14cbabb7e6428bc47713ab202ff16bd626020df2954ebcb",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report requires one calibration_config input",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "wrong_config_kind",
+      "ref": {
+        "artifact_id": "sha256:a9404963942f222d071432558977e9d1596ecf0b51cad030240ba5e2f432a10a",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration_config manifest admission failed",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "bad_config_payload",
+      "ref": {
+        "artifact_id": "sha256:0f7cbfd395ca3259eabf6ce6523b015149c169c3cdc91c0d2cf59fb52cf47168",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "1 validation error for CalibrationConfig\ntargets\n  Input should be a valid list [type=list_type, input_value='invalid', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/list_type",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "missing_objective_profile",
+      "ref": {
+        "artifact_id": "sha256:773c36499e07be0ecdde32c74a10d1de88a957f2c204a384e79648df99470843",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report objective profile input is missing",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "wrong_objective_profile_kind",
+      "ref": {
+        "artifact_id": "sha256:0bd8a08f42f86fba83f9ff5c5ce0cd2bd8a50580cc617e2dcea5bed3965ee2a9",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report objective profile binding mismatch",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "wrong_objective_profile_payload",
+      "ref": {
+        "artifact_id": "sha256:83852172b9e2e6027019f74c8ff1fb02dc5ee186ba97880ab3befe1d536c9535",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "calibration report objective profile binding mismatch",
+      "propagation_calls": 0
+    },
+    {
+      "test": "refusal",
+      "defect": "invalid_report_payload",
+      "ref": {
+        "artifact_id": "sha256:d21d0ca2f80eff4e35c7697fa4b56f51e00544fa0342bca625ef02f365746ad2",
+        "kind": "foundry.calibration_report",
+        "media_type": "application/json"
+      },
+      "node_status": "refused",
+      "error": "1 validation error for CalibrationReport\ntotal_loss\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='not-numeric', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing",
+      "propagation_calls": 0
+    },
+    {
+      "test": "exact_902d_input_replay",
+      "input_ref": {
+        "artifact_id": "sha256:a47dcb6b666711565963931f585e3c76aad715ad37468fd29e0f5e14ba170b65",
+        "kind": "foundry.funnel_calibration_report",
+        "media_type": "application/json"
+      },
+      "input_bytes_sha256": "a47dcb6b666711565963931f585e3c76aad715ad37468fd29e0f5e14ba170b65",
+      "old_status": "ok",
+      "old_calls": 1,
+      "new_status": "refused",
+      "new_error": "calibration report manifest kind/schema mismatch",
+      "new_calls": 0,
+      "input_bytes_unchanged": true
+    },
+    {
+      "test": "real_tied_v2_native_mc",
+      "requested_draws": 100,
+      "draws": 100,
+      "max_abs_draw": 0.0,
+      "gate_eligible": false,
+      "output_ref": {
+        "artifact_id": "sha256:c2814b66a869e53412fbe728b35af142ef466da620a2c88c807a17f37ee0271e",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      }
+    }
+  ]
+}

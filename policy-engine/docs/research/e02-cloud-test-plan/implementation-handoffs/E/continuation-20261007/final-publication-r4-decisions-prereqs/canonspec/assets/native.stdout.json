@@ -1,0 +1,11 @@
+{
+  "outcome": "bounded_public_route_available",
+  "receipt": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native-public-route.json",
+    "bytes": 44283,
+    "sha256": "b62d9348bd0328bce98d1db97a38f13b0349ea7f2f4e5d35968fc71ec7f507cb"
+  },
+  "actual_writer_routes": 2,
+  "negative_controls": 6,
+  "source_unchanged": true
+}

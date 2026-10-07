@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final54-conservation-independent-b2-20261007/review.py", line 177, in <module>
+    print(json.dumps(main(), indent=2, sort_keys=True))
+                     ^^^^^^
+  File "/tmp/e02-E-final54-conservation-independent-b2-20261007/review.py", line 110, in main
+    require(outcomes == {**f['current_native_outcomes'], 'ruff': 'FAIL', 'format': 'FAIL', 'workspace-verify': p['workspace_outcome'], 'ci-parity': p['ci_outcome']}, 'current_seven_outcomes_independent')
+  File "/tmp/e02-E-final54-conservation-independent-b2-20261007/review.py", line 41, in require
+    raise ValueError(label)
+ValueError: current_seven_outcomes_independent

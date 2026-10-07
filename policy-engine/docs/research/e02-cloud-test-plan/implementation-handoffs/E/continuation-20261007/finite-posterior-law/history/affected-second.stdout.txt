@@ -1,0 +1,39 @@
+..............................................F......................... [ 88%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+____________ test_scoped_facade_resolves_actual_profile_and_reader _____________
+
+    def test_scoped_facade_resolves_actual_profile_and_reader():
+        import polisyos.ir as root
+        from polisyos.ir.analytics import PosteriorSummaryProfile
+        from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile as Defined
+    
+        assert PosteriorSummaryProfile is Defined
+>       assert root.PosteriorSummaryProfile is Defined
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_posterior_summary.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'PosteriorSummaryProfile'
+
+    def __getattr__(name: str) -> Any:
+        """Resolve a public IR export on first access.
+    
+        Args:
+            name: Facade attribute requested by user code.
+    
+        Returns:
+            The lazily imported class, enum, or function bound to ``name``.
+    
+        Raises:
+            AttributeError: If ``name`` is not part of the stable facade surface.
+        """
+        if name in _LAZY_IMPORTS:
+>           module_name, attr = _LAZY_IMPORTS[name]
+            ^^^^^^^^^^^^^^^^^
+E           ValueError: too many values to unpack (expected 2, got 3)
+
+src/polisyos/ir/__init__.py:1031: ValueError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_posterior_summary.py::test_scoped_facade_resolves_actual_profile_and_reader

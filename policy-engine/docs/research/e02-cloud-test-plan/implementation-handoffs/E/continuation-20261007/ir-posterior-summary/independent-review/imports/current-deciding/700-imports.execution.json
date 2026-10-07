@@ -1,0 +1,46 @@
+{
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/census_imports_delta.py",
+    "--candidate",
+    "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "--base",
+    "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "--repo",
+    "/workspace/e02-E-frc-20261006",
+    "--output",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/import-census-700.json",
+    "--prior-output",
+    "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/import-census-c861.json",
+    "--prior-candidate",
+    "c8616e2babe1f0674799c12f07faffa5d6bd266d"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006",
+  "started_utc": "2026-10-07T08:59:38.609096+00:00",
+  "ended_utc": "2026-10-07T08:59:42.788634+00:00",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-imports.stdout",
+    "bytes": 3064,
+    "sha256": "338c4caa265259f8faf4a25cdb8db96ecb56321f8fac333a332b05ec3eaf56a8"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/700-imports.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "literal_observer_source": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/census_imports_delta.py",
+      "bytes": 9361,
+      "sha256": "acbf4729fe0e2800ef0d713162ac1861a3793ba6ee3f23a1303793215df2fd4b"
+    }
+  ],
+  "execution_environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "effective_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "task_imposed_worker_process_thread_or_CPU_cap": false
+  },
+  "status": "PASS"
+}

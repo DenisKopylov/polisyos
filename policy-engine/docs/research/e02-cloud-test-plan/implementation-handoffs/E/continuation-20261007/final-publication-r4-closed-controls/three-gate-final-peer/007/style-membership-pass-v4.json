@@ -1,0 +1,26 @@
+{
+  "outcome": "PASS",
+  "runs": [
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v4.py.txt"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v4.py.txt"
+      ],
+      "exit_code": 0,
+      "stdout": "1 file already formatted\n",
+      "stderr": ""
+    }
+  ]
+}

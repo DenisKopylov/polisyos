@@ -1,0 +1,146 @@
+"""Pure evidence recomputation: exact copy custody, Git source and typed summary admission."""
+import argparse,copy,hashlib,json,pathlib,re,subprocess,xml.etree.ElementTree as ET
+CANDIDATE='77b4d68ec37e3f34b84ce4fd1787746e3d5f5322'
+TREE='d5efa295c8af983a86a620a120ab091aae580db3'
+BASE='3cc20af36297493aa8ba8fdc66f3810abadf81a2'
+AUTHOR_PATHS=['policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml','policy-engine/src/polisyos/foundry/calibration/__init__.py','policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py','policy-engine/src/polisyos/foundry/uncertainty/__init__.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py']
+def typed_equal(a,b):
+ if type(a) is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys() and all(typed_equal(a[k],b[k]) for k in a)
+ if isinstance(a,list):return len(a)==len(b) and all(typed_equal(x,y) for x,y in zip(a,b,strict=True))
+ return a==b
+
+def relative(s):
+ if type(s) is not str or not s or '\\' in s or pathlib.PurePosixPath(s).is_absolute() or any(x in ('','.','..') for x in s.split('/')):raise ValueError('invalid_relative_path')
+ return s
+
+def sha(s,width):
+ if type(s) is not str or re.fullmatch('[0-9a-f]{'+str(width)+'}',s) is None:raise ValueError('invalid_digest')
+
+def record(r):
+ if type(r) is not dict:raise ValueError('invalid_record')
+ if type(r.get('bytes')) is not int or r['bytes']<0:raise ValueError('invalid_size')
+ sha(r.get('sha256'),64)
+
+def preflight(index,source):
+ for key,value in [('candidate',CANDIDATE),('tree',TREE),('base',BASE)]:
+  sha(source.get(key),40)
+  if source[key]!=value:raise ValueError('invalid_identity')
+ if source.get('branch')!='codex/e02-E-cal-20261006':raise ValueError('invalid_branch')
+ if type(index.get('files')) is not list or not index['files']:raise ValueError('invalid_copy_denominator')
+ names=[]
+ for r in index['files']:
+  record(r);relative(r.get('logical_at'));relative(r.get('stored_at'));names.append(r['logical_at'])
+  if r['stored_at']!='assets/'+r['sha256']+'.txt':raise ValueError('carrier_identity_mismatch')
+ if len(names)!=len(set(names)):raise ValueError('duplicate_logical_alias')
+ for key in ['logical_count','unique_carrier_count','unique_bytes']:
+  if type(index.get(key)) is not int or index[key]<0:raise ValueError('invalid_copy_count')
+ if type(source.get('full_ancestry_footprint')) is not list or not source['full_ancestry_footprint']:raise ValueError('invalid_source_denominator')
+ paths=[]
+ for r in source['full_ancestry_footprint']:
+  record(r);relative(r.get('path'));sha(r.get('git_blob'),40);paths.append(r['path'])
+ if len(paths)!=len(set(paths)):raise ValueError('duplicate_source_path')
+ if not typed_equal(source.get('author_paths'),AUTHOR_PATHS):raise ValueError('author_scope_mismatch')
+ if type(source.get('distribution_count')) is not int or type(source.get('distributions')) is not list:raise ValueError('invalid_environment_count')
+ for r in source['distributions']:
+  record(r)
+  if type(r.get('name')) is not str or type(r.get('version')) is not str:raise ValueError('invalid_environment_record')
+
+class Inputs:
+ def __init__(self,root,index):self.root=root;self.rows={r['logical_at']:r for r in index['files']}
+ def raw(self,name):
+  r=self.rows[name];raw=(self.root/r['stored_at']).read_bytes()
+  if len(raw)!=r['bytes'] or hashlib.sha256(raw).hexdigest()!=r['sha256']:raise ValueError('input_custody_mismatch '+name)
+  return raw
+ def json(self,name):return json.loads(self.raw(name))
+
+def case_counts(raw):
+ if b'<!DOCTYPE' in raw or b'<!ENTITY' in raw:raise ValueError('unsupported_xml_entities')
+ d={'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0}
+ for c in ET.fromstring(raw).findall('.//testcase'):
+  k='ERROR' if c.find('error') is not None else 'FAIL' if c.find('failure') is not None else 'SKIP' if c.find('skipped') is not None else 'PASS';d[k]+=1
+ return d
+
+def derive(root,repo,index=None,source=None,git_call=None):
+ index=index if index is not None else json.loads((root/'copy-index.json').read_text())
+ inputs=Inputs(root,index)
+ source=source if source is not None else inputs.json('author/source-environment-77b4-v2.json')
+ preflight(index,source)
+ # Admit the complete physical copy denominator before any Git child invocation.
+ unique={}
+ for r in index['files']:
+  inputs.raw(r['logical_at']);unique[r['stored_at']]=(r['bytes'],r['sha256'])
+ if index['logical_count']!=len(index['files']) or index['unique_carrier_count']!=len(unique) or index['unique_bytes']!=sum(x[0] for x in unique.values()):raise ValueError('copy_total_mismatch')
+ git_call=git_call if git_call is not None else (lambda args:subprocess.check_output(['git',*args],cwd=repo))
+ if git_call(['rev-parse',CANDIDATE+'^{tree}']).decode().strip()!=TREE:raise ValueError('tree_mismatch')
+ paths=git_call(['diff','--name-only',BASE,CANDIDATE]).decode().splitlines()
+ if not typed_equal(paths,[r['path'] for r in source['full_ancestry_footprint']]):raise ValueError('footprint_mismatch')
+ for r in source['full_ancestry_footprint']:
+  raw=git_call(['show',CANDIDATE+':'+r['path']])
+  blob=git_call(['rev-parse',CANDIDATE+':'+r['path']]).decode().strip()
+  if len(raw)!=r['bytes'] or hashlib.sha256(raw).hexdigest()!=r['sha256'] or blob!=r['git_blob']:raise ValueError('git_source_mismatch')
+  if (repo/r['path']).read_bytes()!=raw:raise ValueError('physical_source_mismatch')
+ initial=inputs.json('author/source-environment.json')
+ unchanged=typed_equal(source['distributions'],initial['distributions'])
+ if source['distribution_count']!=len(source['distributions']) or source['all184_metadata_equal_6638_observation'] is not unchanged:raise ValueError('metadata_summary_mismatch')
+ ref=inputs.json('author/returned-ref-correction-r2/receipt.json');compat=inputs.json('author/profile-correction/compat-receipt.json');typing=inputs.json('author/returned-ref-correction-r2/typing.json')
+ imports=inputs.json('author/returned-ref-correction-r2/import-edges.json')
+ source_hashes={r['path']:r['sha256'] for r in source['full_ancestry_footprint']}
+ if ref['source_immutable'] is not True or not typed_equal(ref['before'],ref['after']) or any(source_hashes.get(p)!=h for p,h in ref['after'].items()):raise ValueError('affected_source_mismatch')
+ node='policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py'
+ if compat['source_immutable'] is not True or compat['source_sha256_before']!=compat['source_sha256_after'] or compat['source_sha256_before']!=source_hashes[node]:raise ValueError('compat_source_mismatch')
+ affected={}
+ for r in ref['results']:
+  relative(r['junit']);affected[r['mode']]=case_counts(inputs.raw('author/returned-ref-correction-r2/'+r['junit']))
+ affected['existing_consumers']=case_counts(inputs.raw('author/profile-correction/compat.junit.xml'))
+ summary={'candidate':CANDIDATE,'tree':TREE,'base':BASE,'branch':source['branch'],'author_paths':source['author_paths'],'full_ancestry_path_count':len(paths),'full_ancestry_python_count':sum(p.endswith('.py') for p in paths),'author_python_count':sum(p.endswith('.py') for p in source['author_paths']),'affected_native':affected,'affected_command_exit_codes':[r['exit_code'] for r in ref['results']]+[compat['exit_code']],'scoped_typing':typing['summary'],'author_metadata_distribution_count':len(source['distributions']),'author_metadata_unchanged_6638':unchanged,'author_historical74_and23_raw_available':False,'global_gate_pass':False,'production_law_established':False,'finding_closure_decided':False}
+ return summary,source,imports,ref,compat
+
+def admit_summary(value,expected):
+ if not typed_equal(value,expected):raise ValueError('summary_mismatch')
+
+def admit_handoff(h,derived):
+ summary,source,imports,ref,compat=derived
+ actual={'candidate':h['candidate_sha'],'tree':h['candidate_tree_sha'],'base':h['slice_base_sha'],'branch':h['branch'],'author_paths':h['changed_paths'],'full_footprint':h['full_ancestry_footprint'],'author_metadata_count':h['environment_and_input_identity']['author_distribution_count'],'metadata_unchanged':h['environment_and_input_identity']['all184_metadata_equal_initial6638_observation'],'new_private_edges':h['public_api_and_architecture']['new_private_product_edges'],'checks':[{k:c[k] for k in ['command','cwd','outcome','case_counts']} for c in h['checks']]}
+ expected={'candidate':CANDIDATE,'tree':TREE,'base':BASE,'branch':source['branch'],'author_paths':source['author_paths'],'full_footprint':source['full_ancestry_footprint'],'author_metadata_count':len(source['distributions']),'metadata_unchanged':summary['author_metadata_unchanged_6638'],'new_private_edges':len(imports['new_private_product_edges_against_6638']),'checks':[{'command':r['argv'],'cwd':r['cwd'],'outcome':'PASS' if r['exit_code']==0 else 'FAIL','case_counts':summary['affected_native'][r['mode']]} for r in ref['results']]+[{'command':compat['argv'],'cwd':compat['cwd'],'outcome':'PASS' if compat['exit_code']==0 else 'FAIL','case_counts':summary['affected_native']['existing_consumers']}]}
+ admit_summary(actual,expected)
+
+def controls(root,repo):
+ derived=derive(root,repo);expected=derived[0];summary=json.loads((root/'bounded-summary.json').read_text());h=json.loads((root/'implementation-handoff.json').read_text());index=json.loads((root/'copy-index.json').read_text())
+ admit_summary(summary,expected);admit_handoff(h,derived)
+ results=[{'name':'healthy_recompute','outcome':'PASS'}]
+ mutations=[('native_count',lambda d:d['affected_native']['normal'].__setitem__('PASS',1)),('typing_count',lambda d:d['scoped_typing'].__setitem__('errorCount',1)),('metadata_bool',lambda d:d.__setitem__('author_metadata_distribution_count',True)),('raw_loss_hidden',lambda d:d.__setitem__('author_historical74_and23_raw_available',True)),('extra_author_path',lambda d:d['author_paths'].append('policy-engine/src/polisyos/runtime/quality/generation_cycle.py')),('authority',lambda d:d.__setitem__('production_law_established',True))]
+ for name,change in mutations:
+  bad=copy.deepcopy(summary);change(bad)
+  try:admit_summary(bad,expected)
+  except ValueError as exc:results.append({'name':name,'outcome':'PASS','refusal':str(exc),'raw_inputs_unchanged':True})
+  else:raise ValueError('false_summary_admitted '+name)
+ for name,change in [('handoff_source',lambda d:d.__setitem__('candidate_sha','--output=forbidden')),('handoff_count_bool',lambda d:d['checks'][0]['case_counts'].__setitem__('PASS',True)),('handoff_extra_path',lambda d:d['changed_paths'].append('policy-engine/src/polisyos/runtime/quality/generation_cycle.py')),('handoff_public_edges',lambda d:d['public_api_and_architecture'].__setitem__('new_private_product_edges',1))]:
+  bad=copy.deepcopy(h);change(bad)
+  try:admit_handoff(bad,derived)
+  except ValueError as exc:results.append({'name':name,'outcome':'PASS','refusal':str(exc),'markers_preserved':True})
+  else:raise ValueError('false_handoff_admitted '+name)
+ for name,change in [('option_like_source',lambda d:d.__setitem__('candidate','--output=forbidden')),('late_none_path',lambda d:d['full_ancestry_footprint'][-1].__setitem__('path',None)),('late_dot_path',lambda d:d['full_ancestry_footprint'][-1].__setitem__('path','.')),('late_bool_path',lambda d:d['full_ancestry_footprint'][-1].__setitem__('path',False)),('late_bool_size',lambda d:d['full_ancestry_footprint'][-1].__setitem__('bytes',True))]:
+  bad=copy.deepcopy(derived[1]);change(bad);calls=[]
+  try:derive(root,repo,source=bad,git_call=lambda args:calls.append(args))
+  except ValueError as exc:
+   if calls:raise ValueError('malformed_source_reached_git')
+   results.append({'name':name,'outcome':'PASS','refusal':str(exc),'git_callback_count':0})
+  else:raise ValueError('malformed_source_admitted '+name)
+ for name,change in [('late_copy_path',lambda d:d['files'][-1].__setitem__('stored_at',None)),('copy_total_bool',lambda d:d.__setitem__('logical_count',True)),('late_copy_hash',lambda d:d['files'][-1].__setitem__('sha256','0'*64))]:
+  bad=copy.deepcopy(index);change(bad);calls=[]
+  try:derive(root,repo,index=bad,git_call=lambda args:calls.append(args))
+  except ValueError as exc:
+   if calls:raise ValueError('bad_copy_reached_git')
+   results.append({'name':name,'outcome':'PASS','refusal':str(exc),'git_callback_count':0})
+  else:raise ValueError('bad_copy_admitted '+name)
+ # Remove only shared typed summary equality; source/raw reads/markers remain.
+ ns={};exec('def removed(value, expected):\n if False: raise ValueError("summary_mismatch")\n',ns)
+ names=[]
+ for name,change in mutations[:5]:
+  bad=copy.deepcopy(summary);change(bad);ns['removed'](bad,expected);names.append(name)
+ results.append({'name':'sole_summary_admission_removal','outcome':'PASS','defining_refusal_property':'FAIL','false_summaries_readmitted':names,'raw_source_unchanged':True})
+ return {'candidate':CANDIDATE,'tree':TREE,'summary':summary,'controls':results,'control_count':len(results),'optimization_mode':not __debug__,'scope':'read-only evidence custody and typed claims only; no backend/math/HTTP/global tests repeated','source_review_is_separate':True}
+
+if __name__=='__main__':
+ p=argparse.ArgumentParser();p.add_argument('--root',type=pathlib.Path,required=True);p.add_argument('--repo',type=pathlib.Path,required=True);a=p.parse_args();print(json.dumps(controls(a.root,a.repo),indent=2))

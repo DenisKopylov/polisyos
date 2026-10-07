@@ -1,0 +1,30 @@
+{
+  "name": "python-version",
+  "argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "-c",
+    "import json,sys; print(json.dumps({\"version\":sys.version,\"executable\":sys.executable}))"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "RUFF_CACHE_DIR": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/cache-python"
+  },
+  "began_at": "2026-10-07T16:20:58.560431+00:00",
+  "ended_at": "2026-10-07T16:20:58.585423+00:00",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/python-version.stdout.txt",
+    "bytes": 146,
+    "sha256": "34f27a7c255332c79405c5112987bbcefd0dd12a90acf6cbddb40e1c4c867192"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/python-version.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+}

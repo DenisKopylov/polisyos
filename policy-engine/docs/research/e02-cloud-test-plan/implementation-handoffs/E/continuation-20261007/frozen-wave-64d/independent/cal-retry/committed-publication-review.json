@@ -1,0 +1,448 @@
+{
+  "schema": "policyos.e02.independent_CAL_retry_DOC_carrier_review.v1",
+  "candidate_sha": "3eafb85617738c9b398fe67c70d58b3d0d05a5a9",
+  "candidate_tree_sha": "a2981e42fb6a3b456c0ca2b8b08ffb5786dc8e84",
+  "publication_base_sha": "781acab7a66ac7bbbd40d5a007fae22379e32e85",
+  "verification_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "disposition": "GO for immutable DOC carrier custody",
+  "changed_path_denominator": 50,
+  "active_python_path_denominator": 0,
+  "literal_copy_count": 47,
+  "literal_copy_bytes": 1198144,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/admission.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/admission.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/finalize-retry.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/finalize.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/finalize.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/first-launch-resource-refusal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/implementation-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/case-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-recompute-before-output-normalization.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-review-output-map-gap.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-review-output-map-gap.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-review-output-map-gap.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/publication-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/review_cal_retry-executed.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/initial-custody-metadata-error.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/input-reuse.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-ready.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-ready.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-resource-observations.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-retry.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-when-ready.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/moderate-publication-selection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/admitted-before-deletion.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cal-and-welfare-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cal-and-welfare-consumer.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cleanup-publication-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cleanup-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/results-importer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/prepare-retry.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/admission-resume.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/copy-packet.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/prepublication-ancestry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-control/recompute-copy-custody.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-control/recompute-copy-custody.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-control/recompute-copy-custody.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/resource-observations.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/resources-1791366610.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-completion.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-started.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/runtime-observations.jsonl"
+  ],
+  "copies": [
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/admission.stderr.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/admission.stdout.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/admission.stdout.txt",
+      "bytes": 4051,
+      "sha256": "24d7b4b284f63711a0f5d726066c15a3f371861f4949de70b0426c42ae259066",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "bytes": 10726,
+      "sha256": "2a026082c9ae0f332147d8b121ca6841dcea20d2451ba712753b5160a5b49d35",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "bytes": 400,
+      "sha256": "878d5c6256968b7eba8ddbccd44ad7d165f61c4a7521d05198d615d5b5289e83",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/pytest.xml",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/pytest.xml",
+      "bytes": 52854,
+      "sha256": "e1990adf7d224852294334881d0a06f5a86b44a75c70f3018f7b6061013cde8b",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/finalize-retry.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/finalize-retry.py.txt",
+      "bytes": 5765,
+      "sha256": "6b3e33b92318e1b7272bc1d16ad66d1cbd602de821870240734111f86ab42d9e",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/finalize.stderr.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/finalize.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/finalize.stdout.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/finalize.stdout.txt",
+      "bytes": 646,
+      "sha256": "89e305e317c2f881e71683b56d0e7c781aa9e8ab9b97ed91bd6f269feb5261f1",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/first-launch-resource-refusal.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/first-launch-resource-refusal.json",
+      "bytes": 694,
+      "sha256": "b388aca85ee0f8de8d934252416f79d436cac56f48d475f20684434ef9cd43e5",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/initial-custody-metadata-error.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/initial-custody-metadata-error.json",
+      "bytes": 827,
+      "sha256": "99cbe214d944c84405a4c9ae8e624c758614a5b4aa979aeda32fd83a320d80f3",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/input-reuse.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/input-reuse.json",
+      "bytes": 847,
+      "sha256": "b1c69e6b0b9847553ae964c9a8f8960d18d78629352553dbea177714457b91ee",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-ready.stderr.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-ready.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-ready.stdout.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-ready.stdout.txt",
+      "bytes": 2677,
+      "sha256": "914b18d30e51a137fd99b8bdbd4c812e5a2afe36ac66826fd46eeceecf9ca2bd",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-resource-observations.jsonl",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-resource-observations.jsonl",
+      "bytes": 905,
+      "sha256": "03458c23816a660c81b79bfc25732c22796b043584e04a4aea2b7960f8c0e5da",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-retry.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-retry.py.txt",
+      "bytes": 2675,
+      "sha256": "879bd64be8f33e5e05c13a34d851eb8c0f8f3c56a0f23426ed959018c6afb2de",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch-when-ready.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch-when-ready.py.txt",
+      "bytes": 3422,
+      "sha256": "ff024193e238e1901603584e5d1d2092645867241159c1e2cb97c73ca76e70b9",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch.stderr.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch.stderr.txt",
+      "bytes": 385,
+      "sha256": "1f06f6ba5685a8ed4b6516de11a40b8e76da7758f41c44ad7d03b7b309a5cfa2",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/launch.stdout.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/launch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/prepare-retry.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/prepare-retry.py.txt",
+      "bytes": 7463,
+      "sha256": "cf1885f9754d5fe36c234c619f96ecd21a813d44e4abb3a14fdc78322d38ad96",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/resource-observations.jsonl",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/resource-observations.jsonl",
+      "bytes": 2285,
+      "sha256": "82888103bfe968b6e8979f998bb4c6bad3e234aea25f59739b80914ae8a142be",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/resources-1791366610.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/resources-1791366610.json",
+      "bytes": 2408,
+      "sha256": "fee08a8ade8bbd0d5143e84120574c3169a29ef4440c0f2cb5b48ef63b85eea3",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-admission.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-admission.json",
+      "bytes": 31432,
+      "sha256": "054abd501722634289e8f7c88106a236e2900c531d5836c65668dd1b5d6af221",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-completion.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-completion.json",
+      "bytes": 7025,
+      "sha256": "6e1caf4596a213d169dde9b8925eb196e451e693134a0a2e9fc4d053cd87b109",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-started.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/retry-started.json",
+      "bytes": 6117,
+      "sha256": "8548493f44099aa6e23b420b51bfd7f9a6cf0e2e69e83df26430cdf20fa97416",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/runtime-observations.jsonl",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/runtime-observations.jsonl",
+      "bytes": 4109,
+      "sha256": "1e4496eed90cce4161130c41811b42e5b0a26e788e514c138e44eb86eb5fb4d4",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cal-and-welfare-consumer.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 10457,
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cal-and-welfare-consumer.stdout.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 281,
+      "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/results-importer.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.json",
+      "bytes": 8168,
+      "sha256": "6aaa1261b5ec92bfcd3bd491411ab79a7f8ef0d589b8e73c87e4d9baaaf874e7",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/admitted-before-deletion.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/admitted-before-deletion.json",
+      "bytes": 81905,
+      "sha256": "3260e86a2c2ca9593df646b075ff814f2598bd152913738f9cad07d0ec93d835",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cleanup-result.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-result.json",
+      "bytes": 3194,
+      "sha256": "15e2d2a58a1f733d3f744a97b80dc630a78ce8a5d8632f556b69170742cdc2a1",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/original-and-inputs/cleanup-publication-receipt.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-publication-receipt.json",
+      "bytes": 5806,
+      "sha256": "254d0413a8abc3ecf4ae75d6cb903fcce4ff22e575d4d9bd78d0663019d4dfda",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/moderate-publication-selection.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/moderate-publication-selection.json",
+      "bytes": 10200,
+      "sha256": "18336786d54225d5db45f5944f9dc6a0138008a76ea300a080f5738263eb058f",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/case-index.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/case-index.json",
+      "bytes": 227258,
+      "sha256": "dba0f3479e68f857c1e445c4e2f217720ee858d6839cbac2e0091ad1317bdf2d",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-recompute-before-output-normalization.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-recompute-before-output-normalization.py.txt",
+      "bytes": 35515,
+      "sha256": "3f8c6d35b0b6d768da823dabaf474f183ec3d88ae0ee61630fbae956729e71cc",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-review-output-map-gap.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-review-output-map-gap.json",
+      "bytes": 257535,
+      "sha256": "a15a27c08e2ead5ce081fa7cf7ac9f9d295a5917eea0459e7656330e45278a39",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-review-output-map-gap.stderr",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-review-output-map-gap.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/historical-review-output-map-gap.stdout",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/historical-review-output-map-gap.stdout",
+      "bytes": 426,
+      "sha256": "bbd1f669e7704a58c9beb9d0dcf7a32ba34e87b7e13e027f64d082e88596ccff",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/publication-review.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/publication-review.json",
+      "bytes": 10258,
+      "sha256": "f60727e1dadaf3e9225a15e0104a917dad71d6d6422bec15034edb87ada0bace",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/review.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/review.json",
+      "bytes": 257231,
+      "sha256": "ca7158b7ec13ae1343ff8fdfe9058c7d40d869a774a5a1fbbc7101f26bbcbc68",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/independent-review/review_cal_retry-executed.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent/review_cal_retry-executed.py.txt",
+      "bytes": 4292,
+      "sha256": "0a543756a4b9e3431f11eb503141a6e19edf3ebea9d19b570c58d8219f9accb5",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/admission-resume.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/admission-resume.json",
+      "bytes": 123184,
+      "sha256": "a14f8a94520e1a94dcb075228f300cf2c8318d6eeb74680e7499a50bf63f351f",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/admission-resume.stderr.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/admission-resume.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/prepublication-ancestry.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/prepublication-ancestry.json",
+      "bytes": 305,
+      "sha256": "946bdf0e81a2cd8e05bc384b12de394bbac4644e1993c551c4870e019b29436f",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-admission/copy-packet.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/copy-packet.py.txt",
+      "bytes": 10743,
+      "sha256": "5ea57f86f8779528015bea0b3d0b0753fc31e46a6ce43a224679dfdac1f77fb1",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-control/recompute-copy-custody.py.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/recompute-copy-custody.py.txt",
+      "bytes": 2756,
+      "sha256": "1a67c3ac3ed2631db41b9872401f92cb010e266015c718cbe1a91f54d972c3b9",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-control/recompute-copy-custody.stdout.json",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/recompute-copy-custody.stdout.json",
+      "bytes": 917,
+      "sha256": "e844ebde2784ce6a3163ff82bb4d3fb627a872c3efebbe867ebb5048e66dc20f",
+      "literal_equal": true
+    },
+    {
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/publication-control/recompute-copy-custody.stderr.txt",
+      "original_path": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/publication/recompute-copy-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "literal_equal": true
+    }
+  ],
+  "handoff": {
+    "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/implementation-handoff.json",
+    "bytes": 12842,
+    "sha256": "93987b26512fd7391df112213e59a2901c184ab013c4c439af50cbb977c7ff9a"
+  },
+  "copy_index": {
+    "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/copy-index.json",
+    "bytes": 18466,
+    "sha256": "2ebeee7da8e73ea45a80f4b72ca2972873a202af6c604986f0fc281b307893b0"
+  },
+  "publication_control_observation": {
+    "schema": "policyos.e02.literal_copy_custody_recomputation.v1",
+    "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "scope": "Current packet copies at execution, before archiving this observer/output; subsequent Git readback binds full publication",
+    "copied_files_at_execution": 44,
+    "copied_bytes_at_execution": 1194471,
+    "actual_paths_at_execution": 47,
+    "positive": "PASS",
+    "negative_controls": [
+      {
+        "mutation": "copied_files",
+        "outcome": "REFUSED"
+      },
+      {
+        "mutation": "copied_bytes",
+        "outcome": "REFUSED"
+      },
+      {
+        "mutation": "path_count",
+        "outcome": "REFUSED"
+      },
+      {
+        "mutation": "active_python_path_count",
+        "outcome": "REFUSED"
+      },
+      {
+        "mutation": "copy_hash",
+        "outcome": "REFUSED"
+      },
+      {
+        "mutation": "portable_escape",
+        "outcome": "REFUSED"
+      }
+    ],
+    "source_test_execution": false
+  },
+  "issues": [],
+  "limits": [
+    "Readback is exact Git blobs vs original recorded bytes; it does not certify remote delivery, later root merge or finding closure.",
+    "Existing separate independent324/source input receipt reused, no numerical/test/gate repeat.",
+    "Cleanup execution authorization/attribution and scientific production/source-law inputs remain outside this DOC custody review."
+  ]
+}

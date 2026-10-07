@@ -1,0 +1,388 @@
+{
+  "schema": "policyos.e02.profile2_composition_property_controls.v1",
+  "source_sha": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+  "tree": "25d24e62b0d9aa5775e984070c015c23445f9237",
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 94120,
+      "sha256": "07b2c494bbd65a3f091a0edb0947f9d964f09e6534a00e37b0b289a41d8e7e09"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "bytes": 13687,
+      "sha256": "8a488cc4aad4cd75259fd9e3ee66727faf23d844a04c3c7f415019dd477f8902"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 9186,
+      "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+      "bytes": 1293,
+      "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+    }
+  ],
+  "observer_sha256": "cf8c0750b1f73c79cd5294b4e0c358102e6c9ef96fae75364e6896d0a8496cc0",
+  "interpreter": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+  "optimize": 0,
+  "rows": [
+    {
+      "name": "finite_huge_mean_public_helper_fresh_read",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "mean": 1.6e+308,
+        "median": 1.6e+308,
+        "ref": {
+          "artifact_id": "sha256:3caeb9814e3b0686f42b31307965b856307deddeb46808961ae5468f1fa6755e",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "oracle": "Fraction(sum)/4"
+      }
+    },
+    {
+      "name": "remove_profile_dispatch_reintroduces_finite_mean_overflow",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "exception_type": "ValidationError",
+        "exception": "1 validation error for UncertaintyEnvelope\n  Value error, point_estimate must be finite [type=value_error, input_value={'schema_version': '1.1',...d_cert_policy': 'auto'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+      }
+    },
+    {
+      "name": "transformed_carrier_profile_readback",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "profile": {
+          "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "profile_version": "2.0",
+          "point_functional": "median",
+          "mean_functional": "weighted_arithmetic_mean",
+          "interval_functional": "equal_tail_inverse_cdf",
+          "numeric_representation": "finite_float64",
+          "compression": "none",
+          "thinning": "none",
+          "gate_eligible": false,
+          "parameter_name": "x",
+          "parameter_order": [
+            "x"
+          ],
+          "draw_ids": [
+            "row:0",
+            "row:1",
+            "row:2",
+            "row:3"
+          ],
+          "row_identity_basis": "producer_supplied_ids",
+          "sample_axis": "chain:draw",
+          "probabilities": [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ],
+          "posterior_mean": 5.0,
+          "credible_mass": 0.9,
+          "carrier_content_hash": "sha256:2ecc3a51d9a521fea4b664c21973f79a0c689ac7222997f01d5c51394e15e70c",
+          "joint_law_sha256": "64d1de95ca7b7940c223a4c6991ab03c29e3f3d5c20bc6ae018ee9640f0fe788",
+          "binding": null,
+          "context": {
+            "parameters": {},
+            "lineage_refs": {},
+            "time_roles": {},
+            "purpose": null
+          },
+          "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+          "probability_convention": "exact_binary_weight_ratios",
+          "sampling_approximation": "finite_uniform_mesh_discretization"
+        },
+        "ref": {
+          "artifact_id": "sha256:c351e11c386c3982c431788d856e0d7aa616458b6d1121972f7543c20c2b5afb",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "median": 4.0
+      }
+    },
+    {
+      "name": "remove_profile_reissue_loses_declared_functionals",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "profile": null,
+        "ref": {
+          "artifact_id": "sha256:f984269a012fc8e4619251a6ce518f378b1811b1de27715e4f0a3de281767464",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "median": 4.0
+      }
+    },
+    {
+      "name": "compression_clears_interval",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:5925ba304efbb7534c63b17b02c6c52b58655b6d717c9041bdb30a254c39334f",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "metadata": {
+          "compression_target": "interval",
+          "derived_parameter_binding": "not_established",
+          "inherited_parent_lineage": {
+            "lineage_refs": {},
+            "purpose": null,
+            "time_roles": {}
+          },
+          "inherited_parent_lineage_authoritative": false,
+          "parent_posterior_profile_hash": "sha256:c9374f96740d186c8c6981dc6bb43881d4df626823f0cb1d97fdbde25a76cbc0",
+          "posterior_composition": "compress_interval",
+          "posterior_composition_limitation": "full posterior law and named functionals are not retained"
+        }
+      }
+    },
+    {
+      "name": "remove_complete_marker_clear_interval",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:579e8268d365589d98c7b60ead46e9c26a9cbd28debecd949bda61e48005e54a",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "exception": "posterior summary exact carrier is missing",
+        "exception_type": "ValueError"
+      }
+    },
+    {
+      "name": "compression_clears_moments",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:24daeb8591341de292245fb5a0bcc7fe44a6a5ebe7dc3694b8856673567c72e7",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "metadata": {
+          "compression_target": "moments",
+          "derived_parameter_binding": "not_established",
+          "inherited_parent_lineage": {
+            "lineage_refs": {},
+            "purpose": null,
+            "time_roles": {}
+          },
+          "inherited_parent_lineage_authoritative": false,
+          "parent_posterior_profile_hash": "sha256:c9374f96740d186c8c6981dc6bb43881d4df626823f0cb1d97fdbde25a76cbc0",
+          "posterior_composition": "compress_moments",
+          "posterior_composition_limitation": "full posterior law and named functionals are not retained"
+        }
+      }
+    },
+    {
+      "name": "remove_complete_marker_clear_moments",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:a01859e0dded3c6e7642ce5f0b6fdec744bcbb779c8b6f58abd6641497636b0c",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "exception": "posterior summary exact carrier is missing",
+        "exception_type": "ValueError"
+      }
+    },
+    {
+      "name": "paired_incomplete_source_pre_callback_admission",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 0,
+        "refused": true
+      }
+    },
+    {
+      "name": "remove_admission_invokes_incomplete_joint_callbacks",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 2,
+        "refused": false
+      }
+    },
+    {
+      "name": "failed_bool_support_whole_law_refusal",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "refused": true,
+        "profile_published": null
+      }
+    },
+    {
+      "name": "remove_support_guard_publishes_coerced_bool_law",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "refused": false,
+        "profile_published": "urn:policyos:ir:bayesian-posterior-summary-profile:2"
+      }
+    },
+    {
+      "name": "constraint_pullback_clears_original_law",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:5986ec4af7a9d1e4dae9243ef63f4c5667ce0ab31cd4268c164fa5f19feffa96",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "point": 2.5,
+        "exactness": "constraint_only"
+      }
+    },
+    {
+      "name": "remove_pullback_marker_clear_retains_stale_law",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:00252b426084e1954fb8a8e13044bed9d5aee0e89081aa4109c99b73590cc7c5",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "exception": "posterior summary profile/carrier binding is invalid"
+      }
+    },
+    {
+      "name": "unknown_declaration_prepublication_push",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 0,
+        "prepublication_refused": true,
+        "persisted_ref": null,
+        "fresh_reader_rejection": "posterior summary profile is missing",
+        "original_marker": true
+      }
+    },
+    {
+      "name": "remove_shared_declaration_inlet_push",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 2,
+        "prepublication_refused": false,
+        "persisted_ref": {
+          "artifact_id": "sha256:10e01f13c98ce7d96b3db0011c0ae7f9204f460f4f2642827bab2d1e68e00f40",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "fresh_reader_rejection": "posterior summary profile is missing",
+        "original_marker": true
+      }
+    },
+    {
+      "name": "unknown_declaration_prepublication_compress",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 0,
+        "prepublication_refused": true,
+        "persisted_ref": null,
+        "fresh_reader_rejection": "posterior summary profile is missing",
+        "original_marker": true
+      }
+    },
+    {
+      "name": "remove_shared_declaration_inlet_compress",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 0,
+        "prepublication_refused": false,
+        "persisted_ref": {
+          "artifact_id": "sha256:b4f9f5581dd4880316b3b9887cd3790b62cae01c3b929acbd5e97e4da7434c84",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "fresh_reader_rejection": "posterior summary profile is missing",
+        "original_marker": true
+      }
+    },
+    {
+      "name": "unknown_declaration_prepublication_pull",
+      "mode": "healthy",
+      "defining_property": "PASS",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 0,
+        "prepublication_refused": true,
+        "persisted_ref": null,
+        "fresh_reader_rejection": "posterior summary profile is missing",
+        "original_marker": true
+      }
+    },
+    {
+      "name": "remove_shared_declaration_inlet_pull",
+      "mode": "property_removed",
+      "defining_property": "FAIL",
+      "control_result": "PASS",
+      "actual": {
+        "callback_count": 2,
+        "prepublication_refused": false,
+        "persisted_ref": {
+          "artifact_id": "sha256:25d1e6707dffd6293ad302a3067a593039145b05e9312a5e7da3b63a3f2a9392",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "fresh_reader_rejection": "posterior summary profile is missing",
+        "original_marker": true
+      }
+    }
+  ],
+  "control_count": 20,
+  "producer": "configured summarize_bayesian_calibration_posterior",
+  "consumer": "actual public composition; persist_uncertainty_envelope; fresh FileSystemCAS load/read profile",
+  "predicate_basis": {
+    "numeric_reductions": "recomputed",
+    "fresh_consumer_read": "recomputed",
+    "source_binding": "recomputed",
+    "independent_author_review": "not_established",
+    "fit/source_law_authority": "not_established"
+  },
+  "finding_closure": false,
+  "global_gate_pass": false
+}

@@ -1,0 +1,9 @@
+{
+  "stage": "workspace-verify",
+  "outcome": "FAIL",
+  "canonical": "FAIL",
+  "exit_code": 1,
+  "source_immutable": true,
+  "root_env_metadata_unchanged": true,
+  "wall_seconds": 10.251559257507324
+}

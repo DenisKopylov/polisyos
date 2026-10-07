@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-bayesian-fit-bridge-r6/append_closed_assets.py", line 28, in <module>
+    print(json.dumps(append(items),indent=2))
+                     ^^^^^^^^^^^^^
+  File "/tmp/e02-E-bayesian-fit-bridge-r6/append_closed_assets.py", line 11, in append
+    if next(r for r in rows if r['logical_at']==logical)!=row:raise ValueError('alias_changed '+logical)
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: alias_changed author/current-publication/validate_final_publication.py

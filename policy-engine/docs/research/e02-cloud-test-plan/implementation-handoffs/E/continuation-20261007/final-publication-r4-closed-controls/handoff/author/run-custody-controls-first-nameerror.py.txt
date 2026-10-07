@@ -1,0 +1,83 @@
+import argparse, copy, hashlib, importlib.machinery, importlib.util, json, shutil, subprocess, sys
+from pathlib import Path
+S=Path('/tmp/e02-E-final-moderate-publication-r4-stage')
+base=S/'manifest.json';original=json.loads(base.read_text());program=S/'copy-closed-controls.py.txt'
+a=argparse.ArgumentParser();a.add_argument('--mode',choices=['normal','optimized'],required=True);args=a.parse_args()
+R=Path('/tmp/e02-E-final-moderate-controls-v2-'+args.mode);R.mkdir(exist_ok=False)
+P=R/'stage';shutil.copytree(S,P,ignore=shutil.ignore_patterns('__pycache__'))
+PYTHON=[sys.executable]+(['-O']if args.mode=='optimized'else[])
+rows=[]
+def execute(name,stage,run_program=None):
+ target=R/'destinations'/name
+ cmd=PYTHON+[str(run_program or program),'--manifest',str(stage/'manifest.json'),'--destination-root',str(target)]
+ r=subprocess.run(cmd,capture_output=True)
+ (R/(name+'.stdout.txt')).write_bytes(r.stdout);(R/(name+'.stderr.txt')).write_bytes(r.stderr)
+ record={'name':name,'argv':cmd,'exit_code':r.returncode,'destination_created':target.exists(),'stdout':{'bytes':len(r.stdout),'sha256':hashlib.sha256(r.stdout).hexdigest()},'stderr':{'bytes':len(r.stderr),'sha256':hashlib.sha256(r.stderr).hexdigest()}}
+ rows.append(record);return record
+healthy=execute('healthy',P)
+if healthy['exit_code'] or not healthy['destination_created']:raise RuntimeError('healthy custody failed')
+output=next((R/'destinations'/'healthy').glob('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls'))
+expected={r['destination']:{k:r['stored'][k]for k in ('bytes','sha256')} for r in original['canonical_copies']}
+expected|={name:{'bytes':len((S/name).read_bytes()),'sha256':hashlib.sha256((S/name).read_bytes()).hexdigest()}for name in __import__('runpy').run_path(str(program))['METADATA']}
+actual={str(p.relative_to(output)):{'bytes':len(p.read_bytes()),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}for p in output.rglob('*')if p.is_file()}
+if actual!=expected:raise RuntimeError('full healthy readback')
+def write(m):
+ (P/'manifest.json').write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
+ mutations=[
+ ('source-head',lambda m:m['ROOT_after'].__setitem__('head','0'*40)),
+ ('source-native-flag',lambda m:m.__setitem__('source_native_numeric_globalgate_execution',True)),
+ ('header-int-bool',lambda m:m.__setitem__('new_active_Python',False)),
+ ('qualification-gate',lambda m:m['qualification'].__setitem__('formal_G_or_finding_closure',True)),
+ ('qualification-JUnit',lambda m:m['qualification']['terminal_backend'].__setitem__('actual_JUnit_present',True)),
+ ('qualification-ROOT',lambda m:m['qualification']['ROOT_observations'].__setitem__('whole_input_identity','PASS')),
+ ('logical-count',lambda m:m.__setitem__('logical_count',m['logical_count']+1)),
+ ('logical-count-bool',lambda m:m.__setitem__('logical_count',True)),
+ ('logical-bytes',lambda m:m.__setitem__('original_logical_bytes',m['original_logical_bytes']+1)),
+ ('stored-bytes',lambda m:m.__setitem__('stored_logical_bytes',m['stored_logical_bytes']+1)),
+ ('carrier-count',lambda m:m.__setitem__('unique_payload_files',m['unique_payload_files']+1)),
+ ('alias-count',lambda m:m.__setitem__('deduplicated_occurrences',m['deduplicated_occurrences']+1)),
+ ('selector-vector',lambda m:m['selection_inputs'].pop()),
+ ('selector-digest',lambda m:m['selection_inputs'][0].__setitem__('sha256','0'*64)),
+ ('member-source',lambda m:m['logical_sources'][0]['original'].__setitem__('path','/tmp/forged')),
+ ('member-role',lambda m:m['logical_sources'][0]['selected_record'].__setitem__('role','fake-authority')),
+ ('member-missing',lambda m:m['logical_sources'].pop()),
+ ('carrier-path',lambda m:m['canonical_copies'][0].__setitem__('destination','../escape')),
+ ]
+for name,change in mutations:
+ m=copy.deepcopy(original);change(m);write(m);r=execute(name,P)
+ if r['exit_code']==0 or r['destination_created']:raise RuntimeError('negative admitted '+name)
+write(original)
+for name in ['copy-closed-controls.py.txt','build-stage.py.txt','qualification.json','resume-admission.json']:
+ old=(P/name).read_bytes();(P/name).write_bytes(b'present fake companion\n');r=execute('fake-'+name.replace('.','-'),P);(P/name).write_bytes(old)
+ if r['exit_code']==0 or r['destination_created']:raise RuntimeError('fake companion admitted')
+for name in ['copy-closed-controls.py.txt','README.md']:
+ old=(P/name).read_bytes();(P/name).unlink();r=execute('missing-'+name.replace('.','-'),P);(P/name).write_bytes(old)
+ if r['exit_code']==0 or r['destination_created']:raise RuntimeError('missing companion admitted')
+archive=next(r for r in original['canonical_copies']if r['destination'].endswith('.gz'))
+f=P/'payload'/archive['destination'];old=f.read_bytes();f.write_bytes(old+b'fake');r=execute('fake-compressed-carrier',P);f.write_bytes(old)
+if r['exit_code']==0 or r['destination_created']:raise RuntimeError('fake archive admitted')
+# Omit one repeated zero-stream member while reconciling every declared dynamic count/vector.
+# It keeps all original selector bytes and all stored carrier bytes present.
+def load(path):
+ l=importlib.machinery.SourceFileLoader('control_module',str(path));sp=importlib.util.spec_from_loader(l.name,l);m=importlib.util.module_from_spec(sp);l.exec_module(m);return m
+mod=load(program)
+omit=copy.deepcopy(original)
+idx=next(i for i,r in enumerate(omit['logical_sources'])if r['member_class']not in('selector','flat-reference')and r['stored']['bytes']==0 and r['deduplicated'])
+removed=omit['logical_sources'].pop(idx)
+fields=('family','selection_source_path','member_class','original','stored','storage_mode','logical_destination','selected_record')
+observed=[{k:r[k]for k in fields}for r in omit['logical_sources']]
+omit['logical_sources'],omit['canonical_copies']=mod.carriers(observed)
+for k,v in {'logical_count':len(observed),'original_logical_bytes':sum(r['original']['bytes']for r in observed),'stored_logical_bytes':sum(r['stored']['bytes']for r in observed),'unique_payload_files':len(omit['canonical_copies']),'unique_payload_bytes':sum(r['stored']['bytes']for r in omit['canonical_copies']),'deduplicated_occurrences':len(observed)-len(omit['canonical_copies'])}.items():omit[k]=v
+write(omit)
+summary={k:omit[k]for k in ('logical_count','original_logical_bytes','stored_logical_bytes','unique_payload_files','unique_payload_bytes','deduplicated_occurrences')}|{'metadata_files':len(mod.METADATA),'expected_git_paths':omit['unique_payload_files']+len(mod.METADATA)}
+(P/'build.stdout.json').write_text(json.dumps(summary,indent=2)+'\n')
+r=execute('omitted-mandatory-reconciled-counts',P)
+if r['exit_code']==0 or r['destination_created']:raise RuntimeError('reconciled omission admitted')
+mutant=program.read_text().replace("    if got != want:\n        raise ValueError('exact complete original member Counter')","    if False:\n        raise ValueError('exact complete original member Counter')",1)
+if mutant==program.read_text():raise RuntimeError('sole predicate removal not applied')
+mutant_path=R/'removed-Counter.py.txt';mutant_path.write_text(mutant);(P/'copy-closed-controls.py.txt').write_text(mutant)
+r=execute('Counter-removal',P,mutant_path)
+if r['exit_code']!=0 or not r['destination_created']:raise RuntimeError('Counter removal ineffective')
+result={'outcome':'PASS DOC custody controls','mode':args.mode,'healthy_full_files':len(actual),'healthy_total_bytes':sum(v['bytes']for v in actual.values()),'negative_cases':len(rows)-2,'property_removal':{'predicate':'exact complete original member Counter only','selector_and_payload_markers_preserved':True,'removed_original_occurrence':removed,'actual_mutant_exit_code':r['exit_code'],'required_membership_property':'FAIL'},'commands':rows,'source_native_numeric_gate_execution':False,'ROOT_written':False}
+(R/'review.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
+print(json.dumps({'outcome':result['outcome'],'mode':args.mode,'healthy_files':len(actual),'refusals':result['negative_cases'],'effective_Counter_removal':True},indent=2))

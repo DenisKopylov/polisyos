@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.forecast_public_canon_factory_effective_removal.v3",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "controls": [
+    {
+      "control": "actual_public_name_present_finite_float_property_removed:empirical",
+      "outcome": "PASS",
+      "healthy_public_route_expected": "PASS",
+      "mutant_runtime_persistence": "FAIL",
+      "refusal": "float forbidden in canonical JSON",
+      "requested_factory_config": {
+        "forbid_floats": false
+      },
+      "public_class_or_original_reader_removed": false
+    }
+  ],
+  "nondefining_cases": [
+    {
+      "case": "candidate_payload_has_no_native_float",
+      "outcome": "not_established",
+      "factory_config": {
+        "forbid_floats": false
+      },
+      "reason": "The actual candidate payload contains refs/text/integers; forbid_floats=True does not falsify its persistence. No candidate float-admission property PASS claimed."
+    }
+  ],
+  "source_files_modified": false,
+  "CoreIRexport_names_still_present": true,
+  "nativeETS_or_other_numericproducer_run": false,
+  "global_arch_or_static_run": false,
+  "ROOTenv_interpreter_used": false,
+  "finding_closure": false,
+  "environment": {
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "observer_sha256": "d44521285e954d3b3a939bf81907d7657cce5ad258da9e9cad1a9d0403856915"
+}

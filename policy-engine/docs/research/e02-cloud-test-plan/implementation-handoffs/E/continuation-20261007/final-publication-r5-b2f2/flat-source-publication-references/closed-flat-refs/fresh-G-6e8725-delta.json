@@ -1,0 +1,183 @@
+{
+  "old": "75ccf4dd211ad7fffa9430a84848b59d5ebf0886",
+  "new": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "rows": [
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-53b-all60.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-d030.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B.md"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/B148-scope-adjudication.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/README.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/all-60.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/cache-held-adjudication.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/decisions.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/evidence-audit.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/final-semantic-review.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/identity.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/README.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/candidate_runtime.py"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/execution-context.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/pytest-native.junit.xml"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/pytest-native.stderr"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/pytest-native.stdout"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/receipt.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/report.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/run_native.py"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/native/runtime-result.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/publication-links-review.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/scope-review.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/storage/README.md"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/storage/completed-F35-B53-source-intents.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/storage/completed-F35-B53-source-native.json"
+      ]
+    },
+    {
+      "status": "A",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/storage/completed-F35-B53-source-preserved.json"
+      ]
+    },
+    {
+      "status": "M",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/README.md"
+      ]
+    }
+  ],
+  "commits": "6e8725faa docs(e02): audit B60 and preserve exact candidate failure receipts\n",
+  "ROOT_source_HEAD": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "new_G_not_merged": true
+}

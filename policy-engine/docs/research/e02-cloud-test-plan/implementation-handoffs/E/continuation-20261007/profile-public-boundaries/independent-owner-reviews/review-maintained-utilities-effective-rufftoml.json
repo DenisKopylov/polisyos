@@ -1,0 +1,412 @@
+{
+  "schema": "e02.E.independent-maintained-utility-effective-config-delta-review.v1",
+  "reviewer": "/root/fit_packet",
+  "author": "/root/full54",
+  "disposition": "GO",
+  "scope": "Narrow maintained-document-utility formatting/constant-equivalence/configured-output custody only. Prior product/scientific/doc source reviews remain unchanged; no product, backend, full54 scientific or global-lint rerun.",
+  "selector": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/publication-selection-final-source4-v2.json",
+    "bytes": 26068,
+    "sha256": "8cb3fe78e2055cb93fdf9bc2b3f558bde22059844104e73fff18970f0897335e"
+  },
+  "selected_assets": {
+    "count": 53,
+    "bytes": 288203,
+    "all_literal_sizes_hashes_verified": true,
+    "active_python_utilities": 2
+  },
+  "effective_execution_receipt": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-effective-rufftoml-execution-receipt.json",
+    "bytes": 13453,
+    "sha256": "c295c0709da64b630842d026aafeea026ffc4d2b0534d66cdace7b8189ad8195"
+  },
+  "effective_config": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+    "bytes": 247,
+    "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+  },
+  "superseded_pyproject_override": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/pyproject.toml",
+    "bytes": 11007,
+    "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+  },
+  "corrective_change": [
+    {
+      "script": "build_delta_packet.py",
+      "preformat": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py.pyproject-formatted-history.txt",
+        "bytes": 35780,
+        "sha256": "4f970d5492db1b7316563d6d3d7e0bb10e7884f08761c1abc700a356c8ee3cc0"
+      },
+      "current": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "bytes": 35362,
+        "sha256": "abf72bdffe2190ce7e6b859dddda4d8c5c80d391cb45821b3786e080d3e23a45"
+      },
+      "whole_module_AST_equal": true,
+      "AST_sha256": "6ed8e23c44fb6302d94c7efae10a51924ea643644b838ebc704e038b287ebfb4",
+      "root_current_literal_body_matches": true
+    },
+    {
+      "script": "bind_final_source4.py",
+      "preformat": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py.pyproject-formatted-history.txt",
+        "bytes": 21214,
+        "sha256": "094f59dd079e7612a145e53d08fbe8e1d046663c032bc881822517e56d0ee918"
+      },
+      "current": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+        "bytes": 20852,
+        "sha256": "34bf97c52429a8993b7bafc15e2492593cb7f8138713830858e8b36c20c6336d"
+      },
+      "whole_module_AST_equal": true,
+      "AST_sha256": "4ef93d806cfbf5e7f2406a95b7f7d4b3641b23edea45a8b8395765bf43e31a62",
+      "root_current_literal_body_matches": true
+    }
+  ],
+  "literal_original35053_builder_preserved": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/historical/build_delta_packet.pre-canonical-format.py.txt",
+    "bytes": 35053,
+    "sha256": "363ed2bf0e38400baf48dcac6ae034bb62daf119779c1e8799902deb7483f52c"
+  },
+  "original35053_to_current_builder_AST_equal": true,
+  "canonical_history": {
+    "prior_selector22c0_retained": {
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/publication-selection-final-source4.json",
+      "bytes": 17888,
+      "sha256": "22c0ca4d88ec14216d24ac831ce03f589501d022a41e8e240f923051a99c9199"
+    },
+    "initial_selector_retained": {
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/publication-selection.json",
+      "bytes": 6178,
+      "sha256": "7323a7cc35632f0286f10bf72e99d872e8cd687e56a1c8e92e38559f256bae31"
+    },
+    "prior_pyproject_override": "Only narrower explicit-config observations; never canonical whole-denominator PASS.",
+    "default_full381_E501_and_format_failures": "Root factual preceding full381 selector caught E501 + both formatting failures; this utility-only review does not reclassify that historical result. Root full381 final result is a separate exact receipt.",
+    "old_explicit_pyproject_format_FAIL": {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/pyproject.toml",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py"
+      ],
+      "exit_code": 1,
+      "stdout": {
+        "name": "final-two-utilities-format.stdout.txt",
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-format.stdout.txt",
+        "bytes": 181,
+        "sha256": "ca2e5571139f496b8f81329fec62c7a1cdeddc42200d4f6ae919b413815af19b"
+      },
+      "stderr": {
+        "name": "final-two-utilities-format.stderr.txt",
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "reason": "Previous utility format checks used a different configuration; exact canonical configuration requested two reformatting changes."
+    },
+    "old_explicit_pyproject_utility_PASS": "Retained historical bytes in exact old selector and snapshots; superseded for effective repository config."
+  },
+  "latest_effective_lint_checks": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-rufftoml-check.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-rufftoml-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-rufftoml-format-check.stdout.txt",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-rufftoml-format-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "current_document_executions": [
+    {
+      "script": "build_delta_packet.py",
+      "mode": "normal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "--verify",
+        "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+        "--output-stem",
+        "association-final-rufftoml-normal-validation"
+      ],
+      "exit_code": 0,
+      "source": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "bytes": 35362,
+        "sha256": "abf72bdffe2190ce7e6b859dddda4d8c5c80d391cb45821b3786e080d3e23a45"
+      },
+      "input": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+        "bytes": 243560,
+        "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+      },
+      "receipt": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-rufftoml-normal-validation.validation.json",
+        "bytes": 5865,
+        "sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-rufftoml-normal.stdout.json",
+        "bytes": 368,
+        "sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-rufftoml-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "corrupt_control_identities": [
+        "remove_original_row",
+        "remove_shared_LA051_bundle_link",
+        "promote_historical_partial",
+        "declare_G_acceptance_from_author_count",
+        "overwrite_original_criterion",
+        "forge_original_card_digest",
+        "delete_unavailable_served_input",
+        "drop_five_A_failures",
+        "double_count_A_shared_failures",
+        "A_source_diagnostic_as_native_PASS",
+        "claim_existing_A_consumer_absent",
+        "move_b2_wave_to_future_candidate",
+        "Profile2_ratio_law_grants_authority",
+        "generic_fixture_as_production_authority",
+        "new_boundary_complete_without_review_receipts",
+        "false_unchanged_source_digest"
+      ]
+    },
+    {
+      "script": "build_delta_packet.py",
+      "mode": "optimized",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-O",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "--verify",
+        "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+        "--output-stem",
+        "association-final-rufftoml-optimized-validation"
+      ],
+      "exit_code": 0,
+      "source": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "bytes": 35362,
+        "sha256": "abf72bdffe2190ce7e6b859dddda4d8c5c80d391cb45821b3786e080d3e23a45"
+      },
+      "input": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+        "bytes": 243560,
+        "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+      },
+      "receipt": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-rufftoml-optimized-validation.validation.json",
+        "bytes": 5865,
+        "sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-rufftoml-optimized.stdout.json",
+        "bytes": 368,
+        "sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-rufftoml-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "corrupt_control_identities": [
+        "remove_original_row",
+        "remove_shared_LA051_bundle_link",
+        "promote_historical_partial",
+        "declare_G_acceptance_from_author_count",
+        "overwrite_original_criterion",
+        "forge_original_card_digest",
+        "delete_unavailable_served_input",
+        "drop_five_A_failures",
+        "double_count_A_shared_failures",
+        "A_source_diagnostic_as_native_PASS",
+        "claim_existing_A_consumer_absent",
+        "move_b2_wave_to_future_candidate",
+        "Profile2_ratio_law_grants_authority",
+        "generic_fixture_as_production_authority",
+        "new_boundary_complete_without_review_receipts",
+        "false_unchanged_source_digest"
+      ]
+    },
+    {
+      "script": "bind_final_source4.py",
+      "mode": "normal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+        "--verify",
+        "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+        "--receipt-stem",
+        "final-binding-v2-rufftoml-normal-validation"
+      ],
+      "exit_code": 0,
+      "source": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+        "bytes": 20852,
+        "sha256": "34bf97c52429a8993b7bafc15e2492593cb7f8138713830858e8b36c20c6336d"
+      },
+      "input": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+        "bytes": 10951,
+        "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+      },
+      "receipt": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-rufftoml-normal-validation.json",
+        "bytes": 3532,
+        "sha256": "ae506f20f1355d451dbdec866665ffdce011cb49227b44a228260ba6af1a9d30"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-rufftoml-normal.stdout.json",
+        "bytes": 239,
+        "sha256": "950c6dd476c606d98ffb8ac7c7a323f139604112985502229b2d6d7547891b16"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-rufftoml-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "corrupt_control_identities": [
+        "wrong_final_source",
+        "omit_companion_footprint",
+        "forge_input_receipt_digest",
+        "hide_native_failure",
+        "inflate_native_PASS_count",
+        "claim_source4_type_rerun",
+        "promote_scoped_type_to_whole_gate",
+        "promote_controls_to_whole_architecture",
+        "A_source_review_as_native_PASS",
+        "native_mean_as_gate_authority",
+        "fixture_as_actual_served_input",
+        "drop_missing_A_reason_gap",
+        "double_count_FRC_observations",
+        "promote_formal_G_acceptance",
+        "omit_original_dependency",
+        "type_errors_relabelled_as_test_PASS"
+      ]
+    },
+    {
+      "script": "bind_final_source4.py",
+      "mode": "optimized",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-O",
+        "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+        "--verify",
+        "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+        "--receipt-stem",
+        "final-binding-v2-rufftoml-optimized-validation"
+      ],
+      "exit_code": 0,
+      "source": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+        "bytes": 20852,
+        "sha256": "34bf97c52429a8993b7bafc15e2492593cb7f8138713830858e8b36c20c6336d"
+      },
+      "input": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+        "bytes": 10951,
+        "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+      },
+      "receipt": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-rufftoml-optimized-validation.json",
+        "bytes": 3532,
+        "sha256": "ae506f20f1355d451dbdec866665ffdce011cb49227b44a228260ba6af1a9d30"
+      },
+      "stdout": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-rufftoml-optimized.stdout.json",
+        "bytes": 239,
+        "sha256": "950c6dd476c606d98ffb8ac7c7a323f139604112985502229b2d6d7547891b16"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-rufftoml-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "corrupt_control_identities": [
+        "wrong_final_source",
+        "omit_companion_footprint",
+        "forge_input_receipt_digest",
+        "hide_native_failure",
+        "inflate_native_PASS_count",
+        "claim_source4_type_rerun",
+        "promote_scoped_type_to_whole_gate",
+        "promote_controls_to_whole_architecture",
+        "A_source_review_as_native_PASS",
+        "native_mean_as_gate_authority",
+        "fixture_as_actual_served_input",
+        "drop_missing_A_reason_gap",
+        "double_count_FRC_observations",
+        "promote_formal_G_acceptance",
+        "omit_original_dependency",
+        "type_errors_relabelled_as_test_PASS"
+      ]
+    }
+  ],
+  "runtime_property_preservation": "Full AST equivalence includes every helper validator predicate, string constant, JSON emission and control mutation. The line-length fix splits a constant literal without changing its value; formatting changes carry no product/runtime behavior.",
+  "unchanged_immutable_findings_and_receipts": {
+    "original54_v2": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe",
+    "finalSource4_bindingV2": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a",
+    "Source4": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "G_formal": 0,
+    "E_proposals": "43closed/9limited/2held",
+    "historic": "49partial/4held/1closed"
+  },
+  "limitations": [
+    "Author current utility controls are document/source association verification, not independent scientific evidence.",
+    "Current two-utility explicit effective-config PASS is not the full381/global Ruff-format gate result.",
+    "Utilities retain declared cloud-root/TMP paths; portable G replay requires exact path rebinding/overlays and is not promised from copy-index presence.",
+    "Root current full381 foreign292 diagnostics/14paths remains separately reported FAIL, not a waiver or introducing-cause attribution."
+  ],
+  "predicate_basis": "independently_reconciled",
+  "product_mutation": false,
+  "repo_mutation": false,
+  "Git_mutation": false,
+  "new_native_or_document_control_rerun_by_reviewer": false,
+  "leases": "source/env read leases closed"
+}

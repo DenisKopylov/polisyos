@@ -1,0 +1,1197 @@
+{
+  "schema": "policyos.e02.independent_final_numeric_reconciliation.v1",
+  "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "disposition": "GO for complete closed current numerical custody; wave remains FAIL due8 A-consumer assertions",
+  "claim": {
+    "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "native_selectors": 104,
+    "owner_packet_inputs": 1,
+    "numeric_counts": {
+      "cases": 1465,
+      "passed": 1457,
+      "failed": 8,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_counts": {
+      "cases": 1458,
+      "passed": 1457,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "A_packet_counts": {
+      "cases": 7,
+      "passed": 0,
+      "failed": 7,
+      "errors": 0,
+      "skipped": 0
+    },
+    "global_gates": "separate pending parent receipts; not covered by this numerical-only collector",
+    "finding_closure": false,
+    "G_acceptance": false,
+    "retained64d324_current_PASS": false,
+    "prelaunch_wave_plan_alias_exists": false
+  },
+  "source_guard_before": {
+    "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "tracked_status": ""
+  },
+  "source_guard_after": {
+    "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "tracked_status": ""
+  },
+  "jobs": [
+    {
+      "name": "pcl-continuous-persistence",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+        "bytes": 9595,
+        "sha256": "bcdda6d8383bfaac986a17022645362d968ae9a9c4a3c982927490ace70db840"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": {
+        "cases": 101,
+        "passed": 101,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/pcl-continuous-persistence/pytest.xml",
+        "bytes": 15383,
+        "sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+        "bytes": 160,
+        "sha256": "6674452e653bfb530342ae4a12971ba9538f6465c6ef2a5c3b8904713e1c32c9"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/pcl-continuous-persistence",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/pcl-continuous-persistence/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "ddm-runtime-and-facade",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+        "bytes": 9828,
+        "sha256": "9feca71fa2ce13a50631b94bce85e609edd471ff4de86ebe7f044f38fc01e4db"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": {
+        "cases": 82,
+        "passed": 82,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/ddm-runtime-and-facade/pytest.xml",
+        "bytes": 12578,
+        "sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+        "bytes": 160,
+        "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/ddm-runtime-and-facade",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/ddm-runtime-and-facade/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+        "bytes": 10815,
+        "sha256": "f3942245f7ec9b6b4eecf291562a3a8f6d5172fcd6be63ea0bd8d729d2ff4c69"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "case_counts": {
+        "cases": 321,
+        "passed": 313,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+        "bytes": 83181,
+        "sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+        "bytes": 27584,
+        "sha256": "989c1a5fe0e086f8207cb4512557ab6e75ba19aa2ae1b331e9828583af763b64"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/bkt-frc-s10-and-adjacent-report-consumers",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/bkt-frc-s10-and-adjacent-report-consumers/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "cal-and-welfare-consumer",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+        "bytes": 9313,
+        "sha256": "46665040423f12158dc05042fdfecd1c9204e64e9be57a1809c29a427468531d"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": {
+        "cases": 69,
+        "passed": 69,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/cal-and-welfare-consumer/pytest.xml",
+        "bytes": 13208,
+        "sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+        "bytes": 80,
+        "sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/cal-and-welfare-consumer",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/cal-and-welfare-consumer/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "mc-joint-law-support-and-scientist-consumer",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+        "bytes": 10945,
+        "sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": {
+        "cases": 612,
+        "passed": 612,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+        "bytes": 102935,
+        "sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+        "bytes": 4532,
+        "sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/mc-joint-law-support-and-scientist-consumer",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/mc-joint-law-support-and-scientist-consumer/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "doe-salib-and-consumer-factory",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+        "bytes": 9988,
+        "sha256": "3b85afc393b2472fc432d0f21dff5c243b63a584c774317dfb39f397f31fbf20"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": {
+        "cases": 221,
+        "passed": 221,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/doe-salib-and-consumer-factory/pytest.xml",
+        "bytes": 36925,
+        "sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+        "bytes": 2280,
+        "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/doe-salib-and-consumer-factory",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/doe-salib-and-consumer-factory/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "g-checkpoint10-controlplanestore-companion",
+      "kind": "numerical",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+        "bytes": 9191,
+        "sha256": "5ce60e37e217b270e9150693502117a5359de365f0d4f6756cde28a60aa9857a"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": {
+        "cases": 59,
+        "passed": 59,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "JUnit": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+        "bytes": 10247,
+        "sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71"
+      },
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+        "bytes": 80,
+        "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/g-checkpoint10-controlplanestore-companion",
+        "RUFF_CACHE_DIR": null,
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/g-checkpoint10-controlplanestore-companion/uv",
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    },
+    {
+      "name": "results-importer",
+      "kind": "importer",
+      "receipt": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/results-importer/results-importer.json",
+        "bytes": 8238,
+        "sha256": "c221d23b584f73e0f62e5ea13c4a1f1af71a6b16acdfb11f82508ae4a98862dd"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "case_counts": null,
+      "JUnit": null,
+      "combined_native_stdout_stderr": {
+        "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/results-importer/results-importer.stdout.txt",
+        "bytes": 112,
+        "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+      },
+      "source_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+      },
+      "selected_environment": {
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/results-importer",
+        "RUFF_CACHE_DIR": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/results-importer",
+        "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+        "UV_CACHE_DIR": null,
+        "PNPM_HOME": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "XLA_FLAGS": null,
+        "JAX_PLATFORMS": null,
+        "JAX_ENABLE_X64": null,
+        "POLISYOS_METRICS_PORT": null,
+        "POLISYOS_PYTEST_WORKERS": null,
+        "POLISYOS_PYTEST_DIST": null,
+        "PYTEST_ADDOPTS": null
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "finding_closure": false
+    }
+  ],
+  "all_actual_failure_traces": [
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "classname": "tests.unit.remediation.test_frc_01",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert 's10://calibration/fail-closed/empirical_evidence_ref_missing' in []\n +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs",
+      "complete_trace": "def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:\n        \"\"\"Temporal dates alone cannot mint a calibration record or pass-through tier.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(output={\"report\": _finite_estimator_report()})\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": timestamp,\n                \"observation_time\": timestamp,\n                \"policy_effective_time\": timestamp,\n                \"data_valid_time\": timestamp,\n                \"calibration_window_start\": timestamp,\n                \"calibration_window_end\": timestamp,\n            },\n        )\n    \n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.calibration_record_ref is None\n>       assert (\n            \"s10://calibration/fail-closed/empirical_evidence_ref_missing\" in support.s6_limitation_refs\n        )\nE       AssertionError: assert 's10://calibration/fail-closed/empirical_evidence_ref_missing' in []\nE        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs\n\ntests/unit/remediation/test_frc_01.py:356: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert [] == ['s10://calib..._ref_missing']\n  \n  Right contains one more item: 's10://calibration/fail-closed/empirical_evidence_ref_missing'\n  Use -v to get more diff",
+      "complete_trace": "def test_missing_ref_tier_and_s6_share_named_missing_ref_reason() -> None:\n        inputs = _build_s10_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output={}),\n                selected_method_fqn=\"forecasting.univariate.exponential_smoothing@1.0.0\",\n            ),\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://reason-world\",\n            expected_policy_context_ref=\"policy-context://reason-world\",\n            false_clear_counts={},\n            calibration_evidence={},\n        )\n        assert inputs[\"forecast_calibration_record\"] is None\n        support = inputs[\"forecast_support\"]\n        assert support.forecast_tier == \"blocked\"\n>       assert support.s6_limitation_refs == [\n            \"s10://calibration/fail-closed/empirical_evidence_ref_missing\"\n        ]\nE       AssertionError: assert [] == ['s10://calib..._ref_missing']\nE         \nE         Right contains one more item: 's10://calibration/fail-closed/empirical_evidence_ref_missing'\nE         Use -v to get more diff\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:59: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert ['s10://calib...ient-history'] == ['s10://calib...loor_not_met']\n  \n  At index 0 diff: 's10://calibration/insufficient-history' != 's10://calibration/calibration_floor_not_met'\n  Use -v to get more diff",
+      "complete_trace": "tmp_path = PosixPath('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_resolved_limited_evidence0')\n\n    def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path) -> None:\n        store = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        request, profile = configured_forecast_request(store, [1000.0] * 4)\n        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)\n        fresh = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        fields = result.to_s10_input_fields(fresh)\n        evidence = load_empirical_calibration_evidence(fresh, result.empirical_evidence_ref)\n        assert (evidence.recomputed_numerator, evidence.recomputed_denominator) == (0, 4)\n        assert evidence.failure_codes == (\"calibration_floor_not_met\",)\n        inputs = RealValueOwnerGateway(\n            repo_root=fresh.root,\n            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(\n                fresh, ref\n            ),\n        ).produce_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output=fields),\n                selected_method_fqn=request.method_fqn,\n            )\n        )\n        record = inputs[\"forecast_calibration_record\"]\n        assert record is not None and record.calibration_status == \"limit\"\n        support = inputs[\"forecast_support\"]\n>       assert support.s6_limitation_refs == [\"s10://calibration/calibration_floor_not_met\"]\nE       AssertionError: assert ['s10://calib...ient-history'] == ['s10://calib...loor_not_met']\nE         \nE         At index 0 diff: 's10://calibration/insufficient-history' != 's10://calibration/calibration_floor_not_met'\nE         Use -v to get more diff\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:91: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert 'empirical_evidence_ref_missing' in 'S10 owner refused value because the Foundry report was missing.'\n +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason",
+      "complete_trace": "tmp_path = PosixPath('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_native_gateway_tier_s6_an0')\ndefect = 'missing_ref', reason = 'empirical_evidence_ref_missing'\n\n    @pytest.mark.parametrize(\n        (\"defect\", \"reason\"),\n        [\n            (\"missing_ref\", \"empirical_evidence_ref_missing\"),\n            (\"unresolved_ref\", \"empirical_evidence_ref_unresolved\"),\n            (\"wrong_kind\", \"empirical_evidence_ref_kind_mismatch\"),\n            (\"wrong_time\", \"empirical_evidence_time_mismatch\"),\n            (\"wrong_rule\", \"empirical_evidence_rule_mismatch\"),\n        ],\n    )\n    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(\n        tmp_path: Path, defect: str, reason: str\n    ) -> None:\n        store = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])\n        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)\n        fresh = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        fields = result.to_s10_input_fields(fresh)\n        if defect == \"missing_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = None\n        elif defect == \"unresolved_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = (\n                result.empirical_evidence_ref.model_copy(\n                    update={\"artifact_id\": \"sha256:\" + \"f\" * 64}\n                )\n            )\n        elif defect == \"wrong_kind\":\n            fields[\"empirical_calibration_evidence_ref\"] = result.backtest_report_ref\n        elif defect == \"wrong_time\":\n            fields[\"temporal_roles\"] = request.temporal_roles.model_copy(\n                update={\"observation_time\": datetime(2025, 1, 1, tzinfo=UTC)}\n            )\n        else:\n            fields[\"expected_rule_version_ref\"] = \"wrong-rule\"\n        inputs = RealValueOwnerGateway(\n            repo_root=fresh.root,\n            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(\n                fresh, ref\n            ),\n        ).produce_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output=fields),\n                selected_method_fqn=request.method_fqn,\n            )\n        )\n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.s6_limitation_refs == [f\"s10://calibration/fail-closed/{reason}\"]\n>       assert reason in support.forecast_authority_disposition_reason\nE       AssertionError: assert 'empirical_evidence_ref_missing' in 'S10 owner refused value because the Foundry report was missing.'\nE        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:144: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert 'empirical_evidence_ref_unresolved' in 'S10 owner refused value because the Foundry report was missing.'\n +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason",
+      "complete_trace": "tmp_path = PosixPath('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_native_gateway_tier_s6_an1')\ndefect = 'unresolved_ref', reason = 'empirical_evidence_ref_unresolved'\n\n    @pytest.mark.parametrize(\n        (\"defect\", \"reason\"),\n        [\n            (\"missing_ref\", \"empirical_evidence_ref_missing\"),\n            (\"unresolved_ref\", \"empirical_evidence_ref_unresolved\"),\n            (\"wrong_kind\", \"empirical_evidence_ref_kind_mismatch\"),\n            (\"wrong_time\", \"empirical_evidence_time_mismatch\"),\n            (\"wrong_rule\", \"empirical_evidence_rule_mismatch\"),\n        ],\n    )\n    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(\n        tmp_path: Path, defect: str, reason: str\n    ) -> None:\n        store = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])\n        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)\n        fresh = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        fields = result.to_s10_input_fields(fresh)\n        if defect == \"missing_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = None\n        elif defect == \"unresolved_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = (\n                result.empirical_evidence_ref.model_copy(\n                    update={\"artifact_id\": \"sha256:\" + \"f\" * 64}\n                )\n            )\n        elif defect == \"wrong_kind\":\n            fields[\"empirical_calibration_evidence_ref\"] = result.backtest_report_ref\n        elif defect == \"wrong_time\":\n            fields[\"temporal_roles\"] = request.temporal_roles.model_copy(\n                update={\"observation_time\": datetime(2025, 1, 1, tzinfo=UTC)}\n            )\n        else:\n            fields[\"expected_rule_version_ref\"] = \"wrong-rule\"\n        inputs = RealValueOwnerGateway(\n            repo_root=fresh.root,\n            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(\n                fresh, ref\n            ),\n        ).produce_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output=fields),\n                selected_method_fqn=request.method_fqn,\n            )\n        )\n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.s6_limitation_refs == [f\"s10://calibration/fail-closed/{reason}\"]\n>       assert reason in support.forecast_authority_disposition_reason\nE       AssertionError: assert 'empirical_evidence_ref_unresolved' in 'S10 owner refused value because the Foundry report was missing.'\nE        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:144: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert 'empirical_evidence_ref_kind_mismatch' in 'S10 owner refused value because the Foundry report was missing.'\n +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason",
+      "complete_trace": "tmp_path = PosixPath('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_native_gateway_tier_s6_an2')\ndefect = 'wrong_kind', reason = 'empirical_evidence_ref_kind_mismatch'\n\n    @pytest.mark.parametrize(\n        (\"defect\", \"reason\"),\n        [\n            (\"missing_ref\", \"empirical_evidence_ref_missing\"),\n            (\"unresolved_ref\", \"empirical_evidence_ref_unresolved\"),\n            (\"wrong_kind\", \"empirical_evidence_ref_kind_mismatch\"),\n            (\"wrong_time\", \"empirical_evidence_time_mismatch\"),\n            (\"wrong_rule\", \"empirical_evidence_rule_mismatch\"),\n        ],\n    )\n    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(\n        tmp_path: Path, defect: str, reason: str\n    ) -> None:\n        store = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])\n        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)\n        fresh = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        fields = result.to_s10_input_fields(fresh)\n        if defect == \"missing_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = None\n        elif defect == \"unresolved_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = (\n                result.empirical_evidence_ref.model_copy(\n                    update={\"artifact_id\": \"sha256:\" + \"f\" * 64}\n                )\n            )\n        elif defect == \"wrong_kind\":\n            fields[\"empirical_calibration_evidence_ref\"] = result.backtest_report_ref\n        elif defect == \"wrong_time\":\n            fields[\"temporal_roles\"] = request.temporal_roles.model_copy(\n                update={\"observation_time\": datetime(2025, 1, 1, tzinfo=UTC)}\n            )\n        else:\n            fields[\"expected_rule_version_ref\"] = \"wrong-rule\"\n        inputs = RealValueOwnerGateway(\n            repo_root=fresh.root,\n            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(\n                fresh, ref\n            ),\n        ).produce_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output=fields),\n                selected_method_fqn=request.method_fqn,\n            )\n        )\n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.s6_limitation_refs == [f\"s10://calibration/fail-closed/{reason}\"]\n>       assert reason in support.forecast_authority_disposition_reason\nE       AssertionError: assert 'empirical_evidence_ref_kind_mismatch' in 'S10 owner refused value because the Foundry report was missing.'\nE        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:144: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert 'empirical_evidence_time_mismatch' in 'S10 owner refused value because the Foundry report was missing.'\n +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason",
+      "complete_trace": "tmp_path = PosixPath('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_native_gateway_tier_s6_an3')\ndefect = 'wrong_time', reason = 'empirical_evidence_time_mismatch'\n\n    @pytest.mark.parametrize(\n        (\"defect\", \"reason\"),\n        [\n            (\"missing_ref\", \"empirical_evidence_ref_missing\"),\n            (\"unresolved_ref\", \"empirical_evidence_ref_unresolved\"),\n            (\"wrong_kind\", \"empirical_evidence_ref_kind_mismatch\"),\n            (\"wrong_time\", \"empirical_evidence_time_mismatch\"),\n            (\"wrong_rule\", \"empirical_evidence_rule_mismatch\"),\n        ],\n    )\n    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(\n        tmp_path: Path, defect: str, reason: str\n    ) -> None:\n        store = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])\n        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)\n        fresh = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        fields = result.to_s10_input_fields(fresh)\n        if defect == \"missing_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = None\n        elif defect == \"unresolved_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = (\n                result.empirical_evidence_ref.model_copy(\n                    update={\"artifact_id\": \"sha256:\" + \"f\" * 64}\n                )\n            )\n        elif defect == \"wrong_kind\":\n            fields[\"empirical_calibration_evidence_ref\"] = result.backtest_report_ref\n        elif defect == \"wrong_time\":\n            fields[\"temporal_roles\"] = request.temporal_roles.model_copy(\n                update={\"observation_time\": datetime(2025, 1, 1, tzinfo=UTC)}\n            )\n        else:\n            fields[\"expected_rule_version_ref\"] = \"wrong-rule\"\n        inputs = RealValueOwnerGateway(\n            repo_root=fresh.root,\n            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(\n                fresh, ref\n            ),\n        ).produce_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output=fields),\n                selected_method_fqn=request.method_fqn,\n            )\n        )\n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.s6_limitation_refs == [f\"s10://calibration/fail-closed/{reason}\"]\n>       assert reason in support.forecast_authority_disposition_reason\nE       AssertionError: assert 'empirical_evidence_time_mismatch' in 'S10 owner refused value because the Foundry report was missing.'\nE        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:144: AssertionError"
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]",
+      "classname": "",
+      "file": null,
+      "kind": "failure",
+      "message": "AssertionError: assert 'empirical_evidence_rule_mismatch' in 'S10 owner refused value because the Foundry report was missing.'\n +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason",
+      "complete_trace": "tmp_path = PosixPath('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers/test_native_gateway_tier_s6_an4')\ndefect = 'wrong_rule', reason = 'empirical_evidence_rule_mismatch'\n\n    @pytest.mark.parametrize(\n        (\"defect\", \"reason\"),\n        [\n            (\"missing_ref\", \"empirical_evidence_ref_missing\"),\n            (\"unresolved_ref\", \"empirical_evidence_ref_unresolved\"),\n            (\"wrong_kind\", \"empirical_evidence_ref_kind_mismatch\"),\n            (\"wrong_time\", \"empirical_evidence_time_mismatch\"),\n            (\"wrong_rule\", \"empirical_evidence_rule_mismatch\"),\n        ],\n    )\n    def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(\n        tmp_path: Path, defect: str, reason: str\n    ) -> None:\n        store = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])\n        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)\n        fresh = core_artifacts.FileSystemCAS(tmp_path / \"cas\")\n        fields = result.to_s10_input_fields(fresh)\n        if defect == \"missing_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = None\n        elif defect == \"unresolved_ref\":\n            fields[\"empirical_calibration_evidence_ref\"] = (\n                result.empirical_evidence_ref.model_copy(\n                    update={\"artifact_id\": \"sha256:\" + \"f\" * 64}\n                )\n            )\n        elif defect == \"wrong_kind\":\n            fields[\"empirical_calibration_evidence_ref\"] = result.backtest_report_ref\n        elif defect == \"wrong_time\":\n            fields[\"temporal_roles\"] = request.temporal_roles.model_copy(\n                update={\"observation_time\": datetime(2025, 1, 1, tzinfo=UTC)}\n            )\n        else:\n            fields[\"expected_rule_version_ref\"] = \"wrong-rule\"\n        inputs = RealValueOwnerGateway(\n            repo_root=fresh.root,\n            empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(\n                fresh, ref\n            ),\n        ).produce_forecast_inputs(\n            **_inputs(\n                method_result=SimpleNamespace(output=fields),\n                selected_method_fqn=request.method_fqn,\n            )\n        )\n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.s6_limitation_refs == [f\"s10://calibration/fail-closed/{reason}\"]\n>       assert reason in support.forecast_authority_disposition_reason\nE       AssertionError: assert 'empirical_evidence_rule_mismatch' in 'S10 owner refused value because the Foundry report was missing.'\nE        +  where 'S10 owner refused value because the Foundry report was missing.' = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...ity', 's10_authority', 'treatment_assignment_authority'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').forecast_authority_disposition_reason\n\n/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/owner-packets/test_a_frc_native_cas_status_reason.py:144: AssertionError"
+    }
+  ],
+  "complete_selected_original_refs": [
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10815,
+      "sha256": "f3942245f7ec9b6b4eecf291562a3a8f6d5172fcd6be63ea0bd8d729d2ff4c69"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 27584,
+      "sha256": "989c1a5fe0e086f8207cb4512557ab6e75ba19aa2ae1b331e9828583af763b64"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 83181,
+      "sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 9313,
+      "sha256": "46665040423f12158dc05042fdfecd1c9204e64e9be57a1809c29a427468531d"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 80,
+      "sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/cal-and-welfare-consumer/pytest.xml",
+      "bytes": 13208,
+      "sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9828,
+      "sha256": "9feca71fa2ce13a50631b94bce85e609edd471ff4de86ebe7f044f38fc01e4db"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 12578,
+      "sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9988,
+      "sha256": "3b85afc393b2472fc432d0f21dff5c243b63a584c774317dfb39f397f31fbf20"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "bytes": 36925,
+      "sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 9191,
+      "sha256": "5ce60e37e217b270e9150693502117a5359de365f0d4f6756cde28a60aa9857a"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "bytes": 10247,
+      "sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10945,
+      "sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 4532,
+      "sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 102935,
+      "sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9595,
+      "sha256": "bcdda6d8383bfaac986a17022645362d968ae9a9c4a3c982927490ace70db840"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "bytes": 160,
+      "sha256": "6674452e653bfb530342ae4a12971ba9538f6465c6ef2a5c3b8904713e1c32c9"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/pcl-continuous-persistence/pytest.xml",
+      "bytes": 15383,
+      "sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/results-importer/results-importer.json",
+      "bytes": 8238,
+      "sha256": "c221d23b584f73e0f62e5ea13c4a1f1af71a6b16acdfb11f82508ae4a98862dd"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/cleanup-candidates.json",
+      "bytes": 5189,
+      "sha256": "b27f2f8ecf9c51a273a1d44dee649b804f5fe52ae697c0e561c18cd765cd89d1"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/copy-index.json",
+      "bytes": 11269,
+      "sha256": "4fa8d1dc982b2f6932b75b78ffa1ea805238db97d3bd5aac307bef6cd503f8bf"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/execution-complete.json",
+      "bytes": 228,
+      "sha256": "c9cc6b4c99cd883dc1873f2c15ecb9295da469ed0b68d03f417c0fbb520db2df"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/owner-packets/test_a_frc_native_cas_status_reason.py",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/plan.json",
+      "bytes": 229702,
+      "sha256": "7e4cdaf703bda4b7104945dcc34222f0d1ec99cd4d3a10fad2967571e5c0058e"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/publication-receipt.json",
+      "bytes": 574927,
+      "sha256": "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/raw-custody.json",
+      "bytes": 1895,
+      "sha256": "17a1fb1f9df1d430d578433e5db855fa14423736ab82da43a49a733340e237bb"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/wave-started.json",
+      "bytes": 197,
+      "sha256": "f631af887dbe6c537e3b069acb24e69ca4368b3cfbb9ff654ee46e21cee3c51f"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/CAL-transitive-dependency-bracket.json",
+      "bytes": 92257,
+      "sha256": "b74172db884cf698c8e0fa2517ca3a0f408e4d5143b23710591d944ca6f6fc7d"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/canonical-base-plan.json",
+      "bytes": 208246,
+      "sha256": "4ca9b2acf0320ca6c4f5ab09ad23323a0eac7d417f62cad509ed133755033cb6"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/composition-fit-selector-delta.json",
+      "bytes": 3179,
+      "sha256": "d3990187d732e10af1d72fbb8ef13ae1b518afd6c5f88dacb755486150299dad"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/criterion-selector-map.json",
+      "bytes": 75820,
+      "sha256": "48d388432b7130e76cb81166aeab67bda4321e846f4a3f8068e7c88036663572"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json",
+      "bytes": 447667,
+      "sha256": "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/defining-failure-index.json",
+      "bytes": 31706,
+      "sha256": "6b5a21f59af2ea874acc32697e05dddbd8f6713b04314ee81d3eb7761ab256cf"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/final-numeric-selector-plan.json",
+      "bytes": 229702,
+      "sha256": "7e4cdaf703bda4b7104945dcc34222f0d1ec99cd4d3a10fad2967571e5c0058e"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/full-source-input-git-tree.txt",
+      "bytes": 952039,
+      "sha256": "f358e36e0d6e5d6680e99b3f1a9e6f91e50cb9134baf703bd1127d65124efabb"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/harness-source-inputs.json",
+      "bytes": 4216,
+      "sha256": "15797cd430fb966697a33dba6beba3bc93f1575d24b3d01be146460f0695571c"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/post-wave-root-readonly-environment-metadata.json",
+      "bytes": 53767,
+      "sha256": "d5f699885100729358b19389bd3902aead250d2f50e24f99712734f5d5f4bb00"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/preparation-admission.json",
+      "bytes": 2292,
+      "sha256": "3246e6d8dd8f5a186dd89fc5e218fecbaf2685589de2fbb360ce5607bab070ed"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/retained-CAL-observation.json",
+      "bytes": 1856,
+      "sha256": "f1252dcaa8c69384a9cba545a42cacd7d29a2017e248c38389d4bec6644ac246"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/root-readonly-environment-metadata.json",
+      "bytes": 53767,
+      "sha256": "d5f699885100729358b19389bd3902aead250d2f50e24f99712734f5d5f4bb00"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/stdout.txt",
+      "bytes": 13074,
+      "sha256": "2e4cdfced7f5da5dd5c7b59aefbad8923053d58c17b40b929e7cf1bdac50a746"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/terminal-public.json",
+      "bytes": 4928,
+      "sha256": "774e08fd2b1ce419bfb2bfb7b838d35f80798b4837b167d142801854c69c31d4"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/pressure-observation-1.json",
+      "bytes": 27416,
+      "sha256": "7905fed55fd9e3bb02534915e161756ff1e8b8c3d46bcb738c623b94b1ab72eb"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stderr.txt",
+      "bytes": 1749,
+      "sha256": "603a1a40adef801f635d8300e04ecddb00e84738bf736d4b51f275343e0f2e1c"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-execution.json",
+      "bytes": 1754,
+      "sha256": "226538e909b210deb1b41f60374ce63327fde142a7beb7476892e8cd0beebbe8"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/post-execution-plan-materialization.json",
+      "bytes": 4542,
+      "sha256": "5ec8db940614d3df4f84ee2200c42689100a6015a69e31225f79854222d89723"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current.stdout.txt",
+      "bytes": 352,
+      "sha256": "2f527e4adfe2f7103e101a3db2544162dee254c9e3d94a25e864c72067e515ba"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current-execution.json",
+      "bytes": 1734,
+      "sha256": "12d03c0d915b558a98828076cd4fb6c490d69fe528e8f381658d99ffe40bad91"
+    },
+    {
+      "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+    },
+    {
+      "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-readback.json",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-refresh-20261007.py",
+      "bytes": 10432,
+      "sha256": "b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-refresh-20261007-v1.py",
+      "bytes": 10403,
+      "sha256": "e8a8cd368461e133a00e3f2d4b9d1bdfc41b1e7bc768ed08dabf1f4a88a52eb8"
+    },
+    {
+      "path": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/build_final_wave_plan.py",
+      "bytes": 19366,
+      "sha256": "1faaff7e45a602a85d3496d4e322dcfc1e96d8b8f6aeae47311d9faf147986e3"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-selection-builder-b2f2f65e.py",
+      "bytes": 6675,
+      "sha256": "1e51b3bbdb664de212ed9061fed1860a503e428fab8ff6a32e60a1096f9e4d4c"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/exact-reviewed-harness/prepare_current_owner_wave.py",
+      "bytes": 11136,
+      "sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/exact-reviewed-harness/retained_runtime_api_cli.py",
+      "bytes": 5478,
+      "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+    }
+  ],
+  "criterion_source_navigation": {
+    "bundles": 22,
+    "unique_findings": 54,
+    "id_to_bundle_links": 55,
+    "findings": {
+      "B166": [
+        "BKT-01"
+      ],
+      "B169": [
+        "BKT-01"
+      ],
+      "B170": [
+        "BKT-01"
+      ],
+      "B167": [
+        "BKT-02"
+      ],
+      "B168": [
+        "BKT-02"
+      ],
+      "B171": [
+        "BKT-02"
+      ],
+      "B172": [
+        "BKT-03"
+      ],
+      "B173": [
+        "BKT-03"
+      ],
+      "B174": [
+        "BKT-04"
+      ],
+      "B175": [
+        "BKT-04"
+      ],
+      "B176": [
+        "CAL-01"
+      ],
+      "B177": [
+        "CAL-01"
+      ],
+      "B178": [
+        "CAL-01"
+      ],
+      "B179": [
+        "CAL-02"
+      ],
+      "B180": [
+        "CAL-02"
+      ],
+      "B181": [
+        "CAL-02"
+      ],
+      "B182": [
+        "CAL-02"
+      ],
+      "B183": [
+        "CAL-03"
+      ],
+      "B195": [
+        "CAL-03"
+      ],
+      "B184": [
+        "CAL-04"
+      ],
+      "B196": [
+        "CAL-04"
+      ],
+      "B203": [
+        "CAL-04"
+      ],
+      "B185": [
+        "CAL-05"
+      ],
+      "B197": [
+        "CAL-06"
+      ],
+      "B198": [
+        "CAL-06"
+      ],
+      "LA-056": [
+        "DDM-01"
+      ],
+      "LA-054": [
+        "DDM-02"
+      ],
+      "LA-055": [
+        "DDM-02"
+      ],
+      "B97": [
+        "DOE-01"
+      ],
+      "B98": [
+        "DOE-01"
+      ],
+      "B99": [
+        "DOE-01"
+      ],
+      "B100": [
+        "DOE-02"
+      ],
+      "B101": [
+        "DOE-02"
+      ],
+      "B102": [
+        "DOE-03"
+      ],
+      "B103": [
+        "DOE-03"
+      ],
+      "B104": [
+        "DOE-03"
+      ],
+      "B105": [
+        "DOE-03"
+      ],
+      "B32": [
+        "FRC-01"
+      ],
+      "LA-051": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "LA-052": [
+        "PCL-01"
+      ],
+      "LA-053": [
+        "PCL-01"
+      ],
+      "B186": [
+        "UQP-01"
+      ],
+      "B189": [
+        "UQP-01"
+      ],
+      "B190": [
+        "UQP-01"
+      ],
+      "B191": [
+        "UQP-01"
+      ],
+      "B187": [
+        "UQP-02"
+      ],
+      "B188": [
+        "UQP-02"
+      ],
+      "B192": [
+        "UQP-02"
+      ],
+      "B193": [
+        "UQP-03"
+      ],
+      "B194": [
+        "UQP-03"
+      ],
+      "B199": [
+        "UQS-01"
+      ],
+      "B200": [
+        "UQS-01"
+      ],
+      "B201": [
+        "UQS-01"
+      ],
+      "B202": [
+        "UQS-01"
+      ]
+    },
+    "basis": "navigation/source-input association only; no automatic per-finding criterion acceptance"
+  },
+  "postterminal_plan_alias_history": {
+    "original_observer": {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-execution.json",
+      "bytes": 1754,
+      "sha256": "226538e909b210deb1b41f60374ce63327fde142a7beb7476892e8cd0beebbe8"
+    },
+    "original_complete_stderr": {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stderr.txt",
+      "bytes": 1749,
+      "sha256": "603a1a40adef801f635d8300e04ecddb00e84738bf736d4b51f275343e0f2e1c"
+    },
+    "corrected_closed_observer": {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current-execution.json",
+      "bytes": 1734,
+      "sha256": "12d03c0d915b558a98828076cd4fb6c490d69fe528e8f381658d99ffe40bad91"
+    },
+    "materialization": {
+      "path": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/post-execution-plan-materialization.json",
+      "bytes": 4542,
+      "sha256": "5ec8db940614d3df4f84ee2200c42689100a6015a69e31225f79854222d89723"
+    },
+    "prelaunch_alias_existence": "not_established",
+    "prepared_plan_before_start_and_actual8argv_bound": true
+  },
+  "canonical_full_input_frames": {
+    "tracked_paths": 22005,
+    "bytes": 620699802,
+    "framed_sha256": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890"
+  },
+  "freeze_frame_comparison": {
+    "metadata_freeze_frame": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e",
+    "metadata_algorithm": "ordered path+NUL+decimal byte length+NUL+hex SHA256+newline, recomputed from closed22005 rows without rereading raw payload",
+    "canonical_run_check_raw_frame": "749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890",
+    "raw_algorithm": "sorted raw path+NUL+raw body+NUL, native source_identity before/after all8jobs",
+    "different_framing_formats": true,
+    "source_drift_inferred_from_hash_difference": false,
+    "root_algorithm_description": "Root supplied exact algorithm after freeze; this replay script is post-freeze described recipe, not claimed original captured producer bytes"
+  },
+  "controls": [
+    {
+      "name": "hidden_A_failures",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "native_count_bool",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "surface_global_PASS",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "findings_promoted",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "G_promoted",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "oldCAL_current_PASS",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "alias_backdated",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "source_fake",
+      "outcome": "rejected",
+      "reason": "complete typed current numeric/source/owner claim admission",
+      "raw_closed_receipts_JUnit_source_markers_preserved": true
+    },
+    {
+      "name": "sole_typed_closed_claim_admission_removed",
+      "false_finding_closure_re_admitted": true,
+      "property_outcome": "FAIL"
+    }
+  ],
+  "optimization_mode": false,
+  "P37": [
+    {
+      "predicate": "actual complete7JUnit and1465case/full failure/packet denominator",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "literal63 assets/eight actual receipt source/argv/frames/config/readback",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "current per-finding closure/G intake/production scientific authority/global gate success",
+      "basis": "not_established"
+    }
+  ],
+  "limits": [
+    "No native tests/math/global gates repeated.",
+    "Historical64d324 observation remains historical, original-9 interruption retained.",
+    "Source64d/a9/317 baseline results are not current b2 PASS.",
+    "Global/Ruff/architecture/static/HTTP/CI outcomes are separate parent receipts, not implied by numerical counts.",
+    "Production data and semantic/scientific owner inputs are not synthesized."
+  ]
+}

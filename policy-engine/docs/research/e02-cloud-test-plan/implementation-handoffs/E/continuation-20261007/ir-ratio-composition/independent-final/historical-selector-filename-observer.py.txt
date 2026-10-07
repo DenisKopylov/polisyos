@@ -1,0 +1,82 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import shutil
+
+OUT = Path(__file__).parent
+OLD = Path('/tmp/e02-E-ir-composition-c539-independent-20261007')
+AUTH = Path('/tmp/e02-E-ir-composition-r4-20261007')
+for filename in ('run-selectors.py', 'native-probes.py', 'source-and-type-custody.py', 'finalize-review.py', 'select-publication.py'):
+    shutil.copyfile(OUT / filename, OUT / (filename + '.txt'))
+
+commands = {
+    'schema': 'e02-independent-composition-executed-commands:1',
+    'candidate': 'ecde9d2d8d9d13cba87420930105e378010a1acc',
+    'candidate_tree': '41d52f7b26d7d10757b479f55dd412d97fa051c4',
+    'base': 'bfbd53a1f45795ad6901bc4bb7685237b0c3d20b',
+    'commands': [
+        {'argv': ['/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', str(OUT / 'run-selectors.py')],
+         'exit_code': 0, 'actual_inner_argv_env_cwd': 'selectors.json', 'stdout': 'selectors.stdout.txt', 'stderr': 'selectors.stderr.txt'},
+        {'argv': ['/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', str(OUT / 'native-probes.py')],
+         'env': {'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': '/workspace/e02-E-doe-20261006/policy-engine/src'},
+         'cwd': '/workspace', 'exit_code': 0, 'actual_control_count': 31,
+         'stdout': 'native-probes.stdout.txt', 'stderr': 'native-probes.stderr.txt'},
+        {'argv': ['/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', str(OUT / 'source-and-type-custody.py')],
+         'exit_code': 0, 'scope': 'read-only complete source/static-census/type receipt reconciliation; no type execution',
+         'stdout': 'source-and-type-custody.stdout.txt', 'stderr': 'source-and-type-custody.stderr.txt'},
+        {'argv': ['/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', str(OUT / 'finalize-review.py')],
+         'exit_code': 0, 'scope': 'read-only closed receipt/JUnit/source recomputation; no native tests repeated',
+         'stdout': 'review.stdout.txt', 'stderr': 'review.stderr.txt'},
+        {'argv': ['/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', '-O', str(OUT / 'finalize-review.py')],
+         'exit_code': 0, 'scope': 'same read-only receipt admission; optimized interpreter retains11 pure typed refusals',
+         'stdout': 'review-optimized.stdout.txt', 'stderr': 'review-optimized.stderr.txt'},
+    ],
+    'historical_observer_error': {'command': 'same source-and-type-custody.py initial observer', 'exit_code': 1,
+        'cause': 'TOML root dictionary incorrectly compared against tool.basedpyright settings; corrected observer only',
+        'stdout': 'historical-source-and-type-config-observer.stdout.txt', 'stderr': 'historical-source-and-type-config-observer.stderr.txt'},
+    'no_source_env_package_or_git_mutations': True,
+    'native_stderr_qualification': 'The old exact-base reducer proxy generates the retained NumPy overflow warning; healthy current finite-law controls pass.',
+    'production_data': 'none', 'common_wave': 'UNRUN', 'finding_closure': False,
+}
+(OUT / 'commands.json').write_text(json.dumps(commands, indent=2) + '\n')
+names = [
+    'review.json', 'review-optimized.json', 'review.stdout.txt', 'review.stderr.txt',
+    'review-optimized.stdout.txt', 'review-optimized.stderr.txt', 'commands.json',
+    'selectors.json', 'selectors.stdout.txt', 'selectors.stderr.txt', 'pytest.xml', 'pytest.stdout.txt', 'pytest.stderr.txt',
+    'native-probes.json', 'native-probes.stdout.txt', 'native-probes.stderr.txt',
+    'source-and-type-custody.json', 'source-and-type-custody.stdout.txt', 'source-and-type-custody.stderr.txt',
+    'caller-census.json', 'historical-source-and-type-config-observer.py.txt',
+    'historical-source-and-type-config-observer.stdout.txt', 'historical-source-and-type-config-observer.stderr.txt',
+    'run-selectors.py.txt', 'native-probes.py.txt', 'source-and-type-custody.py.txt', 'finalize-review.py.txt', 'select-publication.py.txt',
+]
+sources = [(OUT / name, name) for name in names]
+sources += [(AUTH / name, 'author-type/' + name) for name in (
+    'basedpyright-ecde-receipt.json', 'basedpyright-ecde-config.json', 'basedpyright-ecde-parsed.json',
+    'basedpyright-ecde.stdout.txt', 'basedpyright-ecde.stderr.txt')]
+sources += [(OLD / name, 'historical-original/' + name) for name in (
+    'gap-review.json', 'gap.stdout.txt', 'gap.stderr.txt', 'probe-gaps.py.txt',
+    'legacy-schema-gap.json', 'legacy-schema-probe.py.txt', 'legacy-schema-probe.stdout.txt',
+    'legacy-schema-probe.stderr.txt', 'independent-fraction-gold.json')]
+assets = []
+for source, target in sources:
+    body = source.read_bytes()
+    assets.append({'source_path': str(source), 'path': target, 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()})
+if len({row['path'] for row in assets}) != len(assets):
+    raise ValueError('duplicate publication target')
+selection = {'schema': 'e02-moderate-publication-selection:1',
+    'candidate': commands['candidate'], 'candidate_tree': commands['candidate_tree'], 'base': commands['base'],
+    'source_disposition': 'GO', 'finding_closure': False,
+    'assets': assets, 'file_count': len(assets), 'total_bytes': sum(row['bytes'] for row in assets),
+    'excluded': ['CAS fixture directories', 'pytest/cache/tmp trees', 'full private/old raw type baseline copies',
+                 'unrelated numeric/global outputs', 'production data'],
+    'historical_refs': {'source_c539': str(OLD / 'publication-selection.json'),
+        'source_c539_scope': 'Historical36 pytest PASS did not conceal actual source CHANGE_REQUIRED; original whole28-member selection remains byte-fixed.',
+        'source_218': str(OLD / 'legacy-schema-gap.json')},
+    'scope': 'Complete moderate peer deciding outputs/reproducers/current caller census + exact historical defining reds + scoped native type custody; no broad wave or closure.',
+}
+(OUT / 'publication-selection.json').write_text(json.dumps(selection, indent=2) + '\n')
+print(json.dumps({'file_count': len(assets), 'total_bytes': selection['total_bytes'],
+                  'selection_bytes': (OUT / 'publication-selection.json').stat().st_size,
+                  'selection_sha256': hashlib.sha256((OUT / 'publication-selection.json').read_bytes()).hexdigest()}, indent=2))

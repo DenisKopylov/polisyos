@@ -1,0 +1,1349 @@
+{
+  "schema": "policyos.e02.prepare_only_criterion_selector_map.v1",
+  "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "bundles": 22,
+  "unique_findings": 54,
+  "id_to_bundle_links": 55,
+  "shared_link": "LA-051 in FRC01/FRC02",
+  "coverage_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+    "bytes": 550854,
+    "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+  },
+  "original_row_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+    "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "git_blob": "75834638f69a20cb1bd9bbd795069b2a1a897272",
+    "bytes": 1599060,
+    "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28"
+  },
+  "rows": [
+    {
+      "bundle": "BKT-01",
+      "writer": "E-W01",
+      "finding_ids": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "0a9dbf6c94fb414af25b5db9a5e3c27087afaea3",
+        "bytes": 16141,
+        "sha256": "c76f38ce7aca6293c316ce907f94ca3fd4d4116d61dc30aac914aebb7177d82b"
+      },
+      "native_family": "BKT_FRC_S10_and_adjacent_report_consumers",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B166": "partial",
+        "B169": "partial",
+        "B170": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B166": "BKT-01",
+        "B169": "BKT-01",
+        "B170": "BKT-01"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "BKT-02",
+      "writer": "E-W01",
+      "finding_ids": [
+        "B167",
+        "B168",
+        "B171"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "c436b5b6e96f3fa9ab832eb33f92c6a459e69705",
+        "bytes": 18633,
+        "sha256": "2cc34165f61681fcb2f1023dbdbfcfa106f6cf8820ad7320028d87b891e8aa7e"
+      },
+      "native_family": "BKT_FRC_S10_and_adjacent_report_consumers",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B167": "partial",
+        "B168": "partial",
+        "B171": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B167": "BKT-02",
+        "B168": "BKT-02",
+        "B171": "BKT-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "BKT-03",
+      "writer": "E-W01",
+      "finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "9ece85fc6001c194322e7235a5eb23b375393c09",
+        "bytes": 11599,
+        "sha256": "43aa433c3d5eac777cd0faa5ed1b3750c52736722b34b9126b7295a55a930927"
+      },
+      "native_family": "BKT_FRC_S10_and_adjacent_report_consumers",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B172": "partial",
+        "B173": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B172": "BKT-03",
+        "B173": "BKT-03"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "BKT-04",
+      "writer": "E-W02",
+      "finding_ids": [
+        "B174",
+        "B175"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "d6a34981d3b2cfd76b4d3fb601a38165d4c37284",
+        "bytes": 11670,
+        "sha256": "86af1ed996f8559cafb44bcf23b0c788d23fc7dabf9b67e3fe0bf55b43b3aa7b"
+      },
+      "native_family": "BKT_FRC_S10_and_adjacent_report_consumers",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B174": "partial",
+        "B175": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B174": "BKT-04",
+        "B175": "BKT-04"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "CAL-01",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "fe0330dcb59d495f21c00da081d6720a4ca50308",
+        "bytes": 16603,
+        "sha256": "9d3822691086ba6ffa1197eb372cd4cc4eeadc05c7573097f85fa7edceec8a2c"
+      },
+      "native_family": "CAL_and_welfare_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "retained_unchanged_CAL_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+      ],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B176": "partial",
+        "B177": "partial",
+        "B178": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B176": "CAL-01",
+        "B177": "CAL-01",
+        "B178": "CAL-01"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "CAL-02",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B179",
+        "B180",
+        "B181",
+        "B182"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "85c67c206b2db65924e079c75a8daeb8ae8889c6",
+        "bytes": 18194,
+        "sha256": "0fbe3f83c4133db4bdaed0dc8e3b58c375e7fdbb18c16c0c7a35c49b77c241d4"
+      },
+      "native_family": "CAL_and_welfare_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "retained_unchanged_CAL_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+      ],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B179": "partial",
+        "B180": "partial",
+        "B181": "partial",
+        "B182": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B179": "CAL-02",
+        "B180": "CAL-02",
+        "B181": "CAL-02",
+        "B182": "CAL-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "CAL-03",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B183",
+        "B195"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "122a5d06586f95b890e9031a286585f5ae255e69",
+        "bytes": 12435,
+        "sha256": "acd14aa7268335498e80c80de546ba45818b73ff8ab6270edb30337338852bee"
+      },
+      "native_family": "CAL_and_welfare_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "retained_unchanged_CAL_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+      ],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B183": "partial",
+        "B195": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B183": "CAL-03",
+        "B195": "CAL-03"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "CAL-04",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B184",
+        "B196",
+        "B203"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "457cdfcf8faa88e088a369f8dc9c22252f0da660",
+        "bytes": 16147,
+        "sha256": "ff37afe78ab90e8963660412e38bc92b8094f2bc90532500be115fdf34877c37"
+      },
+      "native_family": "CAL_and_welfare_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "retained_unchanged_CAL_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+      ],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B184": "partial",
+        "B196": "partial",
+        "B203": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B184": "CAL-04",
+        "B196": "CAL-04",
+        "B203": "CAL-04"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "CAL-05",
+      "writer": "E-W04",
+      "finding_ids": [
+        "B185"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "9c067bfc9968bc2915d541c7358ee2efd8d22531",
+        "bytes": 8483,
+        "sha256": "da87f868baf7c76653f12519ab36da5510703e2b07b4377043ff96865941278f"
+      },
+      "native_family": "CAL_and_welfare_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "retained_unchanged_CAL_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+      ],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B185": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B185": "CAL-05"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "CAL-06",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B197",
+        "B198"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "20103522e2b512847eee272a8354633a2b94d650",
+        "bytes": 12126,
+        "sha256": "b4f37731da45d3605f24e81c3763dddc0d351d0fcffdca91b38bf0c5e1ba5a12"
+      },
+      "native_family": "CAL_and_welfare_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+      ],
+      "retained_unchanged_CAL_paths": [
+        "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+      ],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B197": "held",
+        "B198": "closed"
+      },
+      "original_accountable_owner_literals": {
+        "B197": "CAL-06",
+        "B198": "CAL-06"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "DDM-01",
+      "writer": "E-W05",
+      "finding_ids": [
+        "LA-056"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "996527d9d0f2e49aab587b2eecd72c2978dbe62a",
+        "bytes": 20646,
+        "sha256": "0578a277129749948d051f331b92fe3e8670e321ae4c93cc212e7ab199c17a33"
+      },
+      "native_family": "DDM_runtime_and_facade",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_audit.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_calibrate.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+        "policy-engine/tests/unit/ddm/test_delayed_label_replay.py",
+        "policy-engine/tests/unit/ddm/test_facade.py",
+        "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+        "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+        "policy-engine/tests/unit/ddm/test_stationary_replay.py",
+        "policy-engine/tests/unit/ddm/test_synthetic_drift_delay.py",
+        "policy-engine/tests/unit/remediation/test_ddm_02.py",
+        "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "LA-056": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "LA-056": "DDM-01"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "DDM-02",
+      "writer": "E-W05",
+      "finding_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "121df4a3b4615f72775570acfd900a54c3d07680",
+        "bytes": 35954,
+        "sha256": "02fc4f7f19d1e668b35edf2d4ef547cc85c4ae1c4411e3e4182a9f2aaa48db98"
+      },
+      "native_family": "DDM_runtime_and_facade",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_audit.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_calibrate.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+        "policy-engine/tests/unit/ddm/test_delayed_label_replay.py",
+        "policy-engine/tests/unit/ddm/test_facade.py",
+        "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+        "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+        "policy-engine/tests/unit/ddm/test_stationary_replay.py",
+        "policy-engine/tests/unit/ddm/test_synthetic_drift_delay.py",
+        "policy-engine/tests/unit/remediation/test_ddm_02.py",
+        "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "LA-054": "partial",
+        "LA-055": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "LA-054": "DDM-02",
+        "LA-055": "DDM-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "DOE-01",
+      "writer": "E-W06",
+      "finding_ids": [
+        "B97",
+        "B98",
+        "B99"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "12d257bab0c7037328730072e54e90f8269df1c8",
+        "bytes": 15045,
+        "sha256": "50f7d9acd0a0b44c97c9899d6ff29fc921ed2d8f6a1ba4a9bc33ffbce144dc78"
+      },
+      "native_family": "DOE_SALib_and_consumer_factory",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_multi_output.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sampling.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_stability.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B97": "partial",
+        "B98": "partial",
+        "B99": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B97": "DOE-01",
+        "B98": "DOE-01",
+        "B99": "DOE-01"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "DOE-02",
+      "writer": "E-W06",
+      "finding_ids": [
+        "B100",
+        "B101"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "15a7f1540e00b15b4905d9569cafa6425e185793",
+        "bytes": 11143,
+        "sha256": "363b590d944a8a9cc1bb076de15c784d2824ea1c57aa9a9b5a533474b1d1ad50"
+      },
+      "native_family": "DOE_SALib_and_consumer_factory",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_multi_output.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sampling.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_stability.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B100": "partial",
+        "B101": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B100": "DOE-02",
+        "B101": "DOE-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "DOE-03",
+      "writer": "E-W06",
+      "finding_ids": [
+        "B102",
+        "B103",
+        "B104",
+        "B105"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235",
+        "bytes": 18100,
+        "sha256": "1761291fa68845ee9281161466d1fbea9a448ad093e591869fc2712d32d6eb0c"
+      },
+      "native_family": "DOE_SALib_and_consumer_factory",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_multi_output.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sampling.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_stability.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B102": "partial",
+        "B103": "partial",
+        "B104": "partial",
+        "B105": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B102": "DOE-03",
+        "B103": "DOE-03",
+        "B104": "DOE-03",
+        "B105": "DOE-03"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "FRC-01",
+      "writer": "E-W07",
+      "finding_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c",
+        "bytes": 20737,
+        "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee"
+      },
+      "native_family": "BKT_FRC_S10_and_adjacent_report_consumers",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B32": "partial",
+        "LA-051": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B32": "FRC-01",
+        "LA-051": "FRC-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "FRC-02",
+      "writer": "E-W07",
+      "finding_ids": [
+        "LA-051"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "7b7ccd45665e14e2e898182454bb1d94f5259c8d",
+        "bytes": 19111,
+        "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6"
+      },
+      "native_family": "BKT_FRC_S10_and_adjacent_report_consumers",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "LA-051": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "LA-051": "FRC-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "PCL-01",
+      "writer": "E-W08",
+      "finding_ids": [
+        "LA-052",
+        "LA-053"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "e723e2ac55a00b524f9f0b87db3c17319535a133",
+        "bytes": 25021,
+        "sha256": "3d36d370ac353f97551d1df132fded4671812a4c37af9368d35644a0c89ff7b7"
+      },
+      "native_family": "PCL_continuous_persistence",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/calibration/test_adapters.py",
+        "policy-engine/tests/unit/calibration/test_continuous.py",
+        "policy-engine/tests/unit/calibration/test_continuous_persistence.py",
+        "policy-engine/tests/unit/calibration/test_curve.py",
+        "policy-engine/tests/unit/calibration/test_diagnostics.py",
+        "policy-engine/tests/unit/calibration/test_multiclass.py",
+        "policy-engine/tests/unit/calibration/test_recalibration.py",
+        "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+        "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "policy-engine/tests/unit/calibration/test_core_artifact_routes.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "LA-052": "partial",
+        "LA-053": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "LA-052": "PCL-01",
+        "LA-053": "polisyos.calibration owner and Scientist backtesting alias migration/test owner"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "UQP-01",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B186",
+        "B189",
+        "B190",
+        "B191"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "8522630fba017eee65c6b12d96c618f0eadbdc01",
+        "bytes": 17548,
+        "sha256": "58c62ceb3fe995a42f495536403fe569dfb25bddca12d6ef6d507fd8b87596e9"
+      },
+      "native_family": "MC_joint_law_support_and_Scientist_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "policy-engine/tests/unit/remediation/test_uqp_01.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/remediation/test_uqp_03.py",
+        "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+        "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B186": "partial",
+        "B189": "partial",
+        "B190": "partial",
+        "B191": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B186": "UQP-01",
+        "B189": "UQP-01",
+        "B190": "UQP-01",
+        "B191": "UQP-01"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "UQP-02",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B187",
+        "B188",
+        "B192"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "7555a17f0acea5c867d034a535ea83bd0843c03c",
+        "bytes": 14877,
+        "sha256": "7ae1f146ad90056b33cd0532da4104103cbd5a60ff47d7eff7d313c2a6739adf"
+      },
+      "native_family": "MC_joint_law_support_and_Scientist_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "policy-engine/tests/unit/remediation/test_uqp_01.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/remediation/test_uqp_03.py",
+        "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+        "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B187": "partial",
+        "B188": "partial",
+        "B192": "partial"
+      },
+      "original_accountable_owner_literals": {
+        "B187": "UQP-02",
+        "B188": "UQP-02",
+        "B192": "UQP-02"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "UQP-03",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B193",
+        "B194"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "1d1d1d6add4711247edf5e99cde67a62df954e6e",
+        "bytes": 12480,
+        "sha256": "73e8a48332fd1b21a89348b92fc3c0ad62fc843588290853a64a4cef4f539811"
+      },
+      "native_family": "MC_joint_law_support_and_Scientist_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "policy-engine/tests/unit/remediation/test_uqp_01.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/remediation/test_uqp_03.py",
+        "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+        "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B193": "partial",
+        "B194": "held"
+      },
+      "original_accountable_owner_literals": {
+        "B193": "UQP-03",
+        "B194": "UQP-03"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    },
+    {
+      "bundle": "UQS-01",
+      "writer": "E-W03",
+      "finding_ids": [
+        "B199",
+        "B200",
+        "B201",
+        "B202"
+      ],
+      "original_card": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+        "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "git_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b",
+        "bytes": 20683,
+        "sha256": "14c375c5bfcb8175abd51fe7ff71c54016e2801282fcd4bda73af753365f5a14"
+      },
+      "native_family": "MC_joint_law_support_and_Scientist_consumer",
+      "current_selector_paths": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "policy-engine/tests/unit/remediation/test_uqp_01.py",
+        "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "policy-engine/tests/unit/remediation/test_uqp_03.py",
+        "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+        "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "retained_unchanged_CAL_paths": [],
+      "criterion_row_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+        "role": "original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS"
+      },
+      "ledger_status_preserved": {
+        "B199": "partial",
+        "B200": "partial",
+        "B201": "held",
+        "B202": "held"
+      },
+      "original_accountable_owner_literals": {
+        "B199": "UQS-01",
+        "B200": "UQS-01",
+        "B201": "UQS-01",
+        "B202": "UQS-01"
+      },
+      "execution_status": "UNRUN",
+      "closure_decision": "Not recomputed here; accountable owner acceptance remains separate",
+      "local_scope": "Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate"
+    }
+  ],
+  "new54review": false,
+  "check_or_finding_acceptance": false
+}

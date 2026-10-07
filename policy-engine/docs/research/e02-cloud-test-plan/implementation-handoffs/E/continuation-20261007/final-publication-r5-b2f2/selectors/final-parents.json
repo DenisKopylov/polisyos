@@ -1,0 +1,529 @@
+{
+  "schema": "policyos.e02.final_parent_b2_moderate_publication_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/started.json",
+      "portable_path": "workspace-verify/started.json",
+      "bytes": 49139,
+      "sha256": "0b8f0755d85871882f1bac38100be8954f523de54328d5f9c34ded253ccbc5c8",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/started.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/receipt.json",
+      "portable_path": "workspace-verify/receipt.json",
+      "bytes": 96160,
+      "sha256": "aeef99eaa838ee91f83f8659a3641618a1eef5164675b9bedda5548e50a75752",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/receipt.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/stdout.txt",
+      "portable_path": "workspace-verify/stdout.txt",
+      "bytes": 7427,
+      "sha256": "07a3bf30cb4c603d5344f6076c3660769f107acbf4f1166cc88767fb6a15aea3",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/stderr.txt",
+      "portable_path": "workspace-verify/stderr.txt",
+      "bytes": 30,
+      "sha256": "287c5adfde4bc51a1d5a273ebcf46fd2406ed14f4fe90abeb39a0f04213ae6e5",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/internal-stages.json",
+      "portable_path": "workspace-verify/internal-stages.json",
+      "bytes": 8763,
+      "sha256": "de81c8a947e76375aaee380021dc6143c0e3d69e79bda008c3ee90ec48a74c67",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/internal-stages.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/complete-source-inputs-before.json",
+      "portable_path": "workspace-verify/complete-source-inputs-before.json",
+      "bytes": 5700143,
+      "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/complete-source-inputs-before.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/complete-source-inputs-after.json",
+      "portable_path": "workspace-verify/complete-source-inputs-after.json",
+      "bytes": 5700143,
+      "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/complete-source-inputs-before.json",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/started.json",
+      "portable_path": "ci-parity/started.json",
+      "bytes": 48999,
+      "sha256": "1904611b40ac02770adfeaa61f66577f9595be9d9a3cf8da943ce403f877f256",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "ci-parity/started.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/receipt.json",
+      "portable_path": "ci-parity/receipt.json",
+      "bytes": 95985,
+      "sha256": "e51590669e4ba55ace23cccc30a57bbea4a77b9206bc608a85e9544f3e9df6bd",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "ci-parity/receipt.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/stdout.txt",
+      "portable_path": "ci-parity/stdout.txt",
+      "bytes": 8550,
+      "sha256": "e3fd0c38bf87aaf0badc50d016219845e168f348d07a627f4b82d15d9c4f638a",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "ci-parity/stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/stderr.txt",
+      "portable_path": "ci-parity/stderr.txt",
+      "bytes": 6881,
+      "sha256": "f57351b78f912d109b74347a5ead7a5841c4ccf43bfa1902e440fba6163f8aa5",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "ci-parity/stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/internal-stages.json",
+      "portable_path": "ci-parity/internal-stages.json",
+      "bytes": 11245,
+      "sha256": "8b379810c06e5174e7342de9e529aed386c22d06c3c5330fac6bad17e60a9e8d",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "ci-parity/internal-stages.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/complete-source-inputs-before.json",
+      "portable_path": "ci-parity/complete-source-inputs-before.json",
+      "bytes": 5700143,
+      "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/complete-source-inputs-before.json",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/complete-source-inputs-after.json",
+      "portable_path": "ci-parity/complete-source-inputs-after.json",
+      "bytes": 5700143,
+      "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054",
+      "role": "actual closed native parent original; complete commands/env/source/stages/stdout/stderr",
+      "canonical_destination": "workspace-verify/complete-source-inputs-before.json",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/capture_admission.py.txt",
+      "portable_path": "admission/capture_admission.py.txt",
+      "bytes": 4525,
+      "sha256": "21444db6457e3ef881fa23f1ba142f9b1d40db3aac91de1928d90b6b4069b436",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/capture_admission.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/admission.json",
+      "portable_path": "admission/admission.json",
+      "bytes": 8613,
+      "sha256": "7975f0fa96931fbd7a091f180ef4bbedb3f2d93a4ded9b4d7ecdd485457028bb",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/admission.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/admission-capture.stdout.json",
+      "portable_path": "admission/admission-capture.stdout.json",
+      "bytes": 290,
+      "sha256": "74ebe47f2708694a6def95dc1513d5f49460d67f3d4be7625b6d836d37f3f905",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/admission-capture.stdout.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/admission-capture.stderr.txt",
+      "portable_path": "admission/admission-capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/admission-capture.stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/workspace-launch.stdout.json",
+      "portable_path": "admission/workspace-launch.stdout.json",
+      "bytes": 201,
+      "sha256": "fc6d05684ab23d8397ad42880edfc1d4a09df871ccd31feaf511dd3901425769",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/workspace-launch.stdout.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/workspace-launch.stderr.txt",
+      "portable_path": "admission/workspace-launch.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/admission-capture.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/ci-launch.stdout.json",
+      "portable_path": "admission/ci-launch.stdout.json",
+      "bytes": 193,
+      "sha256": "c1723ad17e48d4d8c0cdc421ca468c84b523da35c2dd754bc278e20532cbd59d",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/ci-launch.stdout.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/ci-launch.stderr.txt",
+      "portable_path": "admission/ci-launch.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/admission-capture.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/original-final-freeze.json",
+      "portable_path": "admission/original-final-freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/original-final-freeze.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/original-publication-readback.json",
+      "portable_path": "admission/original-publication-readback.json",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/original-publication-readback.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/freeze-hash-observer-error-qualification.json",
+      "portable_path": "admission/freeze-hash-observer-error-qualification.json",
+      "bytes": 1190,
+      "sha256": "59adab195657073be5ff6dd007b94b06f11b2502f20a34a38b44952d4b0f06b6",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/freeze-hash-observer-error-qualification.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/close_parents.py.txt",
+      "portable_path": "admission/close_parents.py.txt",
+      "bytes": 7365,
+      "sha256": "fc3dca204df422f2d4641f1ea61edbdfdbc062a4089e72df30c2d422cdad6288",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/close_parents.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/closeout.json",
+      "portable_path": "admission/closeout.json",
+      "bytes": 3770,
+      "sha256": "7410cc840682e6e6663ce784cd27b081dc52f386cffdb6a0850b8e7ec80846d7",
+      "role": "exact execution/input/source admission or explicitly historical observer ERROR qualification",
+      "canonical_destination": "admission/closeout.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+      "portable_path": "recipes/run_final_parent_umbrella.py.txt",
+      "bytes": 8791,
+      "sha256": "0d67bdd63687f5622c5f993b1bcc11b3c40d9c416d9ef0b75d6d2e39a8364e0c",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/run_final_parent_umbrella.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/canonical-factory-plan.json",
+      "portable_path": "recipes/canonical-factory-plan.json",
+      "bytes": 22971,
+      "sha256": "6a23e4d0fc2a43cff3ad1babae95f6dd7c78ff66cee835accdea4821e7463c7c",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/canonical-factory-plan.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/recompute_current_parent_plan.py.txt",
+      "portable_path": "recipes/recompute_current_parent_plan.py.txt",
+      "bytes": 6048,
+      "sha256": "6aaa6311486c48fd79c6e39e46d7c4d088d4df0335da00c2f179a09126514de0",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/recompute_current_parent_plan.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/preparation-controls.stdout.json",
+      "portable_path": "recipes/preparation-controls.stdout.json",
+      "bytes": 8104,
+      "sha256": "8315755a7f7a11e1a239e049087673e0f3a5ec59c1f907b93ae2277a6d1f601c",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/preparation-controls.stdout.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/probe_preparation.py.txt",
+      "portable_path": "recipes/probe_preparation.py.txt",
+      "bytes": 3359,
+      "sha256": "03e0f1895dbf3a2834edc18f9d25f713ac93c4bb43b591d910f20d07a7d509ae",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/probe_preparation.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/preparation-final.json",
+      "portable_path": "recipes/preparation-final.json",
+      "bytes": 4669,
+      "sha256": "776e3d43ec731d3e7dd806c5ee9b737253645987b6fda6536a5ee4075308f743",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/preparation-final.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/complete-source-inputs.json",
+      "portable_path": "freeze/complete-source-inputs.json",
+      "bytes": 5700143,
+      "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "workspace-verify/complete-source-inputs-before.json",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/root-environment-metadata.json",
+      "portable_path": "freeze/root-environment-metadata.json",
+      "bytes": 51499,
+      "sha256": "16fbca8ff5fb15d5ce0add080e4d5492e8dd55e1ee551978a270c36d0eb6e847",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "freeze/root-environment-metadata.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "portable_path": "recipes/canonical-uncapped_umbrella.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e",
+      "role": "complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees",
+      "canonical_destination": "recipes/canonical-uncapped_umbrella.py.txt",
+      "deduplicated": false
+    }
+  ],
+  "copies": [
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/started.json",
+      "destination": "workspace-verify/started.json",
+      "bytes": 49139,
+      "sha256": "0b8f0755d85871882f1bac38100be8954f523de54328d5f9c34ded253ccbc5c8"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/receipt.json",
+      "destination": "workspace-verify/receipt.json",
+      "bytes": 96160,
+      "sha256": "aeef99eaa838ee91f83f8659a3641618a1eef5164675b9bedda5548e50a75752"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/stdout.txt",
+      "destination": "workspace-verify/stdout.txt",
+      "bytes": 7427,
+      "sha256": "07a3bf30cb4c603d5344f6076c3660769f107acbf4f1166cc88767fb6a15aea3"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/stderr.txt",
+      "destination": "workspace-verify/stderr.txt",
+      "bytes": 30,
+      "sha256": "287c5adfde4bc51a1d5a273ebcf46fd2406ed14f4fe90abeb39a0f04213ae6e5"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/internal-stages.json",
+      "destination": "workspace-verify/internal-stages.json",
+      "bytes": 8763,
+      "sha256": "de81c8a947e76375aaee380021dc6143c0e3d69e79bda008c3ee90ec48a74c67"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/complete-source-inputs-before.json",
+      "destination": "workspace-verify/complete-source-inputs-before.json",
+      "bytes": 5700143,
+      "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/started.json",
+      "destination": "ci-parity/started.json",
+      "bytes": 48999,
+      "sha256": "1904611b40ac02770adfeaa61f66577f9595be9d9a3cf8da943ce403f877f256"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/receipt.json",
+      "destination": "ci-parity/receipt.json",
+      "bytes": 95985,
+      "sha256": "e51590669e4ba55ace23cccc30a57bbea4a77b9206bc608a85e9544f3e9df6bd"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/stdout.txt",
+      "destination": "ci-parity/stdout.txt",
+      "bytes": 8550,
+      "sha256": "e3fd0c38bf87aaf0badc50d016219845e168f348d07a627f4b82d15d9c4f638a"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/stderr.txt",
+      "destination": "ci-parity/stderr.txt",
+      "bytes": 6881,
+      "sha256": "f57351b78f912d109b74347a5ead7a5841c4ccf43bfa1902e440fba6163f8aa5"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/internal-stages.json",
+      "destination": "ci-parity/internal-stages.json",
+      "bytes": 11245,
+      "sha256": "8b379810c06e5174e7342de9e529aed386c22d06c3c5330fac6bad17e60a9e8d"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/capture_admission.py.txt",
+      "destination": "admission/capture_admission.py.txt",
+      "bytes": 4525,
+      "sha256": "21444db6457e3ef881fa23f1ba142f9b1d40db3aac91de1928d90b6b4069b436"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/admission.json",
+      "destination": "admission/admission.json",
+      "bytes": 8613,
+      "sha256": "7975f0fa96931fbd7a091f180ef4bbedb3f2d93a4ded9b4d7ecdd485457028bb"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/admission-capture.stdout.json",
+      "destination": "admission/admission-capture.stdout.json",
+      "bytes": 290,
+      "sha256": "74ebe47f2708694a6def95dc1513d5f49460d67f3d4be7625b6d836d37f3f905"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/admission-capture.stderr.txt",
+      "destination": "admission/admission-capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/workspace-launch.stdout.json",
+      "destination": "admission/workspace-launch.stdout.json",
+      "bytes": 201,
+      "sha256": "fc6d05684ab23d8397ad42880edfc1d4a09df871ccd31feaf511dd3901425769"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/ci-launch.stdout.json",
+      "destination": "admission/ci-launch.stdout.json",
+      "bytes": 193,
+      "sha256": "c1723ad17e48d4d8c0cdc421ca468c84b523da35c2dd754bc278e20532cbd59d"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/original-final-freeze.json",
+      "destination": "admission/original-final-freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/original-publication-readback.json",
+      "destination": "admission/original-publication-readback.json",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/freeze-hash-observer-error-qualification.json",
+      "destination": "admission/freeze-hash-observer-error-qualification.json",
+      "bytes": 1190,
+      "sha256": "59adab195657073be5ff6dd007b94b06f11b2502f20a34a38b44952d4b0f06b6"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/close_parents.py.txt",
+      "destination": "admission/close_parents.py.txt",
+      "bytes": 7365,
+      "sha256": "fc3dca204df422f2d4641f1ea61edbdfdbc062a4089e72df30c2d422cdad6288"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/closeout.json",
+      "destination": "admission/closeout.json",
+      "bytes": 3770,
+      "sha256": "7410cc840682e6e6663ce784cd27b081dc52f386cffdb6a0850b8e7ec80846d7"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+      "destination": "recipes/run_final_parent_umbrella.py.txt",
+      "bytes": 8791,
+      "sha256": "0d67bdd63687f5622c5f993b1bcc11b3c40d9c416d9ef0b75d6d2e39a8364e0c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/canonical-factory-plan.json",
+      "destination": "recipes/canonical-factory-plan.json",
+      "bytes": 22971,
+      "sha256": "6a23e4d0fc2a43cff3ad1babae95f6dd7c78ff66cee835accdea4821e7463c7c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/recompute_current_parent_plan.py.txt",
+      "destination": "recipes/recompute_current_parent_plan.py.txt",
+      "bytes": 6048,
+      "sha256": "6aaa6311486c48fd79c6e39e46d7c4d088d4df0335da00c2f179a09126514de0"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/preparation-controls.stdout.json",
+      "destination": "recipes/preparation-controls.stdout.json",
+      "bytes": 8104,
+      "sha256": "8315755a7f7a11e1a239e049087673e0f3a5ec59c1f907b93ae2277a6d1f601c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/probe_preparation.py.txt",
+      "destination": "recipes/probe_preparation.py.txt",
+      "bytes": 3359,
+      "sha256": "03e0f1895dbf3a2834edc18f9d25f713ac93c4bb43b591d910f20d07a7d509ae"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/preparation-final.json",
+      "destination": "recipes/preparation-final.json",
+      "bytes": 4669,
+      "sha256": "776e3d43ec731d3e7dd806c5ee9b737253645987b6fda6536a5ee4075308f743"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/root-environment-metadata.json",
+      "destination": "freeze/root-environment-metadata.json",
+      "bytes": 51499,
+      "sha256": "16fbca8ff5fb15d5ce0add080e4d5492e8dd55e1ee551978a270c36d0eb6e847"
+    },
+    {
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "destination": "recipes/canonical-uncapped_umbrella.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    }
+  ],
+  "logical_count": 36,
+  "content_unique_count": 30,
+  "content_unique_bytes": 6179316,
+  "literal_originals_closed": true,
+  "scope": "Both final native parents FAIL with full15/24 scopes; complete moderate command/env/source/stdout/stderr/UNRUN custody. Metadata-only preparation errors labelled separately. No numeric rerun/finding/global PASS.",
+  "check_outcomes": {
+    "workspace-verify": "FAIL",
+    "ci-parity": "FAIL"
+  },
+  "excluded": [
+    "Source620MB bytes/tree",
+    "privateGitconfig/environment",
+    "cache/tmp/node_modules/fixture roots",
+    "unrelated active outputs"
+  ],
+  "future_self_SHA_included": false
+}

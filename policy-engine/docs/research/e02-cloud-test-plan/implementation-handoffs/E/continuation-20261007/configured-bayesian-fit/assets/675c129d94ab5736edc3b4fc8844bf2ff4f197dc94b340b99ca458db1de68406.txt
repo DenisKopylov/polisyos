@@ -1,0 +1,43 @@
+{
+  "source": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+  "tree": "dcbc46f07f50c4efa438586bbb6e9314b35f3862",
+  "actual_typed_CoreCAS_return_wrapper": "stored valid unchanged payload/schema/kind/CAS digest; only returned generic ref kind/media changed; inputProfile2 return refs retained",
+  "rows": [
+    {
+      "method": "hmc",
+      "current_node_outcome": "ADMITTED",
+      "status": "ok",
+      "output_refs": {
+        "y": {
+          "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+          "kind": "forged.wrong_kind",
+          "media_type": "text/plain"
+        }
+      },
+      "spy_calls": [
+        "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+        "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+      ],
+      "old_IR_publisher_outcome": "REFUSED",
+      "old_exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+    },
+    {
+      "method": "nuts",
+      "current_node_outcome": "ADMITTED",
+      "status": "ok",
+      "output_refs": {
+        "y": {
+          "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+          "kind": "forged.wrong_kind",
+          "media_type": "text/plain"
+        }
+      },
+      "spy_calls": [
+        "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+        "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+      ],
+      "old_IR_publisher_outcome": "REFUSED",
+      "old_exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+    }
+  ]
+}

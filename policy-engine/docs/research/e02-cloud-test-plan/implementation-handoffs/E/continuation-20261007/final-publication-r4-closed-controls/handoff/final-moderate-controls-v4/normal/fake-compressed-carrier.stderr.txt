@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 239, in <module>
+    main()
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 201, in main
+    counts = validate(p, manifest, args.layout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 177, in validate
+    expected = recompute_expected(p, manifest, payload_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 158, in recompute_expected
+    raise ValueError('complete staged carrier bytes/hash')
+ValueError: complete staged carrier bytes/hash

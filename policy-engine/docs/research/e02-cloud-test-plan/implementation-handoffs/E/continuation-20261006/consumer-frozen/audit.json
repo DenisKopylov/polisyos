@@ -1,0 +1,3801 @@
+{
+  "schema": "policyos.e02.consumer_path_audit.v1",
+  "auditor": "/root/consumer_trace_r4",
+  "executed_at_utc": "2026-10-06T10:54:57.808362+00:00",
+  "target_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "target_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "comparison_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "scope": {
+    "tracked_file_denominator": 13961,
+    "python_source_path_denominator": 2700,
+    "file_type_denominator": [
+      ".py under policy-engine/src/"
+    ],
+    "selection": "All tracked Python source blobs at exact target; named call AST including imported rename aliases. All 22 E original bundles and manifest; all E routes and referenced cells; changed and affected native tests.",
+    "unresolved_by_construction": [
+      "Dynamic getattr/registry/reflection or higher-order calls without matching statically bound names",
+      "External composition or installed plugins absent from tracked source",
+      "Successful production executions; this receipt is read-only static navigation, not numerical PASS",
+      "Non-Python or generated invocation semantics"
+    ],
+    "control": "Known BacktestOrchestrator and PCL helper calls are positive controls; source-removal/fake-artifact controls are author/reviewer runtime receipts, not this static census."
+  },
+  "inventory": {
+    "bundle_count": 22,
+    "finding_count": 54,
+    "id_to_bundle_links": 55,
+    "historical_statuses": {
+      "closed": 1,
+      "held": 4,
+      "partial": 49
+    },
+    "bundle_ids": [
+      "BKT-01",
+      "BKT-02",
+      "BKT-03",
+      "BKT-04",
+      "CAL-01",
+      "CAL-02",
+      "CAL-03",
+      "CAL-04",
+      "CAL-05",
+      "CAL-06",
+      "DDM-01",
+      "DDM-02",
+      "DOE-01",
+      "DOE-02",
+      "DOE-03",
+      "FRC-01",
+      "FRC-02",
+      "PCL-01",
+      "UQP-01",
+      "UQP-02",
+      "UQP-03",
+      "UQS-01"
+    ]
+  },
+  "source_blobs": {
+    "policy-engine/src/polisyos/calibration/continuous.py": {
+      "git_blob_sha": "53008144d8bc4c903392cdd80db14f734496208e",
+      "sha256": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032"
+    },
+    "policy-engine/src/polisyos/calibration/curve.py": {
+      "git_blob_sha": "4b8028e78aa2c6375e08563adcd8ceb40cca3b4d",
+      "sha256": "3a635778d08c783ed5199504c412f9709cb4196533945883085498e5408dc81f"
+    },
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py": {
+      "git_blob_sha": "5fee62b979907b4c40ca0c238cf43d0b5ecc5c39",
+      "sha256": "173954a420aca0bbc9bad13eb4ab82eab6ff8b60ba75e540f0d245061d41ce44"
+    },
+    "policy-engine/src/polisyos/ddm/calibration/audit.py": {
+      "git_blob_sha": "dec891c1f629559e556671b371bd6aeca5e4e79c",
+      "sha256": "02a8490bcaee5fbce7ed520e9a8cd3ce1e70653b18546fd9d1ec8eebf4dd9664"
+    },
+    "policy-engine/src/polisyos/ddm/integration/model_registry.py": {
+      "git_blob_sha": "daf90aff7f4e11b32fa2d62ee8a044d6393a488c",
+      "sha256": "0ef61509e34d1c2524574b272ebb3d1d4bfae2600256ae57b8c52a2d3e7eede4"
+    },
+    "policy-engine/src/polisyos/ddm/integration/monitor.py": {
+      "git_blob_sha": "feb098b379486e71f9fc7e2cd4b4556830cc0ef1",
+      "sha256": "d3593363c27db8d32c767a1082093651ab988eeaac38f8eecc8c71e59fc47054"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py": {
+      "git_blob_sha": "0acbaffef2c9732cdf68da69fbd149e6694e6007",
+      "sha256": "ecd18058f2541334469654bf109f3f09ed789330ec4d422967105c09d317e200"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py": {
+      "git_blob_sha": "1267c9d0c2a4301a231ab17840b82979b79f94ef",
+      "sha256": "516fb0a8d02d76494f1990bf36ddc6e074f1a5891e8607f25254e689495ba00a"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py": {
+      "git_blob_sha": "c7fd780c632b41649c9acee5c49b8cecda733280",
+      "sha256": "2f47d93c96a3f7ce5f78f6c785246429d86a484ae96cecac069235e0e9e51431"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/report.py": {
+      "git_blob_sha": "fc6a1df59013b46c01dcf2eb966923fb896f8498",
+      "sha256": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945"
+    },
+    "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py": {
+      "git_blob_sha": "97ee25f2fa5552de075bf5715de16b0363eca6dd",
+      "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505"
+    },
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": {
+      "git_blob_sha": "373afa76ba44829236498375e17cdbafdc53bb0a",
+      "sha256": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "git_blob_sha": "3b12b9c4a50ecea9f2b1ff79e405c301f2dd7280",
+      "sha256": "30951ea305bdb04ec3826f0e102fdab1e3b96b3acd66efac6d7df54b73300025"
+    },
+    "policy-engine/src/polisyos/ir/analytics/backtest.py": {
+      "git_blob_sha": "26b15390105b5c478824f899754af9a0f6bc64d8",
+      "sha256": "d1a0ee6fd24077f63cd0ba81f745df1ac4c6831cd8e7a68e9aeae6bc5f6cb80c"
+    },
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+      "git_blob_sha": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+    },
+    "policy-engine/src/polisyos/scientist/api.py": {
+      "git_blob_sha": "00a723f27c161fd8304d494e24525ffd9529c378",
+      "sha256": "8c18960085bb5c519fa9fcfe7f7a57aad8413151c4fffbd22120a38ed1110ff3"
+    },
+    "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py": {
+      "git_blob_sha": "4adfe3c489f885a68c41945faa8f870bc327229a",
+      "sha256": "dedb13d802842a16b606154a6292841050988c9d63796f95ea1d0dda90122972"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py": {
+      "git_blob_sha": "6ec3567995fac9550343013279d4bf12a269817a",
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631"
+    },
+    "policy-engine/src/polisyos/scientist/methods/backtesting/cli.py": {
+      "git_blob_sha": "b36afb640ccb3a5c46286ab282c75d3a6097418a",
+      "sha256": "2c0bba097a8c3e02779ff9e60bb8d13a8f4fc94b73a028c13114e7830229ab8a"
+    },
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+      "git_blob_sha": "74ea1741c38c216c882c65ecc1395baf792ea5f6",
+      "sha256": "566803060a6745efb570e006b5655590eade5db3cf4a71f66c0ecd96af2cd3de"
+    },
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py": {
+      "git_blob_sha": "9ec9f48a5ca50b9a6e8fcda8e9249dcabed371c0",
+      "sha256": "232d33467db440cb064e9c8c7fbb59caf2bf29e70e69f39eec2721990e94a085"
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py": {
+      "git_blob_sha": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": {
+      "git_blob_sha": "00729247c0b7763820f0bbc189fc834fac172942",
+      "sha256": "3a7a24125b301ca37033d0bb5da73d665a433156d11146b817e73d731a0605d6"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py": {
+      "git_blob_sha": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py": {
+      "git_blob_sha": "20c1bf019f69e3861c197115a86fe81912404c70",
+      "sha256": "397cb40abc81437bd38b634dc27a081298bff1855f80a9f69ffcfbc6709263c0"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "git_blob_sha": "ee8eda0ce495b37881f91344b9606502f84636ea",
+      "sha256": "3636c012ec50b0aa355adc4d175ae99a74a840252ea44256823a2175779c4ac5"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "git_blob_sha": "b1407b20b7eff771b7e65c4f76f835fd0d1e1803",
+      "sha256": "56672a2e5b97ad88f7022122f981b04e838bfa0a1fc3553b3aa51bb85b090b53"
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py": {
+      "git_blob_sha": "16dfb114a9657f78636d7786c0bc92a492f00469",
+      "sha256": "d7cada3d0448e6aca77b6458a3b6fea072637202f7964231986f632eb59a8509"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/workflows/default.py": {
+      "git_blob_sha": "13d0cd27c8e7861f4999a874bf0dee9f960df28f",
+      "sha256": "fb6d0c3b328db0785b85402aabadfca5de64ddfb973ca0e8904f7ad71030bd9c"
+    }
+  },
+  "named_definitions": [
+    {
+      "symbol": "persist_continuous_evaluation",
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "line": 254
+    },
+    {
+      "symbol": "load_continuous_evaluation",
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "line": 302
+    },
+    {
+      "symbol": "produce_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 433
+    },
+    {
+      "symbol": "persist_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 547
+    },
+    {
+      "symbol": "load_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 580
+    },
+    {
+      "symbol": "load_forecast_calibration_profile",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 631
+    },
+    {
+      "symbol": "persist_forecast_candidate_receipt",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 662
+    },
+    {
+      "symbol": "load_forecast_candidate_receipt",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 680
+    },
+    {
+      "symbol": "build_model_registry_record",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "line": 104
+    },
+    {
+      "symbol": "rebind_calibration_validity",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "line": 202
+    },
+    {
+      "symbol": "evaluate_registry_gate",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "line": 276
+    },
+    {
+      "symbol": "DriftAndDegradationMonitor",
+      "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "line": 61
+    },
+    {
+      "symbol": "evaluate_window",
+      "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "line": 64
+    },
+    {
+      "symbol": "Calibrator",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 607
+    },
+    {
+      "symbol": "_simulate_bundle",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 1122
+    },
+    {
+      "symbol": "run_pure_batch",
+      "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "line": 868
+    },
+    {
+      "symbol": "put_calibration_config",
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "line": 195
+    },
+    {
+      "symbol": "put_calibration_report",
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "line": 214
+    },
+    {
+      "symbol": "load_calibration_report",
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "line": 273
+    },
+    {
+      "symbol": "_summarize_interval_diagnostics",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "line": 542
+    },
+    {
+      "symbol": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 50
+    },
+    {
+      "symbol": "admit_sampling_support",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 68
+    },
+    {
+      "symbol": "verify_mean_certificate",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 274
+    },
+    {
+      "symbol": "reconcile_draw_outcomes",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 445
+    },
+    {
+      "symbol": "persist_backtest_report",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "line": 216
+    },
+    {
+      "symbol": "load_backtest_report",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "line": 237
+    },
+    {
+      "symbol": "SensitivityBridge",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "line": 40
+    },
+    {
+      "symbol": "analyze_search_space",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "line": 47
+    },
+    {
+      "symbol": "persist_forecast_owner_request",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 521
+    },
+    {
+      "symbol": "ForecastOwner",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 714
+    },
+    {
+      "symbol": "run_forecast_owner",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1245
+    },
+    {
+      "symbol": "BacktestOrchestrator",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "line": 201
+    },
+    {
+      "symbol": "_persist_analysis",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "line": 37
+    },
+    {
+      "symbol": "_load_analysis",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "line": 72
+    },
+    {
+      "symbol": "SensitivityAwareCandidateGenerator",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "line": 14
+    },
+    {
+      "symbol": "from_artifact",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "line": 42
+    },
+    {
+      "symbol": "from_artifact",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "line": 168
+    },
+    {
+      "symbol": "_collect_input_envelopes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 310
+    },
+    {
+      "symbol": "_load_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 101
+    },
+    {
+      "symbol": "_load_verified_welfare_samples",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 193
+    },
+    {
+      "symbol": "_persist_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 242
+    },
+    {
+      "symbol": "_collect_input_envelopes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 891
+    },
+    {
+      "symbol": "_propagate_credible_interval",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1837
+    }
+  ],
+  "named_call_sites": [
+    {
+      "symbol": "load_forecast_calibration_profile",
+      "spelling": "load_forecast_calibration_profile",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 720,
+      "end_line": 720,
+      "owner": "_replay_forecast_candidate",
+      "expression": "load_forecast_calibration_profile(store, receipt.profile_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "load_empirical_calibration_evidence",
+      "spelling": "load_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 724,
+      "end_line": 724,
+      "owner": "_replay_forecast_candidate",
+      "expression": "load_empirical_calibration_evidence(store, receipt.empirical_evidence_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "load_backtest_report",
+      "spelling": "load_backtest_report",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 725,
+      "end_line": 725,
+      "owner": "_replay_forecast_candidate",
+      "expression": "load_backtest_report(store, evidence.report_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "produce_empirical_calibration_evidence",
+      "spelling": "produce_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 978,
+      "end_line": 982,
+      "owner": "_reproduce_evidence",
+      "expression": "produce_empirical_calibration_evidence(store, evidence.report_ref, context=context)",
+      "keywords": [
+        "context"
+      ]
+    },
+    {
+      "symbol": "load_backtest_report",
+      "spelling": "load_backtest_report",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "line": 1098,
+      "end_line": 1098,
+      "owner": "_load_verified_report",
+      "expression": "load_backtest_report(store, validated_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "build_model_registry_record",
+      "spelling": "build_model_registry_record",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "line": 250,
+      "end_line": 259,
+      "owner": "rebind_calibration_validity",
+      "expression": "build_model_registry_record(readiness_event=readiness_event, calibration_audit=calibration_audit, metric_budget=metric_budget, last_shift_event=None if not shifts else shifts[-1], last_degradation_event=last_degradation_event, active_incident_id=record.active_incident_id, _calibration_validity_evidence=evidence, _source_shift_events=shifts)",
+      "keywords": [
+        "readiness_event",
+        "calibration_audit",
+        "metric_budget",
+        "last_shift_event",
+        "last_degradation_event",
+        "active_incident_id",
+        "_calibration_validity_evidence",
+        "_source_shift_events"
+      ]
+    },
+    {
+      "symbol": "build_model_registry_record",
+      "spelling": "build_model_registry_record",
+      "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "line": 141,
+      "end_line": 150,
+      "owner": "DriftAndDegradationMonitor.evaluate_window",
+      "expression": "build_model_registry_record(readiness_event=readiness, calibration_audit=calibration_audit, metric_budget=metric_budget, last_shift_event=None if not shift_risks else shift_risks[-1], last_degradation_event=enriched_degradation, active_incident_id=active_incident_id, _calibration_validity_evidence=validity_evidence, _source_shift_events=shift_risks)",
+      "keywords": [
+        "readiness_event",
+        "calibration_audit",
+        "metric_budget",
+        "last_shift_event",
+        "last_degradation_event",
+        "active_incident_id",
+        "_calibration_validity_evidence",
+        "_source_shift_events"
+      ]
+    },
+    {
+      "symbol": "run_pure_batch",
+      "spelling": "run_pure_batch",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 1126,
+      "end_line": 1132,
+      "owner": "Calibrator.run._simulate_bundle",
+      "expression": "run_pure_batch(stacked_state, times=batch_times, keys=batch_keys, bundle=sim_bundle, metric_paths=metric_paths)",
+      "keywords": [
+        "times",
+        "keys",
+        "bundle",
+        "metric_paths"
+      ]
+    },
+    {
+      "symbol": "_simulate_bundle",
+      "spelling": "_simulate_bundle",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 1269,
+      "end_line": 1269,
+      "owner": "Calibrator.run._target_loss_vec",
+      "expression": "_simulate_bundle(sim_bundle, step_idx)",
+      "keywords": []
+    },
+    {
+      "symbol": "_simulate_bundle",
+      "spelling": "_simulate_bundle",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 1336,
+      "end_line": 1336,
+      "owner": "Calibrator.run._forward_evaluation",
+      "expression": "_simulate_bundle(sim_bundle, step_idx)",
+      "keywords": []
+    },
+    {
+      "symbol": "_simulate_bundle",
+      "spelling": "_simulate_bundle",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 1469,
+      "end_line": 1469,
+      "owner": "Calibrator.run._compute_run_hessian_summary._loss_from_flat",
+      "expression": "_simulate_bundle(sim_bundle, jnp.array(0, dtype=jnp.int32))",
+      "keywords": []
+    },
+    {
+      "symbol": "_simulate_bundle",
+      "spelling": "_simulate_bundle",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "line": 1871,
+      "end_line": 1873,
+      "owner": "Calibrator.run._loss_from_flat",
+      "expression": "_simulate_bundle(sim_bundle, jnp.array(0, dtype=jnp.int32))",
+      "keywords": []
+    },
+    {
+      "symbol": "persist_continuous_evaluation",
+      "spelling": "persist_continuous_evaluation",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "line": 573,
+      "end_line": 575,
+      "owner": "_summarize_interval_diagnostics",
+      "expression": "persist_continuous_evaluation(calibration_store, report, source_binding=source_binding)",
+      "keywords": [
+        "source_binding"
+      ]
+    },
+    {
+      "symbol": "load_continuous_evaluation",
+      "spelling": "load_continuous_evaluation",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "line": 576,
+      "end_line": 576,
+      "owner": "_summarize_interval_diagnostics",
+      "expression": "load_continuous_evaluation(calibration_store, calibration_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "_summarize_interval_diagnostics",
+      "spelling": "_summarize_interval_diagnostics",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "line": 760,
+      "end_line": 765,
+      "owner": "_evaluate_panel_volatility_scenario",
+      "expression": "_summarize_interval_diagnostics(y_values=y_values, intervals_by_level=intervals_by_level, all_levels=all_levels, nominal_coverage=nominal_coverage)",
+      "keywords": [
+        "y_values",
+        "intervals_by_level",
+        "all_levels",
+        "nominal_coverage"
+      ]
+    },
+    {
+      "symbol": "_summarize_interval_diagnostics",
+      "spelling": "_summarize_interval_diagnostics",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "line": 1659,
+      "end_line": 1664,
+      "owner": "NonstationaryGARCHEstimator.pure_step",
+      "expression": "_summarize_interval_diagnostics(y_values=segment_eval_y, intervals_by_level=segment_intervals, all_levels=all_levels, nominal_coverage=nominal_coverage)",
+      "keywords": [
+        "y_values",
+        "intervals_by_level",
+        "all_levels",
+        "nominal_coverage"
+      ]
+    },
+    {
+      "symbol": "_summarize_interval_diagnostics",
+      "spelling": "_summarize_interval_diagnostics",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "line": 1738,
+      "end_line": 1743,
+      "owner": "NonstationaryGARCHEstimator.pure_step",
+      "expression": "_summarize_interval_diagnostics(y_values=global_y, intervals_by_level=global_intervals, all_levels=all_levels, nominal_coverage=nominal_coverage)",
+      "keywords": [
+        "y_values",
+        "intervals_by_level",
+        "all_levels",
+        "nominal_coverage"
+      ]
+    },
+    {
+      "symbol": "admit_sampling_support",
+      "spelling": "admit_sampling_support",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+      "line": 59,
+      "end_line": 59,
+      "owner": "AnalyticalPropagator.propagate_linear_combination",
+      "expression": "admit_sampling_support(input_envelopes)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+      "line": 67,
+      "end_line": 67,
+      "owner": "AnalyticalPropagator.propagate_linear_combination",
+      "expression": "admit_float32_range(list(weights.values()))",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+      "line": 90,
+      "end_line": 90,
+      "owner": "AnalyticalPropagator.propagate_linear_combination",
+      "expression": "admit_float32_range(covariance)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "line": 106,
+      "end_line": 106,
+      "owner": "build_covariance_matrix",
+      "expression": "admit_float32_range(np.diag(np.square(np.asarray(marginal_stds))))",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "line": 191,
+      "end_line": 191,
+      "owner": "build_covariance_matrix",
+      "expression": "admit_float32_range(covariance)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_sampling_support",
+      "spelling": "admit_sampling_support",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+      "line": 66,
+      "end_line": 66,
+      "owner": "DeltaMethodPropagator.propagate",
+      "expression": "admit_sampling_support(input_envelopes)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_sampling_support",
+      "spelling": "admit_sampling_support",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "line": 56,
+      "end_line": 56,
+      "owner": "PropagationDispatcher.propagate",
+      "expression": "admit_sampling_support(input_envelopes)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_sampling_support",
+      "spelling": "admit_sampling_support",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "line": 396,
+      "end_line": 396,
+      "owner": "MonteCarloPropagator.propagate",
+      "expression": "admit_sampling_support(input_envelopes)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 71,
+      "end_line": 71,
+      "owner": "admit_sampling_support",
+      "expression": "admit_float32_range([envelope.point_estimate, *envelope.confidence_interval])",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 74,
+      "end_line": 74,
+      "owner": "admit_sampling_support",
+      "expression": "admit_float32_range(row)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 77,
+      "end_line": 77,
+      "owner": "admit_sampling_support",
+      "expression": "admit_float32_range(payload.samples)",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 80,
+      "end_line": 80,
+      "owner": "admit_sampling_support",
+      "expression": "admit_float32_range(list(parameters.values()))",
+      "keywords": []
+    },
+    {
+      "symbol": "admit_float32_range",
+      "spelling": "admit_float32_range",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "line": 83,
+      "end_line": 83,
+      "owner": "admit_sampling_support",
+      "expression": "admit_float32_range(support)",
+      "keywords": []
+    },
+    {
+      "symbol": "BacktestOrchestrator",
+      "spelling": "BacktestOrchestrator",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "line": 115,
+      "end_line": 115,
+      "owner": "BacktestMatrixRunner.__init__",
+      "expression": "BacktestOrchestrator(cas=store)",
+      "keywords": [
+        "cas"
+      ]
+    },
+    {
+      "symbol": "persist_backtest_report",
+      "spelling": "persist_backtest_report",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "line": 243,
+      "end_line": 243,
+      "owner": "BacktestMatrixRunner.run",
+      "expression": "persist_backtest_report(self._store, report, inputs=manifest_inputs)",
+      "keywords": [
+        "inputs"
+      ]
+    },
+    {
+      "symbol": "_persist_analysis",
+      "spelling": "_persist_analysis",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "line": 147,
+      "end_line": 147,
+      "owner": "SensitivityBridge.analyze_search_space",
+      "expression": "_persist_analysis(store, plan, samples, outputs, result)",
+      "keywords": []
+    },
+    {
+      "symbol": "BacktestOrchestrator",
+      "spelling": "BacktestOrchestrator",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/cli.py",
+      "line": 50,
+      "end_line": 50,
+      "owner": "run_backtest_command",
+      "expression": "BacktestOrchestrator(cas_root=args.cas_root)",
+      "keywords": [
+        "cas_root"
+      ]
+    },
+    {
+      "symbol": "load_forecast_calibration_profile",
+      "spelling": "load_forecast_calibration_profile",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 728,
+      "end_line": 728,
+      "owner": "ForecastOwner.run",
+      "expression": "load_forecast_calibration_profile(self._store, self._empirical_profile_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "BacktestOrchestrator",
+      "spelling": "BacktestOrchestrator",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1117,
+      "end_line": 1117,
+      "owner": "ForecastOwner.run",
+      "expression": "BacktestOrchestrator(cas=self._store)",
+      "keywords": [
+        "cas"
+      ]
+    },
+    {
+      "symbol": "load_backtest_report",
+      "spelling": "load_backtest_report",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1143,
+      "end_line": 1143,
+      "owner": "ForecastOwner.run",
+      "expression": "load_backtest_report(self._store, report_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "produce_empirical_calibration_evidence",
+      "spelling": "produce_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1202,
+      "end_line": 1206,
+      "owner": "ForecastOwner.run",
+      "expression": "produce_empirical_calibration_evidence(self._store, report_ref, context=empirical_context)",
+      "keywords": [
+        "context"
+      ]
+    },
+    {
+      "symbol": "persist_empirical_calibration_evidence",
+      "spelling": "persist_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1207,
+      "end_line": 1207,
+      "owner": "ForecastOwner.run",
+      "expression": "persist_empirical_calibration_evidence(self._store, empirical)",
+      "keywords": []
+    },
+    {
+      "symbol": "load_empirical_calibration_evidence",
+      "spelling": "load_empirical_calibration_evidence",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1208,
+      "end_line": 1208,
+      "owner": "ForecastOwner.run",
+      "expression": "load_empirical_calibration_evidence(self._store, empirical_evidence_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "persist_forecast_candidate_receipt",
+      "spelling": "persist_forecast_candidate_receipt",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1209,
+      "end_line": 1216,
+      "owner": "ForecastOwner.run",
+      "expression": "persist_forecast_candidate_receipt(self._store, ForecastCandidateReceipt(profile_ref=self._empirical_profile_ref, request_ref=profile.request_ref, empirical_evidence_ref=empirical_evidence_ref))",
+      "keywords": []
+    },
+    {
+      "symbol": "ForecastOwner",
+      "spelling": "ForecastOwner",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 1248,
+      "end_line": 1248,
+      "owner": "run_forecast_owner",
+      "expression": "ForecastOwner(store)",
+      "keywords": []
+    },
+    {
+      "symbol": "persist_backtest_report",
+      "spelling": "persist_backtest_report",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "line": 299,
+      "end_line": 299,
+      "owner": "BacktestOrchestrator.run",
+      "expression": "persist_backtest_report(self._store, report, inputs=manifest_inputs)",
+      "keywords": [
+        "inputs"
+      ]
+    },
+    {
+      "symbol": "_load_analysis",
+      "spelling": "_load_analysis",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "line": 56,
+      "end_line": 56,
+      "owner": "SensitivityAwareCandidateGenerator.from_artifact",
+      "expression": "_load_analysis(store, ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "load_backtest_report",
+      "spelling": "load_backtest_report",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+      "line": 1449,
+      "end_line": 1452,
+      "owner": "_build_backtest_section",
+      "expression": "load_backtest_report(ctx.store, BacktestReportRef(artifact_id=backtest_ref.artifact_id))",
+      "keywords": []
+    },
+    {
+      "symbol": "_collect_input_envelopes",
+      "spelling": "_collect_input_envelopes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 123,
+      "end_line": 123,
+      "owner": "PropagateUncertaintyNode.execute",
+      "expression": "_collect_input_envelopes(ctx, state)",
+      "keywords": []
+    },
+    {
+      "symbol": "verify_mean_certificate",
+      "spelling": "verify_mean_certificate",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 198,
+      "end_line": 198,
+      "owner": "PropagateUncertaintyNode.execute",
+      "expression": "verify_mean_certificate(persisted_envelope)",
+      "keywords": []
+    },
+    {
+      "symbol": "reconcile_draw_outcomes",
+      "spelling": "reconcile_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "line": 219,
+      "end_line": 219,
+      "owner": "PropagateUncertaintyNode.execute",
+      "expression": "reconcile_draw_outcomes(outcome_receipt, output_metric_ids)",
+      "keywords": []
+    },
+    {
+      "symbol": "reconcile_draw_outcomes",
+      "spelling": "reconcile_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 117,
+      "end_line": 117,
+      "owner": "_load_welfare_draw_outcomes",
+      "expression": "reconcile_draw_outcomes(receipt, _WELFARE_DRAW_METRICS)",
+      "keywords": []
+    },
+    {
+      "symbol": "_load_welfare_draw_outcomes",
+      "spelling": "_load_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 218,
+      "end_line": 218,
+      "owner": "_load_verified_welfare_samples",
+      "expression": "_load_welfare_draw_outcomes(store, outcome_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "_collect_input_envelopes",
+      "spelling": "_collect_input_envelopes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 519,
+      "end_line": 519,
+      "owner": "PropagateWelfareNode.execute",
+      "expression": "_collect_input_envelopes(ctx, state, welfare_params=welfare_params)",
+      "keywords": [
+        "welfare_params"
+      ]
+    },
+    {
+      "symbol": "_propagate_credible_interval",
+      "spelling": "_propagate_credible_interval",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 585,
+      "end_line": 594,
+      "owner": "PropagateWelfareNode.execute",
+      "expression": "_propagate_credible_interval(ctx, state, welfare_params=welfare_params, context=context, simulation_fn=simulation_fn, nominal_params=nominal_params, input_envelopes=used_input_envelopes, calibration_source=collection.calibration_source)",
+      "keywords": [
+        "welfare_params",
+        "context",
+        "simulation_fn",
+        "nominal_params",
+        "input_envelopes",
+        "calibration_source"
+      ]
+    },
+    {
+      "symbol": "load_calibration_report",
+      "spelling": "load_calibration_report",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 967,
+      "end_line": 967,
+      "owner": "_collect_input_envelopes",
+      "expression": "load_calibration_report(ctx.store, calibration_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "_persist_welfare_draw_outcomes",
+      "spelling": "_persist_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1980,
+      "end_line": 1986,
+      "owner": "_propagate_credible_interval",
+      "expression": "_persist_welfare_draw_outcomes(ctx, receipt, config_ref=config_ref, calibration_source=None, dependence_ref=context.dependence_structure_ref)",
+      "keywords": [
+        "config_ref",
+        "calibration_source",
+        "dependence_ref"
+      ]
+    },
+    {
+      "symbol": "_load_welfare_draw_outcomes",
+      "spelling": "_load_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 1987,
+      "end_line": 1987,
+      "owner": "_propagate_credible_interval",
+      "expression": "_load_welfare_draw_outcomes(ctx.store, outcomes_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "_persist_welfare_draw_outcomes",
+      "spelling": "_persist_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 2171,
+      "end_line": 2177,
+      "owner": "_propagate_credible_interval",
+      "expression": "_persist_welfare_draw_outcomes(ctx, receipt, config_ref=config_ref, calibration_source=calibration_source, dependence_ref=context.dependence_structure_ref)",
+      "keywords": [
+        "config_ref",
+        "calibration_source",
+        "dependence_ref"
+      ]
+    },
+    {
+      "symbol": "_load_welfare_draw_outcomes",
+      "spelling": "_load_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 2178,
+      "end_line": 2178,
+      "owner": "_propagate_credible_interval",
+      "expression": "_load_welfare_draw_outcomes(ctx.store, outcomes_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "_load_verified_welfare_samples",
+      "spelling": "_load_verified_welfare_samples",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 2264,
+      "end_line": 2264,
+      "owner": "_propagate_credible_interval",
+      "expression": "_load_verified_welfare_samples(ctx.store, sample_bundle_ref)",
+      "keywords": []
+    },
+    {
+      "symbol": "_load_welfare_draw_outcomes",
+      "spelling": "_load_welfare_draw_outcomes",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "line": 3211,
+      "end_line": 3211,
+      "owner": "_limited_covariance_outcome",
+      "expression": "_load_welfare_draw_outcomes(ctx.store, draw_outcomes_ref)",
+      "keywords": []
+    }
+  ],
+  "parse_errors": [],
+  "test_wave": {
+    "bundle_test_paths": {
+      "FRC-01": [
+        "policy-engine/tests/unit/remediation/test_frc_01.py"
+      ],
+      "PCL-01": [
+        "policy-engine/tests/unit/calibration/test_continuous.py",
+        "policy-engine/tests/unit/remediation/test_pcl_01.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+      ],
+      "FRC-02": [
+        "policy-engine/tests/unit/remediation/test_frc_02.py"
+      ],
+      "BKT-01": [
+        "policy-engine/tests/unit/remediation/test_bkt_01.py"
+      ],
+      "BKT-02": [
+        "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py"
+      ],
+      "BKT-03": [
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "BKT-04": [
+        "policy-engine/tests/unit/remediation/test_bkt_04.py"
+      ],
+      "CAL-05": [
+        "policy-engine/tests/unit/remediation/test_cal_05.py"
+      ],
+      "CAL-01": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/remediation/test_cal_01.py"
+      ],
+      "CAL-02": [
+        "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "policy-engine/tests/unit/remediation/test_cal_02.py"
+      ],
+      "CAL-03": [
+        "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "policy-engine/tests/unit/remediation/test_cal_03.py"
+      ],
+      "CAL-04": [
+        "policy-engine/tests/unit/remediation/test_cal_04.py"
+      ],
+      "CAL-06": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/remediation/test_cal_06.py"
+      ],
+      "UQS-01": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/remediation/test_uqs_01.py"
+      ],
+      "UQP-01": [
+        "policy-engine/tests/unit/remediation/test_uqp_01.py"
+      ],
+      "UQP-02": [
+        "policy-engine/tests/unit/remediation/test_uqp_02.py"
+      ],
+      "UQP-03": [
+        "policy-engine/tests/unit/remediation/test_uqp_03.py"
+      ],
+      "DOE-01": [
+        "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py"
+      ],
+      "DOE-02": [
+        "policy-engine/tests/unit/remediation/test_doe_02.py"
+      ],
+      "DOE-03": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/remediation/test_doe_03.py"
+      ],
+      "DDM-01": [
+        "policy-engine/tests/unit/remediation/test_ddm_01.py"
+      ],
+      "DDM-02": [
+        "policy-engine/tests/unit/remediation/test_ddm_02.py"
+      ]
+    },
+    "all_path_records": [
+      {
+        "path": "policy-engine/tests/unit/calibration/test_adapters.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "PCL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P040",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P060",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P037",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P048",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P048",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_pcl_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_continuous_persistence.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_pcl_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_curve.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_pcl_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_diagnostics.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_multiclass.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_recalibration.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_audit.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_calibrate.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P137",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_ddm_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/test_delayed_label_replay.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/test_facade.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P116",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P130",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P116",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P105",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P136",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_ddm_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P036",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P056",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P042",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P043",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P043",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P116",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P130",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P108",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F10-P101",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P135",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/test_stationary_replay.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P107",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P125",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P100",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P100",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P125",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ddm/test_synthetic_drift_delay.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P019",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P036",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P027",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P027",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P023",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P058",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md"
+          },
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-06",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md"
+          },
+          {
+            "kind": "original_bundle",
+            "bundle": "UQS-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md"
+          },
+          {
+            "kind": "original_bundle",
+            "bundle": "DOE-03",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P027",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P047",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P036",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P036",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P034",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "CAL-05_explicit_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_cal_05.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P039",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P049",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P033",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md"
+          },
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P044",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-03",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P049",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P034",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P048",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "CAL-05_explicit_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_cal_05.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P034",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P055",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P041",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P042",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P042",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_report.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P028",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P048",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P028",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P037",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P034",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P040",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P061",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P046",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F10-P045",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P049",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P045",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P066",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P042",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P053",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P055",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P028",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P049",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P037",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F10-P033",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P035",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P028",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P034",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_tail_risk.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P123",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P047",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_bkt_01.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_bkt_02.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P056",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P060",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P067",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-03",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P108",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P109",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P125",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_bkt_04.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-04",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P083",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P085",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P097",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P100",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P094",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P118",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-03",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P074",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P066",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P086",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-04",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P073",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P075",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P085",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_05.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-05",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_06.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-06",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P108",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P101",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P126",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_ddm_01.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DDM-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_ddm_02.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DDM-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DOE-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P102",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P095",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P119",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DOE-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P069",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P071",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P082",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_doe_03.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DOE-03",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P074",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P075",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P086",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "FRC-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P095",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "FAILED"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P097",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "FAILED"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P109",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "FAILED"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_02.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "FRC-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P117",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P109",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P136",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P080",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P080",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P091",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P084",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P077",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P097",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P084",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P086",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P098",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_pcl_01.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "PCL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_uqp_01.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "UQP-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P130",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P119",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P152",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "UQP-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P043",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P040",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P053",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "UQP-03",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P131",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P128",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P153",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "UQS-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P086",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P088",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P100",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P021",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P038",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P029",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P028",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P025",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "actual_downstream_consumer_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-02",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P037",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P058",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P044",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P044",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P045",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_bkt_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P072",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P093",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F07-P064",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P075",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F14-P084",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_bkt_04.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "PCL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P087",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P108",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P090",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P086",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P102",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_pcl_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P088",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F05-P109",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P090",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F10-P083",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P101",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_bkt_04.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P113",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P127",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P114",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F11-P103",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P134",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          },
+          {
+            "kind": "proposed_path_native_equivalent",
+            "replaces_proposed": "policy-engine/tests/unit/remediation/test_bkt_01.py"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DOE-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F02-P114",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F04-P099",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P116",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F08-P101",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F12-P094",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F13-P114",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_multi_output.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P114",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_sampling.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F01-P134",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P128",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_stability.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P072",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "affected_native_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "results_cell",
+            "cell_id": "F03-P082",
+            "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F06-P103",
+            "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F09-P083",
+            "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F10-P079",
+            "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+            "state": "PASS"
+          },
+          {
+            "kind": "results_cell",
+            "cell_id": "F15-P095",
+            "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+            "state": "PASS"
+          },
+          {
+            "kind": "actual_downstream_consumer_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          },
+          {
+            "kind": "actual_downstream_consumer_suite"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "fresh_E_changed_test",
+            "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "exists_at_target": true,
+        "sources": [
+          {
+            "kind": "actual_downstream_consumer_suite"
+          }
+        ]
+      }
+    ],
+    "existing_unique_count": 110,
+    "existing_unique_paths": [
+      "policy-engine/tests/unit/calibration/test_adapters.py",
+      "policy-engine/tests/unit/calibration/test_continuous.py",
+      "policy-engine/tests/unit/calibration/test_continuous_persistence.py",
+      "policy-engine/tests/unit/calibration/test_curve.py",
+      "policy-engine/tests/unit/calibration/test_diagnostics.py",
+      "policy-engine/tests/unit/calibration/test_multiclass.py",
+      "policy-engine/tests/unit/calibration/test_recalibration.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_audit.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_calibrate.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+      "policy-engine/tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+      "policy-engine/tests/unit/ddm/test_delayed_label_replay.py",
+      "policy-engine/tests/unit/ddm/test_facade.py",
+      "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+      "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+      "policy-engine/tests/unit/ddm/test_stationary_replay.py",
+      "policy-engine/tests/unit/ddm/test_synthetic_drift_delay.py",
+      "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+      "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+      "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+      "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+      "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+      "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+      "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+      "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+      "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+      "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+      "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+      "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+      "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "policy-engine/tests/unit/foundry/calibration/test_report.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_fabric_quality.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_tail_risk.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+      "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+      "policy-engine/tests/unit/ir/test_uncertainty.py",
+      "policy-engine/tests/unit/remediation/test_bkt_02.py",
+      "policy-engine/tests/unit/remediation/test_bkt_03.py",
+      "policy-engine/tests/unit/remediation/test_cal_01.py",
+      "policy-engine/tests/unit/remediation/test_cal_02.py",
+      "policy-engine/tests/unit/remediation/test_cal_03.py",
+      "policy-engine/tests/unit/remediation/test_cal_04.py",
+      "policy-engine/tests/unit/remediation/test_cal_06.py",
+      "policy-engine/tests/unit/remediation/test_ddm_02.py",
+      "policy-engine/tests/unit/remediation/test_doe_01.py",
+      "policy-engine/tests/unit/remediation/test_doe_02.py",
+      "policy-engine/tests/unit/remediation/test_doe_03.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/remediation/test_frc_02.py",
+      "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+      "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+      "policy-engine/tests/unit/remediation/test_uqp_01.py",
+      "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "policy-engine/tests/unit/remediation/test_uqs_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+      "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_adversarial.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_distributional.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_ipw.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_temporal.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_multi_output.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_sampling.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_stability.py",
+      "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+    ],
+    "missing_paths": [
+      {
+        "path": "policy-engine/tests/unit/remediation/test_bkt_01.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_bkt_04.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "BKT-04",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_05.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "CAL-05",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_ddm_01.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "DDM-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_pcl_01.py",
+        "exists_at_target": false,
+        "sources": [
+          {
+            "kind": "original_bundle",
+            "bundle": "PCL-01",
+            "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md"
+          }
+        ]
+      }
+    ],
+    "routed_cell_count": 175,
+    "routed_unique_path_count": 56,
+    "CAL05_equivalents": [
+      "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+      "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py"
+    ],
+    "proposed_native_equivalents": {
+      "policy-engine/tests/unit/remediation/test_bkt_01.py": [
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py"
+      ],
+      "policy-engine/tests/unit/remediation/test_bkt_04.py": [
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py"
+      ],
+      "policy-engine/tests/unit/remediation/test_ddm_01.py": [
+        "policy-engine/tests/unit/ddm/test_facade.py",
+        "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py"
+      ],
+      "policy-engine/tests/unit/remediation/test_pcl_01.py": [
+        "policy-engine/tests/unit/calibration/test_curve.py",
+        "policy-engine/tests/unit/calibration/test_continuous.py",
+        "policy-engine/tests/unit/calibration/test_continuous_persistence.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+      ]
+    },
+    "pytest_argv": [
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/unit/calibration/test_adapters.py",
+      "tests/unit/calibration/test_continuous.py",
+      "tests/unit/calibration/test_continuous_persistence.py",
+      "tests/unit/calibration/test_curve.py",
+      "tests/unit/calibration/test_diagnostics.py",
+      "tests/unit/calibration/test_multiclass.py",
+      "tests/unit/calibration/test_recalibration.py",
+      "tests/unit/ddm/mirror_contracts/test_audit.py",
+      "tests/unit/ddm/mirror_contracts/test_calibrate.py",
+      "tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+      "tests/unit/ddm/mirror_contracts/test_events.py",
+      "tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+      "tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+      "tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+      "tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+      "tests/unit/ddm/test_delayed_label_replay.py",
+      "tests/unit/ddm/test_facade.py",
+      "tests/unit/ddm/test_full_acceptance.py",
+      "tests/unit/ddm/test_readiness_mapping.py",
+      "tests/unit/ddm/test_stationary_replay.py",
+      "tests/unit/ddm/test_synthetic_drift_delay.py",
+      "tests/unit/foundry/analysis/test_merge_determinism.py",
+      "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+      "tests/unit/foundry/calibration/test_auxiliary.py",
+      "tests/unit/foundry/calibration/test_bijectors.py",
+      "tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+      "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "tests/unit/foundry/calibration/test_calibrator.py",
+      "tests/unit/foundry/calibration/test_calibrator_batch.py",
+      "tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+      "tests/unit/foundry/calibration/test_dp_ci.py",
+      "tests/unit/foundry/calibration/test_fabric_quality.py",
+      "tests/unit/foundry/calibration/test_hessian.py",
+      "tests/unit/foundry/calibration/test_identifiability.py",
+      "tests/unit/foundry/calibration/test_loss.py",
+      "tests/unit/foundry/calibration/test_measurement.py",
+      "tests/unit/foundry/calibration/test_multi_start.py",
+      "tests/unit/foundry/calibration/test_preflight.py",
+      "tests/unit/foundry/calibration/test_pure_executor.py",
+      "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+      "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "tests/unit/foundry/calibration/test_report.py",
+      "tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+      "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+      "tests/unit/foundry/uncertainty/test_covariance.py",
+      "tests/unit/foundry/uncertainty/test_delta.py",
+      "tests/unit/foundry/uncertainty/test_dispatcher.py",
+      "tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+      "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+      "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+      "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "tests/unit/foundry/uncertainty/test_quasi_mc.py",
+      "tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "tests/unit/foundry/uncertainty/test_sensitivity_indices.py",
+      "tests/unit/foundry/uncertainty/test_tail_risk.py",
+      "tests/unit/foundry/uncertainty/test_uncertainty_propagation.py",
+      "tests/unit/foundry/uncertainty/test_uncertainty_protocol.py",
+      "tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+      "tests/unit/ir/test_uncertainty.py",
+      "tests/unit/remediation/test_bkt_02.py",
+      "tests/unit/remediation/test_bkt_03.py",
+      "tests/unit/remediation/test_cal_01.py",
+      "tests/unit/remediation/test_cal_02.py",
+      "tests/unit/remediation/test_cal_03.py",
+      "tests/unit/remediation/test_cal_04.py",
+      "tests/unit/remediation/test_cal_06.py",
+      "tests/unit/remediation/test_ddm_02.py",
+      "tests/unit/remediation/test_doe_01.py",
+      "tests/unit/remediation/test_doe_02.py",
+      "tests/unit/remediation/test_doe_03.py",
+      "tests/unit/remediation/test_frc_01.py",
+      "tests/unit/remediation/test_frc_02.py",
+      "tests/unit/remediation/test_frc_02_bridge.py",
+      "tests/unit/remediation/test_frc_02_owner.py",
+      "tests/unit/remediation/test_frc_02_s10.py",
+      "tests/unit/remediation/test_uqp_01.py",
+      "tests/unit/remediation/test_uqp_02.py",
+      "tests/unit/remediation/test_uqp_03.py",
+      "tests/unit/remediation/test_uqs_01.py",
+      "tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+      "tests/unit/scientist/governance/test_backtest_matrix.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "tests/unit/scientist/methods/backtesting/test_adversarial.py",
+      "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+      "tests/unit/scientist/methods/backtesting/test_cv.py",
+      "tests/unit/scientist/methods/backtesting/test_distributional.py",
+      "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "tests/unit/scientist/methods/backtesting/test_ipw.py",
+      "tests/unit/scientist/methods/backtesting/test_masking.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+      "tests/unit/scientist/methods/backtesting/test_temporal.py",
+      "tests/unit/scientist/methods/doe/test_adaptive.py",
+      "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+      "tests/unit/scientist/methods/doe/test_multi_output.py",
+      "tests/unit/scientist/methods/doe/test_sampling.py",
+      "tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+      "tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+      "tests/unit/scientist/methods/doe/test_stability.py",
+      "tests/unit/scientist/methods/doe/test_uncertainty.py",
+      "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+      "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+      "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+    ],
+    "cwd": "policy-engine"
+  },
+  "baseline_states_are_navigation_only": true,
+  "read_only": true
+}

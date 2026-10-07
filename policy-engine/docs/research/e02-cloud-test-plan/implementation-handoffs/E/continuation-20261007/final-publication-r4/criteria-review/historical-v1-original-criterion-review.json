@@ -1,0 +1,1619 @@
+{
+  "schema": "policyos.e02.independent_original_criterion_decision_review.v1",
+  "reviewer": "oracle_r4 independent from criteria_r4 author and product writers",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "reviewed_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+    "bytes": 305737,
+    "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+  },
+  "scope": "All54 original-source linkage, individual owner-proposal scope and existing defining evidence reuse; no source/test/numerical/global check execution.",
+  "complete_denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "links": 55
+  },
+  "preserved_historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "reviewed_E_proposals": {
+    "limited": 9,
+    "closed": 43,
+    "held": 2
+  },
+  "formal_ledger_change": false,
+  "disposition": "CHANGE_REQUIRED for stale B199/B200 chain metadata; GO bounded owner proposals after that documentation correction",
+  "change_required": [
+    {
+      "ids": [
+        "B199",
+        "B200"
+      ],
+      "field": "producer_artifact_bridge_consumer_surface",
+      "reason": "The current rows still assert a future distinctEnvelopev2 exact-law producer awaiting semantic ratification/C-F appointment. Scopeda0/cda/700 actually ratified compatibleEnvelopev1.1 plus a distinctmetadata profile; existingB199 aggregator is independent, B200 lacks content-bound information-unit relationship producer.",
+      "smallest_fix": "State existingv1.1 aggregator/provenance path, preserveB199 interval type/level outcome; bindB200 remaining information-unit relationships to its real producer. Do not appointC/F or reopenB201/B202 semantics."
+    }
+  ],
+  "new_original_scope_dispositions": [
+    {
+      "id": "B193",
+      "proposal": "closed",
+      "review": "GO bounded approved IID[0,1] mean/frozen-N and complete-net RQMC estimator-error mechanism.",
+      "original_scope": "Chosen estimator error and truthful stopping/batch behavior, not per-draw missing support or arbitrary served-law authority.",
+      "positive": "Configured native bounded indicator; independent256pilot excluded; fixedN408; actual nativeCAS fresh verifier; incompatible batch sizes same mainrows.",
+      "negative": "Opaque callback cannot selfcertify; below664pilot+main budget refuses; CASvalid samepilot/main stream and corrupted estimator fields refuse; publicverify property removal preservedsymbol exposesforgedpublication.",
+      "reuse": "Exact legacy fixed-N algorithms AST-identical froma9; current700affected10selectors and root64dactualMC receipt separate.",
+      "remaining": "Unrequested quantile/CDF/anytime methods and unknownservedlaw applications are not certified; separateB194held remains."
+    },
+    {
+      "id": "B201",
+      "proposal": "closed",
+      "review": "GO bounded originalrepresentation; explicit compatiblemedian projection is directly allowed originalcard.",
+      "positive": "100draws99zeros+100 produce mean1, explicitlymedian0, q05/q95[0,0]; nativev1.1CAS decoder, publicprofile reader, actualE nominalmean consumer.",
+      "negative": "Symmetric/bounded/weighted real controls plus rawbool/string/nonfinite/invalidmass/CDFcollapse/function/contextforgery beforecallback; genuineNEWprofile-marker removal refused; oldgenericlabels replayunchanged.",
+      "authority": "Scientificposteriorquality/sourcefit/noise or institutional authority not established; gatefalse.",
+      "surface": "Canonicalgenerated/publicinventory companion remains surface_missing but does not negate native originalrepresentation criterion. No broadpublic-releaseGO inferred."
+    },
+    {
+      "id": "B202",
+      "proposal": "closed",
+      "review": "GO bounded exact supplied corpus linkage; independent fromB201displaypoint andB192consumer sampling.",
+      "positive": "Actualposteriorproducer attaches existingexact inlinecarrier plus configuredCASref; freshread distinguishes identicalsummaries/differentatoms and +1/-1pairing; current700fullgroup/node+sampler controls preservejointrows/order/weights/context.",
+      "negative": "Consistentfakejointdigest, singlecoordorder/rowids/staledigest, incompleteprojection, rawcarrier coercion and metadata-marker removal refuse beforeactualnominal/evaluator; effective intake removal restoresunsafeacceptance.",
+      "authority": "No marginalmoments reconstructlaw; C/F sourcecensus records adjacentoldtransportreaders, no inventednewconsumerappointments.",
+      "surface": "Generatedcompanion available ownerpacket; no unknownproductionhistory blankethold for finitesuppliedcorpus."
+    }
+  ],
+  "neighbor_separation": [
+    "B99 allow_large_run/pre-evaluator block criterion is separate from discoveredMorrisactual-analysis-work admission; the latter corrected5840andnowcurrentASTidentical.",
+    "B100 sampler/analyzer distribution/support/quantile/truncation/fingerprint roundtrip is independent of D additionaldefaultSearchanalysis_ref/codec/reopen/ranking.",
+    "B193 estimatorerror is independent of B194conditionalfailedsupport.",
+    "B201 namedpoint/interval representation is independent of B202 exactlawretention and B200informationunitrelationships.",
+    "B172/B173 diagnostics/backendtruth do not proveequivalence/neutrality; specificprofile/margin remains ownerinputperuser."
+  ],
+  "remaining_owner_queue": [
+    {
+      "id": "B32",
+      "outcome": "limited",
+      "owner": "A",
+      "minimal_inputs": "E admitted ForecastOwnerRequest/profile/source schema/unit/split/horizon/six-time-role refs and separate candidate/evidence refs in the same CAS; then A independent default/HTTP verifier.",
+      "next_verifiable_result": "Actual ETS -> persisted receipt/evidence -> A resolver recomputation -> fresh persisted grade/S6/default/HTTP decision. Missing-ref reason differs from resolved floor failure; unresolved fake mapping refuses. E packet is an implementation dependency, not missing production data."
+    },
+    {
+      "id": "B172",
+      "outcome": "limited",
+      "owner": "Scientist accountable trust-purpose/profile owner",
+      "minimal_inputs": "Versioned trust-grade purpose/profile; criterion-supported meaningful-bias margin/equivalence sampling/interval assumptions only where positive neutrality is requested.",
+      "next_verifiable_result": "Constant nonzero residual retains descriptive magnitude and unavailable inference cannot grant trust. Existing current diagnostics pass; owner-approved positive profile and equivalence case required before any neutrality/GradeA authority."
+    },
+    {
+      "id": "B173",
+      "outcome": "limited",
+      "owner": "Scientist accountable trust-purpose/profile owner",
+      "minimal_inputs": "Same versioned trust-purpose/profile; runtime backend identity and declared inference/equivalence use.",
+      "next_verifiable_result": "Current df2 analytic t oracle agrees p=1 and p=.12168993434632014; missing SciPy degrades honestly. Preserve partial/limited explicitly per user until profile input; never convert non-significance to equivalence."
+    },
+    {
+      "id": "B190",
+      "outcome": "limited",
+      "owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "minimal_inputs": "Existing actual configured model/evaluator or source-bound Jacobian; input-output axis/unit mapping and immutable model/objective/source refs, or explicitly declared affine response with content-bound provenance/units.",
+      "next_verifiable_result": "Real response or admitted Jacobian -> existing persisted response/sensitivity artifact -> configured Node propagation -> fresh read. Zero-baseline y=x-2 retains variance; partial/unresolved/fake or wrong-unit map cannot gain authority. Current params-only map is not that producer."
+    },
+    {
+      "id": "B194",
+      "outcome": "held",
+      "owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "minimal_inputs": "Owner-admitted exact served evaluator/model/config/source/joint-law/output/domain refs in configured CAS; same-input transient retry classification only if that profile requests retries.",
+      "next_verifiable_result": "Existing dispatcher -> every addressed terminal draw outcome -> persisted report/envelope -> fresh served consumer. Requested=success+failure/refusal; success-only conditional mean remains labeled/refused for unconditional authority. Native Welfare128=92+36 is an established generic sibling, not missing served input."
+    },
+    {
+      "id": "B197",
+      "outcome": "held",
+      "owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "minimal_inputs": "Actual CalibratorInputs/model/objective/source-target time/unit/split join, declared likelihood/noise/fit assumptions, trainable field/tie coordinate mapping and configured CAS/report refs.",
+      "next_verifiable_result": "Real configured fit -> strict Foundry CalibrationReportv2 -> fresh existing Node/Welfare consumer. Recompute J/axis/cross-covariance/nullspace and reject wrong/Funnel kind/schema/config/objective. Generic known-noise fixture is technical positive only; factual source-fit authority remains held."
+    },
+    {
+      "id": "B200",
+      "outcome": "limited",
+      "owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "minimal_inputs": "Content-bound information-unit relationship artifact: source identities, same/different measurement/replicate, shared data/covariance, prior/likelihood/posterior lineage, same estimand/unit.",
+      "next_verifiable_result": "Producer relationships -> CAS -> fresh aggregator: four copies remain std1; independently admitted measurements can narrow under their declared joint law. Equal values or origin strings alone cannot establish independence."
+    },
+    {
+      "id": "LA-051",
+      "outcome": "limited",
+      "owner": "A with E ForecastOwner supplier",
+      "minimal_inputs": "Same configured CAS ForecastOwner positive/negative packet and profile/purpose/source/rule/time refs; same estimator shape with different actual holdout outcomes.",
+      "next_verifiable_result": "A source-resolved measured numerator/denominator and all bound field/time predicates changes the fresh default/HTTP result; nominal confidence alone cannot become observed calibration. Terminal causal/treatment/policy refusal remains."
+    },
+    {
+      "id": "LA-053",
+      "outcome": "limited",
+      "owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "minimal_inputs": "Tracked actual compatibility support window/API classification; current canonical/root/alias identity and migrated native numerical consumer corpus.",
+      "next_verifiable_result": "Owner-approved compatibility window and existing public inventory identify whether retirement is due. Until that decision retain alias; actual object/exception/native-corpus parity already passes. Do not invent arbitrary sunset or remove supported alias."
+    },
+    {
+      "id": "LA-054",
+      "outcome": "limited",
+      "owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "minimal_inputs": "Exact current source report/model/detector/regime/metric/window/rule/expiry refs, complete observed invalidation feed and freshness policy; target consumer identity.",
+      "next_verifiable_result": "Current source -> distinctv2 registry -> fresh source rebind/public deployment consumer. Missing/delayed/incomplete feed, wrong subject/metric/regime, expiry and trigger retain typed refusal; historical calibration pass cannot substitute current validity."
+    },
+    {
+      "id": "LA-055",
+      "outcome": "limited",
+      "owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "minimal_inputs": "Actual observed complete current window plus source validity and independently identity-bound R2/purpose input where R2 override is exercised; explicit baseline/veto precedence.",
+      "next_verifiable_result": "Fresh persisted restriction stays veto; valid R2 issuer can exercise only admitted R2 exception; R0/R1/failed certificate and R4/R3 persisted veto cannot be overridden. Boolean signoff or synthetic [] proves only library branch, not institution/deployment authority."
+    }
+  ],
+  "unchanged_bounded_proposals": [
+    "B97",
+    "B98",
+    "B99",
+    "B100",
+    "B101",
+    "B102",
+    "B103",
+    "B104",
+    "B105",
+    "B166",
+    "B167",
+    "B168",
+    "B169",
+    "B170",
+    "B171",
+    "B174",
+    "B175",
+    "B176",
+    "B177",
+    "B178",
+    "B179",
+    "B180",
+    "B181",
+    "B182",
+    "B183",
+    "B184",
+    "B185",
+    "B186",
+    "B187",
+    "B188",
+    "B189",
+    "B191",
+    "B192",
+    "B195",
+    "B196",
+    "B198",
+    "B199",
+    "B203",
+    "LA-052",
+    "LA-056"
+  ],
+  "reuse_rule": "These40 rows (39newbounded andretainedB198) keep exact per-ID originalsource/positive/negative references. Reused historical observations remain historical. Current125-nativecase receipt is additional regression evidence, not closure by1541PASS.",
+  "original_criterion_link_audit": [
+    {
+      "id": "B32",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            607,
+            620
+          ],
+          "bytes": 2317,
+          "sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B97",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2630,
+            2641
+          ],
+          "bytes": 3466,
+          "sha256": "44f1e5ec026a302fe6c36444270e4b12b67cb0fe8b28b935961b1bbb0a50478b"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B98",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2642,
+            2653
+          ],
+          "bytes": 3207,
+          "sha256": "ba66b01fed8fd36fcab549cbfa051f1486779a24a0bb52594410c6246baaa995"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B99",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2654,
+            2665
+          ],
+          "bytes": 3259,
+          "sha256": "2dc54f2af8b706598329291977e522e77fe552dc9088092685dc95819d84f921"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B100",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2666,
+            2677
+          ],
+          "bytes": 3113,
+          "sha256": "34825cfe459b3861a6461797f12e9e1983399355660131e224359e5d9984fd67"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B101",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2678,
+            2689
+          ],
+          "bytes": 3191,
+          "sha256": "1245f7e21214f8264fc2921296954e64869c1758685cccde09eebef16fda2c66"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B102",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2690,
+            2701
+          ],
+          "bytes": 3340,
+          "sha256": "4f7c1e54bd69c1bc75c22837fcbd9b7e771def59e0db46df8e566640b37a5879"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B103",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2702,
+            2713
+          ],
+          "bytes": 3169,
+          "sha256": "54bce3d469a69faac32d8234957b6df186fff8eae664ee2f370b3c69c6e383e3"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B104",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2714,
+            2725
+          ],
+          "bytes": 2866,
+          "sha256": "104a9e979d5aab702f6f437382d2a3bda2e803eeaa9eb440f948cff74504e438"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B105",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2726,
+            2737
+          ],
+          "bytes": 3326,
+          "sha256": "07915c57716c654cac474a7302eeca0bd7b73219cfe00eeb9a4449e83084b343"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B166",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4316,
+            4327
+          ],
+          "bytes": 4119,
+          "sha256": "fca923e26ad0c81b5a1097f0c5b09b3a85434faf70826001b2e5d6c676e8a541"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B167",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4328,
+            4339
+          ],
+          "bytes": 3651,
+          "sha256": "986a6c0ed5231ea1c7722e750d6ebe11766ef43727f884ddfdc50f3cdaa622e5"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B168",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4340,
+            4351
+          ],
+          "bytes": 3578,
+          "sha256": "730ba6f2005332f11155a09f9c6267abec7833456d85b70dc944dccebd55cfb3"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B169",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4352,
+            4363
+          ],
+          "bytes": 3419,
+          "sha256": "8f7c03d7a40a2faa62a4b0c4bc41b43510c9f5c35941ca50ec1fb8dc88fae26b"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B170",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4364,
+            4375
+          ],
+          "bytes": 3038,
+          "sha256": "ebd468778c34a525226f1631f17dbb9eb3e040a6c9a5d96d038620576528181a"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B171",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4376,
+            4387
+          ],
+          "bytes": 3027,
+          "sha256": "e8224b95baa6a52045bc0a4dca7c1241e86570a02a061d18e6e622b6ea434dad"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B172",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4388,
+            4399
+          ],
+          "bytes": 3064,
+          "sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B173",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4400,
+            4411
+          ],
+          "bytes": 3446,
+          "sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B174",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4412,
+            4425
+          ],
+          "bytes": 3545,
+          "sha256": "a82f29a9dea77a5de495b6e71780394b8f5aa1df167e13ff717a079fac534664"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B175",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4426,
+            4437
+          ],
+          "bytes": 3287,
+          "sha256": "19a660b8a49a7076ae9973dca81480423bf53f26cd954cd69967bbc12131bfe4"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B176",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4525,
+            4534
+          ],
+          "bytes": 3848,
+          "sha256": "96268eb1d68c65e1c1e45e9264d75166c955a5474900b6c4f6639a857dab246a"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B177",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4535,
+            4544
+          ],
+          "bytes": 3168,
+          "sha256": "da1d53d7bc4a80d64aa3799fd371ccbd8ccbdfd1217c636d7f722a1de5a203b9"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B178",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4545,
+            4554
+          ],
+          "bytes": 3090,
+          "sha256": "f47d17cc309c8f24d13326f20a1dc74e6e4fb92adb59f111b40e6918e7a745f9"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B179",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4555,
+            4564
+          ],
+          "bytes": 3037,
+          "sha256": "76883f0cc8436c9b0266ddc6ae870564a46bc98a036bc88b7e89dfda922f1508"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B180",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4565,
+            4574
+          ],
+          "bytes": 3245,
+          "sha256": "a5f7bb210e914b99904a1f5fec819651cb2c5db4174c44d856af48ed6471c421"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B181",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4575,
+            4584
+          ],
+          "bytes": 3107,
+          "sha256": "0a790655318188a0d9ca96c0e73c28e3ffdb17859f42a911e35784b021f85552"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B182",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4585,
+            4594
+          ],
+          "bytes": 3159,
+          "sha256": "672d5e7ad45cad5f78609268028702f80d4802c59b1dc17487622e4da9d6f07d"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B183",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4595,
+            4604
+          ],
+          "bytes": 3146,
+          "sha256": "036471c121686d6b68a603fde76ce9c015a1a374d090d47465b79abcbbc00c44"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B184",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4605,
+            4614
+          ],
+          "bytes": 3204,
+          "sha256": "0fc68424f39da383b748d9c3b20446065ef16c39173fa8875b0a5b4852843a00"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B185",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4702,
+            4711
+          ],
+          "bytes": 3331,
+          "sha256": "784336950cf2e3f1d11e577a321235819c6660d9a8218210ec05620e492988bc"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B186",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4712,
+            4721
+          ],
+          "bytes": 3001,
+          "sha256": "9278fafc393d83f73e09a50cb1d74308961a627d63a775905c103e831bb8e6ea"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B187",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4722,
+            4731
+          ],
+          "bytes": 3194,
+          "sha256": "2b4d8ebdce33646e0610e74f827232b75cd324432972a7957ab5896c2765275b"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B188",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4732,
+            4741
+          ],
+          "bytes": 3195,
+          "sha256": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B189",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4742,
+            4751
+          ],
+          "bytes": 2723,
+          "sha256": "d4807669b03d45438519948f53992d9b71fd88351e4df7dbf91230791d002c6a"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B190",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4752,
+            4761
+          ],
+          "bytes": 3211,
+          "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B191",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4762,
+            4771
+          ],
+          "bytes": 2720,
+          "sha256": "91e46d98b7af41ab8bda1facccae166d7348da11389426af576e2d48293769cd"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B192",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4772,
+            4781
+          ],
+          "bytes": 3024,
+          "sha256": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B193",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4782,
+            4791
+          ],
+          "bytes": 3628,
+          "sha256": "ad591257998b80b71a8a6337f202dce1dad9e02c934525527c310d8e336022bf"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B194",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4792,
+            4801
+          ],
+          "bytes": 3653,
+          "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B195",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4894,
+            4907
+          ],
+          "bytes": 4137,
+          "sha256": "69b56d13bbee8d87f83987b09b991e08cf33eff2204302a3b938acef363de747"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B196",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4908,
+            4921
+          ],
+          "bytes": 3978,
+          "sha256": "e10dd58806c1c009f96344f117d7f7ecbb5f962191b966756a001fd388705fde"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B197",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4922,
+            4935
+          ],
+          "bytes": 3558,
+          "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B198",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4936,
+            4949
+          ],
+          "bytes": 3378,
+          "sha256": "2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B199",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4950,
+            4963
+          ],
+          "bytes": 3389,
+          "sha256": "ef72002be021501dcd6755c48233dc54679f66a89fd8e363e08f5b506b018952"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B200",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4964,
+            4977
+          ],
+          "bytes": 3959,
+          "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B201",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4978,
+            4991
+          ],
+          "bytes": 3633,
+          "sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B202",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            4992,
+            5005
+          ],
+          "bytes": 3727,
+          "sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "B203",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            5006,
+            5017
+          ],
+          "bytes": 3496,
+          "sha256": "d40176b9dfa62d140dc28251f63b63be54771ac3b145dd75ceaa4e51a63761ad"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "LA-051",
+      "links": 2,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3712,
+            3746
+          ],
+          "bytes": 10167,
+          "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616"
+        },
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3712,
+            3746
+          ],
+          "bytes": 10167,
+          "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "LA-052",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3747,
+            3792
+          ],
+          "bytes": 9710,
+          "sha256": "846f644e4daca7f4a4828a626a08dbf8e659d06028fc902b85878a690b3ac801"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "LA-053",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3793,
+            3815
+          ],
+          "bytes": 5750,
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "LA-054",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            4053,
+            4107
+          ],
+          "bytes": 12888,
+          "sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "LA-055",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            4108,
+            4140
+          ],
+          "bytes": 9932,
+          "sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f"
+        }
+      ],
+      "card_unchanged": true
+    },
+    {
+      "id": "LA-056",
+      "links": 1,
+      "fragments": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            4141,
+            4171
+          ],
+          "bytes": 8203,
+          "sha256": "bde6e712dfd4323ae0dc44fc5f89fa5f38551babd77da22e9317b806344d0481"
+        }
+      ],
+      "card_unchanged": true
+    }
+  ],
+  "explicit_hash_references_checked": [
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 551054,
+      "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md",
+      "bytes": 16141,
+      "sha256": "c76f38ce7aca6293c316ce907f94ca3fd4d4116d61dc30aac914aebb7177d82b"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md",
+      "bytes": 18633,
+      "sha256": "2cc34165f61681fcb2f1023dbdbfcfa106f6cf8820ad7320028d87b891e8aa7e"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md",
+      "bytes": 11599,
+      "sha256": "43aa433c3d5eac777cd0faa5ed1b3750c52736722b34b9126b7295a55a930927"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md",
+      "bytes": 11670,
+      "sha256": "86af1ed996f8559cafb44bcf23b0c788d23fc7dabf9b67e3fe0bf55b43b3aa7b"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md",
+      "bytes": 16603,
+      "sha256": "9d3822691086ba6ffa1197eb372cd4cc4eeadc05c7573097f85fa7edceec8a2c"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md",
+      "bytes": 18194,
+      "sha256": "0fbe3f83c4133db4bdaed0dc8e3b58c375e7fdbb18c16c0c7a35c49b77c241d4"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md",
+      "bytes": 12435,
+      "sha256": "acd14aa7268335498e80c80de546ba45818b73ff8ab6270edb30337338852bee"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md",
+      "bytes": 16147,
+      "sha256": "ff37afe78ab90e8963660412e38bc92b8094f2bc90532500be115fdf34877c37"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md",
+      "bytes": 8483,
+      "sha256": "da87f868baf7c76653f12519ab36da5510703e2b07b4377043ff96865941278f"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md",
+      "bytes": 12126,
+      "sha256": "b4f37731da45d3605f24e81c3763dddc0d351d0fcffdca91b38bf0c5e1ba5a12"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md",
+      "bytes": 20646,
+      "sha256": "0578a277129749948d051f331b92fe3e8670e321ae4c93cc212e7ab199c17a33"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md",
+      "bytes": 35954,
+      "sha256": "02fc4f7f19d1e668b35edf2d4ef547cc85c4ae1c4411e3e4182a9f2aaa48db98"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "bytes": 15045,
+      "sha256": "50f7d9acd0a0b44c97c9899d6ff29fc921ed2d8f6a1ba4a9bc33ffbce144dc78"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+      "bytes": 11143,
+      "sha256": "363b590d944a8a9cc1bb076de15c784d2824ea1c57aa9a9b5a533474b1d1ad50"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md",
+      "bytes": 18100,
+      "sha256": "1761291fa68845ee9281161466d1fbea9a448ad093e591869fc2712d32d6eb0c"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+      "bytes": 20737,
+      "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+      "bytes": 19111,
+      "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md",
+      "bytes": 25021,
+      "sha256": "3d36d370ac353f97551d1df132fded4671812a4c37af9368d35644a0c89ff7b7"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md",
+      "bytes": 17548,
+      "sha256": "58c62ceb3fe995a42f495536403fe569dfb25bddca12d6ef6d507fd8b87596e9"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md",
+      "bytes": 14877,
+      "sha256": "7ae1f146ad90056b33cd0532da4104103cbd5a60ff47d7eff7d313c2a6739adf"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md",
+      "bytes": 12480,
+      "sha256": "73e8a48332fd1b21a89348b92fc3c0ad62fc843588290853a64a4cef4f539811"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "bytes": 20683,
+      "sha256": "14c375c5bfcb8175abd51fe7ff71c54016e2801282fcd4bda73af753365f5a14"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/individual-dispositions.json",
+      "bytes": 85823,
+      "sha256": "816e1dacd1d77c40b067f779691e8e7bef5fab95faa3a0459c15aaad389d497f"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-independent-original-disposition.json",
+      "bytes": 37973,
+      "sha256": "2384db375b90ed7dcd3ab6e88fefccd0f2cffbeacfe93e1356d178df0019abf5"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-final-affected-verification-700f9d5a.json",
+      "bytes": 4167,
+      "sha256": "9cbf49f50b7c0fec2a3fbf4a55ed7b08d69ed643bd6f1cc0af9263336ac9b4d2"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B201-B202-independent-original-dispositions-700f9d5a.json",
+      "bytes": 30900,
+      "sha256": "686ab5877a8f2147ab94388ae8cb5596c02f9cf9a4c5aedda62d54353c7b19f9"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/source-freeze-64d7444a.json",
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2"
+    },
+    {
+      "revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "bytes": 1599060,
+      "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/doe-independent-review-5840d477.json",
+      "bytes": 6632,
+      "sha256": "18eedd7fefd1da0702b3203cd0232256acfb0da12f2805a2900a0bd650886b31"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-composed-imports-morris/receipt.json",
+      "bytes": 1365,
+      "sha256": "b9d5d82b6fcbe087e95966e25b78447af644a5e1b2b4830f507e6c3ff32624d5"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/final-independent-review.json",
+      "bytes": 35520,
+      "sha256": "71fb6518a31061a7871af7bd8dafdd0fbf379cb865173398b3164c281c1eb46b"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/independent-review-700f9d5a.json",
+      "bytes": 22450,
+      "sha256": "1d76a62ffd20593ddd2f5d4c1a2fcb03f490bbf2a0eb6505dc687148e9ebc14e"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/generator-packet.json",
+      "bytes": 6750,
+      "sha256": "e81fdcff4b6e4bf9c70a775d0821d6be4719ce74ac1e1b5617d3f8ae3eea3289"
+    },
+    {
+      "revision": null,
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch",
+      "bytes": 27313,
+      "sha256": "3838278b4419d3d17053282e0a3f5c248ef100b6b2c3b41c34d032b499dc0580"
+    }
+  ],
+  "source_dependency_brackets": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 1712,
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 16300,
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 17116,
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 5742,
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 23932,
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 7397,
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 49444,
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 27404,
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 9674,
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 15782,
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 15822,
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "reviewed_sha": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 16962,
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "symbol": "_admit_sensitivity_plan",
+      "reviewed_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "2d1ed6c552eeac81873e4a26d4cbc1e0cacefedce2b55f5c521d53c9f7412e43"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "symbol": "_prepare_analysis_inputs",
+      "reviewed_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "cd714591c199dce8e89c9401f7b72c6bf47820665e82b794cf0fa369b406f91d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "symbol": "_analysis_identity",
+      "reviewed_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "a3b7a4bf62f34d79bc90fdb568ff7eb2089e89ba5b07b1d17035b5e59d652437"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "symbol": "_validate_morris_plan_samples",
+      "reviewed_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "3961891dd0502705695f7657d46bdfa1c3e2cc0be36a4900eae6c08f0010c6e2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "symbol": "RankingStabilityChecker",
+      "reviewed_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "50bbb053fd507069d45613e1311388fe091a53459a169f296d2c4c83972fb109"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 12881,
+      "sha256": "03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 70840,
+      "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 1710,
+      "sha256": "1ceae2547477a8a49739d4e74f86354d08a18ad8b852fb06db68801adbf2843a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "byte_identical": true,
+      "bytes": 1566,
+      "sha256": "0c85e8343ab2695ad9337713c38cb1749cb77f65500611bec1beb70e11523c83"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "BoundedIIDMeanPlan",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "c7d8a2a275b6d9c87196b8488df35e832948e02c8a7589ee47afd8886692a194"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "BoundedIIDMeanCertificate",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "6bf51cf7d2b4022a099027abd24bb7a484d8d6b54512e60f5399918dc0f09285"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "BoundedIndicatorResponse",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "77d5aa974da82d68881f46ef019bc46ed3b09f6072ff54efe35ac97231aec44c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "_admit_indicator_recipe",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "592bd5e756455389b36d3fa019c3df08d8d6f8380fbc41ee8c92098062360eba"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "admit_bounded_mean_response",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "7bf776b842cf0357dc4e317a6af262418ea075743d5fb10813a75a5477ec14da"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "frozen_bernstein_budget",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "32e89c450abe71fafc032a567c641de64ec9480caa6ee654cac4d509b6c597a0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "symbol": "verify_mean_certificate",
+      "reviewed_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "current_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "AST_identical": true,
+      "AST_sha256": "245482fafb43520d8def52a6a0eeccecdc06e9cab8fa58c3b187060c3f17e0f0"
+    }
+  ],
+  "decision_packet_negative_controls": [
+    {
+      "mutation": "full54_count",
+      "outcome": "REFUSED",
+      "reason": "full54 owner IDs"
+    },
+    {
+      "mutation": "historical_held",
+      "outcome": "REFUSED",
+      "reason": "historical ledger"
+    },
+    {
+      "mutation": "proposed_count",
+      "outcome": "REFUSED",
+      "reason": "proposal count"
+    },
+    {
+      "mutation": "wrong_B193_original_refs",
+      "outcome": "REFUSED",
+      "reason": "original criterion linkage B193"
+    },
+    {
+      "mutation": "wrong_B201_property",
+      "outcome": "REFUSED",
+      "reason": "original property scope B201"
+    },
+    {
+      "mutation": "no_B194_next_inputs",
+      "outcome": "REFUSED",
+      "reason": "remaining next result B194"
+    },
+    {
+      "mutation": "formal_ledger_change",
+      "outcome": "REFUSED",
+      "reason": "no formal ledger mutation"
+    },
+    {
+      "mutation": "wrong_B100_bundle",
+      "outcome": "REFUSED",
+      "reason": "original bundle ownership B100"
+    },
+    {
+      "mutation": "wrong_frozen_tree",
+      "outcome": "REFUSED",
+      "reason": "exact frozen source/tree"
+    }
+  ],
+  "positive_negative_interpretation": "The9 controls above establish decision/citation metadata integrity only; defining runtime removal/adversarial receipts are reused by exact refs, not replaced by this validator.",
+  "limits": [
+    "No formalGledger/codeintake or publicrelease acceptance inferred.",
+    "Prewavefrozen_wave UNRUN/emptybindings remain historicalinputstate; finaljoin must use exact completed independentcase receipt.",
+    "OriginalCAL−9 plus distinct324retry and eightA failures remain as observed, not rewritten.",
+    "Requiredglobal/successor receipts remain independent fromfindingoutcome; no UNRUN meansPASS.",
+    "WorkspaceoverlayENOSPC observed; boundedreview receipts written toexisting/tmpfs scratch, no production/code deletion or environment creation."
+  ]
+}

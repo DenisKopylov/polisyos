@@ -1,0 +1,251 @@
+{
+  "schema": "policyos.e02.pr_draft_factual_review.v1",
+  "reviewer": "doe_r4",
+  "verdict": {
+    "PR38_current_draft": "GO",
+    "PR44_current_draft": "GO"
+  },
+  "scope": "Read-only current draft facts and receipt custody; no own math/source acceptance review, native test/gate repetition, environment import or mutation, fetch, remote publication or ROOT write.",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "current_case_retally": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_counts": {
+    "cases": 1458,
+    "passed": 1457,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "A_packet_counts": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "parent_wrapper_outcomes": {
+    "workspace_verify": {
+      "exit_code": 1,
+      "actual_stage_counts": {
+        "PASS": 1,
+        "FAIL": 1,
+        "UNRUN": 13
+      },
+      "meaning": "Canonical wrapper outcomes only; UNRUN does not establish universal unavailability or PASS of constituent selectors."
+    },
+    "ci_parity": {
+      "exit_code": 1,
+      "actual_stage_counts": {
+        "FAIL": 1,
+        "UNRUN": 23
+      },
+      "meaning": "Canonical wrapper outcomes only; UNRUN does not establish universal unavailability or PASS of constituent selectors."
+    }
+  },
+  "global_outcomes": [
+    {
+      "name": "architecture",
+      "outcome": "FAIL",
+      "exit_code": 1
+    },
+    {
+      "name": "runtime-api-contract",
+      "outcome": "FAIL",
+      "exit_code": 1
+    },
+    {
+      "name": "static-invocation",
+      "outcome": "FAIL",
+      "exit_code": 1
+    },
+    {
+      "name": "ruff",
+      "outcome": "FAIL"
+    },
+    {
+      "name": "ruff-format",
+      "outcome": "FAIL"
+    },
+    {
+      "name": "workspace-verify",
+      "outcome": "FAIL"
+    },
+    {
+      "name": "ci-parity",
+      "outcome": "FAIL"
+    }
+  ],
+  "lint": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "complete_python_input_count": 378,
+    "factual_writer_counts": {
+      "A": 2,
+      "B": 13,
+      "E": 349,
+      "G": 12,
+      "F": 2
+    },
+    "ruff_exit_code": 1,
+    "format_exit_code": 1,
+    "diagnostic_count": 292,
+    "diagnostic_path_count": 14,
+    "format_path_count": 14,
+    "diagnostics_by_factual_writer": {
+      "A": 1,
+      "B": 35,
+      "G": 256
+    },
+    "E_diagnostic_count": 0,
+    "E_format_path_count": 0,
+    "source_config_environment_immutable": true,
+    "global_pass": false,
+    "P41": "not_established"
+  },
+  "projection": {
+    "current_runtime_schemas": 573,
+    "current_confidence_dependencies": 1495,
+    "committed_dependency_count": 1489,
+    "PR44_source_qualified_historical_projection": 1494,
+    "historical_projection_is_not_current_gate_PASS": true
+  },
+  "static": {
+    "regressions": 24,
+    "new_unresolved": 95,
+    "current_inputs": 5942,
+    "base_inputs": 5904,
+    "changed_records": 119,
+    "runtime_invocation_established": false
+  },
+  "imports": {
+    "original12": {
+      "repaired_supported_route": 11,
+      "owner_export_pending": 1
+    },
+    "current_new_private_E_edges": 2,
+    "three_owner_packets": "Remaining original ForecastBridge loader plus NEW NativeReplay state API; PRE-existing nominal CanonSpec is a separate denominator. No public lease or owner acceptance inferred."
+  },
+  "ledger": {
+    "historical": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "bounded_E_proposals": {
+      "limited": 9,
+      "closed": 43,
+      "held": 2
+    },
+    "formal_G_acceptance": false,
+    "finding_outcome_from_PASS_counts": false
+  },
+  "concrete_correction": {
+    "historical_first_read": "PR38 said fail-fast successors remain unavailable until prerequisites repaired.",
+    "issue": "Canonical UNRUN is not universal constituent unavailability.",
+    "current_resolution": "Parent's current draft now explicitly distinguishes canonical fail-fast UNRUN from source/environment-qualified constituent outcomes.",
+    "new_source_or_check_needed": false
+  },
+  "factual_receipt_negative_controls": [
+    {
+      "case": "false_pass_retally",
+      "outcome": "refused",
+      "reason": "claimed cases differ from literal case index"
+    },
+    {
+      "case": "future_source_rebranding",
+      "outcome": "refused",
+      "reason": "wrong current source/tree"
+    },
+    {
+      "case": "foreign_source_tree",
+      "outcome": "refused",
+      "reason": "wrong current source/tree"
+    }
+  ],
+  "observer_history": "One ad-hoc inspection initially attempted set() on schema-valued dependency descriptors and raised TypeError unhashable dict. No product/check failure claim was made; current observer admits only exact integer payload counts.",
+  "publication_boundary": "Drafts were unpublished during this review. Final DOC descendant identity/review must be appended after actual publication; no future SHA invented. GO does not approve global gates, owner findings, source semantics or G integration.",
+  "inputs": [
+    {
+      "path": "/tmp/e02-E-root-final-publication-coordination-20261007/pr38-draft-body.md",
+      "bytes": 6718,
+      "sha256": "07218a33c2c2dd76c84cddb7973afe7923dddef710e44ddfcf16a63b9d8d6887"
+    },
+    {
+      "path": "/tmp/e02-E-root-final-publication-coordination-20261007/pr44-draft-body.md",
+      "bytes": 4768,
+      "sha256": "193b28b4257b857276a1357cba36459f3b01adfdf1a02f8490a158d6660a4a8f"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json",
+      "bytes": 447667,
+      "sha256": "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5"
+    },
+    {
+      "path": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/publication-receipt.json",
+      "bytes": 574927,
+      "sha256": "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f"
+    },
+    {
+      "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-source-wave-b2-v2-normal.json",
+      "bytes": 911705,
+      "sha256": "5045162856b15e70f1aae8ceab39a4c7af178cc1da6468d73a19802ae6b91502"
+    },
+    {
+      "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-packet.json",
+      "bytes": 14450,
+      "sha256": "4277454bdce47094cee9afd666cf44d9fcfc37953b5838f66a68aaee73eee491"
+    },
+    {
+      "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/summary.json",
+      "bytes": 2472,
+      "sha256": "05b927bfa530ee95252d9540f80744e4b9af75bc7db22926fc60225b7c5f8fc1"
+    },
+    {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/current-disposition.json",
+      "bytes": 15871,
+      "sha256": "3d75fd43093bcfe62e1948a5361a59470bf124844d5b863e321e2926ce6fdc74"
+    },
+    {
+      "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/internal-stages.json",
+      "bytes": 8763,
+      "sha256": "de81c8a947e76375aaee380021dc6143c0e3d69e79bda008c3ee90ec48a74c67"
+    },
+    {
+      "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/internal-stages.json",
+      "bytes": 11245,
+      "sha256": "8b379810c06e5174e7342de9e529aed386c22d06c3c5330fac6bad17e60a9e8d"
+    },
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/receipt.json",
+      "bytes": 97195,
+      "sha256": "36cce176c5748e9a8c9bbf223ec6beb553e933e43f5949f42d1967b40e9d6498"
+    },
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/receipt.json",
+      "bytes": 97501,
+      "sha256": "70be1e247d3125f7c968eac1a9c99cbd23a411ae19ff89072c3a8261899d7487"
+    },
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/receipt.json",
+      "bytes": 97213,
+      "sha256": "dee6b660d11eab98adac801d66a74c42f373b688cffdf166e9c8f1eb4012570a"
+    },
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/retained-runtime-openapi.raw.json",
+      "bytes": 2812414,
+      "sha256": "56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337"
+    }
+  ]
+}

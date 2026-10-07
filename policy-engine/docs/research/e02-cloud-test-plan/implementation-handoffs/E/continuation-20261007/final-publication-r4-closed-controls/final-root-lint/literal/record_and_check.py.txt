@@ -1,0 +1,80 @@
+from __future__ import annotations
+import collections,concurrent.futures,datetime,hashlib,json,os,pathlib,re,subprocess,sys,tomllib
+R=pathlib.Path('/workspace/e02-E-continuation-20261006');CWD=R/'policy-engine';D=pathlib.Path('/tmp/e02-E-final-root-lint-31782b55-20261007');BASE='198076863e143dea9f89f02734b13d50dae3eed5';HEAD='31782b55f8f35556cfc581449b040c393f00c78f';TREE='746f50214f70c0fa34cd8bb6d42e72440adc9f96';PY='/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python';PLAN=pathlib.Path('/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json')
+def need(condition,message):
+ if not condition:raise ValueError(message)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def git(*args):
+ p=subprocess.run(['git','-C',str(R),*args],capture_output=True,env={**os.environ,'GIT_OPTIONAL_LOCKS':'0'});need(p.returncode==0,'Git read failure '+str(args));return p.stdout
+for x in [BASE,HEAD,TREE]:need(re.fullmatch('[0-9a-f]{40}',x) is not None,'exact Git object')
+def snapshot(label):
+ tracked=git('status','--porcelain=v1','--untracked-files=no').decode();s={'tracked_status_porcelain':tracked,'HEAD':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status_porcelain_v1':git('status','--porcelain=v1','--untracked-files=normal').decode(),'status_sb':git('status','-sb').decode()};need(s['HEAD']==HEAD and s['tree']==TREE and not tracked,'actual clean source boundary');(D/(label+'-git-status.json')).write_text(json.dumps(s,indent=2)+'\n');return s
+before=snapshot('before')
+full=git('diff','--name-status','--no-renames','-z',BASE,HEAD);(D/'full-git-delta.name-status.bin').write_bytes(full);v=full.decode().rstrip('\0').split('\0');need(len(v)%2==0,'full Git delta pair format');delta=list(zip(v[::2],v[1::2]));changed={p:s for s,p in delta if p.endswith('.py')};existing={p:s for p,s in changed.items() if (R/p).is_file()};absent={p:s for p,s in changed.items() if not (R/p).is_file()};need(all(p.startswith('policy-engine/') for p in existing),'canonical product cwd Python boundary')
+old=json.loads(PLAN.read_text());oldrows={r['path']:r for r in old['python_rows']};need(set(oldrows)==set(existing),'actual set delta needs explicit new writer classification')
+# Native full Git tree determines actual file mode/object; all physical source hashes are bracketed.
+rawtree=git('ls-tree','-r','-z',HEAD);entries={}
+for row in rawtree.decode().rstrip('\0').split('\0'):
+ meta,path=row.split('\t');mode,kind,obj=meta.split(' ');entries[path]={'mode':mode,'kind':kind,'object':obj}
+def blob(path):
+ need(type(path) is str and path and not path.startswith(('/', '-')) and '..' not in pathlib.PurePosixPath(path).parts,'admitted relative Git path');need(path in entries,'tracked source input');return git('cat-file','blob',entries[path]['object'])
+rows=[]
+for path,status in sorted(existing.items()):
+ entry=entries[path];b=blob(path);actual=(R/path).read_bytes();need(actual==b,'physical source differs from immutable candidate '+path);prior=oldrows[path]
+ qualification=None
+ if prior['sha256']!=sha(b) or prior['bytes']!=len(b):
+  need(path=='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py','unqualified actual source body delta '+path)
+  qualification=pathlib.Path('/tmp/e02-E-validator-format-independent-r4/final-source-GO.json');q=json.loads(qualification.read_text());need(q['source']=='2350edfba4e71909fbc615fe3101793b1b13945a' and q['tree']=='fb4486cb39dc44b1ef09ea1e280df8b640b772ba' and q['outcome']=='GO bounded utility source only','exact independently reviewed source qualification')
+  need(git('show',q['source']+':'+path)==b,'root changed body equals immutable reviewed source2350')
+ rows.append({'path':path,'status':status,'mode':entry['mode'],'object_id':entry['object'],'bytes':len(b),'sha256':sha(b),'kind':prior['kind'],'writer_attribution':prior['writer_attribution'],'attribution_basis':'Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.','physical_equals_candidate':True,'delta_source_qualification':ref(qualification) if qualification else None})
+# Ruff selects the nearest recognized configuration, independent of archived sibling config files.
+def config_for(path):
+ for parent in (R/path).parents:
+  if parent==R.parent:break
+  for name in ['.ruff.toml','ruff.toml','pyproject.toml']:
+   p=parent/name
+   if p.is_file():
+    data=tomllib.loads(p.read_text())
+    if name!='pyproject.toml' or 'ruff' in data.get('tool',{}):return p
+ raise ValueError('no native configuration '+path)
+configs={};selectors={}
+def add_config(p,ancestors=()):
+ need(p not in ancestors,'Ruff extend cycle');rel=p.relative_to(R).as_posix();b=p.read_bytes();need(b==blob(rel),'configuration physical/Git identity');d=tomllib.loads(b.decode());section=d.get('tool',{}).get('ruff',{}) if p.name=='pyproject.toml' else d;extend=section.get('extend');e=(p.parent/extend).resolve() if extend else None;configs[rel]={'path':rel,'object_id':entries[rel]['object'],'bytes':len(b),'sha256':sha(b),'extends':e.relative_to(R).as_posix() if e else None,'physical_equals_candidate':True}
+ if e:add_config(e,(*ancestors,p))
+for row in rows:
+ p=config_for(row['path']);selectors[row['path']]=p.relative_to(R).as_posix();add_config(p)
+need(set(selectors.values())=={'policy-engine/ruff.toml'},'unexpected per-file native Ruff selector')
+ownerinputs=[]
+for x in old['owner_inputs']:
+ path=x['path'];b=blob(path);need(sha(b)==x['sha256'],'changed canonical writer input requires review');need((R/path).read_bytes()==b,'writer input physical/Git identity');ownerinputs.append({'path':path,'object_id':entries[path]['object'],'bytes':len(b),'sha256':sha(b)})
+# Capture metadata without importing native packages or mutating the existing environment.
+venv=pathlib.Path(PY).parent.parent
+metadata=[]
+for p in sorted((venv/'lib').glob('python*/site-packages/*.dist-info/METADATA')):
+ b=p.read_bytes();name=next(x[6:] for x in b.decode().splitlines() if x.startswith('Name: '));version=next(x[9:] for x in b.decode().splitlines() if x.startswith('Version: '));metadata.append({'path':str(p),'name':name,'version':version,'bytes':len(b),'sha256':sha(b)})
+env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'}
+def capture(name,argv,cache):
+ out=D/(name+'.stdout.txt');err=D/(name+'.stderr.txt');child={**env,'RUFF_CACHE_DIR':str(D/cache)};started=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ with out.open('wb') as o,err.open('wb') as e:p=subprocess.run(argv,cwd=CWD,env=child,stdout=o,stderr=e)
+ result={'name':name,'argv':argv,'cwd':str(CWD),'environment_overrides':{'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0','RUFF_CACHE_DIR':str(D/cache)},'began_at':started,'ended_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'exit_code':p.returncode,'stdout':ref(out),'stderr':ref(err),'source':HEAD,'tree':TREE};(D/(name+'.json')).write_text(json.dumps(result,indent=2)+'\n');return result
+version=capture('ruff-version',[PY,'-B','-m','ruff','--version'],'cache-version')
+pyversion=capture('python-version',[PY,'-B','-c','import json,sys; print(json.dumps({"version":sys.version,"executable":sys.executable}))'],'cache-python')
+settings=capture('native-discovered-settings',[PY,'-B','-m','ruff','check','--show-settings','src/polisyos/ir/analytics/posterior_summary.py'],'cache-settings')
+need(version['exit_code']==pyversion['exit_code']==settings['exit_code']==0,'native tool/config preflight failed')
+args=[r['path'][len('policy-engine/'):] for r in rows]
+inputs={'schema':'policyos.e02.actual_merged_complete_Ruff_input_denominator.v1','candidate':HEAD,'tree':TREE,'base':BASE,'full_changed_path_count':len(delta),'changed_python_path_count':len(changed),'command_python_path_count':len(rows),'absent_or_deleted_python':absent,'status_counts':dict(collections.Counter(r['status'] for r in rows)),'python_rows':rows,'factual_writer_counts':dict(collections.Counter(r['writer_attribution']['writer'] for r in rows)),'native_configuration_by_path':selectors,'effective_recursive_configuration_inputs':list(configs.values()),'owner_inputs':ownerinputs,'writer_attribution_prior':ref(PLAN),'prior_prospective_plan_stays_PLAN_ONLY':True,'actual_root_reviewed_freeze':ref(pathlib.Path('/tmp/e02-E-root-reviewed-source-freeze-20261007/freeze.json')),'actual_full_delta':ref(D/'full-git-delta.name-status.bin'),'environment_metadata_count':len(metadata),'environment_metadata':metadata,'tool_preflight':[version,pyversion,settings],'canonical_selector':'Actual policy-engine cwd; no --config, exclusions, fix or format in-place; only external Ruff cache env override.','before':before}
+(D/'inputs.json').write_text(json.dumps(inputs,indent=2)+'\n')
+# Independent read-only commands have distinct caches and may run concurrently.
+with concurrent.futures.ThreadPoolExecutor() as pool:
+ futures=[pool.submit(capture,'ruff',[PY,'-B','-m','ruff','check','--output-format','json',*args],'cache-ruff'),pool.submit(capture,'ruff-format',[PY,'-B','-m','ruff','format','--check',*args],'cache-format')]
+ results=[f.result() for f in futures]
+after=snapshot('after')
+for row in rows:
+ b=(R/row['path']).read_bytes();need(len(b)==row['bytes'] and sha(b)==row['sha256'],'source changed during read-only lint '+row['path'])
+for row in configs.values():need(sha((R/row['path']).read_bytes())==row['sha256'],'config changed during lint')
+for row in metadata:need(sha(pathlib.Path(row['path']).read_bytes())==row['sha256'],'environment METADATA changed during lint')
+receipt={'schema':'policyos.e02.actual_full_Ruff_format_closed_capture.v1','source':HEAD,'tree':TREE,'base':BASE,'inputs':ref(D/'inputs.json'),'before':before,'after':after,'untracked_unique_before_after_preserved':before['status_porcelain_v1']==after['status_porcelain_v1'],'complete_changed_python_denominator':len(rows),'metadata_before_after_unchanged':True,'source_and_config_before_after_unchanged':True,'checks':results,'root_source_environment_written':False,'candidate_source_environment_written':False,'broad_numeric_wave_repeated':False,'P41':'not_established; no exact historical command/input pair comparison or inherited waiver applied.'}
+(D/'capture-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'receipt':ref(D/'capture-receipt.json'),'inputs':ref(D/'inputs.json'),'metadata_count':len(metadata),'writer_counts':inputs['factual_writer_counts'],'checks':[{k:x[k] for k in ['name','exit_code','stdout','stderr']} for x in results]},indent=2))

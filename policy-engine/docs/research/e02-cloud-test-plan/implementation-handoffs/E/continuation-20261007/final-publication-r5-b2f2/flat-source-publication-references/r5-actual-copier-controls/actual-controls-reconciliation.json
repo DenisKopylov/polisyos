@@ -1,0 +1,22 @@
+{
+  "source_candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "first_control_candidate_manifest": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/manifest.json",
+    "bytes": 1558202,
+    "sha256": "ee6ccf691dae4509becb8e7f7f16d1e60102d6e28db8e849daa280f3f9ef6d94"
+  },
+  "per_mode": {
+    "healthy_actual_stage_cli": 1,
+    "actual_corrupt_refusals_before_destination": 24,
+    "effective_aliased_omission_delta_cases": 2,
+    "actual_published_layout_complete_positive": 1
+  },
+  "first_bulk_harness_exit": 1,
+  "first_bulk_harness_outcome": "observer ERROR: initial sole-Counter-removal input omitted unique content, so a missing expected content lookup refused before Counter comparison; all24 actual corrupt cases and healthy passed",
+  "delta_outcome": "PASS: same actual copier with all original carriers retained refuses retotalled genuine raw-member omission; sole Counter guard removal admits exactly that omitted member",
+  "source_native_numeric_or_gate_execution": false,
+  "original_first_output_and_report_preserved": true,
+  "final_input_only_constants_changed_in_copier": true,
+  "final_independent_Git_custody_pending": true
+}

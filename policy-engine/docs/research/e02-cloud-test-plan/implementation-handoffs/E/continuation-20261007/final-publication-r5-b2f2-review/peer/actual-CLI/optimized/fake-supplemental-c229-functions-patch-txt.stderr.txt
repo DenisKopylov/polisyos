@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 287, in <module>
+    main()
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt", line 258, in main
+    raise ValueError('complete mandatory companion bytes/hash before writes')
+ValueError: complete mandatory companion bytes/hash before writes

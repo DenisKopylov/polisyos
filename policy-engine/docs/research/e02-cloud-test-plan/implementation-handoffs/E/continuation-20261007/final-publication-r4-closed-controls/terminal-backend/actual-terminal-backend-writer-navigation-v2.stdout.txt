@@ -1,0 +1,1 @@
+{"output": {"path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-writer-navigation-v2.json", "bytes": 1765, "sha256": "b9ea65e0baccea021b33514e94421fae3ec074c95727abc2bd4aa3a16ee92e9b"}, "control_count": null, "native_case_counts": null}

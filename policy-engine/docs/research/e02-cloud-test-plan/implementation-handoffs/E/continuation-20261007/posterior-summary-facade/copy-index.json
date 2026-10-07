@@ -1,0 +1,1846 @@
+{
+  "schema": "policyos.e02.moderate_literal_copy_index.v1",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt",
+      "portable_path": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt",
+        "path": "affected-caller-pytest.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt",
+      "portable_path": "author-historical-e456/affected-caller-pytest.stdout.txt",
+      "bytes": 160,
+      "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt",
+        "path": "affected-caller-pytest.stdout.txt",
+        "bytes": 160,
+        "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/author-checks.json",
+      "portable_path": "author-historical-e456/author-checks.json",
+      "bytes": 62090,
+      "sha256": "842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/author-checks.json",
+        "path": "author-checks.json",
+        "bytes": 62090,
+        "sha256": "842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f"
+      },
+      "canonical_destination": "author-historical-e456/author-checks.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/check_author.py",
+      "portable_path": "author-historical-e456/check_author.py.txt",
+      "bytes": 4527,
+      "sha256": "bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/check_author.py",
+        "path": "check_author.py",
+        "bytes": 4527,
+        "sha256": "bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77"
+      },
+      "canonical_destination": "author-historical-e456/check_author.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stderr.txt",
+      "portable_path": "author-historical-e456/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stderr.txt",
+        "path": "commit.stderr.txt",
+        "bytes": 653,
+        "sha256": "d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2"
+      },
+      "canonical_destination": "author-historical-e456/commit.stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stdout.txt",
+      "portable_path": "author-historical-e456/commit.stdout.txt",
+      "bytes": 271,
+      "sha256": "0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stdout.txt",
+        "path": "commit.stdout.txt",
+        "bytes": 271,
+        "sha256": "0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b"
+      },
+      "canonical_destination": "author-historical-e456/commit.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stderr.txt",
+      "portable_path": "author-historical-e456/format-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stderr.txt",
+        "path": "format-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt",
+      "portable_path": "author-historical-e456/format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt",
+        "path": "format-check.stdout.txt",
+        "bytes": 26,
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+      },
+      "canonical_destination": "author-historical-e456/format-check.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.json",
+      "portable_path": "author-historical-e456/format.json",
+      "bytes": 508,
+      "sha256": "13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.json",
+        "path": "format.json",
+        "bytes": 508,
+        "sha256": "13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99"
+      },
+      "canonical_destination": "author-historical-e456/format.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stderr.txt",
+      "portable_path": "author-historical-e456/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stderr.txt",
+        "path": "format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stdout.txt",
+      "portable_path": "author-historical-e456/format.stdout.txt",
+      "bytes": 43,
+      "sha256": "a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stdout.txt",
+        "path": "format.stdout.txt",
+        "bytes": 43,
+        "sha256": "a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d"
+      },
+      "canonical_destination": "author-historical-e456/format.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/implementation-source.json",
+      "portable_path": "author-historical-e456/implementation-source.json",
+      "bytes": 6024,
+      "sha256": "c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/implementation-source.json",
+        "path": "implementation-source.json",
+        "bytes": 6024,
+        "sha256": "c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4"
+      },
+      "canonical_destination": "author-historical-e456/implementation-source.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt",
+      "portable_path": "author-historical-e456/old-f5-facade.py.txt",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt",
+        "path": "old-f5-facade.py.txt",
+        "bytes": 3933,
+        "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+      },
+      "canonical_destination": "author-historical-e456/old-f5-facade.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stderr.txt",
+      "portable_path": "author-historical-e456/old-public-caller.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stderr.txt",
+        "path": "old-public-caller.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt",
+      "portable_path": "author-historical-e456/old-public-caller.stdout.txt",
+      "bytes": 407,
+      "sha256": "aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt",
+        "path": "old-public-caller.stdout.txt",
+        "bytes": 407,
+        "sha256": "aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c"
+      },
+      "canonical_destination": "author-historical-e456/old-public-caller.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt",
+      "portable_path": "author-historical-e456/old_public_caller_probe.py.txt",
+      "bytes": 594,
+      "sha256": "abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt",
+        "path": "old_public_caller_probe.py.txt",
+        "bytes": 594,
+        "sha256": "abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9"
+      },
+      "canonical_destination": "author-historical-e456/old_public_caller_probe.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml",
+      "portable_path": "author-historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml",
+        "path": "pytest.xml",
+        "bytes": 14977,
+        "sha256": "c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6"
+      },
+      "canonical_destination": "author-historical-e456/pytest.xml",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stderr.txt",
+      "portable_path": "author-historical-e456/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stderr.txt",
+        "path": "ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt",
+      "portable_path": "author-historical-e456/ruff.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "historical e456 root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt",
+        "path": "ruff.stdout.txt",
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "canonical_destination": "author-historical-e456/ruff.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stderr.txt",
+      "portable_path": "author-corrective-ace/affected-facade.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stderr.txt",
+        "path": "affected-facade.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stdout.txt",
+      "portable_path": "author-corrective-ace/affected-facade.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stdout.txt",
+        "path": "affected-facade.stdout.txt",
+        "bytes": 80,
+        "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+      },
+      "canonical_destination": "author-corrective-ace/affected-facade.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stderr.txt",
+      "portable_path": "author-corrective-ace/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stderr.txt",
+        "path": "commit.stderr.txt",
+        "bytes": 653,
+        "sha256": "8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75"
+      },
+      "canonical_destination": "author-corrective-ace/commit.stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stdout.txt",
+      "portable_path": "author-corrective-ace/commit.stdout.txt",
+      "bytes": 159,
+      "sha256": "83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stdout.txt",
+        "path": "commit.stdout.txt",
+        "bytes": 159,
+        "sha256": "83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8"
+      },
+      "canonical_destination": "author-corrective-ace/commit.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stderr.txt",
+      "portable_path": "author-corrective-ace/format-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stderr.txt",
+        "path": "format-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stdout.txt",
+      "portable_path": "author-corrective-ace/format-check.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stdout.txt",
+        "path": "format-check.stdout.txt",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "canonical_destination": "author-corrective-ace/format-check.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stderr.txt",
+      "portable_path": "author-corrective-ace/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stderr.txt",
+        "path": "format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stdout.txt",
+      "portable_path": "author-corrective-ace/format.stdout.txt",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stdout.txt",
+        "path": "format.stdout.txt",
+        "bytes": 19,
+        "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+      },
+      "canonical_destination": "author-corrective-ace/format.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/implementation-source.json",
+      "portable_path": "author-corrective-ace/implementation-source.json",
+      "bytes": 845,
+      "sha256": "6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/implementation-source.json",
+        "path": "implementation-source.json",
+        "bytes": 845,
+        "sha256": "6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76"
+      },
+      "canonical_destination": "author-corrective-ace/implementation-source.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml",
+      "portable_path": "author-corrective-ace/pytest.xml",
+      "bytes": 1181,
+      "sha256": "427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml",
+        "path": "pytest.xml",
+        "bytes": 1181,
+        "sha256": "427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba"
+      },
+      "canonical_destination": "author-corrective-ace/pytest.xml",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json",
+      "portable_path": "author-corrective-ace/receipt.json",
+      "bytes": 3982,
+      "sha256": "f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json",
+        "path": "receipt.json",
+        "bytes": 3982,
+        "sha256": "f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928"
+      },
+      "canonical_destination": "author-corrective-ace/receipt.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stderr.txt",
+      "portable_path": "author-corrective-ace/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stderr.txt",
+        "path": "ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stdout.txt",
+      "portable_path": "author-corrective-ace/ruff.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "ace corrective root-author complete moderate output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stdout.txt",
+        "path": "ruff.stdout.txt",
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "canonical_destination": "author-historical-e456/ruff.stdout.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json",
+      "portable_path": "independent/review.json",
+      "bytes": 10915,
+      "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json",
+        "path": "review.json",
+        "bytes": 10915,
+        "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+      },
+      "canonical_destination": "independent/review.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.json",
+      "portable_path": "independent/review-optimized.json",
+      "bytes": 10915,
+      "sha256": "2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.json",
+        "path": "review-optimized.json",
+        "bytes": 10915,
+        "sha256": "2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24"
+      },
+      "canonical_destination": "independent/review-optimized.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stdout.txt",
+      "portable_path": "independent/review.stdout.txt",
+      "bytes": 364,
+      "sha256": "2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stdout.txt",
+        "path": "review.stdout.txt",
+        "bytes": 364,
+        "sha256": "2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e"
+      },
+      "canonical_destination": "independent/review.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stderr.txt",
+      "portable_path": "independent/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stderr.txt",
+        "path": "review.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stdout.txt",
+      "portable_path": "independent/review-optimized.stdout.txt",
+      "bytes": 364,
+      "sha256": "2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stdout.txt",
+        "path": "review-optimized.stdout.txt",
+        "bytes": 364,
+        "sha256": "2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e"
+      },
+      "canonical_destination": "independent/review-optimized.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stderr.txt",
+      "portable_path": "independent/review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stderr.txt",
+        "path": "review-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/commands.json",
+      "portable_path": "independent/commands.json",
+      "bytes": 3798,
+      "sha256": "a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/commands.json",
+        "path": "commands.json",
+        "bytes": 3798,
+        "sha256": "a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b"
+      },
+      "canonical_destination": "independent/commands.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json",
+      "portable_path": "independent/selectors.json",
+      "bytes": 8925,
+      "sha256": "c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json",
+        "path": "selectors.json",
+        "bytes": 8925,
+        "sha256": "c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa"
+      },
+      "canonical_destination": "independent/selectors.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stdout.txt",
+      "portable_path": "independent/selectors.stdout.txt",
+      "bytes": 112,
+      "sha256": "8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stdout.txt",
+        "path": "selectors.stdout.txt",
+        "bytes": 112,
+        "sha256": "8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233"
+      },
+      "canonical_destination": "independent/selectors.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stderr.txt",
+      "portable_path": "independent/selectors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stderr.txt",
+        "path": "selectors.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml",
+      "portable_path": "independent/pytest.xml",
+      "bytes": 1181,
+      "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml",
+        "path": "pytest.xml",
+        "bytes": 1181,
+        "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b"
+      },
+      "canonical_destination": "independent/pytest.xml",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stdout.txt",
+      "portable_path": "independent/pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stdout.txt",
+        "path": "pytest.stdout.txt",
+        "bytes": 80,
+        "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+      },
+      "canonical_destination": "author-corrective-ace/affected-facade.stdout.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stderr.txt",
+      "portable_path": "independent/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stderr.txt",
+        "path": "pytest.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json",
+      "portable_path": "independent/delta-review.json",
+      "bytes": 8928,
+      "sha256": "2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json",
+        "path": "delta-review.json",
+        "bytes": 8928,
+        "sha256": "2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79"
+      },
+      "canonical_destination": "independent/delta-review.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt",
+      "portable_path": "independent/delta-review.stdout.txt",
+      "bytes": 70,
+      "sha256": "82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt",
+        "path": "delta-review.stdout.txt",
+        "bytes": 70,
+        "sha256": "82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7"
+      },
+      "canonical_destination": "independent/delta-review.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stderr.txt",
+      "portable_path": "independent/delta-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stderr.txt",
+        "path": "delta-review.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json",
+      "portable_path": "independent/import-edges.json",
+      "bytes": 23147,
+      "sha256": "187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json",
+        "path": "import-edges.json",
+        "bytes": 23147,
+        "sha256": "187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f"
+      },
+      "canonical_destination": "independent/import-edges.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py.txt",
+      "portable_path": "independent/run-selectors.py.txt",
+      "bytes": 3207,
+      "sha256": "a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py.txt",
+        "path": "run-selectors.py.txt",
+        "bytes": 3207,
+        "sha256": "a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9"
+      },
+      "canonical_destination": "independent/run-selectors.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py.txt",
+      "portable_path": "independent/delta-review.py.txt",
+      "bytes": 8623,
+      "sha256": "085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py.txt",
+        "path": "delta-review.py.txt",
+        "bytes": 8623,
+        "sha256": "085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3"
+      },
+      "canonical_destination": "independent/delta-review.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py.txt",
+      "portable_path": "independent/collect-final-review.py.txt",
+      "bytes": 7638,
+      "sha256": "80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py.txt",
+        "path": "collect-final-review.py.txt",
+        "bytes": 7638,
+        "sha256": "80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522"
+      },
+      "canonical_destination": "independent/collect-final-review.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/select-publication.py.txt",
+      "portable_path": "independent/select-publication.py.txt",
+      "bytes": 5883,
+      "sha256": "0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/select-publication.py.txt",
+        "path": "select-publication.py.txt",
+        "bytes": 5883,
+        "sha256": "0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef"
+      },
+      "canonical_destination": "independent/select-publication.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.json",
+      "portable_path": "independent/historical-e456/review.json",
+      "bytes": 14593,
+      "sha256": "8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.json",
+        "path": "historical-e456/review.json",
+        "bytes": 14593,
+        "sha256": "8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1"
+      },
+      "canonical_destination": "independent/historical-e456/review.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stdout.txt",
+      "portable_path": "independent/historical-e456/review.stdout.txt",
+      "bytes": 187,
+      "sha256": "cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stdout.txt",
+        "path": "historical-e456/review.stdout.txt",
+        "bytes": 187,
+        "sha256": "cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb"
+      },
+      "canonical_destination": "independent/historical-e456/review.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stderr.txt",
+      "portable_path": "independent/historical-e456/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stderr.txt",
+        "path": "historical-e456/review.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json",
+      "portable_path": "independent/historical-e456/selectors.json",
+      "bytes": 25530,
+      "sha256": "1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json",
+        "path": "historical-e456/selectors.json",
+        "bytes": 25530,
+        "sha256": "1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3"
+      },
+      "canonical_destination": "independent/historical-e456/selectors.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stdout.txt",
+      "portable_path": "independent/historical-e456/selectors.stdout.txt",
+      "bytes": 114,
+      "sha256": "3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stdout.txt",
+        "path": "historical-e456/selectors.stdout.txt",
+        "bytes": 114,
+        "sha256": "3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91"
+      },
+      "canonical_destination": "independent/historical-e456/selectors.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stderr.txt",
+      "portable_path": "independent/historical-e456/selectors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stderr.txt",
+        "path": "historical-e456/selectors.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.xml",
+      "portable_path": "independent/historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.xml",
+        "path": "historical-e456/pytest.xml",
+        "bytes": 14977,
+        "sha256": "a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa"
+      },
+      "canonical_destination": "independent/historical-e456/pytest.xml",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stdout.txt",
+      "portable_path": "independent/historical-e456/pytest.stdout.txt",
+      "bytes": 160,
+      "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stdout.txt",
+        "path": "historical-e456/pytest.stdout.txt",
+        "bytes": 160,
+        "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stdout.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stderr.txt",
+      "portable_path": "independent/historical-e456/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stderr.txt",
+        "path": "historical-e456/pytest.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json",
+      "portable_path": "independent/historical-e456/native-and-import-probes.json",
+      "bytes": 13227,
+      "sha256": "6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json",
+        "path": "historical-e456/native-and-import-probes.json",
+        "bytes": 13227,
+        "sha256": "6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5"
+      },
+      "canonical_destination": "independent/historical-e456/native-and-import-probes.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stdout.txt",
+      "portable_path": "independent/historical-e456/native-and-import-probes.stdout.txt",
+      "bytes": 135,
+      "sha256": "3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stdout.txt",
+        "path": "historical-e456/native-and-import-probes.stdout.txt",
+        "bytes": 135,
+        "sha256": "3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c"
+      },
+      "canonical_destination": "independent/historical-e456/native-and-import-probes.stdout.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stderr.txt",
+      "portable_path": "independent/historical-e456/native-and-import-probes.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stderr.txt",
+        "path": "historical-e456/native-and-import-probes.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json",
+      "portable_path": "independent/historical-e456/actual-caller-removal.json",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json",
+        "path": "historical-e456/actual-caller-removal.json",
+        "bytes": 1703,
+        "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309"
+      },
+      "canonical_destination": "independent/historical-e456/actual-caller-removal.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stdout.txt",
+      "portable_path": "independent/historical-e456/actual-caller-removal.stdout.txt",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stdout.txt",
+        "path": "historical-e456/actual-caller-removal.stdout.txt",
+        "bytes": 1703,
+        "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309"
+      },
+      "canonical_destination": "independent/historical-e456/actual-caller-removal.json",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stderr.txt",
+      "portable_path": "independent/historical-e456/actual-caller-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stderr.txt",
+        "path": "historical-e456/actual-caller-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "deduplicated": true
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/import-edges.json",
+      "portable_path": "independent/historical-e456/import-edges.json",
+      "bytes": 44967,
+      "sha256": "f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/import-edges.json",
+        "path": "historical-e456/import-edges.json",
+        "bytes": 44967,
+        "sha256": "f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda"
+      },
+      "canonical_destination": "independent/historical-e456/import-edges.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json",
+      "portable_path": "independent/historical-e456/dynamic-import-edges.json",
+      "bytes": 8520,
+      "sha256": "49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json",
+        "path": "historical-e456/dynamic-import-edges.json",
+        "bytes": 8520,
+        "sha256": "49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90"
+      },
+      "canonical_destination": "independent/historical-e456/dynamic-import-edges.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py.txt",
+      "portable_path": "independent/historical-e456/run-selectors.py.txt",
+      "bytes": 3229,
+      "sha256": "6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py.txt",
+        "path": "historical-e456/run-selectors.py.txt",
+        "bytes": 3229,
+        "sha256": "6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6"
+      },
+      "canonical_destination": "independent/historical-e456/run-selectors.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py.txt",
+      "portable_path": "independent/historical-e456/native-and-import-probes.py.txt",
+      "bytes": 14021,
+      "sha256": "527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py.txt",
+        "path": "historical-e456/native-and-import-probes.py.txt",
+        "bytes": 14021,
+        "sha256": "527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb"
+      },
+      "canonical_destination": "independent/historical-e456/native-and-import-probes.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py.txt",
+      "portable_path": "independent/historical-e456/actual-caller-removal.py.txt",
+      "bytes": 2257,
+      "sha256": "18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py.txt",
+        "path": "historical-e456/actual-caller-removal.py.txt",
+        "bytes": 2257,
+        "sha256": "18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd"
+      },
+      "canonical_destination": "independent/historical-e456/actual-caller-removal.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py.txt",
+      "portable_path": "independent/historical-e456/collect-review.py.txt",
+      "bytes": 4967,
+      "sha256": "675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py.txt",
+        "path": "historical-e456/collect-review.py.txt",
+        "bytes": 4967,
+        "sha256": "675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb"
+      },
+      "canonical_destination": "independent/historical-e456/collect-review.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.py.txt",
+      "portable_path": "independent/historical-e456/historical-collector-syntax-observer.py.txt",
+      "bytes": 4953,
+      "sha256": "55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.py.txt",
+        "path": "historical-e456/historical-collector-syntax-observer.py.txt",
+        "bytes": 4953,
+        "sha256": "55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f"
+      },
+      "canonical_destination": "independent/historical-e456/historical-collector-syntax-observer.py.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.stderr.txt",
+      "portable_path": "independent/historical-e456/historical-collector-syntax-observer.stderr.txt",
+      "bytes": 322,
+      "sha256": "0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed",
+      "role": "independent current ace GO or explicitly historical e456/observer output",
+      "original_selected_record": {
+        "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.stderr.txt",
+        "path": "historical-e456/historical-collector-syntax-observer.stderr.txt",
+        "bytes": 322,
+        "sha256": "0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed"
+      },
+      "canonical_destination": "independent/historical-e456/historical-collector-syntax-observer.stderr.txt",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/publication-selection.json",
+      "portable_path": "independent/publication-selection.json",
+      "bytes": 12471,
+      "sha256": "112be519e5f4736dbf8483716d7e3e036ac7a3b54b964d7d58c024ed0237235e",
+      "role": "complete original44member peer selector",
+      "canonical_destination": "independent/publication-selection.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-handoff-r4-stage/source-assembly.json",
+      "portable_path": "assembly/source-assembly.json",
+      "bytes": 3021,
+      "sha256": "04ee094960903dcc445b18ffbde9f3437e560be91384428a46f04541e1aceb0c",
+      "role": "read-only immutable Git/source and original-output reconciliation",
+      "canonical_destination": "assembly/source-assembly.json",
+      "deduplicated": false
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-handoff-r4-stage/assemble_handoff.py.txt",
+      "portable_path": "assembly/assemble_handoff.py.txt",
+      "bytes": 17875,
+      "sha256": "002b5deb48d6edc6e61c18f5736dae05e33eb89a2a7053b6f342cc9503b0796c",
+      "role": "exact passive source handoff assembly recipe",
+      "canonical_destination": "assembly/assemble_handoff.py.txt",
+      "deduplicated": false
+    }
+  ],
+  "copies": [
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt",
+      "destination": "author-historical-e456/affected-caller-pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt",
+      "destination": "author-historical-e456/affected-caller-pytest.stdout.txt",
+      "bytes": 160,
+      "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/author-checks.json",
+      "destination": "author-historical-e456/author-checks.json",
+      "bytes": 62090,
+      "sha256": "842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/check_author.py",
+      "destination": "author-historical-e456/check_author.py.txt",
+      "bytes": 4527,
+      "sha256": "bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stderr.txt",
+      "destination": "author-historical-e456/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stdout.txt",
+      "destination": "author-historical-e456/commit.stdout.txt",
+      "bytes": 271,
+      "sha256": "0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt",
+      "destination": "author-historical-e456/format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.json",
+      "destination": "author-historical-e456/format.json",
+      "bytes": 508,
+      "sha256": "13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stdout.txt",
+      "destination": "author-historical-e456/format.stdout.txt",
+      "bytes": 43,
+      "sha256": "a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/implementation-source.json",
+      "destination": "author-historical-e456/implementation-source.json",
+      "bytes": 6024,
+      "sha256": "c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt",
+      "destination": "author-historical-e456/old-f5-facade.py.txt",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt",
+      "destination": "author-historical-e456/old-public-caller.stdout.txt",
+      "bytes": 407,
+      "sha256": "aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt",
+      "destination": "author-historical-e456/old_public_caller_probe.py.txt",
+      "bytes": 594,
+      "sha256": "abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml",
+      "destination": "author-historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt",
+      "destination": "author-historical-e456/ruff.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stdout.txt",
+      "destination": "author-corrective-ace/affected-facade.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stderr.txt",
+      "destination": "author-corrective-ace/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stdout.txt",
+      "destination": "author-corrective-ace/commit.stdout.txt",
+      "bytes": 159,
+      "sha256": "83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stdout.txt",
+      "destination": "author-corrective-ace/format-check.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stdout.txt",
+      "destination": "author-corrective-ace/format.stdout.txt",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/implementation-source.json",
+      "destination": "author-corrective-ace/implementation-source.json",
+      "bytes": 845,
+      "sha256": "6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml",
+      "destination": "author-corrective-ace/pytest.xml",
+      "bytes": 1181,
+      "sha256": "427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json",
+      "destination": "author-corrective-ace/receipt.json",
+      "bytes": 3982,
+      "sha256": "f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json",
+      "destination": "independent/review.json",
+      "bytes": 10915,
+      "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.json",
+      "destination": "independent/review-optimized.json",
+      "bytes": 10915,
+      "sha256": "2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stdout.txt",
+      "destination": "independent/review.stdout.txt",
+      "bytes": 364,
+      "sha256": "2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stdout.txt",
+      "destination": "independent/review-optimized.stdout.txt",
+      "bytes": 364,
+      "sha256": "2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/commands.json",
+      "destination": "independent/commands.json",
+      "bytes": 3798,
+      "sha256": "a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json",
+      "destination": "independent/selectors.json",
+      "bytes": 8925,
+      "sha256": "c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stdout.txt",
+      "destination": "independent/selectors.stdout.txt",
+      "bytes": 112,
+      "sha256": "8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml",
+      "destination": "independent/pytest.xml",
+      "bytes": 1181,
+      "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json",
+      "destination": "independent/delta-review.json",
+      "bytes": 8928,
+      "sha256": "2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt",
+      "destination": "independent/delta-review.stdout.txt",
+      "bytes": 70,
+      "sha256": "82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json",
+      "destination": "independent/import-edges.json",
+      "bytes": 23147,
+      "sha256": "187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py.txt",
+      "destination": "independent/run-selectors.py.txt",
+      "bytes": 3207,
+      "sha256": "a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py.txt",
+      "destination": "independent/delta-review.py.txt",
+      "bytes": 8623,
+      "sha256": "085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py.txt",
+      "destination": "independent/collect-final-review.py.txt",
+      "bytes": 7638,
+      "sha256": "80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/select-publication.py.txt",
+      "destination": "independent/select-publication.py.txt",
+      "bytes": 5883,
+      "sha256": "0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.json",
+      "destination": "independent/historical-e456/review.json",
+      "bytes": 14593,
+      "sha256": "8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stdout.txt",
+      "destination": "independent/historical-e456/review.stdout.txt",
+      "bytes": 187,
+      "sha256": "cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json",
+      "destination": "independent/historical-e456/selectors.json",
+      "bytes": 25530,
+      "sha256": "1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stdout.txt",
+      "destination": "independent/historical-e456/selectors.stdout.txt",
+      "bytes": 114,
+      "sha256": "3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.xml",
+      "destination": "independent/historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json",
+      "destination": "independent/historical-e456/native-and-import-probes.json",
+      "bytes": 13227,
+      "sha256": "6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stdout.txt",
+      "destination": "independent/historical-e456/native-and-import-probes.stdout.txt",
+      "bytes": 135,
+      "sha256": "3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json",
+      "destination": "independent/historical-e456/actual-caller-removal.json",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/import-edges.json",
+      "destination": "independent/historical-e456/import-edges.json",
+      "bytes": 44967,
+      "sha256": "f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json",
+      "destination": "independent/historical-e456/dynamic-import-edges.json",
+      "bytes": 8520,
+      "sha256": "49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py.txt",
+      "destination": "independent/historical-e456/run-selectors.py.txt",
+      "bytes": 3229,
+      "sha256": "6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py.txt",
+      "destination": "independent/historical-e456/native-and-import-probes.py.txt",
+      "bytes": 14021,
+      "sha256": "527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py.txt",
+      "destination": "independent/historical-e456/actual-caller-removal.py.txt",
+      "bytes": 2257,
+      "sha256": "18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py.txt",
+      "destination": "independent/historical-e456/collect-review.py.txt",
+      "bytes": 4967,
+      "sha256": "675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.py.txt",
+      "destination": "independent/historical-e456/historical-collector-syntax-observer.py.txt",
+      "bytes": 4953,
+      "sha256": "55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.stderr.txt",
+      "destination": "independent/historical-e456/historical-collector-syntax-observer.stderr.txt",
+      "bytes": 322,
+      "sha256": "0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/publication-selection.json",
+      "destination": "independent/publication-selection.json",
+      "bytes": 12471,
+      "sha256": "112be519e5f4736dbf8483716d7e3e036ac7a3b54b964d7d58c024ed0237235e"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-handoff-r4-stage/source-assembly.json",
+      "destination": "assembly/source-assembly.json",
+      "bytes": 3021,
+      "sha256": "04ee094960903dcc445b18ffbde9f3437e560be91384428a46f04541e1aceb0c"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-handoff-r4-stage/assemble_handoff.py.txt",
+      "destination": "assembly/assemble_handoff.py.txt",
+      "bytes": 17875,
+      "sha256": "002b5deb48d6edc6e61c18f5736dae05e33eb89a2a7053b6f342cc9503b0796c"
+    }
+  ],
+  "logical_count": 79,
+  "copied_files": 57,
+  "copied_bytes": 382298,
+  "complete_logical_source_Counter": [
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"affected-caller-pytest.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt\"},\"portable_path\":\"author-historical-e456/affected-caller-pytest.stderr.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"affected-facade.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stderr.txt\"},\"portable_path\":\"author-corrective-ace/affected-facade.stderr.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"delta-review.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stderr.txt\"},\"portable_path\":\"independent/delta-review.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"format-check.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format-check.stderr.txt\"},\"portable_path\":\"author-historical-e456/format-check.stderr.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format-check.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"format-check.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stderr.txt\"},\"portable_path\":\"author-corrective-ace/format-check.stderr.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"format.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format.stderr.txt\"},\"portable_path\":\"author-historical-e456/format.stderr.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"format.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stderr.txt\"},\"portable_path\":\"author-corrective-ace/format.stderr.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"historical-e456/actual-caller-removal.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stderr.txt\"},\"portable_path\":\"independent/historical-e456/actual-caller-removal.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"historical-e456/native-and-import-probes.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stderr.txt\"},\"portable_path\":\"independent/historical-e456/native-and-import-probes.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"historical-e456/pytest.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stderr.txt\"},\"portable_path\":\"independent/historical-e456/pytest.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"historical-e456/review.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/review.stderr.txt\"},\"portable_path\":\"independent/historical-e456/review.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/review.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"historical-e456/selectors.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stderr.txt\"},\"portable_path\":\"independent/historical-e456/selectors.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"old-public-caller.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stderr.txt\"},\"portable_path\":\"author-historical-e456/old-public-caller.stderr.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"pytest.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stderr.txt\"},\"portable_path\":\"independent/pytest.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"review-optimized.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stderr.txt\"},\"portable_path\":\"independent/review-optimized.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"review.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stderr.txt\"},\"portable_path\":\"independent/review.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"ruff.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/ruff.stderr.txt\"},\"portable_path\":\"author-historical-e456/ruff.stderr.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/ruff.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"ruff.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stderr.txt\"},\"portable_path\":\"author-corrective-ace/ruff.stderr.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":0,\"original_selected_record\":{\"bytes\":0,\"path\":\"selectors.stderr.txt\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stderr.txt\"},\"portable_path\":\"independent/selectors.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":10915,\"original_selected_record\":{\"bytes\":10915,\"path\":\"review-optimized.json\",\"sha256\":\"2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.json\"},\"portable_path\":\"independent/review-optimized.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":10915,\"original_selected_record\":{\"bytes\":10915,\"path\":\"review.json\",\"sha256\":\"04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json\"},\"portable_path\":\"independent/review.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":112,\"original_selected_record\":{\"bytes\":112,\"path\":\"selectors.stdout.txt\",\"sha256\":\"8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stdout.txt\"},\"portable_path\":\"independent/selectors.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":114,\"original_selected_record\":{\"bytes\":114,\"path\":\"historical-e456/selectors.stdout.txt\",\"sha256\":\"3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stdout.txt\"},\"portable_path\":\"independent/historical-e456/selectors.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":1181,\"original_selected_record\":{\"bytes\":1181,\"path\":\"pytest.xml\",\"sha256\":\"427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml\"},\"portable_path\":\"author-corrective-ace/pytest.xml\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml\"}",
+      1
+    ],
+    [
+      "{\"bytes\":1181,\"original_selected_record\":{\"bytes\":1181,\"path\":\"pytest.xml\",\"sha256\":\"4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml\"},\"portable_path\":\"independent/pytest.xml\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml\"}",
+      1
+    ],
+    [
+      "{\"bytes\":12471,\"original_selected_record\":null,\"portable_path\":\"independent/publication-selection.json\",\"role\":\"complete original44member peer selector\",\"sha256\":\"112be519e5f4736dbf8483716d7e3e036ac7a3b54b964d7d58c024ed0237235e\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/publication-selection.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":13227,\"original_selected_record\":{\"bytes\":13227,\"path\":\"historical-e456/native-and-import-probes.json\",\"sha256\":\"6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json\"},\"portable_path\":\"independent/historical-e456/native-and-import-probes.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":135,\"original_selected_record\":{\"bytes\":135,\"path\":\"historical-e456/native-and-import-probes.stdout.txt\",\"sha256\":\"3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stdout.txt\"},\"portable_path\":\"independent/historical-e456/native-and-import-probes.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":14021,\"original_selected_record\":{\"bytes\":14021,\"path\":\"historical-e456/native-and-import-probes.py.txt\",\"sha256\":\"527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py.txt\"},\"portable_path\":\"independent/historical-e456/native-and-import-probes.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":14593,\"original_selected_record\":{\"bytes\":14593,\"path\":\"historical-e456/review.json\",\"sha256\":\"8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/review.json\"},\"portable_path\":\"independent/historical-e456/review.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/review.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":14977,\"original_selected_record\":{\"bytes\":14977,\"path\":\"historical-e456/pytest.xml\",\"sha256\":\"a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.xml\"},\"portable_path\":\"independent/historical-e456/pytest.xml\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.xml\"}",
+      1
+    ],
+    [
+      "{\"bytes\":14977,\"original_selected_record\":{\"bytes\":14977,\"path\":\"pytest.xml\",\"sha256\":\"c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml\"},\"portable_path\":\"author-historical-e456/pytest.xml\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml\"}",
+      1
+    ],
+    [
+      "{\"bytes\":159,\"original_selected_record\":{\"bytes\":159,\"path\":\"commit.stdout.txt\",\"sha256\":\"83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stdout.txt\"},\"portable_path\":\"author-corrective-ace/commit.stdout.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":160,\"original_selected_record\":{\"bytes\":160,\"path\":\"affected-caller-pytest.stdout.txt\",\"sha256\":\"15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt\"},\"portable_path\":\"author-historical-e456/affected-caller-pytest.stdout.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":160,\"original_selected_record\":{\"bytes\":160,\"path\":\"historical-e456/pytest.stdout.txt\",\"sha256\":\"15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stdout.txt\"},\"portable_path\":\"independent/historical-e456/pytest.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":1703,\"original_selected_record\":{\"bytes\":1703,\"path\":\"historical-e456/actual-caller-removal.json\",\"sha256\":\"9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json\"},\"portable_path\":\"independent/historical-e456/actual-caller-removal.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":1703,\"original_selected_record\":{\"bytes\":1703,\"path\":\"historical-e456/actual-caller-removal.stdout.txt\",\"sha256\":\"9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stdout.txt\"},\"portable_path\":\"independent/historical-e456/actual-caller-removal.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":17875,\"original_selected_record\":null,\"portable_path\":\"assembly/assemble_handoff.py.txt\",\"role\":\"exact passive source handoff assembly recipe\",\"sha256\":\"002b5deb48d6edc6e61c18f5736dae05e33eb89a2a7053b6f342cc9503b0796c\",\"source_path\":\"/tmp/e02-E-root-summary-facade-handoff-r4-stage/assemble_handoff.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":187,\"original_selected_record\":{\"bytes\":187,\"path\":\"historical-e456/review.stdout.txt\",\"sha256\":\"cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/review.stdout.txt\"},\"portable_path\":\"independent/historical-e456/review.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/review.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":19,\"original_selected_record\":{\"bytes\":19,\"path\":\"format.stdout.txt\",\"sha256\":\"413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stdout.txt\"},\"portable_path\":\"author-corrective-ace/format.stdout.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":2,\"original_selected_record\":{\"bytes\":2,\"path\":\"ruff.stdout.txt\",\"sha256\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt\"},\"portable_path\":\"author-historical-e456/ruff.stdout.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":2,\"original_selected_record\":{\"bytes\":2,\"path\":\"ruff.stdout.txt\",\"sha256\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stdout.txt\"},\"portable_path\":\"author-corrective-ace/ruff.stdout.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":2257,\"original_selected_record\":{\"bytes\":2257,\"path\":\"historical-e456/actual-caller-removal.py.txt\",\"sha256\":\"18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py.txt\"},\"portable_path\":\"independent/historical-e456/actual-caller-removal.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":23147,\"original_selected_record\":{\"bytes\":23147,\"path\":\"import-edges.json\",\"sha256\":\"187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json\"},\"portable_path\":\"independent/import-edges.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":25,\"original_selected_record\":{\"bytes\":25,\"path\":\"format-check.stdout.txt\",\"sha256\":\"fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stdout.txt\"},\"portable_path\":\"author-corrective-ace/format-check.stdout.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":25530,\"original_selected_record\":{\"bytes\":25530,\"path\":\"historical-e456/selectors.json\",\"sha256\":\"1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json\"},\"portable_path\":\"independent/historical-e456/selectors.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":26,\"original_selected_record\":{\"bytes\":26,\"path\":\"format-check.stdout.txt\",\"sha256\":\"177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt\"},\"portable_path\":\"author-historical-e456/format-check.stdout.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":271,\"original_selected_record\":{\"bytes\":271,\"path\":\"commit.stdout.txt\",\"sha256\":\"0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/commit.stdout.txt\"},\"portable_path\":\"author-historical-e456/commit.stdout.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/commit.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":3021,\"original_selected_record\":null,\"portable_path\":\"assembly/source-assembly.json\",\"role\":\"read-only immutable Git/source and original-output reconciliation\",\"sha256\":\"04ee094960903dcc445b18ffbde9f3437e560be91384428a46f04541e1aceb0c\",\"source_path\":\"/tmp/e02-E-root-summary-facade-handoff-r4-stage/source-assembly.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":3207,\"original_selected_record\":{\"bytes\":3207,\"path\":\"run-selectors.py.txt\",\"sha256\":\"a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py.txt\"},\"portable_path\":\"independent/run-selectors.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":322,\"original_selected_record\":{\"bytes\":322,\"path\":\"historical-e456/historical-collector-syntax-observer.stderr.txt\",\"sha256\":\"0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.stderr.txt\"},\"portable_path\":\"independent/historical-e456/historical-collector-syntax-observer.stderr.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":3229,\"original_selected_record\":{\"bytes\":3229,\"path\":\"historical-e456/run-selectors.py.txt\",\"sha256\":\"6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py.txt\"},\"portable_path\":\"independent/historical-e456/run-selectors.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":364,\"original_selected_record\":{\"bytes\":364,\"path\":\"review-optimized.stdout.txt\",\"sha256\":\"2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stdout.txt\"},\"portable_path\":\"independent/review-optimized.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":364,\"original_selected_record\":{\"bytes\":364,\"path\":\"review.stdout.txt\",\"sha256\":\"2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stdout.txt\"},\"portable_path\":\"independent/review.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":3798,\"original_selected_record\":{\"bytes\":3798,\"path\":\"commands.json\",\"sha256\":\"a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/commands.json\"},\"portable_path\":\"independent/commands.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/commands.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":3933,\"original_selected_record\":{\"bytes\":3933,\"path\":\"old-f5-facade.py.txt\",\"sha256\":\"d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt\"},\"portable_path\":\"author-historical-e456/old-f5-facade.py.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":3982,\"original_selected_record\":{\"bytes\":3982,\"path\":\"receipt.json\",\"sha256\":\"f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json\"},\"portable_path\":\"author-corrective-ace/receipt.json\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":407,\"original_selected_record\":{\"bytes\":407,\"path\":\"old-public-caller.stdout.txt\",\"sha256\":\"aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt\"},\"portable_path\":\"author-historical-e456/old-public-caller.stdout.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":43,\"original_selected_record\":{\"bytes\":43,\"path\":\"format.stdout.txt\",\"sha256\":\"a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format.stdout.txt\"},\"portable_path\":\"author-historical-e456/format.stdout.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":44967,\"original_selected_record\":{\"bytes\":44967,\"path\":\"historical-e456/import-edges.json\",\"sha256\":\"f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/import-edges.json\"},\"portable_path\":\"independent/historical-e456/import-edges.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/import-edges.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":4527,\"original_selected_record\":{\"bytes\":4527,\"path\":\"check_author.py\",\"sha256\":\"bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/check_author.py\"},\"portable_path\":\"author-historical-e456/check_author.py.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/check_author.py\"}",
+      1
+    ],
+    [
+      "{\"bytes\":4953,\"original_selected_record\":{\"bytes\":4953,\"path\":\"historical-e456/historical-collector-syntax-observer.py.txt\",\"sha256\":\"55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.py.txt\"},\"portable_path\":\"independent/historical-e456/historical-collector-syntax-observer.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":4967,\"original_selected_record\":{\"bytes\":4967,\"path\":\"historical-e456/collect-review.py.txt\",\"sha256\":\"675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py.txt\"},\"portable_path\":\"independent/historical-e456/collect-review.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":508,\"original_selected_record\":{\"bytes\":508,\"path\":\"format.json\",\"sha256\":\"13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format.json\"},\"portable_path\":\"author-historical-e456/format.json\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/format.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":5883,\"original_selected_record\":{\"bytes\":5883,\"path\":\"select-publication.py.txt\",\"sha256\":\"0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/select-publication.py.txt\"},\"portable_path\":\"independent/select-publication.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/select-publication.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":594,\"original_selected_record\":{\"bytes\":594,\"path\":\"old_public_caller_probe.py.txt\",\"sha256\":\"abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt\"},\"portable_path\":\"author-historical-e456/old_public_caller_probe.py.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":6024,\"original_selected_record\":{\"bytes\":6024,\"path\":\"implementation-source.json\",\"sha256\":\"c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/implementation-source.json\"},\"portable_path\":\"author-historical-e456/implementation-source.json\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/implementation-source.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":62090,\"original_selected_record\":{\"bytes\":62090,\"path\":\"author-checks.json\",\"sha256\":\"842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/author-checks.json\"},\"portable_path\":\"author-historical-e456/author-checks.json\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/author-checks.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":653,\"original_selected_record\":{\"bytes\":653,\"path\":\"commit.stderr.txt\",\"sha256\":\"8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stderr.txt\"},\"portable_path\":\"author-corrective-ace/commit.stderr.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":653,\"original_selected_record\":{\"bytes\":653,\"path\":\"commit.stderr.txt\",\"sha256\":\"d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/commit.stderr.txt\"},\"portable_path\":\"author-historical-e456/commit.stderr.txt\",\"role\":\"historical e456 root-author complete moderate output\",\"sha256\":\"d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2\",\"source_path\":\"/tmp/e02-E-root-summary-facade-author-20261007/commit.stderr.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":70,\"original_selected_record\":{\"bytes\":70,\"path\":\"delta-review.stdout.txt\",\"sha256\":\"82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt\"},\"portable_path\":\"independent/delta-review.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":7638,\"original_selected_record\":{\"bytes\":7638,\"path\":\"collect-final-review.py.txt\",\"sha256\":\"80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py.txt\"},\"portable_path\":\"independent/collect-final-review.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":80,\"original_selected_record\":{\"bytes\":80,\"path\":\"affected-facade.stdout.txt\",\"sha256\":\"700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stdout.txt\"},\"portable_path\":\"author-corrective-ace/affected-facade.stdout.txt\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":80,\"original_selected_record\":{\"bytes\":80,\"path\":\"pytest.stdout.txt\",\"sha256\":\"700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stdout.txt\"},\"portable_path\":\"independent/pytest.stdout.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stdout.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":845,\"original_selected_record\":{\"bytes\":845,\"path\":\"implementation-source.json\",\"sha256\":\"6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/implementation-source.json\"},\"portable_path\":\"author-corrective-ace/implementation-source.json\",\"role\":\"ace corrective root-author complete moderate output\",\"sha256\":\"6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76\",\"source_path\":\"/tmp/e02-E-root-summary-facade-core-companion-20261007/implementation-source.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":8520,\"original_selected_record\":{\"bytes\":8520,\"path\":\"historical-e456/dynamic-import-edges.json\",\"sha256\":\"49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json\"},\"portable_path\":\"independent/historical-e456/dynamic-import-edges.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90\",\"source_path\":\"/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":8623,\"original_selected_record\":{\"bytes\":8623,\"path\":\"delta-review.py.txt\",\"sha256\":\"085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py.txt\"},\"portable_path\":\"independent/delta-review.py.txt\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py.txt\"}",
+      1
+    ],
+    [
+      "{\"bytes\":8925,\"original_selected_record\":{\"bytes\":8925,\"path\":\"selectors.json\",\"sha256\":\"c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json\"},\"portable_path\":\"independent/selectors.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json\"}",
+      1
+    ],
+    [
+      "{\"bytes\":8928,\"original_selected_record\":{\"bytes\":8928,\"path\":\"delta-review.json\",\"sha256\":\"2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json\"},\"portable_path\":\"independent/delta-review.json\",\"role\":\"independent current ace GO or explicitly historical e456/observer output\",\"sha256\":\"2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79\",\"source_path\":\"/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json\"}",
+      1
+    ]
+  ],
+  "Counter_sha256": "e12b229acb2c8c4675e609c97cbe4a0ed3ddfaf5347f83b8e856a2330e9e17c1",
+  "source_chain_membership": {
+    "author_historical": 19,
+    "author_corrective": 13,
+    "independent_selected": 44,
+    "independent_original_selector": 1
+  },
+  "assembly_companions": 2,
+  "no_original_source_records_rewritten": true
+}

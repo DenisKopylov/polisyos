@@ -1,0 +1,4078 @@
+{
+  "schema": "policyos.e02.failed_repeatable_source_copy_cleanup_preflight.v1",
+  "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source",
+  "tracked_regular_file_count": 18961,
+  "tracked_regular_bytes": 562220662,
+  "tracked_files_exact_Git_blob_binding": true,
+  "tracked_file_digest_frame": "ef9f61a657be375e4b8dbe3c629f576307fc0b0fb99870d7c3f403d961818daf",
+  "mismatch_paths": [],
+  "untracked_regular_files": [
+    {
+      "relative": ".polisyos-tools/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_exists_byte_equal": true
+    },
+    {
+      "relative": ".polisyos-tools/timing.jsonl",
+      "bytes": 502,
+      "sha256": "ebf12eea072bfa8d4d74e2ca74fd9aa658b2b6e8d031ed98c96227ade9735262",
+      "original_exists_byte_equal": false
+    }
+  ],
+  "unique_untracked_files": [
+    ".polisyos-tools/timing.jsonl"
+  ],
+  "symlinks": [
+    {
+      "relative": "node_modules",
+      "target": "/workspace/e02-E-mc-20261006/policy-engine/node_modules",
+      "same_existing_target": true,
+      "kind": "canonical added node_modules directory symlink"
+    },
+    {
+      "relative": "packages/runtime-api-client/node_modules",
+      "target": "/workspace/e02-E-mc-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "same_existing_target": true,
+      "kind": "canonical added node_modules directory symlink"
+    },
+    {
+      "relative": "apps/runtime-dashboard/node_modules",
+      "target": "/workspace/e02-E-mc-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "same_existing_target": true,
+      "kind": "canonical added node_modules directory symlink"
+    }
+  ],
+  "active_users": [],
+  "proc_scan_permissions_errors": [
+    {
+      "pid": "199",
+      "error": "[Errno 13] Permission denied: '/proc/199/cwd'"
+    },
+    {
+      "pid": "250",
+      "error": "[Errno 13] Permission denied: '/proc/250/cwd'"
+    },
+    {
+      "pid": "1058",
+      "error": "[Errno 13] Permission denied: '/proc/1058/fd'"
+    },
+    {
+      "pid": "4157",
+      "error": "[Errno 13] Permission denied: '/proc/4157/fd'"
+    },
+    {
+      "pid": "5512",
+      "error": "[Errno 13] Permission denied: '/proc/5512/fd'"
+    },
+    {
+      "pid": "5592",
+      "error": "[Errno 13] Permission denied: '/proc/5592/fd'"
+    },
+    {
+      "pid": "5744",
+      "error": "[Errno 13] Permission denied: '/proc/5744/fd'"
+    },
+    {
+      "pid": "6465",
+      "error": "[Errno 13] Permission denied: '/proc/6465/fd'"
+    },
+    {
+      "pid": "7583",
+      "error": "[Errno 13] Permission denied: '/proc/7583/fd'"
+    },
+    {
+      "pid": "7989",
+      "error": "[Errno 13] Permission denied: '/proc/7989/fd'"
+    },
+    {
+      "pid": "9364",
+      "error": "[Errno 13] Permission denied: '/proc/9364/fd'"
+    },
+    {
+      "pid": "9960",
+      "error": "[Errno 13] Permission denied: '/proc/9960/fd'"
+    },
+    {
+      "pid": "9963",
+      "error": "[Errno 13] Permission denied: '/proc/9963/fd'"
+    },
+    {
+      "pid": "10125",
+      "error": "[Errno 13] Permission denied: '/proc/10125/fd'"
+    },
+    {
+      "pid": "10830",
+      "error": "[Errno 13] Permission denied: '/proc/10830/fd'"
+    },
+    {
+      "pid": "11227",
+      "error": "[Errno 13] Permission denied: '/proc/11227/fd'"
+    },
+    {
+      "pid": "11504",
+      "error": "[Errno 13] Permission denied: '/proc/11504/fd'"
+    },
+    {
+      "pid": "11823",
+      "error": "[Errno 13] Permission denied: '/proc/11823/fd'"
+    },
+    {
+      "pid": "12371",
+      "error": "[Errno 13] Permission denied: '/proc/12371/fd'"
+    },
+    {
+      "pid": "13198",
+      "error": "[Errno 13] Permission denied: '/proc/13198/fd'"
+    },
+    {
+      "pid": "13908",
+      "error": "[Errno 13] Permission denied: '/proc/13908/fd'"
+    },
+    {
+      "pid": "14101",
+      "error": "[Errno 13] Permission denied: '/proc/14101/fd'"
+    },
+    {
+      "pid": "15152",
+      "error": "[Errno 13] Permission denied: '/proc/15152/fd'"
+    },
+    {
+      "pid": "15522",
+      "error": "[Errno 13] Permission denied: '/proc/15522/fd'"
+    },
+    {
+      "pid": "15945",
+      "error": "[Errno 13] Permission denied: '/proc/15945/fd'"
+    },
+    {
+      "pid": "16883",
+      "error": "[Errno 13] Permission denied: '/proc/16883/fd'"
+    },
+    {
+      "pid": "17194",
+      "error": "[Errno 13] Permission denied: '/proc/17194/fd'"
+    },
+    {
+      "pid": "17715",
+      "error": "[Errno 13] Permission denied: '/proc/17715/fd'"
+    },
+    {
+      "pid": "18043",
+      "error": "[Errno 13] Permission denied: '/proc/18043/fd'"
+    },
+    {
+      "pid": "18618",
+      "error": "[Errno 13] Permission denied: '/proc/18618/fd'"
+    },
+    {
+      "pid": "18889",
+      "error": "[Errno 13] Permission denied: '/proc/18889/fd'"
+    },
+    {
+      "pid": "19893",
+      "error": "[Errno 13] Permission denied: '/proc/19893/fd'"
+    },
+    {
+      "pid": "21225",
+      "error": "[Errno 13] Permission denied: '/proc/21225/fd'"
+    },
+    {
+      "pid": "21469",
+      "error": "[Errno 13] Permission denied: '/proc/21469/fd'"
+    },
+    {
+      "pid": "22491",
+      "error": "[Errno 13] Permission denied: '/proc/22491/fd'"
+    },
+    {
+      "pid": "23337",
+      "error": "[Errno 13] Permission denied: '/proc/23337/fd'"
+    },
+    {
+      "pid": "23862",
+      "error": "[Errno 13] Permission denied: '/proc/23862/fd'"
+    },
+    {
+      "pid": "24043",
+      "error": "[Errno 13] Permission denied: '/proc/24043/fd'"
+    },
+    {
+      "pid": "24350",
+      "error": "[Errno 13] Permission denied: '/proc/24350/fd'"
+    },
+    {
+      "pid": "25555",
+      "error": "[Errno 13] Permission denied: '/proc/25555/fd'"
+    },
+    {
+      "pid": "26173",
+      "error": "[Errno 13] Permission denied: '/proc/26173/fd'"
+    },
+    {
+      "pid": "26579",
+      "error": "[Errno 13] Permission denied: '/proc/26579/fd'"
+    },
+    {
+      "pid": "27762",
+      "error": "[Errno 13] Permission denied: '/proc/27762/fd'"
+    },
+    {
+      "pid": "28305",
+      "error": "[Errno 13] Permission denied: '/proc/28305/fd'"
+    },
+    {
+      "pid": "28512",
+      "error": "[Errno 13] Permission denied: '/proc/28512/fd'"
+    },
+    {
+      "pid": "28881",
+      "error": "[Errno 13] Permission denied: '/proc/28881/fd'"
+    },
+    {
+      "pid": "30236",
+      "error": "[Errno 13] Permission denied: '/proc/30236/fd'"
+    },
+    {
+      "pid": "34683",
+      "error": "[Errno 13] Permission denied: '/proc/34683/fd'"
+    },
+    {
+      "pid": "36510",
+      "error": "[Errno 13] Permission denied: '/proc/36510/fd'"
+    },
+    {
+      "pid": "37574",
+      "error": "[Errno 13] Permission denied: '/proc/37574/fd'"
+    },
+    {
+      "pid": "38276",
+      "error": "[Errno 13] Permission denied: '/proc/38276/fd'"
+    },
+    {
+      "pid": "40437",
+      "error": "[Errno 13] Permission denied: '/proc/40437/fd'"
+    },
+    {
+      "pid": "41177",
+      "error": "[Errno 13] Permission denied: '/proc/41177/fd'"
+    },
+    {
+      "pid": "41564",
+      "error": "[Errno 13] Permission denied: '/proc/41564/fd'"
+    },
+    {
+      "pid": "41947",
+      "error": "[Errno 13] Permission denied: '/proc/41947/fd'"
+    },
+    {
+      "pid": "43254",
+      "error": "[Errno 13] Permission denied: '/proc/43254/fd'"
+    },
+    {
+      "pid": "43977",
+      "error": "[Errno 13] Permission denied: '/proc/43977/fd'"
+    },
+    {
+      "pid": "44170",
+      "error": "[Errno 13] Permission denied: '/proc/44170/fd'"
+    },
+    {
+      "pid": "44704",
+      "error": "[Errno 13] Permission denied: '/proc/44704/fd'"
+    },
+    {
+      "pid": "45405",
+      "error": "[Errno 13] Permission denied: '/proc/45405/fd'"
+    },
+    {
+      "pid": "45769",
+      "error": "[Errno 13] Permission denied: '/proc/45769/fd'"
+    },
+    {
+      "pid": "45998",
+      "error": "[Errno 13] Permission denied: '/proc/45998/fd'"
+    },
+    {
+      "pid": "46097",
+      "error": "[Errno 13] Permission denied: '/proc/46097/fd'"
+    },
+    {
+      "pid": "46306",
+      "error": "[Errno 13] Permission denied: '/proc/46306/fd'"
+    },
+    {
+      "pid": "46376",
+      "error": "[Errno 13] Permission denied: '/proc/46376/fd'"
+    },
+    {
+      "pid": "46669",
+      "error": "[Errno 13] Permission denied: '/proc/46669/fd'"
+    },
+    {
+      "pid": "47281",
+      "error": "[Errno 13] Permission denied: '/proc/47281/fd'"
+    },
+    {
+      "pid": "47440",
+      "error": "[Errno 13] Permission denied: '/proc/47440/fd'"
+    },
+    {
+      "pid": "47831",
+      "error": "[Errno 13] Permission denied: '/proc/47831/fd'"
+    },
+    {
+      "pid": "48323",
+      "error": "[Errno 13] Permission denied: '/proc/48323/fd'"
+    },
+    {
+      "pid": "48515",
+      "error": "[Errno 13] Permission denied: '/proc/48515/fd'"
+    },
+    {
+      "pid": "48874",
+      "error": "[Errno 13] Permission denied: '/proc/48874/fd'"
+    },
+    {
+      "pid": "49243",
+      "error": "[Errno 13] Permission denied: '/proc/49243/fd'"
+    },
+    {
+      "pid": "49447",
+      "error": "[Errno 13] Permission denied: '/proc/49447/fd'"
+    },
+    {
+      "pid": "49521",
+      "error": "[Errno 13] Permission denied: '/proc/49521/fd'"
+    },
+    {
+      "pid": "51985",
+      "error": "[Errno 13] Permission denied: '/proc/51985/fd'"
+    },
+    {
+      "pid": "52615",
+      "error": "[Errno 13] Permission denied: '/proc/52615/fd'"
+    },
+    {
+      "pid": "53001",
+      "error": "[Errno 13] Permission denied: '/proc/53001/fd'"
+    },
+    {
+      "pid": "53293",
+      "error": "[Errno 13] Permission denied: '/proc/53293/fd'"
+    },
+    {
+      "pid": "53589",
+      "error": "[Errno 13] Permission denied: '/proc/53589/fd'"
+    },
+    {
+      "pid": "54171",
+      "error": "[Errno 13] Permission denied: '/proc/54171/fd'"
+    },
+    {
+      "pid": "54408",
+      "error": "[Errno 13] Permission denied: '/proc/54408/fd'"
+    },
+    {
+      "pid": "55405",
+      "error": "[Errno 13] Permission denied: '/proc/55405/fd'"
+    },
+    {
+      "pid": "56237",
+      "error": "[Errno 13] Permission denied: '/proc/56237/fd'"
+    },
+    {
+      "pid": "56262",
+      "error": "[Errno 13] Permission denied: '/proc/56262/fd'"
+    },
+    {
+      "pid": "57437",
+      "error": "[Errno 13] Permission denied: '/proc/57437/fd'"
+    },
+    {
+      "pid": "58567",
+      "error": "[Errno 13] Permission denied: '/proc/58567/fd'"
+    },
+    {
+      "pid": "59237",
+      "error": "[Errno 13] Permission denied: '/proc/59237/fd'"
+    },
+    {
+      "pid": "59913",
+      "error": "[Errno 13] Permission denied: '/proc/59913/fd'"
+    },
+    {
+      "pid": "60435",
+      "error": "[Errno 13] Permission denied: '/proc/60435/fd'"
+    },
+    {
+      "pid": "61460",
+      "error": "[Errno 13] Permission denied: '/proc/61460/fd'"
+    },
+    {
+      "pid": "61708",
+      "error": "[Errno 13] Permission denied: '/proc/61708/fd'"
+    },
+    {
+      "pid": "61814",
+      "error": "[Errno 13] Permission denied: '/proc/61814/fd'"
+    },
+    {
+      "pid": "62325",
+      "error": "[Errno 13] Permission denied: '/proc/62325/fd'"
+    },
+    {
+      "pid": "62393",
+      "error": "[Errno 13] Permission denied: '/proc/62393/fd'"
+    },
+    {
+      "pid": "62465",
+      "error": "[Errno 13] Permission denied: '/proc/62465/fd'"
+    },
+    {
+      "pid": "62751",
+      "error": "[Errno 13] Permission denied: '/proc/62751/fd'"
+    },
+    {
+      "pid": "62900",
+      "error": "[Errno 13] Permission denied: '/proc/62900/fd'"
+    },
+    {
+      "pid": "63210",
+      "error": "[Errno 13] Permission denied: '/proc/63210/fd'"
+    },
+    {
+      "pid": "63898",
+      "error": "[Errno 13] Permission denied: '/proc/63898/fd'"
+    },
+    {
+      "pid": "65768",
+      "error": "[Errno 13] Permission denied: '/proc/65768/fd'"
+    },
+    {
+      "pid": "66327",
+      "error": "[Errno 13] Permission denied: '/proc/66327/fd'"
+    },
+    {
+      "pid": "67112",
+      "error": "[Errno 13] Permission denied: '/proc/67112/fd'"
+    },
+    {
+      "pid": "67544",
+      "error": "[Errno 13] Permission denied: '/proc/67544/fd'"
+    },
+    {
+      "pid": "67610",
+      "error": "[Errno 13] Permission denied: '/proc/67610/fd'"
+    },
+    {
+      "pid": "67893",
+      "error": "[Errno 13] Permission denied: '/proc/67893/fd'"
+    },
+    {
+      "pid": "68344",
+      "error": "[Errno 13] Permission denied: '/proc/68344/fd'"
+    },
+    {
+      "pid": "68454",
+      "error": "[Errno 13] Permission denied: '/proc/68454/fd'"
+    },
+    {
+      "pid": "69075",
+      "error": "[Errno 13] Permission denied: '/proc/69075/fd'"
+    },
+    {
+      "pid": "69141",
+      "error": "[Errno 13] Permission denied: '/proc/69141/fd'"
+    },
+    {
+      "pid": "69504",
+      "error": "[Errno 13] Permission denied: '/proc/69504/fd'"
+    },
+    {
+      "pid": "69669",
+      "error": "[Errno 13] Permission denied: '/proc/69669/fd'"
+    },
+    {
+      "pid": "70048",
+      "error": "[Errno 13] Permission denied: '/proc/70048/fd'"
+    },
+    {
+      "pid": "70467",
+      "error": "[Errno 13] Permission denied: '/proc/70467/fd'"
+    },
+    {
+      "pid": "71398",
+      "error": "[Errno 13] Permission denied: '/proc/71398/fd'"
+    },
+    {
+      "pid": "73004",
+      "error": "[Errno 13] Permission denied: '/proc/73004/fd'"
+    },
+    {
+      "pid": "73064",
+      "error": "[Errno 13] Permission denied: '/proc/73064/fd'"
+    },
+    {
+      "pid": "73065",
+      "error": "[Errno 13] Permission denied: '/proc/73065/fd'"
+    },
+    {
+      "pid": "73169",
+      "error": "[Errno 13] Permission denied: '/proc/73169/fd'"
+    },
+    {
+      "pid": "73170",
+      "error": "[Errno 13] Permission denied: '/proc/73170/fd'"
+    },
+    {
+      "pid": "73415",
+      "error": "[Errno 13] Permission denied: '/proc/73415/fd'"
+    },
+    {
+      "pid": "73790",
+      "error": "[Errno 13] Permission denied: '/proc/73790/fd'"
+    },
+    {
+      "pid": "74181",
+      "error": "[Errno 13] Permission denied: '/proc/74181/fd'"
+    },
+    {
+      "pid": "74497",
+      "error": "[Errno 13] Permission denied: '/proc/74497/fd'"
+    },
+    {
+      "pid": "74710",
+      "error": "[Errno 13] Permission denied: '/proc/74710/fd'"
+    },
+    {
+      "pid": "74810",
+      "error": "[Errno 13] Permission denied: '/proc/74810/fd'"
+    },
+    {
+      "pid": "75815",
+      "error": "[Errno 13] Permission denied: '/proc/75815/fd'"
+    },
+    {
+      "pid": "76170",
+      "error": "[Errno 13] Permission denied: '/proc/76170/fd'"
+    },
+    {
+      "pid": "76627",
+      "error": "[Errno 13] Permission denied: '/proc/76627/fd'"
+    },
+    {
+      "pid": "76676",
+      "error": "[Errno 13] Permission denied: '/proc/76676/fd'"
+    },
+    {
+      "pid": "77077",
+      "error": "[Errno 13] Permission denied: '/proc/77077/fd'"
+    },
+    {
+      "pid": "77187",
+      "error": "[Errno 13] Permission denied: '/proc/77187/fd'"
+    },
+    {
+      "pid": "78325",
+      "error": "[Errno 13] Permission denied: '/proc/78325/fd'"
+    },
+    {
+      "pid": "78553",
+      "error": "[Errno 13] Permission denied: '/proc/78553/fd'"
+    },
+    {
+      "pid": "78664",
+      "error": "[Errno 13] Permission denied: '/proc/78664/fd'"
+    },
+    {
+      "pid": "78882",
+      "error": "[Errno 13] Permission denied: '/proc/78882/fd'"
+    },
+    {
+      "pid": "79087",
+      "error": "[Errno 13] Permission denied: '/proc/79087/fd'"
+    },
+    {
+      "pid": "79455",
+      "error": "[Errno 13] Permission denied: '/proc/79455/fd'"
+    },
+    {
+      "pid": "79486",
+      "error": "[Errno 13] Permission denied: '/proc/79486/fd'"
+    },
+    {
+      "pid": "79512",
+      "error": "[Errno 13] Permission denied: '/proc/79512/fd'"
+    },
+    {
+      "pid": "80866",
+      "error": "[Errno 13] Permission denied: '/proc/80866/fd'"
+    },
+    {
+      "pid": "81095",
+      "error": "[Errno 13] Permission denied: '/proc/81095/fd'"
+    },
+    {
+      "pid": "81343",
+      "error": "[Errno 13] Permission denied: '/proc/81343/fd'"
+    },
+    {
+      "pid": "81861",
+      "error": "[Errno 13] Permission denied: '/proc/81861/fd'"
+    },
+    {
+      "pid": "83003",
+      "error": "[Errno 13] Permission denied: '/proc/83003/fd'"
+    },
+    {
+      "pid": "83252",
+      "error": "[Errno 13] Permission denied: '/proc/83252/fd'"
+    },
+    {
+      "pid": "84412",
+      "error": "[Errno 13] Permission denied: '/proc/84412/fd'"
+    },
+    {
+      "pid": "84962",
+      "error": "[Errno 13] Permission denied: '/proc/84962/fd'"
+    },
+    {
+      "pid": "85167",
+      "error": "[Errno 13] Permission denied: '/proc/85167/fd'"
+    },
+    {
+      "pid": "85904",
+      "error": "[Errno 13] Permission denied: '/proc/85904/fd'"
+    },
+    {
+      "pid": "86021",
+      "error": "[Errno 13] Permission denied: '/proc/86021/fd'"
+    },
+    {
+      "pid": "86247",
+      "error": "[Errno 13] Permission denied: '/proc/86247/fd'"
+    },
+    {
+      "pid": "86529",
+      "error": "[Errno 13] Permission denied: '/proc/86529/fd'"
+    },
+    {
+      "pid": "87295",
+      "error": "[Errno 13] Permission denied: '/proc/87295/fd'"
+    },
+    {
+      "pid": "87597",
+      "error": "[Errno 13] Permission denied: '/proc/87597/fd'"
+    },
+    {
+      "pid": "87617",
+      "error": "[Errno 13] Permission denied: '/proc/87617/fd'"
+    },
+    {
+      "pid": "87644",
+      "error": "[Errno 13] Permission denied: '/proc/87644/fd'"
+    },
+    {
+      "pid": "87966",
+      "error": "[Errno 13] Permission denied: '/proc/87966/fd'"
+    },
+    {
+      "pid": "88357",
+      "error": "[Errno 13] Permission denied: '/proc/88357/fd'"
+    },
+    {
+      "pid": "88690",
+      "error": "[Errno 13] Permission denied: '/proc/88690/fd'"
+    },
+    {
+      "pid": "88739",
+      "error": "[Errno 13] Permission denied: '/proc/88739/fd'"
+    },
+    {
+      "pid": "88978",
+      "error": "[Errno 13] Permission denied: '/proc/88978/fd'"
+    },
+    {
+      "pid": "89216",
+      "error": "[Errno 13] Permission denied: '/proc/89216/fd'"
+    },
+    {
+      "pid": "89650",
+      "error": "[Errno 13] Permission denied: '/proc/89650/fd'"
+    },
+    {
+      "pid": "90880",
+      "error": "[Errno 13] Permission denied: '/proc/90880/fd'"
+    },
+    {
+      "pid": "91060",
+      "error": "[Errno 13] Permission denied: '/proc/91060/fd'"
+    },
+    {
+      "pid": "91994",
+      "error": "[Errno 13] Permission denied: '/proc/91994/fd'"
+    },
+    {
+      "pid": "92533",
+      "error": "[Errno 13] Permission denied: '/proc/92533/fd'"
+    },
+    {
+      "pid": "95318",
+      "error": "[Errno 13] Permission denied: '/proc/95318/fd'"
+    },
+    {
+      "pid": "95411",
+      "error": "[Errno 13] Permission denied: '/proc/95411/fd'"
+    },
+    {
+      "pid": "95648",
+      "error": "[Errno 13] Permission denied: '/proc/95648/fd'"
+    },
+    {
+      "pid": "95840",
+      "error": "[Errno 13] Permission denied: '/proc/95840/fd'"
+    },
+    {
+      "pid": "96002",
+      "error": "[Errno 13] Permission denied: '/proc/96002/fd'"
+    },
+    {
+      "pid": "96849",
+      "error": "[Errno 13] Permission denied: '/proc/96849/fd'"
+    },
+    {
+      "pid": "98130",
+      "error": "[Errno 13] Permission denied: '/proc/98130/fd'"
+    },
+    {
+      "pid": "98557",
+      "error": "[Errno 13] Permission denied: '/proc/98557/fd'"
+    },
+    {
+      "pid": "98687",
+      "error": "[Errno 13] Permission denied: '/proc/98687/fd'"
+    },
+    {
+      "pid": "99607",
+      "error": "[Errno 13] Permission denied: '/proc/99607/fd'"
+    },
+    {
+      "pid": "99648",
+      "error": "[Errno 13] Permission denied: '/proc/99648/fd'"
+    },
+    {
+      "pid": "99751",
+      "error": "[Errno 13] Permission denied: '/proc/99751/fd'"
+    },
+    {
+      "pid": "99818",
+      "error": "[Errno 13] Permission denied: '/proc/99818/fd'"
+    },
+    {
+      "pid": "99885",
+      "error": "[Errno 13] Permission denied: '/proc/99885/fd'"
+    },
+    {
+      "pid": "99952",
+      "error": "[Errno 13] Permission denied: '/proc/99952/fd'"
+    },
+    {
+      "pid": "100025",
+      "error": "[Errno 13] Permission denied: '/proc/100025/fd'"
+    },
+    {
+      "pid": "100780",
+      "error": "[Errno 13] Permission denied: '/proc/100780/fd'"
+    },
+    {
+      "pid": "101786",
+      "error": "[Errno 13] Permission denied: '/proc/101786/fd'"
+    },
+    {
+      "pid": "102322",
+      "error": "[Errno 13] Permission denied: '/proc/102322/fd'"
+    },
+    {
+      "pid": "102521",
+      "error": "[Errno 13] Permission denied: '/proc/102521/fd'"
+    },
+    {
+      "pid": "103663",
+      "error": "[Errno 13] Permission denied: '/proc/103663/fd'"
+    },
+    {
+      "pid": "104541",
+      "error": "[Errno 13] Permission denied: '/proc/104541/fd'"
+    },
+    {
+      "pid": "105602",
+      "error": "[Errno 13] Permission denied: '/proc/105602/fd'"
+    },
+    {
+      "pid": "106915",
+      "error": "[Errno 13] Permission denied: '/proc/106915/fd'"
+    },
+    {
+      "pid": "109896",
+      "error": "[Errno 13] Permission denied: '/proc/109896/fd'"
+    },
+    {
+      "pid": "110042",
+      "error": "[Errno 13] Permission denied: '/proc/110042/fd'"
+    },
+    {
+      "pid": "115804",
+      "error": "[Errno 13] Permission denied: '/proc/115804/fd'"
+    },
+    {
+      "pid": "118017",
+      "error": "[Errno 13] Permission denied: '/proc/118017/fd'"
+    },
+    {
+      "pid": "120863",
+      "error": "[Errno 13] Permission denied: '/proc/120863/fd'"
+    },
+    {
+      "pid": "121097",
+      "error": "[Errno 13] Permission denied: '/proc/121097/fd'"
+    },
+    {
+      "pid": "128657",
+      "error": "[Errno 13] Permission denied: '/proc/128657/fd'"
+    },
+    {
+      "pid": "128983",
+      "error": "[Errno 13] Permission denied: '/proc/128983/fd'"
+    },
+    {
+      "pid": "129047",
+      "error": "[Errno 13] Permission denied: '/proc/129047/fd'"
+    },
+    {
+      "pid": "129298",
+      "error": "[Errno 13] Permission denied: '/proc/129298/fd'"
+    },
+    {
+      "pid": "129555",
+      "error": "[Errno 13] Permission denied: '/proc/129555/fd'"
+    },
+    {
+      "pid": "133727",
+      "error": "[Errno 13] Permission denied: '/proc/133727/fd'"
+    },
+    {
+      "pid": "138058",
+      "error": "[Errno 13] Permission denied: '/proc/138058/fd'"
+    },
+    {
+      "pid": "138185",
+      "error": "[Errno 13] Permission denied: '/proc/138185/fd'"
+    },
+    {
+      "pid": "138496",
+      "error": "[Errno 13] Permission denied: '/proc/138496/fd'"
+    },
+    {
+      "pid": "138826",
+      "error": "[Errno 13] Permission denied: '/proc/138826/fd'"
+    },
+    {
+      "pid": "138837",
+      "error": "[Errno 13] Permission denied: '/proc/138837/fd'"
+    },
+    {
+      "pid": "139285",
+      "error": "[Errno 13] Permission denied: '/proc/139285/fd'"
+    },
+    {
+      "pid": "139313",
+      "error": "[Errno 13] Permission denied: '/proc/139313/fd'"
+    },
+    {
+      "pid": "139390",
+      "error": "[Errno 13] Permission denied: '/proc/139390/fd'"
+    },
+    {
+      "pid": "139822",
+      "error": "[Errno 13] Permission denied: '/proc/139822/fd'"
+    },
+    {
+      "pid": "140273",
+      "error": "[Errno 13] Permission denied: '/proc/140273/fd'"
+    },
+    {
+      "pid": "140527",
+      "error": "[Errno 13] Permission denied: '/proc/140527/fd'"
+    },
+    {
+      "pid": "141229",
+      "error": "[Errno 13] Permission denied: '/proc/141229/fd'"
+    },
+    {
+      "pid": "141620",
+      "error": "[Errno 13] Permission denied: '/proc/141620/fd'"
+    },
+    {
+      "pid": "145155",
+      "error": "[Errno 13] Permission denied: '/proc/145155/fd'"
+    },
+    {
+      "pid": "145323",
+      "error": "[Errno 13] Permission denied: '/proc/145323/fd'"
+    },
+    {
+      "pid": "150591",
+      "error": "[Errno 13] Permission denied: '/proc/150591/fd'"
+    },
+    {
+      "pid": "150967",
+      "error": "[Errno 13] Permission denied: '/proc/150967/fd'"
+    },
+    {
+      "pid": "151266",
+      "error": "[Errno 13] Permission denied: '/proc/151266/fd'"
+    },
+    {
+      "pid": "151330",
+      "error": "[Errno 13] Permission denied: '/proc/151330/fd'"
+    },
+    {
+      "pid": "151337",
+      "error": "[Errno 13] Permission denied: '/proc/151337/fd'"
+    },
+    {
+      "pid": "151401",
+      "error": "[Errno 13] Permission denied: '/proc/151401/fd'"
+    },
+    {
+      "pid": "154116",
+      "error": "[Errno 13] Permission denied: '/proc/154116/fd'"
+    },
+    {
+      "pid": "154820",
+      "error": "[Errno 13] Permission denied: '/proc/154820/fd'"
+    },
+    {
+      "pid": "156241",
+      "error": "[Errno 13] Permission denied: '/proc/156241/fd'"
+    },
+    {
+      "pid": "156402",
+      "error": "[Errno 13] Permission denied: '/proc/156402/fd'"
+    },
+    {
+      "pid": "156720",
+      "error": "[Errno 13] Permission denied: '/proc/156720/fd'"
+    },
+    {
+      "pid": "157833",
+      "error": "[Errno 13] Permission denied: '/proc/157833/fd'"
+    },
+    {
+      "pid": "158051",
+      "error": "[Errno 13] Permission denied: '/proc/158051/fd'"
+    },
+    {
+      "pid": "158084",
+      "error": "[Errno 13] Permission denied: '/proc/158084/fd'"
+    },
+    {
+      "pid": "158202",
+      "error": "[Errno 13] Permission denied: '/proc/158202/fd'"
+    },
+    {
+      "pid": "158385",
+      "error": "[Errno 13] Permission denied: '/proc/158385/fd'"
+    },
+    {
+      "pid": "158733",
+      "error": "[Errno 13] Permission denied: '/proc/158733/fd'"
+    },
+    {
+      "pid": "159304",
+      "error": "[Errno 13] Permission denied: '/proc/159304/fd'"
+    },
+    {
+      "pid": "159610",
+      "error": "[Errno 13] Permission denied: '/proc/159610/fd'"
+    },
+    {
+      "pid": "160020",
+      "error": "[Errno 13] Permission denied: '/proc/160020/fd'"
+    },
+    {
+      "pid": "160215",
+      "error": "[Errno 13] Permission denied: '/proc/160215/fd'"
+    },
+    {
+      "pid": "160253",
+      "error": "[Errno 13] Permission denied: '/proc/160253/fd'"
+    },
+    {
+      "pid": "160254",
+      "error": "[Errno 13] Permission denied: '/proc/160254/fd'"
+    },
+    {
+      "pid": "168308",
+      "error": "[Errno 13] Permission denied: '/proc/168308/fd'"
+    },
+    {
+      "pid": "168465",
+      "error": "[Errno 13] Permission denied: '/proc/168465/fd'"
+    },
+    {
+      "pid": "168705",
+      "error": "[Errno 13] Permission denied: '/proc/168705/fd'"
+    },
+    {
+      "pid": "168866",
+      "error": "[Errno 13] Permission denied: '/proc/168866/fd'"
+    },
+    {
+      "pid": "169492",
+      "error": "[Errno 13] Permission denied: '/proc/169492/fd'"
+    },
+    {
+      "pid": "170536",
+      "error": "[Errno 13] Permission denied: '/proc/170536/fd'"
+    },
+    {
+      "pid": "170890",
+      "error": "[Errno 13] Permission denied: '/proc/170890/fd'"
+    },
+    {
+      "pid": "171158",
+      "error": "[Errno 13] Permission denied: '/proc/171158/fd'"
+    },
+    {
+      "pid": "171664",
+      "error": "[Errno 13] Permission denied: '/proc/171664/fd'"
+    },
+    {
+      "pid": "175057",
+      "error": "[Errno 13] Permission denied: '/proc/175057/fd'"
+    },
+    {
+      "pid": "175304",
+      "error": "[Errno 13] Permission denied: '/proc/175304/fd'"
+    },
+    {
+      "pid": "175803",
+      "error": "[Errno 13] Permission denied: '/proc/175803/fd'"
+    },
+    {
+      "pid": "175984",
+      "error": "[Errno 13] Permission denied: '/proc/175984/fd'"
+    },
+    {
+      "pid": "176530",
+      "error": "[Errno 13] Permission denied: '/proc/176530/fd'"
+    },
+    {
+      "pid": "176937",
+      "error": "[Errno 13] Permission denied: '/proc/176937/fd'"
+    },
+    {
+      "pid": "177145",
+      "error": "[Errno 13] Permission denied: '/proc/177145/fd'"
+    },
+    {
+      "pid": "177312",
+      "error": "[Errno 13] Permission denied: '/proc/177312/fd'"
+    },
+    {
+      "pid": "177379",
+      "error": "[Errno 13] Permission denied: '/proc/177379/fd'"
+    },
+    {
+      "pid": "177513",
+      "error": "[Errno 13] Permission denied: '/proc/177513/fd'"
+    },
+    {
+      "pid": "177674",
+      "error": "[Errno 13] Permission denied: '/proc/177674/fd'"
+    },
+    {
+      "pid": "177852",
+      "error": "[Errno 13] Permission denied: '/proc/177852/fd'"
+    },
+    {
+      "pid": "180085",
+      "error": "[Errno 13] Permission denied: '/proc/180085/fd'"
+    },
+    {
+      "pid": "180127",
+      "error": "[Errno 13] Permission denied: '/proc/180127/fd'"
+    },
+    {
+      "pid": "181625",
+      "error": "[Errno 13] Permission denied: '/proc/181625/fd'"
+    },
+    {
+      "pid": "184909",
+      "error": "[Errno 13] Permission denied: '/proc/184909/fd'"
+    },
+    {
+      "pid": "184910",
+      "error": "[Errno 13] Permission denied: '/proc/184910/fd'"
+    },
+    {
+      "pid": "185052",
+      "error": "[Errno 13] Permission denied: '/proc/185052/fd'"
+    },
+    {
+      "pid": "185053",
+      "error": "[Errno 13] Permission denied: '/proc/185053/fd'"
+    },
+    {
+      "pid": "185430",
+      "error": "[Errno 13] Permission denied: '/proc/185430/fd'"
+    },
+    {
+      "pid": "186478",
+      "error": "[Errno 13] Permission denied: '/proc/186478/fd'"
+    },
+    {
+      "pid": "189799",
+      "error": "[Errno 13] Permission denied: '/proc/189799/fd'"
+    },
+    {
+      "pid": "192571",
+      "error": "[Errno 13] Permission denied: '/proc/192571/fd'"
+    },
+    {
+      "pid": "192728",
+      "error": "[Errno 13] Permission denied: '/proc/192728/fd'"
+    },
+    {
+      "pid": "192763",
+      "error": "[Errno 13] Permission denied: '/proc/192763/fd'"
+    },
+    {
+      "pid": "201546",
+      "error": "[Errno 13] Permission denied: '/proc/201546/fd'"
+    },
+    {
+      "pid": "207495",
+      "error": "[Errno 13] Permission denied: '/proc/207495/fd'"
+    },
+    {
+      "pid": "208022",
+      "error": "[Errno 13] Permission denied: '/proc/208022/fd'"
+    },
+    {
+      "pid": "208679",
+      "error": "[Errno 13] Permission denied: '/proc/208679/fd'"
+    },
+    {
+      "pid": "208874",
+      "error": "[Errno 13] Permission denied: '/proc/208874/fd'"
+    },
+    {
+      "pid": "213945",
+      "error": "[Errno 13] Permission denied: '/proc/213945/fd'"
+    },
+    {
+      "pid": "214004",
+      "error": "[Errno 13] Permission denied: '/proc/214004/fd'"
+    },
+    {
+      "pid": "214174",
+      "error": "[Errno 13] Permission denied: '/proc/214174/fd'"
+    },
+    {
+      "pid": "214249",
+      "error": "[Errno 13] Permission denied: '/proc/214249/fd'"
+    },
+    {
+      "pid": "215265",
+      "error": "[Errno 13] Permission denied: '/proc/215265/fd'"
+    },
+    {
+      "pid": "223543",
+      "error": "[Errno 13] Permission denied: '/proc/223543/fd'"
+    },
+    {
+      "pid": "223544",
+      "error": "[Errno 13] Permission denied: '/proc/223544/fd'"
+    },
+    {
+      "pid": "223686",
+      "error": "[Errno 13] Permission denied: '/proc/223686/fd'"
+    },
+    {
+      "pid": "223687",
+      "error": "[Errno 13] Permission denied: '/proc/223687/fd'"
+    },
+    {
+      "pid": "223933",
+      "error": "[Errno 13] Permission denied: '/proc/223933/fd'"
+    },
+    {
+      "pid": "239027",
+      "error": "[Errno 13] Permission denied: '/proc/239027/fd'"
+    },
+    {
+      "pid": "239441",
+      "error": "[Errno 13] Permission denied: '/proc/239441/fd'"
+    },
+    {
+      "pid": "247270",
+      "error": "[Errno 13] Permission denied: '/proc/247270/fd'"
+    },
+    {
+      "pid": "247500",
+      "error": "[Errno 13] Permission denied: '/proc/247500/fd'"
+    },
+    {
+      "pid": "257029",
+      "error": "[Errno 13] Permission denied: '/proc/257029/fd'"
+    },
+    {
+      "pid": "257157",
+      "error": "[Errno 13] Permission denied: '/proc/257157/fd'"
+    },
+    {
+      "pid": "259072",
+      "error": "[Errno 13] Permission denied: '/proc/259072/fd'"
+    },
+    {
+      "pid": "260346",
+      "error": "[Errno 13] Permission denied: '/proc/260346/fd'"
+    },
+    {
+      "pid": "261680",
+      "error": "[Errno 13] Permission denied: '/proc/261680/fd'"
+    },
+    {
+      "pid": "261759",
+      "error": "[Errno 13] Permission denied: '/proc/261759/fd'"
+    },
+    {
+      "pid": "261891",
+      "error": "[Errno 13] Permission denied: '/proc/261891/fd'"
+    },
+    {
+      "pid": "262651",
+      "error": "[Errno 13] Permission denied: '/proc/262651/fd'"
+    },
+    {
+      "pid": "263784",
+      "error": "[Errno 13] Permission denied: '/proc/263784/fd'"
+    },
+    {
+      "pid": "264433",
+      "error": "[Errno 13] Permission denied: '/proc/264433/fd'"
+    },
+    {
+      "pid": "265300",
+      "error": "[Errno 13] Permission denied: '/proc/265300/fd'"
+    },
+    {
+      "pid": "265943",
+      "error": "[Errno 13] Permission denied: '/proc/265943/fd'"
+    },
+    {
+      "pid": "267286",
+      "error": "[Errno 13] Permission denied: '/proc/267286/fd'"
+    },
+    {
+      "pid": "267518",
+      "error": "[Errno 13] Permission denied: '/proc/267518/fd'"
+    },
+    {
+      "pid": "267625",
+      "error": "[Errno 13] Permission denied: '/proc/267625/fd'"
+    },
+    {
+      "pid": "267812",
+      "error": "[Errno 13] Permission denied: '/proc/267812/fd'"
+    },
+    {
+      "pid": "267847",
+      "error": "[Errno 13] Permission denied: '/proc/267847/fd'"
+    },
+    {
+      "pid": "271968",
+      "error": "[Errno 13] Permission denied: '/proc/271968/fd'"
+    },
+    {
+      "pid": "274402",
+      "error": "[Errno 13] Permission denied: '/proc/274402/fd'"
+    },
+    {
+      "pid": "274490",
+      "error": "[Errno 13] Permission denied: '/proc/274490/fd'"
+    },
+    {
+      "pid": "281188",
+      "error": "[Errno 13] Permission denied: '/proc/281188/fd'"
+    },
+    {
+      "pid": "287234",
+      "error": "[Errno 13] Permission denied: '/proc/287234/fd'"
+    },
+    {
+      "pid": "287407",
+      "error": "[Errno 13] Permission denied: '/proc/287407/fd'"
+    },
+    {
+      "pid": "288509",
+      "error": "[Errno 13] Permission denied: '/proc/288509/fd'"
+    },
+    {
+      "pid": "289879",
+      "error": "[Errno 13] Permission denied: '/proc/289879/fd'"
+    },
+    {
+      "pid": "290138",
+      "error": "[Errno 13] Permission denied: '/proc/290138/fd'"
+    },
+    {
+      "pid": "290271",
+      "error": "[Errno 13] Permission denied: '/proc/290271/fd'"
+    },
+    {
+      "pid": "290331",
+      "error": "[Errno 13] Permission denied: '/proc/290331/fd'"
+    },
+    {
+      "pid": "290711",
+      "error": "[Errno 13] Permission denied: '/proc/290711/fd'"
+    },
+    {
+      "pid": "291077",
+      "error": "[Errno 13] Permission denied: '/proc/291077/fd'"
+    },
+    {
+      "pid": "291864",
+      "error": "[Errno 13] Permission denied: '/proc/291864/fd'"
+    },
+    {
+      "pid": "292199",
+      "error": "[Errno 13] Permission denied: '/proc/292199/fd'"
+    },
+    {
+      "pid": "294796",
+      "error": "[Errno 13] Permission denied: '/proc/294796/fd'"
+    },
+    {
+      "pid": "297679",
+      "error": "[Errno 13] Permission denied: '/proc/297679/fd'"
+    },
+    {
+      "pid": "335575",
+      "error": "[Errno 13] Permission denied: '/proc/335575/fd'"
+    },
+    {
+      "pid": "391629",
+      "error": "[Errno 13] Permission denied: '/proc/391629/fd'"
+    },
+    {
+      "pid": "398032",
+      "error": "[Errno 13] Permission denied: '/proc/398032/fd'"
+    },
+    {
+      "pid": "453712",
+      "error": "[Errno 13] Permission denied: '/proc/453712/fd'"
+    },
+    {
+      "pid": "453873",
+      "error": "[Errno 13] Permission denied: '/proc/453873/fd'"
+    },
+    {
+      "pid": "454474",
+      "error": "[Errno 13] Permission denied: '/proc/454474/fd'"
+    },
+    {
+      "pid": "454787",
+      "error": "[Errno 13] Permission denied: '/proc/454787/fd'"
+    },
+    {
+      "pid": "455173",
+      "error": "[Errno 13] Permission denied: '/proc/455173/fd'"
+    },
+    {
+      "pid": "457635",
+      "error": "[Errno 13] Permission denied: '/proc/457635/fd'"
+    },
+    {
+      "pid": "464514",
+      "error": "[Errno 13] Permission denied: '/proc/464514/fd'"
+    },
+    {
+      "pid": "465246",
+      "error": "[Errno 13] Permission denied: '/proc/465246/fd'"
+    },
+    {
+      "pid": "465267",
+      "error": "[Errno 13] Permission denied: '/proc/465267/fd'"
+    },
+    {
+      "pid": "465468",
+      "error": "[Errno 13] Permission denied: '/proc/465468/fd'"
+    },
+    {
+      "pid": "465624",
+      "error": "[Errno 13] Permission denied: '/proc/465624/fd'"
+    },
+    {
+      "pid": "466233",
+      "error": "[Errno 13] Permission denied: '/proc/466233/fd'"
+    },
+    {
+      "pid": "466662",
+      "error": "[Errno 13] Permission denied: '/proc/466662/fd'"
+    },
+    {
+      "pid": "466818",
+      "error": "[Errno 13] Permission denied: '/proc/466818/fd'"
+    },
+    {
+      "pid": "470105",
+      "error": "[Errno 13] Permission denied: '/proc/470105/fd'"
+    },
+    {
+      "pid": "470378",
+      "error": "[Errno 13] Permission denied: '/proc/470378/fd'"
+    },
+    {
+      "pid": "471673",
+      "error": "[Errno 13] Permission denied: '/proc/471673/fd'"
+    },
+    {
+      "pid": "473844",
+      "error": "[Errno 13] Permission denied: '/proc/473844/fd'"
+    },
+    {
+      "pid": "476756",
+      "error": "[Errno 13] Permission denied: '/proc/476756/fd'"
+    },
+    {
+      "pid": "484389",
+      "error": "[Errno 13] Permission denied: '/proc/484389/fd'"
+    },
+    {
+      "pid": "487832",
+      "error": "[Errno 13] Permission denied: '/proc/487832/fd'"
+    },
+    {
+      "pid": "490494",
+      "error": "[Errno 13] Permission denied: '/proc/490494/fd'"
+    },
+    {
+      "pid": "490516",
+      "error": "[Errno 13] Permission denied: '/proc/490516/fd'"
+    },
+    {
+      "pid": "490761",
+      "error": "[Errno 13] Permission denied: '/proc/490761/fd'"
+    },
+    {
+      "pid": "491043",
+      "error": "[Errno 13] Permission denied: '/proc/491043/fd'"
+    },
+    {
+      "pid": "491217",
+      "error": "[Errno 13] Permission denied: '/proc/491217/fd'"
+    },
+    {
+      "pid": "491464",
+      "error": "[Errno 13] Permission denied: '/proc/491464/fd'"
+    },
+    {
+      "pid": "491622",
+      "error": "[Errno 13] Permission denied: '/proc/491622/fd'"
+    },
+    {
+      "pid": "491854",
+      "error": "[Errno 13] Permission denied: '/proc/491854/fd'"
+    },
+    {
+      "pid": "492183",
+      "error": "[Errno 13] Permission denied: '/proc/492183/fd'"
+    },
+    {
+      "pid": "492278",
+      "error": "[Errno 13] Permission denied: '/proc/492278/fd'"
+    },
+    {
+      "pid": "497288",
+      "error": "[Errno 13] Permission denied: '/proc/497288/fd'"
+    },
+    {
+      "pid": "497494",
+      "error": "[Errno 13] Permission denied: '/proc/497494/fd'"
+    },
+    {
+      "pid": "497502",
+      "error": "[Errno 13] Permission denied: '/proc/497502/fd'"
+    },
+    {
+      "pid": "497503",
+      "error": "[Errno 13] Permission denied: '/proc/497503/fd'"
+    },
+    {
+      "pid": "497611",
+      "error": "[Errno 13] Permission denied: '/proc/497611/fd'"
+    },
+    {
+      "pid": "497648",
+      "error": "[Errno 13] Permission denied: '/proc/497648/fd'"
+    },
+    {
+      "pid": "498535",
+      "error": "[Errno 13] Permission denied: '/proc/498535/fd'"
+    },
+    {
+      "pid": "498720",
+      "error": "[Errno 13] Permission denied: '/proc/498720/fd'"
+    },
+    {
+      "pid": "498727",
+      "error": "[Errno 13] Permission denied: '/proc/498727/fd'"
+    },
+    {
+      "pid": "498807",
+      "error": "[Errno 13] Permission denied: '/proc/498807/fd'"
+    },
+    {
+      "pid": "498808",
+      "error": "[Errno 13] Permission denied: '/proc/498808/fd'"
+    },
+    {
+      "pid": "498938",
+      "error": "[Errno 13] Permission denied: '/proc/498938/fd'"
+    },
+    {
+      "pid": "498944",
+      "error": "[Errno 13] Permission denied: '/proc/498944/fd'"
+    },
+    {
+      "pid": "498945",
+      "error": "[Errno 13] Permission denied: '/proc/498945/fd'"
+    },
+    {
+      "pid": "498972",
+      "error": "[Errno 13] Permission denied: '/proc/498972/fd'"
+    },
+    {
+      "pid": "498977",
+      "error": "[Errno 13] Permission denied: '/proc/498977/fd'"
+    },
+    {
+      "pid": "499001",
+      "error": "[Errno 13] Permission denied: '/proc/499001/fd'"
+    },
+    {
+      "pid": "499009",
+      "error": "[Errno 13] Permission denied: '/proc/499009/fd'"
+    },
+    {
+      "pid": "499011",
+      "error": "[Errno 13] Permission denied: '/proc/499011/fd'"
+    },
+    {
+      "pid": "499524",
+      "error": "[Errno 13] Permission denied: '/proc/499524/fd'"
+    },
+    {
+      "pid": "499555",
+      "error": "[Errno 13] Permission denied: '/proc/499555/fd'"
+    },
+    {
+      "pid": "499556",
+      "error": "[Errno 13] Permission denied: '/proc/499556/fd'"
+    },
+    {
+      "pid": "499557",
+      "error": "[Errno 13] Permission denied: '/proc/499557/fd'"
+    },
+    {
+      "pid": "499593",
+      "error": "[Errno 13] Permission denied: '/proc/499593/fd'"
+    },
+    {
+      "pid": "499594",
+      "error": "[Errno 13] Permission denied: '/proc/499594/fd'"
+    },
+    {
+      "pid": "499595",
+      "error": "[Errno 13] Permission denied: '/proc/499595/fd'"
+    },
+    {
+      "pid": "499605",
+      "error": "[Errno 13] Permission denied: '/proc/499605/fd'"
+    },
+    {
+      "pid": "500209",
+      "error": "[Errno 13] Permission denied: '/proc/500209/fd'"
+    },
+    {
+      "pid": "501425",
+      "error": "[Errno 13] Permission denied: '/proc/501425/fd'"
+    },
+    {
+      "pid": "501615",
+      "error": "[Errno 13] Permission denied: '/proc/501615/fd'"
+    },
+    {
+      "pid": "502226",
+      "error": "[Errno 13] Permission denied: '/proc/502226/fd'"
+    },
+    {
+      "pid": "505960",
+      "error": "[Errno 13] Permission denied: '/proc/505960/fd'"
+    },
+    {
+      "pid": "511572",
+      "error": "[Errno 13] Permission denied: '/proc/511572/fd'"
+    },
+    {
+      "pid": "515463",
+      "error": "[Errno 13] Permission denied: '/proc/515463/fd'"
+    },
+    {
+      "pid": "515904",
+      "error": "[Errno 13] Permission denied: '/proc/515904/fd'"
+    },
+    {
+      "pid": "516146",
+      "error": "[Errno 13] Permission denied: '/proc/516146/fd'"
+    },
+    {
+      "pid": "516730",
+      "error": "[Errno 13] Permission denied: '/proc/516730/fd'"
+    },
+    {
+      "pid": "516731",
+      "error": "[Errno 13] Permission denied: '/proc/516731/fd'"
+    },
+    {
+      "pid": "516972",
+      "error": "[Errno 13] Permission denied: '/proc/516972/fd'"
+    },
+    {
+      "pid": "516973",
+      "error": "[Errno 13] Permission denied: '/proc/516973/fd'"
+    },
+    {
+      "pid": "517492",
+      "error": "[Errno 13] Permission denied: '/proc/517492/fd'"
+    },
+    {
+      "pid": "517821",
+      "error": "[Errno 13] Permission denied: '/proc/517821/fd'"
+    },
+    {
+      "pid": "517900",
+      "error": "[Errno 13] Permission denied: '/proc/517900/fd'"
+    },
+    {
+      "pid": "518447",
+      "error": "[Errno 13] Permission denied: '/proc/518447/fd'"
+    },
+    {
+      "pid": "518575",
+      "error": "[Errno 13] Permission denied: '/proc/518575/fd'"
+    },
+    {
+      "pid": "520392",
+      "error": "[Errno 13] Permission denied: '/proc/520392/fd'"
+    },
+    {
+      "pid": "523262",
+      "error": "[Errno 13] Permission denied: '/proc/523262/fd'"
+    },
+    {
+      "pid": "523603",
+      "error": "[Errno 13] Permission denied: '/proc/523603/fd'"
+    },
+    {
+      "pid": "523754",
+      "error": "[Errno 13] Permission denied: '/proc/523754/fd'"
+    },
+    {
+      "pid": "523755",
+      "error": "[Errno 13] Permission denied: '/proc/523755/fd'"
+    },
+    {
+      "pid": "523901",
+      "error": "[Errno 13] Permission denied: '/proc/523901/fd'"
+    },
+    {
+      "pid": "524184",
+      "error": "[Errno 13] Permission denied: '/proc/524184/fd'"
+    },
+    {
+      "pid": "524552",
+      "error": "[Errno 13] Permission denied: '/proc/524552/fd'"
+    },
+    {
+      "pid": "527295",
+      "error": "[Errno 13] Permission denied: '/proc/527295/fd'"
+    },
+    {
+      "pid": "528381",
+      "error": "[Errno 13] Permission denied: '/proc/528381/fd'"
+    },
+    {
+      "pid": "528631",
+      "error": "[Errno 13] Permission denied: '/proc/528631/fd'"
+    },
+    {
+      "pid": "529349",
+      "error": "[Errno 13] Permission denied: '/proc/529349/fd'"
+    },
+    {
+      "pid": "530685",
+      "error": "[Errno 13] Permission denied: '/proc/530685/fd'"
+    },
+    {
+      "pid": "531313",
+      "error": "[Errno 13] Permission denied: '/proc/531313/fd'"
+    },
+    {
+      "pid": "531335",
+      "error": "[Errno 13] Permission denied: '/proc/531335/fd'"
+    },
+    {
+      "pid": "531406",
+      "error": "[Errno 13] Permission denied: '/proc/531406/fd'"
+    },
+    {
+      "pid": "531407",
+      "error": "[Errno 13] Permission denied: '/proc/531407/fd'"
+    },
+    {
+      "pid": "532833",
+      "error": "[Errno 13] Permission denied: '/proc/532833/fd'"
+    },
+    {
+      "pid": "532872",
+      "error": "[Errno 13] Permission denied: '/proc/532872/fd'"
+    },
+    {
+      "pid": "532873",
+      "error": "[Errno 13] Permission denied: '/proc/532873/fd'"
+    },
+    {
+      "pid": "532922",
+      "error": "[Errno 13] Permission denied: '/proc/532922/fd'"
+    },
+    {
+      "pid": "538714",
+      "error": "[Errno 13] Permission denied: '/proc/538714/fd'"
+    },
+    {
+      "pid": "538892",
+      "error": "[Errno 13] Permission denied: '/proc/538892/fd'"
+    },
+    {
+      "pid": "539213",
+      "error": "[Errno 13] Permission denied: '/proc/539213/fd'"
+    },
+    {
+      "pid": "540401",
+      "error": "[Errno 13] Permission denied: '/proc/540401/fd'"
+    },
+    {
+      "pid": "542045",
+      "error": "[Errno 13] Permission denied: '/proc/542045/fd'"
+    },
+    {
+      "pid": "542407",
+      "error": "[Errno 13] Permission denied: '/proc/542407/fd'"
+    },
+    {
+      "pid": "543864",
+      "error": "[Errno 13] Permission denied: '/proc/543864/fd'"
+    },
+    {
+      "pid": "543893",
+      "error": "[Errno 13] Permission denied: '/proc/543893/fd'"
+    },
+    {
+      "pid": "543906",
+      "error": "[Errno 13] Permission denied: '/proc/543906/fd'"
+    },
+    {
+      "pid": "543917",
+      "error": "[Errno 13] Permission denied: '/proc/543917/fd'"
+    },
+    {
+      "pid": "543941",
+      "error": "[Errno 13] Permission denied: '/proc/543941/fd'"
+    },
+    {
+      "pid": "543958",
+      "error": "[Errno 13] Permission denied: '/proc/543958/fd'"
+    },
+    {
+      "pid": "543969",
+      "error": "[Errno 13] Permission denied: '/proc/543969/fd'"
+    },
+    {
+      "pid": "543980",
+      "error": "[Errno 13] Permission denied: '/proc/543980/fd'"
+    },
+    {
+      "pid": "543990",
+      "error": "[Errno 13] Permission denied: '/proc/543990/fd'"
+    },
+    {
+      "pid": "544000",
+      "error": "[Errno 13] Permission denied: '/proc/544000/fd'"
+    },
+    {
+      "pid": "544011",
+      "error": "[Errno 13] Permission denied: '/proc/544011/fd'"
+    },
+    {
+      "pid": "544316",
+      "error": "[Errno 13] Permission denied: '/proc/544316/fd'"
+    },
+    {
+      "pid": "548691",
+      "error": "[Errno 13] Permission denied: '/proc/548691/fd'"
+    },
+    {
+      "pid": "548720",
+      "error": "[Errno 13] Permission denied: '/proc/548720/fd'"
+    },
+    {
+      "pid": "548753",
+      "error": "[Errno 13] Permission denied: '/proc/548753/fd'"
+    },
+    {
+      "pid": "548785",
+      "error": "[Errno 13] Permission denied: '/proc/548785/fd'"
+    },
+    {
+      "pid": "548815",
+      "error": "[Errno 13] Permission denied: '/proc/548815/fd'"
+    },
+    {
+      "pid": "548825",
+      "error": "[Errno 13] Permission denied: '/proc/548825/fd'"
+    },
+    {
+      "pid": "548868",
+      "error": "[Errno 13] Permission denied: '/proc/548868/fd'"
+    },
+    {
+      "pid": "548881",
+      "error": "[Errno 13] Permission denied: '/proc/548881/fd'"
+    },
+    {
+      "pid": "548933",
+      "error": "[Errno 13] Permission denied: '/proc/548933/fd'"
+    },
+    {
+      "pid": "548970",
+      "error": "[Errno 13] Permission denied: '/proc/548970/fd'"
+    },
+    {
+      "pid": "549015",
+      "error": "[Errno 13] Permission denied: '/proc/549015/fd'"
+    },
+    {
+      "pid": "549507",
+      "error": "[Errno 13] Permission denied: '/proc/549507/fd'"
+    },
+    {
+      "pid": "549769",
+      "error": "[Errno 13] Permission denied: '/proc/549769/fd'"
+    },
+    {
+      "pid": "549789",
+      "error": "[Errno 13] Permission denied: '/proc/549789/fd'"
+    },
+    {
+      "pid": "549809",
+      "error": "[Errno 13] Permission denied: '/proc/549809/fd'"
+    },
+    {
+      "pid": "549829",
+      "error": "[Errno 13] Permission denied: '/proc/549829/fd'"
+    },
+    {
+      "pid": "549849",
+      "error": "[Errno 13] Permission denied: '/proc/549849/fd'"
+    },
+    {
+      "pid": "549869",
+      "error": "[Errno 13] Permission denied: '/proc/549869/fd'"
+    },
+    {
+      "pid": "549889",
+      "error": "[Errno 13] Permission denied: '/proc/549889/fd'"
+    },
+    {
+      "pid": "549909",
+      "error": "[Errno 13] Permission denied: '/proc/549909/fd'"
+    },
+    {
+      "pid": "549929",
+      "error": "[Errno 13] Permission denied: '/proc/549929/fd'"
+    },
+    {
+      "pid": "549972",
+      "error": "[Errno 13] Permission denied: '/proc/549972/fd'"
+    },
+    {
+      "pid": "549992",
+      "error": "[Errno 13] Permission denied: '/proc/549992/fd'"
+    },
+    {
+      "pid": "550012",
+      "error": "[Errno 13] Permission denied: '/proc/550012/fd'"
+    },
+    {
+      "pid": "550020",
+      "error": "[Errno 13] Permission denied: '/proc/550020/fd'"
+    },
+    {
+      "pid": "550027",
+      "error": "[Errno 13] Permission denied: '/proc/550027/fd'"
+    },
+    {
+      "pid": "550034",
+      "error": "[Errno 13] Permission denied: '/proc/550034/fd'"
+    },
+    {
+      "pid": "550041",
+      "error": "[Errno 13] Permission denied: '/proc/550041/fd'"
+    },
+    {
+      "pid": "550048",
+      "error": "[Errno 13] Permission denied: '/proc/550048/fd'"
+    },
+    {
+      "pid": "550068",
+      "error": "[Errno 13] Permission denied: '/proc/550068/fd'"
+    },
+    {
+      "pid": "550088",
+      "error": "[Errno 13] Permission denied: '/proc/550088/fd'"
+    },
+    {
+      "pid": "550095",
+      "error": "[Errno 13] Permission denied: '/proc/550095/fd'"
+    },
+    {
+      "pid": "550102",
+      "error": "[Errno 13] Permission denied: '/proc/550102/fd'"
+    },
+    {
+      "pid": "550109",
+      "error": "[Errno 13] Permission denied: '/proc/550109/fd'"
+    },
+    {
+      "pid": "550129",
+      "error": "[Errno 13] Permission denied: '/proc/550129/fd'"
+    },
+    {
+      "pid": "550136",
+      "error": "[Errno 13] Permission denied: '/proc/550136/fd'"
+    },
+    {
+      "pid": "550143",
+      "error": "[Errno 13] Permission denied: '/proc/550143/fd'"
+    },
+    {
+      "pid": "550165",
+      "error": "[Errno 13] Permission denied: '/proc/550165/fd'"
+    },
+    {
+      "pid": "550172",
+      "error": "[Errno 13] Permission denied: '/proc/550172/fd'"
+    },
+    {
+      "pid": "550179",
+      "error": "[Errno 13] Permission denied: '/proc/550179/fd'"
+    },
+    {
+      "pid": "550184",
+      "error": "[Errno 13] Permission denied: '/proc/550184/fd'"
+    },
+    {
+      "pid": "550198",
+      "error": "[Errno 13] Permission denied: '/proc/550198/fd'"
+    },
+    {
+      "pid": "550205",
+      "error": "[Errno 13] Permission denied: '/proc/550205/fd'"
+    },
+    {
+      "pid": "550212",
+      "error": "[Errno 13] Permission denied: '/proc/550212/fd'"
+    },
+    {
+      "pid": "550219",
+      "error": "[Errno 13] Permission denied: '/proc/550219/fd'"
+    },
+    {
+      "pid": "550226",
+      "error": "[Errno 13] Permission denied: '/proc/550226/fd'"
+    },
+    {
+      "pid": "550233",
+      "error": "[Errno 13] Permission denied: '/proc/550233/fd'"
+    },
+    {
+      "pid": "550240",
+      "error": "[Errno 13] Permission denied: '/proc/550240/fd'"
+    },
+    {
+      "pid": "550247",
+      "error": "[Errno 13] Permission denied: '/proc/550247/fd'"
+    },
+    {
+      "pid": "550254",
+      "error": "[Errno 13] Permission denied: '/proc/550254/fd'"
+    },
+    {
+      "pid": "550261",
+      "error": "[Errno 13] Permission denied: '/proc/550261/fd'"
+    },
+    {
+      "pid": "550268",
+      "error": "[Errno 13] Permission denied: '/proc/550268/fd'"
+    },
+    {
+      "pid": "550600",
+      "error": "[Errno 13] Permission denied: '/proc/550600/fd'"
+    },
+    {
+      "pid": "550814",
+      "error": "[Errno 13] Permission denied: '/proc/550814/fd'"
+    },
+    {
+      "pid": "554421",
+      "error": "[Errno 13] Permission denied: '/proc/554421/fd'"
+    },
+    {
+      "pid": "556266",
+      "error": "[Errno 13] Permission denied: '/proc/556266/fd'"
+    },
+    {
+      "pid": "556565",
+      "error": "[Errno 13] Permission denied: '/proc/556565/fd'"
+    },
+    {
+      "pid": "556762",
+      "error": "[Errno 13] Permission denied: '/proc/556762/fd'"
+    },
+    {
+      "pid": "556769",
+      "error": "[Errno 13] Permission denied: '/proc/556769/fd'"
+    },
+    {
+      "pid": "556776",
+      "error": "[Errno 13] Permission denied: '/proc/556776/fd'"
+    },
+    {
+      "pid": "556989",
+      "error": "[Errno 13] Permission denied: '/proc/556989/fd'"
+    },
+    {
+      "pid": "556996",
+      "error": "[Errno 13] Permission denied: '/proc/556996/fd'"
+    },
+    {
+      "pid": "557003",
+      "error": "[Errno 13] Permission denied: '/proc/557003/fd'"
+    },
+    {
+      "pid": "557017",
+      "error": "[Errno 13] Permission denied: '/proc/557017/fd'"
+    },
+    {
+      "pid": "557197",
+      "error": "[Errno 13] Permission denied: '/proc/557197/fd'"
+    },
+    {
+      "pid": "557707",
+      "error": "[Errno 13] Permission denied: '/proc/557707/fd'"
+    },
+    {
+      "pid": "557712",
+      "error": "[Errno 13] Permission denied: '/proc/557712/fd'"
+    },
+    {
+      "pid": "557732",
+      "error": "[Errno 13] Permission denied: '/proc/557732/fd'"
+    },
+    {
+      "pid": "557737",
+      "error": "[Errno 13] Permission denied: '/proc/557737/fd'"
+    },
+    {
+      "pid": "557767",
+      "error": "[Errno 13] Permission denied: '/proc/557767/fd'"
+    },
+    {
+      "pid": "557772",
+      "error": "[Errno 13] Permission denied: '/proc/557772/fd'"
+    },
+    {
+      "pid": "557784",
+      "error": "[Errno 13] Permission denied: '/proc/557784/fd'"
+    },
+    {
+      "pid": "557789",
+      "error": "[Errno 13] Permission denied: '/proc/557789/fd'"
+    },
+    {
+      "pid": "557811",
+      "error": "[Errno 13] Permission denied: '/proc/557811/fd'"
+    },
+    {
+      "pid": "557838",
+      "error": "[Errno 13] Permission denied: '/proc/557838/fd'"
+    },
+    {
+      "pid": "557847",
+      "error": "[Errno 13] Permission denied: '/proc/557847/fd'"
+    },
+    {
+      "pid": "557852",
+      "error": "[Errno 13] Permission denied: '/proc/557852/fd'"
+    },
+    {
+      "pid": "557862",
+      "error": "[Errno 13] Permission denied: '/proc/557862/fd'"
+    },
+    {
+      "pid": "557867",
+      "error": "[Errno 13] Permission denied: '/proc/557867/fd'"
+    },
+    {
+      "pid": "557878",
+      "error": "[Errno 13] Permission denied: '/proc/557878/fd'"
+    },
+    {
+      "pid": "557884",
+      "error": "[Errno 13] Permission denied: '/proc/557884/fd'"
+    },
+    {
+      "pid": "557902",
+      "error": "[Errno 13] Permission denied: '/proc/557902/fd'"
+    },
+    {
+      "pid": "557906",
+      "error": "[Errno 13] Permission denied: '/proc/557906/fd'"
+    },
+    {
+      "pid": "557911",
+      "error": "[Errno 13] Permission denied: '/proc/557911/fd'"
+    },
+    {
+      "pid": "557923",
+      "error": "[Errno 13] Permission denied: '/proc/557923/fd'"
+    },
+    {
+      "pid": "557929",
+      "error": "[Errno 13] Permission denied: '/proc/557929/fd'"
+    },
+    {
+      "pid": "557947",
+      "error": "[Errno 13] Permission denied: '/proc/557947/fd'"
+    },
+    {
+      "pid": "557952",
+      "error": "[Errno 13] Permission denied: '/proc/557952/fd'"
+    },
+    {
+      "pid": "557957",
+      "error": "[Errno 13] Permission denied: '/proc/557957/fd'"
+    },
+    {
+      "pid": "557982",
+      "error": "[Errno 13] Permission denied: '/proc/557982/fd'"
+    },
+    {
+      "pid": "557987",
+      "error": "[Errno 13] Permission denied: '/proc/557987/fd'"
+    },
+    {
+      "pid": "557992",
+      "error": "[Errno 13] Permission denied: '/proc/557992/fd'"
+    },
+    {
+      "pid": "558010",
+      "error": "[Errno 13] Permission denied: '/proc/558010/fd'"
+    },
+    {
+      "pid": "558015",
+      "error": "[Errno 13] Permission denied: '/proc/558015/fd'"
+    },
+    {
+      "pid": "558020",
+      "error": "[Errno 13] Permission denied: '/proc/558020/fd'"
+    },
+    {
+      "pid": "558036",
+      "error": "[Errno 13] Permission denied: '/proc/558036/fd'"
+    },
+    {
+      "pid": "558041",
+      "error": "[Errno 13] Permission denied: '/proc/558041/fd'"
+    },
+    {
+      "pid": "558046",
+      "error": "[Errno 13] Permission denied: '/proc/558046/fd'"
+    },
+    {
+      "pid": "558062",
+      "error": "[Errno 13] Permission denied: '/proc/558062/fd'"
+    },
+    {
+      "pid": "558067",
+      "error": "[Errno 13] Permission denied: '/proc/558067/fd'"
+    },
+    {
+      "pid": "558072",
+      "error": "[Errno 13] Permission denied: '/proc/558072/fd'"
+    },
+    {
+      "pid": "558088",
+      "error": "[Errno 13] Permission denied: '/proc/558088/fd'"
+    },
+    {
+      "pid": "558093",
+      "error": "[Errno 13] Permission denied: '/proc/558093/fd'"
+    },
+    {
+      "pid": "558098",
+      "error": "[Errno 13] Permission denied: '/proc/558098/fd'"
+    },
+    {
+      "pid": "558114",
+      "error": "[Errno 13] Permission denied: '/proc/558114/fd'"
+    },
+    {
+      "pid": "558119",
+      "error": "[Errno 13] Permission denied: '/proc/558119/fd'"
+    },
+    {
+      "pid": "558125",
+      "error": "[Errno 13] Permission denied: '/proc/558125/fd'"
+    },
+    {
+      "pid": "558172",
+      "error": "[Errno 13] Permission denied: '/proc/558172/fd'"
+    },
+    {
+      "pid": "558196",
+      "error": "[Errno 13] Permission denied: '/proc/558196/fd'"
+    },
+    {
+      "pid": "558220",
+      "error": "[Errno 13] Permission denied: '/proc/558220/fd'"
+    },
+    {
+      "pid": "558244",
+      "error": "[Errno 13] Permission denied: '/proc/558244/fd'"
+    },
+    {
+      "pid": "558277",
+      "error": "[Errno 13] Permission denied: '/proc/558277/fd'"
+    },
+    {
+      "pid": "558282",
+      "error": "[Errno 13] Permission denied: '/proc/558282/fd'"
+    },
+    {
+      "pid": "558294",
+      "error": "[Errno 13] Permission denied: '/proc/558294/fd'"
+    },
+    {
+      "pid": "558299",
+      "error": "[Errno 13] Permission denied: '/proc/558299/fd'"
+    },
+    {
+      "pid": "561706",
+      "error": "[Errno 13] Permission denied: '/proc/561706/fd'"
+    },
+    {
+      "pid": "566409",
+      "error": "[Errno 13] Permission denied: '/proc/566409/fd'"
+    },
+    {
+      "pid": "573014",
+      "error": "[Errno 13] Permission denied: '/proc/573014/fd'"
+    },
+    {
+      "pid": "574684",
+      "error": "[Errno 13] Permission denied: '/proc/574684/fd'"
+    },
+    {
+      "pid": "574703",
+      "error": "[Errno 13] Permission denied: '/proc/574703/fd'"
+    },
+    {
+      "pid": "575595",
+      "error": "[Errno 13] Permission denied: '/proc/575595/fd'"
+    },
+    {
+      "pid": "577381",
+      "error": "[Errno 13] Permission denied: '/proc/577381/fd'"
+    },
+    {
+      "pid": "577416",
+      "error": "[Errno 13] Permission denied: '/proc/577416/fd'"
+    },
+    {
+      "pid": "578525",
+      "error": "[Errno 13] Permission denied: '/proc/578525/fd'"
+    },
+    {
+      "pid": "579110",
+      "error": "[Errno 13] Permission denied: '/proc/579110/fd'"
+    },
+    {
+      "pid": "580534",
+      "error": "[Errno 13] Permission denied: '/proc/580534/fd'"
+    },
+    {
+      "pid": "582176",
+      "error": "[Errno 13] Permission denied: '/proc/582176/fd'"
+    },
+    {
+      "pid": "583208",
+      "error": "[Errno 13] Permission denied: '/proc/583208/fd'"
+    },
+    {
+      "pid": "583374",
+      "error": "[Errno 13] Permission denied: '/proc/583374/fd'"
+    },
+    {
+      "pid": "583465",
+      "error": "[Errno 13] Permission denied: '/proc/583465/fd'"
+    },
+    {
+      "pid": "583886",
+      "error": "[Errno 13] Permission denied: '/proc/583886/fd'"
+    },
+    {
+      "pid": "583897",
+      "error": "[Errno 13] Permission denied: '/proc/583897/fd'"
+    },
+    {
+      "pid": "583908",
+      "error": "[Errno 13] Permission denied: '/proc/583908/fd'"
+    },
+    {
+      "pid": "583919",
+      "error": "[Errno 13] Permission denied: '/proc/583919/fd'"
+    },
+    {
+      "pid": "583930",
+      "error": "[Errno 13] Permission denied: '/proc/583930/fd'"
+    },
+    {
+      "pid": "583941",
+      "error": "[Errno 13] Permission denied: '/proc/583941/fd'"
+    },
+    {
+      "pid": "588703",
+      "error": "[Errno 13] Permission denied: '/proc/588703/fd'"
+    },
+    {
+      "pid": "590250",
+      "error": "[Errno 13] Permission denied: '/proc/590250/fd'"
+    },
+    {
+      "pid": "592173",
+      "error": "[Errno 13] Permission denied: '/proc/592173/fd'"
+    },
+    {
+      "pid": "593735",
+      "error": "[Errno 13] Permission denied: '/proc/593735/fd'"
+    },
+    {
+      "pid": "594456",
+      "error": "[Errno 13] Permission denied: '/proc/594456/fd'"
+    },
+    {
+      "pid": "595654",
+      "error": "[Errno 13] Permission denied: '/proc/595654/fd'"
+    },
+    {
+      "pid": "595768",
+      "error": "[Errno 13] Permission denied: '/proc/595768/fd'"
+    },
+    {
+      "pid": "595867",
+      "error": "[Errno 13] Permission denied: '/proc/595867/fd'"
+    },
+    {
+      "pid": "595966",
+      "error": "[Errno 13] Permission denied: '/proc/595966/fd'"
+    },
+    {
+      "pid": "595973",
+      "error": "[Errno 13] Permission denied: '/proc/595973/fd'"
+    },
+    {
+      "pid": "595992",
+      "error": "[Errno 13] Permission denied: '/proc/595992/fd'"
+    },
+    {
+      "pid": "596011",
+      "error": "[Errno 13] Permission denied: '/proc/596011/fd'"
+    },
+    {
+      "pid": "596044",
+      "error": "[Errno 13] Permission denied: '/proc/596044/fd'"
+    },
+    {
+      "pid": "596113",
+      "error": "[Errno 13] Permission denied: '/proc/596113/fd'"
+    },
+    {
+      "pid": "596185",
+      "error": "[Errno 13] Permission denied: '/proc/596185/fd'"
+    },
+    {
+      "pid": "596255",
+      "error": "[Errno 13] Permission denied: '/proc/596255/fd'"
+    },
+    {
+      "pid": "596325",
+      "error": "[Errno 13] Permission denied: '/proc/596325/fd'"
+    },
+    {
+      "pid": "596332",
+      "error": "[Errno 13] Permission denied: '/proc/596332/fd'"
+    },
+    {
+      "pid": "596348",
+      "error": "[Errno 13] Permission denied: '/proc/596348/fd'"
+    },
+    {
+      "pid": "596364",
+      "error": "[Errno 13] Permission denied: '/proc/596364/fd'"
+    },
+    {
+      "pid": "596413",
+      "error": "[Errno 13] Permission denied: '/proc/596413/fd'"
+    },
+    {
+      "pid": "596463",
+      "error": "[Errno 13] Permission denied: '/proc/596463/fd'"
+    },
+    {
+      "pid": "596513",
+      "error": "[Errno 13] Permission denied: '/proc/596513/fd'"
+    },
+    {
+      "pid": "597374",
+      "error": "[Errno 13] Permission denied: '/proc/597374/fd'"
+    },
+    {
+      "pid": "597385",
+      "error": "[Errno 13] Permission denied: '/proc/597385/fd'"
+    },
+    {
+      "pid": "597391",
+      "error": "[Errno 13] Permission denied: '/proc/597391/fd'"
+    },
+    {
+      "pid": "597397",
+      "error": "[Errno 13] Permission denied: '/proc/597397/fd'"
+    },
+    {
+      "pid": "597403",
+      "error": "[Errno 13] Permission denied: '/proc/597403/fd'"
+    },
+    {
+      "pid": "597410",
+      "error": "[Errno 13] Permission denied: '/proc/597410/fd'"
+    },
+    {
+      "pid": "597437",
+      "error": "[Errno 13] Permission denied: '/proc/597437/fd'"
+    },
+    {
+      "pid": "597442",
+      "error": "[Errno 13] Permission denied: '/proc/597442/fd'"
+    },
+    {
+      "pid": "597455",
+      "error": "[Errno 13] Permission denied: '/proc/597455/fd'"
+    },
+    {
+      "pid": "597460",
+      "error": "[Errno 13] Permission denied: '/proc/597460/fd'"
+    },
+    {
+      "pid": "597507",
+      "error": "[Errno 13] Permission denied: '/proc/597507/fd'"
+    },
+    {
+      "pid": "597586",
+      "error": "[Errno 13] Permission denied: '/proc/597586/fd'"
+    },
+    {
+      "pid": "597713",
+      "error": "[Errno 13] Permission denied: '/proc/597713/fd'"
+    },
+    {
+      "pid": "597874",
+      "error": "[Errno 13] Permission denied: '/proc/597874/fd'"
+    },
+    {
+      "pid": "597879",
+      "error": "[Errno 13] Permission denied: '/proc/597879/fd'"
+    },
+    {
+      "pid": "597994",
+      "error": "[Errno 13] Permission denied: '/proc/597994/fd'"
+    },
+    {
+      "pid": "597999",
+      "error": "[Errno 13] Permission denied: '/proc/597999/fd'"
+    },
+    {
+      "pid": "598046",
+      "error": "[Errno 13] Permission denied: '/proc/598046/fd'"
+    },
+    {
+      "pid": "598170",
+      "error": "[Errno 13] Permission denied: '/proc/598170/fd'"
+    },
+    {
+      "pid": "598175",
+      "error": "[Errno 13] Permission denied: '/proc/598175/fd'"
+    },
+    {
+      "pid": "598222",
+      "error": "[Errno 13] Permission denied: '/proc/598222/fd'"
+    },
+    {
+      "pid": "598301",
+      "error": "[Errno 13] Permission denied: '/proc/598301/fd'"
+    },
+    {
+      "pid": "598428",
+      "error": "[Errno 13] Permission denied: '/proc/598428/fd'"
+    },
+    {
+      "pid": "598590",
+      "error": "[Errno 13] Permission denied: '/proc/598590/fd'"
+    },
+    {
+      "pid": "598595",
+      "error": "[Errno 13] Permission denied: '/proc/598595/fd'"
+    },
+    {
+      "pid": "598642",
+      "error": "[Errno 13] Permission denied: '/proc/598642/fd'"
+    },
+    {
+      "pid": "598721",
+      "error": "[Errno 13] Permission denied: '/proc/598721/fd'"
+    },
+    {
+      "pid": "598848",
+      "error": "[Errno 13] Permission denied: '/proc/598848/fd'"
+    },
+    {
+      "pid": "599010",
+      "error": "[Errno 13] Permission denied: '/proc/599010/fd'"
+    },
+    {
+      "pid": "599015",
+      "error": "[Errno 13] Permission denied: '/proc/599015/fd'"
+    },
+    {
+      "pid": "599104",
+      "error": "[Errno 13] Permission denied: '/proc/599104/fd'"
+    },
+    {
+      "pid": "599109",
+      "error": "[Errno 13] Permission denied: '/proc/599109/fd'"
+    },
+    {
+      "pid": "599156",
+      "error": "[Errno 13] Permission denied: '/proc/599156/fd'"
+    },
+    {
+      "pid": "599235",
+      "error": "[Errno 13] Permission denied: '/proc/599235/fd'"
+    },
+    {
+      "pid": "599362",
+      "error": "[Errno 13] Permission denied: '/proc/599362/fd'"
+    },
+    {
+      "pid": "599468",
+      "error": "[Errno 13] Permission denied: '/proc/599468/fd'"
+    },
+    {
+      "pid": "599473",
+      "error": "[Errno 13] Permission denied: '/proc/599473/fd'"
+    },
+    {
+      "pid": "599520",
+      "error": "[Errno 13] Permission denied: '/proc/599520/fd'"
+    },
+    {
+      "pid": "599525",
+      "error": "[Errno 13] Permission denied: '/proc/599525/fd'"
+    },
+    {
+      "pid": "599573",
+      "error": "[Errno 13] Permission denied: '/proc/599573/fd'"
+    },
+    {
+      "pid": "599579",
+      "error": "[Errno 13] Permission denied: '/proc/599579/fd'"
+    },
+    {
+      "pid": "599628",
+      "error": "[Errno 13] Permission denied: '/proc/599628/fd'"
+    },
+    {
+      "pid": "599707",
+      "error": "[Errno 13] Permission denied: '/proc/599707/fd'"
+    },
+    {
+      "pid": "599834",
+      "error": "[Errno 13] Permission denied: '/proc/599834/fd'"
+    },
+    {
+      "pid": "599839",
+      "error": "[Errno 13] Permission denied: '/proc/599839/fd'"
+    },
+    {
+      "pid": "599944",
+      "error": "[Errno 13] Permission denied: '/proc/599944/fd'"
+    },
+    {
+      "pid": "599949",
+      "error": "[Errno 13] Permission denied: '/proc/599949/fd'"
+    },
+    {
+      "pid": "599996",
+      "error": "[Errno 13] Permission denied: '/proc/599996/fd'"
+    },
+    {
+      "pid": "600075",
+      "error": "[Errno 13] Permission denied: '/proc/600075/fd'"
+    },
+    {
+      "pid": "600202",
+      "error": "[Errno 13] Permission denied: '/proc/600202/fd'"
+    },
+    {
+      "pid": "600374",
+      "error": "[Errno 13] Permission denied: '/proc/600374/fd'"
+    },
+    {
+      "pid": "600580",
+      "error": "[Errno 13] Permission denied: '/proc/600580/fd'"
+    },
+    {
+      "pid": "600585",
+      "error": "[Errno 13] Permission denied: '/proc/600585/fd'"
+    },
+    {
+      "pid": "600787",
+      "error": "[Errno 13] Permission denied: '/proc/600787/fd'"
+    },
+    {
+      "pid": "601053",
+      "error": "[Errno 13] Permission denied: '/proc/601053/fd'"
+    },
+    {
+      "pid": "601347",
+      "error": "[Errno 13] Permission denied: '/proc/601347/fd'"
+    },
+    {
+      "pid": "601596",
+      "error": "[Errno 13] Permission denied: '/proc/601596/fd'"
+    },
+    {
+      "pid": "601978",
+      "error": "[Errno 13] Permission denied: '/proc/601978/fd'"
+    },
+    {
+      "pid": "602396",
+      "error": "[Errno 13] Permission denied: '/proc/602396/fd'"
+    },
+    {
+      "pid": "602401",
+      "error": "[Errno 13] Permission denied: '/proc/602401/fd'"
+    },
+    {
+      "pid": "602685",
+      "error": "[Errno 13] Permission denied: '/proc/602685/fd'"
+    },
+    {
+      "pid": "602690",
+      "error": "[Errno 13] Permission denied: '/proc/602690/fd'"
+    },
+    {
+      "pid": "602738",
+      "error": "[Errno 13] Permission denied: '/proc/602738/fd'"
+    },
+    {
+      "pid": "602774",
+      "error": "[Errno 13] Permission denied: '/proc/602774/fd'"
+    },
+    {
+      "pid": "602779",
+      "error": "[Errno 13] Permission denied: '/proc/602779/fd'"
+    },
+    {
+      "pid": "602826",
+      "error": "[Errno 13] Permission denied: '/proc/602826/fd'"
+    },
+    {
+      "pid": "602905",
+      "error": "[Errno 13] Permission denied: '/proc/602905/fd'"
+    },
+    {
+      "pid": "603032",
+      "error": "[Errno 13] Permission denied: '/proc/603032/fd'"
+    },
+    {
+      "pid": "603193",
+      "error": "[Errno 13] Permission denied: '/proc/603193/fd'"
+    },
+    {
+      "pid": "603198",
+      "error": "[Errno 13] Permission denied: '/proc/603198/fd'"
+    },
+    {
+      "pid": "603355",
+      "error": "[Errno 13] Permission denied: '/proc/603355/fd'"
+    },
+    {
+      "pid": "603576",
+      "error": "[Errno 13] Permission denied: '/proc/603576/fd'"
+    },
+    {
+      "pid": "603582",
+      "error": "[Errno 13] Permission denied: '/proc/603582/fd'"
+    },
+    {
+      "pid": "603587",
+      "error": "[Errno 13] Permission denied: '/proc/603587/fd'"
+    },
+    {
+      "pid": "603634",
+      "error": "[Errno 13] Permission denied: '/proc/603634/fd'"
+    },
+    {
+      "pid": "603713",
+      "error": "[Errno 13] Permission denied: '/proc/603713/fd'"
+    },
+    {
+      "pid": "603840",
+      "error": "[Errno 13] Permission denied: '/proc/603840/fd'"
+    },
+    {
+      "pid": "604001",
+      "error": "[Errno 13] Permission denied: '/proc/604001/fd'"
+    },
+    {
+      "pid": "604006",
+      "error": "[Errno 13] Permission denied: '/proc/604006/fd'"
+    },
+    {
+      "pid": "604163",
+      "error": "[Errno 13] Permission denied: '/proc/604163/fd'"
+    },
+    {
+      "pid": "604384",
+      "error": "[Errno 13] Permission denied: '/proc/604384/fd'"
+    },
+    {
+      "pid": "604633",
+      "error": "[Errno 13] Permission denied: '/proc/604633/fd'"
+    },
+    {
+      "pid": "604836",
+      "error": "[Errno 13] Permission denied: '/proc/604836/fd'"
+    },
+    {
+      "pid": "604841",
+      "error": "[Errno 13] Permission denied: '/proc/604841/fd'"
+    },
+    {
+      "pid": "604888",
+      "error": "[Errno 13] Permission denied: '/proc/604888/fd'"
+    },
+    {
+      "pid": "604967",
+      "error": "[Errno 13] Permission denied: '/proc/604967/fd'"
+    },
+    {
+      "pid": "605094",
+      "error": "[Errno 13] Permission denied: '/proc/605094/fd'"
+    },
+    {
+      "pid": "605255",
+      "error": "[Errno 13] Permission denied: '/proc/605255/fd'"
+    },
+    {
+      "pid": "605260",
+      "error": "[Errno 13] Permission denied: '/proc/605260/fd'"
+    },
+    {
+      "pid": "605417",
+      "error": "[Errno 13] Permission denied: '/proc/605417/fd'"
+    },
+    {
+      "pid": "605638",
+      "error": "[Errno 13] Permission denied: '/proc/605638/fd'"
+    },
+    {
+      "pid": "605889",
+      "error": "[Errno 13] Permission denied: '/proc/605889/fd'"
+    },
+    {
+      "pid": "606175",
+      "error": "[Errno 13] Permission denied: '/proc/606175/fd'"
+    },
+    {
+      "pid": "606180",
+      "error": "[Errno 13] Permission denied: '/proc/606180/fd'"
+    },
+    {
+      "pid": "606492",
+      "error": "[Errno 13] Permission denied: '/proc/606492/fd'"
+    },
+    {
+      "pid": "606743",
+      "error": "[Errno 13] Permission denied: '/proc/606743/fd'"
+    },
+    {
+      "pid": "606748",
+      "error": "[Errno 13] Permission denied: '/proc/606748/fd'"
+    },
+    {
+      "pid": "606769",
+      "error": "[Errno 13] Permission denied: '/proc/606769/fd'"
+    },
+    {
+      "pid": "606774",
+      "error": "[Errno 13] Permission denied: '/proc/606774/fd'"
+    },
+    {
+      "pid": "606821",
+      "error": "[Errno 13] Permission denied: '/proc/606821/fd'"
+    },
+    {
+      "pid": "606900",
+      "error": "[Errno 13] Permission denied: '/proc/606900/fd'"
+    },
+    {
+      "pid": "607027",
+      "error": "[Errno 13] Permission denied: '/proc/607027/fd'"
+    },
+    {
+      "pid": "607213",
+      "error": "[Errno 13] Permission denied: '/proc/607213/fd'"
+    },
+    {
+      "pid": "607218",
+      "error": "[Errno 13] Permission denied: '/proc/607218/fd'"
+    },
+    {
+      "pid": "607265",
+      "error": "[Errno 13] Permission denied: '/proc/607265/fd'"
+    },
+    {
+      "pid": "607279",
+      "error": "[Errno 13] Permission denied: '/proc/607279/fd'"
+    },
+    {
+      "pid": "607284",
+      "error": "[Errno 13] Permission denied: '/proc/607284/fd'"
+    },
+    {
+      "pid": "607297",
+      "error": "[Errno 13] Permission denied: '/proc/607297/fd'"
+    },
+    {
+      "pid": "607302",
+      "error": "[Errno 13] Permission denied: '/proc/607302/fd'"
+    },
+    {
+      "pid": "607349",
+      "error": "[Errno 13] Permission denied: '/proc/607349/fd'"
+    },
+    {
+      "pid": "607362",
+      "error": "[Errno 13] Permission denied: '/proc/607362/fd'"
+    },
+    {
+      "pid": "607367",
+      "error": "[Errno 13] Permission denied: '/proc/607367/fd'"
+    },
+    {
+      "pid": "607414",
+      "error": "[Errno 13] Permission denied: '/proc/607414/fd'"
+    },
+    {
+      "pid": "607427",
+      "error": "[Errno 13] Permission denied: '/proc/607427/fd'"
+    },
+    {
+      "pid": "607432",
+      "error": "[Errno 13] Permission denied: '/proc/607432/fd'"
+    },
+    {
+      "pid": "607459",
+      "error": "[Errno 13] Permission denied: '/proc/607459/fd'"
+    },
+    {
+      "pid": "607464",
+      "error": "[Errno 13] Permission denied: '/proc/607464/fd'"
+    },
+    {
+      "pid": "607470",
+      "error": "[Errno 13] Permission denied: '/proc/607470/fd'"
+    },
+    {
+      "pid": "607475",
+      "error": "[Errno 13] Permission denied: '/proc/607475/fd'"
+    },
+    {
+      "pid": "607522",
+      "error": "[Errno 13] Permission denied: '/proc/607522/fd'"
+    },
+    {
+      "pid": "607557",
+      "error": "[Errno 13] Permission denied: '/proc/607557/fd'"
+    },
+    {
+      "pid": "607562",
+      "error": "[Errno 13] Permission denied: '/proc/607562/fd'"
+    },
+    {
+      "pid": "607583",
+      "error": "[Errno 13] Permission denied: '/proc/607583/fd'"
+    },
+    {
+      "pid": "607588",
+      "error": "[Errno 13] Permission denied: '/proc/607588/fd'"
+    },
+    {
+      "pid": "607635",
+      "error": "[Errno 13] Permission denied: '/proc/607635/fd'"
+    },
+    {
+      "pid": "607714",
+      "error": "[Errno 13] Permission denied: '/proc/607714/fd'"
+    },
+    {
+      "pid": "607841",
+      "error": "[Errno 13] Permission denied: '/proc/607841/fd'"
+    },
+    {
+      "pid": "608002",
+      "error": "[Errno 13] Permission denied: '/proc/608002/fd'"
+    },
+    {
+      "pid": "608007",
+      "error": "[Errno 13] Permission denied: '/proc/608007/fd'"
+    },
+    {
+      "pid": "608164",
+      "error": "[Errno 13] Permission denied: '/proc/608164/fd'"
+    },
+    {
+      "pid": "608386",
+      "error": "[Errno 13] Permission denied: '/proc/608386/fd'"
+    },
+    {
+      "pid": "608391",
+      "error": "[Errno 13] Permission denied: '/proc/608391/fd'"
+    },
+    {
+      "pid": "608438",
+      "error": "[Errno 13] Permission denied: '/proc/608438/fd'"
+    },
+    {
+      "pid": "608517",
+      "error": "[Errno 13] Permission denied: '/proc/608517/fd'"
+    },
+    {
+      "pid": "608644",
+      "error": "[Errno 13] Permission denied: '/proc/608644/fd'"
+    },
+    {
+      "pid": "608805",
+      "error": "[Errno 13] Permission denied: '/proc/608805/fd'"
+    },
+    {
+      "pid": "608810",
+      "error": "[Errno 13] Permission denied: '/proc/608810/fd'"
+    },
+    {
+      "pid": "608967",
+      "error": "[Errno 13] Permission denied: '/proc/608967/fd'"
+    },
+    {
+      "pid": "608990",
+      "error": "[Errno 13] Permission denied: '/proc/608990/fd'"
+    },
+    {
+      "pid": "609066",
+      "error": "[Errno 13] Permission denied: '/proc/609066/fd'"
+    },
+    {
+      "pid": "609071",
+      "error": "[Errno 13] Permission denied: '/proc/609071/fd'"
+    },
+    {
+      "pid": "609118",
+      "error": "[Errno 13] Permission denied: '/proc/609118/fd'"
+    },
+    {
+      "pid": "609154",
+      "error": "[Errno 13] Permission denied: '/proc/609154/fd'"
+    },
+    {
+      "pid": "609159",
+      "error": "[Errno 13] Permission denied: '/proc/609159/fd'"
+    },
+    {
+      "pid": "609206",
+      "error": "[Errno 13] Permission denied: '/proc/609206/fd'"
+    },
+    {
+      "pid": "609242",
+      "error": "[Errno 13] Permission denied: '/proc/609242/fd'"
+    },
+    {
+      "pid": "609247",
+      "error": "[Errno 13] Permission denied: '/proc/609247/fd'"
+    },
+    {
+      "pid": "609294",
+      "error": "[Errno 13] Permission denied: '/proc/609294/fd'"
+    },
+    {
+      "pid": "609330",
+      "error": "[Errno 13] Permission denied: '/proc/609330/fd'"
+    },
+    {
+      "pid": "609335",
+      "error": "[Errno 13] Permission denied: '/proc/609335/fd'"
+    },
+    {
+      "pid": "609382",
+      "error": "[Errno 13] Permission denied: '/proc/609382/fd'"
+    },
+    {
+      "pid": "609461",
+      "error": "[Errno 13] Permission denied: '/proc/609461/fd'"
+    },
+    {
+      "pid": "609485",
+      "error": "[Errno 13] Permission denied: '/proc/609485/fd'"
+    },
+    {
+      "pid": "609490",
+      "error": "[Errno 13] Permission denied: '/proc/609490/fd'"
+    },
+    {
+      "pid": "609537",
+      "error": "[Errno 13] Permission denied: '/proc/609537/fd'"
+    },
+    {
+      "pid": "609574",
+      "error": "[Errno 13] Permission denied: '/proc/609574/fd'"
+    },
+    {
+      "pid": "609579",
+      "error": "[Errno 13] Permission denied: '/proc/609579/fd'"
+    },
+    {
+      "pid": "609626",
+      "error": "[Errno 13] Permission denied: '/proc/609626/fd'"
+    },
+    {
+      "pid": "609631",
+      "error": "[Errno 13] Permission denied: '/proc/609631/fd'"
+    },
+    {
+      "pid": "609685",
+      "error": "[Errno 13] Permission denied: '/proc/609685/fd'"
+    },
+    {
+      "pid": "609690",
+      "error": "[Errno 13] Permission denied: '/proc/609690/fd'"
+    },
+    {
+      "pid": "609737",
+      "error": "[Errno 13] Permission denied: '/proc/609737/fd'"
+    },
+    {
+      "pid": "609742",
+      "error": "[Errno 13] Permission denied: '/proc/609742/fd'"
+    },
+    {
+      "pid": "609765",
+      "error": "[Errno 13] Permission denied: '/proc/609765/fd'"
+    },
+    {
+      "pid": "609770",
+      "error": "[Errno 13] Permission denied: '/proc/609770/fd'"
+    },
+    {
+      "pid": "609817",
+      "error": "[Errno 13] Permission denied: '/proc/609817/fd'"
+    },
+    {
+      "pid": "609852",
+      "error": "[Errno 13] Permission denied: '/proc/609852/fd'"
+    },
+    {
+      "pid": "609857",
+      "error": "[Errno 13] Permission denied: '/proc/609857/fd'"
+    },
+    {
+      "pid": "609891",
+      "error": "[Errno 13] Permission denied: '/proc/609891/fd'"
+    },
+    {
+      "pid": "609896",
+      "error": "[Errno 13] Permission denied: '/proc/609896/fd'"
+    },
+    {
+      "pid": "609943",
+      "error": "[Errno 13] Permission denied: '/proc/609943/fd'"
+    },
+    {
+      "pid": "610022",
+      "error": "[Errno 13] Permission denied: '/proc/610022/fd'"
+    },
+    {
+      "pid": "610149",
+      "error": "[Errno 13] Permission denied: '/proc/610149/fd'"
+    },
+    {
+      "pid": "610310",
+      "error": "[Errno 13] Permission denied: '/proc/610310/fd'"
+    },
+    {
+      "pid": "610315",
+      "error": "[Errno 13] Permission denied: '/proc/610315/fd'"
+    },
+    {
+      "pid": "610426",
+      "error": "[Errno 13] Permission denied: '/proc/610426/fd'"
+    },
+    {
+      "pid": "610431",
+      "error": "[Errno 13] Permission denied: '/proc/610431/fd'"
+    },
+    {
+      "pid": "610444",
+      "error": "[Errno 13] Permission denied: '/proc/610444/fd'"
+    },
+    {
+      "pid": "610449",
+      "error": "[Errno 13] Permission denied: '/proc/610449/fd'"
+    },
+    {
+      "pid": "610496",
+      "error": "[Errno 13] Permission denied: '/proc/610496/fd'"
+    },
+    {
+      "pid": "610575",
+      "error": "[Errno 13] Permission denied: '/proc/610575/fd'"
+    },
+    {
+      "pid": "610702",
+      "error": "[Errno 13] Permission denied: '/proc/610702/fd'"
+    },
+    {
+      "pid": "610707",
+      "error": "[Errno 13] Permission denied: '/proc/610707/fd'"
+    },
+    {
+      "pid": "610773",
+      "error": "[Errno 13] Permission denied: '/proc/610773/fd'"
+    },
+    {
+      "pid": "610778",
+      "error": "[Errno 13] Permission denied: '/proc/610778/fd'"
+    },
+    {
+      "pid": "610825",
+      "error": "[Errno 13] Permission denied: '/proc/610825/fd'"
+    },
+    {
+      "pid": "610904",
+      "error": "[Errno 13] Permission denied: '/proc/610904/fd'"
+    },
+    {
+      "pid": "611031",
+      "error": "[Errno 13] Permission denied: '/proc/611031/fd'"
+    },
+    {
+      "pid": "611137",
+      "error": "[Errno 13] Permission denied: '/proc/611137/fd'"
+    },
+    {
+      "pid": "611142",
+      "error": "[Errno 13] Permission denied: '/proc/611142/fd'"
+    },
+    {
+      "pid": "611189",
+      "error": "[Errno 13] Permission denied: '/proc/611189/fd'"
+    },
+    {
+      "pid": "611268",
+      "error": "[Errno 13] Permission denied: '/proc/611268/fd'"
+    },
+    {
+      "pid": "611530",
+      "error": "[Errno 13] Permission denied: '/proc/611530/fd'"
+    },
+    {
+      "pid": "611535",
+      "error": "[Errno 13] Permission denied: '/proc/611535/fd'"
+    },
+    {
+      "pid": "611662",
+      "error": "[Errno 13] Permission denied: '/proc/611662/fd'"
+    },
+    {
+      "pid": "611741",
+      "error": "[Errno 13] Permission denied: '/proc/611741/fd'"
+    },
+    {
+      "pid": "611820",
+      "error": "[Errno 13] Permission denied: '/proc/611820/fd'"
+    },
+    {
+      "pid": "611825",
+      "error": "[Errno 13] Permission denied: '/proc/611825/fd'"
+    },
+    {
+      "pid": "611872",
+      "error": "[Errno 13] Permission denied: '/proc/611872/fd'"
+    },
+    {
+      "pid": "611951",
+      "error": "[Errno 13] Permission denied: '/proc/611951/fd'"
+    },
+    {
+      "pid": "612078",
+      "error": "[Errno 13] Permission denied: '/proc/612078/fd'"
+    },
+    {
+      "pid": "612083",
+      "error": "[Errno 13] Permission denied: '/proc/612083/fd'"
+    },
+    {
+      "pid": "612242",
+      "error": "[Errno 13] Permission denied: '/proc/612242/fd'"
+    },
+    {
+      "pid": "612247",
+      "error": "[Errno 13] Permission denied: '/proc/612247/fd'"
+    },
+    {
+      "pid": "612270",
+      "error": "[Errno 13] Permission denied: '/proc/612270/fd'"
+    },
+    {
+      "pid": "612275",
+      "error": "[Errno 13] Permission denied: '/proc/612275/fd'"
+    },
+    {
+      "pid": "612322",
+      "error": "[Errno 13] Permission denied: '/proc/612322/fd'"
+    },
+    {
+      "pid": "612401",
+      "error": "[Errno 13] Permission denied: '/proc/612401/fd'"
+    },
+    {
+      "pid": "612528",
+      "error": "[Errno 13] Permission denied: '/proc/612528/fd'"
+    },
+    {
+      "pid": "612533",
+      "error": "[Errno 13] Permission denied: '/proc/612533/fd'"
+    },
+    {
+      "pid": "612752",
+      "error": "[Errno 13] Permission denied: '/proc/612752/fd'"
+    },
+    {
+      "pid": "612757",
+      "error": "[Errno 13] Permission denied: '/proc/612757/fd'"
+    },
+    {
+      "pid": "612804",
+      "error": "[Errno 13] Permission denied: '/proc/612804/fd'"
+    },
+    {
+      "pid": "612883",
+      "error": "[Errno 13] Permission denied: '/proc/612883/fd'"
+    },
+    {
+      "pid": "613010",
+      "error": "[Errno 13] Permission denied: '/proc/613010/fd'"
+    },
+    {
+      "pid": "613015",
+      "error": "[Errno 13] Permission denied: '/proc/613015/fd'"
+    },
+    {
+      "pid": "613174",
+      "error": "[Errno 13] Permission denied: '/proc/613174/fd'"
+    },
+    {
+      "pid": "613334",
+      "error": "[Errno 13] Permission denied: '/proc/613334/fd'"
+    },
+    {
+      "pid": "613339",
+      "error": "[Errno 13] Permission denied: '/proc/613339/fd'"
+    },
+    {
+      "pid": "613421",
+      "error": "[Errno 13] Permission denied: '/proc/613421/fd'"
+    },
+    {
+      "pid": "613426",
+      "error": "[Errno 13] Permission denied: '/proc/613426/fd'"
+    },
+    {
+      "pid": "613473",
+      "error": "[Errno 13] Permission denied: '/proc/613473/fd'"
+    },
+    {
+      "pid": "613552",
+      "error": "[Errno 13] Permission denied: '/proc/613552/fd'"
+    },
+    {
+      "pid": "613679",
+      "error": "[Errno 13] Permission denied: '/proc/613679/fd'"
+    },
+    {
+      "pid": "613772",
+      "error": "[Errno 13] Permission denied: '/proc/613772/fd'"
+    },
+    {
+      "pid": "613777",
+      "error": "[Errno 13] Permission denied: '/proc/613777/fd'"
+    },
+    {
+      "pid": "613824",
+      "error": "[Errno 13] Permission denied: '/proc/613824/fd'"
+    },
+    {
+      "pid": "613903",
+      "error": "[Errno 13] Permission denied: '/proc/613903/fd'"
+    },
+    {
+      "pid": "614030",
+      "error": "[Errno 13] Permission denied: '/proc/614030/fd'"
+    },
+    {
+      "pid": "614191",
+      "error": "[Errno 13] Permission denied: '/proc/614191/fd'"
+    },
+    {
+      "pid": "614361",
+      "error": "[Errno 13] Permission denied: '/proc/614361/fd'"
+    },
+    {
+      "pid": "614366",
+      "error": "[Errno 13] Permission denied: '/proc/614366/fd'"
+    },
+    {
+      "pid": "614579",
+      "error": "[Errno 13] Permission denied: '/proc/614579/fd'"
+    },
+    {
+      "pid": "614951",
+      "error": "[Errno 13] Permission denied: '/proc/614951/fd'"
+    },
+    {
+      "pid": "615243",
+      "error": "[Errno 13] Permission denied: '/proc/615243/fd'"
+    },
+    {
+      "pid": "615541",
+      "error": "[Errno 13] Permission denied: '/proc/615541/fd'"
+    },
+    {
+      "pid": "615851",
+      "error": "[Errno 13] Permission denied: '/proc/615851/fd'"
+    },
+    {
+      "pid": "615856",
+      "error": "[Errno 13] Permission denied: '/proc/615856/fd'"
+    },
+    {
+      "pid": "616175",
+      "error": "[Errno 13] Permission denied: '/proc/616175/fd'"
+    },
+    {
+      "pid": "616180",
+      "error": "[Errno 13] Permission denied: '/proc/616180/fd'"
+    },
+    {
+      "pid": "616227",
+      "error": "[Errno 13] Permission denied: '/proc/616227/fd'"
+    },
+    {
+      "pid": "616245",
+      "error": "[Errno 13] Permission denied: '/proc/616245/fd'"
+    },
+    {
+      "pid": "616256",
+      "error": "[Errno 13] Permission denied: '/proc/616256/fd'"
+    },
+    {
+      "pid": "616261",
+      "error": "[Errno 13] Permission denied: '/proc/616261/fd'"
+    },
+    {
+      "pid": "616331",
+      "error": "[Errno 13] Permission denied: '/proc/616331/fd'"
+    },
+    {
+      "pid": "616339",
+      "error": "[Errno 13] Permission denied: '/proc/616339/fd'"
+    },
+    {
+      "pid": "616379",
+      "error": "[Errno 13] Permission denied: '/proc/616379/fd'"
+    },
+    {
+      "pid": "616384",
+      "error": "[Errno 13] Permission denied: '/proc/616384/fd'"
+    },
+    {
+      "pid": "616395",
+      "error": "[Errno 13] Permission denied: '/proc/616395/fd'"
+    },
+    {
+      "pid": "616400",
+      "error": "[Errno 13] Permission denied: '/proc/616400/fd'"
+    },
+    {
+      "pid": "616427",
+      "error": "[Errno 13] Permission denied: '/proc/616427/fd'"
+    },
+    {
+      "pid": "616432",
+      "error": "[Errno 13] Permission denied: '/proc/616432/fd'"
+    },
+    {
+      "pid": "616438",
+      "error": "[Errno 13] Permission denied: '/proc/616438/fd'"
+    },
+    {
+      "pid": "616465",
+      "error": "[Errno 13] Permission denied: '/proc/616465/fd'"
+    },
+    {
+      "pid": "616470",
+      "error": "[Errno 13] Permission denied: '/proc/616470/fd'"
+    },
+    {
+      "pid": "616475",
+      "error": "[Errno 13] Permission denied: '/proc/616475/fd'"
+    },
+    {
+      "pid": "616519",
+      "error": "[Errno 13] Permission denied: '/proc/616519/fd'"
+    },
+    {
+      "pid": "616524",
+      "error": "[Errno 13] Permission denied: '/proc/616524/fd'"
+    },
+    {
+      "pid": "616529",
+      "error": "[Errno 13] Permission denied: '/proc/616529/fd'"
+    },
+    {
+      "pid": "616580",
+      "error": "[Errno 13] Permission denied: '/proc/616580/fd'"
+    },
+    {
+      "pid": "616585",
+      "error": "[Errno 13] Permission denied: '/proc/616585/fd'"
+    },
+    {
+      "pid": "616590",
+      "error": "[Errno 13] Permission denied: '/proc/616590/fd'"
+    },
+    {
+      "pid": "616624",
+      "error": "[Errno 13] Permission denied: '/proc/616624/fd'"
+    },
+    {
+      "pid": "616629",
+      "error": "[Errno 13] Permission denied: '/proc/616629/fd'"
+    },
+    {
+      "pid": "616634",
+      "error": "[Errno 13] Permission denied: '/proc/616634/fd'"
+    },
+    {
+      "pid": "616668",
+      "error": "[Errno 13] Permission denied: '/proc/616668/fd'"
+    },
+    {
+      "pid": "616673",
+      "error": "[Errno 13] Permission denied: '/proc/616673/fd'"
+    },
+    {
+      "pid": "616678",
+      "error": "[Errno 13] Permission denied: '/proc/616678/fd'"
+    },
+    {
+      "pid": "616713",
+      "error": "[Errno 13] Permission denied: '/proc/616713/fd'"
+    },
+    {
+      "pid": "616718",
+      "error": "[Errno 13] Permission denied: '/proc/616718/fd'"
+    },
+    {
+      "pid": "616723",
+      "error": "[Errno 13] Permission denied: '/proc/616723/fd'"
+    },
+    {
+      "pid": "616757",
+      "error": "[Errno 13] Permission denied: '/proc/616757/fd'"
+    },
+    {
+      "pid": "616762",
+      "error": "[Errno 13] Permission denied: '/proc/616762/fd'"
+    },
+    {
+      "pid": "616767",
+      "error": "[Errno 13] Permission denied: '/proc/616767/fd'"
+    },
+    {
+      "pid": "616802",
+      "error": "[Errno 13] Permission denied: '/proc/616802/fd'"
+    },
+    {
+      "pid": "616807",
+      "error": "[Errno 13] Permission denied: '/proc/616807/fd'"
+    },
+    {
+      "pid": "616832",
+      "error": "[Errno 13] Permission denied: '/proc/616832/fd'"
+    },
+    {
+      "pid": "616837",
+      "error": "[Errno 13] Permission denied: '/proc/616837/fd'"
+    },
+    {
+      "pid": "616842",
+      "error": "[Errno 13] Permission denied: '/proc/616842/fd'"
+    },
+    {
+      "pid": "616848",
+      "error": "[Errno 13] Permission denied: '/proc/616848/fd'"
+    },
+    {
+      "pid": "616853",
+      "error": "[Errno 13] Permission denied: '/proc/616853/fd'"
+    },
+    {
+      "pid": "616858",
+      "error": "[Errno 13] Permission denied: '/proc/616858/fd'"
+    },
+    {
+      "pid": "616884",
+      "error": "[Errno 13] Permission denied: '/proc/616884/fd'"
+    },
+    {
+      "pid": "616891",
+      "error": "[Errno 13] Permission denied: '/proc/616891/fd'"
+    },
+    {
+      "pid": "616909",
+      "error": "[Errno 13] Permission denied: '/proc/616909/fd'"
+    },
+    {
+      "pid": "616915",
+      "error": "[Errno 13] Permission denied: '/proc/616915/fd'"
+    },
+    {
+      "pid": "616920",
+      "error": "[Errno 13] Permission denied: '/proc/616920/fd'"
+    },
+    {
+      "pid": "616926",
+      "error": "[Errno 13] Permission denied: '/proc/616926/fd'"
+    },
+    {
+      "pid": "616931",
+      "error": "[Errno 13] Permission denied: '/proc/616931/fd'"
+    },
+    {
+      "pid": "616975",
+      "error": "[Errno 13] Permission denied: '/proc/616975/fd'"
+    },
+    {
+      "pid": "616980",
+      "error": "[Errno 13] Permission denied: '/proc/616980/fd'"
+    },
+    {
+      "pid": "616985",
+      "error": "[Errno 13] Permission denied: '/proc/616985/fd'"
+    },
+    {
+      "pid": "617029",
+      "error": "[Errno 13] Permission denied: '/proc/617029/fd'"
+    },
+    {
+      "pid": "617034",
+      "error": "[Errno 13] Permission denied: '/proc/617034/fd'"
+    },
+    {
+      "pid": "617039",
+      "error": "[Errno 13] Permission denied: '/proc/617039/fd'"
+    },
+    {
+      "pid": "617081",
+      "error": "[Errno 13] Permission denied: '/proc/617081/fd'"
+    },
+    {
+      "pid": "617086",
+      "error": "[Errno 13] Permission denied: '/proc/617086/fd'"
+    },
+    {
+      "pid": "617110",
+      "error": "[Errno 13] Permission denied: '/proc/617110/fd'"
+    },
+    {
+      "pid": "617115",
+      "error": "[Errno 13] Permission denied: '/proc/617115/fd'"
+    },
+    {
+      "pid": "617139",
+      "error": "[Errno 13] Permission denied: '/proc/617139/fd'"
+    },
+    {
+      "pid": "617144",
+      "error": "[Errno 13] Permission denied: '/proc/617144/fd'"
+    },
+    {
+      "pid": "617180",
+      "error": "[Errno 13] Permission denied: '/proc/617180/fd'"
+    },
+    {
+      "pid": "617185",
+      "error": "[Errno 13] Permission denied: '/proc/617185/fd'"
+    },
+    {
+      "pid": "617224",
+      "error": "[Errno 13] Permission denied: '/proc/617224/fd'"
+    },
+    {
+      "pid": "617229",
+      "error": "[Errno 13] Permission denied: '/proc/617229/fd'"
+    },
+    {
+      "pid": "617240",
+      "error": "[Errno 13] Permission denied: '/proc/617240/fd'"
+    },
+    {
+      "pid": "617245",
+      "error": "[Errno 13] Permission denied: '/proc/617245/fd'"
+    },
+    {
+      "pid": "617266",
+      "error": "[Errno 13] Permission denied: '/proc/617266/fd'"
+    },
+    {
+      "pid": "617271",
+      "error": "[Errno 13] Permission denied: '/proc/617271/fd'"
+    },
+    {
+      "pid": "617295",
+      "error": "[Errno 13] Permission denied: '/proc/617295/fd'"
+    },
+    {
+      "pid": "617300",
+      "error": "[Errno 13] Permission denied: '/proc/617300/fd'"
+    },
+    {
+      "pid": "617335",
+      "error": "[Errno 13] Permission denied: '/proc/617335/fd'"
+    },
+    {
+      "pid": "617340",
+      "error": "[Errno 13] Permission denied: '/proc/617340/fd'"
+    },
+    {
+      "pid": "617364",
+      "error": "[Errno 13] Permission denied: '/proc/617364/fd'"
+    },
+    {
+      "pid": "617389",
+      "error": "[Errno 13] Permission denied: '/proc/617389/fd'"
+    },
+    {
+      "pid": "617394",
+      "error": "[Errno 13] Permission denied: '/proc/617394/fd'"
+    },
+    {
+      "pid": "617418",
+      "error": "[Errno 13] Permission denied: '/proc/617418/fd'"
+    },
+    {
+      "pid": "617485",
+      "error": "[Errno 13] Permission denied: '/proc/617485/fd'"
+    },
+    {
+      "pid": "617490",
+      "error": "[Errno 13] Permission denied: '/proc/617490/fd'"
+    },
+    {
+      "pid": "617495",
+      "error": "[Errno 13] Permission denied: '/proc/617495/fd'"
+    },
+    {
+      "pid": "617520",
+      "error": "[Errno 13] Permission denied: '/proc/617520/fd'"
+    },
+    {
+      "pid": "617525",
+      "error": "[Errno 13] Permission denied: '/proc/617525/fd'"
+    },
+    {
+      "pid": "617550",
+      "error": "[Errno 13] Permission denied: '/proc/617550/fd'"
+    },
+    {
+      "pid": "617555",
+      "error": "[Errno 13] Permission denied: '/proc/617555/fd'"
+    },
+    {
+      "pid": "617579",
+      "error": "[Errno 13] Permission denied: '/proc/617579/fd'"
+    },
+    {
+      "pid": "617610",
+      "error": "[Errno 13] Permission denied: '/proc/617610/fd'"
+    },
+    {
+      "pid": "617619",
+      "error": "[Errno 13] Permission denied: '/proc/617619/fd'"
+    },
+    {
+      "pid": "617632",
+      "error": "[Errno 13] Permission denied: '/proc/617632/fd'"
+    },
+    {
+      "pid": "617641",
+      "error": "[Errno 13] Permission denied: '/proc/617641/fd'"
+    },
+    {
+      "pid": "617651",
+      "error": "[Errno 13] Permission denied: '/proc/617651/fd'"
+    },
+    {
+      "pid": "617675",
+      "error": "[Errno 13] Permission denied: '/proc/617675/fd'"
+    },
+    {
+      "pid": "617687",
+      "error": "[Errno 13] Permission denied: '/proc/617687/fd'"
+    },
+    {
+      "pid": "617695",
+      "error": "[Errno 13] Permission denied: '/proc/617695/fd'"
+    },
+    {
+      "pid": "617707",
+      "error": "[Errno 13] Permission denied: '/proc/617707/fd'"
+    },
+    {
+      "pid": "617715",
+      "error": "[Errno 13] Permission denied: '/proc/617715/fd'"
+    },
+    {
+      "pid": "617727",
+      "error": "[Errno 13] Permission denied: '/proc/617727/fd'"
+    },
+    {
+      "pid": "617739",
+      "error": "[Errno 13] Permission denied: '/proc/617739/fd'"
+    },
+    {
+      "pid": "617751",
+      "error": "[Errno 13] Permission denied: '/proc/617751/fd'"
+    },
+    {
+      "pid": "617763",
+      "error": "[Errno 13] Permission denied: '/proc/617763/fd'"
+    },
+    {
+      "pid": "617771",
+      "error": "[Errno 13] Permission denied: '/proc/617771/fd'"
+    },
+    {
+      "pid": "617779",
+      "error": "[Errno 13] Permission denied: '/proc/617779/fd'"
+    },
+    {
+      "pid": "617787",
+      "error": "[Errno 13] Permission denied: '/proc/617787/fd'"
+    },
+    {
+      "pid": "617800",
+      "error": "[Errno 13] Permission denied: '/proc/617800/fd'"
+    },
+    {
+      "pid": "617808",
+      "error": "[Errno 13] Permission denied: '/proc/617808/fd'"
+    },
+    {
+      "pid": "617928",
+      "error": "[Errno 13] Permission denied: '/proc/617928/fd'"
+    },
+    {
+      "pid": "617940",
+      "error": "[Errno 13] Permission denied: '/proc/617940/fd'"
+    },
+    {
+      "pid": "617948",
+      "error": "[Errno 13] Permission denied: '/proc/617948/fd'"
+    },
+    {
+      "pid": "617956",
+      "error": "[Errno 13] Permission denied: '/proc/617956/fd'"
+    },
+    {
+      "pid": "617964",
+      "error": "[Errno 13] Permission denied: '/proc/617964/fd'"
+    },
+    {
+      "pid": "618540",
+      "error": "[Errno 13] Permission denied: '/proc/618540/fd'"
+    },
+    {
+      "pid": "618860",
+      "error": "[Errno 13] Permission denied: '/proc/618860/fd'"
+    },
+    {
+      "pid": "618924",
+      "error": "[Errno 13] Permission denied: '/proc/618924/fd'"
+    },
+    {
+      "pid": "619451",
+      "error": "[Errno 13] Permission denied: '/proc/619451/fd'"
+    },
+    {
+      "pid": "620820",
+      "error": "[Errno 13] Permission denied: '/proc/620820/fd'"
+    },
+    {
+      "pid": "620830",
+      "error": "[Errno 13] Permission denied: '/proc/620830/fd'"
+    },
+    {
+      "pid": "620845",
+      "error": "[Errno 13] Permission denied: '/proc/620845/fd'"
+    },
+    {
+      "pid": "620855",
+      "error": "[Errno 13] Permission denied: '/proc/620855/fd'"
+    },
+    {
+      "pid": "620865",
+      "error": "[Errno 13] Permission denied: '/proc/620865/fd'"
+    },
+    {
+      "pid": "620875",
+      "error": "[Errno 13] Permission denied: '/proc/620875/fd'"
+    },
+    {
+      "pid": "621076",
+      "error": "[Errno 13] Permission denied: '/proc/621076/fd'"
+    },
+    {
+      "pid": "621192",
+      "error": "[Errno 13] Permission denied: '/proc/621192/fd'"
+    },
+    {
+      "pid": "621304",
+      "error": "[Errno 13] Permission denied: '/proc/621304/fd'"
+    },
+    {
+      "pid": "621934",
+      "error": "[Errno 13] Permission denied: '/proc/621934/fd'"
+    },
+    {
+      "pid": "622403",
+      "error": "[Errno 13] Permission denied: '/proc/622403/fd'"
+    },
+    {
+      "pid": "622634",
+      "error": "[Errno 13] Permission denied: '/proc/622634/fd'"
+    },
+    {
+      "pid": "622649",
+      "error": "[Errno 13] Permission denied: '/proc/622649/fd'"
+    },
+    {
+      "pid": "622686",
+      "error": "[Errno 13] Permission denied: '/proc/622686/fd'"
+    },
+    {
+      "pid": "622705",
+      "error": "[Errno 13] Permission denied: '/proc/622705/fd'"
+    },
+    {
+      "pid": "622724",
+      "error": "[Errno 13] Permission denied: '/proc/622724/fd'"
+    },
+    {
+      "pid": "622743",
+      "error": "[Errno 13] Permission denied: '/proc/622743/fd'"
+    },
+    {
+      "pid": "622760",
+      "error": "[Errno 13] Permission denied: '/proc/622760/fd'"
+    },
+    {
+      "pid": "622784",
+      "error": "[Errno 13] Permission denied: '/proc/622784/fd'"
+    },
+    {
+      "pid": "622808",
+      "error": "[Errno 13] Permission denied: '/proc/622808/fd'"
+    },
+    {
+      "pid": "622833",
+      "error": "[Errno 13] Permission denied: '/proc/622833/fd'"
+    },
+    {
+      "pid": "622852",
+      "error": "[Errno 13] Permission denied: '/proc/622852/fd'"
+    },
+    {
+      "pid": "622865",
+      "error": "[Errno 13] Permission denied: '/proc/622865/fd'"
+    },
+    {
+      "pid": "622878",
+      "error": "[Errno 13] Permission denied: '/proc/622878/fd'"
+    },
+    {
+      "pid": "622896",
+      "error": "[Errno 13] Permission denied: '/proc/622896/fd'"
+    },
+    {
+      "pid": "622912",
+      "error": "[Errno 13] Permission denied: '/proc/622912/fd'"
+    },
+    {
+      "pid": "622928",
+      "error": "[Errno 13] Permission denied: '/proc/622928/fd'"
+    },
+    {
+      "pid": "622944",
+      "error": "[Errno 13] Permission denied: '/proc/622944/fd'"
+    },
+    {
+      "pid": "622960",
+      "error": "[Errno 13] Permission denied: '/proc/622960/fd'"
+    },
+    {
+      "pid": "622967",
+      "error": "[Errno 13] Permission denied: '/proc/622967/fd'"
+    },
+    {
+      "pid": "622973",
+      "error": "[Errno 13] Permission denied: '/proc/622973/fd'"
+    },
+    {
+      "pid": "622978",
+      "error": "[Errno 13] Permission denied: '/proc/622978/fd'"
+    },
+    {
+      "pid": "622983",
+      "error": "[Errno 13] Permission denied: '/proc/622983/fd'"
+    },
+    {
+      "pid": "622989",
+      "error": "[Errno 13] Permission denied: '/proc/622989/fd'"
+    },
+    {
+      "pid": "622994",
+      "error": "[Errno 13] Permission denied: '/proc/622994/fd'"
+    },
+    {
+      "pid": "623010",
+      "error": "[Errno 13] Permission denied: '/proc/623010/fd'"
+    },
+    {
+      "pid": "627116",
+      "error": "[Errno 13] Permission denied: '/proc/627116/fd'"
+    },
+    {
+      "pid": "627365",
+      "error": "[Errno 13] Permission denied: '/proc/627365/fd'"
+    },
+    {
+      "pid": "628964",
+      "error": "[Errno 13] Permission denied: '/proc/628964/fd'"
+    }
+  ],
+  "private_env_exists": false,
+  "outputs_regular_files": [],
+  "source_head_now": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "source_status_now": "",
+  "deciding_files_outside_copy": [
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/receipt.json",
+      "bytes": 91819,
+      "sha256": "c6b7c9ef624cf295f36fe9f1489b26f181373cc7c07e16061b28339bbbf783fc"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/stdout.txt",
+      "bytes": 124511,
+      "sha256": "12d11758f7acd53f4ca1fbeaf8661f3da3732ec62127910238b7cf9db40fa200"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/complete-source-inputs-before.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/complete-source-inputs-after.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/run_gate.py.txt",
+      "bytes": 6770,
+      "sha256": "e96299e509da11702010268a1604dbdda36a98fc024b9ccbf93d7718ec6c187f"
+    }
+  ]
+}

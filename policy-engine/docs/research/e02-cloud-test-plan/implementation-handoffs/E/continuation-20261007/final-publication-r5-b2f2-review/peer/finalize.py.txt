@@ -1,0 +1,76 @@
+"""Close actual immutable Git, CLI refusals/removals and encoding evidence."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+P = Path('/tmp/e02-E-r5-DOC-independent-fe9a-20261007')
+STAGE = Path('/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2'
+
+
+def ref(path):
+    blob = path.read_bytes()
+    return {'path': str(path), 'bytes': len(blob), 'sha256': hashlib.sha256(blob).hexdigest()}
+
+
+def read(path):
+    return json.loads(path.read_bytes())
+
+
+def require(value, label):
+    if not value:
+        raise ValueError(label)
+
+
+def main():
+    metadata = read(P / 'review-normal.json')
+    optimized = read(P / 'review-optimized.json')
+    require(metadata == optimized, 'normal_optimized_independent_Git_readback_equal')
+    expected_paths = {r['relative'] for r in metadata['complete698_Git_rows']}
+    actual_root_paths = {str(p.relative_to(ROOT / PREFIX)) for p in (ROOT / PREFIX).rglob('*') if p.is_file()}
+    stage_paths = {str(p.relative_to(STAGE / 'payload')) for p in (STAGE / 'payload').rglob('*') if p.is_file()} | {p.name for p in STAGE.iterdir() if p.is_file()}
+    require(expected_paths == actual_root_paths == stage_paths, 'full698_physical_and_Git_sets')
+    modes = []
+    all_assets = []
+    for mode in ['normal', 'optimized']:
+        controls = Path('/tmp/e02-E-final-publication-r5-b2f2-stage') / ('peer-fe9-' + mode)
+        report = read(controls / 'review.json')
+        require(len(report['rows']) == 26 and report['actual_corrupt_refusals'] == 24 and report['healthy_full_files'] == 698 and report['all_controls_PASS'] is True, 'actual26_CLI_controls_permode')
+        for row in report['rows']:
+            stdout = controls / (row['name'] + '.stdout.txt')
+            stderr = controls / (row['name'] + '.stderr.txt')
+            require(row['argv'][0] == sys.executable and row['argv'][-2] == '--destination-root', 'literal_CLI_command')
+            if row['expected_exit'] == 1:
+                require(row['exit_code'] == 1 and row['destination_created'] is False and stdout.read_bytes() == b'' and b'Traceback' in stderr.read_bytes(), 'false_claim_actual_refusal_before_destination')
+            else:
+                result = read(stdout)
+                require(row['exit_code'] == 0 and row['destination_created'] is True and result['source_native_numeric_gate_execution'] is False, 'actual_metadata_only_program_success')
+                if row['name'] == 'healthy-stage':
+                    require(result['expected_git_paths'] == 698 and result['logical_count'] == 1167 and row['copied_bytes'] == 43540949, 'actual_healthy698_copy')
+                else:
+                    require(row['name'] == 'sole-Counter-removal' and result['logical_count'] == 1166 and result['expected_git_paths'] == 698, 'Counter_removal_admits_omitted_alias_with_allcarriers')
+            all_assets += [ref(stdout), ref(stderr), ref(controls / (row['name'] + '.observation.json'))]
+        removal = controls / 'sole-Counter-guard-removal.py.txt'
+        require(removal.is_file() and report['Counter_guard_removed_only'] is True and report['marker_or_payload_substitution_for_removal'] is False, 'effective_actual_source_predicate_removal')
+        all_assets += [ref(removal), ref(controls / 'review.json'), ref(controls / 'healthy-stage-complete-readback.json')]
+        encoded = read(P / ('registered-' + mode + '.json'))
+        require(len(encoded['controls']) == 17 and sum(r['state'] == 'REFUSED' for r in encoded['controls']) == 15 and encoded['controls'][-1]['state'] == 'ADMITTED_PROPERTY_FAIL', 'actual17_encoding_controls_permode')
+        modes.append({'mode': mode, 'actual_CLI': ref(controls / 'review.json'), 'actual_encoding': ref(P / ('registered-' + mode + '.json')), 'CLI_rows': 26, 'before_destination_refusals': 24, 'healthy_copied_files': 698, 'actual_Counter_removal_property': 'FAIL omitted logical member admitted; full payload and markers retained', 'encoding_controls': 17})
+    head = subprocess.run(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+    tree = subprocess.run(['git', '-C', str(ROOT), 'rev-parse', 'HEAD^{tree}'], capture_output=True, text=True, check=True).stdout.strip()
+    status = subprocess.run(['git', '-C', str(ROOT), 'status', '--porcelain', '--untracked-files=no'], capture_output=True, text=True, check=True).stdout
+    require(head == metadata['DOC_candidate'] and tree == metadata['DOC_tree'] and status == '', 'final_Root_Git_guard_equal')
+    return {'schema': 'policyos.e02.independent.r5.complete_custody_GO.v1', 'DOC_candidate': head, 'DOC_tree': tree,
+            'scientific_source': metadata['scientific_source'], 'scientific_tree': metadata['scientific_tree'],
+            'disposition': 'GO immutable passive r5 DOC custody, complete logical Counter, typed header/claims/companions, literal+decoded identities and actual controls',
+            'immutable_Git_review': ref(P / 'review-normal.json'), 'full_Git_body_denominator': metadata['counts'], 'actual_modes': modes,
+            'complete_closed_CLI_asset_refs': all_assets, 'native_or_source_or_environment_reexecution': False,
+            'P37': {'full_Git_footprint_and_decoding_and_predicate_refusals': 'recomputed', 'scientific_case_gate_original_criteria_reuse': 'independently_reconciled', 'P41_and_formal_G_finding_authority': 'not_established'},
+            'limits': ['Source b2 and DOC fe9 remain distinct; no future selfSHA or new scientific/source acceptance created by copier.', 'All7 current global gates FAIL and39 parent stages1PASS2FAIL36UNRUN retained.', 'Historical49partial4held1closed vs43closed9limited2held proposals are preserved; formal G intake remains separate.', 'Read-only code/body/metadata work; no native numerical/runtime/HMC/gate/type/environment reruns.', 'Future plan-custody patch remains unapplied; draft PR bytes copied without publication by this carrier.', 'Repeatable isolated CLI output destinations/encoding fixtures remain scratch cleanup candidates; deciding metadata/stdout/source bytes retained.']}
+
+
+if __name__ == '__main__':
+    print(json.dumps(main(), indent=2, sort_keys=True))

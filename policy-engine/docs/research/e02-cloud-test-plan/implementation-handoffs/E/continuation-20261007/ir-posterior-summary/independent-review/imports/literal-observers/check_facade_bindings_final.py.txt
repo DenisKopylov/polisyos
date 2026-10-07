@@ -1,0 +1,152 @@
+"""Reconcile all new facade mappings with actual immutable native definitions."""
+from __future__ import annotations
+import argparse
+import ast
+import hashlib
+import importlib
+import inspect
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--candidate', required=True)
+parser.add_argument('--base', required=True)
+parser.add_argument('--repo', required=True)
+parser.add_argument('--output', required=True)
+args = parser.parse_args()
+LANE = Path(args.repo)
+sys.path.insert(0, str(LANE / 'policy-engine/src'))
+
+def require(value, reason):
+    if not value:
+        raise AssertionError(reason)
+
+def git(*argv):
+    return subprocess.check_output(['/usr/bin/git', '-C', str(LANE), *argv])
+
+def read(ref, path):
+    return git('show', ref + ':' + path)
+
+def literal(ref, path, name):
+    tree = ast.parse(read(ref, path))
+    for node in tree.body:
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target] if isinstance(node, ast.AnnAssign) else []
+        if any(isinstance(t, ast.Name) and t.id == name for t in targets):
+            return ast.literal_eval(node.value)
+    raise AssertionError('literal mapping absent: ' + name)
+
+footprint = git('diff', '--name-only', args.base, args.candidate).decode().splitlines()
+source_bindings = []
+for path in footprint:
+    pinned = read(args.candidate, path)
+    require((LANE / path).read_bytes() == pinned, 'live source drift: ' + path)
+    source_bindings.append({'path': path, 'git_blob': git('rev-parse', args.candidate + ':' + path).decode().strip(), 'sha256': hashlib.sha256(pinned).hexdigest(), 'bytes': len(pinned)})
+
+root_path = 'policy-engine/src/polisyos/ir/__init__.py'
+api_path = 'policy-engine/src/polisyos/ir/api.py'
+root_old = literal(args.base, root_path, '_LAZY_IMPORTS')
+root_new = literal(args.candidate, root_path, '_LAZY_IMPORTS')
+old_all = literal(args.base, root_path, '__all__')
+new_all = literal(args.candidate, root_path, '__all__')
+analytics_old = literal(args.base, api_path, 'ANALYTICS_FACADE_EXPORTS')
+analytics_new = literal(args.candidate, api_path, 'ANALYTICS_FACADE_EXPORTS')
+require(all(root_new.get(k) == v for k, v in root_old.items()), 'old root lazy mapping changed')
+require(set(old_all) <= set(new_all), 'old root public names removed')
+require(all(analytics_new.get(k) == v for k, v in analytics_old.items()), 'old analytics mapping changed')
+root_added = {k: v for k, v in root_new.items() if k not in root_old}
+analytics_added = {k: v for k, v in analytics_new.items() if k not in analytics_old}
+require(set(new_all) - set(old_all) == set(root_added), 'new root export set differs from lazy mappings')
+
+ir = importlib.import_module('polisyos.ir')
+analytics = importlib.import_module('polisyos.ir.analytics')
+profile_module = importlib.import_module('polisyos.ir.analytics.posterior_summary')
+require(Path(profile_module.__file__).resolve() == (LANE / 'policy-engine/src/polisyos/ir/analytics/posterior_summary.py').resolve(), 'profile runtime came from different checkout')
+rows = []
+for label, facade, additions in [('root', ir, root_added), ('analytics', analytics, analytics_added)]:
+    for name, (module, attribute) in sorted(additions.items()):
+        defining_module = importlib.import_module(module)
+        native = getattr(defining_module, attribute)
+        observed = getattr(facade, name)
+        require(observed is native, 'facade returned a proxy/copy: ' + name)
+        require(name in facade.__all__, 'actual name absent from facade inventory: ' + name)
+        rows.append({'facade': facade.__name__, 'name': name, 'definition_module': module, 'definition_attribute': attribute, 'definition_file': defining_module.__file__, 'actual_object_identity_equal': True, 'kind': 'class' if inspect.isclass(native) else 'function' if inspect.isfunction(native) else type(native).__name__})
+require(set(analytics.__all__) == set(analytics_new), 'analytics actual inventory differs from complete map')
+
+caller_paths = [path for path in footprint if path.startswith('policy-engine/src/polisyos/') and path.endswith('.py')]
+facade_additions = {'polisyos.ir': root_added, 'polisyos.ir.analytics': analytics_added}
+facade_objects = {'polisyos.ir': ir, 'polisyos.ir.analytics': analytics}
+callers = []
+for path in caller_paths:
+    module_name = path.removeprefix('policy-engine/src/').removesuffix('.py').replace('/', '.')
+    if module_name.endswith('.__init__'):
+        module_name = module_name.removesuffix('.__init__')
+    tree = ast.parse(read(args.candidate, path))
+    selected = [node for node in ast.walk(tree) if isinstance(node, ast.ImportFrom) and node.module in facade_additions]
+    if not any(alias.name in facade_additions[node.module] for node in selected for alias in node.names):
+        continue
+    imported_module = importlib.import_module(module_name)
+    for node in selected:
+        for alias in node.names:
+            if alias.name not in facade_additions[node.module]:
+                continue
+            bound_name = alias.asname or alias.name
+            expected = getattr(facade_objects[node.module], alias.name)
+            require(getattr(imported_module, bound_name) is expected, 'actual caller binding is not curated facade: ' + module_name + ':' + bound_name)
+            callers.append({'path': path, 'module': module_name, 'line': node.lineno, 'facade': node.module, 'public_name': alias.name, 'bound_name': bound_name, 'actual_object_identity_equal': True})
+
+abi_module = importlib.import_module('polisyos.schemas.abi_models')
+abi_entries = abi_module.select_abi_entries(('posterior_summary_profile',))
+require(len(abi_entries) == 1, 'profile ABI selector is absent or ambiguous')
+abi_entry = abi_entries[0]
+abi_definition_module, abi_name = abi_entry.fqn.rsplit('.', 1)
+abi_class = getattr(importlib.import_module(abi_definition_module), abi_name)
+require(abi_class is ir.PosteriorSummaryProfile, 'ABI route returns a copy or unrelated profile class')
+abi_binding = {'abi_key': abi_entry.abi_key, 'fqn': abi_entry.fqn, 'module': abi_entry.module,
+               'schema_file': abi_entry.schema_file, 'version_field': abi_entry.version_field,
+               'actual_same_class_as_root_and_analytics': True,
+               'scope': 'Definition placement/identity only; generated schema, replay and public inventory remain independent criteria lease.'}
+
+producer = importlib.import_module('polisyos.foundry.calibration.uncertainty_adapter')
+context = ir.PosteriorSummaryContext(parameters={'theta': ir.PosteriorParameterBinding(estimand_id='fixture.theta', unit='dimensionless', scale='native')})
+summary = producer.summarize_bayesian_calibration_posterior({'theta': [0.0, 2.0, 4.0]}, weights=[1.0, 1.0, 2.0], draw_ids=['r0', 'r1', 'r2'], context=context)
+envelope = summary.parameter_envelopes['theta']
+profile = analytics.read_posterior_summary_profile(envelope)
+require(isinstance(profile, ir.PosteriorSummaryProfile), 'producer/read facade does not return registered profile type')
+analytics.validate_raw_posterior_summary_envelope(envelope.model_dump(mode='json'), parameter_name='theta')
+mean = analytics.posterior_nominal_mean(envelope, parameter_name='theta', binding=context.parameters['theta'])
+carrier_hash = analytics.posterior_carrier_content_hash(envelope.distribution_payload)
+functional_observation = analytics.posterior_summary_functionals(tuple(envelope.distribution_payload.samples), tuple(envelope.distribution_payload.weights), envelope.confidence_level)
+require(mean == profile.posterior_mean and carrier_hash == profile.carrier_content_hash, 'actual public reader/hash binding differs from producer')
+# Keep callable name and healthy numeric return; actual owner identity must still fail.
+original = analytics.posterior_nominal_mean
+proxy = lambda value, **kwargs: original(value, **kwargs)
+analytics.posterior_nominal_mean = proxy
+require(proxy(envelope, parameter_name='theta') == mean, 'fake did not preserve healthy numeric marker')
+try:
+    require(getattr(analytics, 'posterior_nominal_mean') is profile_module.posterior_nominal_mean, 'facade identity property absent while name and numeric observation survive')
+except AssertionError as error:
+    removal = {'discriminator': 'PASS', 'required_identity_gate': 'FAIL', 'reason': str(error), 'same_name': 'posterior_nominal_mean', 'same_healthy_numeric_observation': True}
+else:
+    raise AssertionError('present-name fake escaped identity control')
+finally:
+    analytics.posterior_nominal_mean = original
+
+for path in footprint:
+    require((LANE / path).read_bytes() == read(args.candidate, path), 'source changed during runtime identity controls')
+result = {
+    'schema': 'policyos.e02.independent_ir_facade_binding.v1', 'candidate': args.candidate, 'base': args.base,
+    'tree': git('rev-parse', args.candidate + '^{tree}').decode().strip(), 'predicate_basis': 'recomputed',
+    'root_old_mapping_count': len(root_old), 'root_new_mapping_count': len(root_new), 'old_root_public_names_preserved': True,
+    'analytics_old_mapping_count': len(analytics_old), 'analytics_new_mapping_count': len(analytics_new), 'old_analytics_mappings_preserved': True,
+    'new_root_exports': sorted(root_added), 'new_analytics_exports': sorted(analytics_added), 'complete_new_export_bindings': rows,
+    'actual_product_caller_binding_count': len(callers), 'actual_product_caller_bindings': callers,
+    'actual_public_calls': {'internal_existing_Bayesian_producer': producer.summarize_bayesian_calibration_posterior.__module__, 'new_profile_instance': type(profile).__name__, 'sample_ids': list(profile.draw_ids), 'named_mean': mean, 'observed_functionals': functional_observation, 'carrier_hash': carrier_hash, 'gate_eligible': profile.gate_eligible, 'raw_inlet': 'actual admitted raw envelope accepted'},
+    'present_name_identity_removal': removal, 'complete_changed_source_bindings': source_bindings,
+    'abi_definition_identity': abi_binding,
+    'unresolved_by_construction': ['Configured CAS loader transport and raw-invalid/historical replay are independent oracle/criteria leases; architectural placement does not establish transport behavior.', 'These public invocation observations establish callability/binding, not independent correctness of the law, posterior quality or finding closure.', 'Full generated ABI/schema/public inventory/reference/release compatibility remains criteria/root gate work.'],
+    'limits': 'No author files or tests changed; used existing interpreter and exact admitted lane; all new public routes and new product caller bindings enumerated dynamically; old map identities were compared statically, not every optional old API imported.'
+}
+Path(args.output).write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({k: v for k, v in result.items() if k not in ('complete_new_export_bindings', 'actual_product_caller_bindings', 'complete_changed_source_bindings')}, indent=2))

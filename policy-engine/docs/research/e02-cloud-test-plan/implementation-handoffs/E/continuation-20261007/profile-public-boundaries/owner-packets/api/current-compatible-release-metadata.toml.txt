@@ -1,0 +1,11 @@
+id = "2026-10-07-posterior-profile2-raw-ingress"
+title = "Admit raw posterior Profile2 before numeric coercion and generic joins"
+type = "fixed"
+component = "ir-uncertainty"
+owner = "E-scoped-B201-B202"
+summary = "The shared envelope DTO validates declared raw Profile2 before bool/string coercion; multi-envelope Profile2 joins refuse before losing the law under an undeclared mixture."
+surface_classification = "public_stable: existing uncertainty DTO, loaders and composition; no new export, schema ID or outer wire version"
+compatibility = "Literal Profile1 id1/version1 and generic unprofiled Envelope1.1 raw replay retain their existing decoder. Profile2 singleton join is identity; generic joins remain unchanged."
+migration = "Supply finite real non-bool Profile2 values and complete supported declarations. A multi-law join requires a separate explicit mixture contract; no equal-mixture interpretation is inferred."
+limitations = "Profile2 remains non-gating. combine_envelopes is a lossy diagnostic interval summary, not a preserved posterior law. Source/fit quality, institutional authority and canonical generated companions remain separate."
+evidence = ["tests/unit/ir/test_uncertainty_profile_ingress.py", "tests/unit/ir/test_posterior_summary.py", "tests/unit/ir/test_uncertainty_posterior_composition.py"]

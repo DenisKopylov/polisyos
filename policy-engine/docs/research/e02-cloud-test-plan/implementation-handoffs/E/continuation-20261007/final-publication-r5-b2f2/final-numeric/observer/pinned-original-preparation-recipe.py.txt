@@ -1,0 +1,161 @@
+"""Prepare only: reuse reviewed canonical planner; no numerical or gate launch."""
+from __future__ import annotations
+import argparse,ast,collections,email.parser,hashlib,importlib.util,json,os,re,subprocess,time
+from pathlib import Path
+
+REPO=Path('/workspace/e02-E-continuation-20261006')
+CAND='31782b55f8f35556cfc581449b040c393f00c78f'
+OLD='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+BASE='198076863e143dea9f89f02734b13d50dae3eed5'
+OUT=Path(__file__).resolve().parent
+WAVE=Path('/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z')
+E02='policy-engine/docs/research/e02-cloud-test-plan/'
+WRAPPER=E02+'implementation-handoffs/E/continuation-20261007/common-wave-wrapper/'
+ENV=Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv')
+CAL='CAL_and_welfare_consumer';MC='MC_joint_law_support_and_Scientist_consumer'
+RATIO='policy-engine/tests/unit/ir/test_posterior_ratio_law.py'
+CURRENT_CAL=[
+ 'policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py',
+ 'policy-engine/tests/unit/foundry/calibration/test_report.py',
+ 'policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py',
+ 'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py',
+ 'policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py',
+]
+
+def git(*args):
+ return subprocess.run(['git','-C',str(REPO),*args],check=True,capture_output=True).stdout
+
+def asset(path,ref=CAND,physical=True):
+ data=git('show',ref+':'+path)
+ if physical and (REPO/path).read_bytes()!=data:raise ValueError('physical input differs: '+path)
+ return {'path':path,'source_sha':ref,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+
+def write(name,obj):
+ path=OUT/name;path.write_text(json.dumps(obj,indent=2)+'\n');return {'path':str(path),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+
+def package_inventory(prefix):
+ cfg=prefix/'pyvenv.cfg';metas=sorted(prefix.glob('lib/python*/site-packages/*.dist-info/METADATA'))
+ rows=[]
+ for p in metas:
+  data=p.read_bytes();m=email.parser.BytesParser().parsebytes(data)
+  rows.append({'relative':p.relative_to(prefix).as_posix(),'name':m['Name'],'version':m['Version'],'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+ return {'prefix':str(prefix),'pyvenv_cfg':{'bytes':cfg.stat().st_size,'sha256':hashlib.sha256(cfg.read_bytes()).hexdigest()},'metadata_count':len(rows),'packages':rows,'source_imports':False,'environment_mutation':False}
+
+def function_hashes(data):
+ tree=ast.parse(data);out={}
+ def walk(body,parent=''):
+  for node in body:
+   if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+    name=parent+node.name
+    # Named lexical body identity, annotations/defaults/decorators included; import runtime is separate.
+    out[name]={'ast_sha256':hashlib.sha256(ast.dump(node,include_attributes=False).encode()).hexdigest(),'line':node.lineno}
+    if isinstance(node,ast.ClassDef):walk(node.body,name+'.')
+ walk(tree.body);return out
+
+def imports(data):
+ rows=[]
+ for n in ast.walk(ast.parse(data)):
+  if isinstance(n,ast.ImportFrom) and n.module and n.module.startswith('polisyos'):
+   rows.append({'line':n.lineno,'module':n.module,'names':[a.name for a in n.names]})
+  elif isinstance(n,ast.Import):
+   rows.extend({'line':n.lineno,'module':a.name,'names':[]} for a in n.names if a.name.startswith('polisyos'))
+ return rows
+
+def prepare():
+ for ref in [CAND,OLD,BASE]:
+  if re.fullmatch('[0-9a-f]{40}',ref) is None:raise ValueError('full immutable ref required')
+ if git('rev-parse','HEAD').decode().strip()!=CAND:raise ValueError('preparation head changed')
+ dirty=git('status','--porcelain','--untracked-files=no').decode()
+ if dirty:raise ValueError('tracked source dirty at preparation')
+ if WAVE.exists() or WAVE.is_symlink():raise ValueError('fresh never-existing wave root required')
+ harness=OUT/'exact-reviewed-harness';harness.mkdir(exist_ok=False)
+ refs=[]
+ for name in ['prepare_current_owner_wave','retained_runtime_api_cli']:
+  relative=WRAPPER+name+'.py.txt';refs.append(asset(relative));(harness/(name+'.py')).write_bytes(git('show',CAND+':'+relative))
+ spec=importlib.util.spec_from_file_location('e02_current_existing_wrapper',harness/'prepare_current_owner_wave.py')
+ wrapper=importlib.util.module_from_spec(spec);spec.loader.exec_module(wrapper)
+ args=argparse.Namespace(repo=REPO,candidate=CAND,comparison_base=BASE,output_root=WAVE,plan_output=OUT/'canonical-base-plan.json',execute=False)
+ planner=wrapper.load_planner(args);plan=wrapper.prepare_current(args,planner)
+ write('canonical-base-plan.json',plan)
+ expected_names=set(plan['groups']);original_groups={g:list(v) for g,v in plan['groups'].items()}
+ if RATIO in [p for g in original_groups.values() for p in g]:raise ValueError('explicit missing-route assumption no longer true; refresh current source')
+ ratio_data=git('show',CAND+':'+RATIO);asset(RATIO)
+ plan['groups'][MC].append(RATIO)
+ plan['source_test_assets'][RATIO]={'bytes':len(ratio_data),'sha256':hashlib.sha256(ratio_data).hexdigest()}
+ plan['additions'][RATIO]={'group':MC,'reason':'actual newly tracked producer/CAS finite-ratio-law native companion; existing family_for is not yet routed'}
+ plan['changed_foreign_tests_outside_E_wave']=[p for p in plan['changed_foreign_tests_outside_E_wave'] if p!=RATIO]
+ retained_cal=[p for p in original_groups[CAL] if p not in CURRENT_CAL]
+ if not set(CURRENT_CAL)<=set(original_groups[CAL]):raise ValueError('current CAL selectors must be real existing native group members')
+ plan['groups'][CAL]=list(CURRENT_CAL)
+ prefix='policy-engine/'
+ for job in plan['jobs']:
+  job['environment']['UV_PROJECT_ENVIRONMENT']=str(ENV)
+  job['environment']['PYTHONPATH']=str(REPO/'policy-engine/src')
+  if job['argv'][0]==str(REPO/'policy-engine/.venv/bin/python'):job['argv'][0]=str(ENV/'bin/python')
+  if job['kind']=='numerical':
+   marker=job['argv'].index('--basetemp')+2
+   packet_dest=[row['destination'] for row in plan['owner_packet_extra_inputs']] if job['group']==wrapper.FRC_GROUP else []
+   job['argv']=job['argv'][:marker]+[p.removeprefix(prefix) for p in plan['groups'][job['group']]]+packet_dest
+   seam=WAVE/'configured-cas'/job['name']
+   job['environment'].update(POLISYOS_CAS_BACKEND='filesystem',POLISYOS_CAS_ROOT=str(seam/'objects'),POLISYOS_CAS_LOCAL_CACHE_DIR=str(seam/'local-cache'),XDG_CACHE_HOME=str(WAVE/'cache'/job['name']/'xdg'),UV_CACHE_DIR=str(WAVE/'cache'/job['name']/'uv'))
+   planner.admit_numeric_scratch(job)
+ plan['interpreter']=str(ENV/'bin/python')
+ plan['environment']['UV_PROJECT_ENVIRONMENT']=str(ENV)
+ plan['group_path_counts']={g:len(v) for g,v in plan['groups'].items()}
+ plan['native_test_path_count']=sum(plan['group_path_counts'].values())
+ plan['test_input_path_count_including_owner_packets']=plan['native_test_path_count']+len(plan['owner_packet_extra_inputs'])
+ plan['ast_test_function_counts_only']={g:sum(sum(isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name.startswith('test_') for n in ast.walk(ast.parse(git('show',CAND+':'+p)))) for p in paths) for g,paths in plan['groups'].items()}
+ plan['full_e_native_manifest']={'before_scoped_CAL_filter':original_groups,'current_MC_addition':RATIO,'retained_unchanged_CAL_native_paths':retained_cal,'full_path_count':sum(map(len,original_groups.values()))+1,'complete_bundle_coverage':True,'current_candidate_full_suite_PASS':False}
+ plan['old_paths_retained']=False
+ plan['old_path_scope_interpretation']='24 unchanged CAL optimization/JAX/Hessian/regression files retained as pinned historical 64d/324-case observation; five affected adapter/report/consumer paths current. This is complete criterion-input traceability, not all cases freshly executed on current candidate.'
+ plan['execution_state']='PREPARED_ONLY; no importer/numeric/gate callback launched; final source freeze and owner review not yet signalled'
+ plan['execution_schedule']='Importer-first via original canonical planner.execute; seven distinct native families concurrently; no worker/process/thread/CPU cap. Parent owns global final-gate dispatch separately after immutable freeze.'
+ plan['global_gate_queue']=[job for job in plan['jobs'] if job['kind']=='gate']
+ plan['jobs']=[job for job in plan['jobs'] if job['kind']!='gate']
+ plan['scope_control']='Numerical-only dispatch retains exact importer and all seven families; global seven commands preserved separately without duplicate global execution during current source checks.'
+ plan['preconditions_for_execute'] += ['Refresh candidate to actual final immutable merged head after format fixes and all independent source reviews; b6 is prospective observation only','Parent freeze explicit, source/input/env admission repeated against real final head','Admission paths remain never-existing; capacity and memory observed immediately before importer/launch; do not impose resource quotas','Current ROOT backend TMP/cache/store/environment are disjoint and protected; default metrics ports0','No current-candidate PASS inferred from old324 or prepare-only AST counts']
+ plan['runtime_test_case_count']='UNRUN; actual fresh JUnit only after the one approved frozen current wave'
+ plan['custody']['cleanup']='Cloud repeatable fixture outputs may be cleaned only after deciding receipts/no users/unique inputs preserved under latest user authorization; local nativeTrash only, production/source/useful docs/unique inputs preserved.'
+ refs += [asset(planner.PREPARATION.relative_to(REPO).as_posix()+'/'+name) for name in ['plan_wave.py','run_check.py','collect_wave.py','uncapped_umbrella.py','proposal.json','original-wave-groups.json']]
+ refs += [asset(wrapper.OWNER_PACKET_PATH),asset('policy-engine/src/polisyos/core/artifacts/backends/config.py')]
+ write('harness-source-inputs.json',{'source_sha':CAND,'source_tree':plan['candidate_tree_sha'],'assets':refs,'pre_import_binding':'candidate/physical planner and all6 companions compared before source loading by unchanged reviewed wrapper','new_executor':False})
+ tree=git('ls-tree','-r',CAND,'--','policy-engine/src','policy-engine/tests','policy-engine/tools','policy-engine/architecture','policy-engine/schemas','AGENTS.md','policy-engine/CONTRIBUTING.md','policy-engine/pyproject.toml','policy-engine/uv.lock')
+ (OUT/'full-source-input-git-tree.txt').write_bytes(tree)
+ plan['full_source_input_inventory']={'path':str(OUT/'full-source-input-git-tree.txt'),'bytes':len(tree),'sha256':hashlib.sha256(tree).hexdigest(),'records':len(tree.splitlines()),'object_names_bound_to_candidate':True,'includes_all_runtime_source_tests_tools_architecture_schema_and_pyproject_lock':True}
+ write('final-numeric-selector-plan.json',plan)
+ write('root-readonly-environment-metadata.json',package_inventory(ENV))
+ covpath=E02+'closure-decisions/coverage.json';cov=json.loads(git('show',CAND+':'+covpath));bundles=[b for b in cov['bundles'] if b['unit']=='E']
+ familyprefix={'PCL':'PCL_continuous_persistence','DDM':'DDM_runtime_and_facade','BKT':'BKT_FRC_S10_and_adjacent_report_consumers','FRC':'BKT_FRC_S10_and_adjacent_report_consumers','CAL':CAL,'UQP':MC,'UQS':MC,'DOE':'DOE_SALib_and_consumer_factory'}
+ old54path=E02+'implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json';old54=json.loads(git('show',CAND+':'+old54path));oldrows={r['id']:r for r in old54['rows']}
+ bundlemap=[]
+ for b in bundles:
+  family=familyprefix[b['id'].split('-')[0]]
+  bundlemap.append({'bundle':b['id'],'writer':b['writer'],'finding_ids':b['finding_ids'],'original_card':asset(b['criterion_card']),'native_family':family,'current_selector_paths':plan['groups'][family],'retained_unchanged_CAL_paths':retained_cal if family==CAL else [],'criterion_row_source':{'path':old54path,'role':'original card and preserved-ledger navigation only; frozen verdict/evidence not current PASS'},'ledger_status_preserved':{fid:oldrows[fid]['ledger_status_preserved'] for fid in b['finding_ids']},'original_accountable_owner_literals':{fid:oldrows[fid]['source_closure_owner_literal'] for fid in b['finding_ids']},'execution_status':'UNRUN','closure_decision':'Not recomputed here; accountable owner acceptance remains separate','local_scope':'Use exact criterion-supported production/source-law recipe only if needed; no full local data blanket gate'})
+ ids={fid for b in bundles for fid in b['finding_ids']};links=sum(len(b['finding_ids']) for b in bundles)
+ if len(bundles)!=22 or len(ids)!=54 or links!=55:raise ValueError('mandatory E denominator changed')
+ write('criterion-selector-map.json',{'schema':'policyos.e02.prepare_only_criterion_selector_map.v1','source_sha':CAND,'source_tree':plan['candidate_tree_sha'],'bundles':len(bundles),'unique_findings':len(ids),'id_to_bundle_links':links,'shared_link':'LA-051 in FRC01/FRC02','coverage_source':asset(covpath),'original_row_source':asset(old54path),'rows':bundlemap,'new54review':False,'check_or_finding_acceptance':False})
+ changed=git('diff','--name-only',OLD,CAND,'--','policy-engine/src/polisyos').decode().splitlines();prod=[p for p in changed if p.endswith('.py')]
+ owned=list(git('ls-tree','-r','--name-only',CAND,'--','policy-engine/src/polisyos/foundry/calibration').decode().splitlines())
+ for p in ['policy-engine/src/polisyos/foundry/runtime/numeric.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/ir/analytics/__init__.py']:
+  if p not in owned:owned.append(p)
+ dep=[]
+ for p in [x for x in owned if x.endswith('.py')]:
+  before=git('show',OLD+':'+p);after=git('show',CAND+':'+p);bef=function_hashes(before);aft=function_hashes(after)
+  dep.append({'path':p,'old_source':asset(p,OLD,False),'current_source':asset(p),'file_bytes_unchanged':before==after,'named_ast':{'unchanged':sorted(k for k in bef.keys() & aft.keys() if bef[k]['ast_sha256']==aft[k]['ast_sha256']),'changed':sorted(k for k in bef.keys() & aft.keys() if bef[k]['ast_sha256']!=aft[k]['ast_sha256']),'added':sorted(aft.keys()-bef.keys()),'removed':sorted(bef.keys()-aft.keys())},'current_internal_imports':imports(after)})
+ changedrows=[]
+ for p in prod:
+  before=git('show',OLD+':'+p);after=git('show',CAND+':'+p);a=function_hashes(before);b=function_hashes(after)
+  changedrows.append({'path':p,'old':asset(p,OLD,False),'new':asset(p),'changed_named_ast':sorted(k for k in a.keys() & b.keys() if a[k]['ast_sha256']!=b[k]['ast_sha256']),'added_named_ast':sorted(b.keys()-a.keys()),'removed_named_ast':sorted(a.keys()-b.keys()),'current_internal_imports':imports(after)})
+ write('CAL-transitive-dependency-bracket.json',{'schema':'policyos.e02.CAL_source_dependency_bracket.v1','historical_source':OLD,'current_source':CAND,'production_py_delta':changedrows,'calibration_and_consumers':dep,'current_CAL_native_paths':CURRENT_CAL,'unchanged_CAL_paths_not_repeated':retained_cal,'runtime_edges':[{'producer':'calibrator.py::Calibrator.run','call':'envelopes_from_calibration','adapter_named_body_unchanged':True,'changed_module_load_surface':True,'current_positive':'test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare','scope':'Real Calibrator producer→persisted report→delta/MC welfare consumer runs because downstream joint/profile and validator dependencies changed; unchanged standalone fit/gradient/Hessian arrays are not a second independent wave.'},{'producer':'uncertainty_adapter.py::summarize_bayesian_calibration_posterior','changed_definition':True,'reads':'sampling_admission finite ratio semantics + IRposterior v2 functionals/std','current_positive':'test_calibration_uncertainty_adapter.py current full module incl posterior diagnostics and spread diagnostic controls'},{'reader':'report.py::load_calibration_report','direct_dependency':'polisyos.ir.analytics.validate_raw_posterior_summary_envelope','changed_definition_source':'ir/analytics/posterior_summary.py','current_positive':'test_report.py + test_calibration_report_consumer.py fresh CAS/kind/schema/payload controls'},{'consumer':'propagate_welfare.py','file_bytes_unchanged':True,'changed_runtime_dependency':'MC/sampling_admission/IRlaw functionals','current_positive':'test_welfare_empirical_law.py + actual native covariance/joint admission tests in test_propagate_welfare.py'}],'not_dependency':'Package initialization imports can change an import surface, but are not by themselves a numerical Hessian/optimizer-method change; record both and run actual affected caller boundaries.','required_retention':'Old324 is source64d observation only. No current324PASS/current fullCALPASS; unaffected gradient/Hessian/scalar/batch tests remain historical source/definition-bound observations.'})
+ hist=E02+'implementation-handoffs/E/continuation-20261007/cal-interruption-retry/'
+ write('retained-CAL-observation.json',{'source_sha':OLD,'source_tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','receipt':asset(hist+'retry-completion.json'),'JUnit':asset(hist+'checks/cal-and-welfare-consumer-retry/pytest.xml'),'native_receipt':asset(hist+'checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json'),'original':{'exit_code':-9,'JUnit':False,'OOM_cause':'not_established'},'retry':{'cases':324,'passed':324,'failed':0,'errors':0,'skipped':0,'outcome':'PASS'},'current_candidate_PASS':False,'retained_reason':'No defining standalone scalar/batch/gradient/Hessian source or locked numeric backend change; current consumer and posterior law dependencies are separately selected.'})
+ resources={}
+ for f in ['memory.current','memory.max','memory.events','memory.stat']:
+  p=Path('/sys/fs/cgroup')/f
+  if p.exists():resources[f]=p.read_text()
+ storage={str(p):{'available_bytes':os.statvfs(p).f_bavail*os.statvfs(p).f_frsize,'total_bytes':os.statvfs(p).f_blocks*os.statvfs(p).f_frsize} for p in [Path('/tmp'),Path('/workspace')]}
+ write('preparation-admission.json',{'source_sha':CAND,'source_tree':plan['candidate_tree_sha'],'tracked_dirty':dirty,'prepared_unix':time.time(),'output_root_never_existed':not WAVE.exists(),'resources':resources,'storage':storage,'actual_capacity_interpretation':'Fresh /tmp is tmpfs charged to same16GiB cgroup; free bytes are not spareRAM. Actual capacity must be refreshed at rootfreeze and launch; no artificial quotas.','environment_readonly':str(ENV),'current_ROOT_backend_env_store_TMP_protected':True,'numeric_or_global_checks_launched':False})
+ if git('status','--porcelain','--untracked-files=no').decode()!=dirty or git('rev-parse','HEAD').decode().strip()!=CAND:raise ValueError('source guard changed during preparation')
+ print(json.dumps({'state':'PREPARED_ONLY','source_sha':CAND,'tree':plan['candidate_tree_sha'],'seven_numeric_groups':len([j for j in plan['jobs'] if j['kind']=='numerical']),'native_current_paths':plan['native_test_path_count'],'owner_extra_inputs':len(plan['owner_packet_extra_inputs']),'retained_CAL_paths':len(retained_cal),'full_manifest_paths':plan['full_e_native_manifest']['full_path_count'],'bundles':len(bundles),'findings':len(ids),'links':links,'global_queue':len(plan['global_gate_queue']),'plan':str(OUT/'final-numeric-selector-plan.json'),'execute':False}))
+
+if __name__=='__main__':prepare()

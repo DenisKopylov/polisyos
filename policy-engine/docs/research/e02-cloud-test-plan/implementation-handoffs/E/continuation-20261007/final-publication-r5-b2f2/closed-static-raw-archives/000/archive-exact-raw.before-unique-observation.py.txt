@@ -1,0 +1,66 @@
+import argparse,gzip,hashlib,json,os,subprocess,time
+from pathlib import Path
+O=Path('/tmp/e02-E-closed-static-raw-archive-20261007-oracle');D=Path('/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007')
+FILES=[{'old':'/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json','real':'/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json','bytes':171816130,'sha256':'2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9','slug':'frozen-wave-64d7444a'}, {'old':'/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/raw/production-invocation.raw.json','real':'/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-a9f78817c-corrected/raw/production-invocation.raw.json','bytes':171772302,'sha256':'438665b9b62b5860d17d388b0ac9466a0d628773e93059e2ada9fdf410990635','slug':'corrected-wave-a9f78817'}, {'old':'/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/raw/production-invocation.raw.json','real':'/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-5e3e37276/raw/production-invocation.raw.json','bytes':171772803,'sha256':'404cdb1543a96433016ca3880c3d557e2d027f9fa62060be40d9b8e266b16fbd','slug':'historical-wave-5e3e3727'}]
+def need(c,m):
+ if not c:raise ValueError(m)
+def dump(p,x):p.write_text(json.dumps(x,indent=2)+'\n')
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def resources():
+ memory={k:int(v) for k,v in (line.split() for line in Path('/sys/fs/cgroup/memory.stat').read_text().splitlines())}
+ def fs(p):s=os.statvfs(p);return {'free_bytes':s.f_bavail*s.f_frsize,'all_free_bytes':s.f_bfree*s.f_frsize,'device':os.stat(p).st_dev}
+ return {'unix':time.time(),'overlay':fs('/workspace'),'tmpfs':fs('/tmp'),'memory_current':int(Path('/sys/fs/cgroup/memory.current').read_text()),'memory_max':int(Path('/sys/fs/cgroup/memory.max').read_text()),'memory_stat':memory,'memory_events':Path('/sys/fs/cgroup/memory.events').read_text(),'swap_current':Path('/sys/fs/cgroup/memory.swap.current').read_text().strip()}
+def scan(prefixes):
+ result={'observed_unix':time.time(),'prefixes':prefixes,'readable_processes':[],'users':[],'unreadable_infrastructure':[],'unreadable_others':[]}
+ for p in Path('/proc').iterdir():
+  if not p.name.isdigit() or int(p.name)==os.getpid():continue
+  try:
+   status=(p/'status').read_text();state=next(x for x in status.splitlines() if x.startswith('State:')).split()[1]
+   if state=='Z':continue
+   argv=[x.decode(errors='replace') for x in (p/'cmdline').read_bytes().split(b'\0') if x];cwd=os.readlink(p/'cwd');e=[]
+   for q in prefixes:
+    if cwd==q or cwd.startswith(q+'/'):e.append({'kind':'cwd','value':cwd})
+    for a in argv:
+     if q in a:e.append({'kind':'cmdline','value':a})
+   for fd in (p/'fd').iterdir():
+    try:
+     target=os.readlink(fd)
+     if any(target==q or target.startswith(q+'/') for q in prefixes):e.append({'kind':'fd','value':target})
+    except FileNotFoundError:pass
+   r={'pid':int(p.name),'cwd':cwd,'argv0':argv[0] if argv else None,'source_evidence':e};result['readable_processes'].append(r)
+   if e:result['users'].append(r)
+  except (FileNotFoundError,ProcessLookupError):pass
+  except PermissionError as e:
+   r={'pid':int(p.name),'error':str(e),'scope':'hostwide visibility not established'};(result['unreadable_infrastructure'] if int(p.name) in (199,250) else result['unreadable_others']).append(r)
+ return result
+def stream_sha(stream):
+ digest=hashlib.sha256();count=0
+ while True:
+  b=stream.read(1024*1024)
+  if not b:break
+  digest.update(b);count+=len(b)
+ return {'bytes':count,'sha256':digest.hexdigest()}
+a=argparse.ArgumentParser();a.add_argument('--limit',type=int,default=1);args=a.parse_args();need(1<=args.limit<=3,'exact3 authorized files only')
+summary={'schema':'policyos.e02.closed_static_raw_archive.v1','authorization':'Parent authorized byte-preserving reversible archive of exactly3 CLOSED static scanner raw dumps; plaintext retired only after full stream decompression bytehash validation; no useful/unique data loss','before':resources(),'actions':[],'source_backend_environment_Git_or_production_modified':False,'old_plaintext_path_guarantee_superseded':'Prior relocation original paths were readable until this archive action. New plaintext at both old and real/tmp paths is retired/unavailable until explicitly decoded; compressed data never presented as JSON symlink.'}
+if (O/'archive-result.json').exists():summary=json.loads((O/'archive-result.json').read_text());summary.setdefault('resume_observations',[]).append(resources())
+D.mkdir(exist_ok=True)
+for x in FILES[:args.limit]:
+ if any(r['old']==x['old'] for r in summary['actions']):continue
+ real=Path(x['real']);old=Path(x['old']);dest=D/(x['slug']+'.production-invocation.raw.json.gz');need(real.is_file() and not real.is_symlink() and old.resolve()==real and not dest.exists(),'exact admitted alias/source and exclusive archive destination')
+ prefixes=[str(old),str(real),str(old.parent),str(real.parent)];start_scan=scan(prefixes);dump(O/(x['slug']+'-proc-initial.json'),start_scan);need(not start_scan['users'] and not start_scan['unreadable_others'],'observable active/unknown source users')
+ before=resources();need(before['overlay']['free_bytes']>x['bytes']+64*1024**2,'conservative streaming archive diskspace before action');st=real.stat();start=time.time();digest=hashlib.sha256();count=0
+ with real.open('rb') as src,dest.open('xb') as output,gzip.GzipFile(filename='',mode='wb',fileobj=output,compresslevel=6,mtime=0) as zipped:
+  while True:
+   b=src.read(1024*1024)
+   if not b:break
+   digest.update(b);count+=len(b);zipped.write(b)
+ copied={'bytes':count,'sha256':digest.hexdigest()};need(copied=={k:x[k] for k in ('bytes','sha256')},'original whole input stream matches custody inventory')
+ with gzip.open(dest,'rb') as reopened:decoded=stream_sha(reopened)
+ need(decoded==copied,'complete gzip decompressed bytehash before plaintext unlink')
+ with dest.open('rb') as archived:compressed=stream_sha(archived)
+ current=real.stat();need((st.st_size,st.st_ino,st.st_mtime_ns)==(current.st_size,current.st_ino,current.st_mtime_ns),'closed source exact stat stable during compression/fullverify')
+ final_scan=scan(prefixes);dump(O/(x['slug']+'-proc-before-retirement.json'),final_scan);need(not final_scan['users'] and not final_scan['unreadable_others'],'fresh no-users before retiring plaintext')
+ real.unlink();need(not old.exists() and not real.exists() and dest.is_file(),'plaintext genuinely unavailable, complete archive retained')
+ action={**x,'archive':{'path':str(dest),**compressed},'input_stream':copied,'complete_decoded_stream':decoded,'source_stat':{'size':st.st_size,'inode':st.st_ino,'mtime_ns':st.st_mtime_ns,'allocated_bytes':st.st_blocks*512},'plaintext_unavailable_until_decode':True,'old_path_is_not_compressed_symlink':not old.is_symlink(),'complete_bytes_verified_before_plaintext_retirement':True,'source_readers_observations':[ref(O/(x['slug']+'-proc-initial.json')),ref(O/(x['slug']+'-proc-before-retirement.json'))],'resources_before':before,'resources_after':resources(),'elapsed_seconds':time.time()-start,'buffer_bytes':1024*1024,'reopen_recipe':{'shell_argv':['gzip','-dc','--',str(dest)],'destination_requirement':'explicit fresh /tmp filename chosen by recipient, single file at a time; redirect stdout to it, then compute sha256sum and wc -c against exact bytes/SHA above. Do not silently restore old historical path or alter committed index.'}}
+ summary['actions'].append(action);summary['after']=resources();dump(O/'archive-result.json',summary);print(json.dumps({'archived':x['slug'],'plaintext_bytes_preserved':count,'gzip_bytes':compressed['bytes'],'source_plain_paths':'retired until explicit decode','tmpfs_free_after':summary['after']['tmpfs']['free_bytes'],'memory_current_after':summary['after']['memory_current']},indent=2),flush=True)
+summary['after']=resources();summary['total_original_bytes']=sum(x['bytes'] for x in summary['actions']);summary['total_archive_bytes']=sum(x['archive']['bytes'] for x in summary['actions']);dump(O/'archive-result.json',summary);print(json.dumps({'result':ref(O/'archive-result.json'),'actions':len(summary['actions']),'input_bytes':summary['total_original_bytes'],'compressed_bytes':summary['total_archive_bytes']},indent=2),flush=True)

@@ -1,0 +1,121 @@
+{
+  "scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "scientific_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "source_and_DOC_identity_are_distinct": true,
+  "native_numeric": {
+    "total": 1465,
+    "PASS": 1457,
+    "FAIL": 8,
+    "ERROR": 0,
+    "SKIP": 0,
+    "native_total": 1458,
+    "native_PASS": 1457,
+    "native_FAIL": 1,
+    "A_packet_total": 7,
+    "A_packet_PASS": 0,
+    "A_packet_FAIL": 7
+  },
+  "global_gates": {
+    "architecture": "FAIL",
+    "generated_runtime_API_OpenAPI": "FAIL",
+    "static_invocation": "FAIL",
+    "Ruff": "FAIL",
+    "format": "FAIL",
+    "workspace_verify": "FAIL",
+    "CI_parity": "FAIL"
+  },
+  "parent_stages": {
+    "workspace_verify": {
+      "total": 15,
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "CI_parity": {
+      "total": 24,
+      "PASS": 0,
+      "FAIL": 1,
+      "UNRUN": 23
+    },
+    "combined": {
+      "total": 39,
+      "PASS": 1,
+      "FAIL": 2,
+      "UNRUN": 36
+    }
+  },
+  "lint": {
+    "current_Python_paths": 378,
+    "E_owned_paths": 349,
+    "E_Ruff_diagnostics": 0,
+    "E_format_changes": 0,
+    "global_Ruff_diagnostics": 292,
+    "global_Ruff_paths": 14,
+    "global_format_paths": 14,
+    "foreign_owner_attribution": "original bounded owner packet; P41 inherited attribution is not established merely by path overlap"
+  },
+  "final_three": {
+    "current_exit_codes": {
+      "architecture": 1,
+      "runtime_API": 1,
+      "static_invocation": 1
+    },
+    "historical_ERROR_attempts": 3,
+    "runtime_schemas": 573,
+    "confidence_occurrences": 1495,
+    "static_regressions": 24,
+    "static_new_unresolved": 95,
+    "static_current_records": 119,
+    "static_candidate_source_inputs": 5942,
+    "static_base_source_inputs": 5904,
+    "static_source_files": 2703,
+    "static_raw_bytes_ignored": 171903508,
+    "static_association_rows": 48,
+    "static_case_associations": 914,
+    "static_accepted_role_associations": 35,
+    "actual_default_served_branch_measurement_or_production_authority": false
+  },
+  "findings": {
+    "bundles": 22,
+    "IDs": 54,
+    "links": 55,
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "E_bounded_original_criterion_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "B198_historical_closed_retained": true,
+    "formal_G_acceptance": false,
+    "formal_ledger_change": false,
+    "check_status_is_not_finding_outcome": true
+  },
+  "environment": {
+    "package_METADATA": 207,
+    "protected_control_refs": 3,
+    "combined_refs": 210,
+    "full_binary_environment_identity": "not_established",
+    "new_install_or_environment_by_carrier": false
+  },
+  "G_refs": {
+    "tested_G": "75ccf4dd211ad7fffa9430a84848b59d5ebf0886",
+    "fresh_G_deferred": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "fresh_G_tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+    "fresh_G_delta_scope": "29 B adjudication/native archive paths; 2 Python paths only under B review docs; zero E/product src/tests/tools/schema/config; not merged into tested b2 denominator"
+  },
+  "source_frames": {
+    "metadata_frame": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e",
+    "raw_frame_prefix": "749c",
+    "different_algorithms_and_input_formats": true,
+    "equality_or_drift_shortcut": false
+  },
+  "future_plan_patch_applied": false,
+  "draft_PR_bodies_published_by_carrier": false,
+  "production_data_copied_to_cloud": false,
+  "source_native_numeric_or_global_gate_reexecuted_by_carrier": false,
+  "carrier_custody": "recomputed complete original selector/member Counter and literal stored/decoded identities; independent immutable Git publication review pending"
+}

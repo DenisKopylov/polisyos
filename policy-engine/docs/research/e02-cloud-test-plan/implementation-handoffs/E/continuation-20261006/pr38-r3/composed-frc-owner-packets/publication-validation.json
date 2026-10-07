@@ -1,0 +1,46 @@
+{
+  "scope": "Publication metadata/copy binding only; actual check counts independently derived from preserved JUnit. No new runtime check or semantic closure.",
+  "positive": "PASS",
+  "controls": [
+    {
+      "mutation": "wrong_tree",
+      "result": "REFUSED"
+    },
+    {
+      "mutation": "wrong_output_hash",
+      "result": "REFUSED"
+    },
+    {
+      "mutation": "wrong_output_size",
+      "result": "REFUSED"
+    },
+    {
+      "mutation": "forged_complete_PASS",
+      "result": "REFUSED"
+    }
+  ],
+  "receipt_sha256": "f5a15defdf4e4e83a278e2c90cecc10c6aa0541b2bb8979ab3d2ac5020312fa3",
+  "observer_source": "def validate(r):\n    source=r[\"measured_candidate\"][\"commit\"]\n    assert len(source)==40 and all(c in \"0123456789abcdef\" for c in source)\n    tree=subprocess.check_output([\"git\",\"rev-parse\",source+\"^{tree}\"],text=True).strip()\n    assert r[\"measured_candidate\"][\"tree\"]==tree\n    for asset in r[\"assets\"]:\n        data=(root/asset[\"Git_path\"]).read_bytes()\n        assert len(data)==asset[\"bytes\"]\n        assert hashlib.sha256(data).hexdigest()==asset[\"sha256\"]\n    for name, folder in [(\"unpatched\",\"root-composed-frc\"),(\"isolated_A_packet_overlay\",\"root-composed-frc-overlay\")]:\n        cases=list(ET.parse(p.parent/folder/\"pytest.xml\").getroot().iter(\"testcase\"))\n        actual={\"total\":len(cases),\"PASS\":sum(c.find(\"failure\") is None and c.find(\"error\") is None and c.find(\"skipped\") is None for c in cases),\"FAIL\":sum(c.find(\"failure\") is not None for c in cases),\"ERROR\":sum(c.find(\"error\") is not None for c in cases),\"SKIP\":sum(c.find(\"skipped\") is not None for c in cases)}\n        assert r[\"consumer_checks\"][name]==actual\n",
+  "imports": [
+    "copy",
+    "hashlib",
+    "json",
+    "platform",
+    "subprocess",
+    "sys",
+    "pathlib.Path",
+    "defusedxml.ElementTree as ET"
+  ],
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "input_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/receipt.json",
+  "complete_stdout": "{\"positive\": \"PASS\", \"corrupt_metadata_controls\": [{\"mutation\": \"wrong_tree\", \"result\": \"REFUSED\"}, {\"mutation\": \"wrong_output_hash\", \"result\": \"REFUSED\"}, {\"mutation\": \"wrong_output_size\", \"result\": \"REFUSED\"}, {\"mutation\": \"forged_complete_PASS\", \"result\": \"REFUSED\"}]}\n",
+  "complete_stderr": ""
+}

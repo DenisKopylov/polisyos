@@ -1,0 +1,156 @@
+{
+  "schema": "policyos.e02.E.qualified_canonical_full_projection.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "outcome": "PASS",
+  "scope": "Canonical projection and direct patch applicability only; not global gate or client authority.",
+  "old_complete103_projection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/generator-packet.json",
+    "bytes": 101005,
+    "sha256": "7673b9a04f5d4a836332908aa072851a168b2ede81cd8625738b14e32d7cc69f"
+  },
+  "new_affected_runtime_projection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/runtime-delta-receipt.json",
+    "bytes": 41949,
+    "sha256": "ab52fc0067553452862218d640165c2158f459b62a53e3aaf52cdbf8de2ae228"
+  },
+  "full103_schema_equality_census": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/complete103-model-schema-equality.json",
+    "bytes": 44382,
+    "sha256": "3a9b9a66147eb0b8be2418c10eff169bdc6bb793ccb386bfc2b78d43e6c10e6a"
+  },
+  "source_footprint": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/full-source-footprint-3932.json",
+    "bytes": 5582,
+    "sha256": "3c77497c5fac05926bb20c0f1550622371f690cb1fce6df6b379cbbb09578eef"
+  },
+  "canonical_full_ABI_count": 103,
+  "IR_models": 101,
+  "fabric_models": 2,
+  "old99IR_keys_retained": true,
+  "full_public_packages": 20,
+  "public_families": 13,
+  "changed_generated_companions": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "old_bytes": 222856,
+      "old_sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "projected_bytes": 223160,
+      "projected_sha256": "1981e8a6905568dac57d86f3ca9d156c077c5e7873a5f9a6ac6ea5553e8bf2a0",
+      "owner": "team-architecture/G public surface generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "old_bytes": 1635334,
+      "old_sha256": "a62664c41c7f7cb75e7447674925ef9fba38b66e4f79f4ec03f39f33ebb9a315",
+      "projected_bytes": 1642574,
+      "projected_sha256": "9d370c8a8e324b4ee4d06f27b451596666bab822113aef673953ad5470f31bab",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "old_bytes": 154167,
+      "old_sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "projected_bytes": 154367,
+      "projected_sha256": "5c06b4dafcb7397b4fd755f0642d98200111cdacae9d948c61f34790acdc3c57",
+      "owner": "team-architecture/G public surface generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "old_bytes": 29371,
+      "old_sha256": "538414f0c110610aa21a85aca0dbc48a31894f54669fde4cfae9e2d01f8fbda2",
+      "projected_bytes": 30043,
+      "projected_sha256": "20ccb87943f131b86387025a965a2b9e10f65498fb69c821af5c7597834c275b",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "old_bytes": 2812414,
+      "old_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+      "projected_bytes": 2812414,
+      "projected_sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "old_bytes": 52447,
+      "old_sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27",
+      "projected_bytes": 53541,
+      "projected_sha256": "1f6e737b93879bb6c33fbc7bf4c5d847f66f1365720dc4702afdccaadb43d6e9",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+      "old_bytes": 8853,
+      "old_sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42",
+      "projected_bytes": 10458,
+      "projected_sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+      "old_bytes": 0,
+      "old_sha256": null,
+      "projected_bytes": 6257,
+      "projected_sha256": "fb26ce985c4b99092bd1a9d75a2f9b3940415eff83cbb9383fbb63a89b2dccf6",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/posterior_summary_profile_v2.schema.json",
+      "old_bytes": 0,
+      "old_sha256": null,
+      "projected_bytes": 6746,
+      "projected_sha256": "d538fc5a5b9003afd015eb59213a9fd72f5dcf7ab2ec830418e94124f13613d2",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    }
+  ],
+  "runtime_schema_components": 573,
+  "runtime_confidence_dependencies": 1494,
+  "runtime_source_aggregate": "2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa",
+  "direct_tracked_final_patch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/canonical-generated-full-final3932.patch",
+    "bytes": 44060,
+    "sha256": "0afd7b4720f1d92d83524dcd10d7b08de47f7b6254667be1d707a6107e78d69e"
+  },
+  "patch_check": {
+    "argv": [
+      "/usr/bin/git",
+      "-C",
+      "/workspace/e02-E-mc-20261006",
+      "apply",
+      "--check",
+      "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/canonical-generated-full-final3932.patch"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/final-patch-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/final-patch-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "reuse_qualification": "All103 ordered model schema dictionaries equal. The only source delta is ProfileV2 independent DTO declaration; method/function/V1 AST remains unchanged. Canonical catalog fields/docstrings and public facade mappings remain equal. Catalog does not render Python inheritance. Runtime is freshly exported because dependency hash changed.",
+  "existing_DoE184_environment_metadata_unchanged": true,
+  "ROOT_source_environment_or_outputs_changed": false,
+  "shared_generated_files_changed": false,
+  "numeric_or_broad_wave_repeated": false,
+  "capability_state": "surface_missing",
+  "global_required_gate_outcome": null,
+  "next_owner": "G canonical ABI/public-surface/runtime API and client generator writers",
+  "next_result": "Fetch3932 source; run complete canonical103-model/public20-package generation against the integration tree. Review/apply nine generated companions and run generated runtime/client/registry/public gates. FeedbackSolveResult is an existing canonical companion with its own owner. No hand edits or waiver.",
+  "historical_observations_preserved": "700 had102. ca17 full103 outputs and two NEW typed override errors are immutable. 3932 removes only those two new errors; the existing optional-member error and global red remain separate."
+}

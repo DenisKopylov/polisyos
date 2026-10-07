@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "scope": "Prepared final all54 join guards; final collector and final join are not yet executed",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-final-all-54-update.py.txt",
+      "bytes": 9402,
+      "sha256": "2a3ce838f1b48a605ad61b5d41eb254a890f161f8f5062a11358e1df13777e40"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-final-builder-guards.py.txt",
+      "bytes": 3519,
+      "sha256": "4396efad1380845b48d47ecdecf4ea109151407d2591946fe58a5fed9acffc37"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-preparation-receipt.json",
+      "bytes": 3594,
+      "sha256": "c720a858ae521febd9f7c96a516b87f5428f5bc0c10551091c3995b60ddad5ce"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-controls-normal-v2/guard-controls.json",
+      "bytes": 2313,
+      "sha256": "8a23012f8763ffbb16fbeb72b99aa0ba9a08daa1a3b223f0fed67434b3045df4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/final-builder-controls-optimized/guard-controls.json",
+      "bytes": 2313,
+      "sha256": "11265af9a2b085d6794eb969c5f6d464f03566c01995bb846bd483aecb7363f4"
+    }
+  ],
+  "total_bytes": 21141,
+  "copies_not_payloads": [
+    "No raw CAS data",
+    "No copied numerical raw output",
+    "Actual ci16 stdout/receipt referenced by exact hash from guard receipts"
+  ]
+}

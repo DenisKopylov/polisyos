@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/recompute_imports.py", line 4, in <module>
+    edges=_collect_hidden_import_edges(pathlib.Path.cwd()); keys={row['key']:row for row in edges if 'policy-engine/'+row['source_file'] in paths}
+                                                                                                                      ~~~^^^^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'

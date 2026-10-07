@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.final3.moderate_literal_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "logical_name": "current/correction-receipt.json",
+      "original_path": "/tmp/e02-E-final3-header-correction-b2f2f65e-20261007/correction-receipt.json",
+      "portable_path": "assets/6d6c1677ec06459100740c18cbb50db69527b7b251736ea4f44a4235c217c879.txt",
+      "bytes": 2037,
+      "sha256": "6d6c1677ec06459100740c18cbb50db69527b7b251736ea4f44a4235c217c879",
+      "encoding": "literal",
+      "decoded_bytes": 2037,
+      "decoded_sha256": "6d6c1677ec06459100740c18cbb50db69527b7b251736ea4f44a4235c217c879"
+    },
+    {
+      "logical_name": "current/validate-final3-v3r2.py.txt",
+      "original_path": "/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v3r2.py.txt",
+      "portable_path": "assets/369644231e53e2837124b69d8d46320418b51ba19e88ec9c44740784536187ab.txt",
+      "bytes": 16801,
+      "sha256": "369644231e53e2837124b69d8d46320418b51ba19e88ec9c44740784536187ab",
+      "encoding": "literal",
+      "decoded_bytes": 16801,
+      "decoded_sha256": "369644231e53e2837124b69d8d46320418b51ba19e88ec9c44740784536187ab"
+    },
+    {
+      "logical_name": "current/normal.json",
+      "original_path": "/tmp/e02-E-final3-validation-b2f2f65e-v3r2-normal.json",
+      "portable_path": "assets/a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40.txt",
+      "bytes": 12127,
+      "sha256": "a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40",
+      "encoding": "literal",
+      "decoded_bytes": 12127,
+      "decoded_sha256": "a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40"
+    },
+    {
+      "logical_name": "current/optimized.json",
+      "original_path": "/tmp/e02-E-final3-validation-b2f2f65e-v3r2-optimized.json",
+      "portable_path": "assets/a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40.txt",
+      "bytes": 12127,
+      "sha256": "a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40",
+      "encoding": "literal",
+      "decoded_bytes": 12127,
+      "decoded_sha256": "a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40"
+    },
+    {
+      "logical_name": "historical/noncompiling-v3-observer.py.txt",
+      "original_path": "/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v3.py.txt",
+      "portable_path": "assets/71f9c9f3a2b462f9afc9da33ea76923cab49d39e6a1401efead2881b67c6abde.txt",
+      "bytes": 16801,
+      "sha256": "71f9c9f3a2b462f9afc9da33ea76923cab49d39e6a1401efead2881b67c6abde",
+      "encoding": "literal",
+      "decoded_bytes": 16801,
+      "decoded_sha256": "71f9c9f3a2b462f9afc9da33ea76923cab49d39e6a1401efead2881b67c6abde"
+    },
+    {
+      "logical_name": "historical/v3-first-observer-error.txt",
+      "original_path": "/tmp/e02-E-final3-validation-v3-first-observer-error.txt",
+      "portable_path": "assets/ba42631ce9fc6a5b24ebb1d0361e0a46d7449cd55eb49a3a6e088d7e4b6b5bd6.txt",
+      "bytes": 237,
+      "sha256": "ba42631ce9fc6a5b24ebb1d0361e0a46d7449cd55eb49a3a6e088d7e4b6b5bd6",
+      "encoding": "literal",
+      "decoded_bytes": 237,
+      "decoded_sha256": "ba42631ce9fc6a5b24ebb1d0361e0a46d7449cd55eb49a3a6e088d7e4b6b5bd6"
+    }
+  ],
+  "logical_count": 6,
+  "unique_count": 5,
+  "unique_bytes": 48003,
+  "scope": "Evidence admission corrective class; old V2 red preserved, no native gate/source rerun. Independent peeracceptance separate.",
+  "native_outcomes": {
+    "architecture": "FAIL",
+    "runtime-api-contract": "FAIL",
+    "static-invocation": "FAIL"
+  },
+  "finding_closure": false,
+  "P41": "not_established"
+}

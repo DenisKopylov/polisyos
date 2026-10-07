@@ -1,0 +1,1434 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "frozen-successors-64d-publication",
+  "canonical_writer": "E evidence/document publication owner",
+  "change_kind": "docs/evidence only; existing runtime source unchanged",
+  "bundle_ids": [],
+  "closure_ids": [],
+  "base_sha": "43f6bb54e316ce1308d53ba75c6e27e40171e364",
+  "base_tree_sha": "78983d363c509ef418889a1e155123aca315ed5d",
+  "candidate_sha": "c8054bb2f055fae5f94012773ab4d2efad8cfab7",
+  "candidate_tree_sha": "ad4563952e75e3a4ab6b094283ef8007594533df",
+  "execution_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "execution_source_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "publication_topic": "codex/e02-E-doe-20261006",
+  "absolute_admitted_leaf": "/workspace/e02-E-doe-20261006",
+  "source_root": "/workspace/e02-E-continuation-20261006",
+  "root_source_not_mutated": true,
+  "complete_footprint": [
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/closed-source-selection.json",
+      "bytes": 51575,
+      "sha256": "75eeba4cab6dc64815fe72803160be45cba63ffe0883072445dd11b1895cb452",
+      "git_blob": "56905b6af007dbc05ac401e12fdcf92ad69fd53f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/dispatch-plan-64d7444a18c5-frozen-final.json",
+      "bytes": 322808,
+      "sha256": "f0f00bef93befbca83a1bdbb59c1d895ac0a43cc50db602de18629ef0ccb86e6",
+      "git_blob": "2d981f5292f2a88575e0655689326e6d90562ff6"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/dispatch_assigned_64d.py.txt",
+      "bytes": 4943,
+      "sha256": "0217b127a6678dabc2862c02325544176a7ccafe8be4ccff59cb5cbcdd1f7632",
+      "git_blob": "5c1a9c609502099cb7efc803db46e108a05dad9d"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/publish_successor21.py.txt",
+      "bytes": 10713,
+      "sha256": "5ceafc798c1771c0d167998f125371acf1e2611790d17c88800110618535e0a9",
+      "git_blob": "8ee0fc4db1cd46f8f3c127d6a22cb360fb95e1e4"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/successor-21-check-index-64d.json",
+      "bytes": 167397,
+      "sha256": "f936099dcf78117758bf75f8768456c1d6fecbef392f6f670610101a93c16ed4",
+      "git_blob": "e56690e646b4310ff66f27d646eca9c2a25e7fce"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/successor-21-complete-64d.json",
+      "bytes": 42963,
+      "sha256": "f9c8ae4b069f7429eba522853b23ad9cf9bcf1d03cbfb81866a350ab2d25b050",
+      "git_blob": "4fdd2730e172ddb0ba28f89f0ddd3ccc5fa6ef31"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/successor-21-launch.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/successor-21-launch.stdout.txt",
+      "bytes": 5382,
+      "sha256": "ebac9623191a270ac218cdb65970231e2fea05facbdc56c0a36821f0531f8acf",
+      "git_blob": "45bc6a6391e6bb3ad72518d1b8d3ce52232751a2"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/successor-21-started-64d.json",
+      "bytes": 818,
+      "sha256": "663234e4cf9f310a3ad08d874c8067498f6f8f597eec8dbba84c9bcaabdb6441",
+      "git_blob": "c1c344e900163e4b17837fd5ff732185c63bfcfb"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/capture.stdout.txt",
+      "bytes": 555,
+      "sha256": "be72defb85b181e56257b41b8e63bf50549ad0b872acb7fe36c7435271a0a38b",
+      "git_blob": "9c28c6f1947c6cb756df83b4af00b75e858bdb19"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/dispatch-observation.json",
+      "bytes": 2015,
+      "sha256": "8de6415a41b42def64a9dacda69ff5b7b42296059483b1a1cc42601e31d9907b",
+      "git_blob": "fbc0867ca9fe2b4b190eb3c162a908b12585ebd1"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/standalone-ci-03.json",
+      "bytes": 8629,
+      "sha256": "06a1e294768faeea521e1964b1da1f627bc1152981b20ab9c427669769e87230",
+      "git_blob": "7774c5d92172a67f7721e56c0098b5140a58ed6c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/standalone-ci-03.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/tool-output.json",
+      "bytes": 44547,
+      "sha256": "7aff70a61c4f27b6d4fd165cdb4d1636619b4c09585fd02200d4d4f7216baaac",
+      "git_blob": "fbfbcae4fd7ab5060f82016519295906972c9c57"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-03/tool-output.md",
+      "bytes": 5502,
+      "sha256": "59f6cf0f4b7d0935f0a505d57f6686e117dbe65928e37798e0be5307f0a5c91e",
+      "git_blob": "925183535e0a26215fd0b2b3fd9323c630cac2ca"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-04/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-04/capture.stdout.txt",
+      "bytes": 419,
+      "sha256": "9f41db6c559443ec093e7046839bbcaf8c39d2428a4037c721bd3655aaf21a4f",
+      "git_blob": "b070cc6053e7dcc785366d0e1a64d66bacd79c9f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-04/dispatch-observation.json",
+      "bytes": 1871,
+      "sha256": "728e5a89353ba6402afe81939a874a0c67816ba45af005768244a1c0f341062f",
+      "git_blob": "3a7ab962928b8542f797b852546399258e343e1f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-04/standalone-ci-04.json",
+      "bytes": 8484,
+      "sha256": "bff76dbfa8b1c426968360dc89b4f3db75491a26fc3d3509f4779964932e4ac4",
+      "git_blob": "e0b91021d1a5789533a4c1d884d8f71fdbc0829d"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-04/standalone-ci-04.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-04/tool-output.json",
+      "bytes": 111068,
+      "sha256": "92ec6dc962d8186d29c4a82490695a4c77074f90f4c48c64f8bb2500a66d3130",
+      "git_blob": "63af6c49ef59699faa1dec16c63fdce8109a4a83"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-05/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-05/capture.stdout.txt",
+      "bytes": 451,
+      "sha256": "dec344f19cc07c83e49a4f2ce74a172381644b96cebdf11ad576c39e0ffe7018",
+      "git_blob": "4deb1a83f2b4d5dd5cb56b06f36ee4f3c176ed9b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-05/dispatch-observation.json",
+      "bytes": 1903,
+      "sha256": "781798e53475c5371f97572f12fd02277bb08e4162fde2ad1ba7d6aa27ba61c8",
+      "git_blob": "b94a977297a7014c6bbc71c65a6eda53541c191b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-05/standalone-ci-05.json",
+      "bytes": 8518,
+      "sha256": "820d6bf7e11fa6dcd1b01f03228f95f93f2d3193652f34481e8cd6bc1da8d346",
+      "git_blob": "be842590ea3c9db8c05b5dee86dd23a9eaf40228"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-05/standalone-ci-05.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-05/tool-output.json",
+      "bytes": 170548,
+      "sha256": "0dd2a00c1743a4bc24231fdd181db85d8ed41249f465d58cb48523a965447505",
+      "git_blob": "44d01a0ebc6adfa1a8f2045e21ac454476862f9c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-06/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-06/capture.stdout.txt",
+      "bytes": 454,
+      "sha256": "7114d844c62e45c96dd3c8becf92d1dcb661a74d7a6f1b15392fcf8c4f2cf5b1",
+      "git_blob": "2864c1b5baa870758b68ab6d82707e3fc1c30452"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-06/dispatch-observation.json",
+      "bytes": 1905,
+      "sha256": "e986147d4f8bcb45ea3eef2f1785969a21e422de105a8dde8049f4f0a869ffe4",
+      "git_blob": "2790a2154acbf4014bc30f1a562b8e7e4738822b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-06/standalone-ci-06.json",
+      "bytes": 8516,
+      "sha256": "613fbe287bcbb1578f88073dcacf9a9ff2f02adaa4ec1ff31363046f73390d85",
+      "git_blob": "e0882a7e66230f453e855751bf5e0c1797851329"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-06/standalone-ci-06.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-06/tool-output.json",
+      "bytes": 24136,
+      "sha256": "7f1f01b9a634c637742589d3b31b158b6ad4995efb540ddb3b039fc0f15bd3ad",
+      "git_blob": "ae68ca6f5c47f7d7ae84f54f59ae25b8e2ec9c0f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-07/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-07/capture.stdout.txt",
+      "bytes": 280,
+      "sha256": "70f13d0e43a4f9e7c2a7c33c8c0f670679fa1c8bfeea9c66c51a82cf14d55118",
+      "git_blob": "bdf63d0308b6591b41505ca4c04b58447b8e1678"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-07/dispatch-observation.json",
+      "bytes": 1719,
+      "sha256": "b9755766e072462c1b6b76c74addaa5588999969db80281df1da2688d8ab790d",
+      "git_blob": "8ed620f3b8a597ab7692c87ae194b1cfc049af43"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-07/standalone-ci-07.json",
+      "bytes": 8340,
+      "sha256": "94c84364a361f40e556d672a2812cfcfae98c56840e181875e4508adf57b5957",
+      "git_blob": "f064679a0051431e25bc80a9b75f325ec4450b8d"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-07/standalone-ci-07.stdout.txt",
+      "bytes": 83604,
+      "sha256": "1254b865726c3d70a26eb1a78e63dad16330b35a93d709d3c063b6d02727b8a9",
+      "git_blob": "617479f622a49e9462a7be507796965f67cd0d0c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-09/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-09/capture.stdout.txt",
+      "bytes": 263,
+      "sha256": "9bf124cd1a966d0be5cc61d36919179f532f91899c0c5088528c9319af247cfe",
+      "git_blob": "6b203715a884a7022952619dd1a0c73b9dbe7e72"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-09/dispatch-observation.json",
+      "bytes": 1699,
+      "sha256": "6313c6323be7501e8ad8dec431cb1915dea39603ea6927bbbe51eb7caf51ac72",
+      "git_blob": "2cf201b90e2174ab7e2952bcd5646149a7b493b2"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-09/standalone-ci-09.json",
+      "bytes": 8311,
+      "sha256": "0aa0b022500ddc1207cc07b365ca8da4377a2eea60b239962ab400c0ed07a916",
+      "git_blob": "ae95f7ada4cea02ff31026453045ae6307f25c60"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-09/standalone-ci-09.stdout.txt",
+      "bytes": 28,
+      "sha256": "e6cb3d25339d1fb5adff0f49a1bec2afc7a9101bac49d652c862d1cee37058b9",
+      "git_blob": "ea0503a941167cb04833dcd617a46a0a68dfc8ab"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-10/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-10/capture.stdout.txt",
+      "bytes": 292,
+      "sha256": "8f0b0e177e5d16fcd4e9646ce72b2dab86fdff58247e2fb2d1deafb9b3db0b99",
+      "git_blob": "5d0f6ec365bbc991ae051c56564a7576f523ffd6"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-10/dispatch-observation.json",
+      "bytes": 1740,
+      "sha256": "55834c954f7d3764ffe04405579a3b5f1e4b977c20a2d303bcc30b1ca02209ee",
+      "git_blob": "5b07162338cf4d643875cd8e90dae42b78e9355f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-10/standalone-ci-10.json",
+      "bytes": 8364,
+      "sha256": "02f639352706c511c153a14d06e1ea01b85abd62beda579cec004d933a309110",
+      "git_blob": "497346187ecb5dba97b341ce6ddf8d34ff8fb4be"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-10/standalone-ci-10.stdout.txt",
+      "bytes": 2880,
+      "sha256": "b3387b8e4cc33bf0fdc3a6486bd8e2f8767499f5b1e49bbdc2e4f3f9081560eb",
+      "git_blob": "3d1e22ef0d537ed4baf74d0a2f14a375e5bef96f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-11/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-11/capture.stdout.txt",
+      "bytes": 380,
+      "sha256": "8fe7a4165d3f143eaee97ad665ddbdfbe986daed6c77d4e0a7a7dfd792d1f103",
+      "git_blob": "9e3ffe1181a2a5f766d143af6abb7ecbd6638eb8"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-11/dispatch-observation.json",
+      "bytes": 1839,
+      "sha256": "e760a26ba616d2c64320037bb9be25293c770e33634ad2d7d6d9444359fb7518",
+      "git_blob": "ad0a86f8e917df3fa1b84f28330cde8a7662f0d8"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-11/standalone-ci-11.json",
+      "bytes": 8460,
+      "sha256": "46b50df6b7652d463242e4e3eedb4f730a52beb66c60560fab52affa01f94957",
+      "git_blob": "abdc8bf831d010b2b8aebf277927f07870e4376e"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-11/standalone-ci-11.stdout.txt",
+      "bytes": 230183,
+      "sha256": "a5e53cb944840209256ac0afc2fd0306e0d01f2f824bbb5c06224038dc77ccc5",
+      "git_blob": "9abce3c14cd0d54399d50b59cf067f0f14d81d45"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-12/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-12/capture.stdout.txt",
+      "bytes": 437,
+      "sha256": "8706ed52f7c162311d8829e9d0cd0836fd5fe32dafc4ee87e2c4fde1ec697810",
+      "git_blob": "87724129dea00d4e17f005dac82cac34b68dc220"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-12/dispatch-observation.json",
+      "bytes": 1909,
+      "sha256": "28c33911c0f4e63d2033cced5612ee61df8035c9fdb0484617252a81f779cf00",
+      "git_blob": "8ce7665a0ddf76d6cf8ccd66f204f306e41779f7"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-12/standalone-ci-12.json",
+      "bytes": 8536,
+      "sha256": "5ae3fe31d9acb1c838b856d90844283e733e5b1596d47d28b8c54e1843b8de1d",
+      "git_blob": "c99bdccde3d81462f594fd96c3cfa9052142b15f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-12/standalone-ci-12.stdout.txt",
+      "bytes": 6770,
+      "sha256": "561144a3aeb416b2516081155925bb3cf23f5564a399c29b11ed24c7d96d8bf5",
+      "git_blob": "e6e205dbf359534b2f72d5006f86e4e0257e7c2f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/capture.stdout.txt",
+      "bytes": 345,
+      "sha256": "b6fd81c1d61eaed77f3f599feee04944b475cab7436061b1d73ebe7f9f692c42",
+      "git_blob": "dfd7e73fef2cafba9830ef918e99d5ec914c5b3c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/dispatch-observation.json",
+      "bytes": 1854,
+      "sha256": "5edf16ca40d1ec06d1ea8c911fb048fa089570be9ee4525161b9b7b9f9f5511e",
+      "git_blob": "2a745c0004a72ef4af072758aebb4fbc75c84340"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json",
+      "bytes": 8467,
+      "sha256": "54e6ebeb42b68f5864fe2396982ebbbdae723e6a46999b302611ac1d438fdc47",
+      "git_blob": "e264aaa9bd51f250f5dcf128999b20c9041ab0b8"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.stdout.txt",
+      "bytes": 6915,
+      "sha256": "957e564ef28b57ca626c3cfdb1c1a402300f5ae5f15453a7f8b5d96c32b55550",
+      "git_blob": "6a23ea88345042811f6a7633bab5a2f3fa91d03f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-02/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-02/capture.stdout.txt",
+      "bytes": 407,
+      "sha256": "67b7c4562d6d2d32b2c666a9b97c9686519a46dcada38e3a0db371d2dc571f3d",
+      "git_blob": "95f5347c73c022f9959d887e9e253ca8ff0b9dff"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-02/dispatch-observation.json",
+      "bytes": 1919,
+      "sha256": "1ccddb6a71b1b8755d1accb14501562b61e93f0deff038fe73d472f7f80711a0",
+      "git_blob": "8c90ce49e8a7518682321ed84bb6cc3a0f500ba7"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-02/standalone-workspace-02.json",
+      "bytes": 8517,
+      "sha256": "5bb088c3942a288522923bb60de35b9cf8a409119840e7d392e316f498af8d60",
+      "git_blob": "bade25412e5e3e51d785565ff5d1a5013f7259d9"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-02/standalone-workspace-02.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-02/tool-output.json",
+      "bytes": 181111,
+      "sha256": "0a9f446ace107e84c6046983baa3a85e0101cd02abdb7a0b1972ca6de21b7982",
+      "git_blob": "09fb622b4b46ce6c47dc1091ea7ebf9b4c416df0"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-03/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-03/capture.stdout.txt",
+      "bytes": 263,
+      "sha256": "59ed48d1474005dd23d4a3d9755ced7e28111e09321836a25b02939edf31e606",
+      "git_blob": "d97e322c65d98b7e15c6489a4c7bd20cf2f2695f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-03/dispatch-observation.json",
+      "bytes": 1770,
+      "sha256": "51950149d05905b6d8c862e33538fdb2b60898294be8bd7909598c39186dd7b7",
+      "git_blob": "015e1d7b5c0dab2e79243e741473e90f405ea357"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-03/standalone-workspace-03.json",
+      "bytes": 8371,
+      "sha256": "055cf37d284cf0fed2ddd5f2d533a091f8e0001215227e1d7cf167281d6ca256",
+      "git_blob": "17eebe2906249427a6ca337e889643042beb37aa"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-03/standalone-workspace-03.stdout.txt",
+      "bytes": 872,
+      "sha256": "bba8fb29e3f2ae59d7a7654e0198b95748e3937a58e3296a1d26ba0c2f1ed151",
+      "git_blob": "b79720f5260bfbc0f7748e13c55d1f7eff05e489"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-04/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-04/capture.stdout.txt",
+      "bytes": 253,
+      "sha256": "b8dc3a88c046ee7fdad24fead97784432f442caa630f1665fb9e30eb228e26cd",
+      "git_blob": "63c54b912aa451c2e921c1393c89d73dd0f155ae"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-04/dispatch-observation.json",
+      "bytes": 1746,
+      "sha256": "6db30d7e04ec9b6428a6743a2a3605f5f8c78d48a269ead8c4e7cd786ea76ec1",
+      "git_blob": "b93269fe95de8de95e33fe7c4cae78762568f3c0"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-04/standalone-workspace-04.json",
+      "bytes": 8349,
+      "sha256": "19d40e2376abfc00ee7cc143e3144d8fc8140f8e6919d2653ffb8180cc39d4f3",
+      "git_blob": "225cc023f73e23141867cb1902a362a472cd37e6"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-04/standalone-workspace-04.stdout.txt",
+      "bytes": 1557,
+      "sha256": "592064763bb7fba0c143d673374f51bdf455eb6074d6cef35ee52263a5fbbbf0",
+      "git_blob": "c56daf426e41aa72d24c494ba31236486b3e2ef5"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-05/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-05/capture.stdout.txt",
+      "bytes": 250,
+      "sha256": "5f0755721999ae0c487e809f1c644e5f39d969220f3dc4c68d8122cd6469c618",
+      "git_blob": "e112f6c237550b8e9711bd4a34bb826f64bd06c6"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-05/dispatch-observation.json",
+      "bytes": 1744,
+      "sha256": "98936eccef19fed8079a25c2fc4db6f6c2a7f661766c0ad9babbf70fc1d96a4c",
+      "git_blob": "841bd3c8efc9aeaa1fe51fce39fd11df6601a6f1"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-05/standalone-workspace-05.json",
+      "bytes": 8344,
+      "sha256": "4afcea2ab90083646b0c5b269b68b2b60953d4c87aa808f7f8e6bd0543fd0d94",
+      "git_blob": "a7a540af8d17a768220b8e66b8db28e01121e30c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-05/standalone-workspace-05.stdout.txt",
+      "bytes": 24,
+      "sha256": "43f2361ccca6bc36f0477e6db72c3a0875502a3b4a1622deb4d1de713648e5ad",
+      "git_blob": "c40d5364e432b0315502bb706e66567c2092623c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-06/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-06/capture.stdout.txt",
+      "bytes": 253,
+      "sha256": "81bdc3fd66f35166b99cdc5495edc376c108c207e8ef5c5888bf6338981462d4",
+      "git_blob": "7b36cd00025261aad9c27eb8f862dcc184ab7161"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-06/dispatch-observation.json",
+      "bytes": 1757,
+      "sha256": "7fe02272a22371d553bece35cca2561f9c4625d1434c9ff89ea3a4e9df9bed79",
+      "git_blob": "6a0c5599f87bbb1797077633b0a268de26db38b1"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-06/standalone-workspace-06.json",
+      "bytes": 8354,
+      "sha256": "e209e0a432fdf43fe064ce530f5ffd588d00142d3baf4c703c567075bf27a8c5",
+      "git_blob": "0f517dc6c60e414b7f064d3422d15876d2634896"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-06/standalone-workspace-06.stdout.txt",
+      "bytes": 32,
+      "sha256": "8afb1abaffac02edb4baa91bf813c45fe1ca9a346f5eac71db731d4aaba6aa57",
+      "git_blob": "d87cf0f40291f00f2c8733f8e187835c99e79dc2"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-07/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-07/capture.stdout.txt",
+      "bytes": 402,
+      "sha256": "d37aff4992e428d3c72a5e75faa77d8a3f4d2fd90c4cf36eedec7338aa6b11d4",
+      "git_blob": "f5d657fd35e121727b51fe0855e826bdd1d27921"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-07/dispatch-observation.json",
+      "bytes": 1918,
+      "sha256": "83cea15fd08dd120a1b110e533018b28822ea1101d6e22a043c87c6270113c19",
+      "git_blob": "36a8858d120d8689dea9b4f9032d32357079a17a"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-07/standalone-workspace-07.json",
+      "bytes": 8518,
+      "sha256": "0fca7ccf15f492081f23265c94de8ffcff913ae8c737fd61884a2bd17c942a5f",
+      "git_blob": "c2832d775d6a0907dcc327496e5c4191d2cabf0b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-07/standalone-workspace-07.stdout.txt",
+      "bytes": 649,
+      "sha256": "c6119fc370b13cb5ddb221d0855c195597f3a28c54b84b575bdcb44d0d9b2f0c",
+      "git_blob": "f3a1f85a3691358a89dc5aba8c84c61cc22bd55f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-09/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-09/capture.stdout.txt",
+      "bytes": 411,
+      "sha256": "24f37c085c8f2de8d0711443daecc043c4fa09603ec62ae4fa5dca17d1d70358",
+      "git_blob": "ce1a3b8e50e4705476b916b80304e4b467364975"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-09/dispatch-observation.json",
+      "bytes": 1918,
+      "sha256": "38b6a25a0dc3482c89c370f0fc5457c479f491dfd8bf155b248deca5d7204e49",
+      "git_blob": "5183c5d9ac5da85d5b022c28e9bc89c1e4fd2272"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-09/standalone-workspace-09.json",
+      "bytes": 8517,
+      "sha256": "ce20864b9d29335202a44966305a95fa4dc7ad48411d8d46c67fa1a28ed765e0",
+      "git_blob": "3c4b8596b3c8bc3bfa4167cbd04f1aa37102205a"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-09/standalone-workspace-09.stdout.txt",
+      "bytes": 86,
+      "sha256": "c3a4d6157f63dc1e848fd161564adc9e89ac5cf904841882c8096e9a88805a7d",
+      "git_blob": "c4bbbc8b98d7b0277321b228157a7eaa115ffd6f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/capture.stdout.txt",
+      "bytes": 415,
+      "sha256": "500db6d9e62d3f3c6d522ed1c2f8197b044da0ab72c509c52671f00fc92c9a16",
+      "git_blob": "64241c376c1a9b547dd028ec7b254aeff0431e44"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/coverage/coverage.json",
+      "bytes": 10181,
+      "sha256": "ff1d7570d3f5b2e789f436910e3a37107e66cd877cb22781ef9fba07fcde7283",
+      "git_blob": "e7a38b2e0bc44d0280183bea16d694f1f5855a9d"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/coverage/coverage.md",
+      "bytes": 2251,
+      "sha256": "3d361c0cde4ff10e63560c7175a86a9a9ea65010c76014eeeaac433e73f9a3e5",
+      "git_blob": "8a18c418952a258d355b33e7c2ca1c019be17d85"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/dispatch-observation.json",
+      "bytes": 1925,
+      "sha256": "b157148ce46643ca641f6ca4b3d9ba6593b4ba304f79b601767b2bc5d5dba5c2",
+      "git_blob": "1c5fe54225d21abfdbf706924a1cc7c137780894"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/standalone-workspace-10.json",
+      "bytes": 8524,
+      "sha256": "a69a91fb57e5f2ed9eecf540a46cdc9978dbfa2536c96ebffc689abd7477ebdb",
+      "git_blob": "5106e01d978cb996e58ca6a6494d7f73d540c3e5"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-10/standalone-workspace-10.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-11/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-11/capture.stdout.txt",
+      "bytes": 296,
+      "sha256": "b2458f05529506453e0b34e54d27c42583f3f2ca6f7efe6a85d41743e3457a0f",
+      "git_blob": "fa68f2020d1b56fec8ced0e8aa7f2fbcf620b1a6"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-11/dispatch-observation.json",
+      "bytes": 1803,
+      "sha256": "b7cf3528ff0c0c9e11dc2ff0af6a4aeaf1991478cb4879e4e727380962882695",
+      "git_blob": "f86722c7deada122a504bf93a7033242de0d305b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-11/standalone-workspace-11.json",
+      "bytes": 8405,
+      "sha256": "6c7701b5999a77f0842edd3dbcd8fb01aec573552a0fc2740d5f5623c46f2d48",
+      "git_blob": "851f6d3ade606aebe3f7ad0dcfe554ee22220a68"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-11/standalone-workspace-11.stdout.txt",
+      "bytes": 24276,
+      "sha256": "3fe62a8812679c05f8f20d5f586f7660992f01ae50fd527f10846f81d637bfce",
+      "git_blob": "a3a09c1243cdbe44d805201a79aa798318ee8cf8"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-12/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-12/capture.stdout.txt",
+      "bytes": 313,
+      "sha256": "456fffa9784f633f4e1236202b4e409123048498b4cf37858149589621bd79c5",
+      "git_blob": "eb5291ac089fd9193c76c13bc3e5eed875e769a2"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-12/dispatch-observation.json",
+      "bytes": 1820,
+      "sha256": "6340a11317f398359113787ead1cb63c3079c2c029fd00e8276c156e8b1b3d7d",
+      "git_blob": "4b8fbf0c2e8f46efdd8e653bf5072f4bba5ff7c5"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-12/standalone-workspace-12.json",
+      "bytes": 8419,
+      "sha256": "a2120f6d4c72a38ef7d6a8cf1f64e51ed1297f49702085c07b3385157e5fb1ec",
+      "git_blob": "29f7bd46a5657c8400196db18ed359bfe8b7df95"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-12/standalone-workspace-12.stdout.txt",
+      "bytes": 48,
+      "sha256": "ab15a4fdd55e1f7e85de95e6f47e0468deb6dbe7ac982c230f8d773d381d8026",
+      "git_blob": "1a6acd237152dce7725a2c7d05d85dbc1698cf23"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-13/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-13/capture.stdout.txt",
+      "bytes": 817,
+      "sha256": "0ad5d666a2a4f4c299adc1a29ee05f0db07ab7db8e09bc77e866985ec74f2e13",
+      "git_blob": "996e13a0ab4480b4878007746aca3b3a1be75008"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-13/dispatch-observation.json",
+      "bytes": 2316,
+      "sha256": "58ed248226a7da7df7def9f1c9dc00595417b90f0518bb1fb441fe91e011e833",
+      "git_blob": "c07db5739cc0d84af3520aefa414ee4e396b296d"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-13/schemas-python-residue.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-13/standalone-workspace-13.json",
+      "bytes": 8914,
+      "sha256": "ba932d71239d4071addee107fcfa58af62deb3f5387390222bb21ed220e453bc",
+      "git_blob": "157853a4338e6ffcabaf8ab119d5e3c55fac06c1"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-13/standalone-workspace-13.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/README.md",
+      "bytes": 2870,
+      "sha256": "4709e5e9583916e87078d6b83c4812493f288231bbc309b802c0bcf869ec70ea",
+      "git_blob": "a306c1a0a91c029f751a1afa0b72e36a340ed320"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/actual-smoke-xml-recompute.json",
+      "bytes": 2671,
+      "sha256": "8547e43004c2b604ae715e177a26fb2b766a79ea3cdc7b5f27de2b7ee114962b",
+      "git_blob": "b5400df464191d87e814c325b617c5e4537220ab"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/capture.stdout.txt",
+      "bytes": 308,
+      "sha256": "5b2706f80339d033bab9fbaccb46ff4dd0991a257cc2ff4f871a96db03841fce",
+      "git_blob": "24909a998bac993ace3bb3684141c784614053a8"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/capture_existing_environment.py.txt",
+      "bytes": 2322,
+      "sha256": "560d48f67fd7362e367a39f7b01bb2746a2c98af840ea57fb30830e98b90184f",
+      "git_blob": "64600d0399515d59a51ba55c641943b6dc8045f8"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+      "bytes": 8821,
+      "sha256": "9a5b4ad8d7a54b861f7e37ffaeb4bf90d1ed70cc4034cc3ee74b4bc8d249f409",
+      "git_blob": "7e279bfc4267da53611c514d9931738317083ca9"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.stdout.txt",
+      "bytes": 4960,
+      "sha256": "155012f0e77926fc2a9bc1b2a8ccbeda17fbcf43981f875c5693908ca40b629d",
+      "git_blob": "b2500ee3b47668939dd41baf695ab0a1ed978125"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/checks/native-ci08-existing-doe-environment/pytest.xml",
+      "bytes": 1471,
+      "sha256": "703d04c3916e7a7ff6979f8742dbd4aa605a9192605ea61450a68106e7996ac6",
+      "git_blob": "34aa3b4bc377b789c17527fbc107c388493147ce"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/close_publication_selection.py.txt",
+      "bytes": 1762,
+      "sha256": "a192e0307d3994b16a357589d7fb9d8966fb4d3a1e1a391405eef15ff56d4f4f",
+      "git_blob": "4c62c3869ab21f14615d4cc1718116f4cf2a155a"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/closed-source-selection.json",
+      "bytes": 16356,
+      "sha256": "3f184a310070f4a950831598a97778362d6c14491cdcf76cec2fd64188440c84",
+      "git_blob": "46e0371203a0f387394892fa1d4f73ac17c279d9"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/completion.json",
+      "bytes": 495,
+      "sha256": "59ab9f3646565e5f7e5230276e91b32dca44951afd2db1c8a6ce34c7c0c80501",
+      "git_blob": "8a354c761e51fc981eae57f633162fcc94bf1007"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/doe-environment-after.json",
+      "bytes": 96904,
+      "sha256": "7fed98071ca818829a00cab95b02ae7f6a3ea368e9c8a84552fd837edc715755",
+      "git_blob": "def3d36a6b2428d87a09469a57778ed7f42b4944"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/doe-environment-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/doe-environment-after.stdout.txt",
+      "bytes": 365,
+      "sha256": "2e9ac8ec3cc782c8e10fc52936d8e52dbf9a9af2ae1fd1fcc4edd32289b4b790",
+      "git_blob": "bcffcc94d7e2999800ccc537d7abb250d36b2dae"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/doe-environment-before.json",
+      "bytes": 93571,
+      "sha256": "3956445d4210b69a97bb033c5667fa2232efdea2d6bc9a64802bbce7983a6dc2",
+      "git_blob": "175501a456125fc8b098c727270e98971d80f77a"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/doe-environment-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/doe-environment-before.stdout.txt",
+      "bytes": 366,
+      "sha256": "a106cd194974f13e7f13696804a39dbc00499e98ddb8409aa1eec3fd9723b23e",
+      "git_blob": "812fedb5cdc01a27f5f4b6a41bffa517f1cc1c96"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/environment-inactivity-before-v2.json",
+      "bytes": 11706,
+      "sha256": "1427e9edd78b2fbf1ca33798ad121bffe2a57e617c69c7af69d8ece507b455b6",
+      "git_blob": "e3d120f71b01f0281c48b453a2ac9147992db4eb"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/environment-inactivity-before.json",
+      "bytes": 10640,
+      "sha256": "13d27acf0e14167bc004ee801db0f7fb1a24cce2f4a0924579872149ab488050",
+      "git_blob": "83ea5ab964f152e1fb6752db95155ff121b9c12b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/environment-lease-closed.json",
+      "bytes": 9314,
+      "sha256": "0012e673cf57443bf7318a5270065ac9e61d2c18a3b9a533de05e09135e43dcc",
+      "git_blob": "5dac4bf848fe2ed2b0162ffdbaae42392f3f9210"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/execute_ci08.attempt1-observer-error.py.txt",
+      "bytes": 8753,
+      "sha256": "c938766763f06c0a654cf1e12cad6ad935c6c14a8ba1088e5c0f2946aa76aec5",
+      "git_blob": "e28a676cc372de1ac699b0b30998f75b09ce74e7"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/execute_ci08.py.txt",
+      "bytes": 8724,
+      "sha256": "0f46493ecdb3526f7b3d3074d36d3959b6c0b64c6330c81d6f7faba2ff0889a9",
+      "git_blob": "db2e88c3cc88287d0a78ba02ff32b15f75ce83cf"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/execution-plan.json",
+      "bytes": 23540,
+      "sha256": "af3aecf458a09dea5e89f54542b5bd11aba10678a30b7e6bedfef12a7b6964b2",
+      "git_blob": "5c518b5b324654d30ce5dfd8429e0083f7d84b70"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/historical-open-capture-selection.json",
+      "bytes": 15057,
+      "sha256": "bbc14f7e57813e91ee303bdccabaea74e7cba6ef3c0747480af68ef05f2621f9",
+      "git_blob": "8cf2d94e4f66f1d9f680bfdd3c27f3bb82ee90e1"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/installed-distinfo-complete.json",
+      "bytes": 34847,
+      "sha256": "6e978748009263924854fea04b1a9a9b775d9cc7703a6dbb7fc8cbd658cac9c6",
+      "git_blob": "e447641c310b1ff43832fe51fe82a409349c423c"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/installed-entrypoint-bindings.json",
+      "bytes": 25299,
+      "sha256": "bb221e7456a1c06668a01e90ac769b2f353e0f9e80fbfa4bdb0f2c2b86eeb129",
+      "git_blob": "8dd4364acb3b6ebc3f0827720a80327d7fb5a72b"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/launcher.attempt1-observer-error.stderr.txt",
+      "bytes": 1244,
+      "sha256": "05d7383f1f9eeb24e870fe23dcd2667baa46792d4d647cb95f9f87b45695c534",
+      "git_blob": "3091ad26c488d27ba4713a57b0a66fb75edeb77a"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/launcher.attempt1-observer-error.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/launcher.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/launcher.stdout.txt",
+      "bytes": 1671,
+      "sha256": "0b6250821b21943c36b841be6de45834cc1566fc25bca1d63d4e6bc504c7bf90",
+      "git_blob": "f9155bd4f7e89663a74f4c6927de7ef3972d19b7"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/native-ci08-summary.json",
+      "bytes": 9244,
+      "sha256": "42fae75c26bf03c527ce419f6674694e8e4aa2734b2868fce7719c788fd47160",
+      "git_blob": "76a1e69dc7895c99cc4af54b876ff2dfe9905725"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/publication-builder.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/publication-builder.stdout.txt",
+      "bytes": 648,
+      "sha256": "1aee6cefe3ec9effc0d1a654d2e59a50bb975d45541f2ca8ac5a67afdb3b75d3",
+      "git_blob": "67423aa1ac2f708ccf0dc1cf7ae84d15ff0f53da"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/publication-selection-attempt1-open-capture-error.json",
+      "bytes": 877,
+      "sha256": "f81534ced46967bc0a7df831ff66c62974cb8aa6d9aabe3e3049c0a0af601009",
+      "git_blob": "96e8b1d0a373002d654c0d685c6e0f13c3586b13"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/root-environment-after.json",
+      "bytes": 109549,
+      "sha256": "ad0624a06d3a01e9139bc0f322a68410d5fc7b343f7171e219df6657cf3aa1c1",
+      "git_blob": "f0c2a41eefec1b545d2290e9c78ef998cafb676f"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/root-environment-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/root-environment-after.stdout.txt",
+      "bytes": 366,
+      "sha256": "1e28bb3353c27228a4b0f0a024c7d6076ce5b684329e5834204ddb92eab20eaa",
+      "git_blob": "c7eb78a0be2bb0697eca3233bc1b9336bcfe3635"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/root-environment-before.json",
+      "bytes": 109549,
+      "sha256": "0f09cc62cb1103c6c31d30b55a103509fac27380534344717c70102d49587f88",
+      "git_blob": "44ca90e75d48b4ad90f1b885ea595de6ed4470bb"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/root-environment-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/root-environment-before.stdout.txt",
+      "bytes": 367,
+      "sha256": "13cbaa624e7789612838706724ea8e9458f4890e5f399911ac257f5569a761b9",
+      "git_blob": "61e44d16a8e8146a0f8c2fca219aa250bba0e855"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/summarize_ci08.py.txt",
+      "bytes": 9008,
+      "sha256": "657d287f4110a8d00466797f3a87ae1255e2dce4239745c69f2c0ceb639db830",
+      "git_blob": "aa11cba28a68054a8a5de1096505592eb8bdcf3a"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/materialize_successor_packets.py.txt",
+      "bytes": 9618,
+      "sha256": "9be38980fd0f2ec1d06f3df4e74659644f676b4b88b012e3fb3d6475c1eb2c4c",
+      "git_blob": "fbf451f89d6f7fd8c5d66145b70fa13a7cf0c290"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/portable-copy-index.json",
+      "bytes": 94712,
+      "sha256": "850e48149d8500e831e10652c01fc42a502a1c304afe3b6c5d6a6bd1cce0779e",
+      "git_blob": "6f587bc555c95ad40c3c6e63247cc7d391dd57e0"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/publication-admission/publish-successors-leaf-resume-admission.json",
+      "bytes": 123130,
+      "sha256": "10ecb5c5a67e6c82ad5bc5163642214b38016cf437a5d3f4086a221764cc3658",
+      "git_blob": "50a1b9bcc4baac3acabf441c1c77737772adae42"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/publication-admission/publish-successors-leaf-resume-admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/source-freeze-64d7444a.json",
+      "bytes": 3424,
+      "sha256": "41b408e310e4a2b3bf2771ec41298024fd30e5f276bdb455493f33550a0041c2",
+      "git_blob": "dfc925fac351f26f3ab59391e07a11af479e9cc0"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/validate_review_copies.py.txt",
+      "bytes": 5518,
+      "sha256": "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde",
+      "git_blob": "498a693250297592e25aec9e613bd27c8a68f074"
+    }
+  ],
+  "candidate_changed_path_count": 170,
+  "candidate_new_active_python": false,
+  "candidate_new_product_schema_generator_files": false,
+  "copied_deciding_asset_count": 168,
+  "copied_deciding_asset_bytes": 2501235,
+  "mandatory_original_selected_native_assets": {
+    "nonshared21": 122,
+    "CI08": 37
+  },
+  "property_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/portable-copy-index.json",
+  "runtime_property": "Completed native observations remain bound to exact frozen source/environment/input and complete deciding outputs. Current portable copies match immutable publication Git blobs and physical bytes; corrupt declarations or absent Git objects refuse. No artifact-presence or command count supplies authority/finding closure.",
+  "deciding_outcomes": {
+    "standalone21": {
+      "check_count": 21,
+      "outcomes": {
+        "FAIL": 14,
+        "PASS": 7
+      },
+      "all_source_immutable": true,
+      "receipt_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/dispatch/successor-21-check-index-64d.json"
+    },
+    "alternate_native_CI08": {
+      "outcome": "PASS",
+      "exit_code": 0,
+      "smoke_counts": {
+        "cases": 8,
+        "passed": 8,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "actual_examples": 7,
+      "fresh_components": 6,
+      "fresh_governance_passes": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+      "interpreter": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "ROOT_distribution_count_before_after": [
+        203,
+        203
+      ],
+      "DOE_distribution_count_before_after": [
+        177,
+        184
+      ],
+      "exact_added_example_packages": [
+        "polisyos-data-forge-domain-example",
+        "polisyos-fabric-connector-example",
+        "polisyos-foundry-method-example",
+        "polisyos-lex-normpack-example",
+        "polisyos-runtime-middleware-example",
+        "polisyos-scientist-governance-pass-example",
+        "polisyos-scientist-node-example"
+      ],
+      "existing_distributions_modified": [],
+      "protected_numerical_metadata_equal": true,
+      "root_environment_records_equal": true
+    }
+  },
+  "input_scope_interpretation": {
+    "preserved_preparation_strings": "Native copied input_domain.actual_runtime_denominator retains preparation text UNRUN/future in most rows. Those strings describe the earlier static input projection, never the terminal actual_receipt command outcome. They remain unchanged as historical bytes; this handoff supplies current interpretation.",
+    "terminal_source_of_truth": "Read each actual native receipt outcome/exit/source_immutable and deciding stdout/tool/JUnit; all21 constituents are terminal. Most have command-level outcomes and no JUnit, not a measured dynamic runtime dependency denominator.",
+    "source_denominators": "Full physical frozen framing is17,016 tracked paths /524,100,024B /SHAf45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5. Stage domain projections do not prove transitive runtime input coverage. Full ignored inventory pins4,244,134B/SHA6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693 with exact Git reconstruction.",
+    "CI07": "385 actual explicit reader operations are retained in measurement= first stdout line, with exact measurement limitations. --report-only exit0 PASS does not mean clean debt ledger; blocking/informational findings remain.",
+    "CI08": "51 exact declared source bindings, all7native installs and fresh discovery, actual8smokeJUnit cases; alternate existing environment explicitly differs from original ROOT invocation.",
+    "workspace09": "Canonical inventory caller scans all tracked accepted text incldocs; earlier7652-path static preparation projection excluded docs and is not the actual full runtime input denominator. Frozen64d ambiguous-JSON FAIL retained; separate1186/43f6 E document-role fix and still-FAIL canonical inventory remain separate.",
+    "canonical_workflows": "Canonical umbrella fail-fast/deferred UNRUN remains its actual workflow observation. Independent terminal constituent outcomes do not overwrite canonical UNRUN; original ROOT-env CI08 was not invoked."
+  },
+  "author_verification": {
+    "canonical_current_and_git": "PASS",
+    "copied_count": 168,
+    "copied_bytes": 2501235,
+    "mandatory_source_membership_count": 159,
+    "typed_corrupt_controls": [
+      {
+        "field": "sha256",
+        "value": "0000000000000000000000000000000000000000000000000000000000000000",
+        "outcome": "PASS",
+        "native_refusal": "Review digest mismatch: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+      },
+      {
+        "field": "sha256",
+        "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "outcome": "PASS",
+        "native_refusal": "Review digest declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+      },
+      {
+        "field": "bytes",
+        "value": -1,
+        "outcome": "PASS",
+        "native_refusal": "Review size declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+      },
+      {
+        "field": "bytes",
+        "value": true,
+        "outcome": "PASS",
+        "native_refusal": "Review size declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+      },
+      {
+        "field": "copied_path",
+        "value": "../outside",
+        "outcome": "PASS",
+        "native_refusal": "Review copy must be repository relative"
+      },
+      {
+        "field": "copied_path",
+        "value": "/tmp/outside",
+        "outcome": "PASS",
+        "native_refusal": "Review copy must be repository relative"
+      },
+      {
+        "field": "copied_path",
+        "value": "-outside",
+        "outcome": "PASS",
+        "native_refusal": "Review copy must be repository relative"
+      },
+      {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "historical": false,
+        "outcome": "PASS",
+        "native_refusal": "Review revision or copy is unavailable in Git"
+      },
+      {
+        "revision": "--all",
+        "historical": false,
+        "outcome": "PASS",
+        "native_refusal": "Review revision must be a Git revision, never an option"
+      },
+      {
+        "revision": "c8054bb2f055",
+        "historical": true,
+        "outcome": "PASS",
+        "native_refusal": "Historical replay requires an exact immutable commit SHA"
+      }
+    ],
+    "canonical_validator_source": {
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+      "bytes": 5518,
+      "sha256": "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde",
+      "archive_byte_equal": true
+    },
+    "native_selectors_repeated": false,
+    "source_archive": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/validate_review_copies.py.txt",
+    "exact_validation_argv": [
+      "python3",
+      "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/validate_published_successor_copies.py"
+    ],
+    "validation_environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "python": "3.12.14 (Aug25 2026;Clang22.1.3)",
+      "numerical_stage_environment": "Actual existing3.14.7 environments and packages are recorded in native receipts; no newenv/lock sync."
+    },
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/author-custody/publication-c8054-canonical-validation.json",
+    "complete_output": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/author-custody/publication-c8054-canonical-validation.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/author-custody/publication-c8054-canonical-validation.stderr.txt"
+    ],
+    "literal_recipe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/author-custody/validate_published_successor_copies.py.txt"
+  },
+  "historical_observer_errors": [
+    "Host-wide process observation refused unreadable privileged dockerd/containerd; complete live agent-UID preflight retained explicit infrastructure exclusions.",
+    "Initial CI08 source inlet requested nonexistent conftest and refused Git128 before native callbacks.",
+    "Initial CI08 publication selection bound then-open builder stdout; historical initial index/error remains; closed current v2 selection distinct."
+  ],
+  "predicate_basis": "Existing fixed canonical validate_review_copies.validate resolves immutable Git objects, validates declared size/digest/path types, and requires current physical equality. Independent review must recompute complete source selections, stage native outcomes and CI08 XML/package identity; markers and quantity of PASS are not closure predicates.",
+  "P41": "not_established for global inherited attribution unless exact slice-base full command/full input replay exists. This publication preserves actual FAILs and makes no inherited waiver.",
+  "source_and_finding_decisions_separate": true,
+  "finding_ledger_statuses_changed": false,
+  "source_implementation_acceptance_owner": "G; integration/main publisher authorization unchanged",
+  "finding_acceptance_owner": "Each original accountable owner; these documentation/custody observations do not adjudicate any of54original IDs.",
+  "limitations": [
+    "Fourteen independent standalone checks FAIL; complete native outputs are delivered, not waived.",
+    "Full canonical global workflow outcomes and root16resource-stage results are outside this bounded packet.",
+    "Equivalent CI08 PASS is from distinct existing DoEenv; original deferred root-env invocation remains separate.",
+    "Protected dist-info METADATA/RECORD/WHEEL equality does not claim independent hashing of every numerical binary.",
+    "Production history/source law stay local and read-only; none transferred or synthesized.",
+    "Publication source/candidate differ: native observations are on64d, copied custody on c8054; no new numeric wave on a documentation-only publication."
+  ],
+  "next_owners": [
+    {
+      "owner": "G",
+      "input": "Exact immutable DOC commit and independent custody GO",
+      "next_verifiable_result": "Fetch published E topic by SHA; accept documents separately from finding closure; ordinary merge after root source-capture boundary."
+    },
+    {
+      "owner": "Canonical gate writers routed by G",
+      "input": "Complete individual FAIL outputs and exact full input/source identities",
+      "next_verifiable_result": "Repair their owned import/ban/state/schema/inventory/HDS/ratchet/contracts/docs mechanisms without baselines or authority waivers; rerun only affected canonical successors."
+    },
+    {
+      "owner": "B and registered ledger/task authors",
+      "input": "CI07 complete --report-only findings and385reader-operation receipt",
+      "next_verifiable_result": "Actual content-bound closure/ledger decisions and render consistency; report-only exit0 is not acceptance."
+    },
+    {
+      "owner": "Original finding accountable owners",
+      "input": "Unchanged complete original criteria/ledger and separate implementation/evidence packets",
+      "next_verifiable_result": "Per-finding acceptance/rejection remains independent of these native gate outcomes."
+    }
+  ],
+  "cleanup": "No current source/output/environment cleanup or uninstall performed. Existing DoEenv seven additions and deciding receipts protected; post-lease complete agent-UID zero-active-user proof retained. Cloud cleanup clarification does not authorize deleting unique evidence/source.",
+  "independent_review": {
+    "outcome": "GO",
+    "reviewer": "criteria_r4 (independent of E author)",
+    "candidate_sha": "c8054bb2f055fae5f94012773ab4d2efad8cfab7",
+    "candidate_tree_sha": "ad4563952e75e3a4ab6b094283ef8007594533df",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/independent-custody/independent-publication-review-c8054bb2.json",
+    "receipt_bytes": 9048,
+    "receipt_sha256": "6936d7200c404a7533b8b132c7dd61def989adb728b5e77c05dbaf5b68f85d08",
+    "normal_and_python_O_identical": true,
+    "copied_assets": 168,
+    "copied_bytes": 2501235,
+    "original_selected_assets": 159,
+    "corrupt_controls": "Five declared field corruptions and unpublished base refused; effective removal of digest predicate admits the fake digest, proving proxy divergence. Complete literal reviewer sources/stdout/stderr retained.",
+    "scope": "Document custody/outcome/source/environment only; source/finding/global-gate acceptance separate; no native rerun."
+  },
+  "complete_footprint_reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/author-custody/publication-c8054-complete-footprint.json",
+  "handoff_companion_copies": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/handoff-copy-index.json",
+    "file_count": 19,
+    "bytes": 136555,
+    "no_future_sha_self_reference": true
+  },
+  "source_stage_reviewed": true
+}

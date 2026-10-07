@@ -1,0 +1,34 @@
+import hashlib,json
+from pathlib import Path
+S=Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+q=json.loads((S/'queue-final-v1.json').read_text())
+q['final_readme']=q['final_readme'].replace('python3 -B copy-final-publication.py.txt --manifest manifest.json --layout published --destination-root /tmp/e02-E-r5-literal-reopen','(cd policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2 && python3 -B copy-final-publication.py.txt --manifest manifest.json --layout published --destination-root /tmp/e02-E-r5-literal-reopen)')
+q['final_readme']=q['final_readme'].replace('Reopen this committed packet with its literal archived copier and an explicit published layout, choosing a fresh destination:', 'From the repository root, reopen this committed packet with its literal archived copier and an explicit published layout, choosing a fresh destination:')
+q['final_limitations_next_owner'] += [
+ {'owner':'D / default Search analysis consumer','next_result':'apply/admit exact analysis_ref + existing codec + fresh reopen + ranking consumer packet; this neighboring Search edge does not hold B100 original sampler/analyzer support, transform and persisted fingerprint criterion'},
+ {'owner':'C/F actual Profile2 consumers','next_result':'explicitly adopt or refuse the ratified finite-law Profile2 at actual appointed consumer boundaries with axis/order/shared draw IDs/exact weights/units/context preserved through configured CAS; current E producers and native E readers do not establish C/F adoption'},
+ {'owner':'Scientist configured float input materializer / input binding','next_result':'use the c40 configured-float packet exact content-bound input/schema/target/unit/CAS refs to provide actual generic finite-float CAS-to-configured-Calibrator input binding and a fresh native positive; preserve wrong type, missing source/join and callback-before-admission negatives. The current configured Bayesian fit producer witness does not invent this default materializer bridge'},
+]
+(S/'queue-final-v2.json').write_text(json.dumps(q,indent=2)+'\n')
+flat=json.loads((S/'flat-source-publication-selection.json').read_text())
+paths=[]
+for name in ['probe-final-copier.py.txt','probe-Counter-aliased-omission-delta.py.txt','full-controls-normal.stdout.json','full-controls-normal.stderr','full-controls-optimized.stdout.json','full-controls-optimized.stderr','Counter-delta-normal.stdout.json','Counter-delta-normal.stderr','Counter-delta-optimized.stdout.json','Counter-delta-optimized.stderr','published-layout-normal.stdout.json','published-layout-normal.stderr','published-layout-optimized.stdout.json','published-layout-optimized.stderr','published-layout-complete-readback.json','build-first-transport-observation.json','build-final-v1.stdout.json','build-final-v1.stderr','close-final-controls-selection.py.txt','flat-source-publication-selection.json']:
+ paths.append(S/name)
+for dirname in ['full-controls-normal','full-controls-optimized','Counter-delta-normal','Counter-delta-optimized']:
+ root=S/dirname
+ paths.extend(p for p in sorted(root.iterdir()) if p.is_file() and not p.is_symlink())
+paths.extend(p for p in sorted((S/'final-ready-v1').iterdir()) if p.is_file())
+for mode in ['normal','optimized']:
+ old=json.loads((S/('full-controls-'+mode)/'review.json').read_text());delta=json.loads((S/('Counter-delta-'+mode)/'review.json').read_text())
+ if sum(r['PASS'] and r['expected_exit']==1 for r in old['rows'])!=24 or not old['rows'][0]['PASS'] or not delta['all_controls_PASS']:raise ValueError('actual controls/counts')
+reconciliation={'source_candidate':q['source'],'source_tree':q['tree'],'first_control_candidate_manifest':{'path':str(S/'final-ready-v1/manifest.json'),'bytes':(S/'final-ready-v1/manifest.json').stat().st_size,'sha256':hashlib.sha256((S/'final-ready-v1/manifest.json').read_bytes()).hexdigest()},'per_mode':{'healthy_actual_stage_cli':1,'actual_corrupt_refusals_before_destination':24,'effective_aliased_omission_delta_cases':2,'actual_published_layout_complete_positive':1},'first_bulk_harness_exit':1,'first_bulk_harness_outcome':'observer ERROR: initial sole-Counter-removal input omitted unique content, so a missing expected content lookup refused before Counter comparison; all24 actual corrupt cases and healthy passed','delta_outcome':'PASS: same actual copier with all original carriers retained refuses retotalled genuine raw-member omission; sole Counter guard removal admits exactly that omitted member','source_native_numeric_or_gate_execution':False,'original_first_output_and_report_preserved':True,'final_input_only_constants_changed_in_copier':True,'final_independent_Git_custody_pending':True}
+(S/'actual-controls-reconciliation.json').write_text(json.dumps(reconciliation,indent=2)+'\n')
+paths.append(S/'actual-controls-reconciliation.json')
+for p in paths:
+ b=p.read_bytes()
+ rel=p.relative_to(S)
+ flat['files'].append({'source_path':str(p),'portable_path':'r5-actual-copier-controls/'+str(rel),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'role':'complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected'})
+(S/'flat-final-with-controls-selection.json').write_text(json.dumps(flat,indent=2)+'\n')
+b=(S/'build-final-stage.py.txt').read_text().replace("flat_path = S / 'flat-source-publication-selection.json'", "flat_path = S / 'flat-final-with-controls-selection.json'")
+(S/'build-final-stage-v2.py.txt').write_text(b)
+print(json.dumps({'queue':str(S/'queue-final-v2.json'),'queue_bytes':(S/'queue-final-v2.json').stat().st_size,'queue_sha256':hashlib.sha256((S/'queue-final-v2.json').read_bytes()).hexdigest(),'explicit_flat_members':len(flat['files']),'new_closed_control_files':len(paths)},indent=2))

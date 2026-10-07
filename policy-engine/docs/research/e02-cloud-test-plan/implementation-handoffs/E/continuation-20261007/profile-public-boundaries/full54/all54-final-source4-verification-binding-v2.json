@@ -1,0 +1,254 @@
+{
+  "schema": "e02.E.original54.source4-final-verification-binding.v1",
+  "scope": "Additive receipt resolves v2/prewave pending public-boundary checks only. Immutable original54 decisions, historical checks and full G intake remain separate.",
+  "source": {
+    "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "candidate": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+    "complete_footprint": [
+      "A\tpolicy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+      "M\tpolicy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "M\tpolicy-engine/src/polisyos/ir/analytics/README.md",
+      "M\tpolicy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "M\tpolicy-engine/tests/unit/ir/test_posterior_summary.py",
+      "M\tpolicy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "A\tpolicy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "runtime_source_equal_to": "e4b97c15196d8e276745f55a4367da83586511d9"
+  },
+  "inputs": {
+    "v2": {
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+      "bytes": 243560,
+      "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+    },
+    "prewave": {
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/source4-association-prewave.json",
+      "bytes": 41454,
+      "sha256": "48ffafea495646677b9d743a03ff0454e8dc6050ec687ac03bb5c59c0302b085"
+    },
+    "coverage": {
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/coverage-reconciliation.json",
+      "bytes": 1954,
+      "sha256": "74055d7615e785f93fd85c6121e0c290eebd0e3cd52de413d61f0b1a942ecf4a"
+    },
+    "v2_review": {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-v2-source11082.json",
+      "bytes": 72218,
+      "sha256": "b5b8ee8ea2566722c274736af37d8a41e8083d61c68ba5a0e6b6f2c9440be6e8"
+    },
+    "source4_review": {
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/review-final-source4-test-companion.json",
+      "bytes": 8989,
+      "sha256": "27a87e3cc65dc113261001793b17004487811592f47aedece6e2d8e2599028ac"
+    },
+    "wave": {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/wave-receipt.json",
+      "bytes": 48048,
+      "sha256": "f97e61a147a6891ea883193756048b031ac2444e06b5785d99d71f13673c8220"
+    },
+    "defining": {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/affected-defining.receipt.json",
+      "bytes": 40587,
+      "sha256": "0ed5b0bce10b4ad524df468d66ce5896a99ea24dfcbf7798c4ef6f7c85a0a961"
+    },
+    "architecture_controls": {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/architecture-maintained-controls.receipt.json",
+      "bytes": 2886,
+      "sha256": "30e365010391e7b050867bc681d073a06fdf2d092d3db6581611e64e3e55eb06"
+    },
+    "type": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.receipt.json",
+      "bytes": 8048,
+      "sha256": "d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91"
+    },
+    "lint": {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source4-final-owned-lint/receipt.json",
+      "bytes": 2185,
+      "sha256": "16a5af9f81ec771588662aeca491a93d29696cd3f19192ab15fb5a877030c4fc"
+    },
+    "FRC_unique": {
+      "path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/all-eight-failure-identities.json",
+      "bytes": 154790,
+      "sha256": "cf5374ee26e5587c2919a67ffab3e0386c0567e0cc6f767e2454d99f785ed9fa"
+    },
+    "FRC_83": {
+      "path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/full83-FRC-case-association.json",
+      "bytes": 116518,
+      "sha256": "2944947a4568ea640b07d75982b2507129ee8eb3bf1597fa8cb7d5ad4a212d6f"
+    }
+  },
+  "status_layers": {
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "retained_E_author_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "retained_E_individual_decisions": {
+      "accepted": 43,
+      "pending": 11
+    },
+    "formal_G_acceptance": 0,
+    "formal_ledger_change": false,
+    "B198": "Historical closed retained; no new defining-property falsifier established.",
+    "rule": "Proposal, historical ledger, check outcome, independent source recommendation and formal G intake are separate. New public-boundary completion requires its own evidence."
+  },
+  "original_scope": {
+    "bundles": 22,
+    "finding_ids": 54,
+    "ID_to_bundle_links": 55,
+    "shared_link": "LA-051 in FRC-01 and FRC-02"
+  },
+  "dependency_count": 117,
+  "complete_dependency_record": {
+    "input": "prewave",
+    "fragment": "#/all117_original_dependency_bodies"
+  },
+  "checks": {
+    "defining": {
+      "outcome": "PASS",
+      "outcomes": {
+        "PASS": 195,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input": "defining"
+    },
+    "architecture_controls": {
+      "outcome": "PASS",
+      "outcomes": {
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input": "architecture_controls"
+    },
+    "configured_HMC_NUTS_fresh_Node": [
+      {
+        "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+        "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[hmc]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.test_bayesian_fit_consumer",
+        "name": "test_real_configured_backend_corpus_persists_and_fresh_node_consumes[nuts]",
+        "outcome": "PASS"
+      }
+    ],
+    "type_reuse": {
+      "executed_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "outcome": "PASS",
+      "summary": {
+        "filesAnalyzed": 3,
+        "errorCount": 0,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 3.379
+      },
+      "source4_rerun": false,
+      "basis": "All three selected source bodies equal source4 by exact Git/content hashes.",
+      "input": "type",
+      "whole_type_gate": "UNRUN"
+    },
+    "owned_changed_file_lint": {
+      "outcome": "PASS",
+      "paths": 5,
+      "input": "lint"
+    },
+    "whole_architecture": {
+      "outcome": "UNRUN",
+      "qualification": "Parent running separately; subsequent exact receipt cannot be inferred from three maintained controls."
+    },
+    "current_A_native": {
+      "outcome": "UNRUN",
+      "qualification": "Existing A consumer source review/typed packet only; no current A runtime result asserted."
+    }
+  },
+  "mechanism": {
+    "public_Profile2_raw_ingress_and_multi_join_completed": true,
+    "property": "Raw declared Profile2 is admitted before coercion/callback/publication on legacy/model push, compress and pull routes; unsupported multi-envelope Profile2 join refuses before generic lowering.",
+    "deciding_basis": "Non-author source3/raw-ingress/removal/join review, source4 corrective test review, frozen actual affected195 cases and complete outputs.",
+    "compatibility": "Single identity, generic joins, literal Profile1 and unprofiled Envelope1.1 remain supported; combine is diagnostic/non-gating loss.",
+    "gate_eligible": false,
+    "production_or_institutional_authority": "not_established",
+    "release_readiness": "surface_missing; G canonical ABI/public-surface generation and owners remain separate"
+  },
+  "original_findings": {
+    "all54_rows": {
+      "input": "v2",
+      "fragment": "#/rows"
+    },
+    "affected_B201_B202": "E technical bounded closed proposals retained; new boundary repair verified; G formal closure is not promoted.",
+    "B188_B192_B199": "Original mathematics/criteria unchanged; affected native public-reader and generic aggregation controls now have source4 receipts.",
+    "B194_B197": "held",
+    "B32_LA051": "limited",
+    "other_nine_limited_and_two_held_owner_inputs": {
+      "input": "v2",
+      "fragment": "#/external_owner_inputs"
+    }
+  },
+  "FRC_association": {
+    "unique_observations": 8,
+    "cross_ID_links": 16,
+    "per_ID_case_count": 83,
+    "per_ID_historical_outcomes": {
+      "PASS": 75,
+      "FAIL": 8
+    },
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "qualification": "Shared b2 observations only; not additional tests or current A failures. Existing consumer/reason carry is verification_missing.",
+    "inputs": [
+      "FRC_unique",
+      "FRC_83"
+    ]
+  },
+  "historical_provenance": {
+    "source": "v2/prewave immutable refs",
+    "retained": "b2 1457P/8F; b305 type7errors/1warning child1 FAIL; 11082 type4errors/0warnings child1 FAIL; e4 first affected193P/2F; observer/parse ERROR attempts remain candidate-specific records.",
+    "scoped_type_diagnostics": [
+      {
+        "source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+        "outcome": "FAIL",
+        "errors": 7,
+        "warnings": 1,
+        "receipt": "frozen-typecheck.receipt.json",
+        "retained_unchanged": true
+      },
+      {
+        "source": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+        "outcome": "FAIL",
+        "errors": 4,
+        "warnings": 0,
+        "receipt": "final-frozen-typecheck.receipt.json",
+        "retained_unchanged": true
+      }
+    ],
+    "metadata_correction": {
+      "superseded_binding": {
+        "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding.json",
+        "bytes": 9855,
+        "sha256": "60414f70c439ecc051d508a290f3cd0f874aa30b40722df38510d76f8f727ba7"
+      },
+      "scope": "Correct historical type counts only: prior binding and prewave caption wrote7PASS/1FAIL tests instead of7errors/ 1warning, child1 FAIL. Earlier bytes stay unchanged. Original findings and source/wave outcomes do not change."
+    },
+    "P41_introducing_cause": "not_established",
+    "rule": "Source4 test-only correction observes the earlier raw refusal; no historical output or required method was weakened to get PASS."
+  },
+  "external_owners": {
+    "G": "Formal code/finding intake; composed-source ABI/inventory/generator and full seven-gate workflow/successors.",
+    "A": "Current configured resolver/reason recomputation -> persist -> fresh grade/S6/default/HTTP; distinct missing/unresolved reasons versus resolved floor failure.",
+    "D": "Default Search analysis_ref/reopen/ranking, independent of original B100.",
+    "C_F": "Actual typed law/profile consumer adoption and own fresh consumer evidence.",
+    "Scientist_compute": "Protected finite-float materializer inlet and actual run_job witness; separate from model/quantity binding and production authority.",
+    "remaining_institutional_source_inputs": "Exact eleven original54 owner-input entries remain at v2; no unrelated production prerequisite is imposed on independent generic criteria."
+  },
+  "future_self_SHA": false,
+  "scientific_or_global_reexecution_by_this_helper": false
+}

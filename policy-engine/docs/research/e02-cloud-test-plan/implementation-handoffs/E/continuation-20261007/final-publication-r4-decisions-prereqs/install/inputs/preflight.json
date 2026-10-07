@@ -1,0 +1,29 @@
+{
+  "schema": "policyos.e02.native_backend_prerequisite.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/actual-backend-preflight.py.txt"
+  ],
+  "script": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/actual-backend-preflight.py.txt",
+    "bytes": 790,
+    "sha256": "d2ee08ac1a54e146342ed330624821b3b998b4506b3b99b34cf70955c06995b5"
+  },
+  "started_at_utc": "2026-10-07T11:03:50.228030+00:00",
+  "finished_at_utc": "2026-10-07T11:04:16.051221+00:00",
+  "exit_code": 0,
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stdout.txt",
+    "bytes": 324,
+    "sha256": "06e00139ffe3cd6140976e4aea91ad47497358acc03b8b91e22057d21788b42d"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "real canonical universality prefix/checkout/CG0 + hatchling imports + native CP-SAT solve; not fullbackend PASS"
+}

@@ -1,0 +1,208 @@
+{
+  "A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "A_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "E_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "G_review": "2abc17f46a033a7879663486ff9946a95786601f",
+  "HTTP_scope": "Full exact HTTP path hashes differ; ordinary default/HTTP persistent fresh read is UNRUN. Lifecycle transports artifacts generically, not the S10 reason writer.",
+  "P41_red_introducing_cause": "not_established",
+  "b2_historical_failures_still_bound_to_E_source": true,
+  "comparison_kind": "literal immutable Git bytes and complete selected AST functions; no runtime executed",
+  "current_A_check_outcome": "UNRUN",
+  "function_denominator": 4,
+  "functions": [
+    {
+      "A_end": 12135,
+      "A_sha256": "69e4ea3cf2920964e85aed855b36cc07efb11050726e6b8d258a1b93c4c802f1",
+      "A_start": 12037,
+      "E_end": 10849,
+      "E_sha256": "db1224e00ec80ed79ed02b2a135de882706ad6c219207ae2c6b37a8d27b3b14f",
+      "E_start": 10746,
+      "name": "_s10_empirical_projection",
+      "same_AST": false,
+      "same_bytes": false
+    },
+    {
+      "A_end": 12214,
+      "A_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3",
+      "A_start": 12157,
+      "E_end": 10928,
+      "E_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3",
+      "E_start": 10871,
+      "name": "_resolve_s10_empirical_evidence",
+      "same_AST": true,
+      "same_bytes": true
+    },
+    {
+      "A_end": 12398,
+      "A_sha256": "3c96bab5ec8aa8bfb7198c8331e68874beaa524ffac8873b6db70050255c51ca",
+      "A_start": 12217,
+      "E_end": 11105,
+      "E_sha256": "37a8d727042545c7948c4f566ae5e509c8cdc858df54de12e0591d92ca5b4324",
+      "E_start": 10931,
+      "name": "_build_s10_forecast_inputs",
+      "same_AST": false,
+      "same_bytes": false
+    },
+    {
+      "A_end": 12677,
+      "A_sha256": "377efd56e60b9ffa9f4d03957869bb0a04907f86575f9dfa828b3706aec0dc30",
+      "A_start": 12655,
+      "E_end": 11371,
+      "E_sha256": "5e1ed29a9946bd80004c38769cdd81d6260c6ab5221332c3b6262c35e2653a1e",
+      "E_start": 11352,
+      "name": "_s10_limitation_refs",
+      "same_AST": false,
+      "same_bytes": false
+    }
+  ],
+  "paths": [
+    {
+      "A_blob": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+      "A_bytes": 644666,
+      "A_sha256": "abc8728d73670ec97dd1bc25f9a17580629d65bea812d417ff01fb48f273f15c",
+      "A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+      "E_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "E_bytes": 578822,
+      "E_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "E_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "same_bytes": false
+    },
+    {
+      "A_blob": "ea382413f735bd9f9af3dbd000bff08242626b8d",
+      "A_bytes": 55548,
+      "A_sha256": "d7bc599f2ae4ceaf94fa27dcbeea3a095000ad54974f199bf90a012338ae9aab",
+      "A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+      "E_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "E_bytes": 53953,
+      "E_sha256": "cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6",
+      "E_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "same_bytes": false
+    },
+    {
+      "A_blob": "b6da993dd1d922e19135f4f78f12775ed5505754",
+      "A_bytes": 358551,
+      "A_sha256": "925bacee2cffa06f08e6fee9021d3da55278c6b3c8d47f8dc5ad00b78fdd2bae",
+      "A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+      "E_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "E_bytes": 347497,
+      "E_sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "E_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "same_bytes": false
+    },
+    {
+      "A_blob": "90c70911e6b7e7be78e09d52542f2c52e05b8c10",
+      "A_bytes": 34209,
+      "A_sha256": "c37ae776905e3e0fcdb38f522c003f8711b5c89efa13f87d413d5163fe58b271",
+      "A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+      "E_blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "E_bytes": 16018,
+      "E_sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+      "E_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "same_bytes": false
+    }
+  ],
+  "previous_A_to_current_delta": "A2605-to-A332-full-path-delta.json",
+  "previous_sampled_A_source": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "published_A_ref": "refs/heads/codex/e02-A-delivery-attached",
+  "reader": "E forecast packet helper",
+  "remaining_verification": "A applies/reviews at admitted composed source, then once executes exact authentic native packet + fresh configured/default/HTTP reader and removal controls",
+  "remote_readback": "332ba0b91e9a85774d48d101d4af86e3a3baf911\trefs/heads/codex/e02-A-delivery-attached",
+  "schema": "policyos.e02.current_source_delta_review.v1",
+  "selected_S10_functions_unchanged_from_previous_A": [
+    {
+      "literal_function_unchanged": true,
+      "name": "_s10_empirical_projection",
+      "new_A_sha256": "69e4ea3cf2920964e85aed855b36cc07efb11050726e6b8d258a1b93c4c802f1",
+      "prior_A_sha256": "69e4ea3cf2920964e85aed855b36cc07efb11050726e6b8d258a1b93c4c802f1"
+    },
+    {
+      "literal_function_unchanged": true,
+      "name": "_resolve_s10_empirical_evidence",
+      "new_A_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3",
+      "prior_A_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3"
+    },
+    {
+      "literal_function_unchanged": true,
+      "name": "_build_s10_forecast_inputs",
+      "new_A_sha256": "3c96bab5ec8aa8bfb7198c8331e68874beaa524ffac8873b6db70050255c51ca",
+      "prior_A_sha256": "3c96bab5ec8aa8bfb7198c8331e68874beaa524ffac8873b6db70050255c51ca"
+    },
+    {
+      "literal_function_unchanged": true,
+      "name": "_s10_limitation_refs",
+      "new_A_sha256": "377efd56e60b9ffa9f4d03957869bb0a04907f86575f9dfa828b3706aec0dc30",
+      "prior_A_sha256": "377efd56e60b9ffa9f4d03957869bb0a04907f86575f9dfa828b3706aec0dc30"
+    }
+  ],
+  "source_findings": [
+    {
+      "boundary": "direct helper versus configured gateway",
+      "cases": [
+        1,
+        2
+      ],
+      "observation": "caller calibration_status now reaches S6 helper; direct helper retains generic insufficient-history policy while configured resolver can supply exact missing-ref",
+      "outcome": "UNRUN",
+      "predicate_basis": "recomputed"
+    },
+    {
+      "G_summary_qualification": "G correctly marks changed current execution UNRUN; source inspection does not establish that all projected floor codes survive",
+      "boundary": "_s10_empirical_projection → _s10_limitation_refs",
+      "cases": [
+        3
+      ],
+      "observation": "current projection computes failure_codes but omits it from returned projection; consumer reads absent key and can fall back to insufficient-history",
+      "outcome": "UNRUN",
+      "predicate_basis": "recomputed",
+      "projection_literal_keys": [
+        "empirical_evidence_ref",
+        "authority_scope",
+        "may_not_use_for",
+        "method_ref",
+        "method_version",
+        "rule_version_ref",
+        "estimand",
+        "denominator",
+        "numerator",
+        "pass_rate",
+        "floor_passed",
+        "calibration_status",
+        "forecast_tier",
+        "counterfactual_credibility",
+        "interval_coverage_metric",
+        "calibration_error_metric",
+        "source_lineage_refs",
+        "method_lineage_refs",
+        "forecast_authority_disposition_reason"
+      ]
+    },
+    {
+      "boundary": "_build_s10_forecast_inputs disposition reason precedence",
+      "cases": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "observation": "report-derived nonempty generic reason takes precedence over fallback appending typed resolver code; S6 resolver mapping exists",
+      "outcome": "UNRUN",
+      "predicate_basis": "recomputed"
+    }
+  ],
+  "unapplied_patch": {
+    "bytes": 2456,
+    "canonical_writer": "A",
+    "context_check": "PASS",
+    "path": "A332-status-reason-carry.patch.txt",
+    "protected_source_edited": false,
+    "runtime_check": "UNRUN",
+    "scope": "three existing reason/projection carry boundaries only",
+    "sha256": "52e5e0ea89c013bb139fdeba75f429f2b09b8ce79c8276404f8e698838f2ca34"
+  },
+  "whole_path_denominator": 4
+}

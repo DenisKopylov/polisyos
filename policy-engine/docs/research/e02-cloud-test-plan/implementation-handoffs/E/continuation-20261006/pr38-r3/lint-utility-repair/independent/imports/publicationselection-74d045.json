@@ -1,0 +1,283 @@
+{
+  "schema": "policyos.e02.independent_lint_publication_selection.v1",
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "deciding_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lint-mechanism-review.json",
+    "bytes": 23620,
+    "sha256": "260a9a26297d45b2273f2896ebf93dcffdfb739956cadce1e0428b8d9b484f0b"
+  },
+  "moderate_deciding_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-complement-summary.json",
+      "bytes": 633,
+      "sha256": "af1c3afdcc05493a91eb51f498fc945fbd74204c666bad3aada7fc9a10513c7a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-mapping-index.json",
+      "bytes": 123139,
+      "sha256": "1b632a2e12bd905c6feffa90eb842f4727d559e083cc59440115563dc3b1a7f5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-predicate-final.stdout",
+      "bytes": 614,
+      "sha256": "9b8628a3639ef293970ae54e2fc0bfce7b4f216e595cd6fc36ea9018848cc605"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-predicate-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.json",
+      "bytes": 3331,
+      "sha256": "840b1357c377ade2dc709f18a937155c88c4e912607737803e1cb56c376d77f4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.stdout",
+      "bytes": 3331,
+      "sha256": "840b1357c377ade2dc709f18a937155c88c4e912607737803e1cb56c376d77f4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-census.json",
+      "bytes": 6359,
+      "sha256": "e691d9608fcd9481294cc211e68d0723ddabbd1073f764eb1a38b1e7f3306ab3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-controls.json",
+      "bytes": 17402,
+      "sha256": "44d6b827baf3ee90800ac04c4f8db3db0bae0d4c40c4f7ee5fea2ef76fac327f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-controls.stdout",
+      "bytes": 795,
+      "sha256": "12dad27287060a777660814d9b504011ec56f0082d841483ba2d664a1e4441ce"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-census.json",
+      "bytes": 6042,
+      "sha256": "8aad9c438b0411f14edff154f58386b25e53b96c96a4aa51255cbb2e778ff311"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.json",
+      "bytes": 21612,
+      "sha256": "e2594089a4e3e4c733ae6bf86ea2dc1da34af73c31a195e73f6231fb971f0cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.stdout",
+      "bytes": 730,
+      "sha256": "a7b61ef15cb5560c5ad072d0f6b9e29e393e59d4a605af0cb0fb9d1bbb271cf5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-wrapper-controls.json",
+      "bytes": 120085,
+      "sha256": "1a4235385c0d807022157765fbd5f50933b9d3f83e0e8c0bfbe1b92648a5d5b5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.stdout",
+      "bytes": 1926,
+      "sha256": "5b3b5a43d31c354598eb912f8eb8607c4410a41a781adaf9394795b0d718149d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-binding.json",
+      "bytes": 183796,
+      "sha256": "8d868b238820f1ea41612f85d2d84c36bd6bc3204b902890f8adba2d5b7fffe2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-binding.stdout",
+      "bytes": 2752,
+      "sha256": "b55356fd22e3abc0f8490a05ab2887cd4b7ef77e8962a9684f3baae1d951a31d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-binding.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final74-delta.diff",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/full-final-footprint.txt",
+      "bytes": 33711,
+      "sha256": "b994a545dffbec4d73b356fb8d45c35a9ed49766c0d866ebb2ee545f5ded4b1b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/review-input-denominator.json",
+      "bytes": 37581,
+      "sha256": "f42360132c709ce9cfcd5f5a019e53d6093c21c27c52c4bd0d1edd1fa1c4902b"
+    }
+  ],
+  "observer_sources": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/census.py",
+      "bytes": 4735,
+      "sha256": "b75d207f196d5f6d276abfb71bd9437934b3e314d03a18373550b62630d8c3c5",
+      "portable_path": "observer-source/census.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/formula_census.py",
+      "bytes": 6950,
+      "sha256": "eba17d3516f389a082bca4f6c734e940e66f556f3f8e9faeaec90707545cafc7",
+      "portable_path": "observer-source/formula_census.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate_controls.py",
+      "bytes": 6010,
+      "sha256": "16c66961450f9c0f01517f2e72d2216b154cad8eef511483c191bea2eb1a0970",
+      "portable_path": "observer-source/predicate_controls.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/closure_controls.py",
+      "bytes": 5420,
+      "sha256": "8a6c5ab83c2f566edbda27c730e5173fd8aabd8ebfd7fbbfeeb21b805a78b3b3",
+      "portable_path": "observer-source/closure_controls.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda_controls.py",
+      "bytes": 3864,
+      "sha256": "bc7448ab425cf002932fdbc99eaf0d7f1180e5757b25bb6540b809338dbaf949",
+      "portable_path": "observer-source/lambda_controls.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git_controls.py",
+      "bytes": 6196,
+      "sha256": "b958b91f063276349435ecb01606f5c2c19f4c3d54a4c2283ca4b77afa777b38",
+      "portable_path": "observer-source/git_controls.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/final_binding.py",
+      "bytes": 6853,
+      "sha256": "968df3982da6ab6db92f6cf58ca53f72e440e12037f0210b648713766e441d49",
+      "portable_path": "observer-source/final_binding.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/assemble_review.py",
+      "bytes": 11105,
+      "sha256": "41ecd834cd1986479c27545b8b6b070af24abd877aa6114373210e1daa9b1249",
+      "portable_path": "observer-source/assemble_review.py.txt",
+      "storage": "byte-preserved .py.txt archival text"
+    }
+  ],
+  "separate_harness_ERROR_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.harness-attempt1.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-controls.harness-attempt1.stderr",
+      "bytes": 590,
+      "sha256": "05f3b0792248a7b929911edb45ca95761cc3a1c17534cfefda51a62075ff576d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt1.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt1.stderr",
+      "bytes": 656,
+      "sha256": "ae8086c177c20ebbdb926b9886ee9131b084a51f38ec06427ca8c66955dcc0e1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt2.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt2.stderr",
+      "bytes": 719,
+      "sha256": "cf5e5b1ad89974fa400930fc9249ec365a6f2e9913c6c6e6b014fbbf194c0efd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt3.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt3.stderr",
+      "bytes": 633,
+      "sha256": "2650b2d75d603da1ed9d5d1f8de538b0b7d5b58650d7c4afe8a9f940798a35c1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt4.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/git-controls.harness-attempt4.stderr",
+      "bytes": 771,
+      "sha256": "300be94404798637d26cbe98ccfdb43de9e589bb5d53da607d303960acf31529"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt1.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt1.stderr",
+      "bytes": 641,
+      "sha256": "ca1a21d8999cbc4d72a374cdceeb051745f9410c15daff7c4155c85546f56e52"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt2.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/lambda-controls.harness-attempt2.stderr",
+      "bytes": 1402,
+      "sha256": "fc70a1264d63f61480a3b9e3f8b4f0c445abc495cab06b2eb00d0300be037285"
+    }
+  ],
+  "shared_inputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/source-inputs.json",
+      "bytes": 82982,
+      "sha256": "fb83fffc9fcdbcb809136dd0a3a081953fcdf65964ec256084b572c0e4da6d06"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/generic-git-inlets.json",
+      "bytes": 15621,
+      "sha256": "456f02d5828dd1c2beb70a07d862b999570eee2aba9462261ff1fabcfddd397a"
+    }
+  ],
+  "companion_review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-74d045.json",
+    "bytes": 67140,
+    "sha256": "90f569d72f81639967dd4fbbebd9f6de497852a13f8a2b79a85015f27bc40f88"
+  },
+  "do_not_duplicate_large_raw": [
+    "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-census.json",
+    "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate-complement-summary.json",
+    "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/guarded-predicate-census.json"
+  ]
+}

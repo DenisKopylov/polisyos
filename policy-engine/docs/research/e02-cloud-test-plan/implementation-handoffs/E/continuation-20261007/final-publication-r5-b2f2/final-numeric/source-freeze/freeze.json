@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.final_reviewed_source_freeze.v1",
+  "recorded_at": "2026-10-07T16:18:19.141875+00:00",
+  "repo": "/workspace/e02-E-continuation-20261006",
+  "branch": "codex/e02-E-continuation-20261006",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "candidate_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "G_checkpoint": "75ccf4dd211ad7fffa9430a84848b59d5ebf0886",
+  "source_and_companion_reviews": [
+    {
+      "path": "/tmp/e02-E-fit-independent-77b4-20261007/independent-review-77b4.json",
+      "bytes": 12562,
+      "sha256": "4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/review.json",
+      "bytes": 10428,
+      "sha256": "5528cfc117615c8d6ca05bead60682523c737bea4dc430b511da1cf53dc014ee"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json",
+      "bytes": 10915,
+      "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.json",
+      "bytes": 64255,
+      "sha256": "a939c238acf54879ea461239195e784064b4b8e01f7e6e19f56da062529dc646"
+    }
+  ],
+  "prior_reviews_reused_only_for_unchanged_bodies": true,
+  "full_source_input_snapshot": {
+    "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/complete-source-inputs.json",
+    "bytes": 5700143,
+    "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+  },
+  "tracked_paths": 22005,
+  "source_bytes": 620699802,
+  "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e",
+  "ROOT_environment_metadata": {
+    "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/root-environment-metadata.json",
+    "bytes": 51499,
+    "sha256": "16fbca8ff5fb15d5ce0add080e4d5492e8dd55e1ee551978a270c36d0eb6e847"
+  },
+  "environment_metadata_count": 207,
+  "untracked_unique_preserved": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "all_current_E_owned_python_lint_inputs": 349,
+  "full_current_python_lint_inputs": 378,
+  "current_prefreeze_lint_receipt": {
+    "path": "/tmp/e02-E-root-prefreeze-lint-2dc99fe3-20261007/capture-receipt.json",
+    "bytes": 95520,
+    "sha256": "22a9fe4a3c96015344a35efb4009f61be6e5043ec0b055dd170dd78ee76344f1"
+  },
+  "published_remote_readback": "pending normal publication/readback below; no native launch before it",
+  "source_frozen_for_common_wave": true,
+  "new_common_wave": "UNRUN",
+  "final_global_gates": "UNRUN",
+  "formal_G_acceptance": false,
+  "pending_DOC_only_publication": null,
+  "predicate_basis": {
+    "Git_source_tree_content_and_environment_metadata": "recomputed",
+    "bounded_source_and_companion_reviews": "independently_reconciled",
+    "new_common_wave_and_global_gates": "not_established",
+    "G_finding_acceptance": "not_established"
+  },
+  "lease": "ROOT HEAD/full tracked bytes/ROOT207 protected until numerical and global gate source guards close; only independent leaves/scratch may write; no ROOT DOC commits during wave.",
+  "previous_UNRUN_preparation": {
+    "path": "/tmp/e02-E-final-source-freeze-2dc99fe3-20261007/freeze.json",
+    "bytes": 3614,
+    "sha256": "0f922898dbf49346f81a4b2691ff9cf0674af4b6d54daf35f323ee3a6e023102"
+  },
+  "previous_preparation_release": {
+    "path": "/tmp/e02-E-final-source-freeze-2dc99fe3-20261007/released-UNRUN-for-reviewed-CAL-DOC.json",
+    "bytes": 715,
+    "sha256": "93adfa14c001fd65ba344e2848013900375810a7423637bb72e6055ec4733cee"
+  },
+  "final_CAL_DOC_review": {
+    "path": "/tmp/e02-E-fit-publication-independent-77b4-20261007/independent-publication-review-77b4-v3.json",
+    "bytes": 7898,
+    "sha256": "8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f"
+  },
+  "final_plan_recipe_readiness_review": {
+    "path": "/tmp/e02-E-final-composed-wave-readiness-independent-2dc-20261007/review.json",
+    "bytes": 47930,
+    "sha256": "d37b14dce2aa125cd7472f13c76fe0d6b1ee511f30c1ce0e2255f55da549cf0d"
+  },
+  "final_CAL_DOC_merge": {
+    "path": "/tmp/e02-E-root-CAL-c40-DOC-merge-20261007/receipt.json",
+    "bytes": 196494,
+    "sha256": "be71d91b02b38bee8ccae819c4b73f0f6c2e65c9f03075937f54c78e359324ff"
+  },
+  "all_source_and_companion_DOC_reviews_closed": true,
+  "current_prefreeze_lint_qualification": "Full378Python/E349 source and nativeconfiguration bodies unchanged from2dc; rerun samefull denominator on this actual source for final gate receipt."
+}

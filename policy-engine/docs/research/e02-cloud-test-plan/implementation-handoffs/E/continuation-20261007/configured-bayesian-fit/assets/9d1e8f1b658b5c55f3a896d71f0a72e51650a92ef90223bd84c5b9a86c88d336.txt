@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="28" time="28.370" timestamp="2026-10-07T15:42:54.770500+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-returned_kind]" time="8.588" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-returned_media_type]" time="0.242" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-returned_malformed_id]" time="0.240" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-returned_malformed_profile]" time="0.239" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-returned_missing_profile]" time="0.237" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-stored_kind]" time="0.236" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-stored_media_type]" time="0.240"><failure message="AssertionError: invalid output ref reached fresh reader">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit0'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_refu6')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aa9e88150&gt;
+case = 'stored_media_type'
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            "returned_kind",
+            "returned_media_type",
+            "returned_malformed_id",
+            "returned_malformed_profile",
+            "returned_missing_profile",
+            "stored_kind",
+            "stored_media_type",
+            "stored_schema",
+            "stored_no_schema",
+            "wrong_valid_content",
+        ],
+    )
+    def test_output_ref_admission_refuses_before_fresh_reader_and_report(
+        real_fit, tmp_path, monkeypatch, case
+    ):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+        ctx, state = _node_fixture(store, r, e, binding)
+        reads = 0
+    
+        def forbidden(*args, **kwargs):
+            nonlocal reads
+            reads += 1
+            raise AssertionError("invalid output ref reached fresh reader")
+    
+        monkeypatch.setattr(node, "load_uncertainty_envelope", forbidden)
+        with pytest.raises(ValueError):
+&gt;           node.PropagateUncertaintyNode().execute(ctx, state)
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:788: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:258: in execute
+    persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f6aae338c50&gt;, ArtifactRef(artifact_id=ArtifactID(root='sha2...3b8c5ecc424c68395d3998'), kind='ir.uncertainty_envelope', media_type='application/json', manifest_profile_sha256=None))
+kwargs = {}
+
+    def forbidden(*args, **kwargs):
+        nonlocal reads
+        reads += 1
+&gt;       raise AssertionError("invalid output ref reached fresh reader")
+E       AssertionError: invalid output ref reached fresh reader
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:784: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-stored_schema]" time="0.234" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-stored_no_schema]" time="0.241" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-wrong_valid_content]" time="0.242" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_valid_selected_output_ref_retains_old_three_field_contract[hmc]" time="0.261" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_removal_is_detected[hmc-returned_kind]" time="0.077"><failure message="  File &quot;&lt;unknown&gt;&quot;, line 1&#10;    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:&#10;IndentationError: unexpected indent">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit0'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_remo0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aa06ddcc0&gt;
+case = 'returned_kind'
+
+    @pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+    def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+&gt;       tree = ast.parse(inspect.getsource(node.PropagateUncertaintyNode.execute))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:833: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+source = '    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:\n        sim_result_ref = state....            f"(inputs={len(input_envelopes)})"\n                    ),\n                )\n            ],\n        )\n'
+filename = '&lt;unknown&gt;', mode = 'exec'
+
+    def parse(source, filename='&lt;unknown&gt;', mode='exec', *,
+              type_comments=False, feature_version=None, optimize=-1):
+        """
+        Parse the source into an AST node.
+        Equivalent to compile(source, filename, mode, PyCF_ONLY_AST).
+        Pass type_comments=True to get back type comments where the syntax allows.
+        """
+        flags = PyCF_ONLY_AST
+        if optimize &gt; 0:
+            flags |= PyCF_OPTIMIZED_AST
+        if type_comments:
+            flags |= PyCF_TYPE_COMMENTS
+        if feature_version is None:
+            feature_version = -1
+        elif isinstance(feature_version, tuple):
+            major, minor = feature_version  # Should be a 2-tuple.
+            if major != 3:
+                raise ValueError(f"Unsupported major version: {major}")
+            feature_version = minor
+        # Else it should be an int giving the minor version for 3.x.
+&gt;       return compile(source, filename, mode, flags,
+                       _feature_version=feature_version, optimize=optimize)
+E         File "&lt;unknown&gt;", line 1
+E           def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:
+E       IndentationError: unexpected indent
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/ast.py:46: IndentationError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_removal_is_detected[hmc-stored_schema]" time="0.086"><failure message="  File &quot;&lt;unknown&gt;&quot;, line 1&#10;    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:&#10;IndentationError: unexpected indent">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit0'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_remo1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aa9f0e5d0&gt;
+case = 'stored_schema'
+
+    @pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+    def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+&gt;       tree = ast.parse(inspect.getsource(node.PropagateUncertaintyNode.execute))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:833: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+source = '    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:\n        sim_result_ref = state....            f"(inputs={len(input_envelopes)})"\n                    ),\n                )\n            ],\n        )\n'
+filename = '&lt;unknown&gt;', mode = 'exec'
+
+    def parse(source, filename='&lt;unknown&gt;', mode='exec', *,
+              type_comments=False, feature_version=None, optimize=-1):
+        """
+        Parse the source into an AST node.
+        Equivalent to compile(source, filename, mode, PyCF_ONLY_AST).
+        Pass type_comments=True to get back type comments where the syntax allows.
+        """
+        flags = PyCF_ONLY_AST
+        if optimize &gt; 0:
+            flags |= PyCF_OPTIMIZED_AST
+        if type_comments:
+            flags |= PyCF_TYPE_COMMENTS
+        if feature_version is None:
+            feature_version = -1
+        elif isinstance(feature_version, tuple):
+            major, minor = feature_version  # Should be a 2-tuple.
+            if major != 3:
+                raise ValueError(f"Unsupported major version: {major}")
+            feature_version = minor
+        # Else it should be an int giving the minor version for 3.x.
+&gt;       return compile(source, filename, mode, flags,
+                       _feature_version=feature_version, optimize=optimize)
+E         File "&lt;unknown&gt;", line 1
+E           def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:
+E       IndentationError: unexpected indent
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/ast.py:46: IndentationError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_removal_is_detected[hmc-wrong_valid_content]" time="0.099"><failure message="  File &quot;&lt;unknown&gt;&quot;, line 1&#10;    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:&#10;IndentationError: unexpected indent">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit0'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_remo2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aa9f0dfd0&gt;
+case = 'wrong_valid_content'
+
+    @pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+    def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+&gt;       tree = ast.parse(inspect.getsource(node.PropagateUncertaintyNode.execute))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:833: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+source = '    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:\n        sim_result_ref = state....            f"(inputs={len(input_envelopes)})"\n                    ),\n                )\n            ],\n        )\n'
+filename = '&lt;unknown&gt;', mode = 'exec'
+
+    def parse(source, filename='&lt;unknown&gt;', mode='exec', *,
+              type_comments=False, feature_version=None, optimize=-1):
+        """
+        Parse the source into an AST node.
+        Equivalent to compile(source, filename, mode, PyCF_ONLY_AST).
+        Pass type_comments=True to get back type comments where the syntax allows.
+        """
+        flags = PyCF_ONLY_AST
+        if optimize &gt; 0:
+            flags |= PyCF_OPTIMIZED_AST
+        if type_comments:
+            flags |= PyCF_TYPE_COMMENTS
+        if feature_version is None:
+            feature_version = -1
+        elif isinstance(feature_version, tuple):
+            major, minor = feature_version  # Should be a 2-tuple.
+            if major != 3:
+                raise ValueError(f"Unsupported major version: {major}")
+            feature_version = minor
+        # Else it should be an int giving the minor version for 3.x.
+&gt;       return compile(source, filename, mode, flags,
+                       _feature_version=feature_version, optimize=optimize)
+E         File "&lt;unknown&gt;", line 1
+E           def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:
+E       IndentationError: unexpected indent
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/ast.py:46: IndentationError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-returned_kind]" time="2.631" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-returned_media_type]" time="0.236" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-returned_malformed_id]" time="0.238" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-returned_malformed_profile]" time="0.237" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-returned_missing_profile]" time="0.236" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-stored_kind]" time="0.233" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-stored_media_type]" time="0.239"><failure message="AssertionError: invalid output ref reached fresh reader">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit1'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_refu16')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aa81fb950&gt;
+case = 'stored_media_type'
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            "returned_kind",
+            "returned_media_type",
+            "returned_malformed_id",
+            "returned_malformed_profile",
+            "returned_missing_profile",
+            "stored_kind",
+            "stored_media_type",
+            "stored_schema",
+            "stored_no_schema",
+            "wrong_valid_content",
+        ],
+    )
+    def test_output_ref_admission_refuses_before_fresh_reader_and_report(
+        real_fit, tmp_path, monkeypatch, case
+    ):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+        ctx, state = _node_fixture(store, r, e, binding)
+        reads = 0
+    
+        def forbidden(*args, **kwargs):
+            nonlocal reads
+            reads += 1
+            raise AssertionError("invalid output ref reached fresh reader")
+    
+        monkeypatch.setattr(node, "load_uncertainty_envelope", forbidden)
+        with pytest.raises(ValueError):
+&gt;           node.PropagateUncertaintyNode().execute(ctx, state)
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:788: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:258: in execute
+    persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f6aa9e89350&gt;, ArtifactRef(artifact_id=ArtifactID(root='sha2...b9976073f97822075daa79'), kind='ir.uncertainty_envelope', media_type='application/json', manifest_profile_sha256=None))
+kwargs = {}
+
+    def forbidden(*args, **kwargs):
+        nonlocal reads
+        reads += 1
+&gt;       raise AssertionError("invalid output ref reached fresh reader")
+E       AssertionError: invalid output ref reached fresh reader
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:784: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-stored_schema]" time="0.239" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-stored_no_schema]" time="0.302" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-wrong_valid_content]" time="0.248" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_valid_selected_output_ref_retains_old_three_field_contract[nuts]" time="0.260" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_removal_is_detected[nuts-returned_kind]" time="0.077"><failure message="  File &quot;&lt;unknown&gt;&quot;, line 1&#10;    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:&#10;IndentationError: unexpected indent">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit1'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_remo3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aaa3ba3c0&gt;
+case = 'returned_kind'
+
+    @pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+    def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+&gt;       tree = ast.parse(inspect.getsource(node.PropagateUncertaintyNode.execute))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:833: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+source = '    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:\n        sim_result_ref = state....            f"(inputs={len(input_envelopes)})"\n                    ),\n                )\n            ],\n        )\n'
+filename = '&lt;unknown&gt;', mode = 'exec'
+
+    def parse(source, filename='&lt;unknown&gt;', mode='exec', *,
+              type_comments=False, feature_version=None, optimize=-1):
+        """
+        Parse the source into an AST node.
+        Equivalent to compile(source, filename, mode, PyCF_ONLY_AST).
+        Pass type_comments=True to get back type comments where the syntax allows.
+        """
+        flags = PyCF_ONLY_AST
+        if optimize &gt; 0:
+            flags |= PyCF_OPTIMIZED_AST
+        if type_comments:
+            flags |= PyCF_TYPE_COMMENTS
+        if feature_version is None:
+            feature_version = -1
+        elif isinstance(feature_version, tuple):
+            major, minor = feature_version  # Should be a 2-tuple.
+            if major != 3:
+                raise ValueError(f"Unsupported major version: {major}")
+            feature_version = minor
+        # Else it should be an int giving the minor version for 3.x.
+&gt;       return compile(source, filename, mode, flags,
+                       _feature_version=feature_version, optimize=optimize)
+E         File "&lt;unknown&gt;", line 1
+E           def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:
+E       IndentationError: unexpected indent
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/ast.py:46: IndentationError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_removal_is_detected[nuts-stored_schema]" time="0.079"><failure message="  File &quot;&lt;unknown&gt;&quot;, line 1&#10;    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:&#10;IndentationError: unexpected indent">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit1'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_remo4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aaa3b9470&gt;
+case = 'stored_schema'
+
+    @pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+    def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+&gt;       tree = ast.parse(inspect.getsource(node.PropagateUncertaintyNode.execute))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:833: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+source = '    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:\n        sim_result_ref = state....            f"(inputs={len(input_envelopes)})"\n                    ),\n                )\n            ],\n        )\n'
+filename = '&lt;unknown&gt;', mode = 'exec'
+
+    def parse(source, filename='&lt;unknown&gt;', mode='exec', *,
+              type_comments=False, feature_version=None, optimize=-1):
+        """
+        Parse the source into an AST node.
+        Equivalent to compile(source, filename, mode, PyCF_ONLY_AST).
+        Pass type_comments=True to get back type comments where the syntax allows.
+        """
+        flags = PyCF_ONLY_AST
+        if optimize &gt; 0:
+            flags |= PyCF_OPTIMIZED_AST
+        if type_comments:
+            flags |= PyCF_TYPE_COMMENTS
+        if feature_version is None:
+            feature_version = -1
+        elif isinstance(feature_version, tuple):
+            major, minor = feature_version  # Should be a 2-tuple.
+            if major != 3:
+                raise ValueError(f"Unsupported major version: {major}")
+            feature_version = minor
+        # Else it should be an int giving the minor version for 3.x.
+&gt;       return compile(source, filename, mode, flags,
+                       _feature_version=feature_version, optimize=optimize)
+E         File "&lt;unknown&gt;", line 1
+E           def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:
+E       IndentationError: unexpected indent
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/ast.py:46: IndentationError</failure></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_output_ref_admission_removal_is_detected[nuts-wrong_valid_content]" time="0.079"><failure message="  File &quot;&lt;unknown&gt;&quot;, line 1&#10;    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:&#10;IndentationError: unexpected indent">real_fit = (PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/real-bayesian-fit1'), &lt;polisyos.cor...uthoritative_for': ['execution_reproducibility'], 'authority_purpose': 'method_execution', 'backend': 'bayesian', ...})
+tmp_path = PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/optimized-fixture/test_output_ref_admission_remo5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f6aa8175d30&gt;
+case = 'wrong_valid_content'
+
+    @pytest.mark.parametrize("case", ["returned_kind", "stored_schema", "wrong_valid_content"])
+    def test_output_ref_admission_removal_is_detected(real_fit, tmp_path, monkeypatch, case):
+        store, r, e, binding, returned = _spy_output_store(real_fit, tmp_path, monkeypatch, case)
+&gt;       tree = ast.parse(inspect.getsource(node.PropagateUncertaintyNode.execute))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:833: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+source = '    def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:\n        sim_result_ref = state....            f"(inputs={len(input_envelopes)})"\n                    ),\n                )\n            ],\n        )\n'
+filename = '&lt;unknown&gt;', mode = 'exec'
+
+    def parse(source, filename='&lt;unknown&gt;', mode='exec', *,
+              type_comments=False, feature_version=None, optimize=-1):
+        """
+        Parse the source into an AST node.
+        Equivalent to compile(source, filename, mode, PyCF_ONLY_AST).
+        Pass type_comments=True to get back type comments where the syntax allows.
+        """
+        flags = PyCF_ONLY_AST
+        if optimize &gt; 0:
+            flags |= PyCF_OPTIMIZED_AST
+        if type_comments:
+            flags |= PyCF_TYPE_COMMENTS
+        if feature_version is None:
+            feature_version = -1
+        elif isinstance(feature_version, tuple):
+            major, minor = feature_version  # Should be a 2-tuple.
+            if major != 3:
+                raise ValueError(f"Unsupported major version: {major}")
+            feature_version = minor
+        # Else it should be an int giving the minor version for 3.x.
+&gt;       return compile(source, filename, mode, flags,
+                       _feature_version=feature_version, optimize=optimize)
+E         File "&lt;unknown&gt;", line 1
+E           def execute(self, ctx: ExecutionContext, state: ExperimentState) -&gt; NodeOutcome:
+E       IndentationError: unexpected indent
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/ast.py:46: IndentationError</failure></testcase></testsuite></testsuites>

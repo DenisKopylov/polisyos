@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.final3.finished_literal_packet_index.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "author_selectors": [
+    {
+      "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/publication-selection.json",
+      "bytes": 43190,
+      "sha256": "1c6619d44223e3715d02906b2181752f3fbeef0a9c2060a2a53228f54d6f85f5",
+      "logical_count": 73,
+      "unique_count": 52,
+      "unique_bytes": 6591514
+    },
+    {
+      "path": "/tmp/e02-E-final3-admission-supplement-b2f2f65e-20261007/publication-selection.json",
+      "bytes": 3898,
+      "sha256": "0e4062f4237ff24bb72ce8b9be9809ddb7d412ec4198c868e50e73c33fd404c0",
+      "logical_count": 6,
+      "unique_count": 4,
+      "unique_bytes": 38487
+    },
+    {
+      "path": "/tmp/e02-E-final3-header-correction-b2f2f65e-20261007/publication-selection.json",
+      "bytes": 3686,
+      "sha256": "9c97eb17f490848e9de57ce5b9a3cc81a807ea639ecaa6c174b61568301365e0",
+      "logical_count": 6,
+      "unique_count": 5,
+      "unique_bytes": 48003
+    },
+    {
+      "path": "/tmp/e02-E-final3-witness-supplement-b2f2f65e-20261007/publication-selection.json",
+      "bytes": 6002,
+      "sha256": "d99833380c2f3c39bd14cd712afc3ef8c9ca3a714345e2b1c0bdde9f288ecaee",
+      "logical_count": 10,
+      "unique_count": 9,
+      "unique_bytes": 266350
+    },
+    {
+      "path": "/tmp/e02-E-final3-witness-claim-correction-b2f2f65e-20261007/publication-selection.json",
+      "bytes": 3175,
+      "sha256": "d43afe828cb30840f7e3ce2c824a700c44a0a60e57544c0d437ffcdac7eb624e",
+      "logical_count": 5,
+      "unique_count": 4,
+      "unique_bytes": 19833
+    }
+  ],
+  "main_admission_independent": {
+    "path": "/tmp/e02-E-final3-independent-b2-20261007/publication-selection.json",
+    "bytes": 10462,
+    "sha256": "b9cf2aad92668e30b75cde138967e6d9e9ab929c3067b2e6037e4b802e2e48bb",
+    "logical_count": null,
+    "unique_count": null,
+    "unique_bytes": null
+  },
+  "native_current": {
+    "architecture": {
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "all_deep_rows": 151,
+      "paths": 79,
+      "required_families": 4,
+      "native_generated_outputs": 6
+    },
+    "runtime-api-contract": {
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "schema_components": 573,
+      "confidence_dependency_count": 1495
+    },
+    "static-invocation": {
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "regressions": 24,
+      "new_unresolved": 95,
+      "owner_rows": {
+        "E": 91,
+        "B": 28
+      },
+      "native_source_files": 5942,
+      "base_files": 5904
+    }
+  },
+  "historical_initial": {
+    "architecture": "ERROR2/UNRUN Corepack fetch, currentrepair separate",
+    "runtime-api-contract": "ERROR2/UNRUN Corepack fetch, currentrepair separate",
+    "static-invocation": "ERROR/-9, rawgraph absent; PIDcause not_established, currentcapacityretry separate"
+  },
+  "raw_static_graph": "Ignored exact171903508B/2812e3d586163196ab036fea24b99ace8f2a3433d3279388c04e6b3d3ba2a529; not copied into Git/moderate packet",
+  "main_literal_custody_and_header_admission": "independent GO, old V2 false-header admission preserved",
+  "witness_annotation_independent": "pending bounded source/case/ancillary review; native facts and current fullrawscope already reconciled separately",
+  "remaining_API_seam_groups": {
+    "new_private_runtime_edges": [
+      "IR forecasting.load_forecasting_uncertainty_bundle",
+      "Foundry execute.executor get_state_path/load_state_snapshot/put_state_snapshot"
+    ],
+    "separate_pre_existing": "IR CanonSpec",
+    "leases": "No public API changes applied; exact canonical owner/minimum inputs/companions/unapplied patches in currentindexV2 and independently reconciled debtpacket"
+  },
+  "finding_closure": false,
+  "default_served_invocation": false,
+  "P41": "not_established",
+  "source_or_environment_writes": false,
+  "new_native_reruns_for_receipt_work": false
+}

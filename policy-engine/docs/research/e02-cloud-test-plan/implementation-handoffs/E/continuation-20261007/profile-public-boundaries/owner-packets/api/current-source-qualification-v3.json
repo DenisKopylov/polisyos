@@ -1,0 +1,1049 @@
+{
+  "schema": "policyos.e02.API_import_source_qualification.v3",
+  "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "historical_receipt_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "G": "2abc17f46a033a7879663486ff9946a95786601f",
+  "full_python_denominator": 379,
+  "writer_counts": {
+    "A": 2,
+    "B": 13,
+    "E": 350,
+    "G": 12,
+    "F": 2
+  },
+  "source_denominator": 60,
+  "test_denominator": 68,
+  "E_source": 55,
+  "E_tests": 59,
+  "full_product_source_AST_rows": 301,
+  "full_changed_test_AST_rows": 540,
+  "E_new_cross_root_module_edges": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "line": 23,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "line": 265,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "line": 266,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "line": 308,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "line": 341,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "supported_entrypoint": false,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "line": 995,
+          "module": "polisyos.ir.analytics.forecasting_uncertainty",
+          "names": [
+            [
+              "load_forecasting_uncertainty_bundle",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": false
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "line": 20,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              null
+            ],
+            [
+              "canon",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "module": "polisyos.ir.analytics",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "line": 21,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "PosteriorParameterBinding",
+              null
+            ],
+            [
+              "PosteriorSummaryContext",
+              null
+            ],
+            [
+              "UncertaintyEnvelope",
+              null
+            ],
+            [
+              "admit_posterior_summary_profiles",
+              null
+            ],
+            [
+              "validate_raw_posterior_summary_envelope",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "line": 17,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "module": "polisyos.ir.analytics",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "line": 23,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "validate_raw_posterior_summary_envelope",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "module": "polisyos.ir.analytics",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "line": 20,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "PosteriorSamplesCarrier",
+              null
+            ],
+            [
+              "PosteriorSummaryContext",
+              null
+            ],
+            [
+              "PosteriorSummaryProfileV2",
+              null
+            ],
+            [
+              "posterior_carrier_content_hash",
+              null
+            ],
+            [
+              "posterior_population_std_v2",
+              null
+            ],
+            [
+              "posterior_summary_functionals_v2",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "module": "polisyos.calibration",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "line": 13,
+          "module": "polisyos.calibration",
+          "names": [
+            [
+              "evaluate_continuous",
+              null
+            ],
+            [
+              "load_continuous_evaluation",
+              null
+            ],
+            [
+              "persist_continuous_evaluation",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "line": 60,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "line": 1521,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "line": 1522,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "module": "polisyos.ir.analytics",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "line": 20,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "DistributionFamily",
+              null
+            ],
+            [
+              "IntervalSemantics",
+              null
+            ],
+            [
+              "PosteriorSamplesCarrier",
+              null
+            ],
+            [
+              "PropagationMethod",
+              null
+            ],
+            [
+              "UncertaintyEnvelope",
+              null
+            ],
+            [
+              "UncertaintySource",
+              null
+            ],
+            [
+              "admit_posterior_summary_profiles",
+              null
+            ],
+            [
+              "canonicalize_posterior_weights",
+              null
+            ],
+            [
+              "posterior_joint_carrier_digest",
+              null
+            ],
+            [
+              "posterior_sampling_cdf",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "line": 10,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "module": "polisyos.fabric",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "line": 41,
+          "module": "polisyos.fabric",
+          "names": [
+            [
+              "DataSchema",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "line": 17,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "line": 18,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "line": 19,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "registry",
+              "core_registry"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "module": "polisyos.core.contracts",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "line": 20,
+          "module": "polisyos.core.contracts",
+          "names": [
+            [
+              "DataSnapshot",
+              null
+            ],
+            [
+              "DerivedArtifact",
+              null
+            ],
+            [
+              "ExecPlan",
+              null
+            ],
+            [
+              "ExecuteRequest",
+              null
+            ],
+            [
+              "ExecuteResult",
+              null
+            ],
+            [
+              "FoundryExecConfig",
+              null
+            ],
+            [
+              "FoundryInputBindingRule",
+              null
+            ],
+            [
+              "FoundryInputBindings",
+              null
+            ],
+            [
+              "FoundryInputBindingsRef",
+              null
+            ],
+            [
+              "LoweredIR",
+              null
+            ],
+            [
+              "ProgramGraph",
+              null
+            ],
+            [
+              "SimulationResult",
+              null
+            ],
+            [
+              "StateSnapshotRef",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "module": "polisyos.foundry.execute.executor",
+      "supported_entrypoint": false,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "line": 35,
+          "module": "polisyos.foundry.execute.executor",
+          "names": [
+            [
+              "get_state_path",
+              null
+            ],
+            [
+              "load_state_snapshot",
+              null
+            ],
+            [
+              "put_state_snapshot",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": false
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "module": "polisyos.ir",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "line": 40,
+          "module": "polisyos.ir",
+          "names": [
+            [
+              "TrinityBundle",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "line": 18,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "line": 607,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "line": 14,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "line": 46,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "line": 47,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "line": 77,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "line": 8,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "artifacts",
+              "core_artifacts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "module": "polisyos.core",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "line": 13,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "canon",
+              "core_canon"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "line": 14,
+          "module": "polisyos.core",
+          "names": [
+            [
+              "contracts",
+              "core_contracts"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "module": "polisyos.foundry.uncertainty",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "line": 20,
+          "module": "polisyos.foundry.uncertainty",
+          "names": [
+            [
+              "BayesianFitBinding",
+              null
+            ],
+            [
+              "BoundedIndicatorResponse",
+              null
+            ],
+            [
+              "load_foundry_calibration_report",
+              null
+            ],
+            [
+              "persist_bayesian_fit_envelopes",
+              null
+            ],
+            [
+              "reconcile_draw_outcomes",
+              null
+            ],
+            [
+              "verify_mean_certificate",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "module": "polisyos.ir.analytics",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "line": 31,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "UncertaintyEnvelope",
+              null
+            ],
+            [
+              "admit_posterior_summary_profiles",
+              null
+            ],
+            [
+              "posterior_nominal_mean",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "line": 36,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "load_posterior_summary_envelope",
+              "load_uncertainty_envelope"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "module": "polisyos.ir.analytics",
+      "supported_entrypoint": true,
+      "rows": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "line": 47,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "admit_posterior_summary_profiles",
+              null
+            ],
+            [
+              "posterior_nominal_mean",
+              null
+            ],
+            [
+              "validate_raw_posterior_summary_envelope",
+              null
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "line": 52,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            [
+              "load_posterior_summary_envelope",
+              "load_uncertainty_envelope"
+            ]
+          ],
+          "cross_root": true,
+          "supported_entrypoint": true
+        }
+      ]
+    }
+  ],
+  "E_new_cross_root_private_edges": 2,
+  "original12_current_state": "11 removed/admitted; 1 ForecastBridge private reader remains, exact corresponding caller/source blobs unchanged",
+  "preexisting_CanonSpec_class": "3 E callers at exactbase198, v2 owner packet covers all3; private sibling class distinct from original12/new23 denominator",
+  "IR_root_all": 288,
+  "IR_inventory_count": 284,
+  "four_additive_exports_and_two_registered_Profile1_Profile2_ABI_companions_still_missing": true,
+  "unchanged_API_ABI_owner_packet_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+      "unchanged": true,
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+      "unchanged": true,
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "48eb8c09bd2470977fb7f86258d739a80738362c",
+      "unchanged": true,
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "b1131c15a8fb98fe16b1f15fdfdfc709f922da49",
+      "unchanged": true,
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "unchanged": true,
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "unchanged": true,
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+      "unchanged": true,
+      "bytes": 52447,
+      "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "unchanged": true,
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "unchanged": true,
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "c755be5ff6271d019ba9960ecbb71b42f9876e6d",
+      "unchanged": true,
+      "bytes": 1561,
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+      "unchanged": true,
+      "bytes": 1915,
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "unchanged": true,
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "unchanged": true,
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "unchanged": true,
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7",
+      "unchanged": true,
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "unchanged": true,
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "unchanged": true,
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "historical_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "unchanged": true,
+      "bytes": 57820,
+      "sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a"
+    }
+  ],
+  "complete_input_index": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-input-index-v3.json",
+    "bytes": 111325,
+    "sha256": "d4e3c1b2e473671936d4b6645dd196d52d48adf0fd946af3205c63be1c7530e2"
+  },
+  "latest_scoped_typecheck": {
+    "receipt": "final-v3-frozen-typecheck.receipt.json",
+    "actual_child_exit": 0,
+    "files": 3,
+    "errors": 0,
+    "warnings": 0,
+    "baseline_freshness": "reported_outdated; canonical unchanged/read-only discard; whole type gate UNRUN"
+  },
+  "lease_states": {
+    "canonical_owner_exports": "not_established",
+    "source_read": "CLOSED"
+  },
+  "P41": "not_established",
+  "predicate_basis": "recomputed",
+  "limitations": [
+    "Static import census does not prove invocation, persistence or runtime consumers.",
+    "Test imports are counted separately and do not acquire a product root from their path.",
+    "Generated companion output and facade exports require canonical owner admission; no snapshots/public inventory or exceptions edited."
+  ]
+}

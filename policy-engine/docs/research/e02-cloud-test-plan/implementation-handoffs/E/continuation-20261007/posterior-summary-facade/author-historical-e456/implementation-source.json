@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.source_first_posterior_summary_facade.v1",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "candidate": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "tree": "bd28dc54bc31b5a339c3f51d51c06c2a101cfd5e",
+  "canonical_writer": "E narrow owned admitted Foundryuncertainty facade",
+  "complete_footprint": [
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml"
+  ],
+  "runtime_property": "Actual public facade exposes identical canonical summary producer and return DTO; real IR callers persist/reopen exact finite atoms with separately named mean; no proxy/parallel evaluator.",
+  "oracle": "99 zeros and100: mean1, median0,equal-tail[0,0]; complete retained samples independently asserted on freshCAS.",
+  "negative": "Booldraw and valid-content wrong selectedkind refusal; missingpublicname oldf5 observed; independent removal pending reviewer.",
+  "author_case_counts": {
+    "cases": 93,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 93
+  },
+  "checks": [
+    {
+      "name": "old-public-caller",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt",
+        "/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "wall_seconds": 7.8394081592559814,
+      "stdout": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt",
+        "bytes": 407,
+        "sha256": "aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "affected-caller-pytest",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-E-root-summary-facade-author-20261007/pytest-cache",
+        "--basetemp",
+        "/tmp/e02-E-root-summary-facade-author-20261007/pytest-fixtures",
+        "--junitxml",
+        "/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/ir/test_uncertainty_posterior_composition.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "wall_seconds": 12.812301635742188,
+      "stdout": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt",
+        "bytes": 160,
+        "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "src/polisyos/foundry/uncertainty/__init__.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/ir/test_uncertainty_posterior_composition.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "wall_seconds": 0.0779271125793457,
+      "stdout": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt",
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "format-check",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/uncertainty/__init__.py",
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/ir/test_uncertainty_posterior_composition.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "wall_seconds": 0.04608654975891113,
+      "stdout": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt",
+        "bytes": 26,
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "root_metadata_207_unchanged": true,
+  "independent_review": "UNRUN",
+  "upstream_9147_independent_review": "CHANGE_REQUIRED; author repairing returnedref compatibility outside this facade companion",
+  "source_frozen_for_wave": false,
+  "ledger_or_formal_G_acceptance": false,
+  "new_common_wave": "UNRUN"
+}

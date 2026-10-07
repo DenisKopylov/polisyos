@@ -1,0 +1,139 @@
+"""Prepare a prospective full Python denominator from exact reviewed Git inputs; never execute gates."""
+from __future__ import annotations
+import argparse, copy, hashlib, json, pathlib, re, runpy, subprocess, sys, tomllib
+from collections import Counter
+REPO=pathlib.Path('/workspace/e02-E-mc-20261006')
+ROOT=pathlib.Path('/workspace/e02-E-continuation-20261006')
+PRIOR=pathlib.Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder')
+RECORDER=PRIOR/'record_denominator.py'
+RECORDER_HASH='17085daa5b0ec493c15f7f3583423221916539a621330e94d812ed3bb9da2a11'
+QUAL=pathlib.Path('/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json')
+QUAL_HASH='e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418'
+SUPPLEMENT=PRIOR/'writer-attribution-supplement-64d7444a.json'
+SUPPLEMENT_HASH='f0ed212053b18814ad53c523e6f41d229c286fb9c3cddb218b01297743b8cb85'
+CLOSED=PRIOR/'closed-wave-64d7444a/closed-lint-review.json'
+CLOSED_HASH='7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80'
+REFS={'main':'198076863e143dea9f89f02734b13d50dae3eed5','frozen':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','G':'855cb26a7a2c9fea60356663cf81e7d01e20c738','FRC':'737c9e3115abac3fefe76920b08c05e76a5bee17','DOE':'7537ef95beed07d02a3b72343b082ff3b7fd14e2','MC':'3932cded22a29254a7dfced99723e147d6fea7cb'}
+SHA=re.compile('[0-9a-f]{40}')
+HEX64=re.compile('[0-9a-f]{64}')
+def require(ok,message):
+ if not ok: raise ValueError(message)
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+def binding(path):
+ raw=path.read_bytes();return {'path':str(path),'bytes':len(raw),'sha256':digest(raw)}
+def admit_path(path):
+ require(type(path) is str and path and '\x00' not in path and '\n' not in path and '\t' not in path,'path type/content')
+ p=pathlib.PurePosixPath(path)
+ require(not p.is_absolute() and p.parts and '..' not in p.parts and not path.startswith('-') and str(p)==path,'canonical relativepath')
+ return path
+def preflight(refs,q):
+ require(type(refs) is dict and set(refs)==set(REFS),'complete refset')
+ for key,ref in refs.items():require(type(ref) is str and SHA.fullmatch(ref) and ref==REFS[key],'exact admitted ref '+key)
+ require(type(q) is dict and q.get('candidate')==refs['MC'] and q.get('base')==refs['frozen'],'source qualification identity')
+ require(type(q.get('tree')) is str and SHA.fullmatch(q['tree']),'qualification tree')
+ require(q.get('implementation_review_outcome')=='GO' and q.get('source_authorized_to_be_reviewed') is True,'reviewed source admission')
+ require(q.get('postfreeze_product_delta_admitted_for_lint_plan') is True and q.get('global_gate_execution_allowed') is False,'source admission separate from gate execution')
+ c=q.get('complete_footprint');require(type(c) is dict and set(c)=={'paths','python','product_python','test_python'},'footprint summary fields')
+ require(all(type(v) is int for v in c.values()) and c=={'paths':24,'python':12,'product_python':7,'test_python':5},'typed complete footprint')
+ rows=q.get('full_footprint');require(type(rows) is list and len(rows)==24,'full reviewed footprint rows')
+ seen=set()
+ for row in rows:
+  require(type(row) is dict,'footprint row');p=admit_path(row.get('path'));require(p not in seen,'duplicate reviewedpath');seen.add(p)
+  require(type(row.get('bytes')) is int and row['bytes']>=0,'typed source bytecount')
+  require(type(row.get('sha256')) is str and HEX64.fullmatch(row['sha256']),'source hash')
+  role=row.get('role');require(role in {'product_python','test_python','companion'},'source role')
+  require(role==('product_python' if p.startswith('policy-engine/src/') and p.endswith('.py') else 'test_python' if p.endswith('.py') else 'companion'),'source role/path agreement')
+ require(Counter(row['role'] for row in rows)=={'product_python':7,'test_python':5,'companion':12},'complete source role census')
+ return refs,q
+
+def prepare(refs,q):
+ preflight(refs,q) # All complete supplied metadata admitted before the first Git callback.
+ require(binding(RECORDER)['sha256']==RECORDER_HASH,'prior read-only recorder bytes changed')
+ require(binding(SUPPLEMENT)['sha256']==SUPPLEMENT_HASH and binding(CLOSED)['sha256']==CLOSED_HASH,'closed prior inputs changed')
+ m=runpy.run_path(str(RECORDER),run_name='pinned_read_only_denominator_helpers')
+ callbacks=[]
+ def git(*args):
+  completed=subprocess.run(['git','-C',str(REPO),*args],check=True,capture_output=True)
+  callbacks.append({'argv':['git','-C',str(REPO),*args],'exit_code':completed.returncode,'stdout_bytes':len(completed.stdout),'stdout_sha256':digest(completed.stdout),'stderr':completed.stderr.decode()})
+  return completed.stdout
+ trees={k:m['parse_tree'](git('ls-tree','-r','-z',sha)) for k,sha in refs.items()}
+ tree_ids={k:git('rev-parse','--verify','--end-of-options',sha+'^{tree}').decode().strip() for k,sha in refs.items()}
+ require(tree_ids['MC']==q['tree'],'MC tree qualification mismatch')
+ virtual=copy.deepcopy(trees['frozen']);origins={p:['frozen'] for p in virtual};topics=[];overlap=[]
+ reviewed={r['path']:r for r in q['full_footprint']}
+ for owner in ['G','FRC','DOE','MC']:
+  mergebase=git('merge-base',refs['frozen'],refs[owner]).decode().strip()
+  delta=m['parse_changes'](git('diff','--name-status','--no-renames','-z',mergebase,refs[owner],'--'))
+  rootdelta={r['path'] for r in m['parse_changes'](git('diff','--name-status','--no-renames','-z',mergebase,refs['frozen'],'--'))}
+  if owner=='MC':
+   require(mergebase==refs['frozen'] and {r['path'] for r in delta}==set(reviewed),'full MC admitted source footprint differs')
+  else:require(all(r['path'].startswith('policy-engine/docs/') for r in delta),'foreign incoming product/config/test mutation needs separate admission')
+  for r in delta:
+   p=r['path'];head=trees[owner].get(p);old=virtual.get(p)
+   if p in rootdelta or (origins.get(p) and origins[p]!=['frozen']):
+    require(old==head,'cross-topic divergent path conflict '+p)
+    overlap.append({'path':p,'incoming':owner,'previous':origins.get(p,[]),'same_tree_entry':True})
+   if r['status']=='D':virtual.pop(p,None);origins.pop(p,None)
+   else:require(head is not None and head['kind']=='blob','incoming regular blob');virtual[p]=head;origins.setdefault(p,[]).append(owner)
+  topics.append({'owner':owner,'head':refs[owner],'tree':tree_ids[owner],'merge_base':mergebase,'complete_changed_path_count':len(delta),'active_python_paths':[r['path'] for r in delta if r['status']!='D' and r['path'].endswith('.py')],'full_delta':delta})
+ changes=[]
+ for p in sorted(set(trees['main'])|set(virtual)):
+  old=trees['main'].get(p);new=virtual.get(p)
+  if old!=new:changes.append({'path':p,'status':'D' if new is None else 'A' if old is None else 'M'})
+ selected,deleted,other=m['select_python'](changes,virtual)
+ needed={r['object_id'] for r in selected}
+ config_paths=set()
+ for r in selected:
+  require(r['path'].startswith('policy-engine/'),'Python outside product cwd needs own command')
+  directory=pathlib.PurePosixPath(r['path']).parent
+  while True:
+   for name in ['.ruff.toml','ruff.toml','pyproject.toml']:
+    p=(directory/name).as_posix()
+    if p in virtual and virtual[p]['kind']=='blob':config_paths.add(p);needed.add(virtual[p]['object_id'])
+   if str(directory)=='.':break
+   directory=directory.parent
+ owners=[m['MANIFEST'],m['FINDING_OWNERS']]
+ needed.update(virtual[p]['object_id'] for p in owners)
+ blobs=m['batch_blobs'](REPO,'git',sorted(needed))
+ # Bind all declared source rows to Git bytes, including companions absent from the Python denominator.
+ reviewed_blobs=m['batch_blobs'](REPO,'git',[trees['MC'][p]['object_id'] for p in reviewed])
+ for p,r in reviewed.items():
+  raw=reviewed_blobs[trees['MC'][p]['object_id']]
+  require(len(raw)==r['bytes'] and digest(raw)==r['sha256'],'exact reviewed source bytes '+p)
+ prior=json.loads((PRIOR/'closed-64d7444a-denominator.json').read_bytes());priorrows={r['path']:r for r in prior['rows']}
+ require(prior['candidate_sha']==refs['frozen'] and prior['python_candidate_path_count']==360,'closed original360 input identity')
+ supplement={r['path']:r for r in json.loads(SUPPLEMENT.read_bytes())['records']}
+ rows=[]
+ for r in selected:
+  p=r['path'];raw=blobs[r['object_id']];h=digest(raw)
+  if p in reviewed:
+   writer={'writer':'E','factual_author':'/root/imports_r4','basis':'Exact source24/12 source-qualification3932 plus tracked scoped appointment; independent DTO/API and finite-law reviews separate','source':refs['MC'],'canonical_owner_scope':'E scoped finite-law/posterior mechanism; general IR/Core/Public/ABI lease not transferred'}
+  elif p in supplement:
+   s=supplement[p];require(h==s['sha256'] and len(raw)==s['bytes'],'unchanged14 IRwriter source');writer={'writer':s['factual_source_writer_unit'],'factual_author':s['factual_source_author_agent'],'basis':'Exact frozen14 source writer supplement','canonical_owner_scope':s['canonical_owner_scope'],'source':s['source_sha']}
+  elif p in priorrows:
+   old=priorrows[p];require(h==old['sha256'] and len(raw)==old['bytes'],'unqualified old Python source change '+p);writer=old['writer_attribution']
+  elif '/integration/checks/2026-10-07-tenth-wave/C-canon/' in p:
+   writer={'writer':'G','canonical_mechanism_unit':'C','basis':'Exact incoming G855 independent C-canon publication utility path; foreign input, no E repair/waiver'}
+  elif p.endswith('/ir-posterior-summary/validate.py'):
+   writer={'writer':'E','factual_author':'/root/frc_r4','basis':'Exact incoming FRC737 scoped E B201/B202 publication validator; no general API lease'}
+  else:writer={'writer':None,'attribution':'not_established','basis':'New path lacks exact writer companion'}
+  rows.append({**r,'bytes':len(raw),'sha256':h,'kind':m['classify_kind'](p),'writer_attribution':writer,'virtual_origins':origins[p],'physical_ROOT_binding':'UNMEASURED: prospective Git union; actual merged HEAD not yet selected'})
+ configs=[]
+ for p in sorted(config_paths):
+  raw=blobs[virtual[p]['object_id']];value=tomllib.loads(raw.decode())
+  if p.endswith('pyproject.toml') and 'ruff' not in value.get('tool',{}):continue
+  config=value.get('tool',{}).get('ruff',{}) if p.endswith('pyproject.toml') else value
+  require(not config.get('extend'),'New extend config requires recursive discovery, no implicit drop')
+  require(virtual[p]==trees['frozen'].get(p),'current prospective config differs from frozen reviewed configuration')
+  configs.append({'path':p,'bytes':len(raw),'sha256':digest(raw),'git_object_id':virtual[p]['object_id'],'equals_frozen_tree':True})
+ commands=[{'name':'Ruff','argv':[str(ROOT/'policy-engine/.venv/bin/python'),'-m','ruff','check','--output-format','json',*[r['path'][len('policy-engine/'):] for r in rows]],'cwd':str(ROOT/'policy-engine'),'status':'UNRUN'}, {'name':'Ruff-format','argv':[str(ROOT/'policy-engine/.venv/bin/python'),'-m','ruff','format','--check',*[r['path'][len('policy-engine/'):] for r in rows]],'cwd':str(ROOT/'policy-engine'),'status':'UNRUN'}]
+ return {'schema':'policyos.e02.E.reviewed_source_full_python_plan.v1','input_refs':refs,'input_trees':tree_ids,'prospective_union_only':True,'actual_merged_candidate':None,'actual_merged_tree':None,'execution_allowed':False,'global_Ruff_or_format_executed':False,'check_outcomes':{'Ruff':'UNRUN','Ruff-format':'UNRUN'},'full_prospective_delta_path_count':len(changes),'prospective_python_path_count':len(rows),'command_python_path_count':len(rows),'python_rows':rows,'deleted_python_paths':deleted,'non_python_delta_path_count':len(other),'incoming_full_delta':topics,'identical_overlap':overlap,'effective_configuration_inputs':configs,'owner_inputs':[{'path':p,'git_object_id':virtual[p]['object_id'],'sha256':digest(blobs[virtual[p]['object_id']])} for p in owners],'writer_counts':dict(Counter(r['writer_attribution'].get('writer') or 'not_established' for r in rows)),'commands':commands,'selector':'Native policy-engine cwd/per-directory discovery. An explicit --config root invocation changes project root/relative settings and is a separate selector. No exclusions/baseline widening/fix mode/quotas.','required_before_execution':['Root backend terminal and original environment measurement closed','Ordinary clean append merges of actual declared heads, latest DOC-only heads refreshed if changed','Recompute exact actual merged HEAD/tree/full physical source and config binding before using command inputs','Root independent admission/review of this new source qualification; old DOC-only guard is unchanged and would rightly refuse the seven new product changes'],'historical_full360_observation':{'input':binding(CLOSED),'Ruff':'FAIL1','Ruff_diagnostics':36,'Ruff_paths':3,'format':'FAIL1','format_paths':3,'affected_writers':['A','B'],'E_diagnostics':0,'basis':'Exact full frozen360 is historical observation, not current plan outcome; no inherited P41 waiver.'},'P41':'not_established absent exact slice-base full selector/config/input replay','source_qualification':binding(QUAL),'existing_recorder':binding(RECORDER),'writer_supplement':binding(SUPPLEMENT),'observer':binding(pathlib.Path(__file__)),'Git_read_only_callbacks':callbacks,'finding_dispositions_changed':False,'environment':{'observer_executable':sys.executable,'version':sys.version,'ROOT_environment_interpreters_started':False}}
+
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args()
+ require(a.output.is_absolute() and not a.output.resolve().is_relative_to(ROOT) and not a.output.exists(),'exclusive external scratch output')
+ require(binding(QUAL)['sha256']==QUAL_HASH,'reviewed qualification bytes changed')
+ q=json.loads(QUAL.read_bytes());result=prepare(REFS,q)
+ a.output.write_text(json.dumps(result,indent=2)+'\n')
+ print(json.dumps({'output':binding(a.output),'prospective_python':result['prospective_python_path_count'],'writer_counts':result['writer_counts'],'Ruff':'UNRUN','format':'UNRUN','ROOT_environment_started':False},sort_keys=True))
+if __name__=='__main__':main()

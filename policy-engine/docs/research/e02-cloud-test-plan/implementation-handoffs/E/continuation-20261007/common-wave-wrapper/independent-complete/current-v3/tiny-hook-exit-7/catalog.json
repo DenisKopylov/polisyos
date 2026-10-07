@@ -1,0 +1,43 @@
+{
+  "schema": "policyos.e02.retained_runtime_api_cli.v1",
+  "checker": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/protocol_checker.py",
+  "checker_source_sha256": "265dff5f581aef44ae0515d22ea9f12c52184da621c4d19f637da2d3592ca397",
+  "original_cli_arguments": [
+    "--exit-code",
+    "7"
+  ],
+  "actual_checker_exit_code": 7,
+  "cwd": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp",
+  "stage_TMPDIR": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp",
+  "canonical_json_capture_count": 1,
+  "openapi_captures_raw_only": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/retained-runtime-openapi.raw.json",
+      "bytes": 26,
+      "sha256": "c9b26e7eb9ff1ab770dc99536b07574dd17385414a7982c7aa9424261f9a6f0b"
+    }
+  ],
+  "temporary_directories_retained": [
+    "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep"
+  ],
+  "complete_generated_client_outputs_raw_only": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/client.js",
+      "bytes": 10,
+      "sha256": "bce51c403e48b551bd7a2d54dc500b972769efe80cf69fc5515d671ba502b624"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/client.ts",
+      "bytes": 10,
+      "sha256": "ee7aa60dc1325fb9dce9dcd50c967281db5c47a7eb49c3eeeb18ad98585d60c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/tiny-hook-exit-7/tmp/runtime_client_contract_9oxw4hep/types.ts",
+      "bytes": 9,
+      "sha256": "0844839121050b57453c65ba6ff3755fc336ffa1d381485a4dac0cea011ba8c2"
+    }
+  ],
+  "temporary_directory_operational_variant": "Original tempfile.TemporaryDirectory(delete=False); comparisons and returned canonical bytes unchanged",
+  "scope": "Actual canonical CLI main; no second emitter and no source/product contract edits",
+  "finding_closure": false
+}

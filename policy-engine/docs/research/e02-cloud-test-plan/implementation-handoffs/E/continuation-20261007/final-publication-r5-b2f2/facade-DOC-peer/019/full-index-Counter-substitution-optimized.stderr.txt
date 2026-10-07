@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/full-index-Counter-substitution-optimized/validate-handoff.py.txt", line 35, in <module>
+    if __name__=='__main__':print(json.dumps(validate(Path(sys.argv[1])),indent=2))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/full-index-Counter-substitution-optimized/validate-handoff.py.txt", line 24, in validate
+    if canonical({'bytes':len(raw),'sha256':sha(raw)})!=canonical(KNOWN['copy_index']):raise ValueError('full exact original deciding index')
+                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: full exact original deciding index

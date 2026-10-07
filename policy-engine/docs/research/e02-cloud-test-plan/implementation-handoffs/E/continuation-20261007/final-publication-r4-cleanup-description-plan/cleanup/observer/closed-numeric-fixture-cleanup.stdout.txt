@@ -1,0 +1,65 @@
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+  "members": 15399,
+  "archive_bytes": 6256608,
+  "immediate_recovered_bytes": 99672064,
+  "available_after": 1751343104
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+  "members": 4564,
+  "archive_bytes": 1294819,
+  "immediate_recovered_bytes": 20529152,
+  "available_after": 1771872256
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+  "members": 3260,
+  "archive_bytes": 928363,
+  "immediate_recovered_bytes": 14508032,
+  "available_after": 1786380288
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+  "members": 176,
+  "archive_bytes": 385217,
+  "immediate_recovered_bytes": 9752576,
+  "available_after": 1796132864
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+  "members": 254,
+  "archive_bytes": 407349,
+  "immediate_recovered_bytes": 3608576,
+  "available_after": 1799741440
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+  "members": 576,
+  "archive_bytes": 99074,
+  "immediate_recovered_bytes": 2408448,
+  "available_after": 1802149888
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+  "members": 6,
+  "archive_bytes": 1519,
+  "immediate_recovered_bytes": 28672,
+  "available_after": 1802178560
+}
+{
+  "closed_fixture": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+  "members": 8450,
+  "archive_bytes": 1718810,
+  "immediate_recovered_bytes": 38965248,
+  "available_after": 1841143808
+}
+{
+  "summary": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cleanup-summary.json",
+    "bytes": 28661,
+    "sha256": "12f1ae955c87743b03ad811974669d12cf27ec03e5ba21b1c7e8a52e1a2c4105"
+  },
+  "actual_available": 1841143808,
+  "observed_net_recovery": 189337600
+}

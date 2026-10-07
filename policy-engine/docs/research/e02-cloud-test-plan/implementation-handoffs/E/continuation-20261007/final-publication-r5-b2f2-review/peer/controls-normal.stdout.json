@@ -1,0 +1,13 @@
+{
+  "outcome": "PASS metadata/literal custody controls only",
+  "report": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/peer-fe9-normal/review.json",
+    "bytes": 20328,
+    "sha256": "dd6914b34d204ff61df6f19eea250f1a2b84504c8716eb30bf84c8212213c0fa"
+  },
+  "rows": 26,
+  "negative_refusals": 24,
+  "healthy_files": 698,
+  "Counter_removal_diverges": true,
+  "source_native_numeric_execution": false
+}

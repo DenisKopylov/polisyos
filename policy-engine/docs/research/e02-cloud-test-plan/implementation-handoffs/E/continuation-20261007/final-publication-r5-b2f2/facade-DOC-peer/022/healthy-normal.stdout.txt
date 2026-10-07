@@ -1,0 +1,7 @@
+{
+  "outcome": "PASS DOC handoff custody only",
+  "logical_outputs": 79,
+  "copied_files": 57,
+  "copied_bytes": 382298,
+  "source_native_numeric_gate_execution": false
+}

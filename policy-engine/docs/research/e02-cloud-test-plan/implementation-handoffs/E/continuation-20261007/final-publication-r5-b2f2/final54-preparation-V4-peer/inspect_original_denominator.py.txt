@@ -1,0 +1,74 @@
+import csv
+import hashlib
+import io
+import json
+import re
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+SOURCE='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+OUT=Path('/tmp/e02-E-final54-preparation-independent-lint-b2-20261007')
+PACKET=Path('/tmp/e02-E-final54-b2f2-preparation-20261007/prepared-v3-normal.json')
+INPUTS=Path('/tmp/e02-E-final54-b2f2-preparation-20261007/inputs.json')
+P=json.loads(PACKET.read_bytes());I=json.loads(INPUTS.read_bytes())
+commands=[];cache={}
+def require(c,r):
+ if not c:raise ValueError(r)
+def digest(b):return hashlib.sha256(b).hexdigest()
+def strict(a,b):
+ if type(a) is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys() and all(strict(a[k],b[k]) for k in a)
+ if isinstance(a,list):return len(a)==len(b) and all(strict(x,y) for x,y in zip(a,b))
+ return a==b
+def git(*args):
+ argv=['/usr/bin/git','-C',str(ROOT),*args]
+ p=subprocess.run(argv,capture_output=True,check=False)
+ commands.append({'argv':argv,'exit_code':p.returncode,'stdout_bytes':len(p.stdout),'stdout_sha256':digest(p.stdout),'stderr_bytes':len(p.stderr),'stderr_sha256':digest(p.stderr)})
+ require(p.returncode==0,'read-only Git command failed')
+ return p.stdout
+def blob(sha,path):
+ require(type(sha)is str and re.fullmatch('[0-9a-f]{40}',sha),'exact SHA')
+ require(type(path)is str and path.startswith('policy-engine/') and '..' not in Path(path).parts and '\x00' not in path,'safe exact path')
+ key=(sha,path)
+ if key not in cache:cache[key]=git('show',sha+':'+path)
+ return cache[key]
+for ref in I['inputs'].values():
+ b=Path(ref['path']).read_bytes();require(type(ref['bytes'])is int and len(b)==ref['bytes'] and digest(b)==ref['sha256'],'17 fixed input byte binding')
+owner=json.loads(Path(I['inputs']['owner54']['path']).read_bytes())
+require(P['rows'] and len(P['rows'])==54 and len(P['bundles'])==22,'54/22 denominator')
+require(strict(P['historical_ledger'],{'partial':49,'held':4,'closed':1}),'historical ledger')
+require(Counter(r['historical_ledger_status'] for r in P['rows'])==Counter({'partial':49,'held':4,'closed':1}),'actual historical row count')
+require(Counter(r['proposed_finding_outcome'] for r in P['rows'])==Counter({'closed':43,'limited':9,'held':2}),'actual proposal rows')
+require(sum(len(r['bundle_ids']) for r in P['rows'])==55,'55 bundle links')
+require(P['formal_G_acceptance'] is False and P['formal_ledger_change'] is False,'no formal G/ledger promotion')
+for key in ['finding_owners','bundle_owners']:
+ ref=P['original_source_bindings'][key];data=blob(SOURCE,ref['path']);require(len(data)==ref['bytes'] and digest(data)==ref['sha256'],'full owners TSV hash')
+fref=P['original_source_bindings']['finding_owners'];frows=[r for r in csv.DictReader(io.StringIO(blob(SOURCE,fref['path']).decode()),delimiter='\t') if r['unit']=='E']
+fm={r['finding_id']:r for r in frows};require(set(fm)=={r['id'] for r in P['rows']},'finding ownership membership')
+for row in P['rows']:require(strict(row['canonical_ownership'],fm[row['id']]),'canonical original owner conservation')
+bref=P['original_source_bindings']['bundle_owners'];brows=[r for r in csv.DictReader(io.StringIO(blob(SOURCE,bref['path']).decode()),delimiter='\t') if r['unit']=='E']
+require({r['bundle_id'] for r in brows}=={b['id'] for b in P['bundles']},'bundle ownership membership')
+for ref in P['original_source_bindings']['cards']:
+ b=blob(ref['revision'],ref['path']);require(len(b)==ref['bytes'] and digest(b)==ref['sha256'],'22 original card hash')
+require(len(P['original_source_bindings']['cards'])==22,'22 card rows')
+for ref in P['original_source_bindings']['criterion_fragments']:
+ b=blob(ref['revision'],ref['path']);left,right=ref['lines'];fragment=b''.join(b.splitlines(keepends=True)[left-1:right]);require(len(fragment)==ref['bytes'] and digest(fragment)==ref['sha256'],'55 exact original fragment binding')
+require(len(P['original_source_bindings']['criterion_fragments'])==55,'55 original fragment rows')
+role_frames=[]
+for role in P['source_role_qualification']:
+ now=role['current_source'];old=role['accepted_source'];a=blob(now['revision'],now['path']);b=blob(old['revision'],old['path'])
+ require(a==b and len(a)==now['bytes']==old['bytes'] and digest(a)==now['sha256']==old['sha256'],'actual role-specific body equality')
+ require((ROOT/now['path']).read_bytes()==a,'actual physical source role')
+ ref=role['accepted_evidence'];e=Path(ref['path']).read_bytes();require(len(e)==ref['bytes'] and digest(e)==ref['sha256'],'accepted role receipt byte binding')
+ role_frames.append({'role':role['role'],'path':now['path'],'current_sha':now['revision'],'accepted_sha':old['revision'],'body_bytes':len(a),'sha256':digest(a),'accepted_review_sha256':ref['sha256'],'scope':'byte binding only; no self-review of authored77 source or new numerical acceptance'})
+require(len(role_frames)==13,'13 source roles')
+require(P['current_numeric_wave']['check_outcome'] is None and P['current_global_gates']['check_outcome'] is None,'preparation pending outcomes')
+require(all(r['current_check_links']['check_outcome'] is None for r in P['rows']),'54 pending current case outputs')
+for old,row in zip(owner['rows'],P['rows']):
+ for k in ['id','bundle_ids','historical_ledger_status','owner_decision','proposed_finding_outcome','canonical_ownership','bounded_decision_basis','criterion_evidence','remaining_input_or_implementation','next_owner']:
+  require(strict(old[k],row[k]),'original individual decision conservation '+k)
+report={'schema':'e02.E.independent.final54.preparation_original_denominator.v1','candidate':SOURCE,'tree':P['tree'],'packet':{'path':str(PACKET),'bytes':PACKET.stat().st_size,'sha256':digest(PACKET.read_bytes())},'input_manifest':{'path':str(INPUTS),'bytes':INPUTS.stat().st_size,'sha256':digest(INPUTS.read_bytes())},'outcome':'PASS_BOUND_ORIGINAL_DENOMINATOR_ONLY','rows':54,'bundles':22,'links':55,'fixed_inputs':17,'historical_actual_rows':dict(Counter(r['historical_ledger_status'] for r in P['rows'])),'proposed_actual_rows':dict(Counter(r['proposed_finding_outcome'] for r in P['rows'])),'source_role_frames':role_frames,'commands':commands,'metadata_environment':{'python':sys.version,'executable':sys.executable},'limitations':['V3 summary admission CHANGE_REQUIRED remains independent of healthy original-byte conservation','No finding row owner decision newly accepted by this thin review','No current case join/global/backend replay','77 source code not self-reviewed; only prior imports peer receipt4339639c is literal/hash-qualified']}
+print(json.dumps(report,ensure_ascii=False,indent=2))

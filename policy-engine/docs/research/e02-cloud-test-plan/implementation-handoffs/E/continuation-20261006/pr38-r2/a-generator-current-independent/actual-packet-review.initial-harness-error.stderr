@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/actual_packet_review.py.txt", line 111, in <module>
+    declared_paths={r['path'] for r in merge['all_paths']}
+                    ~^^^^^^^^
+TypeError: string indices must be integers, not 'str'

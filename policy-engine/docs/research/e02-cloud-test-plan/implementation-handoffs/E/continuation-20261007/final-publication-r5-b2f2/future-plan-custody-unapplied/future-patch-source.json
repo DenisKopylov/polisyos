@@ -1,0 +1,21 @@
+{
+  "scope": "Unapplied FUTURE custody-only recipe correction; original current b943 unchanged",
+  "original": {
+    "path": "/tmp/e02-E-final-composed-wave-refresh-20261007.py",
+    "bytes": 10432,
+    "sha256": "b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0"
+  },
+  "future": {
+    "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/future-final-composed-wave-refresh.py.txt",
+    "bytes": 11345,
+    "sha256": "5a079d55548d325d4d6c2cd7d55c24d0f3d028e4cade1e72957771ae7254e8e4"
+  },
+  "actual_current_wave_repeated": false,
+  "source_environment_library_mutation": false,
+  "changes": [
+    "Persist actual admitted serialized plan before canonical execute",
+    "Reject substituted same-count plan/preexisting fake wave before execute callback"
+  ],
+  "canonical_executor_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+  "current_source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+}

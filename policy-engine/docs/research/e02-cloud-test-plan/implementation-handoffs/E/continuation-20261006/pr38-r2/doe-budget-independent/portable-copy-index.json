@@ -1,0 +1,94 @@
+{
+  "schema": "e02.portable-git-review-copies.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline-a267-falsifier.json",
+      "bytes": 3604,
+      "sha256": "976ae0f86ec95bb2d1238034cdd74065f08f745bcc73ecaaa64a2166e18da80f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline-a267-falsifier.stdout.txt",
+      "bytes": 3604,
+      "sha256": "976ae0f86ec95bb2d1238034cdd74065f08f745bcc73ecaaa64a2166e18da80f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+      "bytes": 3976,
+      "sha256": "398ccfb626cf27ffe7473197ab59ff16061c5342d4b5d3eea0904623154b9ae5"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize.stdout.txt",
+      "bytes": 372,
+      "sha256": "dc05aeeda5f70adb13250034751e65351dfc424fce0775500b49799dad9f4bcc"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize_review.py",
+      "bytes": 10649,
+      "sha256": "d63f6d19e834c4b8f2cd01e20d1aeaee996865bd7213ef1f9737c49a148de372"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/format-receipt.json",
+      "bytes": 4355,
+      "sha256": "cc2cf91dca29d452e60b63c8965e0bca8796de9255d4952c288289332b6f210b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/format.stdout.txt",
+      "bytes": 26,
+      "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/fresh-cas-deciding-artifacts.json",
+      "bytes": 15054,
+      "sha256": "ed365b19a1d9b26b5d788406e8c3ed71ce0e50947adac4c96a84abfb83a98756"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent-native-origins-artifacts.json",
+      "bytes": 15299,
+      "sha256": "98b2eb79886a10010b401967a9a453d99f9d38bf878a91db44fcb4796d94dc11"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent-native-receipt.json",
+      "bytes": 4038,
+      "sha256": "84cfc1c50cb846dc5735a95e7dac315c6e2ede61c93cacb6c4ff43b4ce68218f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent-native.stdout.txt",
+      "bytes": 2745,
+      "sha256": "9e3a1c89700ed067646af6d1bcb8220beb7344c48863b62ae85d9b70f20c802f"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent_budget_tests.py",
+      "bytes": 11477,
+      "sha256": "668c5ed50ca4134ea724eb8252827f19e3c43e1249112ee6ce682b0dda905deb"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/run_review.py",
+      "bytes": 2272,
+      "sha256": "fd752d9f9c5ed2de2442b4e82a9273e6ae096034d85f6af65716c000a78bd81d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/style-receipt.json",
+      "bytes": 4338,
+      "sha256": "6a724849f0949b48ba34808bb3369bcfdaabbc58ae66c313943be50db45581d2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/style.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/copy-index.json",
+      "bytes": 4862,
+      "sha256": "97db95d9d6d600821d79d8bf66d1d0c833b0ebebc8b8892860d864764a6fe7c6"
+    }
+  ],
+  "primary_receipt_included": true,
+  "source_index_preserved": true,
+  "source_root": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget",
+  "total_bytes": 101320
+}

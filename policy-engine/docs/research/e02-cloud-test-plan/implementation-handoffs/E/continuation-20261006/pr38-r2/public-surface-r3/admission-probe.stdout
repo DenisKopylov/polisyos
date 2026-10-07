@@ -1,0 +1,82 @@
+{
+  "source_sha": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+  "source_tree": "21b13c6cd7eb711b0f0e4062ec7c872abcc64788",
+  "source_property_paths": {
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "92b8ba4e7ab8c99d510bd889776798fba6e5c41794911bbb72e540443f224203",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": "de3298a83f632bea1a869ef1f21437ea00e875d16c81abb923fd5185de1ae8e4"
+  },
+  "source_before_after_equal": true,
+  "properties": [
+    {
+      "name": "canonical-three-public-identities",
+      "outcome": "PASS"
+    },
+    {
+      "name": "native-SciPy-complete256-dyadic-net",
+      "outcome": "PASS",
+      "oracle": "mass1:1:2 over y(0,3,9), independent exact mean21/4 and variance243/16; expected rows64/64/128",
+      "actual_counts": [
+        64,
+        64,
+        128
+      ],
+      "mean": 5.25,
+      "variance": 15.1875
+    },
+    {
+      "name": "exact-half-open-and-CDF-boundaries",
+      "outcome": "PASS"
+    },
+    {
+      "name": "tiny-first-represented-support",
+      "outcome": "PASS",
+      "CDF": [
+        5e-11,
+        0.50000000005,
+        1.0
+      ]
+    },
+    {
+      "name": "tiny-interior-represented-support",
+      "outcome": "PASS",
+      "CDF": [
+        0.5,
+        0.50000000005,
+        1.0
+      ]
+    },
+    {
+      "name": "tiny-last-represented-support",
+      "outcome": "PASS",
+      "CDF": [
+        0.5,
+        0.99999999995,
+        1.0
+      ]
+    },
+    {
+      "name": "zero-mass-represented-support",
+      "outcome": "PASS",
+      "CDF": [
+        0.0,
+        0.25,
+        0.25,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "unsupported-domain-collapse-refusals",
+      "outcome": "PASS",
+      "cases": 11
+    },
+    {
+      "name": "API-harness-refusal-before-any-callback",
+      "outcome": "PASS",
+      "limitation": "harness only; actual new Welfare caller awaits frozen source"
+    }
+  ],
+  "bounded_API_verdict": "GO",
+  "publication_verdict": "HOLD-pending-canonical-inventory19-and-README19",
+  "actual_new_Welfare_consumer": "UNRUN-pending-frozen-source"
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "e02.portable-git-review-copies.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/DOE-author-receipt-70c4.original.json",
+      "bytes": 13120,
+      "sha256": "9965a85e6f7a4b02361fca13846e99f432e95eba037f4af872060e79812253db"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/README.md",
+      "bytes": 3729,
+      "sha256": "bba72849e88c37557b595ff9aa4d51f6f372a7fd85ba174c14dffdb123567a49"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/assembly-delta-review-d43.json",
+      "bytes": 78708,
+      "sha256": "9df5906f362727b18e1c011bcb17c0597b4388eede40c630d830efd7d62d207e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/doe-budget-independent-review-70c4.original.json",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/full-c79-to-d43-footprint.tsv",
+      "bytes": 55016,
+      "sha256": "4b96a6f2b5c6e0fea9a42a9dd6bfe32bc5612c2eb8c51d4ee954954e11011be2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/harness-independent-review-4758.original.json",
+      "bytes": 11010,
+      "sha256": "9f3c2514c74e781f20217a65ad7e6f3cde609247750be7af8ec89afa0dea3fc2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-01/review.stderr",
+      "bytes": 412,
+      "sha256": "6f6a5e4c6b79054360cc766bccf09e3c2a06110415213aa5689573d31cda1fbc"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-01/review.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-01/review_assembly_delta.py",
+      "bytes": 27842,
+      "sha256": "b0e6d128952f1b04068afa1fd264d3fd2bb4223eeb538bf7b361a99c28394700"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-02/review.stderr",
+      "bytes": 471,
+      "sha256": "1bb816c11eb26a78b6653fbc2139eb026b5f9020c8dc8041b9d9a596ffba7111"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-02/review.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-02/review_assembly_delta.py",
+      "bytes": 28146,
+      "sha256": "4d46acdd41e745d66e7cb9707c7c856cfb7336cc46b8f73e6919f7ba26cda0c5"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/prior-assembly-review-c79.original.json",
+      "bytes": 51942,
+      "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/receipt.json",
+      "bytes": 4638,
+      "sha256": "0c0a276cf8916e46cabbc901c0f85bb87592b81079414f85e626c768071e7fe9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/release-independent-receipt-25ab.original.json",
+      "bytes": 5441,
+      "sha256": "db079d0493228f65fd0cb8c42cbb05b04d502fe41b49f3e1749f5e83cfbffe89"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/review.stdout",
+      "bytes": 388,
+      "sha256": "55bb29651bd94ab3bde463be5b6c5f8be32f47f5db19defa375dc26f4aa99be2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/review_assembly_delta.py",
+      "bytes": 28871,
+      "sha256": "285fe230488bb0d6a753b31a4859e74a7d9d178c5632cf4843d84b077bc9a94e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/copy-index.json",
+      "bytes": 5735,
+      "sha256": "02fac3e8ef5135e777f894203152c43b79eac1cd7304c8a9c6def426525aaf40"
+    }
+  ],
+  "total_bytes": 330099,
+  "primary_receipt_included": true,
+  "source_root": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final",
+  "reviewed_source": "d43f8d4693767637424da759ae960f7b51736449",
+  "publication_adapter_history": "Initial root adapter expected path/destination_name instead of actual copied_path: TypeError before any copies/staging/commit. Exact bytes now copied using original indexed schema; no input or source changed."
+}

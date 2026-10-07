@@ -1,0 +1,26 @@
+{
+  "archived": "corrected-wave-a9f78817",
+  "plaintext_bytes_preserved": 171772302,
+  "gzip_bytes": 6513037,
+  "source_plain_paths": "retired until explicit decode",
+  "tmpfs_free_after": 3412439040,
+  "memory_current_after": 15474638848
+}
+{
+  "archived": "historical-wave-5e3e3727",
+  "plaintext_bytes_preserved": 171772803,
+  "gzip_bytes": 6513079,
+  "source_plain_paths": "retired until explicit decode",
+  "tmpfs_free_after": 3584192512,
+  "memory_current_after": 15309615104
+}
+{
+  "result": {
+    "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-result.json",
+    "bytes": 31202,
+    "sha256": "71a2b41f0d4512b7e4dc38ab0f789ae4f01fa6e3ff6337a7006a637ffc4bad77"
+  },
+  "actions": 3,
+  "input_bytes": 515361235,
+  "compressed_bytes": 19544297
+}

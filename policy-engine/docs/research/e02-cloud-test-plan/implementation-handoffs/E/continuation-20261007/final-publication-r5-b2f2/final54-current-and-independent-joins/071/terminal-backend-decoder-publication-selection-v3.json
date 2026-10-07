@@ -1,0 +1,263 @@
+{
+  "schema": "policyos.e02.E.terminal_backend_decoding_moderate_selection.v3",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v3.py.txt",
+      "portable_path": "decode-terminal-backend-v3.py.txt",
+      "bytes": 24112,
+      "sha256": "62cafcbf1506978947bafb7fa4b88c92857840a2b6cbb25c08e9bb1c498c171c",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/terminal-backend-decoder-style-v3.json",
+      "portable_path": "terminal-backend-decoder-style-v3.json",
+      "bytes": 908,
+      "sha256": "7b34261dcc425f30977205c1c30bbef9073cca9164922f07c074a6ca5875de59",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.json",
+      "portable_path": "actual-terminal-backend-decoded-v3.json",
+      "bytes": 8010,
+      "sha256": "201d44b003da6b4e63c5cea4384c752f44f8996b0da4ebe0a73fd1c8ead3227a",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-case-index-v3.json",
+      "portable_path": "actual-terminal-backend-case-index-v3.json",
+      "bytes": 180,
+      "sha256": "20ee84f7a2d56adee761a8c0218ab6f5adc6ba7b505a98657084e1beccf9e1f1",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.stdout.txt",
+      "portable_path": "actual-terminal-backend-decoded-v3.stdout.txt",
+      "bytes": 199,
+      "sha256": "f804c5e6a0a8369d9b78300550f94cbaecf0f71ba904731f9d8a82c0fec30026",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.stderr.txt",
+      "portable_path": "actual-terminal-backend-decoded-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.json",
+      "portable_path": "backend-decoder-controls-normal-v4.json",
+      "bytes": 3922,
+      "sha256": "9660cc0c20830fa326813e5a0d4584f5f5002e6bbd7a4897026ac3c2517b4e73",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-optimized-v4.json",
+      "portable_path": "backend-decoder-controls-optimized-v4.json",
+      "bytes": 3922,
+      "sha256": "9660cc0c20830fa326813e5a0d4584f5f5002e6bbd7a4897026ac3c2517b4e73",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.stdout.txt",
+      "portable_path": "backend-decoder-controls-normal-v4.stdout.txt",
+      "bytes": 199,
+      "sha256": "9bbcadb71458257a5384ff2ccba80feed3cd3d8c0bec4e3cdf850420fd6cdefb",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.stderr.txt",
+      "portable_path": "backend-decoder-controls-normal-v4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-optimized-v4.stdout.txt",
+      "portable_path": "backend-decoder-controls-optimized-v4.stdout.txt",
+      "bytes": 202,
+      "sha256": "582be555ea9d520d80be7edecfe69df0377ab6640e920e06524595d6616b473b",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-optimized-v4.stderr.txt",
+      "portable_path": "backend-decoder-controls-optimized-v4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-v2.py.txt",
+      "portable_path": "triage-terminal-backend-v2.py.txt",
+      "bytes": 25871,
+      "sha256": "61e8345f0ba90ddf06ec039fc04e77fce7db9cb16df30d4f4f23fe1b1622586f",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-style-v2-final.json",
+      "portable_path": "triage-terminal-backend-style-v2-final.json",
+      "bytes": 908,
+      "sha256": "37e0e5d52e993668d837a3b83d365f071b3ecec27b95d896aa50995bc61afbe6",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-writer-navigation-v2.json",
+      "portable_path": "actual-terminal-backend-writer-navigation-v2.json",
+      "bytes": 1765,
+      "sha256": "b9ea65e0baccea021b33514e94421fae3ec074c95727abc2bd4aa3a16ee92e9b",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-writer-navigation-v2.stdout.txt",
+      "portable_path": "actual-terminal-backend-writer-navigation-v2.stdout.txt",
+      "bytes": 264,
+      "sha256": "2da18819e89d7b31c2257783bc6037e78e12ef42b858ed87772bb48b041d874b",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-writer-navigation-v2.stderr.txt",
+      "portable_path": "actual-terminal-backend-writer-navigation-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-normal-v2.json",
+      "portable_path": "triage-terminal-backend-controls-normal-v2.json",
+      "bytes": 2466,
+      "sha256": "2c04632f6f60b736b955ac3b0fe6c660a481feccd38ee651906bc96fce6a7267",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-optimized-v2.json",
+      "portable_path": "triage-terminal-backend-controls-optimized-v2.json",
+      "bytes": 2465,
+      "sha256": "69d5cfc05ce324e369b2266a6ad0763a465aabafbdcfcc6d5fe55f96c3f44fbc",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-normal-v2.stdout.txt",
+      "portable_path": "triage-terminal-backend-controls-normal-v2.stdout.txt",
+      "bytes": 260,
+      "sha256": "4813f8980f465b9daebb77e822670a160648b862cc7306cae50415e305253818",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-normal-v2.stderr.txt",
+      "portable_path": "triage-terminal-backend-controls-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-optimized-v2.stdout.txt",
+      "portable_path": "triage-terminal-backend-controls-optimized-v2.stdout.txt",
+      "bytes": 263,
+      "sha256": "5fe7566c2195b7195743194a336a987e005b667bc130560f94f73451da15bd8e",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-optimized-v2.stderr.txt",
+      "portable_path": "triage-terminal-backend-controls-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current terminal deciding observer/output"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v2.py.txt",
+      "portable_path": "decode-terminal-backend-v2.py.txt",
+      "bytes": 21677,
+      "sha256": "062c3d78b41fbb4692f4aa82fd5952fbf50227acaf216ef6c02f9dce3f5fbb29",
+      "role": "historical readiness/observer limitation preserved"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v2.stdout.txt",
+      "portable_path": "actual-terminal-backend-decoded-v2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical readiness/observer limitation preserved"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v2.stderr.txt",
+      "portable_path": "actual-terminal-backend-decoded-v2.stderr.txt",
+      "bytes": 652,
+      "sha256": "5a2fe82d9ab8ffb6afcba0fc08f8eeed247b63cec4048e505cfdbf91b363eb30",
+      "role": "historical readiness/observer limitation preserved"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/postterminal-backend-writer-triage-readiness.json",
+      "portable_path": "postterminal-backend-writer-triage-readiness.json",
+      "bytes": 12884,
+      "sha256": "bef0fbce6090796f5f25edb4dade8be2a6f202e8a80b6e010db1f9bba96c444e",
+      "role": "historical readiness/observer limitation preserved"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/launch.json",
+      "portable_path": "native/launch.json",
+      "bytes": 3601,
+      "sha256": "a2e4f4fbdba4dad96cf5de0fa7c2df0cc7c5bfeeb4976c4a5aea93472060a194",
+      "role": "literal native/source/environment receipt; not finding closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.json",
+      "portable_path": "native/workspace14-declared-deps-retry.json",
+      "bytes": 8998,
+      "sha256": "702ac93791ad935f5e67763854197c10ebdbad2aae26fc2a6336f62769165793",
+      "role": "literal native/source/environment receipt; not finding closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt",
+      "portable_path": "native/workspace14-declared-deps-retry.stdout.txt",
+      "bytes": 15566,
+      "sha256": "3509ee3c1b920a7d60fcda80866ffcdb2e595ded5efb604ddab44f893888b96a",
+      "role": "literal native/source/environment receipt; not finding closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json",
+      "portable_path": "native/midrun-tracked-input-drift.json",
+      "bytes": 24848,
+      "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0",
+      "role": "literal native/source/environment receipt; not finding closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "portable_path": "environment/environment-after.json",
+      "bytes": 70628,
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3",
+      "role": "literal native/source/environment receipt; not finding closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+      "portable_path": "environment/metadata-delta.json",
+      "bytes": 1740,
+      "sha256": "01e311f58d25e4919d1a09ed447819d0a23d8cfd8e790e6f95701a119a5e3c29",
+      "role": "literal native/source/environment receipt; not finding closure"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install-execution.json",
+      "portable_path": "environment/install-execution.json",
+      "bytes": 2857,
+      "sha256": "b9f262deaf2a01f13a6f072e31cfcac59673bc3ad6bd83271097823a81b10167",
+      "role": "literal native/source/environment receipt; not finding closure"
+    }
+  ],
+  "asset_count": 34,
+  "total_bytes": 239367,
+  "native_check_outcome": "FAIL",
+  "native_exit_code": 137,
+  "actual_JUnit_present": false,
+  "actual_case_counts": null,
+  "XML_writer_case_navigation_outcome": "UNRUN",
+  "source_input_admission_outcome": "FAIL",
+  "decoding_custody_status_outcome": "PASS",
+  "decoder_controls_per_mode": 21,
+  "triage_controls_per_mode": 18,
+  "termination_cause_and_actual_failureIDs": "not_established",
+  "old203_to_current207_metadata_records_preserved": true,
+  "private_Git_config_publication": "hash/size only; raw NUL config remains ignored, omitted from this selection",
+  "midrun_full58snapshot_bodies": "remain at exact original refs in bound observation; not copied again by this selection",
+  "V2_observer_ERROR": "Wrong fixture field before_sha256; actual canonical field sha256. Original stderr/source retained; V3 corrects actual input schema without native rerun.",
+  "source_findings_and_original37_verdicts_rewritten": false,
+  "ROOT_source_environment_or_outputs_modified": false
+}

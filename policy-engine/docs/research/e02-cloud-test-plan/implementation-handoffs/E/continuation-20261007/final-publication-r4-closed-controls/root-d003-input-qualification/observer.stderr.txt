@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-ROOT-d003-input-qualification-20261007/qualify_source_input.py.txt", line 74, in <module>
+    if a!=b or len(a)!=151:raise RuntimeError('architecture_edge_delta')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: architecture_edge_delta

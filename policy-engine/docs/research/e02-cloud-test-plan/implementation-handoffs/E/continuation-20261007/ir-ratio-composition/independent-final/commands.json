@@ -1,0 +1,82 @@
+{
+  "schema": "e02-independent-composition-executed-commands:1",
+  "candidate": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+  "candidate_tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+  "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-ir-composition-ecde-independent-20261007/run-selectors.py"
+      ],
+      "exit_code": 0,
+      "actual_inner_argv_env_cwd": "selectors.json",
+      "stdout": "selectors.stdout.txt",
+      "stderr": "selectors.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-ir-composition-ecde-independent-20261007/native-probes.py"
+      ],
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006/policy-engine/src"
+      },
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "actual_control_count": 31,
+      "stdout": "native-probes.stdout.txt",
+      "stderr": "native-probes.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-ir-composition-ecde-independent-20261007/source-and-type-custody.py"
+      ],
+      "exit_code": 0,
+      "scope": "read-only complete source/static-census/type receipt reconciliation; no type execution",
+      "stdout": "source-and-type-custody.stdout.txt",
+      "stderr": "source-and-type-custody.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-ir-composition-ecde-independent-20261007/finalize-review.py"
+      ],
+      "exit_code": 0,
+      "scope": "read-only closed receipt/JUnit/source recomputation; no native tests repeated",
+      "stdout": "review.stdout.txt",
+      "stderr": "review.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/tmp/e02-E-ir-composition-ecde-independent-20261007/finalize-review.py"
+      ],
+      "exit_code": 0,
+      "scope": "same read-only receipt admission; optimized interpreter retains11 pure typed refusals",
+      "stdout": "review-optimized.stdout.txt",
+      "stderr": "review-optimized.stderr.txt"
+    }
+  ],
+  "historical_observer_error": {
+    "command": "same source-and-type-custody.py initial observer",
+    "exit_code": 1,
+    "cause": "TOML root dictionary incorrectly compared against tool.basedpyright settings; corrected observer only",
+    "stdout": "historical-source-and-type-config-observer.stdout.txt",
+    "stderr": "historical-source-and-type-config-observer.stderr.txt"
+  },
+  "historical_selector_error": {
+    "exit_code": 1,
+    "cause": "Initial selector used non-existing legacy-schema-probe.stdout basename; corrected to literal legacy-schema.stdout original.",
+    "stdout": "historical-selector-filename-observer.stdout.txt",
+    "stderr": "historical-selector-filename-observer.stderr.txt"
+  },
+  "no_source_env_package_or_git_mutations": true,
+  "native_stderr_qualification": "The old exact-base reducer proxy generates the retained NumPy overflow warning; healthy current finite-law controls pass.",
+  "production_data": "none",
+  "common_wave": "UNRUN",
+  "finding_closure": false
+}

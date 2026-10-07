@@ -1,0 +1,113 @@
+import copy
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path('/tmp/e02-E-bayesian-fit-bridge-r6')
+SOURCE = '77b4d68ec37e3f34b84ce4fd1787746e3d5f5322'
+DOC = 'c40b2f5767bb5810bc8ac4c2ead9510f8c01430b'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/configured-bayesian-fit/'
+
+def read(relative):
+    return json.loads((ROOT / relative).read_text())
+
+def require(condition, reason):
+    if not condition:
+        raise ValueError(reason)
+
+def strict_equal(left, right):
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(strict_equal(left[k], right[k]) for k in left)
+    if isinstance(left, list):
+        return len(left) == len(right) and all(strict_equal(a, b) for a, b in zip(left, right))
+    return left == right
+
+def derive():
+    source = read('source-publication-77b4/receipt.json')
+    doc = read('doc-publication/readback.json')
+    footprint = read('doc-publication/precommit-footprint.json')
+    final = read('final-publication-readback/receipt.json')
+    pr = read('pr58-current-description/receipt.json')
+    before = read('pr58-current-description/rest-before.stdout.txt')
+    after = read('pr58-current-description/rest-after.stdout.txt')
+    payload = read('pr58-current-description/rest-payload.json')
+    paths = final['passive_publication_paths']
+    require(len(paths) == len({r['path'] for r in paths}), 'duplicate published path')
+    require(all(r['path'].startswith(PREFIX) and not r['path'].endswith('.py') for r in paths), 'publication footprint escape')
+    require(strict_equal(paths, footprint['paths']), 'actual readback differs from precommit path/hash denominator')
+    require(strict_equal([r['path'] for r in paths], doc['paths']), 'actual diff paths differ from publication receipt')
+    require(source['candidate'] == SOURCE, 'source mismatch')
+    require(source['remote_readback'] == SOURCE and doc['publication_sha'] == DOC and doc['remote_readback'] == DOC, 'source/DOC remote mismatch')
+    require(doc['source_parent'] == SOURCE == final['DOC_direct_parent'], 'source-parent mismatch')
+    require(final['source_sha'] == SOURCE and final['DOC_sha'] == DOC, 'final source/DOC mismatch')
+    require(source['tree'] == final['source_tree'] and doc['tree'] == final['DOC_tree'], 'source/DOC tree mismatch')
+    require(source['published_main'] is False and doc['main_pushed'] is False and final['main_pushed'] is False, 'main publication mismatch')
+    require(final['runtime_backend_tests_repeated'] is False and final['package_or_source_mutation'] is False and pr['source_or_environment_write'] is False, 'metadata-only boundary mismatch')
+    require(final['finding_and_global_decision_separate'] is True and final['source_preserved'] is True, 'source/decision boundary mismatch')
+    require(len(final['source_changed_paths']) == 6 and all(r['source77_doc_c40_physical_equal'] is True for r in final['source_changed_paths']), 'source byte continuity mismatch')
+    require(after['number'] == 58 and after['head']['sha'] == DOC and after['head']['ref'] == final['topic'], 'PR identity mismatch')
+    require(after['title'] == payload['title'] == pr['current_title'] and after['body'] == payload['body'], 'current PR body/title mismatch')
+    require(before['head']['sha'] == DOC and before['title'] == pr['previous_title'], 'historical PR identity mismatch')
+    require(hashlib.sha256(after['body'].encode()).hexdigest() == pr['body']['sha256'], 'PR body hash mismatch')
+    require(final['clean_before_after'] is True and source['clean_before_after'] is True and doc['clean'] is True, 'source cleanliness mismatch')
+    return {
+        'source': {'sha': SOURCE, 'tree': source['tree'], 'native_remote_source_readback': source['remote_readback']},
+        'DOC': {'sha': DOC, 'tree': doc['tree'], 'direct_source_parent': SOURCE, 'native_remote_DOC_readback': doc['remote_readback'],
+                'passive_paths': len(paths), 'total_bytes': sum(r['bytes'] for r in paths), 'active_python': sum(r['path'].endswith('.py') for r in paths), 'prefix': PREFIX},
+        'source_byte_continuity': {'authored_paths': len(final['source_changed_paths']), 'source77_DOCc40_physical_equal': True},
+        'PR': {'number': after['number'], 'url': after['html_url'], 'head': after['head']['sha'], 'branch': after['head']['ref'], 'base': after['base']['ref'],
+               'state': after['state'], 'title': after['title'], 'body_bytes': len(after['body'].encode()), 'body_sha256': hashlib.sha256(after['body'].encode()).hexdigest()},
+        'scope': {'actual_Git_source_DOC_readback': True, 'PR_metadata_edit': True, 'source_environment_or_runtime_mutation': False,
+                  'runtime_backend_checks_repeated': False, 'main_push': False, 'app_attachment': 'Root-reported actual native success; no reconstructed tool bytes',
+                  'source_finding_global_decisions_separate': True, 'clean_CAL_before_after': True},
+        'historical': {'pre_edit_title': before['title'], 'failed_gh_pr_edit_reason': 'deprecated Projects classic GraphQL projectCards',
+                       'old_final_readback_PR_metadata': 'historical pre-description-update snapshot; current REST after capture supersedes only title/body'},
+    }
+
+def admit_summary(claims):
+    require(strict_equal(claims, derive()), 'typed publication-summary mismatch')
+
+def controls():
+    healthy = derive()
+    variants = []
+    for name, path, value in [
+        ('retotalled DOC footprint', ('DOC', 'passive_paths'), 1),
+        ('false published byte count', ('DOC', 'total_bytes'), 1),
+        ('integer bool count escape', ('DOC', 'active_python'), False),
+        ('wrong source candidate', ('source', 'sha'), '0' * 40),
+        ('wrong PR head', ('PR', 'head'), SOURCE),
+        ('broadened publication footprint', ('DOC', 'prefix'), 'policy-engine/src/'),
+        ('false runtime verification', ('scope', 'runtime_backend_checks_repeated'), True),
+        ('false main publication', ('scope', 'main_push'), True),
+    ]:
+        item = copy.deepcopy(healthy)
+        item[path[0]][path[1]] = value
+        variants.append((name, item))
+    admit_summary(healthy)
+    results = [{'control': 'healthy complete typed summary', 'outcome': 'PASS'}]
+    for name, item in variants:
+        try:
+            admit_summary(item)
+        except ValueError as exc:
+            results.append({'control': name, 'outcome': 'PASS', 'expected_refusal': str(exc)})
+        else:
+            raise ValueError(name + ' falsely admitted')
+    import ast
+    module = ast.parse(Path(__file__).read_text())
+    for node in module.body:
+        if isinstance(node, ast.FunctionDef) and node.name == 'admit_summary':
+            node.body = [ast.Expr(ast.Call(ast.Name('derive', ast.Load()), [], []))]
+    namespace = {'__file__': __file__, '__name__': 'effective_summary_predicate_removal'}
+    exec(compile(ast.fix_missing_locations(module), __file__, 'exec'), namespace)
+    for name, item in variants:
+        namespace['admit_summary'](item)
+    results.append({'control': 'actual sole typed-summary predicate removal', 'outcome': 'PASS',
+                    'mutated_false_summaries_admitted': len(variants), 'defining_summary_property': 'FAIL',
+                    'raw input/derivation/source/PASS markers retained': True})
+    return {'scope': 'pure metadata summary admission; no Git/network/runtime/backend callback', 'controls': results,
+            'claim_count': sum(len(v) for v in healthy.values()), 'author_is_not_independent_reviewer': True}
+
+if __name__ == '__main__':
+    print(json.dumps(controls(), ensure_ascii=False, indent=2))

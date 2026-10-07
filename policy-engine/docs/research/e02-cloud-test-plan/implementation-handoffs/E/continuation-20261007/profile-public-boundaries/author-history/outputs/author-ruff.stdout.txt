@@ -1,0 +1,1896 @@
+TC001 Move application import `polisyos.foundry.calibration.report.CalibrationReport` into a type-checking block
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py:14:49
+   |
+12 | import numpy as np
+13 |
+14 | from polisyos.foundry.calibration.report import CalibrationReport
+   |                                                 ^^^^^^^^^^^^^^^^^
+15 | from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
+16 | from polisyos.foundry.uncertainty.sampling_admission import (
+   |
+help: Move into type-checking block
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/src/polisyos/ir/analytics/uncertainty.py:753:41
+    |
+753 | def _canonicalize_nested_numbers(value: Any, policy: NumericPolicySpec) -> Any:
+    |                                         ^^^
+754 |     if isinstance(value, float):
+755 |         return policy.canonicalize(value)
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_canonicalize_nested_numbers`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/src/polisyos/ir/analytics/uncertainty.py:753:76
+    |
+753 | def _canonicalize_nested_numbers(value: Any, policy: NumericPolicySpec) -> Any:
+    |                                                                            ^^^
+754 |     if isinstance(value, float):
+755 |         return policy.canonicalize(value)
+    |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+    --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/src/polisyos/ir/analytics/uncertainty.py:1379:51
+     |
+1377 |     @model_validator(mode="before")
+1378 |     @classmethod
+1379 |     def _canonicalize_numeric_payload(cls, value: Any) -> Any:
+     |                                                   ^^^
+1380 |         if isinstance(value, UncertaintyEnvelope):
+1381 |             return value
+     |
+
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `_canonicalize_numeric_payload`
+    --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/src/polisyos/ir/analytics/uncertainty.py:1379:59
+     |
+1377 |     @model_validator(mode="before")
+1378 |     @classmethod
+1379 |     def _canonicalize_numeric_payload(cls, value: Any) -> Any:
+     |                                                           ^^^
+1380 |         if isinstance(value, UncertaintyEnvelope):
+1381 |             return value
+     |
+
+E501 Line too long (104 > 100)
+    --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/src/polisyos/ir/analytics/uncertainty.py:2249:101
+     |
+2247 |                     profile,
+2248 |                     operation="pull_back",
+2249 |                     limitation="retained upstream particles are constraint-only, not the posterior law",
+     |                                                                                                     ^^^^
+2250 |                 )
+2251 |             ),
+     |
+
+ANN201 Missing return type annotation for public function `test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:32:5
+   |
+32 | def test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals(tmp_path):
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+33 |     binding = PosteriorParameterBinding(estimand_id="finite:x", unit="score", scale="linear")
+34 |     context = PosteriorSummaryContext(parameters={"x": binding})
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:32:77
+   |
+32 | def test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals(tmp_path):
+   |                                                                             ^^^^^^^^
+33 |     binding = PosteriorParameterBinding(estimand_id="finite:x", unit="score", scale="linear")
+34 |     context = PosteriorSummaryContext(parameters={"x": binding})
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:40:5
+   |
+38 |     )
+39 |     readback = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+40 |     assert summary.posterior_means == {"x": 1.0}
+   |     ^^^^^^
+41 |     assert readback.point_estimate == 0.0
+42 |     assert readback.confidence_interval == (0.0, 0.0)
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:41:5
+   |
+39 |     readback = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+40 |     assert summary.posterior_means == {"x": 1.0}
+41 |     assert readback.point_estimate == 0.0
+   |     ^^^^^^
+42 |     assert readback.confidence_interval == (0.0, 0.0)
+43 |     assert posterior_nominal_mean(readback, parameter_name="x", binding=binding) == 1.0
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:42:5
+   |
+40 |     assert summary.posterior_means == {"x": 1.0}
+41 |     assert readback.point_estimate == 0.0
+42 |     assert readback.confidence_interval == (0.0, 0.0)
+   |     ^^^^^^
+43 |     assert posterior_nominal_mean(readback, parameter_name="x", binding=binding) == 1.0
+44 |     assert not readback.gate_eligible
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:43:5
+   |
+41 |     assert readback.point_estimate == 0.0
+42 |     assert readback.confidence_interval == (0.0, 0.0)
+43 |     assert posterior_nominal_mean(readback, parameter_name="x", binding=binding) == 1.0
+   |     ^^^^^^
+44 |     assert not readback.gate_eligible
+45 |     profile = read_posterior_summary_profile(readback)
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:44:5
+   |
+42 |     assert readback.confidence_interval == (0.0, 0.0)
+43 |     assert posterior_nominal_mean(readback, parameter_name="x", binding=binding) == 1.0
+44 |     assert not readback.gate_eligible
+   |     ^^^^^^
+45 |     profile = read_posterior_summary_profile(readback)
+46 |     assert profile.point_functional == "median"
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:46:5
+   |
+44 |     assert not readback.gate_eligible
+45 |     profile = read_posterior_summary_profile(readback)
+46 |     assert profile.point_functional == "median"
+   |     ^^^^^^
+47 |     assert profile.interval_functional == "equal_tail_inverse_cdf"
+48 |     assert profile.context.lineage_refs == {}
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:47:5
+   |
+45 |     profile = read_posterior_summary_profile(readback)
+46 |     assert profile.point_functional == "median"
+47 |     assert profile.interval_functional == "equal_tail_inverse_cdf"
+   |     ^^^^^^
+48 |     assert profile.context.lineage_refs == {}
+49 |     assert profile.context.purpose is None
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:48:5
+   |
+46 |     assert profile.point_functional == "median"
+47 |     assert profile.interval_functional == "equal_tail_inverse_cdf"
+48 |     assert profile.context.lineage_refs == {}
+   |     ^^^^^^
+49 |     assert profile.context.purpose is None
+50 |     assert readback.distribution_payload.samples == (0.0,) * 99 + (100.0,)
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:49:5
+   |
+47 |     assert profile.interval_functional == "equal_tail_inverse_cdf"
+48 |     assert profile.context.lineage_refs == {}
+49 |     assert profile.context.purpose is None
+   |     ^^^^^^
+50 |     assert readback.distribution_payload.samples == (0.0,) * 99 + (100.0,)
+51 |     with pytest.raises(ValueError, match="binding"):
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:50:5
+   |
+48 |     assert profile.context.lineage_refs == {}
+49 |     assert profile.context.purpose is None
+50 |     assert readback.distribution_payload.samples == (0.0,) * 99 + (100.0,)
+   |     ^^^^^^
+51 |     with pytest.raises(ValueError, match="binding"):
+52 |         posterior_nominal_mean(
+   |
+
+ANN201 Missing return type annotation for public function `test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:58:5
+   |
+58 | def test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit():
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+59 |     summary = summarize_bayesian_calibration_posterior(
+60 |         {"x": [0, 1, 4, 100]}, weights=[1, 1, 2, 0], credible_mass=0.5
+   |
+help: Add return type annotation: `None`
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:63:5
+   |
+61 |     )
+62 |     env = summary.parameter_envelopes["x"]
+63 |     assert summary.posterior_means["x"] == 2.25
+   |     ^^^^^^
+64 |     assert env.point_estimate == 1
+65 |     assert env.confidence_interval == (0, 4)
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:64:5
+   |
+62 |     env = summary.parameter_envelopes["x"]
+63 |     assert summary.posterior_means["x"] == 2.25
+64 |     assert env.point_estimate == 1
+   |     ^^^^^^
+65 |     assert env.confidence_interval == (0, 4)
+66 |     assert posterior_nominal_mean(env) == 2.25
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:65:5
+   |
+63 |     assert summary.posterior_means["x"] == 2.25
+64 |     assert env.point_estimate == 1
+65 |     assert env.confidence_interval == (0, 4)
+   |     ^^^^^^
+66 |     assert posterior_nominal_mean(env) == 2.25
+67 |     zero = summarize_bayesian_calibration_posterior({"x": [0, 999, 2]}, weights=[1, 0, 3])
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:66:5
+   |
+64 |     assert env.point_estimate == 1
+65 |     assert env.confidence_interval == (0, 4)
+66 |     assert posterior_nominal_mean(env) == 2.25
+   |     ^^^^^^
+67 |     zero = summarize_bayesian_calibration_posterior({"x": [0, 999, 2]}, weights=[1, 0, 3])
+68 |     assert zero.posterior_means["x"] == 1.5
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:68:5
+   |
+66 |     assert posterior_nominal_mean(env) == 2.25
+67 |     zero = summarize_bayesian_calibration_posterior({"x": [0, 999, 2]}, weights=[1, 0, 3])
+68 |     assert zero.posterior_means["x"] == 1.5
+   |     ^^^^^^
+69 |     assert zero.parameter_envelopes["x"].point_estimate == 2
+70 |     assert zero.parameter_envelopes["x"].confidence_interval == (0, 2)
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:69:5
+   |
+67 |     zero = summarize_bayesian_calibration_posterior({"x": [0, 999, 2]}, weights=[1, 0, 3])
+68 |     assert zero.posterior_means["x"] == 1.5
+69 |     assert zero.parameter_envelopes["x"].point_estimate == 2
+   |     ^^^^^^
+70 |     assert zero.parameter_envelopes["x"].confidence_interval == (0, 2)
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:70:5
+   |
+68 |     assert zero.posterior_means["x"] == 1.5
+69 |     assert zero.parameter_envelopes["x"].point_estimate == 2
+70 |     assert zero.parameter_envelopes["x"].confidence_interval == (0, 2)
+   |     ^^^^^^
+   |
+
+ANN201 Missing return type annotation for public function `test_invalid_corpus_is_refused_by_real_producer`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:92:5
+   |
+90 |     ],
+91 | )
+92 | def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+93 |     with pytest.raises((ValueError, TypeError)):
+94 |         summarize_bayesian_calibration_posterior(draws, **kwargs)
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `draws`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:92:53
+   |
+90 |     ],
+91 | )
+92 | def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+   |                                                     ^^^^^
+93 |     with pytest.raises((ValueError, TypeError)):
+94 |         summarize_bayesian_calibration_posterior(draws, **kwargs)
+   |
+
+ANN001 Missing type annotation for function argument `kwargs`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:92:60
+   |
+90 |     ],
+91 | )
+92 | def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+   |                                                            ^^^^^^
+93 |     with pytest.raises((ValueError, TypeError)):
+94 |         summarize_bayesian_calibration_posterior(draws, **kwargs)
+   |
+
+ANN201 Missing return type annotation for public function `test_integrity_valid_forged_profile_refuses_fresh_named_computation`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:98:5
+    |
+ 97 | @pytest.mark.parametrize("mutation", ["mean", "profile", "carrier", "rows", "required", "context"])
+ 98 | def test_integrity_valid_forged_profile_refuses_fresh_named_computation(tmp_path, mutation):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 99 |     env = summarize_bayesian_calibration_posterior({"x": [0, 0, 100]}).parameter_envelopes["x"]
+100 |     payload = deepcopy(env.model_dump(mode="python"))
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:98:73
+    |
+ 97 | @pytest.mark.parametrize("mutation", ["mean", "profile", "carrier", "rows", "required", "context"])
+ 98 | def test_integrity_valid_forged_profile_refuses_fresh_named_computation(tmp_path, mutation):
+    |                                                                         ^^^^^^^^
+ 99 |     env = summarize_bayesian_calibration_posterior({"x": [0, 0, 100]}).parameter_envelopes["x"]
+100 |     payload = deepcopy(env.model_dump(mode="python"))
+    |
+
+ANN001 Missing type annotation for function argument `mutation`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:98:83
+    |
+ 97 | @pytest.mark.parametrize("mutation", ["mean", "profile", "carrier", "rows", "required", "context"])
+ 98 | def test_integrity_valid_forged_profile_refuses_fresh_named_computation(tmp_path, mutation):
+    |                                                                                   ^^^^^^^^
+ 99 |     env = summarize_bayesian_calibration_posterior({"x": [0, 0, 100]}).parameter_envelopes["x"]
+100 |     payload = deepcopy(env.model_dump(mode="python"))
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:116:5
+    |
+114 |     store = core_artifacts.FileSystemCAS(tmp_path)
+115 |     ref = persist_uncertainty_envelope(store, forged)
+116 |     assert store.verify(ref.artifact_id).ok
+    |     ^^^^^^
+117 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+118 |     with pytest.raises(ValueError):
+    |
+
+PT011 `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:118:24
+    |
+116 |     assert store.verify(ref.artifact_id).ok
+117 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+118 |     with pytest.raises(ValueError):
+    |                        ^^^^^^^^^^
+119 |         posterior_nominal_mean(fresh)
+    |
+
+ANN201 Missing return type annotation for public function `test_v11_unprofiled_inline_carrier_replay_is_unchanged`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:122:5
+    |
+122 | def test_v11_unprofiled_inline_carrier_replay_is_unchanged(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+123 |     legacy = UncertaintyEnvelope(
+124 |         point_estimate=0,
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:122:60
+    |
+122 | def test_v11_unprofiled_inline_carrier_replay_is_unchanged(tmp_path):
+    |                                                            ^^^^^^^^
+123 |     legacy = UncertaintyEnvelope(
+124 |         point_estimate=0,
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:139:5
+    |
+137 |     raw = store.get_bytes(ref.artifact_id)
+138 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+139 |     assert fresh == legacy
+    |     ^^^^^^
+140 |     assert posterior_nominal_mean(fresh) == 0
+141 |     assert read_posterior_summary_profile(fresh) is None
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:140:5
+    |
+138 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+139 |     assert fresh == legacy
+140 |     assert posterior_nominal_mean(fresh) == 0
+    |     ^^^^^^
+141 |     assert read_posterior_summary_profile(fresh) is None
+142 |     assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == raw
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:141:5
+    |
+139 |     assert fresh == legacy
+140 |     assert posterior_nominal_mean(fresh) == 0
+141 |     assert read_posterior_summary_profile(fresh) is None
+    |     ^^^^^^
+142 |     assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == raw
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:142:5
+    |
+140 |     assert posterior_nominal_mean(fresh) == 0
+141 |     assert read_posterior_summary_profile(fresh) is None
+142 |     assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == raw
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_named_functional_markers_cannot_fall_back_when_profile_removed`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:146:5
+    |
+145 | @pytest.mark.parametrize("required", [False, "true", None])
+146 | def test_named_functional_markers_cannot_fall_back_when_profile_removed(required):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+147 |     env = summarize_bayesian_calibration_posterior({"x": [0, 0, 100]}).parameter_envelopes["x"]
+148 |     raw = env.model_dump(mode="json")
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `required`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:146:73
+    |
+145 | @pytest.mark.parametrize("required", [False, "true", None])
+146 | def test_named_functional_markers_cannot_fall_back_when_profile_removed(required):
+    |                                                                         ^^^^^^^^
+147 |     env = summarize_bayesian_calibration_posterior({"x": [0, 0, 100]}).parameter_envelopes["x"]
+148 |     raw = env.model_dump(mode="json")
+    |
+
+ANN201 Missing return type annotation for public function `test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:160:5
+    |
+160 | def test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+161 |     legacy = UncertaintyEnvelope(
+162 |         point_estimate=0,
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:160:85
+    |
+160 | def test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator(tmp_path):
+    |                                                                                     ^^^^^^^^
+161 |     legacy = UncertaintyEnvelope(
+162 |         point_estimate=0,
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:179:5
+    |
+177 |     ref = persist_uncertainty_envelope(store, legacy)
+178 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+179 |     assert fresh == legacy
+    |     ^^^^^^
+180 |     assert posterior_nominal_mean(fresh) == 0
+181 |     assert read_posterior_summary_profile(fresh) is None
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:180:5
+    |
+178 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+179 |     assert fresh == legacy
+180 |     assert posterior_nominal_mean(fresh) == 0
+    |     ^^^^^^
+181 |     assert read_posterior_summary_profile(fresh) is None
+182 |     assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == (
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:181:5
+    |
+179 |     assert fresh == legacy
+180 |     assert posterior_nominal_mean(fresh) == 0
+181 |     assert read_posterior_summary_profile(fresh) is None
+    |     ^^^^^^
+182 |     assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == (
+183 |         store.get_bytes(ref.artifact_id)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:182:5
+    |
+180 |     assert posterior_nominal_mean(fresh) == 0
+181 |     assert read_posterior_summary_profile(fresh) is None
+182 |     assert store.get_bytes(persist_uncertainty_envelope(store, fresh).artifact_id) == (
+    |     ^^^^^^
+183 |         store.get_bytes(ref.artifact_id)
+184 |     )
+    |
+
+ANN201 Missing return type annotation for public function `test_new_profile_signed_zero_uses_existing_canonical_cas_representation`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:188:5
+    |
+187 | @pytest.mark.parametrize("weights", [None, [-0.0, 1.0]])
+188 | def test_new_profile_signed_zero_uses_existing_canonical_cas_representation(tmp_path, weights):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+189 |     env = summarize_bayesian_calibration_posterior(
+190 |         {"x": [-0.0, 1.0]}, weights=weights
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:188:77
+    |
+187 | @pytest.mark.parametrize("weights", [None, [-0.0, 1.0]])
+188 | def test_new_profile_signed_zero_uses_existing_canonical_cas_representation(tmp_path, weights):
+    |                                                                             ^^^^^^^^
+189 |     env = summarize_bayesian_calibration_posterior(
+190 |         {"x": [-0.0, 1.0]}, weights=weights
+    |
+
+ANN001 Missing type annotation for function argument `weights`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:188:87
+    |
+187 | @pytest.mark.parametrize("weights", [None, [-0.0, 1.0]])
+188 | def test_new_profile_signed_zero_uses_existing_canonical_cas_representation(tmp_path, weights):
+    |                                                                                       ^^^^^^^
+189 |     env = summarize_bayesian_calibration_posterior(
+190 |         {"x": [-0.0, 1.0]}, weights=weights
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:192:5
+    |
+190 |         {"x": [-0.0, 1.0]}, weights=weights
+191 |     ).parameter_envelopes["x"]
+192 |     assert not np.signbit(env.distribution_payload.samples[0])
+    |     ^^^^^^
+193 |     assert all(not np.signbit(p) for p in env.distribution_payload.weights)
+194 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:193:5
+    |
+191 |     ).parameter_envelopes["x"]
+192 |     assert not np.signbit(env.distribution_payload.samples[0])
+193 |     assert all(not np.signbit(p) for p in env.distribution_payload.weights)
+    |     ^^^^^^
+194 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+195 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:196:5
+    |
+194 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+195 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+196 |     assert posterior_nominal_mean(fresh) == (0.5 if weights is None else 1.0)
+    |     ^^^^^^
+197 |     assert read_posterior_summary_profile(fresh) is not None
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:197:5
+    |
+195 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+196 |     assert posterior_nominal_mean(fresh) == (0.5 if weights is None else 1.0)
+197 |     assert read_posterior_summary_profile(fresh) is not None
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_scoped_facade_resolves_actual_profile_and_reader`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:200:5
+    |
+200 | def test_scoped_facade_resolves_actual_profile_and_reader():
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+201 |     import polisyos.ir as root
+202 |     from polisyos.ir.analytics import PosteriorSummaryProfile
+    |
+help: Add return type annotation: `None`
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:205:5
+    |
+203 |     from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile as Defined
+204 |
+205 |     assert PosteriorSummaryProfile is Defined
+    |     ^^^^^^
+206 |     assert root.PosteriorSummaryProfile is Defined
+207 |     assert PosteriorSummaryProfile.model_json_schema()["$id"].endswith("summary-profile:1")
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:206:5
+    |
+205 |     assert PosteriorSummaryProfile is Defined
+206 |     assert root.PosteriorSummaryProfile is Defined
+    |     ^^^^^^
+207 |     assert PosteriorSummaryProfile.model_json_schema()["$id"].endswith("summary-profile:1")
+208 |     entry = root.get_ir_type("PosteriorSummaryProfile")
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:207:5
+    |
+205 |     assert PosteriorSummaryProfile is Defined
+206 |     assert root.PosteriorSummaryProfile is Defined
+207 |     assert PosteriorSummaryProfile.model_json_schema()["$id"].endswith("summary-profile:1")
+    |     ^^^^^^
+208 |     entry = root.get_ir_type("PosteriorSummaryProfile")
+209 |     assert entry.abi_key == "posterior_summary_profile"
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:209:5
+    |
+207 |     assert PosteriorSummaryProfile.model_json_schema()["$id"].endswith("summary-profile:1")
+208 |     entry = root.get_ir_type("PosteriorSummaryProfile")
+209 |     assert entry.abi_key == "posterior_summary_profile"
+    |     ^^^^^^
+210 |     assert entry.abi_schema_file == "posterior_summary_profile.schema.json"
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:210:5
+    |
+208 |     entry = root.get_ir_type("PosteriorSummaryProfile")
+209 |     assert entry.abi_key == "posterior_summary_profile"
+210 |     assert entry.abi_schema_file == "posterior_summary_profile.schema.json"
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_identical_summaries_do_not_merge_different_persisted_atom_laws`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:213:5
+    |
+213 | def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+214 |     # Independent counts: both population second moments=.6 and equal-tail[-1,1].
+215 |     laws = [
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:213:73
+    |
+213 | def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path):
+    |                                                                         ^^^^^^^^
+214 |     # Independent counts: both population second moments=.6 and equal-tail[-1,1].
+215 |     laws = [
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:225:5
+    |
+223 |         refs.append(ref)
+224 |         readbacks.append(load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref))
+225 |     assert refs[0].artifact_id != refs[1].artifact_id
+    |     ^^^^^^
+226 |     for env in readbacks:
+227 |         assert env.point_estimate == 0
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:227:9
+    |
+225 |     assert refs[0].artifact_id != refs[1].artifact_id
+226 |     for env in readbacks:
+227 |         assert env.point_estimate == 0
+    |         ^^^^^^
+228 |         assert env.confidence_interval == (-1, 1)
+229 |         assert posterior_nominal_mean(env) == 0
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:228:9
+    |
+226 |     for env in readbacks:
+227 |         assert env.point_estimate == 0
+228 |         assert env.confidence_interval == (-1, 1)
+    |         ^^^^^^
+229 |         assert posterior_nominal_mean(env) == 0
+230 |     assert [
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:229:9
+    |
+227 |         assert env.point_estimate == 0
+228 |         assert env.confidence_interval == (-1, 1)
+229 |         assert posterior_nominal_mean(env) == 0
+    |         ^^^^^^
+230 |     assert [
+231 |         sum(
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:230:5
+    |
+228 |         assert env.confidence_interval == (-1, 1)
+229 |         assert posterior_nominal_mean(env) == 0
+230 |     assert [
+    |     ^^^^^^
+231 |         sum(
+232 |             p
+    |
+
+ANN201 Missing return type annotation for public function `test_whole_row_reordering_preserves_functionals_changes_exact_identity`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:243:5
+    |
+243 | def test_whole_row_reordering_preserves_functionals_changes_exact_identity(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+244 |     before = summarize_bayesian_calibration_posterior(
+245 |         {"a": [0, 1, 4], "b": [0, 2, 5]}, weights=[1, 1, 2], draw_ids=["r0", "r1", "r2"]
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:243:76
+    |
+243 | def test_whole_row_reordering_preserves_functionals_changes_exact_identity(tmp_path):
+    |                                                                            ^^^^^^^^
+244 |     before = summarize_bayesian_calibration_posterior(
+245 |         {"a": [0, 1, 4], "b": [0, 2, 5]}, weights=[1, 1, 2], draw_ids=["r0", "r1", "r2"]
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:250:5
+    |
+248 |         {"b": [5, 0, 2], "a": [4, 0, 1]}, weights=[2, 1, 1], draw_ids=["r2", "r0", "r1"]
+249 |     )
+250 |     assert before.posterior_means == after.posterior_means == {"a": 2.25, "b": 3.0}
+    |     ^^^^^^
+251 |     assert before.credible_intervals == after.credible_intervals
+252 |     for name in before.parameter_envelopes:
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:251:5
+    |
+249 |     )
+250 |     assert before.posterior_means == after.posterior_means == {"a": 2.25, "b": 3.0}
+251 |     assert before.credible_intervals == after.credible_intervals
+    |     ^^^^^^
+252 |     for name in before.parameter_envelopes:
+253 |         old = before.parameter_envelopes[name]
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:257:9
+    |
+255 |         old_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), old)
+256 |         new_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), new)
+257 |         assert old_ref.artifact_id != new_ref.artifact_id
+    |         ^^^^^^
+258 |         assert old.metadata["joint_law_sha256"] != new.metadata["joint_law_sha256"]
+259 |         assert (
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:258:9
+    |
+256 |         new_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), new)
+257 |         assert old_ref.artifact_id != new_ref.artifact_id
+258 |         assert old.metadata["joint_law_sha256"] != new.metadata["joint_law_sha256"]
+    |         ^^^^^^
+259 |         assert (
+260 |             posterior_nominal_mean(
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:259:9
+    |
+257 |         assert old_ref.artifact_id != new_ref.artifact_id
+258 |         assert old.metadata["joint_law_sha256"] != new.metadata["joint_law_sha256"]
+259 |         assert (
+    |         ^^^^^^
+260 |             posterior_nominal_mean(
+261 |                 load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), new_ref)
+    |
+
+ANN201 Missing return type annotation for public function `test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:267:5
+    |
+267 | def test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists():
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+268 |     from polisyos.foundry.uncertainty import sampling_admission
+    |
+help: Add return type annotation: `None`
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:272:5
+    |
+270 |     weights = sampling_admission.admit_empirical_weights([1e-20, 0.5, 0.5], 3)
+271 |     cumulative = sampling_admission.empirical_cdf(weights)
+272 |     assert cumulative.tolist() == [1e-20, np.nextafter(0.5, 1.0), 1]
+    |     ^^^^^^
+273 |     summary = summarize_bayesian_calibration_posterior({"x": [0, -1, 1]}, weights=weights)
+274 |     assert summary.posterior_means["x"] == 0
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:274:5
+    |
+272 |     assert cumulative.tolist() == [1e-20, np.nextafter(0.5, 1.0), 1]
+273 |     summary = summarize_bayesian_calibration_posterior({"x": [0, -1, 1]}, weights=weights)
+274 |     assert summary.posterior_means["x"] == 0
+    |     ^^^^^^
+275 |     assert summary.parameter_envelopes["x"].point_estimate == 0
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:275:5
+    |
+273 |     summary = summarize_bayesian_calibration_posterior({"x": [0, -1, 1]}, weights=weights)
+274 |     assert summary.posterior_means["x"] == 0
+275 |     assert summary.parameter_envelopes["x"].point_estimate == 0
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_public_functionals_refuse_non_real_or_bool_axes`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:280:5
+    |
+278 | @pytest.mark.parametrize("bad", [True, np.bool_(True), "1.0"])
+279 | @pytest.mark.parametrize("axis", ["samples", "probabilities"])
+280 | def test_public_functionals_refuse_non_real_or_bool_axes(bad, axis):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+281 |     samples, probabilities = (0.0, 1.0), (0.5, 0.5)
+282 |     if axis == "samples":
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `bad`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:280:58
+    |
+278 | @pytest.mark.parametrize("bad", [True, np.bool_(True), "1.0"])
+279 | @pytest.mark.parametrize("axis", ["samples", "probabilities"])
+280 | def test_public_functionals_refuse_non_real_or_bool_axes(bad, axis):
+    |                                                          ^^^
+281 |     samples, probabilities = (0.0, 1.0), (0.5, 0.5)
+282 |     if axis == "samples":
+    |
+
+ANN001 Missing type annotation for function argument `axis`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:280:63
+    |
+278 | @pytest.mark.parametrize("bad", [True, np.bool_(True), "1.0"])
+279 | @pytest.mark.parametrize("axis", ["samples", "probabilities"])
+280 | def test_public_functionals_refuse_non_real_or_bool_axes(bad, axis):
+    |                                                               ^^^^
+281 |     samples, probabilities = (0.0, 1.0), (0.5, 0.5)
+282 |     if axis == "samples":
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:288:5
+    |
+286 |     with pytest.raises(ValueError, match="real non-bool"):
+287 |         posterior_summary_functionals(samples, probabilities, 0.9)
+288 |     assert posterior_summary_functionals((0.0, 1.0), (0.5, 0.5), 0.9) == (0.5, 0.0, (0.0, 1.0))
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_single_profile_consistently_forged_joint_digest_is_recomputed`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:291:5
+    |
+291 | def test_single_profile_consistently_forged_joint_digest_is_recomputed():
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+292 |     env = summarize_bayesian_calibration_posterior({"x": [0, 1]}).parameter_envelopes["x"]
+293 |     raw = env.model_dump(mode="python")
+    |
+help: Add return type annotation: `None`
+
+ANN201 Missing return type annotation for public function `test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:301:5
+    |
+301 | def test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+302 |     summary = summarize_bayesian_calibration_posterior({"x": [0.0, 1e200]})
+303 |     env = summary.parameter_envelopes["x"]
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:301:81
+    |
+301 | def test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow(tmp_path):
+    |                                                                                 ^^^^^^^^
+302 |     summary = summarize_bayesian_calibration_posterior({"x": [0.0, 1e200]})
+303 |     env = summary.parameter_envelopes["x"]
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:304:5
+    |
+302 |     summary = summarize_bayesian_calibration_posterior({"x": [0.0, 1e200]})
+303 |     env = summary.parameter_envelopes["x"]
+304 |     assert summary.posterior_means["x"] == 5e199
+    |     ^^^^^^
+305 |     assert env.point_estimate == 0
+306 |     assert env.confidence_interval == (0, 1e200)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:305:5
+    |
+303 |     env = summary.parameter_envelopes["x"]
+304 |     assert summary.posterior_means["x"] == 5e199
+305 |     assert env.point_estimate == 0
+    |     ^^^^^^
+306 |     assert env.confidence_interval == (0, 1e200)
+307 |     assert summary.uncertainty_decomposition["x"]["diagnostics"]["total_std"] == 5e199
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:306:5
+    |
+304 |     assert summary.posterior_means["x"] == 5e199
+305 |     assert env.point_estimate == 0
+306 |     assert env.confidence_interval == (0, 1e200)
+    |     ^^^^^^
+307 |     assert summary.uncertainty_decomposition["x"]["diagnostics"]["total_std"] == 5e199
+308 |     assert not summary.uncertainty_decomposition["x"]["total"]["gate_eligible"]
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:307:5
+    |
+305 |     assert env.point_estimate == 0
+306 |     assert env.confidence_interval == (0, 1e200)
+307 |     assert summary.uncertainty_decomposition["x"]["diagnostics"]["total_std"] == 5e199
+    |     ^^^^^^
+308 |     assert not summary.uncertainty_decomposition["x"]["total"]["gate_eligible"]
+309 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:308:5
+    |
+306 |     assert env.confidence_interval == (0, 1e200)
+307 |     assert summary.uncertainty_decomposition["x"]["diagnostics"]["total_std"] == 5e199
+308 |     assert not summary.uncertainty_decomposition["x"]["total"]["gate_eligible"]
+    |     ^^^^^^
+309 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+310 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:311:5
+    |
+309 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+310 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+311 |     assert fresh.distribution_payload.samples == (0.0, 1e200)
+    |     ^^^^^^
+312 |     assert posterior_nominal_mean(fresh) == 5e199
+313 |     with pytest.raises(ValueError):
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:312:5
+    |
+310 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+311 |     assert fresh.distribution_payload.samples == (0.0, 1e200)
+312 |     assert posterior_nominal_mean(fresh) == 5e199
+    |     ^^^^^^
+313 |     with pytest.raises(ValueError):
+314 |         summarize_bayesian_calibration_posterior({"x": [0.0, float("inf")]})
+    |
+
+PT011 `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:313:24
+    |
+311 |     assert fresh.distribution_payload.samples == (0.0, 1e200)
+312 |     assert posterior_nominal_mean(fresh) == 5e199
+313 |     with pytest.raises(ValueError):
+    |                        ^^^^^^^^^^
+314 |         summarize_bayesian_calibration_posterior({"x": [0.0, float("inf")]})
+315 |     # Finite inputs whose requested Gaussian diagnostic bounds are nonfinite
+    |
+
+PT011 `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:317:24
+    |
+315 |     # Finite inputs whose requested Gaussian diagnostic bounds are nonfinite
+316 |     # retain the existing finite-bound refusal, never a valid covariance flag.
+317 |     with pytest.raises(ValueError):
+    |                        ^^^^^^^^^^
+318 |         summarize_bayesian_calibration_posterior({"x": [-1.79e308, 1.79e308]})
+    |
+
+ANN201 Missing return type annotation for public function `test_profile_raw_cas_types_refuse_before_legacy_coercion`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:322:5
+    |
+321 | @pytest.mark.parametrize("raw_value", [True, "1.0"])
+322 | def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+323 |     from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:322:62
+    |
+321 | @pytest.mark.parametrize("raw_value", [True, "1.0"])
+322 | def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value):
+    |                                                              ^^^^^^^^
+323 |     from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+    |
+
+ANN001 Missing type annotation for function argument `raw_value`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:322:72
+    |
+321 | @pytest.mark.parametrize("raw_value", [True, "1.0"])
+322 | def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value):
+    |                                                                        ^^^^^^^^^
+323 |     from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_posterior_summary.py:341:5
+    |
+339 |         record.model_dump(include={"artifact_id", "kind", "media_type"})
+340 |     )
+341 |     assert store.verify(record).ok
+    |     ^^^^^^
+342 |     # The common DTO inlet now guards raw Profile2 before either public loader
+343 |     # can erase its raw type; literal Profile1/unprofiled replay is separate.
+    |
+
+ANN202 Missing return type annotation for private function `_source`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:28:5
+   |
+28 | def _source(samples=(0.0, 1.0), *, weights=None):
+   |     ^^^^^^^
+29 |     return summarize_bayesian_calibration_posterior(
+30 |         {"x": samples},
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `samples`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:28:13
+   |
+28 | def _source(samples=(0.0, 1.0), *, weights=None):
+   |             ^^^^^^^
+29 |     return summarize_bayesian_calibration_posterior(
+30 |         {"x": samples},
+   |
+
+ANN001 Missing type annotation for function argument `weights`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:28:36
+   |
+28 | def _source(samples=(0.0, 1.0), *, weights=None):
+   |                                    ^^^^^^^
+29 |     return summarize_bayesian_calibration_posterior(
+30 |         {"x": samples},
+   |
+
+ANN202 Missing return type annotation for private function `_raw_ref`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:37:5
+   |
+37 | def _raw_ref(tmp_path, raw):
+   |     ^^^^^^^^
+38 |     store = core_artifacts.FileSystemCAS(tmp_path)
+39 |     record = store.put_json(
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `tmp_path`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:37:14
+   |
+37 | def _raw_ref(tmp_path, raw):
+   |              ^^^^^^^^
+38 |     store = core_artifacts.FileSystemCAS(tmp_path)
+39 |     record = store.put_json(
+   |
+
+ANN001 Missing type annotation for function argument `raw`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:37:24
+   |
+37 | def _raw_ref(tmp_path, raw):
+   |                        ^^^
+38 |     store = core_artifacts.FileSystemCAS(tmp_path)
+39 |     record = store.put_json(
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:48:5
+   |
+46 |         canon_spec=core_canon.CanonSpec(forbid_floats=False),
+47 |     )
+48 |     assert store.verify(record).ok
+   |     ^^^^^^
+49 |     ref = UncertaintyEnvelopeRef.model_validate(
+50 |         record.model_dump(include={"artifact_id", "kind", "media_type"})
+   |
+
+ANN202 Missing return type annotation for private function `_load_raw`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:55:5
+   |
+55 | def _load_raw(tmp_path, raw, inlet):
+   |     ^^^^^^^^^
+56 |     if inlet == "model":
+57 |         return UncertaintyEnvelope.model_validate(raw)
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `tmp_path`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:55:15
+   |
+55 | def _load_raw(tmp_path, raw, inlet):
+   |               ^^^^^^^^
+56 |     if inlet == "model":
+57 |         return UncertaintyEnvelope.model_validate(raw)
+   |
+
+ANN001 Missing type annotation for function argument `raw`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:55:25
+   |
+55 | def _load_raw(tmp_path, raw, inlet):
+   |                         ^^^
+56 |     if inlet == "model":
+57 |         return UncertaintyEnvelope.model_validate(raw)
+   |
+
+ANN001 Missing type annotation for function argument `inlet`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:55:30
+   |
+55 | def _load_raw(tmp_path, raw, inlet):
+   |                              ^^^^^
+56 |     if inlet == "model":
+57 |         return UncertaintyEnvelope.model_validate(raw)
+   |
+
+ANN202 Missing return type annotation for private function `_compose`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:62:5
+   |
+62 | def _compose(envelope, operation, calls):
+   |     ^^^^^^^^
+63 |     def mapper(value):
+64 |         calls.append(value)
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `envelope`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:62:14
+   |
+62 | def _compose(envelope, operation, calls):
+   |              ^^^^^^^^
+63 |     def mapper(value):
+64 |         calls.append(value)
+   |
+
+ANN001 Missing type annotation for function argument `operation`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:62:24
+   |
+62 | def _compose(envelope, operation, calls):
+   |                        ^^^^^^^^^
+63 |     def mapper(value):
+64 |         calls.append(value)
+   |
+
+ANN001 Missing type annotation for function argument `calls`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:62:35
+   |
+62 | def _compose(envelope, operation, calls):
+   |                                   ^^^^^
+63 |     def mapper(value):
+64 |         calls.append(value)
+   |
+
+ANN202 Missing return type annotation for private function `mapper`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:63:9
+   |
+62 | def _compose(envelope, operation, calls):
+63 |     def mapper(value):
+   |         ^^^^^^
+64 |         calls.append(value)
+65 |         return value + 1.0
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `value`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:63:16
+   |
+62 | def _compose(envelope, operation, calls):
+63 |     def mapper(value):
+   |                ^^^^^
+64 |         calls.append(value)
+65 |         return value + 1.0
+   |
+
+ANN201 Missing return type annotation for public function `test_raw_profile2_type_refuses_before_public_callback_or_publication`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:77:5
+   |
+75 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+76 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+77 | def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+78 |     tmp_path, raw_value, inlet, operation
+79 | ):
+   |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:78:5
+   |
+76 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+77 | def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+78 |     tmp_path, raw_value, inlet, operation
+   |     ^^^^^^^^
+79 | ):
+80 |     raw = _source().model_dump(mode="json")
+   |
+
+ANN001 Missing type annotation for function argument `raw_value`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:78:15
+   |
+76 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+77 | def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+78 |     tmp_path, raw_value, inlet, operation
+   |               ^^^^^^^^^
+79 | ):
+80 |     raw = _source().model_dump(mode="json")
+   |
+
+ANN001 Missing type annotation for function argument `inlet`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:78:26
+   |
+76 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+77 | def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+78 |     tmp_path, raw_value, inlet, operation
+   |                          ^^^^^
+79 | ):
+80 |     raw = _source().model_dump(mode="json")
+   |
+
+ANN001 Missing type annotation for function argument `operation`
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:78:33
+   |
+76 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+77 | def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+78 |     tmp_path, raw_value, inlet, operation
+   |                                 ^^^^^^^^^
+79 | ):
+80 |     raw = _source().model_dump(mode="json")
+   |
+
+PT012 `pytest.raises()` block should contain a single simple statement
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84:5
+   |
+82 |       calls = []
+83 |       outputs = []
+84 | /     with pytest.raises(ValueError, match="finite real non-bool"):
+85 | |         envelope = _load_raw(tmp_path / "input", raw, inlet)
+86 | |         derived = _compose(envelope, operation, calls)
+87 | |         outputs.append(
+88 | |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
+89 | |         )
+   | |_________^
+90 |       assert calls == []
+91 |       assert outputs == []
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:90:5
+   |
+88 |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
+89 |         )
+90 |     assert calls == []
+   |     ^^^^^^
+91 |     assert outputs == []
+92 |     assert not (tmp_path / "output").exists()
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:91:5
+   |
+89 |         )
+90 |     assert calls == []
+91 |     assert outputs == []
+   |     ^^^^^^
+92 |     assert not (tmp_path / "output").exists()
+   |
+
+S101 Use of `assert` detected
+  --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:92:5
+   |
+90 |     assert calls == []
+91 |     assert outputs == []
+92 |     assert not (tmp_path / "output").exists()
+   |     ^^^^^^
+   |
+
+ANN201 Missing return type annotation for public function `test_declared_profile2_malformed_context_or_digest_cannot_downgrade`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:101:5
+    |
+ 99 | )
+100 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+101 | def test_declared_profile2_malformed_context_or_digest_cannot_downgrade(
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |     tmp_path, inlet, mutation, operation
+103 | ):
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:102:5
+    |
+100 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+101 | def test_declared_profile2_malformed_context_or_digest_cannot_downgrade(
+102 |     tmp_path, inlet, mutation, operation
+    |     ^^^^^^^^
+103 | ):
+104 |     raw = _source().model_dump(mode="json")
+    |
+
+ANN001 Missing type annotation for function argument `inlet`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:102:15
+    |
+100 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+101 | def test_declared_profile2_malformed_context_or_digest_cannot_downgrade(
+102 |     tmp_path, inlet, mutation, operation
+    |               ^^^^^
+103 | ):
+104 |     raw = _source().model_dump(mode="json")
+    |
+
+ANN001 Missing type annotation for function argument `mutation`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:102:22
+    |
+100 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+101 | def test_declared_profile2_malformed_context_or_digest_cannot_downgrade(
+102 |     tmp_path, inlet, mutation, operation
+    |                      ^^^^^^^^
+103 | ):
+104 |     raw = _source().model_dump(mode="json")
+    |
+
+ANN001 Missing type annotation for function argument `operation`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:102:32
+    |
+100 | @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+101 | def test_declared_profile2_malformed_context_or_digest_cannot_downgrade(
+102 |     tmp_path, inlet, mutation, operation
+    |                                ^^^^^^^^^
+103 | ):
+104 |     raw = _source().model_dump(mode="json")
+    |
+
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:123:5
+    |
+121 |       calls = []
+122 |       outputs = []
+123 | /     with pytest.raises(ValueError):
+124 | |         envelope = _load_raw(tmp_path / "input", raw, inlet)
+125 | |         derived = _compose(envelope, operation, calls)
+126 | |         outputs.append(
+127 | |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
+128 | |         )
+    | |_________^
+129 |       assert calls == []
+130 |       assert outputs == []
+    |
+
+PT011 `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:123:24
+    |
+121 |     calls = []
+122 |     outputs = []
+123 |     with pytest.raises(ValueError):
+    |                        ^^^^^^^^^^
+124 |         envelope = _load_raw(tmp_path / "input", raw, inlet)
+125 |         derived = _compose(envelope, operation, calls)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:129:5
+    |
+127 |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
+128 |         )
+129 |     assert calls == []
+    |     ^^^^^^
+130 |     assert outputs == []
+131 |     assert not (tmp_path / "output").exists()
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:130:5
+    |
+128 |         )
+129 |     assert calls == []
+130 |     assert outputs == []
+    |     ^^^^^^
+131 |     assert not (tmp_path / "output").exists()
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:131:5
+    |
+129 |     assert calls == []
+130 |     assert outputs == []
+131 |     assert not (tmp_path / "output").exists()
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_partial_profile_declaration_refuses_at_raw_inlet`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:143:5
+    |
+141 | )
+142 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+143 | def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+144 |     raw = _source().model_dump(mode="json")
+145 |     raw["metadata"] = {declaration: raw["metadata"][declaration]}
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:143:59
+    |
+141 | )
+142 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+143 | def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+    |                                                           ^^^^^^^^
+144 |     raw = _source().model_dump(mode="json")
+145 |     raw["metadata"] = {declaration: raw["metadata"][declaration]}
+    |
+
+ANN001 Missing type annotation for function argument `declaration`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:143:69
+    |
+141 | )
+142 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+143 | def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+    |                                                                     ^^^^^^^^^^^
+144 |     raw = _source().model_dump(mode="json")
+145 |     raw["metadata"] = {declaration: raw["metadata"][declaration]}
+    |
+
+ANN001 Missing type annotation for function argument `inlet`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:143:82
+    |
+141 | )
+142 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+143 | def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+    |                                                                                  ^^^^^
+144 |     raw = _source().model_dump(mode="json")
+145 |     raw["metadata"] = {declaration: raw["metadata"][declaration]}
+    |
+
+ANN201 Missing return type annotation for public function `test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:150:5
+    |
+150 | def test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+151 |     source = _source((1.0, 3.0))
+152 |     source_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), source)
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:150:68
+    |
+150 | def test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law(tmp_path):
+    |                                                                    ^^^^^^^^
+151 |     source = _source((1.0, 3.0))
+152 |     source_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), source)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:158:5
+    |
+156 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), mapped)
+157 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+158 |     assert calls == [1.0, 3.0]
+    |     ^^^^^^
+159 |     assert fresh.distribution_payload.samples == (2.0, 6.0)
+160 |     assert read_posterior_summary_profile(fresh).posterior_mean == float(
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:159:5
+    |
+157 |     fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+158 |     assert calls == [1.0, 3.0]
+159 |     assert fresh.distribution_payload.samples == (2.0, 6.0)
+    |     ^^^^^^
+160 |     assert read_posterior_summary_profile(fresh).posterior_mean == float(
+161 |         (Fraction(2) + Fraction(6)) / 2
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:160:5
+    |
+158 |     assert calls == [1.0, 3.0]
+159 |     assert fresh.distribution_payload.samples == (2.0, 6.0)
+160 |     assert read_posterior_summary_profile(fresh).posterior_mean == float(
+    |     ^^^^^^
+161 |         (Fraction(2) + Fraction(6)) / 2
+162 |     )
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:163:5
+    |
+161 |         (Fraction(2) + Fraction(6)) / 2
+162 |     )
+163 |     assert not fresh.gate_eligible
+    |     ^^^^^^
+    |
+
+ANN202 Missing return type annotation for private function `_profile1_raw`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:166:5
+    |
+166 | def _profile1_raw():
+    |     ^^^^^^^^^^^^^
+167 |     raw = _source().model_dump(mode="json")
+168 |     profile = raw["metadata"]["posterior_summary_profile"]
+    |
+help: Add return type annotation
+
+ANN201 Missing return type annotation for public function `test_profile1_literal_cas_replay_keeps_original_bytes`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:179:5
+    |
+179 | def test_profile1_literal_cas_replay_keeps_original_bytes(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+180 |     raw = _profile1_raw()
+181 |     ref = _raw_ref(tmp_path, raw)
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:179:59
+    |
+179 | def test_profile1_literal_cas_replay_keeps_original_bytes(tmp_path):
+    |                                                           ^^^^^^^^
+180 |     raw = _profile1_raw()
+181 |     ref = _raw_ref(tmp_path, raw)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:184:5
+    |
+182 |     before = core_artifacts.FileSystemCAS(tmp_path).get_bytes(ref.artifact_id)
+183 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+184 |     assert fresh.model_dump(mode="json") == raw
+    |     ^^^^^^
+185 |     assert read_posterior_summary_profile(fresh).profile_version == "1.0"
+186 |     reopened = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), fresh)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:185:5
+    |
+183 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+184 |     assert fresh.model_dump(mode="json") == raw
+185 |     assert read_posterior_summary_profile(fresh).profile_version == "1.0"
+    |     ^^^^^^
+186 |     reopened = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), fresh)
+187 |     assert core_artifacts.FileSystemCAS(tmp_path).get_bytes(reopened.artifact_id) == before
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:187:5
+    |
+185 |     assert read_posterior_summary_profile(fresh).profile_version == "1.0"
+186 |     reopened = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), fresh)
+187 |     assert core_artifacts.FileSystemCAS(tmp_path).get_bytes(reopened.artifact_id) == before
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:193:5
+    |
+191 | @pytest.mark.parametrize("profile", ["profile1", "generic"])
+192 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+193 | def test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion(tmp_path, raw_value, profile, inlet):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+194 |     raw = _profile1_raw()
+195 |     if profile == "generic":
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:193:63
+    |
+191 | @pytest.mark.parametrize("profile", ["profile1", "generic"])
+192 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+193 | def test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion(tmp_path, raw_value, profile, inlet):
+    |                                                               ^^^^^^^^
+194 |     raw = _profile1_raw()
+195 |     if profile == "generic":
+    |
+
+ANN001 Missing type annotation for function argument `raw_value`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:193:73
+    |
+191 | @pytest.mark.parametrize("profile", ["profile1", "generic"])
+192 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+193 | def test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion(tmp_path, raw_value, profile, inlet):
+    |                                                                         ^^^^^^^^^
+194 |     raw = _profile1_raw()
+195 |     if profile == "generic":
+    |
+
+ANN001 Missing type annotation for function argument `profile`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:193:84
+    |
+191 | @pytest.mark.parametrize("profile", ["profile1", "generic"])
+192 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+193 | def test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion(tmp_path, raw_value, profile, inlet):
+    |                                                                                    ^^^^^^^
+194 |     raw = _profile1_raw()
+195 |     if profile == "generic":
+    |
+
+ANN001 Missing type annotation for function argument `inlet`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:193:93
+    |
+191 | @pytest.mark.parametrize("profile", ["profile1", "generic"])
+192 | @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+193 | def test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion(tmp_path, raw_value, profile, inlet):
+    |                                                                                             ^^^^^
+194 |     raw = _profile1_raw()
+195 |     if profile == "generic":
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:199:5
+    |
+197 |     raw["distribution_payload"]["samples"][1] = raw_value
+198 |     fresh = _load_raw(tmp_path, raw, inlet)
+199 |     assert fresh.distribution_payload.samples == (0.0, 1.0)
+    |     ^^^^^^
+200 |     if profile == "profile1":
+201 |         assert read_posterior_summary_profile(fresh).profile_version == "1.0"
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:201:9
+    |
+199 |     assert fresh.distribution_payload.samples == (0.0, 1.0)
+200 |     if profile == "profile1":
+201 |         assert read_posterior_summary_profile(fresh).profile_version == "1.0"
+    |         ^^^^^^
+202 |     else:
+203 |         assert read_posterior_summary_profile(fresh) is None
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:203:9
+    |
+201 |         assert read_posterior_summary_profile(fresh).profile_version == "1.0"
+202 |     else:
+203 |         assert read_posterior_summary_profile(fresh) is None
+    |         ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_profile2_multi_join_refuses_before_generic_lowering`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:208:5
+    |
+206 | @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+207 | @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+208 | def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+209 |     left = _source((2.0,))
+210 |     right = _source((10.0, 14.0))
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:208:62
+    |
+206 | @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+207 | @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+208 | def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+    |                                                              ^^^^^^^^
+209 |     left = _source((2.0,))
+210 |     right = _source((10.0, 14.0))
+    |
+
+ANN001 Missing type annotation for function argument `order`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:208:72
+    |
+206 | @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+207 | @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+208 | def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+    |                                                                        ^^^^^
+209 |     left = _source((2.0,))
+210 |     right = _source((10.0, 14.0))
+    |
+
+ANN001 Missing type annotation for function argument `sibling`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:208:79
+    |
+206 | @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+207 | @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+208 | def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+    |                                                                               ^^^^^^^
+209 |     left = _source((2.0,))
+210 |     right = _source((10.0, 14.0))
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:211:5
+    |
+209 |     left = _source((2.0,))
+210 |     right = _source((10.0, 14.0))
+211 |     assert sum(left.distribution_payload.weights) == 0.5
+    |     ^^^^^^
+212 |     assert sum(right.distribution_payload.weights) == 1.0
+213 |     if sibling == "generic":
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:212:5
+    |
+210 |     right = _source((10.0, 14.0))
+211 |     assert sum(left.distribution_payload.weights) == 0.5
+212 |     assert sum(right.distribution_payload.weights) == 1.0
+    |     ^^^^^^
+213 |     if sibling == "generic":
+214 |         right = right.model_copy(update={"metadata": {}})
+    |
+
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:216:5
+    |
+214 |           right = right.model_copy(update={"metadata": {}})
+215 |       pair = (left, right) if order == "profile_first" else (right, left)
+216 | /     with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+217 | |         result = join_envelopes(pair)
+218 | |         persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), result)
+    | |____________________________________________________________________________________^
+219 |       assert not tmp_path.exists() or not any(tmp_path.iterdir())
+    |
+
+RUF043 Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:216:61
+    |
+214 |         right = right.model_copy(update={"metadata": {}})
+215 |     pair = (left, right) if order == "profile_first" else (right, left)
+216 |     with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+    |                                                             ^^^^^^^^^^^^^^^^^^^
+217 |         result = join_envelopes(pair)
+218 |         persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), result)
+    |
+help: Use a raw string or `re.escape()` to make the intention explicit
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:219:5
+    |
+217 |         result = join_envelopes(pair)
+218 |         persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), result)
+219 |     assert not tmp_path.exists() or not any(tmp_path.iterdir())
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_profile2_single_join_preserves_identity_and_content`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:222:5
+    |
+222 | def test_profile2_single_join_preserves_identity_and_content():
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+223 |     source = _source()
+224 |     assert join_envelopes([source]) is source
+    |
+help: Add return type annotation: `None`
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:224:5
+    |
+222 | def test_profile2_single_join_preserves_identity_and_content():
+223 |     source = _source()
+224 |     assert join_envelopes([source]) is source
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_non_profile2_joins_keep_generic_concatenation`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:228:5
+    |
+227 | @pytest.mark.parametrize("profile", ["generic", "profile1"])
+228 | def test_non_profile2_joins_keep_generic_concatenation(tmp_path, profile):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+229 |     raw = _profile1_raw()
+230 |     if profile == "generic":
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:228:56
+    |
+227 | @pytest.mark.parametrize("profile", ["generic", "profile1"])
+228 | def test_non_profile2_joins_keep_generic_concatenation(tmp_path, profile):
+    |                                                        ^^^^^^^^
+229 |     raw = _profile1_raw()
+230 |     if profile == "generic":
+    |
+
+ANN001 Missing type annotation for function argument `profile`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:228:66
+    |
+227 | @pytest.mark.parametrize("profile", ["generic", "profile1"])
+228 | def test_non_profile2_joins_keep_generic_concatenation(tmp_path, profile):
+    |                                                                  ^^^^^^^
+229 |     raw = _profile1_raw()
+230 |     if profile == "generic":
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:235:5
+    |
+233 |     right = UncertaintyEnvelope.model_validate(deepcopy(raw))
+234 |     joined = join_envelopes([left, right])
+235 |     assert joined.distribution_payload.samples == (0.0, 1.0, 0.0, 1.0)
+    |     ^^^^^^
+236 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), joined)
+237 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:238:5
+    |
+236 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), joined)
+237 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+238 |     assert fresh == joined
+    |     ^^^^^^
+239 |     assert read_posterior_summary_profile(fresh) is None
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:239:5
+    |
+237 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+238 |     assert fresh == joined
+239 |     assert read_posterior_summary_profile(fresh) is None
+    |     ^^^^^^
+    |
+
+ANN201 Missing return type annotation for public function `test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:242:5
+    |
+242 | def test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read(tmp_path):
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+243 |     combined = combine_envelopes([_source((2.0,)), _source((10.0, 14.0))])
+244 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), combined)
+    |
+help: Add return type annotation: `None`
+
+ANN001 Missing type annotation for function argument `tmp_path`
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:242:74
+    |
+242 | def test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read(tmp_path):
+    |                                                                          ^^^^^^^^
+243 |     combined = combine_envelopes([_source((2.0,)), _source((10.0, 14.0))])
+244 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), combined)
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:246:5
+    |
+244 |     ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), combined)
+245 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+246 |     assert fresh.distribution_payload is None
+    |     ^^^^^^
+247 |     assert read_posterior_summary_profile(fresh) is None
+248 |     assert not fresh.gate_eligible
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:247:5
+    |
+245 |     fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+246 |     assert fresh.distribution_payload is None
+247 |     assert read_posterior_summary_profile(fresh) is None
+    |     ^^^^^^
+248 |     assert not fresh.gate_eligible
+    |
+
+S101 Use of `assert` detected
+   --> /tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:248:5
+    |
+246 |     assert fresh.distribution_payload is None
+247 |     assert read_posterior_summary_profile(fresh) is None
+248 |     assert not fresh.gate_eligible
+    |     ^^^^^^
+    |
+
+Found 181 errors.
+No fixes available (27 hidden fixes can be enabled with the `--unsafe-fixes` option).

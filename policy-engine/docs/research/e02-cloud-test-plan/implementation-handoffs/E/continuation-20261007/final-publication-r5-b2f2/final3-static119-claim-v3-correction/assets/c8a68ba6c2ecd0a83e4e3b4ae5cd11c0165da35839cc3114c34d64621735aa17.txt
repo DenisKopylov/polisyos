@@ -1,0 +1,315 @@
+{
+  "schema": "policyos.e02.final_static119.actual_claim_controls.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "input_map": {
+    "path": "/tmp/e02-E-final3-static-witness-qualification-b2f2f65e-20261007/all-119-qualified-native-boundaries.json",
+    "bytes": 1373845,
+    "sha256": "c77b27c6a69be9857968ad9a44a2dba99af7c01afcb7a96a35d1d82621d2af3e"
+  },
+  "rows": [
+    {
+      "case": "healthy_complete119",
+      "outcome": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "typed_actual_corruption_0",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_1",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_2",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_3",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_4",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_5",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_6",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_7",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "typed_actual_corruption_8",
+      "state": "REFUSED",
+      "reason": "typed_actual_source_case_role_conservation_drift"
+    },
+    {
+      "case": "actualsole_guard_removed_0",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_1",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_2",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_3",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_4",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_5",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_6",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_7",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actualsole_guard_removed_8",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "attachment_corruption_0",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_corruption_1",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_corruption_2",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_corruption_3",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_corruption_4",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_corruption_5",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_corruption_6",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "attachment_retotaI_case_omission",
+      "state": "REFUSED",
+      "reason": "typed_complete_witness_semantic_attachment_drift"
+    },
+    {
+      "case": "actual_attachment_guard_removed_0",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_1",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_2",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_3",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_4",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_5",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_6",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "case": "actual_attachment_guard_removed_7",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "result": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      }
+    }
+  ],
+  "controls": 35,
+  "native_reruns": false,
+  "runtime_dispatch_measured": false,
+  "finding_closure": false
+}

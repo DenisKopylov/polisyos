@@ -1,0 +1,223 @@
+{
+  "schema": "policyos.e02.independent_exact_finite_profile2_candidate_review.v1",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "precode_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "source_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "source_unchanged": true,
+  "complete_implementation_footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml": {
+      "bytes": 1308,
+      "sha256": "75a277dec3e8eccc026c5b2735f6fc248ad12ba4c7aa1ccb24658dd046fe1045"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+      "bytes": 5838,
+      "sha256": "de85beb0c0fcf5475fd56bddcb69eec0b19369455bc69401c1339e4d2740c646"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": {
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "bytes": 8091,
+      "sha256": "f882de5d506b4c71cdd774742c5b3e6c41c4d47193f43b7afe795b8689782fe6"
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "bytes": 29806,
+      "sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373"
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json": {
+      "bytes": 2633,
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json": {
+      "bytes": 2636,
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json": {
+      "bytes": 13717,
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json": {
+      "bytes": 2636,
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json": {
+      "bytes": 2633,
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json": {
+      "bytes": 2636,
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json": {
+      "bytes": 2636,
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json": {
+      "bytes": 7754,
+      "sha256": "d48a6a2c4b823351bf121584d7c9ba10e2eec7d23827aa8b0fb69c28b597f23f"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "bytes": 9725,
+      "sha256": "f533dd8d0c7cd97bb3ffd8ef9bd8e820757f2658656a5319d9dd634e9d084fe5"
+    },
+    "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py": {
+      "bytes": 8500,
+      "sha256": "ce5988c98b2377f21b50d124c1ab1181c9e9b63b1b55d88e7a42972acf3401fc"
+    },
+    "policy-engine/tests/unit/ir/test_posterior_ratio_law.py": {
+      "bytes": 11564,
+      "sha256": "fd411d7a00282eaa85db85f17f73db3532a8ce7873673f8d3bc5bfcc5b878e70"
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "bytes": 15759,
+      "sha256": "70cb3db1833afa669859b7dbefdee06265bfd001ce80194f71110431835ace64"
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "bytes": 17065,
+      "sha256": "9956dcdf865ac06ccbeccff7faa29c18cf0b77b07fa724b04ba96b10da0b270a"
+    }
+  },
+  "implementation_paths": 23,
+  "Python_paths": 12,
+  "environment": {
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "prefix": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "counts": {
+    "PASS": 3
+  },
+  "cases": [
+    {
+      "id": "exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          1e-20,
+          0.5,
+          0.5
+        ],
+        "canonical_weights": [
+          1e-20,
+          0.5,
+          0.5
+        ],
+        "exact_ratios": [
+          "6646139978924579/664613997892457936458549670119096867",
+          "332306998946228968225951765070086144/664613997892457936458549670119096867",
+          "332306998946228968225951765070086144/664613997892457936458549670119096867"
+        ],
+        "finite_U_probes": [
+          0.0,
+          9.999999999999998e-21,
+          1e-20,
+          1.0000000000000001e-20,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "mean": 0.0,
+        "median": 0.0,
+        "interval": [
+          -1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "outcome": "PASS",
+      "detail": {
+        "fresh_integrity_valid_refs": {
+          "a": {
+            "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "strict_fresh_reader_rejections": [
+          "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+          "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+        ],
+        "current_callback_count": 0,
+        "removed_actual_callback_count": 257,
+        "required_callback0_control_after_removal": "FAIL",
+        "effective_removal_discriminator": "PASS",
+        "all_markers_and_digest_fields_retained": true
+      }
+    },
+    {
+      "id": "value_sorted_tiny_tail_refused",
+      "outcome": "PASS",
+      "detail": {
+        "draw_order_reachable_first_rare_atom": true,
+        "sorted_positive_tail_unreachable_on_finite_U": true,
+        "actual_refusal": "positive posterior category has no finite-U bucket",
+        "supported_original_inverse_buckets": [
+          0,
+          1
+        ]
+      }
+    }
+  ],
+  "independent_oracle": "Fraction normalized finite raw input weights, exact < classification for supplied finite U and >= quantile for supplied finite q. Candidate ceil/floor helper never used in expected loop. Gold9ecf derived before candidate.",
+  "G_conditions": "Missing supplied multivariate premise now refuses; new mean/CDF use declared exact rational source law and finite-U mesh sampling semantics. CDF cuts are classifier boundaries, not asserted continuous effective probability masses.",
+  "legacy_replay": "Seven literal genuine old700 Profile1 payloads verified against independent old native CAS. Profile1 decoder and functionals preserved; law-dependent joint eligibility separately admitted/refused.",
+  "source_acceptance": "GO bounded reviewed defining mechanisms only",
+  "finding_closure": false,
+  "authority": "All observed profile/output gate flags false; source/fit quality, independence, coverage, causal authority not established by producer fields.",
+  "remaining_owner": "Canonical generator/public API inventory owner publishes Profile2 schema/inventory projections; G accepts source separately from B201/B202 original owner closure and C/F compatibility responses.",
+  "cleanup_candidates": [
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/forged-cas-delta"
+  ],
+  "limits": [
+    "No broad wave repeated; only current exact-property/CAS/default-node/removal probes.",
+    "ROOT environment/source/backend untouched; existing DOE leaf interpreter reads immutable MC topic source.",
+    "Diagnostic spread does not create inferential covariance/noise law or posterior-quality authority."
+  ]
+}

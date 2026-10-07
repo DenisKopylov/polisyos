@@ -1,0 +1,87 @@
+"""Read-only shared-snapshot/native browser write-footprint observation."""
+
+import hashlib
+import json
+import os
+import subprocess
+import time
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PRODUCT = ROOT / 'policy-engine'
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation')
+
+
+def command(args):
+    return subprocess.run(args, check=True, capture_output=True).stdout
+
+
+def ref(path):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+paths = command(['git', '-C', str(ROOT), 'ls-files', '--cached', '--others', '--exclude-standard', '-z']).split(b'\0')
+bindings = []
+for raw in paths:
+    if not raw:
+        continue
+    path = ROOT / os.fsdecode(raw)
+    if path.is_symlink():
+        state = 'symlink:' + os.readlink(path)
+    elif path.is_file():
+        state = hashlib.sha256(path.read_bytes()).hexdigest()
+    else:
+        state = 'missing'
+    bindings.append((os.fsdecode(raw), state))
+snapshot = {'time_unix': time.time(), 'complete_path_count': len(bindings), 'complete_framed_sha256': hashlib.sha256(json.dumps(bindings, separators=(',', ':')).encode()).hexdigest(), 'screenshots': [row for row in bindings if '__screenshots__' in row[0]]}
+(OUT / 'fresh-shared-snapshot-b.json').write_text(json.dumps(snapshot, indent=2) + '\n')
+before = json.loads((OUT / 'fresh-shared-snapshot-a.json').read_text())
+
+processes = []
+for proc in Path('/proc').iterdir():
+    if not proc.name.isdigit() or int(proc.name) == os.getpid():
+        continue
+    try:
+        argv = (proc / 'cmdline').read_bytes().decode().replace('\0', ' ').strip()
+        cwd = os.readlink(proc / 'cwd')
+    except (OSError, UnicodeError):
+        continue
+    if not argv or not ('/workspace/e02-E-' in argv or cwd.startswith(str(ROOT))):
+        continue
+    if '/bin/bash -lc ' in argv or 'record_shared_preflight.py.txt' in argv:
+        continue
+    try:
+        env = dict(value.split('=', 1) for value in (proc / 'environ').read_bytes().decode().split('\0') if '=' in value)
+    except (OSError, UnicodeError):
+        env = {}
+    processes.append({'pid': int(proc.name), 'argv': argv, 'cwd': cwd, 'selected_environment': {name: env.get(name) for name in ('TMPDIR', 'UV_PROJECT_ENVIRONMENT', 'PYTHONPATH', 'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')}})
+
+vendor = PRODUCT / 'node_modules/.pnpm'
+vitest = next(vendor.glob('vitest@4.1.5*/node_modules/vitest/dist/chunks/coverage.DM_a_rWm.js'))
+browser = next(vendor.glob('@vitest+browser@4.1.5*/node_modules/@vitest/browser/dist/index.js'))
+tester = browser.parent / 'client/__vitest_browser__/tester-Bf18VQr2.js'
+configs = [PRODUCT / 'apps/runtime-dashboard/vitest.storybook.config.ts', PRODUCT / 'apps/runtime-dashboard/.storybook/main.ts', vitest, browser, tester]
+stories = sorted((PRODUCT / 'apps/runtime-dashboard/src').rglob('*.stories.tsx')) + sorted((PRODUCT / 'apps/runtime-dashboard/src').rglob('*.stories.ts'))
+row = {
+    'schema': 'policyos.e02.runtime_retry_shared_preflight.v1',
+    'candidate_sha': command(['git', '-C', str(ROOT), 'rev-parse', 'HEAD']).decode().strip(),
+    'candidate_tree_sha': command(['git', '-C', str(ROOT), 'rev-parse', 'HEAD^{tree}']).decode().strip(),
+    'tracked_diff': command(['git', '-C', str(ROOT), 'diff', '--name-only']).decode().splitlines(),
+    'observed_snapshots': [ref(OUT / 'fresh-shared-snapshot-a.json'), ref(OUT / 'fresh-shared-snapshot-b.json')],
+    'same_complete_git_visible_snapshot': before['complete_framed_sha256'] == snapshot['complete_framed_sha256'],
+    'interval_seconds': snapshot['time_unix'] - before['time_unix'],
+    'observed_active_processes': processes,
+    'browser_configuration_inputs': [ref(p) for p in configs],
+    'story_source_denominator': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'default_failed_screenshot_directory': str(p.parent / '__screenshots__' / p.name)} for p in stories],
+    'known_same_confidence_output_writer': 'closed ci18 native confidence browser controller; active ci22 Storybook only *.stories.(ts|tsx), excluding confidenceLedgerRiskSpendTwin.browser.test.tsx',
+    'actual_default_failure_writer': 'Vitest4.1.5 headless Playwright: screenshotFailures defaults true; native provider output defaults adjacent source/__screenshots__; Git-visible unlike configured ignored cache/external TMPDIR',
+    'canonical_architecture_input_scope': 'all Git-visible tracked and nonignored untracked paths; story failure screenshots intersect this scope even at a different source path',
+    'proof_limit': 'two complete snapshots equal and no current source/generated/root-env mutation observed; future CI22 native failure output not excluded by current config',
+    'next_prerequisite': 'only CI22 terminal or evidence of actual current configured screenshot output redirected outside Git-visible root; HTTP temp output/read-source remains disjoint and CPU alone is not attribution',
+    'generator_executed': False,
+    'P41': 'not_established',
+}
+path = OUT / 'fresh-shared-preflight.json'
+path.write_text(json.dumps(row, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'preflight': ref(path), 'same_complete_snapshot': row['same_complete_git_visible_snapshot'], 'interval_seconds': row['interval_seconds'], 'storybook_paths': len(stories), 'generator_executed': False}, indent=2))

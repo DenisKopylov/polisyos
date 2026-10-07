@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.independent_final_metadata_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "kind": "future",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-normal.json",
+      "portable_path": "future-normal.json",
+      "bytes": 51896,
+      "sha256": "f3a4317ca97306e3a34766f4e2ceda081b646295974bf567756c2e6be73160f8",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-optimized.json",
+      "portable_path": "future-optimized.json",
+      "bytes": 51895,
+      "sha256": "17a0374c17c7fcb2ab77eeee6546089bb33748cb1c3a2d7df84313051b59c26c",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-normal.stdout.txt",
+      "portable_path": "future-normal.stdout.txt",
+      "bytes": 329,
+      "sha256": "dd630ccb14028efe38c193a2608193aeb9703cbc5f35e310baf47874c7722a2b",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-normal.stderr.txt",
+      "portable_path": "future-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-optimized.stdout.txt",
+      "portable_path": "future-optimized.stdout.txt",
+      "bytes": 332,
+      "sha256": "3031cd44784a510a84ceb8c552cec6cf54338ecca81852d4393d2e22d1eb0db4",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-optimized.stderr.txt",
+      "portable_path": "future-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py.txt",
+      "portable_path": "review.py.txt",
+      "bytes": 20571,
+      "sha256": "2865e773044120050481b2a668a4a538b4c5acb6fa693f3a5157f70209182a9b",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-commands.json",
+      "portable_path": "future-commands.json",
+      "bytes": 498,
+      "sha256": "7c21b224711d0a27bd10050aab95e54516aa9bfe79a71b160a1a5e3308012949",
+      "role": "complete closed independent typed metadata/ref/order/count/control stdout custody"
+    }
+  ],
+  "logical_count": 8,
+  "bytes": 125521,
+  "source_native_or_env_modified": false,
+  "finding_or_G_authority": false
+}

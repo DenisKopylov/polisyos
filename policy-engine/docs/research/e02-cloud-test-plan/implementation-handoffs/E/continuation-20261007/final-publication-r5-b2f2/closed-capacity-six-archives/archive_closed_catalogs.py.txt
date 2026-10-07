@@ -1,0 +1,252 @@
+import copy
+import gzip
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import stat
+import subprocess
+import tarfile
+import time
+
+OUT = Path('/tmp/e02-E-six-closed-catalog-archive-20261007-oracle')
+ARCHIVES = Path('/workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007')
+OLD = Path('/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+NAMES = ['independent-cal-reviewer', 'backtest-old58-overlay', 'cal-frozen58', 'public-surface-packet', 'mc', 'common-wave-a9f78817c-corrected/temporary']
+KNOWN_INFRA = {199, 250}
+
+def need(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+def sha_file(path):
+    h = hashlib.sha256()
+    with Path(path).open('rb') as f:
+        for block in iter(lambda: f.read(1024 * 1024), b''):
+            h.update(block)
+    return h.hexdigest()
+
+def ref(path):
+    p = Path(path)
+    return {'path': str(p), 'bytes': p.stat().st_size, 'sha256': sha_file(p)}
+
+def dump(path, obj):
+    Path(path).write_text(json.dumps(obj, indent=2) + '\n')
+
+def resources():
+    def fs(path):
+        s = os.statvfs(path)
+        return {'available_bytes': s.f_bavail * s.f_frsize, 'free_bytes': s.f_bfree * s.f_frsize, 'device': os.stat(path).st_dev}
+    return {'utc_epoch': time.time(), 'overlay': fs('/workspace'), 'tmpfs': fs('/tmp'), 'memory_current': int(Path('/sys/fs/cgroup/memory.current').read_text()), 'memory_max': Path('/sys/fs/cgroup/memory.max').read_text().strip(), 'memory_stat': {k: int(v) for k, v in (line.split() for line in Path('/sys/fs/cgroup/memory.stat').read_text().splitlines())}, 'memory_events': Path('/sys/fs/cgroup/memory.events').read_text(), 'memory_swap_current': Path('/sys/fs/cgroup/memory.swap.current').read_text().strip(), 'host_meminfo': Path('/proc/meminfo').read_text(), 'qualification': 'Snapshots are non-atomic shared resource observations. No PID-specific OOM attribution or mathematical/finding outcome is inferred.'}
+
+def git(args):
+    p = subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True, text=True)
+    need(p.returncode == 0, 'Git read failed: ' + p.stderr)
+    return p.stdout
+
+def guard_snapshot():
+    meta = json.loads(Path('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/root-environment-metadata.json').read_text())
+    rows = []
+    for r in meta:
+        p = Path(r['path'])
+        need(p.stat().st_size == r['bytes'] and sha_file(p) == r['sha256'], 'protected ROOT207 metadata changed')
+        rows.append(r)
+    return {'head': git(['rev-parse', 'HEAD']).strip(), 'tree': git(['rev-parse', 'HEAD^{tree}']).strip(), 'status': git(['status', '--porcelain=v1']), 'registered_worktrees': git(['worktree', 'list', '--porcelain']), 'ROOT207_metadata_rows': len(rows), 'ROOT207_metadata_exact': True}
+
+def inventory(root):
+    paths = [root]
+    for folder, dirs, files in os.walk(root, followlinks=False):
+        need(not any(n in dirs + files for n in ['.git', '.venv', 'pyvenv.cfg']), 'Git/environment object in selected catalog')
+        paths.extend(Path(folder) / n for n in sorted(dirs + files))
+    rows = []
+    hardlinks = {}
+    for p in sorted(paths, key=lambda p: '.' if p == root else p.relative_to(root).as_posix()):
+        s = p.lstat()
+        r = {'path': '.' if p == root else p.relative_to(root).as_posix(), 'mode': stat.S_IMODE(s.st_mode), 'uid': s.st_uid, 'gid': s.st_gid, 'mtime_ns': s.st_mtime_ns, 'allocated_bytes': s.st_blocks * 512}
+        if stat.S_ISREG(s.st_mode):
+            key = (s.st_dev, s.st_ino)
+            canonical = hardlinks.setdefault(key, r['path'])
+            r.update(type='file', bytes=s.st_size, sha256=sha_file(p), hardlink_canonical=canonical, source_nlink=s.st_nlink)
+            after = p.lstat()
+            need((s.st_size, s.st_mtime_ns, s.st_ino) == (after.st_size, after.st_mtime_ns, after.st_ino), 'source changed during inventory')
+        elif stat.S_ISDIR(s.st_mode):
+            r.update(type='directory')
+        elif stat.S_ISLNK(s.st_mode):
+            r.update(type='symlink', target=os.readlink(p))
+        else:
+            raise ValueError('Special or mutable object in selected catalog: ' + str(p))
+        rows.append(r)
+    return rows
+
+def semantic(rows):
+    return [{k: v for k, v in r.items() if k != 'allocated_bytes'} for r in rows]
+
+def scan(prefixes):
+    roots = [str(p) for p in prefixes]
+    report = {'epoch': time.time(), 'prefixes': roots, 'self_pid': os.getpid(), 'readable_processes': [], 'active_users': [], 'unreadable_infrastructure': [], 'unreadable_other_processes': [], 'scope': 'Readable task/container processes only. Known inaccessible infrastructure PIDs do not establish global quiescence.'}
+    for p in Path('/proc').iterdir():
+        if not p.name.isdigit() or int(p.name) == os.getpid():
+            continue
+        try:
+            status = (p / 'status').read_text()
+            if next(x for x in status.splitlines() if x.startswith('State:')).split()[1] == 'Z':
+                continue
+            argv = [x.decode(errors='replace') for x in (p / 'cmdline').read_bytes().split(b'\0') if x]
+            cwd = os.readlink(p / 'cwd')
+            evidence = []
+            for prefix in roots:
+                if cwd == prefix or cwd.startswith(prefix + '/'):
+                    evidence.append({'kind': 'cwd', 'value': cwd})
+                evidence.extend({'kind': 'cmdline', 'value': a} for a in argv if prefix in a)
+            for fd in (p / 'fd').iterdir():
+                try:
+                    target = os.readlink(fd)
+                    if any(target == prefix or target.startswith(prefix + '/') for prefix in roots):
+                        evidence.append({'kind': 'fd', 'value': target})
+                except FileNotFoundError:
+                    pass
+            row = {'pid': int(p.name), 'cwd': cwd, 'argv0': argv[0] if argv else None, 'candidate_evidence': evidence}
+            report['readable_processes'].append(row)
+            if evidence:
+                report['active_users'].append(row)
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+        except PermissionError as error:
+            row = {'pid': int(p.name), 'error': str(error)}
+            report['unreadable_infrastructure' if int(p.name) in KNOWN_INFRA else 'unreadable_other_processes'].append(row)
+    return report
+
+def admit_readback(before, observed):
+    need(type(before) is list and type(observed) is list, 'inventory lists required')
+    need(len(before) == len(observed), 'complete tar member count')
+    need(semantic(before) == semantic(observed), 'every tar member body/hash/mode/link/mtime/ownership/hardlink binding required')
+
+def tar_readback(path, top, before):
+    expected = {r['path']: r for r in before}
+    observed = []
+    with tarfile.open(path, mode='r|gz') as tf:
+        for m in tf:
+            need(m.name == top or m.name.startswith(top + '/'), 'archive namespace escape')
+            rel = '.' if m.name == top else m.name[len(top) + 1:]
+            need(rel in expected, 'extra tar member')
+            r = copy.deepcopy(expected[rel])
+            need((m.mode, m.uid, m.gid) == (r['mode'], r['uid'], r['gid']), 'tar mode/ownership mismatch')
+            exact_mtime = m.pax_headers.get('mtime')
+            need(exact_mtime == str(r['mtime_ns'] // 1_000_000_000) + '.' + f"{r['mtime_ns'] % 1_000_000_000:09d}", 'tar exact mtime mismatch')
+            if r['type'] == 'file':
+                if m.islnk():
+                    need(r['hardlink_canonical'] != rel and m.linkname == top + '/' + r['hardlink_canonical'], 'tar hardlink identity mismatch')
+                    canonical = next((x for x in observed if x['path'] == r['hardlink_canonical']), None)
+                    need(canonical is not None and (canonical['bytes'], canonical['sha256']) == (r['bytes'], r['sha256']), 'hardlink body does not bind verified earlier member')
+                else:
+                    need(m.isfile() and m.size == r['bytes'], 'tar file type/size mismatch')
+                    h = hashlib.sha256()
+                    size = 0
+                    f = tf.extractfile(m)
+                    for block in iter(lambda: f.read(1024 * 1024), b''):
+                        h.update(block)
+                        size += len(block)
+                    need(size == r['bytes'] and h.hexdigest() == r['sha256'], 'tar body hash mismatch')
+            elif r['type'] == 'symlink':
+                need(m.issym() and m.linkname == r['target'], 'tar symlink mismatch')
+            else:
+                need(m.isdir(), 'tar directory mismatch')
+            observed.append(r)
+    observed.sort(key=lambda r: r['path'])
+    admit_readback(before, observed)
+    return observed
+
+def controls(before, observed):
+    results = []
+    for kind in ['omission', 'size_bool', 'forged_digest', 'mode', 'extra_member']:
+        mutant = copy.deepcopy(observed)
+        if kind == 'omission':
+            mutant.pop()
+        elif kind == 'extra_member':
+            mutant.append(copy.deepcopy(mutant[-1]))
+        else:
+            row = next(r for r in mutant if r['type'] == 'file')
+            row[{'size_bool': 'bytes', 'forged_digest': 'sha256', 'mode': 'mode'}[kind]] = {'size_bool': True, 'forged_digest': '0' * 64, 'mode': row['mode'] ^ 1}[kind]
+        try:
+            admit_readback(before, mutant)
+        except ValueError as e:
+            results.append({'control': kind, 'outcome': 'rejected', 'reason': str(e)})
+        else:
+            raise ValueError('corrupt archive readback accepted: ' + kind)
+    mutant = observed[:-1]
+    # Effective removal of the sole complete readback admission accepts missing member.
+    removed = lambda original, actual: None
+    removed(before, mutant)
+    results.append({'control': 'sole_readback_admission_removed', 'callback_count': 1, 'missing_member_re_admitted': True, 'property_outcome': 'FAIL', 'removed_predicate_only': True})
+    return results
+
+def main():
+    old = json.loads((OLD / 'relocation-result.json').read_text())
+    actions = {a['destination']: a for a in old['actions']}
+    need(OUT.is_dir() and ARCHIVES.is_dir(), 'exclusive output directories required')
+    receipt = {'schema': 'policyos.e02.closed_catalog_byte_archive.v1', 'authorization': 'Parent Root explicitly authorized closed prior21 catalog archiving/retirement under persistent user cloud cleanup authorization. Every unique byte is preserved and verified before retiring only six exact relocated copies.', 'before': resources(), 'protected_before': guard_snapshot(), 'actions': [], 'oldpath_qualification': 'Historical original workspace symlinks and relocated tmpfs paths become unavailable after retirement. They are not aliases for compressed bytes. Complete archive/reopen recipe is the current custody carrier. Historical evidence files are not rewritten.', 'runtime_properties_or_findings_closed': False, 'production_or_registered_worktree_or_env_actions': False}
+    dump(OUT / 'receipt.json', receipt)
+    for name in NAMES:
+        tag = name.replace('/', '--')
+        src = OLD / 'preserved-catalogs' / name
+        need(str(src) in actions and src.is_dir() and not src.is_symlink() and src.resolve() == src, 'exact closed relocated source')
+        prior = actions[str(src)]
+        oldpath = Path(prior['source'])
+        need(oldpath.is_symlink() and os.readlink(oldpath) == str(src), 'historical original symlink changed')
+        archive = ARCHIVES / (tag + '.tar.gz')
+        need(not archive.exists(), 'exclusive archive path')
+        worktrees = [Path(line[9:]) for line in receipt['protected_before']['registered_worktrees'].splitlines() if line.startswith('worktree ')]
+        need(not any(src == p or src.is_relative_to(p) or p.is_relative_to(src) or ARCHIVES.is_relative_to(p) for p in worktrees), 'registered checkout/archive overlap')
+        first = scan([src, oldpath])
+        dump(OUT / (tag + '-process-before.json'), first)
+        need(not first['active_users'] and not first['unreadable_other_processes'], 'active/unknown task process')
+        before = inventory(src)
+        dump(OUT / (tag + '-inventory-before.json'), before)
+        logical = sum(r.get('bytes', 0) for r in before)
+        resource = resources()
+        need(resource['overlay']['available_bytes'] > logical + 128 * 1024 * 1024, 'fresh worst-case overlay capacity +128MiB guard')
+        top = tag
+        with archive.open('xb') as raw:
+            with gzip.GzipFile(filename='', mode='wb', compresslevel=1, fileobj=raw, mtime=0) as gz:
+                with tarfile.open(fileobj=gz, mode='w|', format=tarfile.PAX_FORMAT, dereference=False) as tf:
+                    for row in before:
+                        p = src if row['path'] == '.' else src / row['path']
+                        arcname = top if row['path'] == '.' else top + '/' + row['path']
+                        def exact_time(info, value=row['mtime_ns']):
+                            info.pax_headers['mtime'] = str(value // 1_000_000_000) + '.' + f'{value % 1_000_000_000:09d}'
+                            return info
+                        tf.add(p, arcname=arcname, recursive=False, filter=exact_time)
+            raw.flush()
+            os.fsync(raw.fileno())
+        observed = tar_readback(archive, top, before)
+        dump(OUT / (tag + '-archive-full-member-readback.json'), observed)
+        after = inventory(src)
+        dump(OUT / (tag + '-inventory-before-retirement.json'), after)
+        need(semantic(before) == semantic(after), 'catalog changed while archiving')
+        negative = controls(before, observed)
+        dump(OUT / (tag + '-controls.json'), negative)
+        immediate = scan([src, oldpath])
+        dump(OUT / (tag + '-process-before-retirement.json'), immediate)
+        need(not immediate['active_users'] and not immediate['unreadable_other_processes'], 'fresh users prerequisite before exact retirement')
+        need(src.is_dir() and src.resolve() == src, 'exact source still admitted')
+        shutil.rmtree(src)
+        need(not src.exists() and oldpath.is_symlink() and not oldpath.exists(), 'old paths must be unavailable, not compressed aliases')
+        recipe = {'archive': ref(archive), 'top_level_member': top, 'fresh_reopen_command': 'mkdir -p /tmp/e02-E-reopen-' + tag + '-fresh && tar -xzf ' + str(archive) + ' -C /tmp/e02-E-reopen-' + tag + '-fresh', 'qualification': 'Choose a genuinely fresh empty extraction directory; absolute historical symlink strings are preserved and are not followed by archive/readback. Reopen restores all archived catalog bytes/modes/link strings and exact PAX mtime; no promise of historical external target availability.'}
+        dump(OUT / (tag + '-reopen-recipe.json'), recipe)
+        action = {'closed_prior_action_source': prior['source'], 'retired_tmpfs_source': str(src), 'name': name, 'full_member_count_including_catalog_root': len(before), 'inventory_records_excluding_catalog_root': len(before) - 1, 'file_count': sum(r['type'] == 'file' for r in before), 'symlink_count': sum(r['type'] == 'symlink' for r in before), 'payload_bytes': logical, 'allocated_bytes_snapshot': sum(r['allocated_bytes'] for r in before), 'archive': ref(archive), 'full_verified_body_mode_link_ownership_mtime_hardlink_preservation': True, 'oldpaths_available': False, 'references': [ref(OUT / (tag + suffix)) for suffix in ['-inventory-before.json', '-archive-full-member-readback.json', '-inventory-before-retirement.json', '-process-before.json', '-process-before-retirement.json', '-controls.json', '-reopen-recipe.json']], 'resources_before': resource, 'resources_after': resources()}
+        receipt['actions'].append(action)
+        receipt['after'] = resources()
+        dump(OUT / 'receipt.json', receipt)
+        print(json.dumps({'closed': name, 'payload_bytes_preserved': logical, 'archive_bytes': action['archive']['bytes'], 'members': len(before), 'tmpfs_available': receipt['after']['tmpfs']['available_bytes'], 'overlay_available': receipt['after']['overlay']['available_bytes']}), flush=True)
+    receipt['protected_after'] = guard_snapshot()
+    need(receipt['protected_before'] == receipt['protected_after'], 'protected ROOT snapshot changed during own operation; record rather than classify whole-source immutable')
+    receipt['payload_bytes_preserved'] = sum(a['payload_bytes'] for a in receipt['actions'])
+    receipt['archive_bytes'] = sum(a['archive']['bytes'] for a in receipt['actions'])
+    receipt['after'] = resources()
+    dump(OUT / 'receipt.json', receipt)
+    print(json.dumps({'outcome': 'byte custody verified; six exact tmpfs copies retired', 'receipt': ref(OUT / 'receipt.json'), 'payload_bytes': receipt['payload_bytes_preserved'], 'archive_bytes': receipt['archive_bytes'], 'runtime_or_finding_outcome': 'not established by cleanup'}), flush=True)
+
+if __name__ == '__main__':
+    main()

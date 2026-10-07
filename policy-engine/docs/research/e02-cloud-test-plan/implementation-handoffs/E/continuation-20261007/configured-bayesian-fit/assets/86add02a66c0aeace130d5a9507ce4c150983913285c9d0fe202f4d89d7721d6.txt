@@ -1,0 +1,25 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "counts": {
+    "normal": {
+      "PASS": 28,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "optimized": {
+      "PASS": 28,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "existing_consumers": {
+      "PASS": 23,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    }
+  },
+  "full_footprint": 187,
+  "author_paths": 6
+}

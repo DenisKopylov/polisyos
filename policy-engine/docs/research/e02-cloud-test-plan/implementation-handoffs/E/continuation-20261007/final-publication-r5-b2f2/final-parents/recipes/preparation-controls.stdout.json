@@ -1,0 +1,245 @@
+{
+  "schema": "policyos.e02.final_parent_adapter_preparation_controls.v1",
+  "check_status": "PASS",
+  "scope": "pure preparation/CLI refusal only; no parent/native/gate/backend execution",
+  "ROOT_identity_scope": "observed source/tree used only for nonexecuting plan; not final admitted freeze",
+  "script": {
+    "path": "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+    "bytes": 8791,
+    "sha256": "0d67bdd63687f5622c5f993b1bcc11b3c40d9c416d9ef0b75d6d2e39a8364e0c"
+  },
+  "controls": [
+    {
+      "name": "workspace-verify-nonexecuting-plan",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007"
+      ],
+      "exit_code": 0,
+      "error": null,
+      "stdout": "{\n  \"selector\": \"workspace-verify\",\n  \"candidate\": \"f5c2845851aeb1591de9c73db6de392656656e96\",\n  \"tree\": \"c1bd578d9ae57a90282f442dd65314e074f57fe9\",\n  \"output_root\": \"/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007\",\n  \"check_status\": \"UNRUN\",\n  \"state\": \"prepared; no execution authorization flag\",\n  \"source_native_gate_executed\": false\n}\n",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "ci-parity-nonexecuting-plan",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "ci-parity",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007"
+      ],
+      "exit_code": 0,
+      "error": null,
+      "stdout": "{\n  \"selector\": \"ci-parity\",\n  \"candidate\": \"f5c2845851aeb1591de9c73db6de392656656e96\",\n  \"tree\": \"c1bd578d9ae57a90282f442dd65314e074f57fe9\",\n  \"output_root\": \"/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007\",\n  \"check_status\": \"UNRUN\",\n  \"state\": \"prepared; no execution authorization flag\",\n  \"source_native_gate_executed\": false\n}\n",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "short-candidate",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c28458",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007"
+      ],
+      "exit_code": 1,
+      "error": {
+        "type": "ValueError",
+        "message": "pure complete source/tree identity before any Git or file write"
+      },
+      "stdout": "",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "uppercase-tree",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "C1BD578D9AE57A90282F442DD65314E074F57FE9",
+        "--output-root",
+        "/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007"
+      ],
+      "exit_code": 1,
+      "error": {
+        "type": "ValueError",
+        "message": "pure complete source/tree identity before any Git or file write"
+      },
+      "stdout": "",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "nonhex-tree",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "gggggggggggggggggggggggggggggggggggggggg",
+        "--output-root",
+        "/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007"
+      ],
+      "exit_code": 1,
+      "error": {
+        "type": "ValueError",
+        "message": "pure complete source/tree identity before any Git or file write"
+      },
+      "stdout": "",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "relative-output",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "relative-output"
+      ],
+      "exit_code": 1,
+      "error": {
+        "type": "ValueError",
+        "message": "exact absolute independent receipt output required"
+      },
+      "stdout": "",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "ROOT-output-refused",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "/workspace/e02-E-continuation-20261006/forbidden-plan-output"
+      ],
+      "exit_code": 1,
+      "error": {
+        "type": "ValueError",
+        "message": "exact absolute independent receipt output required"
+      },
+      "stdout": "",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "traversal-output",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "/tmp/../workspace/forbidden-plan-output"
+      ],
+      "exit_code": 1,
+      "error": {
+        "type": "ValueError",
+        "message": "exact absolute independent receipt output required"
+      },
+      "stdout": "",
+      "stderr": "",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "unknown-selector",
+      "argv": [
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "doctor",
+        "--candidate",
+        "f5c2845851aeb1591de9c73db6de392656656e96",
+        "--tree",
+        "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+        "--output-root",
+        "/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007"
+      ],
+      "exit_code": 2,
+      "error": null,
+      "stdout": "",
+      "stderr": "usage: run_final_parent_umbrella.py.txt [-h] --selector\n                                        {workspace-verify,ci-parity}\n                                        --candidate CANDIDATE --tree TREE\n                                        --output-root OUTPUT_ROOT [--execute]\nrun_final_parent_umbrella.py.txt: error: argument --selector: invalid choice: 'doctor' (choose from workspace-verify, ci-parity)\n",
+      "callbacks": {
+        "git": 0,
+        "mkdir": 0
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "healthy_plan_count": 2,
+  "refusal_count": 7,
+  "Git_callbacks": 0,
+  "output_mkdir_callbacks": 0,
+  "output_exists": false,
+  "gate_outcomes": "UNRUN",
+  "syntax_compile": "PASS"
+}

@@ -1,0 +1,252 @@
+"""Validate copied closed install/preflight evidence without executing the ROOT environment."""
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import tomllib
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
+
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+ROOT = '/workspace/e02-E-continuation-20261006'
+ENV = ROOT + '/policy-engine/.venv'
+EXPECTED = {'hatchling': '1.27.0', 'ortools': '9.15.6755', 'immutabledict': '4.2.2', 'trove-classifiers': '2026.9.21.13'}
+PROTECTED = {'numpy': '2.3.5', 'scipy': '1.16.3', 'jax': '0.8.2', 'jaxlib': '0.8.2', 'salib': '1.5.2'}
+
+
+def require(condition, reason):
+    if not condition:
+        raise ValueError(reason)
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def typed_equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(typed_equal(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(typed_equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def normalize(name):
+    return name.lower().replace('_', '-').replace('.', '-')
+
+
+def canonical_requirement_strings(values):
+    if values is None:return None
+    return [re.sub(r"\s+", "", x.replace("'", '\"')) for x in values]
+
+
+def canonical_python_spec(value):
+    if value is None:return None
+    return sorted(re.sub(r"\s+", "", token) for token in value.split(','))
+
+
+def admit_sha(value, size=40):
+    require(isinstance(value, str) and re.fullmatch('[0-9a-f]{' + str(size) + '}', value) is not None, 'full hex identity')
+
+
+def admit_relative(value):
+    require(isinstance(value, str) and bool(value), 'relative path type')
+    p = PurePosixPath(value)
+    require(not p.is_absolute() and bool(p.parts) and all(x not in ('.', '..') for x in p.parts) and '\\' not in value and '\x00' not in value and not value.startswith('-'), 'relative path admission')
+    require(str(p) == value, 'canonical relative path')
+
+
+def load_inputs(base):
+    index = json.loads((base / 'input-index.json').read_text())
+    admit_sha(index['source']); admit_sha(index['tree'])
+    require(index['source'] == SOURCE and index['tree'] == TREE, 'frozen identity')
+    rows = index['files']
+    require(type(rows) is list and bool(rows), 'full input rows')
+    names = set(); originals = set(); result = {}; raw = {}
+    for row in rows:
+        require(type(row) is dict and set(row) == {'key', 'path', 'bytes', 'sha256', 'stored_at'}, 'input shape')
+        require(type(row['key']) is str and row['key'] not in names, 'input key uniqueness')
+        require(type(row['path']) is str and row['path'].startswith('/') and row['path'] not in originals, 'original path uniqueness')
+        require(type(row['bytes']) is int and row['bytes'] >= 0, 'input byte integer')
+        admit_sha(row['sha256'], 64); admit_relative(row['stored_at'])
+        names.add(row['key']); originals.add(row['path'])
+    for row in rows:
+        data = (base / row['stored_at']).read_bytes()
+        require(len(data) == row['bytes'] and digest(data) == row['sha256'], 'input custody:' + row['key'])
+        raw[row['key']] = data
+        result[row['key']] = json.loads(data) if row['stored_at'].endswith('.json') else data.decode()
+    require(type(index['total_bytes']) is int and index['total_bytes'] == sum(x['bytes'] for x in rows), 'input denominator')
+    require(set(result) == {'historical-selection','recipe','artifacts','requirements','observer','historical-observation','historical-observer-stdout','historical-observer-stderr','a11y-old-admission','readiness','wheels-receipt','prefetch-source','admission-refusal','fresh-before','after','install','delta','install-stdout','install-stderr','preflight','preflight-source','preflight-stdout','preflight-stderr','pyvenv-config','original-workspace14','original-workspace14-stdout','publication','publication-before-correction','publication-stdout','physical-metadata','wheel-readback','source-readback'}, 'complete input class')
+    return index, result, raw
+
+
+def ref_for(index, key):
+    row = next(r for r in index['files'] if r['key'] == key)
+    return {k: row[k] for k in ('path', 'bytes', 'sha256')}
+
+
+def bind_ref(index, value, key):
+    require(typed_equal(value, ref_for(index, key)), 'bound reference:' + key)
+
+
+def metadata(observation):
+    value = observation['metadata']
+    rows = value['distributions']
+    require(type(rows) is list and bool(rows), 'metadata rows')
+    names = set(); paths = set()
+    for row in rows:
+        require(type(row) is dict and set(row) == {'name','version','path','bytes','sha256'}, 'metadata row shape')
+        require(type(row['name']) is str and bool(row['name']) and type(row['version']) is str and bool(row['version']), 'metadata names/versions')
+        name = normalize(row['name']); require(name not in names, 'metadata name uniqueness'); names.add(name)
+        require(type(row['path']) is str and row['path'].startswith(ENV + '/lib/python3.14/site-packages/') and row['path'].endswith('.dist-info/METADATA') and row['path'] not in paths, 'metadata path class'); paths.add(row['path'])
+        require(type(row['bytes']) is int and row['bytes'] > 0, 'metadata byte integer'); admit_sha(row['sha256'], 64)
+    framed = digest(json.dumps(rows, sort_keys=True, separators=(',', ':')).encode())
+    require(type(value['count']) is int and value['count'] == len(rows), 'metadata full count')
+    require([r['path'] for r in rows] == sorted(paths), 'metadata row order')
+    require(value['framed_sha256'] == framed and observation['metadata_after_framed_sha256'] == framed, 'metadata framed identity')
+    require(observation['metadata_stable_during_observation'] is True and observation['environment_mutated'] is False, 'read-only stable observation')
+    protected = [r for r in rows if normalize(r['name']) in PROTECTED]
+    require(typed_equal(value['protected_numerical_packages'], protected), 'protected complete axes')
+    require({normalize(r['name']): r['version'] for r in protected} == PROTECTED, 'protected versions')
+    return rows, framed, protected
+
+
+def source_inputs(index, inputs, repo):
+    record = inputs['source-readback']
+    admit_sha(record['source']); admit_sha(record['tree'])
+    require(record['source'] == SOURCE and record['tree'] == TREE and record['source_mutated'] is False and record['runtime_executed'] is False, 'source readback identity/scope')
+    paths = ['policy-engine/pyproject.toml','policy-engine/uv.lock','policy-engine/tests/repo_quality/tools/test_hatch_packaging.py','policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py','policy-engine/tools/quality/validation/universality_preflight.py','policy-engine/src/polisyos/__init__.py']
+    require([r['path'] for r in record['rows']] == paths, 'complete source footprint')
+    for row in record['rows']:
+        admit_sha(row['source_sha']); admit_sha(row['git_blob']); admit_sha(row['sha256'],64); admit_relative(row['path'])
+        require(row['source_sha'] == SOURCE and row['physical_matches'] is True and type(row['bytes']) is int and row['bytes'] > 0, 'source preflight')
+        require(row['command'] == ['git','show',SOURCE + ':' + row['path']], 'source read command')
+    # Whole source-object records are admitted before any child callback.
+    require(subprocess.check_output(['git','rev-parse',SOURCE + '^{tree}'], cwd=repo, text=True).strip() == TREE, 'immutable source tree')
+    data = {}
+    for row in record['rows']:
+        raw = subprocess.check_output(['git','show',SOURCE + ':' + row['path']], cwd=repo)
+        require(len(raw) == row['bytes'] and digest(raw) == row['sha256'], 'immutable Git source bytes')
+        require(subprocess.check_output(['git','hash-object','--stdin'], input=raw, cwd=repo).decode().strip() == row['git_blob'], 'Git blob identity')
+        data[row['path']] = raw
+    return data
+
+
+def derive_claims(base, repo):
+    index, i, raw = load_inputs(base)
+    sources = source_inputs(index, i, repo)
+    b, bf, bp = metadata(i['fresh-before']); a, af, ap = metadata(i['after']); historical, hf, hp = metadata(i['historical-observation'])
+    require(typed_equal(historical, b), 'complete historical203 equality')
+    by_name = {normalize(r['name']): r for r in b}; after = {normalize(r['name']): r for r in a}
+    changed = [k for k, v in by_name.items() if k not in after or not typed_equal(v, after[k])]
+    added = [r for r in a if normalize(r['name']) not in by_name]
+    require(len(b) == 203 and len(a) == 207 and changed == [] and {normalize(r['name']): r['version'] for r in added} == EXPECTED, 'exact four additions')
+    require(typed_equal(bp, ap) and typed_equal(hp, bp), 'protected hashes unchanged')
+    d=i['delta']; require(typed_equal(d['old_distributions'],len(b)) and typed_equal(d['current_distributions'],len(a)) and typed_equal(d['existing_metadata_changed'],changed) and typed_equal(d['added'],added) and d['protected_numerical_packages_unchanged'] is True,'closed delta reconciliation')
+    require(d['before_path']==ref_for(index,'fresh-before')['path'] and d['after_path']==ref_for(index,'after')['path'] and d['runtime_check_outcome']=='pending','historical delta boundary')
+    for key in ['fresh-before','after']:
+        o=i[key];require(o['root_environment']==ENV and o['observer_sha256']==digest(raw['observer']),'observer source/environment')
+        require(o['users']['observed_users']==[] and o['users']['quiescent'] is False,'observed owner-only absence')
+        require(typed_equal(o['users']['unreadable_live_processes'],[{'pid':199,'error':'PermissionError'},{'pid':250,'error':'PermissionError'}]),'unreadable infrastructure scope')
+    physical=i['physical-metadata']; require(typed_equal(physical['metadata'],a) and typed_equal(physical['count'],len(a)) and physical['framed_sha256']==af,'complete physical metadata readback')
+    for key in ['native_interpreter_executed','packages_imported','environment_mutated','process_quiescence_observed']:
+        require(physical[key] is False,'pure readback scope')
+    requirements={}
+    for line in i['requirements'].splitlines():
+        m=re.fullmatch(r'([a-z-]+)==([^ ]+) --hash=sha256:([0-9a-f]{64})',line);require(m is not None,'requirements admission');require(m[1] not in requirements,'requirements unique');requirements[m[1]]={'version':m[2],'sha256':m[3]}
+    require({k:v['version'] for k,v in requirements.items()}==EXPECTED,'exact requirements')
+    wheel=i['wheels-receipt'];bind_ref(index,wheel['admission'],'artifacts');bind_ref(index,wheel['source'],'prefetch-source')
+    artifacts={x['name']:x for x in i['artifacts']['rows']}; require(set(artifacts)==set(EXPECTED),'artifact four names')
+    wb=i['wheel-readback'];require(type(wb['count']) is int and wb['count']==4 and wb['packages_imported'] is False and wb['payloads_copied'] is False and wb['environment_mutated'] is False,'ignored wheels scope')
+    require(len(wheel['outputs'])==len(wb['rows'])==4 and len({r['name'] for r in wb['rows']})==4,'wheel complete denominator')
+    for row in wb['rows']:
+        name=normalize(row['name']);require(name in EXPECTED and row['version']==EXPECTED[name],'wheel package/version')
+        w=next(r for r in wheel['outputs'] if r['name']==name); art=artifacts[name]
+        require(typed_equal(row['wheel'],w['wheel']) and row['metadata_sha256']==after[name]['sha256'] and type(row['metadata_bytes']) is int and row['metadata_bytes']==after[name]['bytes'],'wheel installed metadata identity')
+        require(canonical_requirement_strings(row['requires_dist'])==canonical_requirement_strings(art['requires_dist']) and canonical_python_spec(row['requires_python'])==canonical_python_spec(art['requires_python']),'wheel declaration metadata')
+        require(row['wheel']['sha256']==requirements[name]['sha256']==art['artifact']['sha256'] and row['wheel']['bytes']==art['artifact']['bytes'] and Path(row['wheel']['path']).name==art['artifact']['filename'],'admitted wheel hash/size')
+        if name=='ortools':require('Tag: cp314-cp314-manylinux_2_27_x86_64' in row['wheel_abi'],'real Python3.14 wheel ABI')
+    total=sum(x['wheel']['bytes'] for x in wb['rows']);require(typed_equal(index['external_payloads'],{'copied':False,'wheel_count':4,'wheel_bytes':total}), 'whole external payload class');require(type(wb['total_bytes']) is int and wb['total_bytes']==total and wheel['total_bytes']==total and total==29938701,'ignored wheel full bytes')
+    project=tomllib.loads(sources['policy-engine/pyproject.toml'].decode()); lock=tomllib.loads(sources['policy-engine/uv.lock'].decode())
+    require('hatchling>=1.27.0' in project['build-system']['requires'] and 'ortools>=9.8' in project['project']['optional-dependencies']['solvers'],'declared project inputs')
+    for name in ['ortools','immutabledict']:
+        rows=[r for r in lock['package'] if r['name']==name and r['version']==EXPECTED[name]];require(len(rows)==1 and 'sha256:'+requirements[name]['sha256'] in [w['hash'] for w in rows[0]['wheels']],'exact lock wheel hash')
+    require(not any(r['name'] in ['hatchling','trove-classifiers'] for r in lock['package']),'unlocked declared artifacts honest')
+    install=i['install']; readiness=i['readiness']; pre=i['preflight'];pub=i['publication']; oldpub=json.loads(i['publication-before-correction'])
+    for value in [i['recipe'],readiness,install,pre,pub,oldpub]:
+        require(value['source']==SOURCE and value['tree']==TREE,'all source/tree identities')
+    require(i['recipe']['status']=='UNRUN' and i['recipe']['install_executed'] is False and readiness['check_outcome']=='UNRUN' and readiness['install_executed'] is False and install['post_install_verification']=='pending, not an accepted backend result','historical UNRUN/pending untouched')
+    for row in i['historical-selection']['files']:
+        require(any(typed_equal(row,ref_for(index,r['key'])) for r in index['files']),'historical eight-row exact bytes')
+    require(len(i['historical-selection']['files'])==8 and i['historical-selection']['total_bytes']==sum(x['bytes'] for x in i['historical-selection']['files']),'historical denominator')
+    for k,ref in readiness['refs'].items():
+        require(any(typed_equal(ref,ref_for(index,r['key'])) for r in index['files']),'readiness ref closure')
+    bind_ref(index,install['readiness'],'readiness');bind_ref(index,install['stdout'],'install-stdout');bind_ref(index,install['stderr'],'install-stderr');bind_ref(index,install['exclusive_environment_lease']['before'],'fresh-before')
+    require(install['argv']==readiness['effective_install_argv'] and install['cwd']==ROOT+'/policy-engine' and type(install['exit_code']) is int and install['exit_code']==0,'actual closed install')
+    require('--no-index' in install['argv'] and '--no-deps' in install['argv'] and '--require-hashes' in install['argv'],'locked offline no-upgrade install')
+    require(install['exclusive_environment_lease']['observed_owner_users']==[] and [x['pid'] for x in install['exclusive_environment_lease']['unreadable_infrastructure']]==[199,250],'lease unreadable boundary')
+    start=datetime.fromisoformat(install['started_at_utc']).timestamp(); end=datetime.fromisoformat(install['finished_at_utc']).timestamp(); require(i['fresh-before']['time_unix']<start<=end<i['after']['time_unix'],'actual observation sequence')
+    stderr_installed=dict(re.findall(r'^ \+ ([a-z-]+)==([^\n]+)$',i['install-stderr'],re.MULTILINE));require(stderr_installed==EXPECTED and i['install-stdout']=='','actual installer stdout/stderr four additions')
+    bind_ref(index,pre['script'],'preflight-source');bind_ref(index,pre['stdout'],'preflight-stdout');bind_ref(index,pre['stderr'],'preflight-stderr')
+    require(type(pre['exit_code']) is int and pre['exit_code']==0 and pre['argv']==[ENV+'/bin/python','-B',ref_for(index,'preflight-source')['path']] and i['preflight-stderr']=='','native preflight command closed')
+    native=json.loads(i['preflight-stdout']);expected_native={'sys_prefix':ENV,'resolved_package':ROOT+'/policy-engine/src/polisyos/__init__.py','required_backend_status':'available','hatchling':['hatchling.builders.sdist','hatchling.builders.wheel'],'ortools_native_optimal_value':1};require(typed_equal(native,expected_native),'native outcome exact typed stdout')
+    require(end<datetime.fromisoformat(pre['started_at_utc']).timestamp()<=datetime.fromisoformat(pre['finished_at_utc']).timestamp(),'preflight after actual install')
+    original=i['original-workspace14'];require(original['candidate_sha']==SOURCE and original['candidate_tree_sha']==TREE and original['source_immutable'] is True,'original source/check bound')
+    require(type(original['exit_code']) is int and original['exit_code']==2 and original['outcome']=='FAIL' and typed_equal(original['counts'],{'cases':6,'passed':0,'failed':0,'errors':2,'skipped':4}),'original FAIL distinct')
+    require(original['stdout_path']==ref_for(index,'original-workspace14-stdout')['path'] and original['stdout_bytes']==len(raw['original-workspace14-stdout']) and original['stdout_sha256']==digest(raw['original-workspace14-stdout']),'original complete stdout')
+    require(original['environment']['python'].startswith('3.14.7 ') and original['environment']['executable']==ENV+'/bin/python' and 'version_info = 3.14\n' in i['pyvenv-config'],'Python3.14 source of version assertion')
+    for k in PROTECTED:
+        if k!='jaxlib':require(original['environment']['packages'][k if k!='salib' else 'SALib']==PROTECTED[k],'frozen numeric backend versions')
+    bind_ref(index,pub['output'],'publication-stdout');bind_ref(index,pub['timestamp_correction']['preserved_original'],'publication-before-correction')
+    require(pub['exit_code']==0 and pub['global_ci_pass'] is False and pub['finding_closure'] is False and pub['runtime_source_changed_by_publication'] is False,'publication has no authority upgrade')
+    correction=pub['timestamp_correction'];require(correction['exit_code']==0 and correction['stdout']==SOURCE+'\trefs/heads/codex/e02-E-continuation-20261006\n' and correction['stderr']=='' and correction['fresh_remote_source_matches'] is True,'fresh actual corrective remote readback')
+    require(pub['remote_readback']['fetched_tracking_sha']==SOURCE and pub['remote_readback']['fetched_tree_sha']==TREE and pub['remote_readback']['required_source_exact'] is True and pub['remote_readback']['original_observation_time'].startswith('not_established'),'historical timestamp limitation')
+    require(correction['fresh_command']==['git','ls-remote','origin','refs/heads/codex/e02-E-continuation-20261006'] and datetime.fromisoformat(correction['started_at_utc'])<=datetime.fromisoformat(correction['finished_at_utc']),'remote command timestamp corrected')
+    return {
+        'source':SOURCE,'tree':TREE,
+        'install':{'check_outcome':'PASS','exit_code':install['exit_code'],'argv':install['argv'],'cwd':install['cwd'],'started_at_utc':install['started_at_utc'],'finished_at_utc':install['finished_at_utc'],'stdout':install['stdout'],'stderr':install['stderr']},
+        'metadata':{'old_distributions':len(b),'current_distributions':len(a),'existing_metadata_changed':changed,'added':added,'before_framed_sha256':bf,'after_framed_sha256':af,'protected_numerical_packages':ap,'protected_numerical_packages_unchanged':typed_equal(bp,ap),'physical_readback_count':physical['count'],'physical_readback_framed_sha256':physical['framed_sha256']},
+        'environment':{'root_environment':ENV,'root_python_historical':original['environment']['python'],'observer_python':i['fresh-before']['inspector_python'],'version_basis':'Frozen workspace14 receipt and read-only pyvenv.cfg; installed cp314 wheel ABI checked. Native preflight did not print sys.version.','fresh_observed_owner_users':i['fresh-before']['users']['observed_users'],'fresh_unreadable_live_processes':i['fresh-before']['users']['unreadable_live_processes'],'fresh_quiescent':i['fresh-before']['users']['quiescent'],'after_quiescent':i['after']['users']['quiescent'],'scheduler':'E root','lease_basis':'Recorded root scheduler exclusive lease and no observed owner users. Infrastructure199/250 remains unreadable; unconditional all-process quiescence is not established.'},
+        'artifacts':{'count':wb['count'],'total_bytes':total,'wheel_rows':wheel['outputs'],'payloads_copied':False,'lock_exact':['ortools','immutabledict'],'declared_unlocked':['hatchling','trove-classifiers']},
+        'preflight':{'check_outcome':'PASS','exit_code':pre['exit_code'],'started_at_utc':pre['started_at_utc'],'finished_at_utc':pre['finished_at_utc'],'argv':pre['argv'],'native_stdout':native,'script':pre['script'],'stdout':pre['stdout'],'stderr':pre['stderr'],'native_executed_by_this_packet':False},
+        'historical':{'recipe_outcome':i['recipe']['status'],'readiness_outcome':readiness['check_outcome'],'install_post_runtime':install['post_install_verification'],'delta_runtime_check_outcome':d['runtime_check_outcome'],'original_workspace14_outcome':original['outcome'],'original_workspace14_exit_code':original['exit_code'],'original_workspace14_counts':original['counts'],'old_selection_count':len(i['historical-selection']['files']),'old_selection_bytes':i['historical-selection']['total_bytes']},
+        'source_publication':{'check_outcome':'PASS','source':pub['source'],'tree':pub['tree'],'exit_code':pub['exit_code'],'preserved_original':correction['preserved_original'],'output':pub['output'],'timestamp_correction':correction,'original_observation_time':pub['remote_readback']['original_observation_time'],'global_ci_pass':pub['global_ci_pass'],'finding_closure':pub['finding_closure']},
+        'scope':{'source_mutated':False,'environment_mutated_by_this_packet':False,'native_executed_by_this_packet':False,'new_environment_created':False,'global_backend_result_established':False,'global_ci_pass':False,'finding_closure':False,'backend_state_at_assignment':'RUNNING workspace14; no result inferred or backend selectors repeated','classification':'Dependency capability/custody receipt; no E original finding closure.','next_owner':'E root owns the active exact workspace14 native retry; G accepts available gate receipts separately.'},
+        'input_denominator':{'files':len(index['files']),'bytes':index['total_bytes'],'source_paths':len(i['source-readback']['rows'])}
+    }
+
+
+def admit_summary_claims(packet, expected):
+    require(type(packet) is dict and packet.get('schema')=='policyos.e02.closed_declared_prerequisite_custody.v1','packet schema')
+    require(typed_equal(packet.get('claims'),expected),'summary_mismatch')
+    return {'structured_claims':sum(leaf_count(v) for v in expected.values()),'claim_sha256':digest(json.dumps(expected,sort_keys=True,separators=(',',':')).encode())}
+
+
+def leaf_count(v):
+    if isinstance(v,dict):return sum(leaf_count(x) for x in v.values())
+    if isinstance(v,list):return sum(leaf_count(x) for x in v)
+    return 1
+
+
+def validate(base, repo, packet=None):
+    expected=derive_claims(base,repo)
+    if packet is None:packet=json.loads((base/'closed-install-custody.json').read_text())
+    summary_receipt=admit_summary_claims(packet,expected)
+    return {'check_outcome':'PASS','source':SOURCE,'tree':TREE,'summary_receipt':summary_receipt,'input_denominator':expected['input_denominator'],'native_executed':False,'environment_mutated':False,'global_backend_result_established':False,'finding_closure':False}
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--base',type=Path,required=True);parser.add_argument('--repo',type=Path,required=True);parser.add_argument('--build',action='store_true');args=parser.parse_args()
+    if args.build:
+        output=args.base/'closed-install-custody.json';require(not output.exists(),'append-only packet');output.write_text(json.dumps({'schema':'policyos.e02.closed_declared_prerequisite_custody.v1','claims':derive_claims(args.base,args.repo)},indent=2)+'\n')
+    sys.stdout.write(json.dumps(validate(args.base,args.repo),indent=2)+'\n')
+
+if __name__=='__main__':main()

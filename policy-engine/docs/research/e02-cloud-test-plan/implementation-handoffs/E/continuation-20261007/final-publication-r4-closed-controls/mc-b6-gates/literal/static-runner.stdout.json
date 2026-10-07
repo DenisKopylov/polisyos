@@ -1,0 +1,9 @@
+{
+  "stage": "static-invocation",
+  "outcome": "ERROR",
+  "canonical": "ERROR",
+  "exit_code": -9,
+  "source_immutable": true,
+  "root_env_metadata_unchanged": true,
+  "wall_seconds": 371.57015585899353
+}

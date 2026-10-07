@@ -1,0 +1,18 @@
+"""Run native tests with only an explicit source-module overlay, never Root writes."""
+from __future__ import annotations
+import importlib.abc,importlib.util,json,sys,time,hashlib,platform
+from pathlib import Path
+base=Path('/tmp/e02-E-ingress-author-thirteenth-20261007')
+root=Path('/workspace/e02-E-continuation-20261006')
+source=Path(sys.argv[1])
+class Overlay(importlib.abc.MetaPathFinder):
+ def find_spec(self,fullname,path=None,target=None):
+  if fullname=='polisyos.ir.analytics.uncertainty':
+   return importlib.util.spec_from_file_location(fullname,source)
+  if fullname=='polisyos.foundry.calibration.uncertainty_adapter':
+   return importlib.util.spec_from_file_location(fullname,base/'patch-files/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py')
+sys.meta_path.insert(0,Overlay());sys.path.insert(0,str(root/'policy-engine/src'))
+import pytest
+started=time.time();code=pytest.main(sys.argv[2:]);ended=time.time()
+print(json.dumps({'overlay_source':str(source),'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'bytes':source.stat().st_size,'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'wall_seconds':ended-started,'exit_code':code},indent=2))
+sys.exit(code)

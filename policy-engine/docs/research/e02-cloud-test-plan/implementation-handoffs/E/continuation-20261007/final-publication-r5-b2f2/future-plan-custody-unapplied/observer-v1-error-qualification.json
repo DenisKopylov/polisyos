@@ -1,0 +1,12 @@
+{
+  "source": {
+    "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/probe_future_custody.v1.py.txt",
+    "bytes": 13099,
+    "sha256": "6c95c21f279d03b9423262e00a14345f805b513e35b28f8ce7fe2e8946f393e4"
+  },
+  "observation": "First observer assumed healthy CONTROL_COMPLETE_BOUND collector CLI exits0. Actual canonical CLI deliberately exits1 for CONTROL fixtures; structured healthy state/issues were correct. Observer assertion ERROR after two actual stdlib commands; original normal-controls preserved. Production collector COMPLETE_BOUND CLI0 unaffected.",
+  "correction": "Expect actual CLI1 for explicitly synthetic CONTROL fixture; preserve known old missing-plan defining property FAIL separately from expected reproduction control outcomePASS.",
+  "product_recipe_or_collector_changed": false,
+  "future_patch_changed": false,
+  "original_stdout_scope": "Initial outer observer stdout/stderr returned via exec session43708; actual child/collector logs and all input source bytes retained in normal-controls."
+}

@@ -1,0 +1,157 @@
+from __future__ import annotations
+from collections import Counter
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path(__file__).parent
+DOC='62f4ec1ccef014d642d38027c699afc544403d0f'
+DOC_TREE='04f311c1d823e07c69b0ce332bb4f84b228c6bb8'
+SOURCE='d0038a6e52867e820fd96f4706746ec501a80273'
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/'
+HAND=PREFIX+'implementation-handoff.json'
+BASE='31782b55f8f35556cfc581449b040c393f00c78f'
+
+def git(*args):
+ return subprocess.check_output(['git',*args],cwd=ROOT)
+def ref(path,body):
+ return {'path':str(path),'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()}
+def typed_equal(a,b):
+ if type(a) is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys() and all(typed_equal(a[k],b[k]) for k in a)
+ if isinstance(a,list):return len(a)==len(b) and all(typed_equal(x,y) for x,y in zip(a,b,strict=True))
+ return a==b
+
+assert git('rev-parse',DOC+'^{tree}').decode().strip()==DOC_TREE
+assert git('show','-s','--format=%P',DOC).decode().strip()==SOURCE
+before={'HEAD':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain=v1','-uall').decode()}
+assert before['HEAD']==DOC and before['tree']==DOC_TREE
+body=git('show',f'{DOC}:{HAND}');assert body==(ROOT/HAND).read_bytes()
+assert len(body)==42710 and hashlib.sha256(body).hexdigest()=='09e64634fb3bb376396668bfa59324f6db61654a0db7c17aec915333d1073783'
+d=json.loads(body)
+assert d['base']==BASE and d['candidate']==SOURCE
+assert d['base_tree']==git('rev-parse',BASE+'^{tree}').decode().strip()
+assert d['candidate_tree']==git('rev-parse',SOURCE+'^{tree}').decode().strip()
+assert git('diff','--name-only',BASE,SOURCE).decode().splitlines()==[d['complete_changed_footprint'][0]['path']]
+for row in d['complete_changed_footprint']:
+ b=git('show',f'{SOURCE}:{row["path"]}');assert type(row['bytes']) is int
+ assert ref(row['path'],b)=={k:row[k] for k in ('path','bytes','sha256')}
+
+required_sources=[]
+for source_dir in ('/tmp/e02-E-facade-test-d003-independent-20261007','/tmp/e02-E-facade-finite-bucket-independent-31782-20261007'):
+ selection=Path(source_dir)/'publication-selection.json';sel=json.loads(selection.read_bytes())
+ assert type(sel['asset_count']) is int and sel['asset_count']==len(sel['assets'])
+ assert type(sel['asset_bytes']) is int and sel['asset_bytes']==sum(row['bytes'] for row in sel['assets'])
+ required_sources.append(str(selection));required_sources.extend(row['source_path'] for row in sel['assets'])
+author=Path('/tmp/e02-E-facade-test-companion-author-20261007')
+ar=json.loads((author/'receipt.json').read_bytes())
+required_sources.extend([str(author/name) for name in ('receipt.json','implementation-source.json','commit.stdout.txt','commit.stderr.txt')])
+required_sources.extend(row['path'] for row in ar['files'])
+assert len(required_sources)==30 and len(set(required_sources))==30
+required_counter=Counter(required_sources)
+changed=git('diff','--name-only',SOURCE,DOC).decode().splitlines()
+expected_paths={HAND}|{row['publication_path'] for row in d['deciding_files']}
+assert set(changed)==expected_paths and len(changed)==31
+assert all(p.startswith(PREFIX) and not p.endswith('.py') for p in changed)
+rows=[]
+for row in d['deciding_files']:
+ source=Path(row['source']['path']);original=source.read_bytes()
+ target=git('show',f'{DOC}:{row["publication_path"]}')
+ assert target==original==(ROOT/row['publication_path']).read_bytes()
+ assert type(row['bytes']) is int and len(target)==row['bytes']
+ assert row['sha256']==hashlib.sha256(target).hexdigest()
+ assert typed_equal(row['source'],ref(source,original))
+ rows.append({'publication_path':row['publication_path'],'source':ref(source,original)})
+assert Counter(x['source']['path'] for x in rows)==required_counter
+assert sum(x['source']['bytes'] for x in rows)==70252
+peer=json.loads((Path('/tmp/e02-E-facade-test-d003-independent-20261007')/'review.json').read_bytes())
+old=json.loads((Path('/tmp/e02-E-facade-finite-bucket-independent-31782-20261007')/'review.json').read_bytes())
+assert typed_equal(d['independent_source_review'],peer)
+assert typed_equal(d['actual_old_source_controls'],old['checks'])
+assert typed_equal(d['independent_oracle'],old['checks'][0])
+assert typed_equal(d['author_checks'],ar)
+assert d['implementation_commits']==[SOURCE] and d['canonical_writer']=='E'
+canonical={'recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established'}
+assert len(d['predicate_basis'])==4
+for value in d['predicate_basis'].values():
+ assert set(value)=={'basis','explanation'} and value['basis'] in canonical and isinstance(value['explanation'],str)
+assert d['predicate_basis']['finding_closure']['basis']=='not_established'
+assert d['predicate_basis']['declared_mesh_convention']['basis']=='consumer_asserted'
+assert d['capability_state']=='verification_missing'
+assert d['check_outcomes']=={'author_property':'PASS','independent_property':'PASS','affected_Ruff':'PASS','affected_format':'PASS','next_final_wave':'UNRUN'}
+assert d['historical_observation_preserved']=={'source':BASE,'complete_wave_cases':1317,'PASS':1308,'FAIL':9,'original_facade_expectation':'FAIL'}
+assert 'IR-composition' in ' '.join(d['limitations']) and 'optional-member' in ' '.join(d['limitations'])
+
+# Reconcile the old complete denominator from its seven closed XMLs and flat index;
+# no test is run and this old observation is never promoted to SOURCE/DOC.
+publication=Path('/tmp/e02-E-final-wave-collection-31782b55-20261007/publication-receipt.json')
+aggregate=json.loads(publication.read_bytes())
+assert aggregate['candidate_sha']==BASE
+indexpath=Path('/tmp/e02-E-final-wave-preparation-31782b55-20261007/current-case-index.json')
+index=json.loads(indexpath.read_bytes());assert index['source_sha']==BASE
+case_rows=[];xml_refs=[]
+for job in aggregate['jobs']:
+ if job['kind']!='numerical':continue
+ argv=job['command'];xmlpath=Path(argv[argv.index('--junitxml')+1]);xmlbody=xmlpath.read_bytes()
+ xml_refs.append(ref(xmlpath,xmlbody))
+ for case in ET.fromstring(xmlbody).findall('.//testcase'):
+  status='failed' if case.find('failure') is not None else 'errors' if case.find('error') is not None else 'skipped' if case.find('skipped') is not None else 'passed'
+  case_rows.append({'job_name':job['name'],'classname':case.get('classname'),'name':case.get('name'),'outcome':status})
+assert len(xml_refs)==7 and len(case_rows)==1317
+case_counter=Counter((x['job_name'],x['classname'],x['name'],x['outcome']) for x in case_rows)
+assert case_counter==Counter((x['job_name'],x['classname'],x['name'],x['outcome']) for x in index['cases'])
+counts=Counter(x['outcome'] for x in case_rows);assert counts=={'passed':1308,'failed':9}
+failed=[x for x in case_rows if x['outcome']=='failed']
+
+# Thin typed metadata admission against the already recomputed immutable facts.
+# These checks cover source/ref promotion and omission, without replaying a copier.
+expected_header={k:v for k,v in d.items() if k!='deciding_files'}
+expected_rows={row['source']['path']:row for row in d['deciding_files']}
+def admit(claim, *, omit_complete_set_guard=False):
+ header={k:v for k,v in claim.items() if k!='deciding_files'}
+ if not typed_equal(header,expected_header):raise ValueError('typed scoped metadata/source/outcome differs')
+ declared=claim.get('deciding_files')
+ if not isinstance(declared,list):raise ValueError('deciding member list missing')
+ if not omit_complete_set_guard and Counter(x['source']['path'] for x in declared)!=required_counter:
+  raise ValueError('complete required member Counter differs')
+ for row in declared:
+  if not typed_equal(row,expected_rows.get(row['source']['path'])):raise ValueError('typed literal source/ref member differs')
+ return len(declared)
+assert admit(d)==30
+negative=[]
+def refuse(name,alter):
+ mutant=copy.deepcopy(d);alter(mutant)
+ try:admit(mutant)
+ except ValueError as e:negative.append({'name':name,'status':'REFUSED','error':str(e)})
+ else:raise AssertionError(name+' was admitted')
+refuse('source_retagged_docSHA',lambda x:x.update(candidate=DOC))
+refuse('historical9FAIL_erased',lambda x:x['historical_observation_preserved'].update(FAIL=0,PASS=1317))
+refuse('next_wave_promoted_PASS',lambda x:x['check_outcomes'].update(next_final_wave='PASS'))
+refuse('literal_source_digest_forged',lambda x:x['deciding_files'][0]['source'].update(sha256='0'*64))
+refuse('byte_count_bool',lambda x:x['deciding_files'][0].update(bytes=True))
+refuse('complete_peer_asset_omitted',lambda x:x['deciding_files'].pop())
+refuse('finding_authority_promoted',lambda x:x['predicate_basis']['finding_closure'].update(basis='recomputed'))
+removed=copy.deepcopy(d);removed['deciding_files'].pop()
+assert admit(removed,omit_complete_set_guard=True)==29
+removal={'control_status':'PASS','complete_member_property':'FAIL','accepted_members':29,'required_members':30,
+         'change':'sole complete member Counter predicate skipped; all source/claims/known remaining bytes retained'}
+after={'HEAD':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain=v1','-uall').decode()}
+assert before==after
+result={'schema':'e02-independent-thin-DOC-custody-review:1','disposition':'GO','DOC_candidate':DOC,'DOC_tree':DOC_TREE,
+ 'source_candidate':SOURCE,'source_parent':BASE,'handoff':ref(HAND,body),
+ 'complete_footprint':{'DOC_paths':31,'active_python_paths':0,'literal_deciding_copies':30,'literal_deciding_bytes':70252},
+ 'literal_copies':rows,'predicate_basis':d['predicate_basis'],'historical_observation_recomputed':{
+  'source':BASE,'case_counts':{'cases':1317,'PASS':1308,'FAIL':9,'ERROR':0,'SKIP':0},
+  'aggregate_receipt_ref':ref(publication,publication.read_bytes()),'flat_case_index_ref':ref(indexpath,indexpath.read_bytes()),
+  'actual_XML_refs':xml_refs,'failed_cases':failed,'new_candidate_or_wave_retagging':False},
+ 'scope_limits':{'next_final_wave':'UNRUN','G_c75_composition_type_source_fix':'pending','finding_closure':'not_established',
+  'new_source_or_numeric_execution':False,'old_runtime_removal_and_fraction_proofs':'reused exact original bytes'},
+ 'typed_negative_controls':negative,'sole_Counter_predicate_removal':removal,
+ 'before':before,'after':after,'environment':{'python':sys.version,'executable':sys.executable,'stdlib_only':True}}
+(OUT/'review.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+print(json.dumps(result,indent=2,sort_keys=True))

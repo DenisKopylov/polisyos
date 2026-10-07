@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.E.final54-whole-preparation-claim-controls.v1",
+  "optimized": false,
+  "module": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py",
+    "bytes": 30841,
+    "sha256": "bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepared-v4r2-normal.json",
+    "bytes": 489441,
+    "sha256": "929c6f325797b41947f096a022bfdab58975fbbe6a87b4903b1b86456cfbfa4a"
+  },
+  "inputs": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/inputs.json",
+    "bytes": 4149,
+    "sha256": "416e0106b4ee30f4ba9efc74a7fee4686cd3e5fee07706661bdac468a6110372"
+  },
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "controls": [
+    {
+      "case": "whole_immutable_inputs_plan_env_source_owner_recomputed",
+      "outcome": "PASS"
+    },
+    {
+      "case": "original_native104_as1",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "original_env207_as1",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "original_pending_export1_asTrue",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "original_fit77_as3932",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_native104_as_float",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_env207_as_float",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_native_plan_digest",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_env_digest",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_fit_review_digest",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_original_repaired11_as_float",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sibling_new_static23_as1",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "sole_whole_claim_removal_original_native104_as1",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_property_outcome": "FAIL",
+      "actual_source_owner_null_outcome_guards_retained": true
+    },
+    {
+      "case": "sole_whole_claim_removal_original_env207_as1",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_property_outcome": "FAIL",
+      "actual_source_owner_null_outcome_guards_retained": true
+    },
+    {
+      "case": "sole_whole_claim_removal_original_pending_export1_asTrue",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_property_outcome": "FAIL",
+      "actual_source_owner_null_outcome_guards_retained": true
+    },
+    {
+      "case": "sole_whole_claim_removal_original_fit77_as3932",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_property_outcome": "FAIL",
+      "actual_source_owner_null_outcome_guards_retained": true
+    }
+  ],
+  "control_count": 16,
+  "source_product_or_native_changes": false
+}

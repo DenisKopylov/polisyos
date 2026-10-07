@@ -1,0 +1,655 @@
+{
+  "source_sha": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "tree": "6c83b145f4582625eee7b5df66719e48f80ef1ca",
+  "observer": {
+    "path": "/tmp/e02-E-ir-composition-r4-20261007/reproduce_old_composition.py",
+    "sha256": "c100014beffa347c2f295389d83272cf9cc22c7dd0b40432ba1c6febfacca7b5"
+  },
+  "rows": [
+    {
+      "name": "finite_exact_mean_identity_push",
+      "expected": {
+        "exact_mean": 1.6e+308,
+        "median": 1.6e+308,
+        "bounds": [
+          1.6e+308,
+          1.6e+308
+        ]
+      },
+      "actual": {
+        "schema_version": "1.1",
+        "numeric_policy": {
+          "policy_id": "bounded_float_v1",
+          "mode": "decimal_exact",
+          "decimal_places": 12,
+          "absolute_tolerance": 1e-12
+        },
+        "point_estimate": 1.6e+308,
+        "confidence_interval": [
+          1.6e+308,
+          1.6e+308
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "bayesian",
+        "source": "calibration",
+        "propagation_method": "monte_carlo",
+        "interval_semantics": "credible_interval",
+        "distribution_payload": {
+          "carrier_type": "posterior_samples",
+          "samples": [
+            1.6e+308,
+            1.6e+308,
+            1.6e+308,
+            1.6e+308
+          ],
+          "sample_axis": "draw",
+          "weights": [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "composition_provenance": {
+          "native_flavour": "monte_carlo",
+          "composed_flavour": "monte_carlo",
+          "exactness": "approximation",
+          "certificate_kind": "kolmogorov",
+          "certificate_radius": 0.6119367076702041,
+          "confidence_level": 0.9,
+          "scope": [
+            "expectation",
+            "interval",
+            "quantile",
+            "cdf"
+          ],
+          "origin_envelope_ids": [
+            "inline:0:calibration:1.6e+308:1.6e+308:1.6e+308"
+          ],
+          "operator_history": [
+            {
+              "op": "push_forward",
+              "stage_name": "push_forward_envelope",
+              "input_flavours": [
+                "monte_carlo"
+              ],
+              "output_flavour": "monte_carlo",
+              "map_name": "<lambda>",
+              "lipschitz_bound": null,
+              "bias_bound": null,
+              "variance_bound": null,
+              "sample_size": 4,
+              "replicate_count": null,
+              "qmc_method": null,
+              "scrambled": null,
+              "assumptions": [
+                "law_preserving_particles"
+              ],
+              "notes": {
+                "cert_policy": "auto"
+              }
+            }
+          ]
+        },
+        "sample_size": 4,
+        "is_heuristic_ci": false,
+        "gate_eligible": false,
+        "metadata": {
+          "posterior_composition": "push_forward",
+          "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+          "parent_posterior_profile_hash": "sha256:54071c22337033c0ae0037f100ac14a31a28b29ad49add57987511c17f3023e9",
+          "inherited_parent_lineage": {
+            "lineage_refs": {},
+            "time_roles": {},
+            "purpose": null
+          },
+          "inherited_parent_lineage_authoritative": false,
+          "derived_parameter_binding": "not_established",
+          "push_forward_map": "<lambda>",
+          "push_forward_cert_policy": "auto",
+          "param_name": "x",
+          "posterior_summary_profile_required": true,
+          "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "posterior_summary_profile_version": "2.0",
+          "point_functional": "median",
+          "interval_functional": "equal_tail_inverse_cdf",
+          "joint_parameter_order": [
+            "x"
+          ],
+          "joint_draw_ids": [
+            "draw:0",
+            "draw:1",
+            "draw:2",
+            "draw:3"
+          ],
+          "joint_law_sha256": "aa0c2a8535a4ecdee21b381538bd5dde9d1ddb9313ca4192cf60090fb980398e",
+          "joint_sample_id": "aa0c2a8535a4ecdee21b381538bd5dde9d1ddb9313ca4192cf60090fb980398e",
+          "posterior_summary_profile": {
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "point_functional": "median",
+            "mean_functional": "weighted_arithmetic_mean",
+            "interval_functional": "equal_tail_inverse_cdf",
+            "numeric_representation": "finite_float64",
+            "compression": "none",
+            "thinning": "none",
+            "gate_eligible": false,
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "draw_ids": [
+              "draw:0",
+              "draw:1",
+              "draw:2",
+              "draw:3"
+            ],
+            "row_identity_basis": "producer_input_order",
+            "sample_axis": "draw",
+            "probabilities": [
+              0.5,
+              0.5,
+              0.5,
+              0.5
+            ],
+            "posterior_mean": 1.6e+308,
+            "credible_mass": 0.9,
+            "carrier_content_hash": "sha256:4ad02871833737e52fbfa270443a617987b65abfb6b4b7a25d85758d0fb8367a",
+            "joint_law_sha256": "aa0c2a8535a4ecdee21b381538bd5dde9d1ddb9313ca4192cf60090fb980398e",
+            "binding": null,
+            "context": {
+              "parameters": {},
+              "lineage_refs": {},
+              "time_roles": {},
+              "purpose": null
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "probability_convention": "exact_binary_weight_ratios",
+            "sampling_approximation": "finite_uniform_mesh_discretization"
+          }
+        }
+      },
+      "warnings": [],
+      "refused": false
+    },
+    {
+      "name": "inverse_cdf_q034_identity_push",
+      "expected": {
+        "mean": 0.6666666666666666,
+        "median": 1.0,
+        "bounds": [
+          1.0,
+          1.0
+        ],
+        "finite_q": 0.34
+      },
+      "actual": {
+        "schema_version": "1.1",
+        "numeric_policy": {
+          "policy_id": "bounded_float_v1",
+          "mode": "decimal_exact",
+          "decimal_places": 12,
+          "absolute_tolerance": 1e-12
+        },
+        "point_estimate": 1.0,
+        "confidence_interval": [
+          1.0,
+          1.0
+        ],
+        "confidence_level": 0.32,
+        "distribution_family": "bayesian",
+        "source": "calibration",
+        "propagation_method": "monte_carlo",
+        "interval_semantics": "credible_interval",
+        "distribution_payload": {
+          "carrier_type": "posterior_samples",
+          "samples": [
+            0.0,
+            1.0
+          ],
+          "sample_axis": "draw",
+          "weights": [
+            0.25,
+            0.5
+          ]
+        },
+        "composition_provenance": {
+          "native_flavour": "monte_carlo",
+          "composed_flavour": "monte_carlo",
+          "exactness": "approximation",
+          "certificate_kind": "kolmogorov",
+          "certificate_radius": 0.5193288123558931,
+          "confidence_level": 0.32,
+          "scope": [
+            "expectation",
+            "interval",
+            "quantile",
+            "cdf"
+          ],
+          "origin_envelope_ids": [
+            "inline:0:calibration:1.0:1.0:1.0"
+          ],
+          "operator_history": [
+            {
+              "op": "push_forward",
+              "stage_name": "push_forward_envelope",
+              "input_flavours": [
+                "monte_carlo"
+              ],
+              "output_flavour": "monte_carlo",
+              "map_name": "<lambda>",
+              "lipschitz_bound": null,
+              "bias_bound": null,
+              "variance_bound": null,
+              "sample_size": 2,
+              "replicate_count": null,
+              "qmc_method": null,
+              "scrambled": null,
+              "assumptions": [
+                "law_preserving_particles"
+              ],
+              "notes": {
+                "cert_policy": "auto"
+              }
+            }
+          ]
+        },
+        "sample_size": 2,
+        "is_heuristic_ci": false,
+        "gate_eligible": false,
+        "metadata": {
+          "posterior_composition": "push_forward",
+          "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+          "parent_posterior_profile_hash": "sha256:528887a41d3cab220d0f488b0d758152050025a6083a2c3072a7907f350c7f43",
+          "inherited_parent_lineage": {
+            "lineage_refs": {},
+            "time_roles": {},
+            "purpose": null
+          },
+          "inherited_parent_lineage_authoritative": false,
+          "derived_parameter_binding": "not_established",
+          "push_forward_map": "<lambda>",
+          "push_forward_cert_policy": "auto",
+          "param_name": "x",
+          "posterior_summary_profile_required": true,
+          "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "posterior_summary_profile_version": "2.0",
+          "point_functional": "median",
+          "interval_functional": "equal_tail_inverse_cdf",
+          "joint_parameter_order": [
+            "x"
+          ],
+          "joint_draw_ids": [
+            "draw:0",
+            "draw:1"
+          ],
+          "joint_law_sha256": "93342ef492cd09571aaea9d3465f7a0030cbb292fcd081550a060915d52b465a",
+          "joint_sample_id": "93342ef492cd09571aaea9d3465f7a0030cbb292fcd081550a060915d52b465a",
+          "posterior_summary_profile": {
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "profile_version": "2.0",
+            "point_functional": "median",
+            "mean_functional": "weighted_arithmetic_mean",
+            "interval_functional": "equal_tail_inverse_cdf",
+            "numeric_representation": "finite_float64",
+            "compression": "none",
+            "thinning": "none",
+            "gate_eligible": false,
+            "parameter_name": "x",
+            "parameter_order": [
+              "x"
+            ],
+            "draw_ids": [
+              "draw:0",
+              "draw:1"
+            ],
+            "row_identity_basis": "producer_input_order",
+            "sample_axis": "draw",
+            "probabilities": [
+              0.25,
+              0.5
+            ],
+            "posterior_mean": 0.6666666666666666,
+            "credible_mass": 0.32,
+            "carrier_content_hash": "sha256:f9c6b49436ad9abf02aec937133a2e219712497c64245de09b7ca7402de6162d",
+            "joint_law_sha256": "93342ef492cd09571aaea9d3465f7a0030cbb292fcd081550a060915d52b465a",
+            "binding": null,
+            "context": {
+              "parameters": {},
+              "lineage_refs": {},
+              "time_roles": {},
+              "purpose": null
+            },
+            "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+            "probability_convention": "exact_binary_weight_ratios",
+            "sampling_approximation": "finite_uniform_mesh_discretization"
+          }
+        }
+      },
+      "warnings": [],
+      "refused": false
+    },
+    {
+      "name": "changed_carrier_fresh_CAS_push",
+      "expected": {
+        "profile_matches_fresh_carrier": true
+      },
+      "actual": {
+        "ref": {
+          "artifact_id": "sha256:4a4ebfbbf6d4439b47e6c27d3f6c1597dce245b56ec83a5a790f822f5ce2ffe3",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "loaded": {
+          "schema_version": "1.1",
+          "numeric_policy": {
+            "policy_id": "bounded_float_v1",
+            "mode": "decimal_exact",
+            "decimal_places": 12,
+            "absolute_tolerance": 1e-12
+          },
+          "point_estimate": 4.0,
+          "confidence_interval": [
+            2.0,
+            8.0
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "bayesian",
+          "source": "calibration",
+          "propagation_method": "monte_carlo",
+          "interval_semantics": "credible_interval",
+          "distribution_payload": {
+            "carrier_type": "posterior_samples",
+            "samples": [
+              2.0,
+              4.0,
+              6.0,
+              8.0
+            ],
+            "sample_axis": "draw",
+            "weights": [
+              0.5,
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "composition_provenance": {
+            "native_flavour": "monte_carlo",
+            "composed_flavour": "monte_carlo",
+            "exactness": "approximation",
+            "certificate_kind": "kolmogorov",
+            "certificate_radius": 0.6119367076702041,
+            "confidence_level": 0.9,
+            "scope": [
+              "expectation",
+              "interval",
+              "quantile",
+              "cdf"
+            ],
+            "origin_envelope_ids": [
+              "inline:0:calibration:2.0:1.0:4.0"
+            ],
+            "operator_history": [
+              {
+                "op": "push_forward",
+                "stage_name": "push_forward_envelope",
+                "input_flavours": [
+                  "monte_carlo"
+                ],
+                "output_flavour": "monte_carlo",
+                "map_name": "<lambda>",
+                "lipschitz_bound": null,
+                "bias_bound": null,
+                "variance_bound": null,
+                "sample_size": 4,
+                "replicate_count": null,
+                "qmc_method": null,
+                "scrambled": null,
+                "assumptions": [
+                  "law_preserving_particles"
+                ],
+                "notes": {
+                  "cert_policy": "auto"
+                }
+              }
+            ]
+          },
+          "sample_size": 4,
+          "is_heuristic_ci": false,
+          "gate_eligible": false,
+          "metadata": {
+            "derived_parameter_binding": "not_established",
+            "inherited_parent_lineage": {
+              "lineage_refs": {},
+              "purpose": null,
+              "time_roles": {}
+            },
+            "inherited_parent_lineage_authoritative": false,
+            "interval_functional": "equal_tail_inverse_cdf",
+            "joint_draw_ids": [
+              "draw:0",
+              "draw:1",
+              "draw:2",
+              "draw:3"
+            ],
+            "joint_law_sha256": "f960e2385764bd482b8973a8d4411fcf1b1a3c1037929e8faba75073faff2a7b",
+            "joint_parameter_order": [
+              "x"
+            ],
+            "joint_sample_id": "f960e2385764bd482b8973a8d4411fcf1b1a3c1037929e8faba75073faff2a7b",
+            "param_name": "x",
+            "parent_posterior_profile_hash": "sha256:a8d3adca02851d6f478cd79cd0ab6c8d7e0b4abbb4067b8290670076e466423f",
+            "point_functional": "median",
+            "posterior_composition": "push_forward",
+            "posterior_composition_limitation": "map unit/estimand and fit authority are not established",
+            "posterior_summary_profile": {
+              "binding": null,
+              "carrier_content_hash": "sha256:1aea0be9509c792115658258a23c2d63b8f0676199c63746dd173e83a1dab069",
+              "compression": "none",
+              "context": {
+                "lineage_refs": {},
+                "parameters": {},
+                "purpose": null,
+                "time_roles": {}
+              },
+              "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+              "credible_mass": 0.9,
+              "draw_ids": [
+                "draw:0",
+                "draw:1",
+                "draw:2",
+                "draw:3"
+              ],
+              "gate_eligible": false,
+              "interval_functional": "equal_tail_inverse_cdf",
+              "joint_law_sha256": "f960e2385764bd482b8973a8d4411fcf1b1a3c1037929e8faba75073faff2a7b",
+              "mean_functional": "weighted_arithmetic_mean",
+              "numeric_representation": "finite_float64",
+              "parameter_name": "x",
+              "parameter_order": [
+                "x"
+              ],
+              "point_functional": "median",
+              "posterior_mean": 5.0,
+              "probabilities": [
+                0.5,
+                0.5,
+                0.5,
+                0.5
+              ],
+              "probability_convention": "exact_binary_weight_ratios",
+              "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+              "profile_version": "2.0",
+              "row_identity_basis": "producer_input_order",
+              "sample_axis": "draw",
+              "sampling_approximation": "finite_uniform_mesh_discretization",
+              "thinning": "none"
+            },
+            "posterior_summary_profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+            "posterior_summary_profile_required": true,
+            "posterior_summary_profile_version": "2.0",
+            "push_forward_cert_policy": "auto",
+            "push_forward_map": "<lambda>"
+          }
+        },
+        "reconciled_profile": {
+          "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+          "profile_version": "2.0",
+          "point_functional": "median",
+          "mean_functional": "weighted_arithmetic_mean",
+          "interval_functional": "equal_tail_inverse_cdf",
+          "numeric_representation": "finite_float64",
+          "compression": "none",
+          "thinning": "none",
+          "gate_eligible": false,
+          "parameter_name": "x",
+          "parameter_order": [
+            "x"
+          ],
+          "draw_ids": [
+            "draw:0",
+            "draw:1",
+            "draw:2",
+            "draw:3"
+          ],
+          "row_identity_basis": "producer_input_order",
+          "sample_axis": "draw",
+          "probabilities": [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ],
+          "posterior_mean": 5.0,
+          "credible_mass": 0.9,
+          "carrier_content_hash": "sha256:1aea0be9509c792115658258a23c2d63b8f0676199c63746dd173e83a1dab069",
+          "joint_law_sha256": "f960e2385764bd482b8973a8d4411fcf1b1a3c1037929e8faba75073faff2a7b",
+          "binding": null,
+          "context": {
+            "parameters": {},
+            "lineage_refs": {},
+            "time_roles": {},
+            "purpose": null
+          },
+          "context_content_hash": "sha256:0d57e6346f097bbf19bf1185766d44c5889591653163bf07e117e6c343af7bdd",
+          "probability_convention": "exact_binary_weight_ratios",
+          "sampling_approximation": "finite_uniform_mesh_discretization"
+        }
+      },
+      "warnings": [],
+      "refused": false
+    },
+    {
+      "name": "dropped_carrier_fresh_CAS_interval",
+      "expected": {
+        "stale_profile_for_removed_carrier": false
+      },
+      "refused": true,
+      "exception_type": "AttributeError",
+      "exception": "'NoneType' object has no attribute 'model_dump'"
+    },
+    {
+      "name": "pullback_large_finite_selected_mean",
+      "expected": {
+        "finite_point": 1.6e+308,
+        "constraint_only": true,
+        "stale_profile": false
+      },
+      "actual": {
+        "schema_version": "1.1",
+        "numeric_policy": {
+          "policy_id": "bounded_float_v1",
+          "mode": "decimal_exact",
+          "decimal_places": 12,
+          "absolute_tolerance": 1e-12
+        },
+        "point_estimate": 1.6e+308,
+        "confidence_interval": [
+          1.6e+308,
+          1.6e+308
+        ],
+        "confidence_level": null,
+        "distribution_family": "unknown",
+        "source": "calibration",
+        "propagation_method": "monte_carlo",
+        "interval_semantics": "deterministic_bounds",
+        "distribution_payload": {
+          "carrier_type": "posterior_samples",
+          "samples": [
+            1.6e+308,
+            1.6e+308,
+            1.6e+308,
+            1.6e+308
+          ],
+          "sample_axis": "draw",
+          "weights": [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "composition_provenance": {
+          "native_flavour": "monte_carlo",
+          "composed_flavour": "monte_carlo",
+          "exactness": "constraint_only",
+          "certificate_kind": "kolmogorov",
+          "certificate_radius": 0.6119367076702041,
+          "confidence_level": null,
+          "scope": [
+            "expectation",
+            "bounds",
+            "cdf"
+          ],
+          "origin_envelope_ids": [
+            "inline:0:calibration:1.6e+308:1.6e+308:1.6e+308"
+          ],
+          "operator_history": [
+            {
+              "op": "pull_back",
+              "stage_name": "pull_back_envelope",
+              "input_flavours": [
+                "monte_carlo"
+              ],
+              "output_flavour": "monte_carlo",
+              "map_name": "<lambda>",
+              "lipschitz_bound": null,
+              "bias_bound": null,
+              "variance_bound": null,
+              "sample_size": 4,
+              "replicate_count": null,
+              "qmc_method": null,
+              "scrambled": null,
+              "assumptions": [
+                "inverse_not_identified_without_structure"
+              ],
+              "notes": {
+                "mode": "particle_reweighting"
+              }
+            }
+          ]
+        },
+        "sample_size": 4,
+        "is_heuristic_ci": false,
+        "gate_eligible": false,
+        "metadata": {
+          "posterior_composition": "pull_back",
+          "posterior_composition_limitation": "retained upstream particles are constraint-only, not the posterior law",
+          "parent_posterior_profile_hash": "sha256:54071c22337033c0ae0037f100ac14a31a28b29ad49add57987511c17f3023e9",
+          "inherited_parent_lineage": {
+            "lineage_refs": {},
+            "time_roles": {},
+            "purpose": null
+          },
+          "inherited_parent_lineage_authoritative": false,
+          "derived_parameter_binding": "not_established",
+          "pull_back_map": "<lambda>"
+        }
+      },
+      "warnings": [],
+      "refused": false
+    }
+  ],
+  "production_evidence": false
+}

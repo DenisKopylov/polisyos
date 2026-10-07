@@ -1,0 +1,61 @@
+import ast,gzip,hashlib,json,pathlib,subprocess,xml.etree.ElementTree as ET
+O=pathlib.Path('/tmp/e02-E-fit-independent-77b4-20261007');R=pathlib.Path('/workspace/e02-E-cal-20261006')
+S='77b4d68ec37e3f34b84ce4fd1787746e3d5f5322';P='9147c06c0ec72083214f5ce32206f9aa01dc3a5b';B='3cc20af36297493aa8ba8fdc66f3810abadf81a2';T='d5efa295c8af983a86a620a120ab091aae580db3'
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+def dump(name,d): (O/name).write_text(json.dumps(d,indent=2)+'\n')
+def ref(p):
+ b=p.read_bytes();return {'source_path':str(p),'portable_path':str(p.relative_to(O)),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def footprint(base):
+ rows=[]
+ for line in git('diff','--name-status','--find-renames',base,S).decode().splitlines():
+  f=line.split('\t');p=f[-1];b=git('show',S+':'+p)
+  rows.append({'change':f[0],'path':p,'blob':git('rev-parse',S+':'+p).decode().strip(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'physicalGitEqual':(R/p).read_bytes()==b})
+ return rows
+if git('rev-parse','HEAD').decode().strip()!=S or git('rev-parse','HEAD^{tree}').decode().strip()!=T or git('status','--porcelain=v1').strip():raise RuntimeError('final source guard refused')
+full=footprint(B);delta=footprint(P)
+bridge='policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py'
+bridge_equal=git('show',P+':'+bridge)==git('show',S+':'+bridge)
+if not bridge_equal:raise RuntimeError('74 profile controls cannot be reused after bridge delta')
+checks={}
+for label in ('pytest','compat','probe-output-ref','probe-selected-ref','typing-current','public-bindings-v4'):
+ d=json.loads((O/(label+'.receipt.json')).read_text())
+ if d['source']!=S or d['tree']!=T or not d['source_unchanged'] or not d['environment_metadata_unchanged'] or d['returncode']!=0:raise RuntimeError('native check source/outcome refused:'+label)
+ checks[label]=d
+for n,label in (('pytest.junit.xml','output_ref_delta'),('compat.junit.xml','existing_consumers')):
+ a=next(ET.parse(O/n).getroot().iter('testsuite')).attrib
+ checks[label]={k:int(a[k]) for k in ('tests','errors','failures','skipped')}
+ if any(checks[label][k] for k in ('errors','failures','skipped')):raise RuntimeError('non-PASS JUnit')
+wrong=json.loads((O/'wrong-return-ref-results.json').read_text());healthy=json.loads((O/'selected-return-ref-results.json').read_text());typing=json.loads((O/'typing-current.stdout.txt').read_text())
+if any(x['current_node_outcome']!='REFUSED' or x['old_IR_publisher_outcome']!='REFUSED' for x in wrong['rows']):raise RuntimeError('original wrong-ref property still red')
+for x in healthy['rows']:
+ if x['current_node_outcome']!='ADMITTED' or x['old_IR_publisher_outcome']!='ADMITTED' or x['fresh_strict_simulation_reader']!='ADMITTED':raise RuntimeError('old selected-view behavior lost')
+ if any(set(v)!={'artifact_id','kind','media_type'} for v in x['output_refs'].values()):raise RuntimeError('old 3field wire widened')
+ if typing['summary']['errorCount'] or typing['summary']['filesAnalyzed']!=2:raise RuntimeError('owned scoped typing not healthy')
+source=git('show',S+':policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py').decode();tree=ast.parse(source);execute=next(x for x in ast.walk(tree) if isinstance(x,ast.FunctionDef) and x.name=='execute')
+calls=[x for x in ast.walk(execute) if isinstance(x,ast.Call) and isinstance(x.func,ast.Name) and x.func.id=='_admit_output_envelope_ref']
+if len(calls)!=1:raise RuntimeError('effective RHS removal denominator changed')
+imports=[]
+for row in full:
+ if row['path'].endswith('.py') and ('/src/' in row['path'] or '/tests/' in row['path']):
+  text=git('show',S+':'+row['path']).decode()
+  for node in ast.walk(ast.parse(text)):
+   if isinstance(node,ast.ImportFrom) and node.module and node.module.startswith('polisyos.'):
+    imports.append({'path':row['path'],'line':node.lineno,'module':node.module,'symbols':[a.name for a in node.names],'level':node.level})
+dump('full-source-footprint-77b4.json',{'base':B,'candidate':S,'tree':T,'complete_path_count':len(full),'paths':full,'original_owned_product_test_release_paths':[x for x in full if '/src/' in x['path'] or '/tests/' in x['path'] or '/release-fragments/' in x['path']],'delta_parent':P,'delta':delta,'fullPythonImportFootprint':imports,'review_scope_note':'Imported decision/G DOC companions retained in complete footprint. Original owned mechanism remains six paths/five Python. Historical source-private imports in unchanged node are recorded, not waived or declared fixed.'})
+dump('independent-review-77b4.json',{'source':S,'tree':T,'parent':P,'original_slice_base':B,'disposition':'GO','observer_error_history':{'public-bindings':'three initial reviewer observers used incorrect symbol/module assumptions: nonexistent BayesianFitEnvelopes (actual PersistedBayesianFit) and nonexistent IR contracts module (actual ir.registry.refs). All original errors and literal observer bytes retained. Final observer uses actual three declared fit exports and compares admitted Core contracts DTO to existing native definition without introducing a production private edge.'},'scope':'bounded configured finite-corpus producer/readback/native E consumer and final output handle correction; code acceptance separate from finding decisions/global gates','delta_footprint':delta,'independent_current_checks':checks,'original9147counterexample':{'current':'REFUSED both HMC/NUTS','actual_old_IR_publisher':'REFUSED same literal kind/media discriminator','payload_and_CAS_hashes_unchanged_by_returned_handle_mutation':True,'output_stage':'input and evaluator already ran successfully; one output-envelope write occurred before refusal. This is not pre-evaluator/callback-zero evidence.'},'selected_view_compatibility':{'current':'ADMITTED both HMC/NUTS','old':'ADMITTED','fresh_strict_simulation_reader':'ADMITTED','wire_keys':['artifact_id','kind','media_type'],'declared_selected_manifest_resolved_before_stable3field_normalization':'actual source _admit_output_envelope_ref calls Core get_manifest/get_bytes/verify with revalidated complete raw CoreRef before normalization; healthy native spy supplies existing selected manifest','old_view_authority':'old IR wrapper normalized to three fields; no claim it previously consumed selected view'},'unchanged_profile_controls':{'source':P,'tests':74,'outcome':'PASS','reuse_basis':'complete bayesian_fit_bridge.py Git bytes exactly equal9147→77; actual supported-profile admission functions and all fixture/proxy corpus controls unchanged','literal_deciding_receipt':'/tmp/e02-E-fit-independent-9147-20261007/independent-review-9147.json','not_current74execution':True,'author_historical_capture_loss':'author9147 original capture loss remains explicit; independent literal9147/74 source stdout/JUnit/input closure retained'},'property_removal':{'actual_current_tests':6,'target':'sole _admit_output_envelope_ref RHS in execute','preserved_elsewhere':'actual writer/CAS/DTO/report source, markers and remaining predicates','actual_removed_outcomes':'node admits returned-kind, stored-schema and wrong-valid-content mutants for each backend; independent required-refusal property diverges'},'typing':{'status':'PASS','summary':typing['summary'],'original7owned_boundary_errors_repaired':True,'scope':'two exact current bridge/node files and actual canonical declared package context; not global typing/P41 waiver'},'finding_disposition':'No automatic finding-status change. B194/B197 held source/evaluator/fit/noise authority limitations remain; bounded B201/B202 source acceptance and historicalledger/G intake separate. Finite corpus does not establish Bayesian mixing/convergence, posterior quality or uncertainty authority.','limitations':['No production data uploaded; configured tiny native fixture only.','Current output-ref selector itself regenerates tiny native HMC/NUTS producer fixtures; this is not an unchanged74 or broad numeric wave.','Public inventory/generated/runtime/API/architecture final source gates remain separate canonical G/Root checks.','Input manifests preserve requested source IDs; selected source profiles are explicitly refused by fit binding because MethodBackend discards them.','No source-law/noise/mixing/full hyperparameter replay authority is inferred.','Existing foreign/deep-import seams remain explicit owner packets, no exception baseline widened.'],'source_guard':'all command full tracked source frames exactly equal77 before/after; ROOT207 207 distribution METADATA+2 protected rows exactly unchanged, actual209row denominator'})
+# Preserve literal complete input CAS and stdout; repeatable caches/locks/environments are not selected.
+assets=[]
+for p in sorted(O.iterdir()):
+ if p.is_file() and p.name!='publication-selection-77b4.json':
+  if '.source-' in p.name or p.name in ('source-before.json','source-after.json'):
+   b=p.read_bytes();q=p.with_suffix(p.suffix+'.gz')
+   with q.open('xb') as f:f.write(gzip.compress(b,mtime=0))
+   r=ref(q);r['decoded_source_path']=str(p);r['decoded_bytes']=len(b);r['decoded_sha256']=hashlib.sha256(b).hexdigest();assets.append(r)
+  elif not p.name.endswith('.json.gz'):assets.append(ref(p))
+for root in ('pytest-base','compat-fixture','wrong-return-ref-hmc','wrong-return-ref-nuts','selected-return-ref-hmc','selected-return-ref-nuts'):
+ for p in sorted((O/root).rglob('*')):
+  if p.is_file() and (p.name.endswith(('.blob','.manifest.json')) or p.name=='trace.jsonl'):assets.append(ref(p))
+# Logical aliases remain explicit even when storage deduplicates identical bytes.
+unique={(a['bytes'],a['sha256']) for a in assets}
+dump('publication-selection-77b4.json',{'source':S,'tree':T,'disposition':'GO','assets':assets,'logical_count':len(assets),'byte_unique_count':len(unique),'logical_bytes':sum(a['bytes'] for a in assets),'source_guard':'closed tracked77 unchanged; all native commands complete','history_policy':'6638 and9147 red observations unchanged, author capture loss explicit; no old PASS rebranded as77 execution','selection_scope':'literal moderate native output/env/source frame/input CAS plus archived observer sources; no locks/package env/cache/source checkout copy'})
+print(json.dumps({'source':S,'tree':T,'disposition':'GO','review':ref(O/'independent-review-77b4.json'),'selection':ref(O/'publication-selection-77b4.json'),'logical_count':len(assets),'byte_unique_count':len(unique),'logical_bytes':sum(a['bytes'] for a in assets)}))

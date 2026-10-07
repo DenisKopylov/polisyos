@@ -1,0 +1,329 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "calibration-scalar-batch-20261006",
+  "closure_ids": [
+    "B185"
+  ],
+  "bundle_ids": [
+    "CAL-05"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa"
+  ],
+  "candidate_tree_sha": "27d85f1e2fdb2820871ecaef7e94802ddf918542",
+  "branch": "codex/e02-E-cal05-20261006",
+  "worktree_root": "/workspace/e02-E-cal05-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-calibration-scalar-batch.toml",
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py"
+  ],
+  "admission_receipts": {
+    "create": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/worktree-create.json",
+    "resume": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/worktree-resume.json",
+    "performed_by": "E root before lane assignment; exact branch/path pair, full JSON preserved"
+  },
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P034",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@sha256:5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "cell_locator": "received/F01.txt:151",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F01-P048",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@sha256:5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "cell_locator": "received/F01.txt:165",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F01-P058",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@sha256:5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "cell_locator": "received/F01.txt:175",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F03-P019",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@sha256:1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "cell_locator": "received/F03.txt:149",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F05-P036",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "source_test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@sha256:2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "cell_locator": "received/F05.txt:446",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F05-P055",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "source_test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@sha256:2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "cell_locator": "received/F05.txt:465",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F08-P041",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "source_test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@sha256:d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "cell_locator": "received/F08.txt:164",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F09-P027",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "source_test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@sha256:0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "cell_locator": "received/F09.txt:143",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F11-P027",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "source_test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@sha256:5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "cell_locator": "received/F11.txt:156",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F11-P042",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "source_test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@sha256:5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "cell_locator": "received/F11.txt:171",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F14-P023",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@sha256:6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "cell_locator": "received/F14.txt:373",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    },
+    {
+      "cell_id": "F14-P042",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_reported_state": "PASS",
+      "environment_backend_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@sha256:6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "cell_locator": "received/F14.txt:392",
+      "input_identity": "Tracked test-file/source-cut fixture; exact executed fixture arguments, module/backend origins and raw run bytes not transferred. Input identity beyond source report remains not_established.",
+      "evidence_grade": "source_reported_compact_text_only; navigation, not current candidate proof"
+    }
+  ],
+  "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/environment.json",
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "system python3; tracked indices only",
+      "input_closure": "results/{cells,properties,events,gates,routes,verification} and source receipt hashes",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_pure_executor_batch.py tests/unit/foundry/calibration/test_pure_executor_semantics.py tests/unit/foundry/calibration/test_pure_executor.py",
+      "target_sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/environment.json; calibration conftest enables x64 before JAX import, explicit test incomes float32",
+      "input_closure": "Complete three named test modules and actual imported source from this CAL05 worktree; synthetic state snapshots, no production data",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 24.808652797000832,
+      "max_rss_kib": 1211920,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/checkpoint-tests.log",
+      "cases": 55
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/batch_execution_probe.py",
+      "target_sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/environment.json; actual default x64 disabled, float32 JAX CPU",
+      "input_closure": "Tracked batch fixture helper uses this lane source; analytic identity and x+log(x) oracle; process-local map/admission removal restored in finally",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/numerical-probe.jsonl",
+      "probe_source_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/batch_execution_probe.py"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/calibration/pure_executor.py tests/unit/foundry/calibration/test_pure_executor_batch.py docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/batch_execution_probe.py && PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/calibration/pure_executor.py tests/unit/foundry/calibration/test_pure_executor_batch.py docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/batch_execution_probe.py && git diff --check",
+      "target_sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/environment.json",
+      "input_closure": "Two implementation Python paths and replay companion; formatting only",
+      "outcome": "PASS",
+      "output": "All checks passed!\n3 files already formatted\n",
+      "exit_code": 0
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt /workspace/e02-E-20261006-receipts/cal05-production-invocation.json",
+      "target_sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/environment.json; uncapped single static scanner process",
+      "input_closure": "Complete scanner-declared source tree and non-test script/main direct-call model; indirect/dynamic/runtime classes remain unresolved",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/production-invocation.log",
+      "raw_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-batch-20261006/raw/production-invocation.json@sha256:a870c5aba91300fc87b7e673f9a3b71c651194583c41170769ec50ac2bbcf005",
+      "raw_bytes": 170871948,
+      "interpretation": "Static diagnostic lists new run_pure_batch as uninvoked at standalone implementation SHA. No inherited-red claim; actual canonical Calibrator bridge is supplied by separate CAL writer and must be checked on combined source."
+    },
+    {
+      "command": "PATH=/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:$PATH corepack pnpm install --frozen-lockfile --ignore-scripts",
+      "target_sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "environment": "Node22.23.3/corepack/pnpm10.33.2 fresh CAL05 checkout",
+      "input_closure": "Tracked pnpm workspace lockfile; no TypeScript scanner was trusted before install",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "Lockfile is up to date, resolution step is skipped. Packages: +1213. Done in 3.3s using pnpm v10.33.2."
+    }
+  ],
+  "property": {
+    "statement": "For ordered cross-sectional state snapshots, each row executes only mechanisms active at its own scalar time with its own key; inactive invalid log rows retain identity derivatives and cause zero numerical emitter callbacks.",
+    "runtime_path": [
+      "producer: run_pure_batch row-axis admission",
+      "execution: jax.lax.map -> scalar apply_nodes -> admitted scalar lax.cond -> actual emit_patches/neutral branch",
+      "consumer: returned stacked state and metric mapping, preserving B row order",
+      "companion consumer: Calibrator._simulate_bundle; separate CAL owner implementation and persisted CalibrationReport execution_context.batch_rows pending combined evidence"
+    ],
+    "independent_oracle": "Inactive x=-1 at t=0: output -1, derivative1, Hessian0. Active x=2 at t=1: output2+log2, derivative1+1/2=1.5, Hessian-1/4. callback count is numerical jax.debug.callback, separate from tracing.",
+    "proxy_divergence": "Replacing lax.map with vmap and removing mapped predicate admission retains finite state [-1,2.693147...] but numerically emits on both [-1] and [2]; a finite-state proxy remains green while the no-inactive-emission property is false.",
+    "negative_controls": [
+      "Active log(0) preserves nonfinite failure under eager/JIT/grad/Hessian; no neutral fake input or nan_to_num",
+      "Malformed time dtype/rank, empty rows, key count and one wrong state-leaf row axis fail before emitter tracing",
+      "Outer vmap maps times: refuses before numerical callback; emitter tracing may occur and is not counted as execution",
+      "Typed and legacy keys with fold_in(seed,rowindex), heterogeneous initial step/time/state, distinct recorded stochastic keys; no row carry into another",
+      "Map/admission property removal keeps markers and exposes inactive numerical callback despite finite state"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_claim": {
+    "schedule_active": "recomputed from frozen bundle bounds and each row time",
+    "row_axis_agreement": "recomputed from all state leaves, time and key shapes",
+    "numerical_no_inactive_emission": "recomputed on real JAX CPU using numerical callback observations",
+    "caller_row_ids_and_admitted_nonnegative_times": "consumer_asserted in standalone mechanism; canonical Calibrator must validate and persist them",
+    "statistical_independence_or_source_law": "not_established; no statistical or authority gate enabled"
+  },
+  "capability_state_or_finding_state": "bounded mechanism implemented; standalone source implemented_but_not_orchestrated / consumer_missing until CAL companion real caller and persisted report check",
+  "ledger_status_preserved": {
+    "B185": "partial"
+  },
+  "finding_verdict": {
+    "B185": "limited"
+  },
+  "formal_closure_claims": [],
+  "independent_review": {
+    "state": "pending",
+    "owner": "E root or independently assigned leaf; author does not review own mechanism"
+  },
+  "limitations_and_next_owner": [
+    "E CAL owner inserts actual Calibrator batch caller for all objective/final/Hessian forwards, admits row IDs/times/shapes/controls and derives fold_in(seed,rowindex) keys; persists report row context. E root independently tests combined producer/report/readback consumer and invocation removal.",
+    "Standalone kernel accepts integer time arrays and caller-provided keys; nonnegative/unique-ID admission belongs to the named canonical caller. Distinct keys do not imply a verified product law or independent data.",
+    "Unsupported mapped schedule via vmap remains refused; active emitter patch structure/dtype must match neutral branch as already required by scalar executor.",
+    "No production fit quality or admitted population/source law is demonstrated by these synthetic mathematical fixtures.",
+    "No external UI/API surface is introduced by this internal execution entrypoint; report/audit projection belongs to CAL companion.",
+    "G accepts code separately from owner finding closure; B185 historical partial is preserved.",
+    "Broad combined replay is reserved for one E candidate after independent reviews."
+  ],
+  "transport": {
+    "state": "transport_blocked_in_leaf_actor",
+    "commands": [
+      {
+        "command": "git push -u origin codex/e02-E-cal05-20261006",
+        "exit_code": 128,
+        "output": "fatal: could not read Username for 'https://github.com': No such device or address"
+      },
+      {
+        "command": "gh pr create --draft --base main --head codex/e02-E-cal05-20261006 --title 'CAL-05: preserve scalar execution in cross-sectional calibration batches' --body-file /workspace/e02-E-20261006-receipts/cal05-pr-body.md --label kind:feature --label compat:internal --label release:none",
+        "exit_code": 1,
+        "output": "HTTP 401: Bad credentials (https://api.github.com/graphql)"
+      }
+    ],
+    "next_owner": "E root configured actor publishes same shared local E topic, creates/attaches PR and reads remote exact SHA; no credential inspection or interactive login attempted"
+  },
+  "patterns": [
+    "P01",
+    "P02",
+    "P08",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "p40_boundary": "Supported cross-sectional homogeneous state-PyTree/leaf shapes with scalar per-row schedule and caller-admitted identity/key contract. Unsupported vectorized schedule is refused; source-law/production-fit authority is not a property of this execution kernel.",
+  "p41": "No inherited-red assertion. New static invocation regression is recorded at exact standalone implementation source; older source-reported PASS cells are navigation only.",
+  "cleanup": {
+    "native_trash": "not_established; no permanent deletion performed",
+    "candidates_after_root_retains_deciding_outputs": [
+      "/workspace/e02-E-cal05-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-cal05-20261006/policy-engine/_cache",
+      "/workspace/e02-E-cal05-20261006/policy-engine/.pytest_cache",
+      "/workspace/e02-E-cal05-20261006/policy-engine/policy-engine (empty incidental directory tree after receipt files moved into canonical path)",
+      "/workspace/e02-E-20261006-receipts/cal05-first-tests.log",
+      "/workspace/e02-E-20261006-receipts/cal05-targeted-tests.log",
+      "/workspace/e02-E-20261006-receipts/cal05-numerical-probe.py"
+    ],
+    "preserve": [
+      "all implementation source/tests/release fragment",
+      "all committed receipt/admission/deciding outputs",
+      "ignored raw static scanner JSON until deciding evidence custody complete",
+      "root shared read-only Python environment still used by other E work",
+      "all production/unique data and old worktrees"
+    ]
+  }
+}

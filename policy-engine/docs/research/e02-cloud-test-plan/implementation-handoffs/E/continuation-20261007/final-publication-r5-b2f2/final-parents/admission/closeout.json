@@ -1,0 +1,82 @@
+{
+  "schema": "policyos.e02.final_b2_parent_native_closeout.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "check_outcomes": [
+    {
+      "selector": "workspace-verify",
+      "native_exit_code": 1,
+      "check_outcome": "FAIL",
+      "scope_count": 1,
+      "stages": {
+        "PASS": 1,
+        "FAIL": 1,
+        "UNRUN": 13
+      },
+      "full_stage_count": 15,
+      "first_fail": "lint imports",
+      "source_and_metadata_unchanged": true,
+      "source_full_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "wall_seconds": 10.251559257507324,
+      "receipt": {
+        "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/receipt.json",
+        "portable_path": "workspace-verify/receipt.json",
+        "bytes": 96160,
+        "sha256": "aeef99eaa838ee91f83f8659a3641618a1eef5164675b9bedda5548e50a75752",
+        "role": "actual complete native parent receipt"
+      }
+    },
+    {
+      "selector": "ci-parity",
+      "native_exit_code": 1,
+      "check_outcome": "FAIL",
+      "scope_count": 1,
+      "stages": {
+        "PASS": 0,
+        "FAIL": 1,
+        "UNRUN": 23
+      },
+      "full_stage_count": 24,
+      "first_fail": "doctor",
+      "source_and_metadata_unchanged": true,
+      "source_full_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "wall_seconds": 288.0131194591522,
+      "receipt": {
+        "source_path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/receipt.json",
+        "portable_path": "ci-parity/receipt.json",
+        "bytes": 95985,
+        "sha256": "e51590669e4ba55ace23cccc30a57bbea4a77b9206bc608a85e9544f3e9df6bd",
+        "role": "actual complete native parent receipt"
+      }
+    }
+  ],
+  "schedule": [
+    "workspace-verify",
+    "ci-parity"
+  ],
+  "shared_writer_basis": "exact Root _build last-mile/coverage/native source-supplied fixture outputs; not CPU/thread/process quota",
+  "caps_added": false,
+  "prerequisites_or_doctor_bypassed": false,
+  "broad_backend_pytest_or_late_extension_browser_install_stages_executed": false,
+  "CI_doctor_qualification": "Doctor itself ran its canonical checks: schemas/runtime-openapi FAIL, browser and frontend-contract probe PASS. Native pnpm invocation is --frozen-lockfile --lockfile-only --ignore-scripts validation. These subchecks do not confer parent or fullCI PASS.",
+  "source_native_caller_or_per_process_resource_cause_P41": "not_established beyond exact executed parent/stage argv and receipts",
+  "metadata_scope": "Complete207 package METADATA and protected Python/control refs before/after identical; complete environment/package binary identity not established",
+  "snapshot_qualification": "Sequential complete tracked physical byte frames, not atomic source snapshot; before/after exactfreeze frame/source unchanged",
+  "first_metadata_observer_errors": "Initial admission stdin SyntaxError and uncalculated stale-freeze message are explicit observer ERRORs; current literal freeze hash matches original publication. No artifact/source failure or modifying writer inferred.",
+  "finding_or_formal_G_acceptance": false,
+  "numeric_suite_rerun_by_parent_executor": false,
+  "predicate_basis": {
+    "native_command_stage_order_counts_and_exit": "recomputed",
+    "complete_tracked_frames_HEAD_and_env_metadata": "recomputed",
+    "source_review_freeze_remote_admission": "independently_reconciled",
+    "P41_broadcause_scientific_finding_authority": "not_established"
+  }
+}

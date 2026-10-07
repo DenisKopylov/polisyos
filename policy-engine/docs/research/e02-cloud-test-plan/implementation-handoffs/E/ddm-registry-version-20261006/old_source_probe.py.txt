@@ -1,0 +1,23 @@
+import hashlib, json, runpy, subprocess
+from pathlib import Path
+from jsonschema import Draft202012Validator, FormatChecker
+from polisyos.ddm.integration.model_registry import ModelRegistryReadinessRecord
+SOURCE = "58e2d97965c0826c44843a78dcb2f8698d9950a3"
+REL = "policy-engine/src/polisyos/ddm/integration/model_registry.py"
+import polisyos.ddm.integration.model_registry as registry
+actual = Path(registry.__file__).read_bytes()
+expected = subprocess.check_output(["git", "show", f"{SOURCE}:{REL}"])
+assert actual == expected
+print(json.dumps({"source": SOURCE, "actual_module": registry.__file__, "module_sha256": hashlib.sha256(actual).hexdigest(), "exact_source_bytes": True}))
+fixture_path=Path("/workspace/e02-E-pr38-r2-receipts/ddm/old_full_acceptance.py")
+fixture_path.write_bytes(subprocess.check_output(["git", "show", f"{SOURCE}:policy-engine/tests/unit/ddm/test_full_acceptance.py"]))
+fixture=runpy.run_path(str(fixture_path))
+report,audit,record=fixture["_registry_context"](observed_triggers=[])
+payload=record.model_dump(mode="json")
+old=json.loads(subprocess.check_output(["git", "show", "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json"]))
+current=json.loads(subprocess.check_output(["git", "show", f"{SOURCE}:policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json"]))
+errors=list(Draft202012Validator(old,format_checker=FormatChecker()).iter_errors(payload))
+reopened=ModelRegistryReadinessRecord.model_validate_json(record.model_dump_json())
+print(json.dumps({"source": SOURCE,"producer": "DriftAndDegradationMonitor.evaluate_window","same_schema_id": old["$id"]==current["$id"],"old_strict_reader_accepts": not errors,"old_strict_errors": [e.message for e in errors],"new_reader_accepts": reopened.model_id==record.model_id,"fresh_reopen_gate": fixture["evaluate_registry_gate"](reopened).model_dump(mode="json")}))
+assert len(errors)==1 and errors[0].validator=="additionalProperties"
+assert old["$id"]==current["$id"]

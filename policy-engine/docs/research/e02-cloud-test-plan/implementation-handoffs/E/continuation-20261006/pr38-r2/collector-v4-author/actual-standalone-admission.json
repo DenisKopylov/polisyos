@@ -1,0 +1,16 @@
+{
+  "scope": "Existing actual standalone freeze metadata admission only; no collector/full wave replay, no private bytes copied, no product/native/gate commands",
+  "source_sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc",
+  "freeze_path": "/workspace/e02-E-pr38-r2-receipts/source-freeze-5e3e37276.json",
+  "freeze_sha256": "78ae2264f893238742329acbad8e62ca7ac04d43e8b05ccb1c8dd430907ff032",
+  "freeze_bytes": 2314,
+  "actual_candidate_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "property": "Actual standalone metadata path admitted by common full-component guard",
+  "state": "ADMITTED_METADATA_ONLY",
+  "commands_executed": {
+    "product": 0,
+    "numeric": 0,
+    "gate": 0
+  },
+  "freeze_original_bytes_unchanged": true
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.independent.final3.commands.v1",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-final3-independent-b2-20261007/admission-probe-v2.py"
+      ],
+      "stdout": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-normal.json",
+      "stderr": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-normal.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-final3-independent-b2-20261007/admission-probe-v2.py"
+      ],
+      "stdout": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-optimized.json",
+      "stderr": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-optimized.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "/tmp/e02-E-final3-independent-b2-20261007/admission-probe-v3.py"
+      ],
+      "stdout": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-normal.json",
+      "stderr": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-normal.stderr.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-final3-independent-b2-20261007/admission-probe-v3.py"
+      ],
+      "stdout": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-optimized.json",
+      "stderr": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-optimized.stderr.txt",
+      "exit_code": 0
+    }
+  ],
+  "native_rerun": false,
+  "V2_result": "CHANGE_REQUIRED; preserved complete counter/native inputs while header was promoted",
+  "V3_result": "GO current complete root header admission,17 independent narrow cases per mode; unchanged23 V2 guards/controls reused"
+}

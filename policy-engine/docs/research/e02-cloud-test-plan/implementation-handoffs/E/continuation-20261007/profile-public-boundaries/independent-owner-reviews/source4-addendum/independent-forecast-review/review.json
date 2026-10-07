@@ -1,0 +1,537 @@
+{
+  "schema": "policyos.e02.independent_forecast_owner_packet_review.v1",
+  "reviewer": "fit_packet; not forecast packet author or A/E mechanism author",
+  "disposition": "GO",
+  "scope": "Owner-ready typed contract/navigation/source custody and unapplied patch applicability only; current A scientific/default/HTTP runtime not accepted or executed",
+  "pins": {
+    "selector": {
+      "path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/publication-selection.json",
+      "bytes": 12016,
+      "sha256": "91f4eaacc66afc7e18d3ba9d0b31f33db9d55ff98269e302e22572ff2e6ac908"
+    },
+    "contract": {
+      "path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/E-to-A-reason-consumer-contract.json",
+      "bytes": 39323,
+      "sha256": "557bc3f8990119823402fac1e1a94ff1566b1f767d1e7691d4b9c918342fa588"
+    },
+    "E_scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "E_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "current_A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+    "current_A_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124"
+  },
+  "complete_selected_asset_denominator": 28,
+  "complete_selected_asset_bytes": 476515,
+  "asset_literal_readbacks": [
+    {
+      "portable_path": "README.md",
+      "bytes": 5476,
+      "sha256": "7e5231a2ba4de199adae622ce6a8d93cdcf25443d545e6427a09ea010c322179"
+    },
+    {
+      "portable_path": "E-to-A-reason-consumer-contract.json",
+      "bytes": 39323,
+      "sha256": "557bc3f8990119823402fac1e1a94ff1566b1f767d1e7691d4b9c918342fa588"
+    },
+    {
+      "portable_path": "all-eight-failure-identities.json",
+      "bytes": 154790,
+      "sha256": "cf5374ee26e5587c2919a67ffab3e0386c0567e0cc6f767e2454d99f785ed9fa"
+    },
+    {
+      "portable_path": "full83-FRC-case-association.json",
+      "bytes": 116518,
+      "sha256": "2944947a4568ea640b07d75982b2507129ee8eb3bf1597fa8cb7d5ad4a212d6f"
+    },
+    {
+      "portable_path": "current-A-source-delta.json",
+      "bytes": 8655,
+      "sha256": "301484bcae70e57556a062c928fdd4af6def8b77f1070a405527d8ddc14fada2"
+    },
+    {
+      "portable_path": "current-A-source-commands.json",
+      "bytes": 33520,
+      "sha256": "423734a8f8e1cb57dc1e0bea1f43735b675f9eec744b25bd4e71db4a6e7c9cd1"
+    },
+    {
+      "portable_path": "A2605-to-A332-full-path-delta.json",
+      "bytes": 32450,
+      "sha256": "9cf35b18e027fc9ca392f77aa49dd7b92f2d43111f0d82234035b69511beb919"
+    },
+    {
+      "portable_path": "current-A-four-function-delta.patch.txt",
+      "bytes": 7192,
+      "sha256": "78cb8d4ef41d5bd08bf8c17ad7512782e2bc820da5e2c7db43ecd0f7ed632b32"
+    },
+    {
+      "portable_path": "A332-status-reason-carry.patch.txt",
+      "bytes": 2456,
+      "sha256": "52e5e0ea89c013bb139fdeba75f429f2b09b8ce79c8276404f8e698838f2ca34"
+    },
+    {
+      "portable_path": "A332-patch-check-receipt.json",
+      "bytes": 728,
+      "sha256": "ef2c6218d39e061b4d3147bf30398f975f683eb4d4af6e13dbc0468d51d4938c"
+    },
+    {
+      "portable_path": "current-A-E-upstream-composition-prerequisites.json",
+      "bytes": 4107,
+      "sha256": "ad6109931563c7a01e50a23ba64c9672855a19468544b00c9794d4e8ff3ba748"
+    },
+    {
+      "portable_path": "b2-to-b305-FRC-unchanged-dependency-basis.json",
+      "bytes": 3602,
+      "sha256": "8daba7df47c8cd1c1d9cbb9a32f7c2748e23ede459bedf73717df1bfccda5485"
+    },
+    {
+      "portable_path": "literal-input-index.json",
+      "bytes": 15671,
+      "sha256": "e40c603ef2647f29a7eed4490bc148f32b736f43d6a85aa569cd2034f1f44b87"
+    },
+    {
+      "portable_path": "reconcile.py.txt",
+      "bytes": 10152,
+      "sha256": "b83f4704e86673bebdfd5e34eee9de59e00e96d039891ee47015b6f4266addbc"
+    },
+    {
+      "portable_path": "reconcile-v3.stdout.json",
+      "bytes": 389,
+      "sha256": "544e31d3a09afa1d820e6f94c16edc6729db030516fb91f5e0a61e9116efc490"
+    },
+    {
+      "portable_path": "reconcile-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "current-A-source-delta-v2.py.txt",
+      "bytes": 11112,
+      "sha256": "3d139dc8589a114a3e2aa0a8f48b8415b9f45cb4e8f8747795c09b73c56b4941"
+    },
+    {
+      "portable_path": "current-A-source-delta-v2.stdout.json",
+      "bytes": 353,
+      "sha256": "44d17d0e5fbef9bdff935ed8bfd7dc62272197d080bd40b2c12639ec7bafb0ee"
+    },
+    {
+      "portable_path": "current-A-source-delta-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "build-contract.py.txt",
+      "bytes": 15998,
+      "sha256": "5ca256f758ec44ff606c2a43b86607152302647df133e3f25cc7355ad8e0bd4a"
+    },
+    {
+      "portable_path": "build-contract-v3.stdout.json",
+      "bytes": 431,
+      "sha256": "567826c6c071a4e81d2dcc1ae3a7e933051a2770720e3c830d9656e9bd1d3dc5"
+    },
+    {
+      "portable_path": "build-contract-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "history/A2605-first-remote-check-ERROR.json",
+      "bytes": 462,
+      "sha256": "da330e7331bdc89dc335b3e8b2d100ab6825052102b3707ecd0d243742e17e61"
+    },
+    {
+      "portable_path": "history/A2605-first-remote-check-current-A-source-delta.py.txt",
+      "bytes": 9654,
+      "sha256": "ef75ca2499c21e7afc8dadf4daf341f0a99e834af07830c41ca6dea9008b6d3a"
+    },
+    {
+      "portable_path": "history/A2605-first-remote-check-current-A-source-delta.stdout.json.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "history/A2605-first-remote-check-current-A-source-delta.stderr.txt",
+      "bytes": 291,
+      "sha256": "5c20be9231a3f89a4cd084fc66fd00f6195856e3a8410137422d7b2fabc25c57"
+    },
+    {
+      "portable_path": "history/A2605-first-remote-check-A2605-patch-check-receipt.json",
+      "bytes": 729,
+      "sha256": "0882338a3cc96b1d7115ff2767f3d6e008a16c7c75fa8ac868ea42cde898565a"
+    },
+    {
+      "portable_path": "history/A2605-first-remote-check-A2605-status-reason-carry.patch.txt",
+      "bytes": 2456,
+      "sha256": "4d054b2baac3a8ea79c4642ece4f4d679ee604c83d216c770d08cc501d28f52a"
+    }
+  ],
+  "complete_original_Git_refs": 31,
+  "original_Git_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "bc958a597694702469fbdfa65053172f2fb0b835",
+      "bytes": 83181,
+      "sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/cal-and-welfare-consumer/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "079b8cb77bba7f2bf6d20cefba1826f526582bbf",
+      "bytes": 13208,
+      "sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/ddm-runtime-and-facade/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "b7a44861971feaf6741749da453a57c3fc9b8c04",
+      "bytes": 12578,
+      "sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "a4cfec6db2b0d9bd0a56a86d96e0ccb32e96cc35",
+      "bytes": 36925,
+      "sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "3ce7bf0b0195919a45e98ee9a1ac060c025186bf",
+      "bytes": 10247,
+      "sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "31d19423f5d9423c0b3dd5151730fbfc047982ec",
+      "bytes": 102935,
+      "sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/pcl-continuous-persistence/pytest.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "3118e6340f1ef7e302439b7ac6f4280a25b6dae5",
+      "bytes": 15383,
+      "sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+      "source": "2abc17f46a033a7879663486ff9946a95786601f",
+      "blob": "4dc2adb6f38f2c1674ec1c8b616d1985914e2b9e",
+      "bytes": 119161,
+      "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-gates-A-consumers.md",
+      "source": "2abc17f46a033a7879663486ff9946a95786601f",
+      "blob": "2b87c5582dbfdcdf4505dc738f24a1441edd965e",
+      "bytes": 8193,
+      "sha256": "f697df3a2aa624fe6722837ae056a3be7d09d30ad934768a52e19edd771e86a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.md",
+      "source": "2abc17f46a033a7879663486ff9946a95786601f",
+      "blob": "0ab214e1912d71f032c90013e84f191768343ff8",
+      "bytes": 8548,
+      "sha256": "6a392432cb49295afa685e1a8640dd22a4adbbd9b6cb680002e54c083941147d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/README.md",
+      "source": "2abc17f46a033a7879663486ff9946a95786601f",
+      "blob": "ab2e1d7d3fb9ed5864bf6896180832adc65fa63a",
+      "bytes": 12254,
+      "sha256": "e06ce2ae2053b5fb4a79e349ecf561248bbfa4eb7059bac4accab6fb7d95f99d"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c",
+      "bytes": 20737,
+      "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "blob": "7b7ccd45665e14e2e898182454bb1d94f5259c8d",
+      "bytes": 19111,
+      "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-owner-contract.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "f47621903cd61cc843aeb8b61480dd677e0291d2",
+      "bytes": 5746,
+      "sha256": "f4981ba0117e18a80290555c545bf11d666a8585395cb5f4ada7fed796163fd1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "6046e1770339def66d96c457778e2cbb03078d6f",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/README.md",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "d18691bc14af3eda03ea2302549cba29d9adda78",
+      "bytes": 3003,
+      "sha256": "a405099a42b989c9900edacdc9e221727b0d028818d76e0ff482c3886b672c50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/implementation-handoff.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "7fa3f74c606856cd209c818d8b2fca5bd6f91563",
+      "bytes": 22657,
+      "sha256": "20fba51cc630a938871576cdd4dc9f9766a7f41269b015aa14c002d0b26e215b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "179e9d3c85c25c58236f303ef1165605ea1b4879",
+      "bytes": 4135,
+      "sha256": "faa5de6ed915077d31709986b8fde12682dc389525610ad2a9efbee082f7666b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "8db868cb50640aa873dd06ff5d0c23bdf582c0a5",
+      "bytes": 8342,
+      "sha256": "81efbdf536b5db0b30863a7c678406277159f94f41f643e75156e8aa385fe5f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "9bb2f7ceea422e2783838cf0c449b61dbbcc2c56",
+      "bytes": 3057,
+      "sha256": "23a1ab3af253ebb722030c074aaccc99a3e8286d3024923a80be354f4f0e66c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stderr",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/frc-independent-review-1eba9f9e.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "4b2d5cc745db7b0933017f0d3701807671d1ff1a",
+      "bytes": 20923,
+      "sha256": "1c1b75c3b8fb77251df7fc475885894d1f7598b1141046ccf75f3a03db67cf46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/native-fRC-review-results.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "2d7d903fde8ab098aa27239061da1152666ee986",
+      "bytes": 10648,
+      "sha256": "d12b4bf0fcbafcb6e864e9f5af444dc64989497b8423b1510bd4b15507da529e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/probe_native_frc.py.txt",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "306887b49827d80ad4880e796228abcbb8117fec",
+      "bytes": 11146,
+      "sha256": "b506635baada115153afaf03bbdd3e8d6c59ef781b7c5616532ad51db84d710e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stdout.txt",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "5f9fd300bfad6f491daaeb445f627791b4cbf94d",
+      "bytes": 4727,
+      "sha256": "832dea50b5f4917d344fa041fa189dfdc245f32d75f56ab645d16fe73fbe5a1b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stderr.txt",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "b30b2ccd0ad634dc51835f6dc5c7ac1ec11b0fbc",
+      "bytes": 415,
+      "sha256": "40e5860a66ceceac7a1d275f51ac24b7d3c22f64c04ddc26908048c4d8a80168"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/forecast.py",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea",
+      "bytes": 4547,
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "bytes": 16018,
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/publication-receipt.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "8475b151d347eeb1f294eac40e9fae510fee264b",
+      "bytes": 574927,
+      "sha256": "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f"
+    }
+  ],
+  "JUnit": {
+    "files": 7,
+    "cases": 1465,
+    "outcomes": {
+      "PASS": 1457,
+      "FAIL": 8
+    },
+    "source_qualification": "Exact historical b2 observations in df525 receipt, not current candidate/A execution"
+  },
+  "finding_navigation": {
+    "B32": {
+      "unique_cases": 83,
+      "PASS": 75,
+      "FAIL": 8,
+      "E_proposal": "limited",
+      "G_acceptance": false
+    },
+    "LA-051": {
+      "unique_cases": 83,
+      "PASS": 75,
+      "FAIL": 8,
+      "E_proposal": "limited",
+      "G_acceptance": false
+    },
+    "unique_shared_failures": 8,
+    "per_ID_failure_links": 16,
+    "failure_names": [
+      "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+      "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]"
+    ]
+  },
+  "full_selected_E_dependency_readback": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/forecast.py",
+      "bytes": 4547,
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "bytes": 16018,
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "bytes": 578822,
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+      "bytes": 31721,
+      "sha256": "13af9e369b3ae70dfaba96be626f4450848a2e2ee5e189013d8c2c75c02e1542",
+      "unchanged_b2_to_b305": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "bytes": 37425,
+      "sha256": "59b97d8eef871ce2ed5d02e846d782e9edf4a14af297751db736b8891eebc59d",
+      "unchanged_b2_to_b305": true
+    }
+  ],
+  "all_four_A_function_literal_readbacks": [
+    {
+      "name": "_s10_empirical_projection",
+      "A_sha256": "69e4ea3cf2920964e85aed855b36cc07efb11050726e6b8d258a1b93c4c802f1",
+      "E_sha256": "db1224e00ec80ed79ed02b2a135de882706ad6c219207ae2c6b37a8d27b3b14f",
+      "same_AST": false,
+      "unchanged_previousA_to_A332": true
+    },
+    {
+      "name": "_resolve_s10_empirical_evidence",
+      "A_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3",
+      "E_sha256": "771e561cb8e1f5c844b6a81b6743cc9f0ec371eb6215cf7f41730da9fc9835c3",
+      "same_AST": true,
+      "unchanged_previousA_to_A332": true
+    },
+    {
+      "name": "_build_s10_forecast_inputs",
+      "A_sha256": "3c96bab5ec8aa8bfb7198c8331e68874beaa524ffac8873b6db70050255c51ca",
+      "E_sha256": "37a8d727042545c7948c4f566ae5e509c8cdc858df54de12e0591d92ca5b4324",
+      "same_AST": false,
+      "unchanged_previousA_to_A332": true
+    },
+    {
+      "name": "_s10_limitation_refs",
+      "A_sha256": "377efd56e60b9ffa9f4d03957869bb0a04907f86575f9dfa828b3706aec0dc30",
+      "E_sha256": "5e1ed29a9946bd80004c38769cdd81d6260c6ab5221332c3b6262c35e2653a1e",
+      "same_AST": false,
+      "unchanged_previousA_to_A332": true
+    }
+  ],
+  "source_observations": {
+    "projection_computes_but_omits_failure_codes": true,
+    "disposition_prefers_nonempty_generic_evidence_reason_over_typed_resolver_cause": true,
+    "A332_changed_first3_current_UNRUN": true,
+    "resolver_disposition5_variants_current_UNRUN": true,
+    "blanket_consumer_missing_is_not_used": true
+  },
+  "patch": {
+    "path": "A332-status-reason-carry.patch.txt",
+    "bytes": 2456,
+    "sha256": "52e5e0ea89c013bb139fdeba75f429f2b09b8ce79c8276404f8e698838f2ca34",
+    "independent_context_check_exit": 0,
+    "protected_file_mutated": false,
+    "behavioral_acceptance": "UNRUN pending canonical A owner and composed E prerequisites"
+  },
+  "reviewed_contract_boundaries": [
+    "Existing configured ForecastOwner ETS, admitted request/configured profile, distinct candidate/evidence persisted refs and source-native unit are carried honestly.",
+    "All six distinct synthetic roles remain labelled supplied synthetic values, not now or production events.",
+    "Missing/unresolved/malformed refs remain rejection controls; resolved0/4 floor failure remains a separate named case from missing-ref.",
+    "Actual production truth, purpose/profile authority and A verifier provenance are not established by credible/floor/status flags.",
+    "Fresh default/HTTP persistence recomputation and A neutral decision remains a concrete next result; E/A composition dependencies are source prerequisites and not production-data demands.",
+    "Terminal causal/treatment/policy refusals stay required."
+  ],
+  "remaining": [
+    "A canonical source repair/review",
+    "admit upstream E native fixture+adapter/source contract into current A composed source",
+    "one affected native eight-case packet + actual default/HTTP persist/fresh verification after owner publication",
+    "scientific criterion-dependent local history remains separately scoped"
+  ],
+  "predicate_basis": "recomputed",
+  "P41_introducing_red_cause": "not_established",
+  "new_runtime_evidence": false,
+  "own_mechanism_review": false,
+  "all_source_write_read_and_environment_leases": "closed for this read-only packet review"
+}

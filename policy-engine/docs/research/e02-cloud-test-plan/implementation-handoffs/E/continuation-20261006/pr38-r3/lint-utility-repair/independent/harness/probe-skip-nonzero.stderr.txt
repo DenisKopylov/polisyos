@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero.py", line 29, in <module>
+    collected=collector.collect(a);receipt=json.loads((wave/'checks/numeric-skip-exit7/numeric-skip-exit7.json').read_text())
+  File "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py", line 785, in collect
+    index = job["argv"].index("--basetemp")
+ValueError: list.index(x): x not in list

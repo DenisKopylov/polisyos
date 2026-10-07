@@ -1,0 +1,109 @@
+"""Publish a moderate summary without repeating full file inventories."""
+
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+BASE = Path(sys.argv[1]).resolve()
+FULL = BASE / "current-custody-review-v3.json"
+EXPECTED = "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def reference(path: Path) -> dict[str, object]:
+    data = path.read_bytes()
+    return {"path": str(path), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def main() -> None:
+    require(reference(FULL)["sha256"] == EXPECTED, "immutable full receipt changed")
+    value = json.loads(FULL.read_bytes())
+    actions = value["actions"]
+    require(len(actions) == 21, "whole action denominator changed")
+    require(
+        all(a["all_defining_before_copy_readback_fields_equal"] is True for a in actions),
+        "inventory field drift",
+    )
+    require(
+        all(
+            a["current_whole_membership_and_types_modes_files_links_verified"] is True
+            for a in actions
+        ),
+        "current custody failed",
+    )
+    output = {k: v for k, v in value.items() if k != "actions"}
+    output["schema"] = "policyos.e02.E.completed_cleanup_independent_moderate_summary.v1"
+    output["full_ignored_receipt"] = reference(FULL)
+    output["full_receipt_native_backend_field_qualification"] = {
+        "historical_value": value["native_backend_terminal_outcome"],
+        "rule": (
+            "This custody observation does not decode native execution; "
+            "the separate terminal decoder is authoritative."
+        ),
+        "terminal_decoder": reference(
+            Path(
+                "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.json"
+            )
+        ),
+        "native_outcome": "FAIL",
+        "native_exit_code": 137,
+        "native_counts": None,
+        "native_JUnit_present": False,
+        "source_input_immutable": False,
+    }
+    summaries = []
+    for action in actions:
+        summary = {
+            k: v
+            for k, v in action.items()
+            if k not in {"original_inventory", "allocation_metadata_deltas"}
+        }
+        inventory = action["original_inventory"]
+        summary["original_inventory_summary"] = {
+            k: v for k, v in inventory.items() if k != "entries"
+        }
+        summary["allocation_metadata_delta_count"] = len(action["allocation_metadata_deltas"])
+        summary["allocation_delta_bytes_observed"] = sum(
+            d["allocated_bytes_after"] - d["allocated_bytes_before"]
+            for d in action["allocation_metadata_deltas"]
+        )
+        summary["allocation_metadata_complete_deltas"] = reference(FULL)
+        summaries.append(summary)
+    output["actions"] = summaries
+    output["publication_qualification"] = {
+        "full_allocation_delta_lists_and_inventory_entries": (
+            "Allocation deltas retained in the ignored complete receipt; entries in all63 "
+            "content-bound inventories; not duplicated in Git."
+        ),
+        "archive_streams": (
+            "All515361235 decoded bytes were independently hashed "
+            "using1MiB buffers; no plaintext materialization."
+        ),
+        "current_ROOT_append": (
+            "Before/after identity is a point observation of authorized "
+            "parent integration, not a request to keep historical64d HEAD."
+        ),
+        "scope": (
+            "Custody GO only; no native/scientific finding acceptance, "
+            "production authority, causal attribution, or new cleanup operation."
+        ),
+        "initial_observer_refusals": [
+            "V1 current status assumption was narrower than authorized append integration",
+            (
+                "V2 required allocation metadata equality between filesystems; "
+                "defining bytes/fields were equal"
+            ),
+        ],
+    }
+    target = BASE / "cleanup-independent-moderate-summary-v3.json"
+    target.write_text(json.dumps(output, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    sys.stdout.write(json.dumps(reference(target), sort_keys=True) + "\n")
+
+
+if __name__ == "__main__":
+    main()

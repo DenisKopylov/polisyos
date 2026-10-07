@@ -1,0 +1,54 @@
+{
+  "schema": "policyos.e02.independent-owned-route-release-metadata.v1",
+  "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "checks": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "bytes": 2105,
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e",
+      "structured_row": {
+        "id": "foundry-uncertainty-welfare-covariance-facade",
+        "change_class": "python-public-api",
+        "impact": "additive",
+        "surface": "public_stable: polisyos.foundry.uncertainty",
+        "owner": "team-polisyos",
+        "version_owner": "team-architecture",
+        "deprecation_window": "not_applicable",
+        "release_note": "Expose the existing covariance axis, singular-support and v1 reconciliation objects lazily by identity through Foundry uncertainty.",
+        "generated_client_compatibility": "not_applicable",
+        "public_surface_inventory_reviewed": true,
+        "migration_docs": [
+          "src/polisyos/foundry/uncertainty/README.md"
+        ],
+        "runbook_docs": []
+      },
+      "parser_errors": [],
+      "inventory_predicate_basis": "Independent actual canonical generator output equals proposed inventory/reference bytes and actual AST counts25/28; flag alone not acceptance"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/immutable-inputs/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1914,
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5",
+      "structured_row": {
+        "id": "calibration-foundry-reader-alias",
+        "change_class": "python-public-api",
+        "impact": "compatible_with_migration",
+        "surface": "public_experimental: polisyos.calibration",
+        "owner": "team-scientist",
+        "version_owner": "team-architecture",
+        "deprecation_window": "not_applicable",
+        "release_note": "Remove the unreleased Calibration reader alias and consume the identical strict reader directly through Foundry uncertainty.",
+        "generated_client_compatibility": "not_applicable",
+        "public_surface_inventory_reviewed": true,
+        "migration_docs": [
+          "src/polisyos/calibration/README.md"
+        ],
+        "runbook_docs": []
+      },
+      "parser_errors": [],
+      "inventory_predicate_basis": "Independent actual canonical generator output equals proposed inventory/reference bytes and actual AST counts25/28; flag alone not acceptance"
+    }
+  ],
+  "public_inventory_review_flag_scope": "bounded owned facade delta only; no blanket Core/IR admission",
+  "DDM_source_review": false
+}

@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.E.three_selector_packet_recomputing_controls.v2",
+  "packet": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/three-selector-packet-v3-optimized.json",
+    "bytes": 23106,
+    "sha256": "2d704be9fb2448e6f2453971f7ecfa633873db7540f0f39fa7952a6969037249"
+  },
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "optimized": true,
+  "healthy": true,
+  "raw_claim_recomputation": true,
+  "controls": [
+    {
+      "case": "native_exit_bool",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "source_guard_integer",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "stdout_size_bool_zero",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "architecture_claims_PASS",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "drop_deep_edges_keepnative",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "architecture_UNRUN_misclassification",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "schema_bool_escape",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "confidence_forged_count",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "bound_source_digest_old",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "static_FAIL_as_PASS",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "static_regression_count_zero",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "static_mechanism_count_bool",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "static_mapping_digest_fake",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "infer_PIDcause_from_globalcounter",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "claim_finding_closure",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "drop_source_frame_marker",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "posterior_witness_false_ref",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    },
+    {
+      "case": "static_fullraw_wrong_hash",
+      "outcome": "PASS",
+      "expected_refusal": "typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs",
+      "actual_native_receipt_source_and_stdout_unchanged": true
+    }
+  ],
+  "control_count": 18,
+  "scope": "Native custody/typedsummary only; not new runtime/property/findingclosure"
+}

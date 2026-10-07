@@ -1,0 +1,23 @@
+{
+  "schema": "policyos.e02.six_chain_immutable_custody.v1",
+  "source_candidate": "7f872f2119f220ae86510ca89993ed0240efe982",
+  "source_tree": "8b5728addc9e4ab5702cba8aec7cb73730b366f2",
+  "base": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "custody_of_current207Gitfiles": "GO",
+  "copier_complete_companion_admission": "CHANGE_REQUIRED",
+  "defect": "Copier admitted9metadata+196payload=205 but actualGitpacket207. Exacttwo passive correctionrecipes neither admitted before callback nor replayed. Preserve historical7f/build205, appendall11metadata+recomputed207 beforewrite; addactualmissing/forged recipe controls.",
+  "exact_missing_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/correct-raw-stream-portable.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan/metadata-admission-correction.py.txt"
+  ],
+  "actual_full_git_paths": 207,
+  "actual_full_git_bytes": 4091642,
+  "actual_selected_occurrences": 231,
+  "actual_original_selectors": 6,
+  "logical_rows": 237,
+  "unique_payloads": 196,
+  "aliases": 41,
+  "unique_payload_bytes": 3554254,
+  "no_native_numeric_source_or_gate_repeat": true
+}

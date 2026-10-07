@@ -1,0 +1,709 @@
+{
+  "schema": "policyos.e02.decisions_prereqs_typed_claim_admission_controls.v2",
+  "copier_sha256": "f73d90f484d38b6b7d5c3f82316a9d9a053d7e53e29b5c06dbf28bb7ff98e62e",
+  "manifest_sha256": "d9daf60588d052f02078edfd3d18e87b2ef6943f9a80441e6cf0490ab945bd93",
+  "healthy_modes": [
+    "normal",
+    "optimized"
+  ],
+  "negative_count_per_mode": 19,
+  "controls": [
+    {
+      "case": "healthy",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-healthy/stderr.txt"
+    },
+    {
+      "case": "bool_ledger_integer",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_ledger_integer/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_ledger_integer/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_ledger_integer/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_ledger_integer/stderr.txt"
+    },
+    {
+      "case": "forged_ROOT_after",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-forged_ROOT_after/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-forged_ROOT_after/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-forged_ROOT_after/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-forged_ROOT_after/stderr.txt"
+    },
+    {
+      "case": "false_execution_flag",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_execution_flag/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_execution_flag/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_execution_flag/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_execution_flag/stderr.txt"
+    },
+    {
+      "case": "false_BASE_SHA",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_SHA/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_SHA/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_SHA/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_SHA/stderr.txt"
+    },
+    {
+      "case": "false_BASE_TREE",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_TREE/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_TREE/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_TREE/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_BASE_TREE/stderr.txt"
+    },
+    {
+      "case": "false_PREFIX",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_PREFIX/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_PREFIX/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_PREFIX/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-false_PREFIX/stderr.txt"
+    },
+    {
+      "case": "int_alias_bool",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-int_alias_bool/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-int_alias_bool/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-int_alias_bool/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-int_alias_bool/stderr.txt"
+    },
+    {
+      "case": "float_logical_count",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_logical_count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_logical_count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_logical_count/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_logical_count/stderr.txt"
+    },
+    {
+      "case": "float_selector_count",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_selector_count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_selector_count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_selector_count/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_selector_count/stderr.txt"
+    },
+    {
+      "case": "float_carrier_size",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_carrier_size/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_carrier_size/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_carrier_size/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-float_carrier_size/stderr.txt"
+    },
+    {
+      "case": "unknown_root_metadata",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_root_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_root_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_root_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_root_metadata/stderr.txt"
+    },
+    {
+      "case": "unknown_logical_row_metadata",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_logical_row_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_logical_row_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_logical_row_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_logical_row_metadata/stderr.txt"
+    },
+    {
+      "case": "unknown_selector_metadata",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_selector_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_selector_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_selector_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-unknown_selector_metadata/stderr.txt"
+    },
+    {
+      "case": "duplicate_selector_header",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-duplicate_selector_header/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-duplicate_selector_header/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-duplicate_selector_header/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-duplicate_selector_header/stderr.txt"
+    },
+    {
+      "case": "numeric_lock_flag",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-numeric_lock_flag/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-numeric_lock_flag/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-numeric_lock_flag/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-numeric_lock_flag/stderr.txt"
+    },
+    {
+      "case": "selector_omission",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-selector_omission/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-selector_omission/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-selector_omission/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-selector_omission/stderr.txt"
+    },
+    {
+      "case": "qualifier_omission",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-qualifier_omission/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-qualifier_omission/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-qualifier_omission/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-qualifier_omission/stderr.txt"
+    },
+    {
+      "case": "same_body_alias_substitution",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-same_body_alias_substitution/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-same_body_alias_substitution/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-same_body_alias_substitution/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-same_body_alias_substitution/stderr.txt"
+    },
+    {
+      "case": "bool_companion_integer",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_companion_integer/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_companion_integer/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_companion_integer/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-bool_companion_integer/stderr.txt"
+    },
+    {
+      "case": "effective_header_predicate_removal",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/typed-fixed-header-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-effective_header_predicate_removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-effective_header_predicate_removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-effective_header_predicate_removal/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/normal-effective_header_predicate_removal/stderr.txt"
+    },
+    {
+      "case": "healthy",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-healthy/stderr.txt"
+    },
+    {
+      "case": "bool_ledger_integer",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_ledger_integer/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_ledger_integer/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_ledger_integer/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_ledger_integer/stderr.txt"
+    },
+    {
+      "case": "forged_ROOT_after",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-forged_ROOT_after/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-forged_ROOT_after/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-forged_ROOT_after/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-forged_ROOT_after/stderr.txt"
+    },
+    {
+      "case": "false_execution_flag",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_execution_flag/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_execution_flag/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_execution_flag/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_execution_flag/stderr.txt"
+    },
+    {
+      "case": "false_BASE_SHA",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_SHA/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_SHA/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_SHA/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_SHA/stderr.txt"
+    },
+    {
+      "case": "false_BASE_TREE",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_TREE/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_TREE/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_TREE/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_BASE_TREE/stderr.txt"
+    },
+    {
+      "case": "false_PREFIX",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_PREFIX/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_PREFIX/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_PREFIX/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-false_PREFIX/stderr.txt"
+    },
+    {
+      "case": "int_alias_bool",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-int_alias_bool/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-int_alias_bool/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-int_alias_bool/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-int_alias_bool/stderr.txt"
+    },
+    {
+      "case": "float_logical_count",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_logical_count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_logical_count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_logical_count/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_logical_count/stderr.txt"
+    },
+    {
+      "case": "float_selector_count",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_selector_count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_selector_count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_selector_count/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_selector_count/stderr.txt"
+    },
+    {
+      "case": "float_carrier_size",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_carrier_size/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_carrier_size/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_carrier_size/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-float_carrier_size/stderr.txt"
+    },
+    {
+      "case": "unknown_root_metadata",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_root_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_root_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_root_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_root_metadata/stderr.txt"
+    },
+    {
+      "case": "unknown_logical_row_metadata",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_logical_row_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_logical_row_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_logical_row_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_logical_row_metadata/stderr.txt"
+    },
+    {
+      "case": "unknown_selector_metadata",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_selector_metadata/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_selector_metadata/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_selector_metadata/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-unknown_selector_metadata/stderr.txt"
+    },
+    {
+      "case": "duplicate_selector_header",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-duplicate_selector_header/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-duplicate_selector_header/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-duplicate_selector_header/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-duplicate_selector_header/stderr.txt"
+    },
+    {
+      "case": "numeric_lock_flag",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-numeric_lock_flag/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-numeric_lock_flag/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-numeric_lock_flag/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-numeric_lock_flag/stderr.txt"
+    },
+    {
+      "case": "selector_omission",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-selector_omission/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-selector_omission/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-selector_omission/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-selector_omission/stderr.txt"
+    },
+    {
+      "case": "qualifier_omission",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-qualifier_omission/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-qualifier_omission/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-qualifier_omission/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-qualifier_omission/stderr.txt"
+    },
+    {
+      "case": "same_body_alias_substitution",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-same_body_alias_substitution/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-same_body_alias_substitution/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-same_body_alias_substitution/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-same_body_alias_substitution/stderr.txt"
+    },
+    {
+      "case": "bool_companion_integer",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_companion_integer/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_companion_integer/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_companion_integer/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-bool_companion_integer/stderr.txt"
+    },
+    {
+      "case": "effective_header_predicate_removal",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/typed-fixed-header-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-effective_header_predicate_removal/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-effective_header_predicate_removal/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-effective_header_predicate_removal/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-v2/optimized-effective_header_predicate_removal/stderr.txt"
+    }
+  ],
+  "effective_header_removal": "forgedROOT_after accepted with identical payload/counts/other flags after removing only fixed-header comparison; source-claim propertyFAIL",
+  "historical_72049_preserved": true,
+  "ROOT_source_env_locks_changed": false,
+  "numeric_or_gate_reexecuted": false
+}

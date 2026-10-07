@@ -1,0 +1,13 @@
+# E API, import, and current typecheck owner packet
+
+This read-only helper packet qualifies frozen E source `e4b97c15196d8e276745f55a4367da83586511d9`, tree `48af48c6462db76be9ba962dc6df07a9a1977963`. Historical API/import snapshots use exact `df5258b7ddfade5b952e3b21ef28116ced40fa68`; the current qualifier independently confirms their canonical inputs are unchanged.
+
+`implementation-owner-handoff-v3.json` is the current entry point. It records complete 379-path Python input ownership, full source/test AST denominator, original12 versus newer23 versus preexisting CanonSpec3 classes, four missing public inventory entries and two missing registered profile ABI outputs. The CanonSpec v2 unapplied packet covers all three E callers and preserves the actual IR class; no Core sibling cast, copied codec or exceptions baseline is proposed. Owner leases remain unestablished.
+
+The final three-file typecheck captured native exit0 and 0 errors/0 warnings using the unchanged canonical project/baseline and supported `--baselinemode=discard`. Its CLI outdated-baseline notice is preserved separately. This is a scoped check; the whole type gate is UNRUN. Earlier df525 custody ERROR, b305 FAIL7+1, 11082 FAIL4+0 and Root working-wrapper ERROR remain distinct original observations, with complete outputs preserved.
+
+G owns canonical generation after composed source admission: ABI generation, public inventory/reference sync, then their recomputing checks. No product source or canonical ABI/public inventory output was edited by this helper. The first type tool unexpectedly rewrote the tracked baseline; Root restored exact Git bytes after preserving the unique changed output, and all later checks used read-only discard/hash guards. The architecture supplement preserves both the initial preparation and Root's actual private workspace/offline cache prerequisites.
+
+Files ending `.py.txt` are literal archival snapshots of the code actually executed in scratch, paired with original commands/path/source/hash in their receipts. They are documents, not current invocable publication utilities. Extracting/rerunning one requires a separately chosen scratch path and the receipt's pinned environment; they do not become an alternative API or canonical generator. Unapplied patches/tests are owner-ready proposals, not runtime PASS.
+
+The fit v3 independent review reconciles all25 assets, all25 pinned source identities and nine native loader observations. Its GO is for bounded canonical-owner packet intake; new float HMC/NUTS→fresh CAS→Node checks remain UNRUN until the protected Scientist writer publishes the repair. No finding closure or G intake is inferred from this packet.

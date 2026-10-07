@@ -1,0 +1,121 @@
+"""Actual V3 summary escapes, whole-claim correction and effective guard removal."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+
+def corrupt(data: dict[str, Any], pointer: str, value: object) -> dict[str, Any]:
+    result = copy.deepcopy(data)
+    target: Any = result
+    parts = pointer.split("/")
+    for part in parts[:-1]:
+        target = target[int(part)] if isinstance(target, list) else target[part]
+    target[parts[-1]] = value
+    return result
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--module", type=Path, required=True)
+    parser.add_argument("--inputs", type=Path, required=True)
+    parser.add_argument("--packet", type=Path, required=True)
+    args = parser.parse_args()
+    module = runpy.run_path(str(args.module), run_name="corrective_whole_claim_module")
+    manifest, values = module["load_inputs"](args.inputs)
+    actual_expected = module["build"](manifest, values)
+    observed = json.loads(args.packet.read_bytes())
+    roles = actual_expected["source_role_qualification"]
+    owner = values["owner54"]
+    module["admit_preparation_claims"](observed, actual_expected)
+    controls = [
+        {"case": "whole_immutable_inputs_plan_env_source_owner_recomputed", "outcome": "PASS"}
+    ]
+    mutations = [
+        ("original_native104_as1", "current_numeric_wave/native_test_path_count", 1),
+        ("original_env207_as1", "environment/distribution_metadata_count", 1),
+        (
+            "original_pending_export1_asTrue",
+            "import_owner_dependencies/original12/owner_export_pending",
+            True,
+        ),
+        ("original_fit77_as3932", "scientific_fit_boundary/accepted_source", module["OLD"]),
+        ("sibling_native104_as_float", "current_numeric_wave/native_test_path_count", 104.0),
+        ("sibling_env207_as_float", "environment/distribution_metadata_count", 207.0),
+        ("sibling_native_plan_digest", "current_numeric_wave/plan/sha256", "0" * 64),
+        ("sibling_env_digest", "environment/snapshot/sha256", "0" * 64),
+        ("sibling_fit_review_digest", "scientific_fit_boundary/accepted_review/sha256", "0" * 64),
+        (
+            "sibling_original_repaired11_as_float",
+            "import_owner_dependencies/original12/repaired_supported_route",
+            11.0,
+        ),
+        (
+            "sibling_new_static23_as1",
+            "import_owner_dependencies/current_new_E_static_edges/total",
+            1,
+        ),
+    ]
+    for name, pointer, value in mutations:
+        mutant = corrupt(observed, pointer, value)
+        try:
+            module["admit_preparation_claims"](mutant, actual_expected)
+        except ValueError as exc:
+            controls.append(
+                {"case": name, "outcome": "PASS", "actual_admission": "REFUSE", "reason": str(exc)}
+            )
+        else:
+            raise ValueError("whole typed claim escaped: " + name)
+    tree = ast.parse(args.module.read_text())
+    removed = 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_preparation_claims":
+            node.body = [ast.Pass()]
+            removed += 1
+    module["require"](removed == 1, "one exact whole preparation claim predicate")
+    without: dict[str, Any] = {"__name__": "whole_claim_predicate_removed"}
+    exec(compile(ast.fix_missing_locations(tree), str(args.module), "exec"), without)  # noqa: S102 -- own pinned observer AST
+    for name, pointer, value in mutations[:4]:
+        mutant = corrupt(observed, pointer, value)
+        without["admit_rows"](mutant, owner)
+        without["admit_source_claims"](mutant, roles)
+        without["admit_preparation_claims"](mutant, actual_expected)
+        controls.append(
+            {
+                "case": "sole_whole_claim_removal_" + name,
+                "outcome": "PASS",
+                "actual_admission": "ACCEPT",
+                "defining_property_outcome": "FAIL",
+                "actual_source_owner_null_outcome_guards_retained": True,
+            }
+        )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "schema": "policyos.e02.E.final54-whole-preparation-claim-controls.v1",
+                "optimized": not __debug__,
+                "module": module["reference"](args.module),
+                "packet": module["reference"](args.packet),
+                "inputs": module["reference"](args.inputs),
+                "candidate": module["SOURCE"],
+                "tree": module["TREE"],
+                "controls": controls,
+                "control_count": len(controls),
+                "source_product_or_native_changes": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

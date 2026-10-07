@@ -1,0 +1,116 @@
+{
+  "schema": "policyos.e02.copy_index.v1",
+  "source_candidate": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+  "source_tree": "a067361f310259449bea5dd90b86c4d96796e5b0",
+  "prior_handoff_publication": "eec7afbe190e0911c95850386204a17a508db755",
+  "prior_handoff_tree": "14f7ee8dcc948f410c38196fa6cb9c146bda1dda",
+  "copies": 17,
+  "total_bytes": 76992,
+  "records": [
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/review.json",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/immutable-validator.py.txt",
+      "bytes": 9427,
+      "sha256": "8a71c65cfdab881b3efe3dad7ecc4c0e845ff66af745f9065a0143f369f66c6e"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/healthy.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/healthy.json",
+      "bytes": 11169,
+      "sha256": "0bd5c3049abf201886ba6dce3a8541e3e7390856f71af906d7531975eed4e9f3"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/old_escape_native_PASS.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/old_escape_native_PASS.json",
+      "bytes": 11168,
+      "sha256": "ee7991145b90029fda45e31355f0d3ebc9fa237f08caf5dc5686579172ac3e46"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/effective-unknown-record-removal.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/effective-unknown-record-removal.py.txt",
+      "bytes": 9411,
+      "sha256": "54c3a55b289210f9e1265603a52e2cd481f3835126727a49545c6df848432755"
+    },
+    {
+      "original_path": "/tmp/e02-E-review-DoE-basis2824.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-review-DoE-basis2824.py.txt",
+      "bytes": 5429,
+      "sha256": "1b37d4256e006f0bc4a4a19dea09558f14caa765a2a0395ff38e244de57f83c4"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-DoE-basis2824-independent.stdout.txt",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-DoE-basis2824-independent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/normal-healthy.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-healthy.stdout.txt",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/normal-healthy.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/normal-old_escape_native_PASS.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-old_escape_native_PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/normal-old_escape_native_PASS.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-old_escape_native_PASS.stderr.txt",
+      "bytes": 1088,
+      "sha256": "bdd7f6c19c09a42aaa4245a27a3b337bcf4753b3397f377fe90ee901c5454d0f"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-healthy.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-healthy.stdout.txt",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-healthy.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-old_escape_native_PASS.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-old_escape_native_PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-old_escape_native_PASS.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-old_escape_native_PASS.stderr.txt",
+      "bytes": 1088,
+      "sha256": "bdd7f6c19c09a42aaa4245a27a3b337bcf4753b3397f377fe90ee901c5454d0f"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/publication-selection.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/original-publication-selection.json",
+      "bytes": 3548,
+      "sha256": "95d287a6e1d864d78cdfef37b705d9e0fec7c091df4b13f58566cf7ab7d50fd4"
+    }
+  ],
+  "selected_members": 16,
+  "finding_acceptance": false,
+  "native_or_math_reexecution": false
+}

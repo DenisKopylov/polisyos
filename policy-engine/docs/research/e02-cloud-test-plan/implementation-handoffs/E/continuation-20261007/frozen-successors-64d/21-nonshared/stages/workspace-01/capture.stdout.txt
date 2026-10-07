@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/lint/lint_imports.py", "--policy", "architecture/imports/policy.toml", "--exceptions", "architecture/imports/exceptions.toml"], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 35.171915769577026, "source_immutable": true}

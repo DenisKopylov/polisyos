@@ -1,0 +1,10 @@
+{
+  "review": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/doe-budget-independent-review-70c4.json",
+  "verdict": "GO_bounded_runtime_plan_admission",
+  "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "native_independent": 66,
+  "file_count": 16,
+  "bytes": 96086,
+  "blockers": []
+}

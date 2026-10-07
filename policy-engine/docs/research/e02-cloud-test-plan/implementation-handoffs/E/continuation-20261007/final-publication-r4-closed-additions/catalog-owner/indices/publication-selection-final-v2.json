@@ -1,0 +1,427 @@
+{
+  "schema": "policyos.e02.independent_catalog_packet_review_selection.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "historical_selection": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/publication-selection-pre-v2.json",
+    "bytes": 6658,
+    "sha256": "ea4b0b56cd1cc001fd16259a2a5801cc4649b18a85c7efd743fd5b1cec326fe1"
+  },
+  "native_GO": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-owner-packet-review.json",
+    "bytes": 13629,
+    "sha256": "630a3eabe3e5c1d25b2a80596db1d8f10a5c38b4f2dc1fb9a4b45ad3e1b122f0"
+  },
+  "current_v2_class_GO": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-summary-class-independent-review.json",
+    "bytes": 9380,
+    "sha256": "7617b8afc76e67d0963725c329a574392772f9bf7bf7e633f26be957d060e570"
+  },
+  "current_custody_GO": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-publication-custody-independent-review.json",
+    "bytes": 33125,
+    "sha256": "978d1c2db70ff2aefddee3916d0638b550908b201adf52ad729accaf396b248e"
+  },
+  "logical_assets": 39,
+  "unique_assets": 26,
+  "unique_bytes": 173706,
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-owner-packet-review.json",
+      "destination": "native-owner-packet-review.json",
+      "bytes": 13629,
+      "sha256": "630a3eabe3e5c1d25b2a80596db1d8f10a5c38b4f2dc1fb9a4b45ad3e1b122f0",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-owner-packet-review.json",
+      "copy_to": "native-owner-packet-review.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-review.stdout.txt",
+      "destination": "native-review.stdout.txt",
+      "bytes": 1107,
+      "sha256": "bce66d08bf4223162dd6e1de7a639908e55cf7645f6195e9986282125b205aef",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-review.stdout.txt",
+      "copy_to": "native-review.stdout.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-review.stderr.txt",
+      "destination": "native-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": "native-review.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review_native_catalog_packet.py.txt",
+      "destination": "review_native_catalog_packet.py.txt",
+      "bytes": 17496,
+      "sha256": "c3bc202a0305be2fc57073c21d60e3a0ab49860d2b319cf7397d7057f7f6a6ae",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "review_native_catalog_packet.py.txt",
+      "copy_to": "review_native_catalog_packet.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/author-validator-normal.stdout.json",
+      "destination": "author-validator-normal.stdout.json",
+      "bytes": 1430,
+      "sha256": "ee0a1366009ae51cf0c1808ce8d731ba4d36f8768983e91fc6baab79b47b28ca",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "author-validator-normal.stdout.json",
+      "copy_to": "author-validator-normal.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/author-validator-normal.stderr.txt",
+      "destination": "author-validator-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/author-validator-optimized.stdout.json",
+      "destination": "author-validator-optimized.stdout.json",
+      "bytes": 1430,
+      "sha256": "ee0a1366009ae51cf0c1808ce8d731ba4d36f8768983e91fc6baab79b47b28ca",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "author-validator-normal.stdout.json",
+      "copy_to": null
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/author-validator-optimized.stderr.txt",
+      "destination": "author-validator-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/summary-corruption-probe.json",
+      "destination": "summary-corruption-probe.json",
+      "bytes": 829,
+      "sha256": "a03c2df8b5dc184033b62e72013d947ed34a4adf977b29a4a4cdcbced0e784df",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "summary-corruption-probe.json",
+      "copy_to": "summary-corruption-probe.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/old-summary-escape-normal.stdout.json",
+      "destination": "old-summary-escape-normal.stdout.json",
+      "bytes": 1548,
+      "sha256": "dbdc877b17911da4e667ff1196c211b820fca7ea0d0b88bec59adced7be6f206",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "old-summary-escape-normal.stdout.json",
+      "copy_to": "old-summary-escape-normal.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/old-summary-escape-normal.stderr.txt",
+      "destination": "old-summary-escape-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/old-summary-escape-optimized.stdout.json",
+      "destination": "old-summary-escape-optimized.stdout.json",
+      "bytes": 1548,
+      "sha256": "cad641dc23eb515141dd2143ee9f35f7d33d1e32e48cd7f13891ad13e7e37641",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "old-summary-escape-optimized.stdout.json",
+      "copy_to": "old-summary-escape-optimized.stdout.json"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/old-summary-escape-optimized.stderr.txt",
+      "destination": "old-summary-escape-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/probe_validator_summary_class.py.txt",
+      "destination": "probe_validator_summary_class.py.txt",
+      "bytes": 2201,
+      "sha256": "2d20bede5785c57d081c0128e51d50266c220a3737fec2a72b763fe1f3f77038",
+      "role": "deciding_independent_review",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "probe_validator_summary_class.py.txt",
+      "copy_to": "probe_validator_summary_class.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review-first-observer-ERROR.py.txt",
+      "destination": "review-first-observer-ERROR.py.txt",
+      "bytes": 17140,
+      "sha256": "e2342d50a259ff1a66fbf2a78cde21756f9dfec867e1b35f8514a84033ec5a49",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "review-first-observer-ERROR.py.txt",
+      "copy_to": "review-first-observer-ERROR.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review-first-observer-ERROR.stderr.txt",
+      "destination": "review-first-observer-ERROR.stderr.txt",
+      "bytes": 588,
+      "sha256": "15131651165f8101b2f6e40424d03cc9b86eb5e74abb4291a5b7c2312a075d5a",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "review-first-observer-ERROR.stderr.txt",
+      "copy_to": "review-first-observer-ERROR.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review-second-observer-ERROR.py.txt",
+      "destination": "review-second-observer-ERROR.py.txt",
+      "bytes": 17359,
+      "sha256": "16f4788763da4759f9fd1d0b097e9382305d789297cfcc5d788f5677c6f746bb",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "review-second-observer-ERROR.py.txt",
+      "copy_to": "review-second-observer-ERROR.py.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review-second-observer-ERROR.stderr.txt",
+      "destination": "review-second-observer-ERROR.stderr.txt",
+      "bytes": 629,
+      "sha256": "840b90317941a02852473efc73d607792743e25ab17fec85aa0d56c155031845",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "historical native review and original v1 summary-admission gap",
+      "stored_at": "review-second-observer-ERROR.stderr.txt",
+      "copy_to": "review-second-observer-ERROR.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review_v2_summary_class.py.txt",
+      "destination": "review_v2_summary_class.py.txt",
+      "stored_at": "review_v2_summary_class.py.txt",
+      "copy_to": "review_v2_summary_class.py.txt",
+      "bytes": 11804,
+      "sha256": "e0c2bcab69f76aef15a49e899c3a8fd7bbff514abd5269d42368555679ec7b02",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/review_v2_publication_custody.py.txt",
+      "destination": "review_v2_publication_custody.py.txt",
+      "stored_at": "review_v2_publication_custody.py.txt",
+      "copy_to": "review_v2_publication_custody.py.txt",
+      "bytes": 5824,
+      "sha256": "d70a1e3e6035ef2f0fe5f056d0b94a93503324a9ab8a428b303649eec63b3cc1",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-summary-class-independent-review.json",
+      "destination": "v2-summary-class-independent-review.json",
+      "stored_at": "v2-summary-class-independent-review.json",
+      "copy_to": "v2-summary-class-independent-review.json",
+      "bytes": 9380,
+      "sha256": "7617b8afc76e67d0963725c329a574392772f9bf7bf7e633f26be957d060e570",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-publication-custody-independent-review.json",
+      "destination": "v2-publication-custody-independent-review.json",
+      "stored_at": "v2-publication-custody-independent-review.json",
+      "copy_to": "v2-publication-custody-independent-review.json",
+      "bytes": 33125,
+      "sha256": "978d1c2db70ff2aefddee3916d0638b550908b201adf52ad729accaf396b248e",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-normal.stdout.json",
+      "destination": "v2-independent-normal.stdout.json",
+      "stored_at": "v2-independent-normal.stdout.json",
+      "copy_to": "v2-independent-normal.stdout.json",
+      "bytes": 6376,
+      "sha256": "9cfb10d3f54230b1cd3dc70510a11321f04c1b6fa3c7076c4b50d85f760ad4c2",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-normal.stderr.txt",
+      "destination": "v2-independent-normal.stderr.txt",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-optimized.stdout.json",
+      "destination": "v2-independent-optimized.stdout.json",
+      "stored_at": "v2-independent-normal.stdout.json",
+      "copy_to": null,
+      "bytes": 6376,
+      "sha256": "9cfb10d3f54230b1cd3dc70510a11321f04c1b6fa3c7076c4b50d85f760ad4c2",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-independent-optimized.stderr.txt",
+      "destination": "v2-independent-optimized.stderr.txt",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-normal.stdout.json",
+      "destination": "v2-removal-normal.stdout.json",
+      "stored_at": "v2-removal-normal.stdout.json",
+      "copy_to": "v2-removal-normal.stdout.json",
+      "bytes": 2211,
+      "sha256": "207e75954ccd9d35fb4311258fc86a444b76cd07a9f0900f426d33df124a9793",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-normal.stderr.txt",
+      "destination": "v2-removal-normal.stderr.txt",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-optimized.stdout.json",
+      "destination": "v2-removal-optimized.stdout.json",
+      "stored_at": "v2-removal-optimized.stdout.json",
+      "copy_to": "v2-removal-optimized.stdout.json",
+      "bytes": 2211,
+      "sha256": "a971e1e08fea1be588781646cb519bc500efcc5974f4a82ac3e8e58015b6088f",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-removal-optimized.stderr.txt",
+      "destination": "v2-removal-optimized.stderr.txt",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-summary-inlet-removed.py.txt",
+      "destination": "v2-summary-inlet-removed.py.txt",
+      "stored_at": "v2-summary-inlet-removed.py.txt",
+      "copy_to": "v2-summary-inlet-removed.py.txt",
+      "bytes": 15684,
+      "sha256": "baa09d25d0a97adeb00b0c1fb4d096a99764173df808066949e1c32ea327e36f",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-review.stdout.json",
+      "destination": "v2-review.stdout.json",
+      "stored_at": "v2-review.stdout.json",
+      "copy_to": "v2-review.stdout.json",
+      "bytes": 490,
+      "sha256": "f6515b65c342516f97962f0f32f7415f55e45b1727d3215fa99e9cbf6d24ef28",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-review.stderr.txt",
+      "destination": "v2-review.stderr.txt",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-custody.stdout.json",
+      "destination": "v2-custody.stdout.json",
+      "stored_at": "v2-custody.stdout.json",
+      "copy_to": "v2-custody.stdout.json",
+      "bytes": 553,
+      "sha256": "27908aa8b401a576866c329b068894108d60c70a119153efc0bb44aec1f0eb27",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-custody.stderr.txt",
+      "destination": "v2-custody.stderr.txt",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-custody-first-observer-ERROR.py.txt",
+      "destination": "v2-custody-first-observer-ERROR.py.txt",
+      "stored_at": "v2-custody-first-observer-ERROR.py.txt",
+      "copy_to": "v2-custody-first-observer-ERROR.py.txt",
+      "bytes": 5802,
+      "sha256": "a11abcc5b90be6285df441bd2e86d8c214b5fb13e5eb8f222bd52a182713edbb",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-custody-first-observer-ERROR.stdout.json",
+      "destination": "v2-custody-first-observer-ERROR.stdout.json",
+      "stored_at": "native-review.stderr.txt",
+      "copy_to": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/v2-custody-first-observer-ERROR.stderr.txt",
+      "destination": "v2-custody-first-observer-ERROR.stderr.txt",
+      "stored_at": "v2-custody-first-observer-ERROR.stderr.txt",
+      "copy_to": "v2-custody-first-observer-ERROR.stderr.txt",
+      "bytes": 489,
+      "sha256": "f3966c963b052bfa13e2b8037006771b58c5fe18cfb618a0c40099a9f470d0b5",
+      "role": "historical_independent_observer_ERROR",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    },
+    {
+      "source_path": "/tmp/e02-E-native-catalog-packet-independent-64d/build_final_independent_selection.py.txt",
+      "destination": "build_final_independent_selection.py.txt",
+      "stored_at": "build_final_independent_selection.py.txt",
+      "copy_to": "build_final_independent_selection.py.txt",
+      "bytes": 4253,
+      "sha256": "5deff2e982975f24d8a55b953f8e2e4a958a82adc834c223e8ee9bcdae9f0e02",
+      "role": "independent_v2_class_removal_or_custody",
+      "stage": "current v2 evidence-class review; unchanged native GO reused"
+    }
+  ],
+  "native_application_checks_repeated": false,
+  "ROOT_interpreter_packages_or_source_mutated": false,
+  "source_acceptance": "bounded owner-ready packet and evidence-class GO; unapplied A helper patch",
+  "finding_closure": false,
+  "native_full_HTTP": "Historical 1585 cases=675 PASS/81 FAIL/827 ERROR/2 SKIP, retained FAIL; no full HTTP repeat.",
+  "reviewer_observer_history": "Prior native observer errors and one v2-custody KeyError due optional publication_role are retained. Last correction uses role fallback; no candidate/app test defect inferred.",
+  "next_owner": "A/runtime fixture canonical writer chooses typed injection or same-process serialized factory seam, applies owned helper after review, then A/G rerun actual native browser/HTTP successors; no production source/profile authority introduced."
+}

@@ -1,0 +1,448 @@
+"""Independently recompute frozen successor publication custody without rerunning gates."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import shutil
+import subprocess
+import sys
+import tomllib
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+REPO = Path("/workspace/e02-E-doe-20261006")
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+CANDIDATE = "c8054bb2f055fae5f94012773ab4d2efad8cfab7"
+TREE = "ad4563952e75e3a4ab6b094283ef8007594533df"
+BASE = "43f6bb54e316ce1308d53ba75c6e27e40171e364"
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+SOURCE_TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+PREFIX = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261007/frozen-successors-64d"
+)
+VALIDATOR = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261006/pr38-r2/validate_review_copies.py"
+)
+VALIDATOR_HASH = "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde"
+GIT = str(Path(shutil.which("git") or "").resolve())
+EXPECTED_FRAME = {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5",
+}
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def digest(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def record(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": digest(raw)}
+
+
+def git(repo: Path, arguments: list[str]) -> bytes:
+    return subprocess.run(  # noqa: S603 - fixed read-only executable and admitted argv
+        [GIT, *arguments], cwd=repo, check=True, capture_output=True
+    ).stdout
+
+
+def source_blob(repo: Path, revision: str, path: str) -> bytes:
+    require(
+        len(revision) == 40 and all(c in "0123456789abcdef" for c in revision), "SHA"
+    )
+    require(
+        isinstance(path, str)
+        and bool(Path(path).parts)
+        and not Path(path).is_absolute()
+        and ".." not in Path(path).parts
+        and not path.startswith("-")
+        and ":" not in path
+        and not any(c.isspace() or c == "\0" for c in path),
+        "canonical relative source path required",
+    )
+    return git(repo, ["show", f"{revision}:{path}"])
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only output")
+    before_tree = git(REPO, ["rev-parse", CANDIDATE + "^{tree}"]).decode().strip()
+    require(before_tree == TREE, "publication tree")
+    raw_index = source_blob(REPO, CANDIDATE, PREFIX + "/portable-copy-index.json")
+    index = json.loads(raw_index)
+    require(index["source_candidate_sha"] == SOURCE, "source identity")
+    require(index["source_candidate_tree_sha"] == SOURCE_TREE, "source tree")
+    require(index["publication_base_sha"] == BASE, "publication base")
+    files = index["files"]
+    require(len(files) == index["file_count"] == 168, "copy denominator")
+    require(
+        sum(row["bytes"] for row in files) == index["total_bytes"] == 2501235,
+        "copy bytes",
+    )
+    require(len({r["copied_path"] for r in files}) == len(files), "unique copy paths")
+    diff = git(REPO, ["diff", "--name-status", BASE, CANDIDATE]).decode().splitlines()
+    expected_paths = {row["copied_path"] for row in files} | {
+        PREFIX + "/README.md",
+        PREFIX + "/portable-copy-index.json",
+    }
+    require(len(diff) == 170, "complete 170 path footprint")
+    require(
+        {line.split("\t", 1)[1] for line in diff} == expected_paths, "full footprint"
+    )
+    require(
+        all(line.startswith("A\t" + PREFIX + "/") for line in diff),
+        "docs-only additions",
+    )
+    require(
+        all(not path.endswith(".py") for path in expected_paths),
+        "no active Python additions",
+    )
+    source_records = {}
+    for row in files:
+        actual = Path(row["source_path"]).read_bytes()
+        require(
+            len(actual) == row["bytes"] and digest(actual) == row["sha256"],
+            "source copy drift",
+        )
+        copied = source_blob(REPO, CANDIDATE, row["copied_path"])
+        require(copied == actual, "source to Git copy mismatch")
+        require(
+            (REPO / row["copied_path"]).read_bytes() == copied, "working copy drift"
+        )
+        source_records[row["source_path"]] = row
+    validator_path = REPO / PREFIX / "validate_review_copies.py.txt"
+    canonical = source_blob(ROOT, SOURCE, VALIDATOR)
+    require(digest(canonical) == VALIDATOR_HASH, "canonical validator pin")
+    require(
+        validator_path.read_bytes() == canonical,
+        "archived validator must match frozen source",
+    )
+    ns = runpy.run_path(
+        str(validator_path), run_name="verified_canonical_copy_validator"
+    )
+    ns["validate"](REPO, files, CANDIDATE)
+    controls = []
+    for field, bad in (
+        ("sha256", "0" * 64),
+        ("bytes", -1),
+        ("bytes", True),
+        ("copied_path", "../outside"),
+        ("copied_path", "--help"),
+    ):
+        altered = copy.deepcopy(files)
+        altered[0][field] = bad
+        try:
+            ns["validate"](REPO, altered, CANDIDATE)
+        except ValueError as error:
+            controls.append({"field": field, "value": bad, "refused": str(error)})
+        else:
+            raise ValueError("corrupt copied metadata admitted")
+    try:
+        ns["validate"](REPO, files, BASE)
+    except ValueError as error:
+        controls.append(
+            {"field": "unpublished_base", "value": BASE, "refused": str(error)}
+        )
+    else:
+        raise ValueError("unpublished copy admitted")
+    tree = ast.parse(canonical)
+    removed = 0
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == "validate":
+            for child in ast.walk(node):
+                if isinstance(child, ast.For):
+                    retained = []
+                    for statement in child.body:
+                        if isinstance(
+                            statement, ast.If
+                        ) and "hashlib.sha256(stored)" in ast.unparse(statement.test):
+                            removed += 1
+                        else:
+                            retained.append(statement)
+                    child.body = retained
+    require(removed == 1, "one exact digest property removal")
+    removed_path = args.output.with_name("removed-digest-validator.py.txt")
+    if not removed_path.exists():
+        removed_path.write_text(ast.unparse(tree) + "\n")
+    removed_ns = runpy.run_path(
+        str(removed_path), run_name="removed_copy_digest_property"
+    )
+    altered = copy.deepcopy(files)
+    altered[0]["sha256"] = "0" * 64
+    removed_ns["validate"](REPO, altered, CANDIDATE)
+    controls.append(
+        {
+            "field": "digest_property_removed",
+            "invalid_digest_admitted": True,
+            "source": record(removed_path),
+            "meaning": "Effective removal diverges from strict content-bound refusal",
+        }
+    )
+    packet = REPO / PREFIX
+
+    def load(relative: str) -> dict[str, Any]:
+        return json.loads((packet / relative).read_bytes())
+
+    selections = []
+    for relative, count in (
+        ("21-nonshared/closed-source-selection.json", 122),
+        ("ci08-existing-doe-environment/closed-source-selection.json", 37),
+    ):
+        selection = load(relative)
+        require(
+            selection["asset_count"] == len(selection["files"]) == count,
+            "required selected asset count",
+        )
+        require(
+            selection["asset_bytes"] == sum(r["bytes"] for r in selection["files"]),
+            "selection bytes",
+        )
+        for item in selection["files"]:
+            require(item["path"] in source_records, "required asset omitted")
+            copy_row = source_records[item["path"]]
+            require(
+                (item["bytes"], item["sha256"])
+                == (copy_row["bytes"], copy_row["sha256"]),
+                "selection custody drift",
+            )
+        selections.append({"selection": record(packet / relative), "assets": count})
+    stage_index = load("21-nonshared/dispatch/successor-21-check-index-64d.json")
+    require(
+        len(stage_index["rows"]) == stage_index["check_count"] == 21,
+        "21 stage denominator",
+    )
+    recomputed = Counter()
+    for row in stage_index["rows"]:
+        source_ref = row["actual_receipt"]
+        native = json.loads(
+            (REPO / source_records[source_ref["path"]]["copied_path"]).read_bytes()
+        )
+        require(
+            native["candidate_sha"] == SOURCE
+            and native["candidate_tree_sha"] == SOURCE_TREE,
+            "native source",
+        )
+        require(
+            native["source_immutable"] is True and row["source_immutable"] is True,
+            "native source mutation",
+        )
+        require(
+            row["source_identity_before"]
+            == row["source_identity_after"]
+            == EXPECTED_FRAME,
+            "whole source frame",
+        )
+        require(
+            row["outcome"] == native["outcome"]
+            and row["exit_code"] == native["exit_code"],
+            "native outcome mismatch",
+        )
+        require(
+            row["environment"] == native["environment"], "native environment mismatch"
+        )
+        require(row["command"] == native["command"], "native command mismatch")
+        require(row["finding_closure"] is False, "check cannot close finding")
+        recomputed[row["outcome"]] += 1
+    require(recomputed == Counter({"PASS": 7, "FAIL": 14}), "21 outcomes")
+    debt_row = next(row for row in stage_index["rows"] if row["code"] == "ci-07")
+    require(
+        debt_row["outcome"] == "PASS" and "--report-only" in debt_row["command"],
+        "report-only actual PASS",
+    )
+    debt_text = (
+        packet / "21-nonshared/stages/ci-07/standalone-ci-07.stdout.txt"
+    ).read_text()
+    require(
+        "ledger" in debt_text.lower() and "closure" in debt_text.lower(),
+        "complete debt signals preserved",
+    )
+    ci08 = packet / "ci08-existing-doe-environment"
+    plan = load("ci08-existing-doe-environment/execution-plan.json")
+    require(
+        plan["actual_example_count"] == len(plan["actual_examples"]) == 7,
+        "native examples",
+    )
+    bindings = plan["complete_declared_source_bindings"]
+    require(len(bindings) == 51, "all51 source bindings")
+    for bound in bindings:
+        raw = source_blob(ROOT, SOURCE, bound["source_path"])
+        require(
+            len(raw) == bound["bytes"] and digest(raw) == bound["sha256"],
+            "CI08 source binding",
+        )
+    metadata_changes = {}
+    for environment, expected_before, expected_after in (
+        ("doe", 177, 184),
+        ("root", 203, 203),
+    ):
+        before = load(
+            f"ci08-existing-doe-environment/{environment}-environment-before.json"
+        )
+        after = load(
+            f"ci08-existing-doe-environment/{environment}-environment-after.json"
+        )
+        old = {row["name"]: row for row in before["distributions"]}
+        new = {row["name"]: row for row in after["distributions"]}
+        require(
+            len(old) == before["distribution_count"] == expected_before,
+            "before distribution count",
+        )
+        require(
+            len(new) == after["distribution_count"] == expected_after,
+            "after distribution count",
+        )
+        require(set(old) <= set(new), "existing package removal")
+        require(all(old[name] == new[name] for name in old), "existing metadata change")
+        added = sorted(set(new) - set(old))
+        require(
+            len(added) == (7 if environment == "doe" else 0),
+            "only seven native additions",
+        )
+        metadata_changes[environment] = {
+            "before": len(old),
+            "after": len(new),
+            "added": added,
+            "all_existing_records_equal": True,
+        }
+    installed = load("ci08-existing-doe-environment/installed-entrypoint-bindings.json")
+    require(
+        installed["example_count"] == len(installed["rows"]) == 7,
+        "installed native bindings",
+    )
+    examples = {row["slug"]: row for row in plan["actual_examples"]}
+    for item in installed["rows"]:
+        example = examples[item["slug"]]
+        expected_source = ROOT / "policy-engine" / example["path"]
+        require(
+            item["source_example_path"] == str(expected_source), "source install path"
+        )
+        require(
+            item["installed_direct_url"]
+            == {
+                "url": "file://" + str(expected_source),
+                "dir_info": {"editable": True},
+            },
+            "actual editable binding",
+        )
+        pyproject = tomllib.loads(
+            source_blob(
+                ROOT, SOURCE, "policy-engine/" + example["path"] + "/pyproject.toml"
+            ).decode()
+        )
+        entry = item["declared_entrypoint"]
+        require(
+            pyproject["project"]["entry-points"][entry["group"]][entry["name"]]
+            == entry["value"],
+            "actual entrypoint source",
+        )
+        require(
+            entry in item["distribution"]["entry_points"],
+            "installed entrypoint omitted",
+        )
+        for literal in item["exact_installed_metadata"]:
+            raw = literal["literal_bytes_utf8"].encode()
+            require(
+                len(raw) == literal["bytes"] and digest(raw) == literal["sha256"],
+                "literal metadata custody",
+            )
+    junit_path = ci08 / "checks/native-ci08-existing-doe-environment/pytest.xml"
+    junit_raw = junit_path.read_bytes()
+    require(b"<!DOCTYPE" not in junit_raw.upper(), "DTD inadmissible")
+    cases = ET.fromstring(junit_raw).findall(".//testcase")  # noqa: S314 - pinned bytes and explicit DTD refusal
+    require(
+        len(cases) == 8 and all(not list(case) for case in cases),
+        "all8 actual smoke PASS",
+    )
+    native_ci08 = load(
+        "ci08-existing-doe-environment/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json"
+    )
+    require(
+        native_ci08["outcome"] == "PASS"
+        and native_ci08["exit_code"] == 0
+        and native_ci08["source_immutable"] is True,
+        "native CI08 PASS",
+    )
+    require(
+        native_ci08["counts"]
+        == {"cases": 8, "passed": 8, "failed": 0, "errors": 0, "skipped": 0},
+        "native CI08 counts",
+    )
+    require(
+        "UNRUN" in plan["original_root_env_invocation"],
+        "original root invocation remains UNRUN",
+    )
+    require(
+        git(REPO, ["rev-parse", CANDIDATE + "^{tree}"]).decode().strip() == TREE,
+        "after tree",
+    )
+    result = {
+        "schema": "policyos.e02.E.independent_successor_publication_review.v1",
+        "candidate": CANDIDATE,
+        "tree": TREE,
+        "base": BASE,
+        "runtime_source": SOURCE,
+        "runtime_tree": SOURCE_TREE,
+        "review_outcome": "GO",
+        "scope": "Published custody/outcome/source/environment; no native gate repeat or finding closure",
+        "complete_footprint": {
+            "paths": 170,
+            "all_additions_under_owned_docs": True,
+            "active_python_added": False,
+        },
+        "copy_count": 168,
+        "copy_bytes": 2501235,
+        "index": record(packet / "portable-copy-index.json"),
+        "reviewer_source": record(Path(__file__)),
+        "canonical_validator": record(validator_path),
+        "required_selections": selections,
+        "canonical_validator_healthy": "PASS",
+        "corrupt_and_property_removal_controls": controls,
+        "21_native_outcomes": dict(recomputed),
+        "source_frame": EXPECTED_FRAME,
+        "CI07": "Actual report-only PASS preserves ledger/closure signals; no ledger authority inferred",
+        "CI08": {
+            "all_declared_sources": 51,
+            "native_examples": 7,
+            "metadata_changes": metadata_changes,
+            "actual_cases": [
+                {
+                    "classname": c.get("classname", ""),
+                    "name": c.get("name", ""),
+                    "outcome": "PASS",
+                }
+                for c in cases
+            ],
+            "junit": record(junit_path),
+            "original_root_invocation": "UNRUN",
+            "equivalent_distinct_existing_environment": "PASS",
+        },
+        "limits": [
+            "Canonical fail-fast umbrella UNRUN remains separate from executed standalone selectors.",
+            "Prepared static input-domain text retains its before-execution wording; actual native outcomes above control executed observations.",
+            "Historical open-capture selection stays historical ERROR; current v2 selection controls published copies.",
+            "This custody GO is not full CI PASS, semantic source acceptance, or automatic finding closure.",
+        ],
+    }
+    args.output.write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

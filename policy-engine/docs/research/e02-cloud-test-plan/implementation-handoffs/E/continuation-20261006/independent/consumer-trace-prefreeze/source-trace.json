@@ -1,0 +1,427 @@
+{
+  "schema": "policyos.e02.independent_consumer_trace.v1",
+  "auditor": "/root/consumer_trace_r4",
+  "target_sha": "fcb4271c9be301595c7e26bfaeaf368030ad7792",
+  "target_tree_sha": "a19c5b63f64a57604462c1aab8b2a65ffb272124",
+  "source_binding": "Each cited source blob is pinned in audit.json; portable census reads immutable git blobs, not mutable checkout bytes.",
+  "review_mode": "read_only_static_independent",
+  "runtime_checks": "UNRUN here; frozen common wave and author-independent numerical receipts supply execution evidence. No numeric PASS inferred from this census.",
+  "specification_verdict": "limited: concrete configured internal producer/artifact/readback paths exist; served bridge limitations below remain.",
+  "engineering_review_verdict": "No new blocking defect found in the scoped static source/path audit; this is not complete runtime acceptance.",
+  "finding_closure": "No ledger status changed; code acceptance and historical finding closure are separate.",
+  "P37_basis_frozen": "Per-chain labels classify exactly the constructed predicates; no consumer assertion or content self-consistency is promoted to issuer authority.",
+  "P40_bucket": "Missing orchestration, population/source-law authority and trusted verifier provenance are declared bounded residual classes. A worked example of the same residual is not a new implementation patch; the smallest missing capability and falsifier are named per chain.",
+  "P41": "No inherited-red classification made. Source invocation census and baseline results navigate; they do not establish a base-disjoint exact numerical replay.",
+  "chains": [
+    {
+      "family": "BKT",
+      "finding_ids": [
+        "B166",
+        "B167",
+        "B168",
+        "B169",
+        "B170",
+        "B171",
+        "B172",
+        "B173",
+        "B174",
+        "B175"
+      ],
+      "runtime_path": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/cli.py",
+          "symbol": "run_backtest_command",
+          "detail": "Constructs BacktestOrchestrator at caller-selected cas_root, calls run and exposes complete report JSON/summary/markdown.",
+          "blob": {
+            "git_blob_sha": "b36afb640ccb3a5c46286ab282c75d3a6097418a",
+            "sha256": "2c0bba097a8c3e02779ff9e60bb8d13a8f4fc94b73a028c13114e7830229ab8a"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "symbol": "BacktestOrchestrator.__init__/run/_expand_replay_plans",
+          "detail": "Uses one configured IR adapter and its underlying core CAS for Scientist. SCIENTIST plans expand to scalar deep-copied states with SeedSequence-derived requested seeds and distinct existing run_ids; PROVIDED/NAIVE plans stay one actual forecast. Matrix sibling also calls the same _expand_replay_plans before dispatch.",
+          "blob": {
+            "git_blob_sha": "9ec9f48a5ca50b9a6e8fcda8e9249dcabed371c0",
+            "sha256": "232d33467db440cb064e9c8c7fbb59caf2bf29e70e69f39eec2721990e94a085"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "symbol": "_predict_with_scientist/_persist_masked_view",
+          "detail": "Adds persisted masked DataSnapshot ref under the declared data_snapshot_ref contract, forwards store=self._scientist_store into real run_experiment. Missing state/cutoff or execution exception emits explicit degraded fallback with every attempted replay retained.",
+          "blob": {
+            "git_blob_sha": "9ec9f48a5ca50b9a6e8fcda8e9249dcabed371c0",
+            "sha256": "232d33467db440cb064e9c8c7fbb59caf2bf29e70e69f39eec2721990e94a085"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "symbol": "_aggregate",
+          "detail": "Keeps requested/eligible/observed metric-time comparisons, attempted/completed/failed replay rows, micro and macro summaries and unavailable inference; TrustScorer withholds trust authority without a versioned purpose/profile.",
+          "blob": {
+            "git_blob_sha": "9ec9f48a5ca50b9a6e8fcda8e9249dcabed371c0",
+            "sha256": "232d33467db440cb064e9c8c7fbb59caf2bf29e70e69f39eec2721990e94a085"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+          "symbol": "persist_backtest_report/load_backtest_report",
+          "detail": "Producer persists typed BacktestReport plus caller manifest inputs. Loader parses report payload; this general loader does not itself recompute historical predictions or infer source-law/trust provenance.",
+          "blob": {
+            "git_blob_sha": "26b15390105b5c478824f899754af9a0f6bc64d8",
+            "sha256": "d1a0ee6fd24077f63cd0ba81f745df1ac4c6831cd8e7a68e9aeae6bc5f6cb80c"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+          "symbol": "_build_backtest_section",
+          "detail": "Actual decision-packet consumer reads supplied report ref from ctx.store and exposes degraded state, bias statistics and withheld trust fields. Report-ref population remains a separate upstream responsibility.",
+          "blob": {
+            "git_blob_sha": "20c1bf019f69e3861c197115a86fe81912404c70",
+            "sha256": "397cb40abc81437bd38b634dc27a081298bff1855f80a9f69ffcfbc6709263c0"
+          }
+        }
+      ],
+      "verified_source_boundaries": {
+        "configured_store": "same core CAS reaches Scientist and report persistence",
+        "source": "masked history bytes and exact DataSnapshot persisted; declared source path/ref and cutoff bind the adapter input",
+        "seed": "SeedSequence and params.random_seed bind requested replay seeds; RunSimulationNode uses self.exec_config in ExecuteRequest rather than reading state.params.random_seed, so actual simulation seed readback is not established by this adapter",
+        "time": "declared cutoff/horizon and distinct output contracts; exact production feature materialization and leakage isolation require the real input-binding owner"
+      },
+      "missing_capabilities": [
+        {
+          "state": "bridge_missing",
+          "owner": "Scientist/Foundry historical input-binding composition owner; G runs exact candidate locally if admitted source is private",
+          "smallest_input": "A real Trinity and registry bundle plus immutable cutoff DataSnapshot materialized into Foundry GlobalState/input bindings, an explicitly bound FoundryExecConfig seed, and typed outcome-trajectory/interval outputs",
+          "check": "Invoke the unchanged run_experiment workflow using those exact refs and same configured CAS, then fresh-load each replay snapshot/output and reconcile source cutoff, time axis, requested versus executed seeds and all outcome counts."
+        },
+        {
+          "state": "not_established",
+          "owner": "Backtest trust profile owner",
+          "smallest_input": "Versioned trust-grade purpose/profile and, where neutrality/equivalence is desired, owner-declared meaningful-bias margin and equivalence interval",
+          "check": "B172/B173 p > alpha alone cannot produce equivalence or Grade A; preserve the held trust score until that profile exists."
+        }
+      ],
+      "proxy_divergence": "Seven distinct requested params.random_seed values and persisted prefixes can coexist with a default RunSimulationNode execution config that never binds those seeds or materializes the historical view. Controlled replay tests establish adapter mechanics, not a successful native forecast.",
+      "predicate_basis": {
+        "adapter_masking_and_denominators": "recomputed",
+        "source_or_forecast_semantics": "consumer_asserted",
+        "native_simulation_seed_and_source_materialization": "not_established",
+        "trust_profile": "not_established"
+      },
+      "code_review_scope": "No additional blocking source defect found in this independent static trace; numerical acceptance belongs to independent test receipts and frozen wave. Finding closure remains separate."
+    },
+    {
+      "family": "PCL",
+      "finding_ids": [
+        "LA-052",
+        "LA-053"
+      ],
+      "runtime_path": [
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "symbol": "evaluate_continuous/persist_continuous_evaluation",
+          "detail": "Actual predictive owner tracks ordered observations and outcome-level requests. Persistence requires rebound runtime inputs, deterministic bootstrap seed when requested, and full report reproduction before writing separate pairs and diagnostics artifacts.",
+          "blob": {
+            "git_blob_sha": "53008144d8bc4c903392cdd80db14f734496208e",
+            "sha256": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "symbol": "load_continuous_evaluation",
+          "detail": "Resolves exact artifact kind/media/schema/integrity for diagnostics and pairs, reruns evaluate_continuous and compares complete report and receipt before returning a new runtime-bound report.",
+          "blob": {
+            "git_blob_sha": "53008144d8bc4c903392cdd80db14f734496208e",
+            "sha256": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "symbol": "_summarize_interval_diagnostics",
+          "detail": "Real optional configured-store caller performs persist then load and returns calibration_ref. Three actual GARCH callsites omit calibration_store/source_binding, so the persisted branch is not the default method-runner route.",
+          "blob": {
+            "git_blob_sha": "373afa76ba44829236498375e17cdbafdc53bb0a",
+            "sha256": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+          "symbol": "NumpyRunner.execute",
+          "detail": "MethodRunner receives state/params/seed and injects __rng__/__seed__; it does not configure this PCL helper with a CAS store.",
+          "blob": {
+            "git_blob_sha": "97ee25f2fa5552de075bf5715de16b0363eca6dd",
+            "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505"
+          }
+        }
+      ],
+      "verified_source_boundaries": {
+        "pairs": "CAS content binds exact ordered y/interval/level inputs; private runtime input digest and replay keep raw self-attested reports nongating",
+        "denominator": "requested outcome-level cells remain distinct from observed outcomes and eligible measured pairs; missing intervals do not erase known truth outcomes",
+        "bootstrap": "deterministic replay seed is admitted before callback in persisted mode",
+        "source_time": "source_binding is retained as consumer_asserted; ordered positional rows do not claim source entity/time identity or production issuer authority"
+      },
+      "missing_capabilities": [
+        {
+          "state": "implemented_but_not_orchestrated",
+          "owner": "Foundry execution composition/method runner owner, with E predictive calibration owner",
+          "smallest_input": "Existing configured ArtifactStore and an admitted source/split/horizon/time binding forwarded by the real GARCH caller into _summarize_interval_diagnostics; no second store or API",
+          "check": "Run a real GARCH method via configured runner, fresh-read the emitted pair/report refs, then falsify pair order/count/coverage while keeping declarations and require loader refusal."
+        },
+        {
+          "state": "not_established",
+          "owner": "polisyos.calibration public alias migration owner",
+          "smallest_input": "Supported compatibility window and retirement decision for the legacy Scientist alias",
+          "check": "Preserve current public object identities and source numerical tests until that lifecycle decision; an import-only census cannot prove external-client retirement."
+        }
+      ],
+      "proxy_divergence": "A complete raw CalibrationDiagnosticsReport JSON and plausible coverage receipt have no rebound runtime pairs, so they do not carry checked calibration. Conversely a configured isolated persist/load helper works while the actual default GARCH caller emits no CAS ref.",
+      "predicate_basis": {
+        "pair_report_receipt_consistency": "recomputed",
+        "configured_source_time_binding": "consumer_asserted",
+        "production_source_authority": "not_established"
+      },
+      "code_review_scope": "Pair-reconciled continuous diagnostics are bounded code scope. Native runner orchestration and alias retirement remain explicit owner tasks; no further source edit requested."
+    },
+    {
+      "family": "DDM",
+      "finding_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "runtime_path": [
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+          "symbol": "DriftAndDegradationMonitor.evaluate_window",
+          "detail": "Composes actual detector/degradation/DQ inputs; validates target identity, shared calibration context and metric budget before emitting readiness/root-cause/incident/registry projections.",
+          "blob": {
+            "git_blob_sha": "feb098b379486e71f9fc7e2cd4b4556830cc0ef1",
+            "sha256": "d3593363c27db8d32c767a1082093651ab988eeaac38f8eecc8c71e59fc47054"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "symbol": "build_model_registry_record",
+          "detail": "Binds full ordered source inputs and full registry projection to private runtime evidence; readiness effective/expiry remain distinct from calibration validity.",
+          "blob": {
+            "git_blob_sha": "daf90aff7f4e11b32fa2d62ee8a044d6393a488c",
+            "sha256": "0ef61509e34d1c2524574b272ebb3d1d4bfae2600256ae57b8c52a2d3e7eede4"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "symbol": "rebind_calibration_validity",
+          "detail": "Public JSON has no checker authority. Reopening requires exact calibration report/audit/current trigger observations plus original metric policy/readiness/ordered shifts/degradation; full projection reconciliation retains persisted restrictions.",
+          "blob": {
+            "git_blob_sha": "daf90aff7f4e11b32fa2d62ee8a044d6393a488c",
+            "sha256": "0ef61509e34d1c2524574b272ebb3d1d4bfae2600256ae57b8c52a2d3e7eede4"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "symbol": "evaluate_registry_gate",
+          "detail": "Consumes checker-owned validity and source bindings, preserves R3/R4 veto, blocks failed certificate and incompatible identity, and keeps explicit R2 owner-signoff limited expansion separate from readiness baseline.",
+          "blob": {
+            "git_blob_sha": "daf90aff7f4e11b32fa2d62ee8a044d6393a488c",
+            "sha256": "0ef61509e34d1c2524574b272ebb3d1d4bfae2600256ae57b8c52a2d3e7eede4"
+          }
+        }
+      ],
+      "verified_source_boundaries": {
+        "source_identity": "all shared subject/calibration/regime and metric fields are reconciled; full ordered shifts are in source digest",
+        "budget": "canonical budget consumption is recomputed from finite policy/degradation values rather than trusting budget_used",
+        "time": "current observed invalidation context and report validity checked separately from readiness timestamp/expiry",
+        "authority": "owner_signoff bool is a caller assertion for this bounded gate contract; no institutional deployment action or caller authority is proved"
+      },
+      "missing_capabilities": [
+        {
+          "state": "implemented_but_not_orchestrated",
+          "owner": "DDM/model-registry composition and current observation resolver owner",
+          "smallest_input": "A real registry consumer wiring persisted source report/model/rule refs, original window readiness and metric policy, event identities, effective time and observed invalidation triggers into rebind then gate",
+          "check": "Perform a fresh served registry read and replay current validity at exact refs; distinguish observed empty-alert window from unavailable feed under an admitted completeness/age policy."
+        },
+        {
+          "state": "not_established",
+          "owner": "Deployment/signoff authority owner",
+          "smallest_input": "Admitted owner signoff provenance and readiness observation/late-event applicability profile",
+          "check": "A bool and a source-coherent empty window cannot prove institutional signoff or delivery completeness. Keep those predicates outside this bounded code acceptance."
+        }
+      ],
+      "proxy_divergence": "Historical CalibrationAudit.pass plus shape-valid public registry fields cannot reconstruct private current source/validity evidence. A coherent internal projection is also insufficient to demonstrate a deployed consumer; named AST census finds no production evaluate_window/rebind/gate callsites.",
+      "predicate_basis": {
+        "source_projection_and_budget": "recomputed",
+        "current_applicability_against_supplied_report_and_triggers": "recomputed",
+        "observed_feed_completeness_and_institutional_signoff": "not_established"
+      },
+      "code_review_scope": "Source-bound readiness/rebind/gate behavior only. DDM-01/LA-056 canonical facade audit is handled independently by closure reviewer."
+    },
+    {
+      "family": "DOE",
+      "finding_ids": [
+        "B97",
+        "B98",
+        "B99",
+        "B100",
+        "B101",
+        "B102",
+        "B103",
+        "B104",
+        "B105"
+      ],
+      "runtime_path": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "symbol": "SensitivityBridge.analyze_search_space",
+          "detail": "Existing bridge constructs typed distribution/unit/input-law/seed plan, calls canonical sampler and real supplied evaluator, and analyzer; optional configured store emits one analysis_ref.",
+          "blob": {
+            "git_blob_sha": "6ec3567995fac9550343013279d4bf12a269817a",
+            "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "symbol": "analyze_sensitivity/_analysis_identity",
+          "detail": "Canonical SALib sampler/analyzer design/order/seed/version identity; Morris validates complete trajectories and preserves original failure denominator. Sobol requires declared independent input law.",
+          "blob": {
+            "git_blob_sha": "00729247c0b7763820f0bbc189fc834fac172942",
+            "sha256": "3a7a24125b301ca37033d0bb5da73d665a433156d11146b817e73d731a0605d6"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "symbol": "_persist_analysis/_load_analysis",
+          "detail": "CAS stores complete typed plan, ordered sample rows, all outputs including failed nonfinite values, result and nonauthority limitations. Loader resolves kind/schema/integrity and reruns analyzer over exact stored design/outputs before consumer use.",
+          "blob": {
+            "git_blob_sha": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+            "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "symbol": "SensitivityAwareCandidateGenerator.from_artifact/generate/generate_batch",
+          "detail": "Actual factory loads recomputed analysis and enriches the base generator output with ranking, exact analysis_ref and exploratory-only purpose; there is no statically named production constructor/factory caller outside this implementation.",
+          "blob": {
+            "git_blob_sha": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+            "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc"
+          }
+        }
+      ],
+      "verified_source_boundaries": {
+        "seed_distribution_units": "explicit typed plan and canonical seed propagation; finite row order and analyzer version included in design/analysis identity",
+        "evaluator": "caller executes provided response; receipt labels evaluator provenance not_established",
+        "law": "independent law declaration is not source population law proof",
+        "consumer": "generation emits metadata after CAS replay, but default search orchestration does not instantiate this factory in the tracked named-call denominator"
+      },
+      "missing_capabilities": [
+        {
+          "state": "implemented_but_not_orchestrated",
+          "owner": "Search/autotune composition owner",
+          "smallest_input": "Configured existing CAS analysis_ref and factory wiring into the actual search generator, with admitted evaluator/source-law contract if a population claim is needed",
+          "check": "Use the actual served search generator; fresh-load analysis and validate candidate metadata/ref, then alter design order/result/analyzer binding and require rejection."
+        },
+        {
+          "state": "not_established",
+          "owner": "E DOE evaluator/source-law admission owner",
+          "smallest_input": "Declared design-generating input law and evaluator identity for the intended estimand, rather than a caller __name__ or geometry-only fixture",
+          "check": "B102 whole-trajectory geometry is bounded mathematical evidence; it cannot establish provenance for the entire served design or population sensitivity."
+        }
+      ],
+      "proxy_divergence": "Rows divisible by trajectory size can still splice different Morris trajectories; exact geometry/order admission handles that quantity. A valid replayed analysis_ref and ranking can still coexist with no actual default search consumer.",
+      "predicate_basis": {
+        "design_geometry_order_and_analyzer_replay": "recomputed",
+        "input_independence_declaration": "consumer_asserted",
+        "evaluator_and_population_provenance": "not_established"
+      },
+      "code_review_scope": "Canonical declared parameter experiment, CAS replay and optional factory are bounded code scope. No silent promotion to served orchestration or source-law authority."
+    },
+    {
+      "family": "FRC",
+      "finding_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "runtime_path": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "symbol": "ForecastOwner.__init__/run",
+          "detail": "Configured empirical_profile_ref resolves one externally configured predictive-calibration profile and exact persisted request before actual ETS execution. Convenience run_forecast_owner(store,request) does not set that profile.",
+          "blob": {
+            "git_blob_sha": "74ea1741c38c216c882c65ecc1395baf792ea5f6",
+            "sha256": "566803060a6745efb570e006b5655590eade5db3cf4a71f66c0ecd96af2cd3de"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "symbol": "ForecastOwner.run",
+          "detail": "Resolves source snapshot/data, model-policy pair, explicit train/holdout/horizon, rule/metric/method/time roles and seed; actual registered NumPy ETS produces forecast/uncertainty/calibration diagnostics and PROVIDED BacktestReport in the same configured CAS.",
+          "blob": {
+            "git_blob_sha": "74ea1741c38c216c882c65ecc1395baf792ea5f6",
+            "sha256": "566803060a6745efb570e006b5655590eade5db3cf4a71f66c0ecd96af2cd3de"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "symbol": "ForecastOwner.run",
+          "detail": "Only configured empirical context produces separate empirical_evidence_ref and candidate_receipt_ref. Candidate receipt declares verifier_provenance not_established and predictive purpose.",
+          "blob": {
+            "git_blob_sha": "74ea1741c38c216c882c65ecc1395baf792ea5f6",
+            "sha256": "566803060a6745efb570e006b5655590eade5db3cf4a71f66c0ecd96af2cd3de"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "symbol": "load_empirical_calibration_evidence/load_forecast_candidate_receipt/_replay_forecast_candidate",
+          "detail": "Resolves typed kind/schema/media/integrity and input edges, fresh-recomputes heldout scope/pairs/counts/threshold/time/rule and request/report/forecast links. This is content reconciliation, not independent issuer execution provenance.",
+          "blob": {
+            "git_blob_sha": "5fee62b979907b4c40ca0c238cf43d0b5ecc5c39",
+            "sha256": "173954a420aca0bbc9bad13eb4ab82eab6ff8b60ba75e540f0d245061d41ce44"
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "symbol": "RealValueOwnerGateway/_resolve_s10_empirical_evidence/_s10_empirical_projection",
+          "detail": "A-owned S10 consumer has an injected resolver protocol; default resolver is None. Supplied resolved evidence is projected and checked for predictive denials/method/rule/time/counts, but the E producer is not wired by a default configured gateway.",
+          "blob": {
+            "git_blob_sha": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+            "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+          }
+        }
+      ],
+      "verified_source_boundaries": {
+        "configured_store": "forecast inputs, ETS outputs, report, evidence and candidate receipt use one store",
+        "source_split_horizon": "content-bound exact source refs and declared train/holdout/horizon, with fresh replay over ordered actual pairs",
+        "times": "distinct declared temporal roles retained and reconciled; their source-world meaning remains a caller/owner input",
+        "purpose": "predictive calibration only; causal/treatment/policy uses stay denied",
+        "verifier": "candidate computation receipt and issuer provenance remain separate; hashes and credible=True do not construct trusted execution provenance"
+      },
+      "missing_capabilities": [
+        {
+          "state": "bridge_missing",
+          "owner": "A generation-cycle/default gateway composition owner",
+          "smallest_input": "Configured admitted ForecastOwnerRequest/profile and exact separate empirical_evidence_ref/candidate_receipt_ref forwarded through A’s existing generation-cycle resolver using the same configured CAS",
+          "check": "Run actual default generation cycle/HTTP lifecycle, resolve CAS independently, recompute scope/split/pairs/counts/threshold/time/purpose with independent verifier provenance, then repeat on fresh served read. Predictive sibling must reach terminal causal refusal without removing it."
+        },
+        {
+          "state": "verification_missing",
+          "owner": "A S10 verifier/provenance owner",
+          "smallest_input": "Trusted execution/verifier issuer boundary for the exact candidate graph; coherently fabricated forecast/source/evidence bytes are insufficient",
+          "check": "Construct a present-but-fake internally consistent graph under another issuer and require the authority consumer to reject it while retaining predictive candidate diagnostics."
+        }
+      ],
+      "proxy_divergence": "The convenience wrapper can produce a rich ForecastOwnerResult without either empirical artifact because no profile is configured. Even fully hash-consistent candidate/evidence refs do not establish independent verifier provenance; A default resolver None still prevents the served chain.",
+      "predicate_basis": {
+        "content_edges_source_pairs_counts_threshold_time_replay": "recomputed",
+        "external_source_and_temporal_role_meaning": "consumer_asserted",
+        "trusted_verifier_execution_provenance": "not_established"
+      },
+      "code_review_scope": "E configured ETS producer and evidence writer/loader code only. A generation_cycle.py, HTTP/run lifecycle and default gateway remain A-owned and were not edited in this audit."
+    }
+  ],
+  "negative_control_scope": "This read-only trace does not mutate production source. Existing/full runtime negative and property-removal controls are required independently; marker/callsite presence alone is not PASS.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/summary.json",
+    "/workspace/e02-E-20261006-receipts/consumer-trace-r4/pre-freeze/existing-e-tests.txt"
+  ],
+  "cleanup_policy": "No file removed. If these repeatable derived views are not retained for handoff, move only to Trash; without cloud Trash list candidates. Preserve scripts/audit/output deciding evidence."
+}

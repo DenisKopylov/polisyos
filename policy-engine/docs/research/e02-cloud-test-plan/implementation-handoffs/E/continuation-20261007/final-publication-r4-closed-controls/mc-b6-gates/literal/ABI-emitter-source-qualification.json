@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.e02.E.public_source_schema_reuse_qualification.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "old_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "current_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "bytes": 30919,
+      "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "old_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "current_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "old_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "current_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/abi/registry.py",
+      "base_object_absent": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "old_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "current_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "old_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "current_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "byte_equal": true
+    }
+  ],
+  "ABI_scope": "Complete full103 schema equality and canonical3932 owner-generated9path packet remain previous qualified observation under unchanged actual ABI/model/emitter objects, not new runtime/fullglobal PASS",
+  "current_runtime_projection": "Fresh native standalone and fullarchitecture renders actual equal701b5d6f...; current1494 dependency binding aggregate2924a811... is used, prior raw hash not rebranded",
+  "source_dependency_scope": "Additional documentation utilities change the consulted source aggregate; current raw render is deciding evidence",
+  "generated_changes_applied": false,
+  "P41": "not_established"
+}

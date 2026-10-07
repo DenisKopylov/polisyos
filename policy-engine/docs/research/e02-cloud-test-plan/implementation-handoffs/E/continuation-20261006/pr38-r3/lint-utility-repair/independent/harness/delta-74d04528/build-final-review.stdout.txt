@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528.json",
+  "bytes": 72341,
+  "sha256": "edbeecb795d9592a88c95834a7f935363d23cbc5666a34315f2914a6396cbe15"
+}

@@ -1,0 +1,61 @@
+from __future__ import annotations
+import copy,hashlib,json,subprocess,sys
+from pathlib import Path
+import xml.etree.ElementTree as ET
+O=Path(__file__).parent;OLD=Path('/tmp/e02-E-summary-facade-e456-independent-20261007');R=Path('/workspace/e02-E-continuation-20261006')
+S='ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1';T='954620fc97fb377ca17be3db3592b10b66849a3e';B='f5c2845851aeb1591de9c73db6de392656656e96';P='e4566c56f1d05479e4d8bc5bba562d701c17e5bc'
+s=json.loads((O/'selectors.json').read_bytes());d=json.loads((O/'delta-review.json').read_bytes());old=json.loads((OLD/'review.json').read_bytes())
+def same(a,b):
+ if type(a)is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys()and all(same(a[k],b[k])for k in a)
+ if isinstance(a,list):return len(a)==len(b)and all(same(x,y)for x,y in zip(a,b))
+ return a==b
+cases=[]
+for c in ET.parse(O/'pytest.xml').getroot().findall('.//testcase'):
+ outcome='FAIL'if c.find('failure')is not None else'ERROR'if c.find('error')is not None else'SKIP'if c.find('skipped')is not None else'PASS';cases.append({'classname':c.get('classname'),'name':c.get('name'),'outcome':outcome})
+if not same(cases,s['cases'])or not same(s['counts'],{'cases':6,'PASS':6,'FAIL':0,'ERROR':0,'SKIP':0})or s['exit_code']!=0:raise ValueError('exact6 case receipt mismatch')
+if s['source']!=S or s['tree']!=T or d['source']!=S or d['tree']!=T or s['before']!=s['after']or d['before']!=d['after']or s['before']['paths']!=d['before']['paths']:raise ValueError('exact source bracket mismatch')
+bound={'source':S,'tree':T,'base':B,'paths':s['before']['paths'],'current_cases':6,'old_cases':93,'finding_closure':False,'upstream_CAL9147_accepted':False}
+def admit(v):
+ if type(v)is not dict or set(v)!=set(bound):raise ValueError('exact fields required')
+ if not same({k:v[k]for k in v if k!='paths'},{k:bound[k]for k in bound if k!='paths'}):raise ValueError('identity/count/scope promotion')
+ if type(v['paths'])is not list or len(v['paths'])!=6:raise ValueError('complete six path source footprint required')
+ seen=set()
+ for row in v['paths']:
+  if type(row)is not dict or set(row)!={'path','bytes','sha256'}or type(row['path'])is not str or row['path']in seen:raise ValueError('exact unique path row required')
+  seen.add(row['path']);raw=subprocess.check_output(['git','show',f'{S}:{row["path"]}'],cwd=R)
+  if type(row['bytes'])is not int or row['bytes']!=len(raw)or row['sha256']!=hashlib.sha256(raw).hexdigest():raise ValueError('source hash/size mismatch')
+ if seen!={r['path']for r in bound['paths']}:raise ValueError('wrong source path denominator')
+admit(bound);controls=[]
+for name in('stale_source','false_tree','count_bool','new_total_inflate','missing_path','hash','size_bool','closure','upstream','extra_authority'):
+ v=copy.deepcopy(bound)
+ if name=='stale_source':v['source']=P
+ elif name=='false_tree':v['tree']='0'*40
+ elif name=='count_bool':v['current_cases']=True
+ elif name=='new_total_inflate':v['current_cases']=99
+ elif name=='missing_path':v['paths'].pop()
+ elif name=='hash':v['paths'][0]['sha256']='0'*64
+ elif name=='size_bool':v['paths'][0]['bytes']=True
+ elif name=='closure':v['finding_closure']=True
+ elif name=='upstream':v['upstream_CAL9147_accepted']=True
+ else:v['authority']=True
+ try:admit(v)
+ except ValueError as exc:controls.append({'case':name,'status':'PASS','refusal':str(exc)})
+ else:raise ValueError('corrupt source receipt admitted')
+refs=[]
+for path in (O/'selectors.json',O/'pytest.xml',O/'pytest.stdout.txt',O/'pytest.stderr.txt',O/'delta-review.json',O/'delta-review.stdout.txt',O/'delta-review.stderr.txt',O/'import-edges.json',OLD/'review.json',OLD/'selectors.json',OLD/'native-and-import-probes.json',OLD/'actual-caller-removal.json',OLD/'dynamic-import-edges.json'):
+ raw=path.read_bytes();refs.append({'path':str(path),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
+r={'schema':'e02-independent-final-summary-facade-source-review:1','source':S,'tree':T,'base':B,'parent':P,'source_disposition':'GO','finding_closure':False,'upstream_CAL9147_accepted':False,'complete_footprint':bound['paths'],
+ 'current_native_counts':s['counts'],'current_delta_controls':d['controls'],'historical_e456_native_counts':old['peer_native_counts'],'historical_e456_runtime_controls':old['peer_controls'],'historical_e456_source_disposition':'CHANGE_REQUIRED','history_qualification':'e456 numerical/caller observations are preserved; ace corrects newly added Core deep edge and backing-owner dynamic oracle import. Counts are not added or rebranded as one new99case suite.',
+ 'reviewed_ecde_source_reuse':'Exact uncertainty.py/posterior_summary.py bodies equal reviewed ecde; no underlying numeric production code changed by either facade commit.',
+ 'runtime_properties':[
+ {'property':'Canonical lazy producer/DTO identity and actual public consumers','basis':'recomputed','explanation':'Existing canonical objects, both real IR changed callsites, affected native93cases at e456; lazy-arm/name-marker removal and actual changed-caller present-fake controls expose propertyFAIL. Remaining five source paths byte-equal ace/e456.'},
+ {'property':'Independent finite functionals/fresh typed CAS/raw support admission','basis':'independently_reconciled','explanation':'99zeros+100 mean1/median0/[0,0] plus two-atom1:2 finite-level atom versus interpolation proxy; actual kind/schema/rawbool negatives and unchanged ecde defining math reused. New corrected facade six cases freshly pass.'},
+ {'property':'Current complete static/literal dynamic four-Python import edges','basis':'recomputed','explanation':'Edited CAS calls all use existing Core-root artifacts module; canonical owner identity uses already loaded sys.modules with explicit expected producer module. Deep SchemaInfo adversary retains Core-root marker and native CAS behavior but admission refuses; predicate removal accepts wrong import.'},
+ {'property':'Present Core-root schema identity supplies actual readback semantics','basis':'recomputed','explanation':'Fake SchemaInfo retains root/name markers but actual fresh CAS reader refuses wrong schema; full types/counts/source refs are also guarded normal and optimized.'},
+ {'property':'Scientific/source/fit/noise/coverage/institutional authority','basis':'not_established','explanation':'Finite fixture, identity, receipts and producer flags do not confer authority; actual outputs remain non-gating.'},
+ {'property':'Upstream CAL returned-ref repair, final source freeze/new common wave/generated companions/G finding acceptance','basis':'not_established','explanation':'Separate owners/reviews; no global/HMC/common-wave or upstream9147 acceptance is claimed by this bounded companion GO.'}],
+ 'bound_input_negative_controls':controls,'complete_deciding_refs':refs,'new_common_wave':'UNRUN','full_architecture_gate_reexecuted':False,'source_written':False,'root_env_package_writer':False,'receipt_recompute_optimized':sys.flags.optimize,
+ 'closure_rule':'Source GO only. E proposal/ledger/G acceptance and original finding criterion remain separate.',
+ 'remaining_owner':'Root closes separately reviewed upstream CAL repair then freezes/reviews affected gate queue; G owns generated inventory/formal integration intake.'}
+target=O/('review-optimized.json'if sys.flags.optimize else'review.json');target.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'source_disposition':'GO','source':S,'tree':T,'current_native_cases':6,'current_delta_controls':6,'bound_input_negatives':len(controls),'optimized':sys.flags.optimize,'review_bytes':target.stat().st_size,'review_sha256':hashlib.sha256(target.read_bytes()).hexdigest()},indent=2))

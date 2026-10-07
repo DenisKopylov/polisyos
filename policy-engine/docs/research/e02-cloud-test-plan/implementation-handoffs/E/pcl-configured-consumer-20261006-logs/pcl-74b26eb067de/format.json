@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.frozen_check.v1",
+  "candidate_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+  "candidate_tree_sha": "dfd78fc6417f8659c8a981a82712bb0e07fcc940",
+  "head_at_end": "74b26eb067dea76d90b134641e66537759e4dc0f",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "src/polisyos/foundry/methods/backends/numpy_runner.py",
+    "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+  ],
+  "cwd": "/workspace/e02-E-pcl-20261006/policy-engine",
+  "exit_code": 1,
+  "outcome": "FAIL",
+  "started_unix": 1791292707.5938296,
+  "wall_seconds": 0.7362692356109619,
+  "max_rss_kib": 29084,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "selected_variables": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "UV_NO_SYNC": "1",
+      "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+      "TMPDIR": null
+    }
+  },
+  "source_identity_before": "82ad935ff15c98dcf84552bfc1f1e05bb123ba0c24278ef76ce06e40316c1da8",
+  "source_identity_after": "82ad935ff15c98dcf84552bfc1f1e05bb123ba0c24278ef76ce06e40316c1da8",
+  "source_immutable": true,
+  "stdout_path": "/workspace/e02-E-pr38-r2-receipts/pcl-74b26eb067de/format.stdout.txt",
+  "stdout_bytes": 148,
+  "stdout_sha256": "9aaf69498ba95cae29a7c7795eaf16956681150f9d45f66618dc1e104f07d1df",
+  "P41": "not_established; no inherited-red attribution"
+}

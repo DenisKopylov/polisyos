@@ -1,0 +1,65 @@
+import ast, collections, csv, hashlib, importlib.util, json, pathlib, subprocess, sys
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007'); MC=pathlib.Path('/workspace/e02-E-mc-20261006'); P=MC/'policy-engine'; S='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4'; B='198076863e143dea9f89f02734b13d50dae3eed5'; N='3932cded22a29254a7dfced99723e147d6fea7cb'; T='0cb448febf461d0bbdf31645712ad774f5425b72'
+def sha(b): return hashlib.sha256(b).hexdigest()
+def ref(p): b=p.read_bytes(); return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def load(p): return json.loads(p.read_text())
+def save(name,v):
+ with (R/name).open('x') as f: json.dump(v,f,indent=2);f.write('\n')
+def git(*a): return subprocess.check_output(['git','-C',str(MC),*a])
+def blob(commit,path): return git('show',commit+':policy-engine/'+path)
+def require(x,s):
+ if not x: raise ValueError(s)
+summary=load(R/'static-native-deciding-summary.json')
+module_path=P/'src/polisyos/runtime/quality/production_invocation.py'
+spec=importlib.util.spec_from_file_location('native_invocation_census_only',module_path); module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
+current,roots=module._read_tree(P,None); old,oldroots=module._read_tree(P,B)
+frame={'current_files':len(current),'base_files':len(old),'source_files':sum(p.startswith('src/') for p in current),'current_sha256':sha(json.dumps(current,sort_keys=True).encode()),'base_sha256':sha(json.dumps(old,sort_keys=True).encode())}
+require(frame=={k:v for k,v in summary['denominator'].items() if k!='paths'},'full actual canonical input mapping differs from native receipt')
+current_rows=[{'path':p,'decoded_utf8_sig_bytes':len(s.encode()),'decoded_source_sha256':sha(s.encode())} for p,s in sorted(current.items())];old_rows=[{'path':p,'decoded_utf8_sig_bytes':len(s.encode()),'decoded_source_sha256':sha(s.encode())} for p,s in sorted(old.items())]
+save('static-complete-current-input-mapping.json',current_rows);save('static-complete-base-input-mapping.json',old_rows)
+save('static-input-denominator-recomputation.json',{'source':S,'tree':T,'base':B,'full_mapping':frame,'current_input_index':ref(R/'static-complete-current-input-mapping.json'),'base_input_index':ref(R/'static-complete-base-input-mapping.json'),'canonical_algorithm':ref(module_path),'scope':'Calls only actual unmodified canonical _read_tree; no graph/check/backend repetition','roots_current':roots,'roots_base':oldroots,'native_raw':summary['raw_ref'],'raw_publication':'ignored external raw only; complete moderate index retained','complete_native_summary':ref(R/'static-native-deciding-summary.json')})
+closure=P/'docs/research/e02-cloud-test-plan'; hand=closure/'implementation-handoffs'
+owner_rows=list(csv.DictReader((closure/'execution-organization/finding-owners.tsv').open(),delimiter='\t'))
+bundle_rows=list(csv.DictReader((closure/'execution-organization/bundle-owners.tsv').open(),delimiter='\t'))
+bundle_map={x['bundle_id']:x for x in bundle_rows}
+prior_path=hand/'E/continuation-20261007/final-publication-r4/postfreeze/static-output-review-64d.json';prior=load(prior_path); prior_paths={x['exact_static_record']['path']:x['canonical_owner'] for x in prior['exceptional_rows']}
+foreign={
+ 'src/polisyos/common/async_tools.py':('B',['RUN-01'],'B/run-typevar.json','Explicit B changed_paths; native async integration remains canonical Common/Core'),
+ 'src/polisyos/scientist/orchestration/engine/budget_ledger.py':('B',['DUR-01'],'B/current-durability-settlement.json','Explicit B changed_paths; durable native caller/accounting owner B'),
+ 'src/polisyos/scientist/orchestration/engine/budget_middleware.py':('B',['DUR-01'],'B/current-durability-settlement.json','Explicit B changed_paths; producer settlement bridge owner B'),
+ 'src/polisyos/runtime/http/services/control_plane_store.py':('not_established',[],None,'Canonical runtime source/API owner; B settlement receipt references consumer tests only, not this source footprint. Runtime owner/A seam must identify actual writer and native HTTP witness'),
+ 'src/polisyos/foundry/execute/_internal/graph/__init__.py':('not_established',['EXE-01','EXE-02'],None,'Canonical Foundry execution owner with B EXE execution family; no E author lease inferred from static path'),
+}
+def families(p):
+ if '/posterior_summary.py' in p or '/uncertainty_adapter.py' in p or '/propagate_welfare.py' in p:return ['UQS-01','UQP-02']
+ if '/foundry/uncertainty/' in p or '/propagate_uncertainty.py' in p:return ['UQP-01','UQP-02','UQP-03']
+ if '/calibration/forecast_bridge.py' in p or '/forecast_owner.py' in p:return ['FRC-01','FRC-02']
+ if '/calibration/continuous.py' in p or '/calibration/curve.py' in p or '/econometrics/advanced.py' in p:return ['PCL-01']
+ if '/foundry/calibration/' in p or '/ir/analytics/calibration_diagnostics.py' in p:return ['CAL-01','CAL-02','CAL-03','CAL-04','CAL-05','CAL-06']
+ if '/ddm/' in p:return ['DDM-01','DDM-02']
+ if '/methods/doe/' in p or '/sensitivity_' in p:return ['DOE-01','DOE-02','DOE-03']
+ if '/backtesting/bootstrap.py' in p:return ['BKT-04']
+ if '/backtesting/trust_scorer.py' in p:return ['BKT-03']
+ if '/backtesting/evaluator.py' in p:return ['BKT-02','BKT-03']
+ if '/backtesting/' in p or '/backtest_matrix.py' in p or '/run_simulation.py' in p:return ['BKT-01','BKT-02']
+ raise ValueError('unmapped source path '+p)
+records=[]
+for group in ('regressions','new_unresolved'):
+ for native in summary[group]:
+  p=native['path']; bs=blob(S,p);owner=prior_paths[p]
+  if p in foreign:
+   unit,fams,receipt,why=foreign[p];bindings=[]
+   if receipt:
+    rp=hand/receipt;rv=load(rp);require('policy-engine/'+p in rv['changed_paths'],'foreign exact footprint');bindings=[{'handoff':ref(rp),'field':'changed_paths','path':'policy-engine/'+p}]
+  else:
+   unit='E';fams=families(p);bindings=[];why='Explicit E family inventory and task scope; source companions remain canonical subsystem/API review'
+   if '/posterior_summary.py' in p:why='Explicit E B201/B202 semantic writer appointment a0ac10 plus four choices cdaea and finite-law decision554; not general IR facade lease'
+   if '/run_simulation.py' in p:
+    rp=hand/'E/backtest-native-default-replay-r2.json';rv=load(rp);require('policy-engine/'+p in rv['changed_paths'],'native replay companion footprint');bindings=[{'handoff':ref(rp),'field':'changed_paths','path':'policy-engine/'+p}];why='E-owned bounded replay companion under exact handoff; A remains canonical simulation/default lifecycle owner'
+   if '/backtest_matrix.py' in p:
+    rp=hand/'E/backtest-replay-admission.json';rv=load(rp);require('policy-engine/'+p in rv['changed_paths'],'matrix exact footprint');bindings=[{'handoff':ref(rp),'field':'changed_paths','path':'policy-engine/'+p}]
+  ids=[{'id':x['finding_id'],'unit':x['unit'],'source_status':x['source_status'],'source_closure_owner':x['source_closure_owner']} for x in owner_rows if set(x['source_bundle_ids'].split(','))&set(fams)]
+  records.append({'kind':'regression' if group=='regressions' else 'new_unresolved_by_construction','symbol':native['symbol'],'exact_native_static_record':native,'canonical_owner':owner,'GitHub_enforced_reviewer':'@DenisKopylov','bounded_writer':unit,'writer_basis':why,'exact_handoff_bindings':bindings,'original_family_links':[bundle_map[f] for f in fams],'original_finding_navigation_only':ids,'source':{'candidate':S,'path':'policy-engine/'+p,'Git_blob':git('rev-parse',S+':policy-engine/'+p).decode().strip(),'bytes':len(bs),'sha256':sha(bs)},'next_owner':('E family owner plus '+owner if unit=='E' else unit+' and '+owner if unit!='not_established' else owner),'required_next_result':'Use actual bound caller, producer/persist/readback witness or explicit runtime unmeasured boundary; no dummy direct call or static allowlist waiver','P41':'not_established: exact slice-base full gate/input replay absent','runtime_invocation_established_by_static':False,'finding_disposition_changed':False})
+require(len(records)==115,'complete20+95 denominator')
+save('static-complete-20-95-owner-attribution.json',{'schema':'policyos.e02.E.static_complete_owner_attribution.v1','source':S,'tree':T,'base':B,'native_summary':ref(R/'static-native-deciding-summary.json'),'input_denominator':ref(R/'static-input-denominator-recomputation.json'),'owner_inputs':[ref(closure/'execution-organization/finding-owners.tsv'),ref(closure/'execution-organization/bundle-owners.tsv'),ref(P/'docs/reference/ownership.md'),ref(MC/'.github/CODEOWNERS'),ref(prior_path)],'counts':{'regressions':20,'new_unresolved':95,'all_rows':115,'paths':len(set(x['source']['path'] for x in records))},'by_bounded_writer':dict(collections.Counter(x['bounded_writer'] for x in records)),'by_canonical_owner':dict(collections.Counter(x['canonical_owner'] for x in records)),'complete_rows':records,'static_coverage':'partial','served_or_authority_PASS':False,'next_result':'Canonical writer resolves actual caller/persistence/consumer boundary; E posterior subgroup has separately pinned qualified native witnesses','P41':'not_established'})
+print(json.dumps({'full_mapping':frame,'rows':len(records),'by_bounded_writer':dict(collections.Counter(x['bounded_writer'] for x in records)),'owner_packet':ref(R/'static-complete-20-95-owner-attribution.json')},indent=2))

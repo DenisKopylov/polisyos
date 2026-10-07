@@ -1,0 +1,27 @@
+{
+  "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "source_tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "tracked_dirty": "",
+  "prepared_unix": 1791383184.283765,
+  "output_root_never_existed": true,
+  "resources": {
+    "memory.current": "8832086016\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 3935153\noom 94\noom_kill 12\noom_group_kill 0\n",
+    "memory.stat": "anon 67735552\nfile 7230939136\nkernel 1532358656\nkernel_stack 524288\npagetables 2080768\nsec_pagetables 0\npercpu 14000\nsock 0\nvmalloc 0\nshmem 4379967488\nfile_mapped 24576\nfile_dirty 749568\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 489041920\nactive_anon 3958644736\ninactive_file 784883712\nactive_file 2066087936\nunevictable 0\nslab_reclaimable 1360958072\nslab_unreclaimable 168734824\nslab 1529692896\nworkingset_refault_anon 0\nworkingset_refault_file 167444012\nworkingset_activate_anon 0\nworkingset_activate_file 26815122\nworkingset_restore_anon 0\nworkingset_restore_file 13342065\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6890169057\npgsteal 174999972\npswpin 0\npswpout 0\npgscan_kswapd 8718590\npgscan_direct 6881444835\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 8299014\npgsteal_direct 166695510\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 727393547\npgmajfault 242869\npgrefill 54546537\npgactivate 27869767\npgdeactivate 50095821\npglazyfree 1293602\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n"
+  },
+  "storage": {
+    "/tmp": {
+      "available_bytes": 5061382144,
+      "total_bytes": 9441349632
+    },
+    "/workspace": {
+      "available_bytes": 1686884352,
+      "total_bytes": 33770192896
+    }
+  },
+  "actual_capacity_interpretation": "Fresh /tmp is tmpfs charged to same16GiB cgroup; free bytes are not spareRAM. Actual capacity must be refreshed at rootfreeze and launch; no artificial quotas.",
+  "environment_readonly": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+  "current_ROOT_backend_env_store_TMP_protected": true,
+  "numeric_or_global_checks_launched": false
+}

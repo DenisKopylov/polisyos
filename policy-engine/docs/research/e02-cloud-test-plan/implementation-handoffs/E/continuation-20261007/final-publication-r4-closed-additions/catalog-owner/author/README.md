@@ -1,0 +1,9 @@
+This is an owner-ready fixture mechanism packet on immutable E source64d/aef. No root tracked source or environment package was changed. The existing native DataForge catalog producer and strict runtime consumer provide a healthy cloud fixture startup without production data. The local CSV DataSnapshot is a separate real fixture source and does not create an invented join or production authority.
+
+The unapplied patch affects only the existing tests/_helpers/runtime_http.py factory. Its public signature stays intact, and the existing canonical frontend fixture server remains the actual caller. The scoped native path seam is process-global; canonical A owner must serialize shared fixture calls or implement its approved typed DI equivalent for concurrent calls. Product runtime and DataForge guards stay intact.
+
+The positive overlay returns health200/runs200 and the actual producer-persisted bound run. Missing default source, changed source/session, old binding, wrong profile/dataset and present-but-fake producer refuse. Removing only the route predicate preserves the catalog producer and metadata yet prevents startup. These are bounded property witnesses, not CI02/full a11y PASS or finding closure.
+
+The original1585-case HTTP FAIL1 and413 catalog nonpassing rows remain unchanged. The canonical owner next applies/reviews the concrete patch, runs the exact affected HTTP selectors, then the complete CI02/full native a11y bodies on its frozen source. No production history is required for generic fixture startup; source-law/production claims still need their scoped genuine inputs.
+
+The first fake-producer observer's TypeError is retained as ERROR: it intercepted an unrelated default registry bootstrap. Corrected source delegates all other calls and scopes the fake only to the exact fixture catalog root.

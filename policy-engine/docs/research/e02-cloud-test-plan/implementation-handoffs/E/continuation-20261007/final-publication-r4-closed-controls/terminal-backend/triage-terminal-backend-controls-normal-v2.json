@@ -1,0 +1,106 @@
+{
+  "ROOT_source_environment_or_outputs_modified": false,
+  "control_count": 18,
+  "controls": [
+    {
+      "control": "healthy_literal_case_and_group_binding",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "alter_detail_hash",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "remove_fail",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "relabel_case",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "bool_ordinal",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "bool_detail_size",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "remove_case",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "reorder_cases",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "DTD",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "entity",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "ambiguous_outcome",
+      "outcome": "PASS"
+    },
+    {
+      "control": "unknown_class_not_promoted",
+      "outcome": "PASS"
+    },
+    {
+      "control": "actual_case_conservation_removal_readmits_same-marker_fail_to_pass",
+      "outcome": "PASS",
+      "removed_property": "admit_case_conservation body only"
+    },
+    {
+      "control": "absent_XML_retains_null_case_denominator",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "absent_XML_forged_zero",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "absent_XML_forged_case",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "control": "absent_XML_forged_presence",
+      "outcome": "PASS"
+    },
+    {
+      "control": "actual_absence_admission_removal_readmits_zero_count",
+      "outcome": "PASS",
+      "removed_property": "admit_unmeasured_junit body only"
+    }
+  ],
+  "fixture_case_count": 5,
+  "fixture_outcome_counts": {
+    "ERROR": 1,
+    "FAIL": 2,
+    "PASS": 1,
+    "SKIP": 1
+  },
+  "native_backend_outcome": null,
+  "native_tests_repeated": false,
+  "optimized": false,
+  "schema": "policyos.e02.E.terminal_backend_writer_triage_controls.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+}

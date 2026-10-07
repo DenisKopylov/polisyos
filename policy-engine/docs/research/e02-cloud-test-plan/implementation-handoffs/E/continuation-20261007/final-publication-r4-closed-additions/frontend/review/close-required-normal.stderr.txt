@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-frontend-retry-analysis-64d/close_required_retry_packet.py", line 86, in <module>
+    snapshot = subprocess.check_output(['/usr/bin/ps', '-p', '532697,532701,532820,532870', '-o', 'pid,ppid,etimes,state,args']).decode()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/ps', '-p', '532697,532701,532820,532870', '-o', 'pid,ppid,etimes,state,args']' returned non-zero exit status 1.

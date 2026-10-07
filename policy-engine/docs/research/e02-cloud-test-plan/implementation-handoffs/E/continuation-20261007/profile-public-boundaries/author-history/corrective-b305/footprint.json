@@ -1,0 +1,30 @@
+{
+  "base": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084",
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "base_bytes": 17159,
+      "base_sha256": "82b9e77bc1da07223f6df644c166c47a4a127eacd47abe84185360c022c27224",
+      "candidate_bytes": 17634,
+      "candidate_sha256": "946e9160e69353b747b37de534f986e5b2d18eb0c6a070c6b65e3687f66692b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "base_bytes": 96198,
+      "base_sha256": "d28620b88968dd13fd1d467aebc2183098f44c460bb813b33612d1cbb181bfb0",
+      "candidate_bytes": 96135,
+      "candidate_sha256": "a11a7097dd462ec8c8da6ca457d9d6905f1773bb606797f5389a8effcc44a27d"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "base_bytes": 15848,
+      "base_sha256": "0ff0a476dc48165ce73b0ade953d9af2ba182cc151fdb6c57ca21dd5da412f34",
+      "candidate_bytes": 16420,
+      "candidate_sha256": "10e9ee45b42a6f0d902699678b995363f881ab1e4093578a460c0c94b8a29289"
+    }
+  ],
+  "native_wave": "UNRUN by author; Root independent source freeze then one affected wave",
+  "root_writes": false,
+  "semantics": "two explicit unchanged schema defaults/context narrowing/actual typed carrier/float-protocol narrowing; raw helper itself detects declaration presence; forged raw fixture preserved six original axes"
+}

@@ -1,0 +1,91 @@
+"""Select closed deciding bytes; never run tests or mutate source/environment."""
+from pathlib import Path
+import hashlib
+import json
+
+PREP = Path('/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z')
+COLLECTION = Path('/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007')
+CAPTURE = Path('/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z')
+FREEZE = Path('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007')
+
+
+def main():
+    plan = json.loads((PREP / 'final-numeric-selector-plan.json').read_text())
+    result = json.loads((COLLECTION / 'publication-receipt.json').read_text())
+    rows = []
+
+    def select(path, at, role):
+        data = path.read_bytes()
+        rows.append(dict(source=str(path), at=at, role=role,
+                         bytes=len(data), sha256=hashlib.sha256(data).hexdigest()))
+
+    for path in sorted(COLLECTION.rglob('*')):
+        if not path.is_file():
+            continue
+        destination = 'canonical-collection/' + path.relative_to(COLLECTION).as_posix()
+        if path.suffix == '.py':
+            destination += '.txt'
+        select(path, destination, 'Closed canonical collector custody/output; native stderr/stdout are complete combined streams')
+    for path in sorted(PREP.iterdir()):
+        if path.is_file() and path.suffix in {'.json', '.txt'} and path.name != 'publication-selection.json':
+            select(path, 'preparation/' + path.name,
+                   'Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome')
+    for name in [
+        'stdout.txt', 'stderr.txt', 'terminal-public.json', 'pressure-observation-1.json',
+        'collector.stdout.txt', 'collector.stderr.txt', 'collector-execution.json',
+        'post-execution-plan-materialization.json', 'collector-current.stdout.txt',
+        'collector-current.stderr.txt', 'collector-current-execution.json',
+    ]:
+        select(CAPTURE / name, 'launch/' + name,
+               'Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded')
+    for name in ['freeze.json', 'publication-readback.json']:
+        select(FREEZE / name, 'source-freeze/' + name,
+               'Parent exact frozen/published source authorization; execution/outputroot-specific bindings separately retained')
+    for source, destination in [
+        (Path('/tmp/e02-E-final-composed-wave-refresh-20261007.py'), 'observer/final-composed-wave-refresh.py.txt'),
+        (Path('/tmp/e02-E-final-composed-wave-refresh-20261007-v1.py'), 'observer/final-composed-wave-refresh-historical-v1.py.txt'),
+        (Path('/tmp/e02-E-final-wave-preparation-31782b55-20261007/build_final_wave_plan.py'), 'observer/pinned-original-preparation-recipe.py.txt'),
+        (Path(__file__), 'observer/build-publication-selection.py.txt'),
+    ]:
+        select(source, destination, 'Literal reviewed delegation/selection observer archive; no duplicate executor/library/environment')
+    for path in sorted((PREP / 'exact-reviewed-harness').glob('*.py')):
+        select(path, 'observer/' + path.name + '.txt', 'Literal Git-derived reused canonical wrapper archive; bindings in harness-source-inputs.json')
+    destinations = [row['at'] for row in rows]
+    if len(set(destinations)) != len(destinations):
+        raise ValueError('destination collision')
+    selector = dict(
+        schema='policyos.e02.final_numeric_publication_selection.v1',
+        source_sha=plan['candidate_sha'], source_tree=plan['candidate_tree_sha'],
+        file_count=len(rows), total_bytes=sum(row['bytes'] for row in rows), files=rows,
+        native_case_outcomes=result['native_numeric_counts_excluding_A_packets'],
+        numeric_case_outcomes=result['numeric_counts'],
+        owner_A_packet_cases=result['foreign_owner_A_packet_cases'][0]['counts'],
+        numeric_stage_outcomes=result['numeric_outcome_counts'],
+        importer=result['non_numeric_outcome_counts'],
+        global_gates='Not executed by numeric-only plan. Seven commands preserved; parent workflow observations separately joined. No full CI/gate PASS.',
+        retained_old_CAL='24 unchanged native CAL/JAX/Hessian paths not repeated; old64d324 remains historical source-qualified observation, not current PASS.',
+        case_counts_source='Actual complete seven JUnit streams decoded by unchanged canonical collector; no AST or prospective parametrized counts substituted.',
+        late_plan_custody='Original collectorERROR retained. Exact229702B prepared plan predating wave start post-terminal materialized into wave/plan.json; all8actual argv/cwd/source receipts matched before copy. No pre-wave materialization claim/no numeric rerun.',
+        authority_boundary='Current check outcomes only. Historical49partial/4held/1closed ledger and original owner decisions unchanged. Native/A consumer failures stay real; P41 attribution separately measured.',
+        environment='Existing ROOT207 before/after METADATA/pyvenv.cfg identical. Complete selected effective child variables in runner receipts; inherited secrets raw/ignored. No installs/new environment/caps.',
+        publication_code_role='Executed Python archived as .py.txt; original invocation/source paths remain exact.',
+        excluded=['Private raw Git config', 'Credential-bearing raw launcher inherited environment',
+                  'Repeatable CAS/cache/pytest temporary trees',
+                  'Large complete parent source-input JSON/untracked root artifacts: exact original refs retained in source freeze',
+                  'Old CAL324 native suite not rerun', 'Production datasets'],
+        self_index_excluded=True,
+        predicate_basis=dict(current_case_retallies='recomputed', native_vs_owner_packet_case_attribution='recomputed',
+                             source_copy_hash_size_git_refs='recomputed', prepared_plan_actual_commands='recomputed',
+                             current_independent_case_custody='not_established', finding_authority_P41_red_cause='not_established'),
+        independent_custody_next='Peer review of current CaseIndex/receipt/selection pending; no independent GO inferred by this author selection.',
+    )
+    path = PREP / 'publication-selection.json'
+    with path.open('x') as stream:
+        stream.write(json.dumps(selector, indent=2) + '\n')
+    print(json.dumps(dict(selector=str(path), bytes=path.stat().st_size,
+                          sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                          file_count=len(rows), total_bytes=selector['total_bytes'])))
+
+
+if __name__ == '__main__':
+    main()

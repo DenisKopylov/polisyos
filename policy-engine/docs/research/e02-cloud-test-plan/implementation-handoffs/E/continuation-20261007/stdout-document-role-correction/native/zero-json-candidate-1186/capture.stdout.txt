@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/validation/repository_last_mile_inventory.py", "--json-output", "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-1186/inventory.json", "--check"], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 76.61320161819458, "source_immutable": true}

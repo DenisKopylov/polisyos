@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "--stdin-filename",
+    "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py",
+    "-"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "exit_code": 0,
+  "input_sha256": "79e4e72361f1fc6a7addeb3c0cf16b604782985437ddf75a45c20c9ac9b2b2a4"
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "/tmp/e02-E-fit-packet-thirteenth-20261007/native_input_probe.py.txt",
+    "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-diagnostic"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+  "exit_code": 0,
+  "wall_seconds": 2.64941694602021,
+  "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "stdout": {
+    "path": "native-input-probe.stdout.txt",
+    "bytes": 317,
+    "sha256": "a566a2b5ce5de30c7a07c3520e1a1cd806a9d72b798feef37b14356cce713aef"
+  },
+  "stderr": {
+    "path": "native-input-probe.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "backend_rerun": false,
+  "source_mutated": false,
+  "thread_or_cpu_caps_set": false
+}

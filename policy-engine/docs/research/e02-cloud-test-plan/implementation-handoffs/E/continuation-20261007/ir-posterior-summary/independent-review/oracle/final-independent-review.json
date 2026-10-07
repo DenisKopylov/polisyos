@@ -1,0 +1,683 @@
+{
+  "schema": "policyos.e02.independent_ir_final_source_disposition.v1",
+  "reviewer": "oracle_r4; independent read-only source review, scratch-only probes; no source authorship",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "parent_candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "ratification_decision_commit": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "source_base": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+  "source_base_tree": "61e2babec557b813036c194811ceece78ce95ca6",
+  "source_disposition": "GO for bounded B201/B202 producer/profile/CAS/native E law mechanism on this immutable candidate",
+  "scope": [
+    "Separate named mean/median/equal-tail functionals under the ratified v1.1 compatible option.",
+    "Exact finite float64 carrier, axis/order/shared draw identity/weights and content-bound profile context through existing CAS.",
+    "Strict fresh E native intake before model builder/evaluator; no fabricated scientific posterior quality, fit/noise/likelihood or production authority."
+  ],
+  "source_clean": true,
+  "source_unchanged_during_final_deciding_run": true,
+  "footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml": {
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    "policy-engine/src/polisyos/foundry/calibration/report.py": {
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "bytes": 16300
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779",
+      "bytes": 17116
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/protocol.py": {
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "bytes": 5742
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "bytes": 23932
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200",
+      "bytes": 7397
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "bytes": 9674
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "sha256": "d28603eea55bb07a94ba73e3f923cdc13459eb061f2a57460bac7ed7dbefb83a",
+      "bytes": 15782
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": {
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "bytes": 15822
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "bytes": 16962
+    }
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "exact_final_command": "PYTHONPATH=/workspace/e02-E-frc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/independent_final_delta.py",
+  "command_exit_code": 0,
+  "final_delta_counts": {
+    "PASS": 7
+  },
+  "final_delta_cases": [
+    {
+      "id": "signedzero_freshCAS_native_None",
+      "check_status": "PASS",
+      "detail": {
+        "input_weights": null,
+        "fresh_mean": 0.5,
+        "source_and_fresh_zero_signs_canonical_positive": true,
+        "fresh_CAS_ref": {
+          "artifact_id": "sha256:2fe19a25b4766a8a7592ee06473691863412f8da1078be7e4dadc9cda997eac6",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "actual_native_callback_count": 257,
+        "actual_sample_counts": {
+          "0.0": 128,
+          "1.0": 128
+        },
+        "zero_mass_category_callback_count": null,
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "signedzero_freshCAS_native_[-0.0, 1.0]",
+      "check_status": "PASS",
+      "detail": {
+        "input_weights": [
+          -0.0,
+          1.0
+        ],
+        "fresh_mean": 1.0,
+        "source_and_fresh_zero_signs_canonical_positive": true,
+        "fresh_CAS_ref": {
+          "artifact_id": "sha256:b47f272fc57a674c193bf040017f711729fb1cdcf2502621c56e3acd968897f9",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "actual_native_callback_count": 257,
+        "actual_sample_counts": {
+          "1.0": 256
+        },
+        "zero_mass_category_callback_count": 0,
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "old_generic_labels_v1_1_replay",
+      "check_status": "PASS",
+      "detail": {
+        "legacy_generic_point": 0,
+        "separate_legacy_mean_metadata": 1,
+        "new_profile_interpretation": null,
+        "same_replayed_CAS_ref": {
+          "artifact_id": "sha256:de4d7957c033ba4eaac3be1d4e164b715ae617d7a8a39bf74cabbf02e5669222",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "old_wire_bytes_reused": true,
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "explicit_NEW_marker_remove_profile",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary profile is missing",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "explicit_NEW_profile_ID_version_markers_retained": true,
+        "fresh_integrity_valid": true
+      }
+    },
+    {
+      "id": "explicit_NEW_marker_wrong_id",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary profile/carrier binding is invalid",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "explicit_NEW_profile_ID_version_markers_retained": true,
+        "fresh_integrity_valid": true
+      }
+    },
+    {
+      "id": "explicit_NEW_marker_wrong_version",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary profile/carrier binding is invalid",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "explicit_NEW_profile_ID_version_markers_retained": true,
+        "fresh_integrity_valid": true
+      }
+    },
+    {
+      "id": "effective_NEW_marker_guard_removal",
+      "check_status": "PASS",
+      "detail": {
+        "effective_property_removal": true,
+        "required_negative_assertion_outcome": "FAIL",
+        "actual_callbacks": 257,
+        "actual_builders": 1,
+        "explicit_NEW_markers_retained": true,
+        "generic_point_fallback": {
+          "x": 0.0
+        }
+      }
+    }
+  ],
+  "source_dependency_bracket": {
+    "parent_to_candidate_changed_paths": [
+      "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "policy-engine/tests/unit/ir/test_posterior_summary.py"
+    ],
+    "profile_module_changed_symbols": [
+      "_profile_declared",
+      "read_posterior_summary_profile"
+    ],
+    "profile_functional_math_AST_unchanged_from_c861": true,
+    "reviewed_delta": "Producer selects existing canonical real zero before carrier/joint/profile hashes and adds genuine NEW profile ID/version declarations. Reader declaration predicate reserves only new profile markers and reconciles them with actual typed profile; old generic labels retain legacy point semantics. SamplingAdmission carrier import routes through existing curated IR analytics facade. No remaining changes to nominal node/group admission, existing common draw transform, weighted functional mathematics or existing digest representation on this final delta.",
+    "legacy_ABI_codec_transport_exact_byte_bracket": [
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "size_bytes": 84428
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4",
+        "size_bytes": 5181
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/serialization.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24",
+        "size_bytes": 12881
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "size_bytes": 2555
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+        "size_bytes": 1882
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+        "size_bytes": 2352
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+        "size_bytes": 1915
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+        "size_bytes": 1857
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/transport.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d",
+        "size_bytes": 9178
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "unchanged_from_ratification_and_source_base": true,
+        "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+        "size_bytes": 6659
+      }
+    ],
+    "full_footprint_count": 16,
+    "Python_footprint_count": 14
+  },
+  "reused_frozen_observations": [
+    {
+      "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "tree": "26a191ee37da336faf5f6f84f14bc54a883bb90b",
+      "receipt": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/c87-independent-review.json",
+      "resolved_bounded_cases": 28,
+      "meaning": "26 unchanged cases plus two corrected reporter-only cases. These observations were not all re-executed on final700. First reporter stdout with two incorrect FAIL classifications retained; the subsequent two-case reporter delta PASS corrects Pydantic subclass/earlier-refusal assumptions without product changes.",
+      "case_ids": [
+        "independent_atom_nativeCAS_actual_node",
+        "weighted_zero_mass_inverseCDF",
+        "same_summaries_different_laws_reopen",
+        "native_paired_1",
+        "native_paired_-1",
+        "tiny_atom_[5e-11, 0.99999999995]",
+        "tiny_atom_[0.99999999995, 5e-11]",
+        "tiny_atom_[0.5, 5e-11, 0.49999999995]",
+        "producer_refusal_[0, 0]",
+        "producer_refusal_[1, -1]",
+        "producer_refusal_[True, 1]",
+        "producer_refusal_[inf, 1]",
+        "producer_refusal_[0.5, 1e-20, 0.5]",
+        "producer_refusal_[1e-20, 0.5, 0.5]",
+        "actual_node_before_callback_mean",
+        "actual_node_before_callback_profile",
+        "actual_node_before_callback_carrier",
+        "actual_node_before_callback_rows",
+        "actual_node_before_callback_digest",
+        "actual_node_before_callback_rename",
+        "actual_node_before_callback_raw_bool",
+        "actual_node_before_callback_raw_string",
+        "actual_node_before_callback_inline_bool",
+        "actual_node_before_callback_inline_string",
+        "context_content_and_expected_binding",
+        "fresh_reader_sortedCDF_collapse",
+        "effective_named_mean_property_removal",
+        "effective_raw_guard_property_removal"
+      ]
+    },
+    {
+      "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+      "tree": "135ab8cff4026f3fa366ce997e4aa9b181441218",
+      "receipt": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/c861-independent-review.json",
+      "bounded_delta_cases": 9,
+      "meaning": "Actual adapter, shared digest, single/fullmapping admission, publicreal guard, scaledhypot and removal observations. Not re-executed on final700; final AST/dependency bracket isolates zero canonicalization/profile discrimination/import route delta.",
+      "case_ids": [
+        "canonical_IRadapter_single_read_and_exact_bytes",
+        "native_group_refusal_1_consistent_joint",
+        "native_group_refusal_2_consistent_joint",
+        "native_group_refusal_2_incomplete_joint",
+        "existing_shared_joint_hash_exact_format",
+        "public_real_non_bool_axes",
+        "finite_scaled_hypot_and_diagnostic_range_refusal",
+        "native_content_valid_context_disagreement",
+        "effective_complete_group_context_admission_removal"
+      ]
+    }
+  ],
+  "historical_source_red_provenance": [
+    {
+      "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "defect": "CoreToIR adapter has no verify method, new loader AttributeError",
+      "receipt": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/canonical-adapter-probe.json",
+      "resolved_at": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+      "deciding_delta_case": "canonical_IRadapter_single_read_and_exact_bytes"
+    },
+    {
+      "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "defect": "Consistently forged single joint SHA declaration accepted, actual257callbacks",
+      "receipt": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/single-consistent-fake-joint-probe.json",
+      "resolved_at": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+      "deciding_delta_case": "native_group_refusal_1_consistent_joint"
+    },
+    {
+      "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+      "defect": "Signed-negative-zero producer hashes differ from existing canonical CAS positive-zero read; fresh strictnominal refuses",
+      "receipt": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/signed-zero-c861-probe.json",
+      "resolved_at": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "deciding_delta_cases": [
+        "signedzero_freshCAS_native_None",
+        "signedzero_freshCAS_native_[-0.0, 1.0]"
+      ]
+    },
+    {
+      "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+      "defect": "Generic old labels incorrectly declare new profile; genuine legacy v1.1 median+separate mean fixture refused",
+      "source_reported_receipt": "/workspace/e02-E-pr38-r3-receipts/ir-profile/legacy-generic-labels-c861-probe.json",
+      "provenance": "Author/root exact-c861 red retained separately; independent final healthy oldfixture and NEWmarker-removal proof delivered here.",
+      "resolved_at": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "deciding_delta_case": "old_generic_labels_v1_1_replay"
+    }
+  ],
+  "runtime_defining_oracles": {
+    "atoms": "99 zero values plus100: arithmetic mean1, median0, q05/q95[0,0]. Native CAS profile nominal selects1 while generic point remains0; no interval widening.",
+    "same_summaries_different_laws": "Two100-row laws bothmean0/populationvar3/5/samplevar60/99/interval[-1,1] retain distinct freshCAS refs and P(0)=.4 versus.7.",
+    "paired_dependence": "Positive versus reversed negative pairing g=+-1 preserves actual native jointrows; Var(a-b)=0 versus4, actual256Sobolnet128/128 plus1nominal callback.",
+    "weighted_convention": "Values0,999,2 masses1,0,3 ->mean1.5, inverseCDFmedian2 andq05/q95[0,2], zero-mass999 excluded; original interpolation helper remains unchanged.",
+    "sorted_CDF": "Finite representation accepted draw-orderCDF can collapse after value sorting; producer and strictfreshreader both reject positive category collapse before callback rather than erase atom.",
+    "finite_range": "Finite(0,1e200) weighteddiagnosticstd5e199 persists and freshreads using scaledhypot. An unrepresentable Gaussian diagnostic interval refuses. No float32 backend or inferentialcovariance claim."
+  },
+  "effective_property_removal_controls": [
+    {
+      "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "property": "named mean consumer route",
+      "removal": "Monkeypatch actual node named-mean intake to generic point, retaining valid profile+CAS artifacts. Real output support becomes[0,100], falsifying required[-1,99].",
+      "effective": true
+    },
+    {
+      "candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+      "property": "raw finite-real inlet",
+      "removal": "Monkeypatch raw-profile admission off, retaining invalid bool carrier and valid original digest/metadata/CAS. Real node executes257callbacks, falsifying required callback0.",
+      "effective": true
+    },
+    {
+      "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+      "property": "Complete-profile group context agreement",
+      "control": "Remove only actual node group admission, retain individually valid profile/context hashes and exact CAS/joint law bytes. Different group contexts now execute257callbacks, falsifying required callback0.",
+      "effective": true
+    },
+    {
+      "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+      "property": "Genuine NEW profile discriminator",
+      "removal": "Disable only actual _profile_declared; retain NEWID/version and actual freshCAS artifact with missing profile/required. Actual node executes257callbacks using genericmedian0, so required beforecallback0 assertion FAIL.",
+      "effective": true
+    }
+  ],
+  "predicate_basis": [
+    {
+      "predicate": "Functionals/atom/paired-law expectations",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "CAS bytes/hash/ref/type/profile/axis/order/rows/probabilities/joint digest/context agreement",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "Profile supplied unit/estimand/source/model/fit/rule/time/purpose provenance assertions",
+      "basis": "consumer_asserted",
+      "authority": "Content-bound representation only; does not validate truth of underlying scientific source/fit/law."
+    },
+    {
+      "predicate": "Scientific posterior quality, likelihood/noise, mixing/ESS, configured source-fit join and production policy authority",
+      "basis": "not_established"
+    }
+  ],
+  "finding_adjudication": {
+    "B201": "Independent functional/compatibility source proof delivered. Accountable owner records originalcard disposition separately; no automatic closure from sourceGO or number of PASS.",
+    "B202": "Independent exact finite carrier/joint/readback/precallback source proof delivered. Accountable owner records originalcard disposition separately; no asserted scientific confidence or new C/F consumer authority.",
+    "B197": "Configured Bayesian source/fit/noise/target join remains separate; no bound direct summarizer source caller established by original c4 completeAST census."
+  },
+  "remaining_owners_and_limits": [
+    {
+      "owner": "E appointed B201/B202 semantic/implementation owner",
+      "next_result": "Record each original criterion disposition using this bounded functional/law evidence and separately reviewed public/consumer packet."
+    },
+    {
+      "owner": "G integration publisher/code acceptance",
+      "next_result": "Fetch exact immutable source and independently reviewed handoff; accept implementation separately from finding closure; final frozen defining/global wave belongs to root queue."
+    },
+    {
+      "owner": "Canonical schema/runtime API/OpenAPI generator publisher",
+      "next_result": "Apply/generate/admit the exact profile ABI/export companion packet; generated public surface not admitted by this source receipt."
+    },
+    {
+      "owner": "C/F adjacent ABI/consumer owners",
+      "next_result": "Review unchanged v1.1 transport/projection compatibility packet at their actual source edges; E does not appoint them new law computations."
+    },
+    {
+      "owner": "Scientific source/fit/noise/chain owner and served evaluator owner",
+      "next_result": "Provide exact factual admitted lineage/law/quality inputs when original criterion requires them; no production data was copied or synthetic authority asserted."
+    }
+  ],
+  "limits": [
+    "7 finaldeltaPASS are current independent narrow checks; 28c87 and9c861 resolved observations retained under explicit source/dependency review, not summed into a current44-case wave.",
+    "All observed profile/decomposition gate_eligible flags remainfalse; samples do not establish valid inferential covariance, coverage/mixing/ESS or causal/treatment/policy authority.",
+    "Uses existing real-zero CAS canon; no IEEE signed-zero bit-identity or arbitrary-real probability exactness guarantee.",
+    "Original staticc4 census2701trackedsourceASTs/121selectedpaths/0parseerrors is fully bounded; dynamic/getattr/registry dispatch and testsource were not that census denominator.",
+    "Sourceacceptance separate from owner finding disposition, code acceptance, public contract publication and all-units CI/global gates. No broad wave repeated."
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/semantic-decision-independent-review.json",
+      "sha256": "72ad7e04d2eed04870e13ce043cc3dee4aa5050d85ae599c399a1b4f39fb40a6",
+      "size_bytes": 9673
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/source-consumer-census.json",
+      "sha256": "4c4486187ed0b83dcf741d8f7e225166028958093484d604b26a3a4d5d01e11b",
+      "size_bytes": 183283
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/source_census.py",
+      "sha256": "ab0e65c68217d670f4f7ad269adb8bd62e1e10ac66597fa73aacf0c678688984",
+      "size_bytes": 5772
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-semantic-oracles.json",
+      "sha256": "a413648a7b0ea9c3f2b0e7e770a1659d568cbbb88a9d45e96b7e112524d0bbd9",
+      "size_bytes": 10251
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline_oracles.py",
+      "sha256": "266196e82cc93e3f9ba95a57ae960dc76792e5028c0d2eeaf5846b4c99142292",
+      "size_bytes": 8204
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles-corrected.stdout",
+      "sha256": "a413648a7b0ea9c3f2b0e7e770a1659d568cbbb88a9d45e96b7e112524d0bbd9",
+      "size_bytes": 10251
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles-corrected.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/weighted-convention-oracle.json",
+      "sha256": "3f1f08376c3313fb9d8eace06ba92b32cf0c6c980d7efdeb0c8c72200a37ae59",
+      "size_bytes": 1151
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/weighted_convention_oracle.py",
+      "sha256": "325d11eea7f8867d368f56d7499df44fbb379e4642d8e684754466610bf97306",
+      "size_bytes": 3310
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/weighted-oracle.stdout",
+      "sha256": "3f1f08376c3313fb9d8eace06ba92b32cf0c6c980d7efdeb0c8c72200a37ae59",
+      "size_bytes": 1151
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/weighted-oracle.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/quantile-cdf-collapse-oracle.json",
+      "sha256": "b9d8bd388af786641c0166bd861e7b5c07afa3c6fdec7d78c54493d8bb816c4c",
+      "size_bytes": 1060
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/c87-independent-review.json",
+      "sha256": "b7bc0b2b092ec7f729796e8483130b8e61cbb7f94eb0704e02155fc9d90d7078",
+      "size_bytes": 22091
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-results.json",
+      "sha256": "d07824da179f4536320aa8b3d4fdf34f544dba3ffd6b4937d78442bc21adcf96",
+      "size_bytes": 19171
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-delta-results.json",
+      "sha256": "6cddcb741b4cdf24a0083372804d3dc40810a7c50b5f0329dc83066372010f9d",
+      "size_bytes": 4849
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracles.stdout",
+      "sha256": "d07824da179f4536320aa8b3d4fdf34f544dba3ffd6b4937d78442bc21adcf96",
+      "size_bytes": 19171
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracles.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-delta.stdout",
+      "sha256": "6cddcb741b4cdf24a0083372804d3dc40810a7c50b5f0329dc83066372010f9d",
+      "size_bytes": 4849
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent-oracle-delta.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent_oracles-first.py",
+      "sha256": "cafe758b336efe009b93d3b5f81654835637821f49008ab157970f2f3579d19f",
+      "size_bytes": 13002
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/independent_oracles.py",
+      "sha256": "eff6093ea2b4884f178b9b65c31ddedec63edd2cce465303cee51af655538621",
+      "size_bytes": 13153
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/canonical-adapter-probe.json",
+      "sha256": "341a0d4d3e8223f9bc816fa29214a74fc2348b0a8c2a5b56f15e77cb98b9cb85",
+      "size_bytes": 582
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/single-consistent-fake-joint-probe.json",
+      "sha256": "6b899c9ef7435ee8b35a85ede130bb239559eda74a35fd0d4a1f826669fa46bd",
+      "size_bytes": 730
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/c861-independent-review.json",
+      "sha256": "751aebb6daf444306194a091516778baca4520b1cb68c3f8028cb6c3de7d1b08",
+      "size_bytes": 12921
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/independent_delta.py",
+      "sha256": "a1a37cd4d4acd18fd9bc09142acf0a89a21919b346c8052ff62590dbf9d3eb11",
+      "size_bytes": 11473
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/independent-delta-results.json",
+      "sha256": "21f3bded90b967cf5d35d31cc0447df477c8c6f54e06b86bde65bb337aef0fdb",
+      "size_bytes": 9300
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/independent-delta.stdout",
+      "sha256": "21f3bded90b967cf5d35d31cc0447df477c8c6f54e06b86bde65bb337aef0fdb",
+      "size_bytes": 9300
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/independent-delta.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/signed-zero-c861-probe.json",
+      "sha256": "48ebdd34073b71ad472f6b4c8a46f9f775aa74546125c2c7c7f7e6717c8ad350",
+      "size_bytes": 570
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/independent_final_delta.py",
+      "sha256": "ae18185cd86a37340b351b6c2c9967a63d8967fbff94d6e530b128bfb1a46c07",
+      "size_bytes": 10253
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/independent-final-delta-results.json",
+      "sha256": "a2503429548fcf9f415e6565e4902f4ccbf3b6f97f960b9cb6ca32530dbfbc77",
+      "size_bytes": 8363
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/independent-final-delta.stdout",
+      "sha256": "a2503429548fcf9f415e6565e4902f4ccbf3b6f97f960b9cb6ca32530dbfbc77",
+      "size_bytes": 8363
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/independent-final-delta.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/build_final_review.py",
+      "sha256": "d31502425eccc701b72a305d3e9ef29b6a344c5e73eb8aefbd668b7651392025",
+      "size_bytes": 15038
+    }
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "List only; preserve all unique source/scripts/deciding outputs. Repeatable fixtures may move only to nativeTrash after receipts and active-user check; no permanent deletion.",
+    "candidates": [
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/native-cas-dd76gvgs",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/atom-z6zecles",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-8ywxkoou",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/weighted-0e53wpds",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/same-summaries-kx0pmx30",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-4td95k7h",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-vy4yq51r",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/tiny-o6ri0xl7",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/tiny-ir209khs",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/tiny-u8dnpmka",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-xl5gmq19",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-fut_5i2m",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-gr6361ae",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-z7pqdlui",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-ab7_o0w2",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-hv47rk53",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-d8p1kpge",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-evxw1zra",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-0u6mfsf0",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-9aatujm2",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/context-luwv903v",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/sorted-collapse-moigyn63",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-rrb8e6wq",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-yaz3jv2k",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/node-yjliofui",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c87-review/context-c_jzbx8_",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/adapter-jsh0jlbe",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/node-5ml9_muc",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/node-1njzck5e",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/node-kms4sjzv",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/large-cknkblst",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/context-group-933t5r1o",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/context-group-ci_iaol4",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/signedzero-2eyg2vsx",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/node-8k6g_k1l",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/signedzero-tlupgn12",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/node-cedmd025",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/legacy-labels-0740jxyg",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-c3mbdkf5",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-1rv8p3jj",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-56ei721j",
+      "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review/new-marker-iil8aw8h"
+    ]
+  }
+}

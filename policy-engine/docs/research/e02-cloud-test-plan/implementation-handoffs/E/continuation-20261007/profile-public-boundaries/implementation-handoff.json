@@ -1,0 +1,307 @@
+{
+  "schema": "policyos.e02.E.profile_public_boundaries_handoff.v1",
+  "unit": "E",
+  "slice": "Profile2 common raw ingress and typed multi-join refusal",
+  "branch": "codex/e02-E-continuation-20261006",
+  "worktree": "/workspace/e02-E-continuation-20261006",
+  "PR": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "base": {
+    "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "tree": "7bec40f1926422c363a3cf3fa623089d85a68139"
+  },
+  "candidate": {
+    "commit": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+    "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+  },
+  "original_implementation_commits": [
+    "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+    "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "e4b97c15196d8e276745f55a4367da83586511d9",
+    "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+  ],
+  "implementation_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+      "git_blob": "43c9c7185acd8c8f8e17964780d52b90e0ea34e5",
+      "bytes": 1323,
+      "sha256": "82a80155636bf13db75170e46320daf4634d8cf51a39085735fb4159ad237223"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "git_blob": "211103b83d6e71aadc314464d799c97eb1ed41f0",
+      "bytes": 17806,
+      "sha256": "e8e81a9792edcc1a6df4d9783b02e64fc8f756f41d8eafd63d9bde40cd72dee3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "git_blob": "a3d4385ecdb98ec43baf70b85c9b0e722ae86c8f",
+      "bytes": 10175,
+      "sha256": "216df7733150f0aea483bdec13b53c543d173809b41148612bcce4c928f2c726"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "git_blob": "6468bf46e3a3dfa341112022eccdfe826aaa04ac",
+      "bytes": 96135,
+      "sha256": "a11a7097dd462ec8c8da6ca457d9d6905f1773bb606797f5389a8effcc44a27d"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "git_blob": "7f8317dd1ed9ced9df07eb6c912dfc199beea603",
+      "bytes": 16420,
+      "sha256": "10e9ee45b42a6f0d902699678b995363f881ab1e4093578a460c0c94b8a29289"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "git_blob": "b7205926418c14f2966e7fe199d92c6a89b86892",
+      "bytes": 15029,
+      "sha256": "43021a13ed0aa22adb973fa69d927470fa3084eff4cb3a8a55b378fdf1a0020b"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py",
+      "git_blob": "3bde24469403ce232808a4d58ee2f06eb5d6c770",
+      "bytes": 10145,
+      "sha256": "79e4e72361f1fc6a7addeb3c0cf16b604782985437ddf75a45c20c9ac9b2b2a4"
+    }
+  ],
+  "publication_footprint": "copy-index.json enumerates complete moderate receipts, independent reviews, unapplied owner patches and two maintained evidence builders; no future evidence-commit SHA is self-referenced.",
+  "canonical_writers": {
+    "E": "owned uncertainty/profile/producer adapter source and tests; B201/B202 appointed semantic owner only",
+    "A": "runtime/quality/generation_cycle.py and HTTP run_lifecycle.py; resolver reason/recompute/persist/fresh consumers",
+    "Scientist_compute": "scientist/compute/runner.py::_load_input_refs; configured canonical float decoder/full typed ref binding",
+    "IR_Core_Foundry_facades": "canonical narrow typed aliases and public admission/compatibility owners",
+    "G_generators": "generated schema ABI/public inventory/reference/runtime API/OpenAPI/trust companions; integration publisher",
+    "C_F_D": "their actual profile/search consumers; independent from original B100 sampler/analyzer criterion"
+  },
+  "original_ids": {
+    "direct": [
+      "B201",
+      "B202"
+    ],
+    "joint_law_siblings": [
+      "B188",
+      "B192"
+    ],
+    "diagnostic_aggregation": [
+      "B199"
+    ],
+    "owner_packet_associations": [
+      "B32",
+      "LA-051"
+    ]
+  },
+  "semantic_authorization": {
+    "appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "initial_tracked_four_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "Profile2_technical_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+    "bounds": "Only B201/B202; E is not the owner of all IR, A B31, institutional authority or G publication."
+  },
+  "runtime_properties": [
+    {
+      "property": "Declared Profile2 raw real values are admitted before numerical coercion at the common public DTO/loading boundary. Bool/string and malformed/unsupported declarations cannot lower into an admitted derived law.",
+      "path": "UncertaintyEnvelope._canonicalize_numeric_payload -> existing validate_raw_posterior_summary_envelope -> load_uncertainty_envelope/direct DTO -> actual push/compress/pull admission -> configured CAS -> fresh strict reader",
+      "scope": "Raw numeric/context declarations before coercion; full carrier/joint/functionals/content digests are independently reconciled by existing composition reader before evaluator callback/derived publication. Integrity-valid malformed raw CAS bytes remain legitimate rejection inputs.",
+      "old_proxy_divergence": "At exact df525/b2 raw bool and numeric string strict reader rejected, while legacy read coerced them, public callback executed, and derived strict fresh reader accepted.",
+      "oracle_and_negatives": "Independent normal and optimized native strict/legacy/directed routes, malformed markers/context/digest, callback/publication counters, retained-marker guard removal. Old maintained78:22FAIL/56PASS; Source2 independent387PASS per interpreter and28 actual derived publications per interpreter after raw-guard removal.",
+      "compatibility": "Literal Profile1 v1.0 and unprofiled Envelope1.1 retained. Distinct Profile2 v2.0 and exact ratio law are unchanged. No self-attested admission flag or covariance authority is added."
+    },
+    {
+      "property": "Any multi-envelope join involving a Profile2 declaration refuses with typed UncertaintyCompatibilityError before generic lowering; singleton identity and generic/Profile1 joins remain.",
+      "path": "join_envelopes -> typed explicit-mixture-contract refusal; no implicit normalization/equal mixture",
+      "oracle_and_negatives": "Unequal raw weight totals0.5/1.0, mixed joins, identity/generic controls; independent retained-marker join-guard removal re-admits4 lossy joins per normal/optimized run. Exact unchanged join body transferred by Git blob, not relabeled a new execution.",
+      "combine_scope": "combine_envelopes is explicitly diagnostic/non-gating and lossy. Fresh combined generic hull is not a preserved Profile2 law."
+    },
+    {
+      "property": "Actual typed producer attaches required marker only with the final profile; final runtime adapter preserves exact already-established CAS bytes.",
+      "controls": "Independent Source3 old/new actual producer CAS wire comparison2PASS with identical content bytes/refs; six integrity-valid forged rawCAS axes refuse. Source4 tests retain both original in-memory exact-carrier refusal and earlier fresh-read raw-carrier refusal on the same forged object."
+    }
+  ],
+  "independent_review_chain": "independent-ingress/ contains exact b305, Source2, Source3 and Source4 immutable non-author reviews; independent-owner-reviews/ contains facade/float/FRC/full54 custody. Final publication custody is separately pinned to immutable payload-index.json.",
+  "current_check_outcomes": {
+    "affected_defining_wave": {
+      "outcome": "PASS",
+      "counts": {
+        "PASS": 195,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt": {
+        "path": "root-observations/final-wave-v4/wave-receipt.json",
+        "bytes": 48048,
+        "sha256": "f97e61a147a6891ea883193756048b031ac2444e06b5785d99d71f13673c8220"
+      },
+      "real_configured_HMC_NUTS_to_fresh_Node": "2PASS inside195, not counted again; integer source, NumPy backend corpus64"
+    },
+    "architecture_maintained_adversarial_controls": {
+      "outcome": "PASS",
+      "PASS": 3,
+      "receipt": {
+        "path": "root-observations/final-wave-v4/architecture-maintained-controls.receipt.json",
+        "bytes": 2886,
+        "sha256": "30e365010391e7b050867bc681d073a06fdf2d092d3db6581611e64e3e55eb06"
+      }
+    },
+    "scoped_typecheck": {
+      "outcome": "PASS",
+      "source_of_execution": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "selected_files": 3,
+      "errors": 0,
+      "warnings": 0,
+      "child_exit": 0,
+      "receipt": {
+        "path": "independent-ingress/final-e4b97/independent-ingress/final/current-type/final-v3-frozen-typecheck.receipt.json",
+        "bytes": 8048,
+        "sha256": "d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91"
+      },
+      "reuse_basis": "All3 native type input byte hashes/Git blobs unchanged on Source4, which is test-only. Canonical config/baseline unchanged; retained CLI baseline freshness notice is separate.",
+      "whole_repository_typecheck": "UNRUN"
+    },
+    "changed_product_Ruff_format": {
+      "outcome": "PASS",
+      "files": 5,
+      "receipt": {
+        "path": "root-observations/source4-final-owned-lint/receipt.json",
+        "bytes": 2185,
+        "sha256": "16a5af9f81ec771588662aeca491a93d29696cd3f19192ab15fb5a877030c4fc"
+      }
+    },
+    "full_current_architecture": {
+      "outcome": "FAIL",
+      "receipt": {
+        "path": "root-observations/architecture-current/receipt.json",
+        "bytes": 5460,
+        "sha256": "e717f9d507a030f4afeea4e6199787cc6c05d98603c390cfb5c472f8a71e526e"
+      },
+      "summary": "architecture-current-summary.json"
+    },
+    "current_full_python_lint": "Complete denominator and outputs are added in publication-lint/ after both maintained receipt builders are frozen; no blanket waiver for foreign rows.",
+    "current_A_default_HTTP_consumer": "UNRUN on fetched332ba0 source; historical b2 eight failures/source-level current reason gap and unapplied exact packet are preserved separately."
+  },
+  "historical_checks_preserved": {
+    "b2_wave": "1465=1457PASS+8FAIL, not current candidate evidence.",
+    "prior_e4_affected_wave": "193PASS+2FAIL, both exact refusal-stage test companion expectations; full XML/stdout preserved, independently reviewed test-only fix then current195PASS.",
+    "type": "b305:7errors/1warning/exit1 FAIL; Source2:4errors/0warnings/exit1 FAIL. These are diagnostics, not test counts.",
+    "tool_errors": "First native type tool automatically rewrote baseline under project precedence; full unexpected bytes preserved in ignored raw, only own side effect restored exactly with receipt. Later JSON wrapper lost child rc: ERROR retained, never promoted to PASS. Final native immutable child exit0 measured separately.",
+    "seven_global_gates": "Historical FAIL remain historical. Workspace13 and CI parity23 successor UNRUN remain separate stages. Current whole architecture is a fresh FAIL, scoped type is current bounded PASS; no full CI claim."
+  },
+  "all54_dispositions": {
+    "scope": {
+      "bundles": 22,
+      "IDs": 54,
+      "links": 55
+    },
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "E_proposed_finding_verdicts": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "formal_G_intake": 0,
+    "current_original_row_packet": "full54/all54-delta-associations-v2-source11082.json is immutable prior row/criterion/owner record; source4-association-prewave.json and all54-final-source4-verification-binding-v2.json are additive current dependency/check bindings.",
+    "B198": "Historical closed preserved; no new defining-property falsifier.",
+    "rule": "Neither code GO nor numerical PASS changes finding status automatically. Source4 repairs change affected boundary evidence; original54 row dispositions remain individually attributable.",
+    "limited": [
+      "B32",
+      "LA-051",
+      "B172",
+      "B173",
+      "B190",
+      "B200",
+      "LA-053",
+      "LA-054",
+      "LA-055"
+    ],
+    "held": [
+      "B194",
+      "B197"
+    ],
+    "missing_inputs_and_next_owners": "full54/external_owner_inputs on each original row plus owner-packets/; no blanket production gate, no synthetic institutional trust/noise/feed/R2/source law."
+  },
+  "owner_ready_packets": {
+    "API_ABI_imports": {
+      "path": "owner-packets/api/implementation-owner-handoff-v3.json",
+      "bytes": 11806,
+      "sha256": "9a145a54ba3174bb6f8d951f58ee8836d5ceb51335779c607b1f1a15969fcb0b"
+    },
+    "finite_float_configured_fit": {
+      "path": "owner-packets/float-fit/owner-handoff-v3.json",
+      "bytes": 14343,
+      "sha256": "19f54b441e79bc5d20bed32a118a31936baa3e5f842bbc6b9d3f2c4d9ea2f268"
+    },
+    "A_forecast_reasons": "owner-packets/forecast-A/ contains authentic configured ETS separate candidate/evidence CAS refs, correct six roles, missing/unresolved vs resolved-floor cases, all8 unique tests associated once with both B32/LA051, and unapplied A332 typed patch.",
+    "patches_applied_by_E": false,
+    "next_results": "Canonical owners publish narrow facade aliases/generated companions, Scientist canonical float/full-ref loader, and A reason recomputation/persist/fresh default+HTTP. Then run only affected real native witnesses; no assumed consumer_missing and no second runtime."
+  },
+  "environment_and_inputs": {
+    "native": "Existing repo Python3.14.7, NumPy2.3.5, Pydantic2.12.5; basedpyright1.39.0. Exact executed argv/environment/origins and source2917blob inventories retained in literal receipts.",
+    "cloud_orchestration": "Python3.12.14; native checks use existing locked repo environment. No new worktrees/environments except canonical architecture private generated-freshness workspace.",
+    "architecture_storage": "Existing offline uv cache /workspace/.polisyos-environment/cache/uv and same-filesystem hardlinks; all required generators run, no CPU/thread/process/worker caps.",
+    "importer": {
+      "path": "root-observations/navigation/queries-receipt.json",
+      "bytes": 7754,
+      "sha256": "3ae0b68fbb95552feac9f1cf124e3b19eae0907178bc7b4d973c12a1a3b96c95"
+    },
+    "baseline_limits": "Imported2074cells/282IDs/15sources is navigation/source-reported text only; rawVM archives0, not candidatePASS. Full query raw outputs retained ignored with exact hash/size; relevant compact rows and full criteria/owner TSV refs copied.",
+    "admission": {
+      "path": "root-observations/root-resume.full.json",
+      "bytes": 123265,
+      "sha256": "0aed708134e93c44a4e6a8759d640d1f2decbeacf8223f17e4f821432be1f817"
+    },
+    "history": {
+      "path": "root-observations/initial-git-fetch-readback.json",
+      "bytes": 2888,
+      "sha256": "193357b984d2a1201f99ec891e3a04a6de10845c517a5a42bcff3a879a6f26f3"
+    },
+    "production": "Stays local/read-only. Six committed G recipes are a scoped initial queue, not a universal gate or maximum."
+  },
+  "predicate_basis": {
+    "raw_type_and_declared_profile": "recomputed",
+    "content_axes_context_functionals_digest": "independently_reconciled",
+    "join_refusal": "recomputed",
+    "configured_fresh_read": "consumer_asserted",
+    "institutional_scientific_gate_authority": "not_established"
+  },
+  "capability_state": {
+    "bounded_non_gating_library_profile": {
+      "label": "surface_out_of_scope",
+      "scope": "E-owned typed library producer/CAS/fresh-reader and refusal chain is verified. This bounded slice intentionally provides no institutional or served authority surface; A/C/F own affected external consumers."
+    },
+    "registered_profile_ABI_public_inventory": {
+      "label": "surface_missing",
+      "scope": "Two registered ABI snapshots/manifest entries and four public inventory/reference companions await G canonical generation."
+    },
+    "ordinary_float_configured_fit": {
+      "label": "bridge_missing",
+      "scope": "Existing canonical tagged-float decoder and configured fit consumer require Scientist loader binding; integer fixture is already verified separately."
+    },
+    "A_reason_propagation": {
+      "label": "semantic_test_missing",
+      "scope": "Existing predictive consumer loses exact reasons in historical cases; current source/owner patch and fresh default/HTTP cases are supplied, current execution UNRUN."
+    }
+  },
+  "P41": "not_established",
+  "limitations": [
+    "No unknown dependence or law reconstruction, scientific authority, implicit mixture or production witness is claimed.",
+    "Profile1/Profile2 ABI snapshots/manifest entries and four facade inventory/reference companions require G canonical generation, not manual edits.",
+    "Current full architecture FAIL is preserved; static invocation proxy/runtime API/workspace/CI successors require their exact canonical owner prerequisites and G final composed gate queue.",
+    "Finite ordinary float configured fit remains owner-loader prerequisite; integer configured native2PASS is not a float positive.",
+    "All54 original proposals remain distinct from G formal intake and the historical ledger.",
+    "Maintained evidence utilities require the pinned cloud root/referenced scratch input paths or explicit reconstruction/rebinding via copy-index; portable direct local execution is not established."
+  ],
+  "cleanup": {
+    "deleted": false,
+    "retained_candidates": [
+      "/workspace/e02-E-thirteenth-architecture-recompute-source4-20261007",
+      "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining-fixtures",
+      "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/affected-defining-fixtures",
+      "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/architecture-maintained-controls-fixtures",
+      "/tmp/e02-E-ingress-author-thirteenth-20261007/diagnostic-cas"
+    ],
+    "policy": "Latest continuation requires no permanent deletion. Native Trash unavailable: exact repeatable candidates only; code, useful docs, unique outputs and pre-existing Root untracked data retained."
+  },
+  "no_future_self_SHA": true
+}

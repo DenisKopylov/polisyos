@@ -1,0 +1,72 @@
+{
+  "schema": "policyos.e02.independent_ir_additional_route_binding.v1",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "predicate_basis": "recomputed",
+  "Core_report_route": [
+    {
+      "function": "polisyos.foundry.calibration.report.put_calibration_config",
+      "store_is_existing_Core_root_ArtifactStore": true
+    },
+    {
+      "function": "polisyos.foundry.calibration.report.put_calibration_report",
+      "store_is_existing_Core_root_ArtifactStore": true
+    },
+    {
+      "function": "polisyos.foundry.calibration.report.load_calibration_report",
+      "store_is_existing_Core_root_ArtifactStore": true
+    }
+  ],
+  "actual_old_digest_delegate": {
+    "observed_digest": "7e590d658cc7c389647a71ab546f510fd4a3d2a72f45bdcf5e8de88415d05813",
+    "same_curated_function_bound": true,
+    "actual_delegate_calls": [
+      [
+        [
+          "theta"
+        ],
+        [
+          "r0",
+          "r1",
+          "r2"
+        ]
+      ]
+    ]
+  },
+  "existing_Core_root_test_routes": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 10,
+      "symbol": "artifacts",
+      "alias": "core_artifacts",
+      "actual_module_identity_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 11,
+      "symbol": "canon",
+      "alias": "core_canon",
+      "actual_module_identity_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "line": 130,
+      "symbol": "artifacts",
+      "alias": "core_artifacts",
+      "actual_module_identity_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "line": 131,
+      "symbol": "canon",
+      "alias": "core_canon",
+      "actual_module_identity_equal": true
+    }
+  ],
+  "limits": [
+    "Actual route/delegate observation only; independent digest arithmetic is oracle scope.",
+    "Canonical Core adapter is not publicly exported; its explicitly owner-attributed native test seam is recorded separately.",
+    "No Core539 implementation or full optional public API was reviewed by its author."
+  ]
+}

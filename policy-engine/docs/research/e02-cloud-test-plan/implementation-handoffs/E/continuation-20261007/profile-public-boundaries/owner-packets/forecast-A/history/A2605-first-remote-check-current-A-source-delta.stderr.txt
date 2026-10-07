@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-source-delta.py.txt", line 124, in <module>
+    assert remote==A+'\trefs/heads/codex/e02-A-delivery-attached'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

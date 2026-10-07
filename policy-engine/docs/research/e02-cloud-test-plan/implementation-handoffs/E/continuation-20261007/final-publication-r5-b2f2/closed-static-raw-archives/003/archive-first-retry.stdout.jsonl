@@ -1,0 +1,18 @@
+{
+  "archived": "frozen-wave-64d7444a",
+  "plaintext_bytes_preserved": 171816130,
+  "gzip_bytes": 6518181,
+  "source_plain_paths": "retired until explicit decode",
+  "tmpfs_free_after": 3319918592,
+  "memory_current_after": 15443136512
+}
+{
+  "result": {
+    "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-result.json",
+    "bytes": 13058,
+    "sha256": "726349537879c129ea96b543d42ac9eaa2d240a69d9407940202c44d3ec8fe5b"
+  },
+  "actions": 1,
+  "input_bytes": 171816130,
+  "compressed_bytes": 6518181
+}

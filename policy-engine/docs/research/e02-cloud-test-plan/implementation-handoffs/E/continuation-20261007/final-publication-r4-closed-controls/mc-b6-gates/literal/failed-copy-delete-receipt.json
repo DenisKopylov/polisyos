@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.E.failed_repeatable_source_copy_deleted.v1",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source",
+  "deleted": true,
+  "preflight_sha256": "cd45c40fd5646b026ae6a95031edf86f68829051cea8e363d43950b2ea6fa15c",
+  "before": {
+    "tmp_free": 4397879296,
+    "memory_current": 17179394048
+  },
+  "after": {
+    "tmp_free": 5003313152,
+    "memory_current": 16567750656
+  },
+  "preserved_artifacts": [
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source/.polisyos-tools/.timing.jsonl.lock",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/failed-copy-unique-native-instrumentation/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source/.polisyos-tools/timing.jsonl",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/failed-copy-unique-native-instrumentation/timing.jsonl",
+      "bytes": 502,
+      "sha256": "ebf12eea072bfa8d4d74e2ca74fd9aa658b2b6e8d031ed98c96227ade9735262"
+    }
+  ],
+  "source_code_useful_docs_unique_data_active_env_Git_deleted": false,
+  "actual_actions": "Only shutil.rmtree on the certified isolated failed duplicate source copy; no other directory/cache/environment removed."
+}

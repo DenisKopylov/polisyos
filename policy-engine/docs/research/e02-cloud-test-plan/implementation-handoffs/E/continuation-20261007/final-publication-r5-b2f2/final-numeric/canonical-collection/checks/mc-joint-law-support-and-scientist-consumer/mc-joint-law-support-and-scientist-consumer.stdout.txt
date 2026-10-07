@@ -1,0 +1,44 @@
+........................................................................ [ 11%]
+........................................................................ [ 23%]
+........................................................................ [ 35%]
+........................................................................ [ 47%]
+........................................................................ [ 58%]
+........................................................................ [ 70%]
+........................................................................ [ 82%]
+........................................................................ [ 94%]
+....................................                                     [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_linear_fn_exact
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_refuses_before_fresh_reader_and_report[hmc-returned_malformed_profile]
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_refuses_before_fresh_reader_and_report[nuts-returned_malformed_profile]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='manifest_profile_sha256', input_value=False, input_type=bool])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_removal_is_detected[hmc-returned_kind]
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_removal_is_detected[hmc-stored_schema]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ArtifactID` - serialized value may not be as expected [field_name='artifact_id', input_value=ArtifactID(root='sha256:e...3b8c5ecc424c68395d3998'), input_type=ArtifactID])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_removal_is_detected[hmc-wrong_valid_content]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ArtifactID` - serialized value may not be as expected [field_name='artifact_id', input_value=ArtifactID(root='sha256:e...23ca37291e1e5f10b35ec9'), input_type=ArtifactID])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_removal_is_detected[nuts-returned_kind]
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_removal_is_detected[nuts-stored_schema]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ArtifactID` - serialized value may not be as expected [field_name='artifact_id', input_value=ArtifactID(root='sha256:6...b9976073f97822075daa79'), input_type=ArtifactID])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_output_ref_admission_removal_is_detected[nuts-wrong_valid_content]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ArtifactID` - serialized value may not be as expected [field_name='artifact_id', input_value=ArtifactID(root='sha256:0...e37c7ffa5ff9b3d1f75de9'), input_type=ArtifactID])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

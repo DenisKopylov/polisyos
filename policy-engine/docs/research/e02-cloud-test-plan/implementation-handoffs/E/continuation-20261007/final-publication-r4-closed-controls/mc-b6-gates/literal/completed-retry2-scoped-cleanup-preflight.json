@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.E.completed_canonical_copies_cleanup_preflight.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "delete_exact_paths": [
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/source",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/environment"
+  ],
+  "source_Git_blobs": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-copy-Git-bindings.json",
+    "bytes": 6934743,
+    "sha256": "0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5"
+  },
+  "tracked_Git_duplicate_regular_files": 18961,
+  "tracked_Git_duplicate_bytes": 562220662,
+  "environment_all_distribution_file_index": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-environment-file-index.json",
+    "bytes": 2998963,
+    "sha256": "2c5971cf39ff4c58d0cc522a61291384ec5064ea401335d59951ce38a7c0efa3"
+  },
+  "environment_package_count": 159,
+  "environment_regular_files": 15895,
+  "environment_regular_bytes": 1085410037,
+  "environment_metadata_and_lock_tool_identity": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-environment-custody.json",
+    "bytes": 44159,
+    "sha256": "dd33ce0e976b57a5873902ab2ce98f3c827ac3f813c1c16dbc74cdd34742e73a"
+  },
+  "all6outputs_preserved": [
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "relative": "runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "relative": "runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+      "relative": "runtime-api-client/packages/runtime-api-client/types.ts",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "relative": "runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "bytes": 791736,
+      "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "relative": "runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "relative": "trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "bytes": 2376644,
+      "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea"
+    }
+  ],
+  "unique_instrumentation_preserved": [
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/source/.polisyos-tools/.timing.jsonl.lock",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-unique-native-instrumentation/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/source/.polisyos-tools/timing.jsonl",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-unique-native-instrumentation/timing.jsonl",
+      "bytes": 1035,
+      "sha256": "b72887616bf2517dff0e86cda08b8913b4de558bad1f51687fa62e926a6decb0"
+    }
+  ],
+  "native_deciding_receipt": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/receipt.json",
+    "bytes": 95116,
+    "sha256": "3c358260a5a75977e56ca646f2b42d096cbbee3936567007c8f2da302c5f3e45"
+  },
+  "complete_stdout": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/stdout.txt",
+    "bytes": 123647,
+    "sha256": "cf26c5c38db3ab7bc5c16f2f2ceb556daabd8118306a7645ae1750c5c9cb40be"
+  },
+  "complete_stderr": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "active_task_users": [],
+  "unknown_task_permissions": [],
+  "live_task_processes_scanned": 10,
+  "outside_host_services": [
+    {
+      "pid": 199,
+      "uid": 0,
+      "name": "dockerd",
+      "scope": "host services outside copied-workspace task actor scope"
+    },
+    {
+      "pid": 250,
+      "uid": 0,
+      "name": "containerd",
+      "scope": "host services outside copied-workspace task actor scope"
+    }
+  ],
+  "authorization": "Explicit parent and user cloud-only cleanup of repeatable completed PRIVATE environment/source; no original code/docs/Git/shared caches/ROOT/DOE environment permitted",
+  "before": {
+    "tmp_free": 3584172032,
+    "memory": {
+      "memory.current": "15309078528\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 3649000\noom 89\noom_kill 10\noom_group_kill 0\n",
+      "memory.stat": "anon 5285031936\nfile 8909385728\nkernel 1113894912\nkernel_stack 1540096\npagetables 15749120\nsec_pagetables 0\npercpu 14448\nsock 0\nvmalloc 0\nshmem 5857177600\nfile_mapped 143470592\nfile_dirty 13176832\nfile_writeback 0\nswapcached 0\nanon_thp 33554432\nfile_thp 408944640\nshmem_thp 0\ninactive_anon 5741977600\nactive_anon 5400190976\ninactive_file 916254720\nactive_file 2135957504\nunevictable 0\nslab_reclaimable 894008160\nslab_unreclaimable 202563928\nslab 1096572088\nworkingset_refault_anon 0\nworkingset_refault_file 154094270\nworkingset_activate_anon 0\nworkingset_activate_file 26545233\nworkingset_restore_anon 0\nworkingset_restore_file 13269903\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6679990287\npgsteal 161665925\npswpin 0\npswpout 0\npgscan_kswapd 8522986\npgscan_direct 6671461669\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 8103740\npgsteal_direct 153556737\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 710371618\npgmajfault 230186\npgrefill 53406658\npgactivate 27023420\npgdeactivate 49032193\npglazyfree 1293596\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n"
+    }
+  },
+  "time_unix": 1791381177.2051315
+}

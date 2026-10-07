@@ -1,0 +1,1592 @@
+{
+  "schema": "e02-independent-facade-four-path-import-edges:1",
+  "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "tree": "bd28dc54bc31b5a339c3f51d51c06c2a101cfd5e",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "python_paths": [
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py"
+  ],
+  "current_complete_edges": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 3,
+      "module": "importlib",
+      "name": "import_module",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 4,
+      "module": "typing",
+      "name": "TYPE_CHECKING",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 6,
+      "module": "polisyos.ir.analytics",
+      "name": "UncertaintyEnvelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 8,
+      "module": "calibration.report",
+      "name": "load_calibration_report",
+      "alias": "load_foundry_calibration_report",
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 9,
+      "module": "config",
+      "name": "AdaptiveStoppingConfig",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 9,
+      "module": "config",
+      "name": "PropagationConfig",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 10,
+      "module": "fabric_quality",
+      "name": "FabricUncertaintyContext",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 10,
+      "module": "fabric_quality",
+      "name": "fabric_uncertainty_context_from_decision_data",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 11,
+      "module": "protocol",
+      "name": "PropagationResult",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 11,
+      "module": "protocol",
+      "name": "PropagationStrategy",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "BoundedIndicatorResponse",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "admit_empirical_weights",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "admit_unit_uniform",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "empirical_cdf",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "reconcile_draw_outcomes",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "sampling_content_digest",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "verify_mean_certificate",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 23,
+      "module": "calibration.bayesian_fit_bridge",
+      "name": "BayesianFitBinding",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 23,
+      "module": "calibration.bayesian_fit_bridge",
+      "name": "PersistedBayesianFit",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 23,
+      "module": "calibration.bayesian_fit_bridge",
+      "name": "persist_bayesian_fit_envelopes",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "calibration.uncertainty_adapter",
+      "name": "BayesianCalibrationPosteriorSummary",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "calibration.uncertainty_adapter",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 32,
+      "module": "covariance",
+      "name": "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 32,
+      "module": "covariance",
+      "name": "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 32,
+      "module": "covariance",
+      "name": "build_covariance_matrix",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 32,
+      "module": "covariance",
+      "name": "calibration_covariance_blocks_agree_v1",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 32,
+      "module": "covariance",
+      "name": "preserve_singular_covariance",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 59,
+      "module": "aggregator",
+      "name": "AggregationStrategy",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 59,
+      "module": "aggregator",
+      "name": "aggregate_envelopes",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 60,
+      "module": "dispatcher",
+      "name": "PropagationDispatcher",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 61,
+      "module": "quasi_mc",
+      "name": "QuasiMCSampler",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 62,
+      "module": "sensitivity",
+      "name": "compute_first_order_indices",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 73,
+      "module": "covariance",
+      "name": "extract_std",
+      "alias": "_extract_std",
+      "level": 1
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 3,
+      "module": "__future__",
+      "name": "annotations",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 5,
+      "module": "importlib",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 6,
+      "module": "fractions",
+      "name": "Fraction",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 7,
+      "module": "pathlib",
+      "name": "Path",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 9,
+      "module": "numpy",
+      "name": null,
+      "alias": "np",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 10,
+      "module": "pytest",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 12,
+      "module": "polisyos",
+      "name": "calibration",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 13,
+      "module": "polisyos.core",
+      "name": "canon",
+      "alias": "core_canon",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 14,
+      "module": "polisyos.core.artifacts",
+      "name": "FileSystemCAS",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 14,
+      "module": "polisyos.core.artifacts",
+      "name": "PutOptions",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 14,
+      "module": "polisyos.core.artifacts",
+      "name": "SchemaInfo",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 15,
+      "module": "polisyos.foundry",
+      "name": "uncertainty",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 16,
+      "module": "polisyos.ir.analytics",
+      "name": "load_posterior_summary_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 16,
+      "module": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 3,
+      "module": "__future__",
+      "name": "annotations",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 5,
+      "module": "copy",
+      "name": "deepcopy",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 7,
+      "module": "numpy",
+      "name": null,
+      "alias": "np",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 8,
+      "module": "pytest",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 10,
+      "module": "polisyos.core",
+      "name": "artifacts",
+      "alias": "core_artifacts",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 11,
+      "module": "polisyos.core",
+      "name": "canon",
+      "alias": "core_canon",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 12,
+      "module": "polisyos.foundry.uncertainty",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "DistributionFamily",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorParameterBinding",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSamplesCarrier",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryContext",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "UncertaintyEnvelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "UncertaintySource",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "load_posterior_summary_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "posterior_nominal_mean",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "posterior_summary_functionals",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "validate_raw_posterior_summary_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 26,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "load_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 26,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "persist_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 201,
+      "module": "polisyos.ir",
+      "name": null,
+      "alias": "root",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 202,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryProfile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 203,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "PosteriorSummaryProfile",
+      "alias": "Defined",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 268,
+      "module": "polisyos.foundry.uncertainty",
+      "name": "sampling_admission",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 323,
+      "module": "polisyos.ir.registry.refs",
+      "name": "UncertaintyEnvelopeRef",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 3,
+      "module": "__future__",
+      "name": "annotations",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 5,
+      "module": "math",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 6,
+      "module": "fractions",
+      "name": "Fraction",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 8,
+      "module": "numpy",
+      "name": null,
+      "alias": "np",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 9,
+      "module": "pytest",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 11,
+      "module": "polisyos.core",
+      "name": "artifacts",
+      "alias": "core_artifacts",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 12,
+      "module": "polisyos.foundry.uncertainty",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorParameterBinding",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSamplesCarrier",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryContext",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "admit_posterior_summary_profiles",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "posterior_joint_carrier_digest",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "ExactnessKind",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "ParametricFitCarrier",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "UncertaintyCompatibilityError",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "compress_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "load_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "persist_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "pull_back_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "push_forward_envelope",
+      "alias": null,
+      "level": 0
+    }
+  ],
+  "base_complete_edges": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 3,
+      "module": "importlib",
+      "name": "import_module",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 4,
+      "module": "typing",
+      "name": "TYPE_CHECKING",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 6,
+      "module": "polisyos.ir.analytics",
+      "name": "UncertaintyEnvelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 8,
+      "module": "calibration.report",
+      "name": "load_calibration_report",
+      "alias": "load_foundry_calibration_report",
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 9,
+      "module": "config",
+      "name": "AdaptiveStoppingConfig",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 9,
+      "module": "config",
+      "name": "PropagationConfig",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 10,
+      "module": "fabric_quality",
+      "name": "FabricUncertaintyContext",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 10,
+      "module": "fabric_quality",
+      "name": "fabric_uncertainty_context_from_decision_data",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 11,
+      "module": "protocol",
+      "name": "PropagationResult",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 11,
+      "module": "protocol",
+      "name": "PropagationStrategy",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "BoundedIndicatorResponse",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "admit_empirical_weights",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "admit_unit_uniform",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "empirical_cdf",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "reconcile_draw_outcomes",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "sampling_content_digest",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 12,
+      "module": "sampling_admission",
+      "name": "verify_mean_certificate",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 23,
+      "module": "calibration.bayesian_fit_bridge",
+      "name": "BayesianFitBinding",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 23,
+      "module": "calibration.bayesian_fit_bridge",
+      "name": "PersistedBayesianFit",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 23,
+      "module": "calibration.bayesian_fit_bridge",
+      "name": "persist_bayesian_fit_envelopes",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "covariance",
+      "name": "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "covariance",
+      "name": "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "covariance",
+      "name": "build_covariance_matrix",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "covariance",
+      "name": "calibration_covariance_blocks_agree_v1",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "covariance",
+      "name": "preserve_singular_covariance",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 51,
+      "module": "aggregator",
+      "name": "AggregationStrategy",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 51,
+      "module": "aggregator",
+      "name": "aggregate_envelopes",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 52,
+      "module": "dispatcher",
+      "name": "PropagationDispatcher",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 53,
+      "module": "quasi_mc",
+      "name": "QuasiMCSampler",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 54,
+      "module": "sensitivity",
+      "name": "compute_first_order_indices",
+      "alias": null,
+      "level": 1
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 65,
+      "module": "covariance",
+      "name": "extract_std",
+      "alias": "_extract_std",
+      "level": 1
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 3,
+      "module": "__future__",
+      "name": "annotations",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 5,
+      "module": "importlib",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 6,
+      "module": "fractions",
+      "name": "Fraction",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 7,
+      "module": "pathlib",
+      "name": "Path",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 9,
+      "module": "numpy",
+      "name": null,
+      "alias": "np",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 10,
+      "module": "pytest",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 12,
+      "module": "polisyos",
+      "name": "calibration",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 13,
+      "module": "polisyos.core.artifacts",
+      "name": "FileSystemCAS",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 13,
+      "module": "polisyos.core.artifacts",
+      "name": "PutOptions",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 14,
+      "module": "polisyos.foundry",
+      "name": "uncertainty",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 3,
+      "module": "__future__",
+      "name": "annotations",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 5,
+      "module": "copy",
+      "name": "deepcopy",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 7,
+      "module": "numpy",
+      "name": null,
+      "alias": "np",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 8,
+      "module": "pytest",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 10,
+      "module": "polisyos.core",
+      "name": "artifacts",
+      "alias": "core_artifacts",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 11,
+      "module": "polisyos.core",
+      "name": "canon",
+      "alias": "core_canon",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 12,
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "DistributionFamily",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorParameterBinding",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSamplesCarrier",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryContext",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "UncertaintyEnvelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "UncertaintySource",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "load_posterior_summary_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "posterior_nominal_mean",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "posterior_summary_functionals",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "validate_raw_posterior_summary_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 28,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "load_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 28,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "persist_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 203,
+      "module": "polisyos.ir",
+      "name": null,
+      "alias": "root",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 204,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryProfile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 205,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "PosteriorSummaryProfile",
+      "alias": "Defined",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 270,
+      "module": "polisyos.foundry.uncertainty",
+      "name": "sampling_admission",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 325,
+      "module": "polisyos.ir.registry.refs",
+      "name": "UncertaintyEnvelopeRef",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 3,
+      "module": "__future__",
+      "name": "annotations",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 5,
+      "module": "math",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 6,
+      "module": "fractions",
+      "name": "Fraction",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 8,
+      "module": "numpy",
+      "name": null,
+      "alias": "np",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 9,
+      "module": "pytest",
+      "name": null,
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 11,
+      "module": "polisyos.core",
+      "name": "artifacts",
+      "alias": "core_artifacts",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 12,
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorParameterBinding",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSamplesCarrier",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSummaryContext",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 15,
+      "module": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "posterior_joint_carrier_digest",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "ExactnessKind",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "ParametricFitCarrier",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "UncertaintyCompatibilityError",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "compress_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "load_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "persist_uncertainty_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "pull_back_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 22,
+      "module": "polisyos.ir.analytics.uncertainty",
+      "name": "push_forward_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 248,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "admit_posterior_summary_profiles",
+      "alias": null,
+      "level": 0
+    }
+  ],
+  "added_edges": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "calibration.uncertainty_adapter",
+      "name": "BayesianCalibrationPosteriorSummary",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 28,
+      "module": "calibration.uncertainty_adapter",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 2
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 13,
+      "module": "polisyos.core",
+      "name": "canon",
+      "alias": "core_canon",
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 14,
+      "module": "polisyos.core.artifacts",
+      "name": "SchemaInfo",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 16,
+      "module": "polisyos.ir.analytics",
+      "name": "load_posterior_summary_envelope",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 16,
+      "module": "polisyos.ir.analytics",
+      "name": "read_posterior_summary_profile",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 12,
+      "module": "polisyos.foundry.uncertainty",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 12,
+      "module": "polisyos.foundry.uncertainty",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "admit_posterior_summary_profiles",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 13,
+      "module": "polisyos.ir.analytics",
+      "name": "posterior_joint_carrier_digest",
+      "alias": null,
+      "level": 0
+    }
+  ],
+  "removed_edges": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "line": 12,
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 12,
+      "module": "polisyos.foundry.calibration.uncertainty_adapter",
+      "name": "summarize_bayesian_calibration_posterior",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 21,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "posterior_joint_carrier_digest",
+      "alias": null,
+      "level": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "line": 248,
+      "module": "polisyos.ir.analytics.posterior_summary",
+      "name": "admit_posterior_summary_profiles",
+      "alias": null,
+      "level": 0
+    }
+  ],
+  "new_unadmitted_Core_edge": [
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 14,
+      "module": "polisyos.core.artifacts",
+      "name": "SchemaInfo",
+      "alias": null,
+      "level": 0
+    }
+  ],
+  "Core_supported_entrypoints": [
+    "polisyos.core",
+    "polisyos.core.contracts",
+    "polisyos.core.observability",
+    "polisyos.core.security",
+    "polisyos.core.trace"
+  ],
+  "Core_contract_sha256": "3b13ac917e209fec27ca66af61f2fa07f2dbef5713041764ab6524e9fe2d6a4f",
+  "canonical_gate_reexecuted": false,
+  "scope": "Complete AST four changed Python paths; bounded declared-entrypoint evidence, not a full architecture gate."
+}

@@ -1,0 +1,249 @@
+{
+  "P41": "not_established",
+  "active_vs_historical_scripts": {
+    "active_Python_count": 2,
+    "active_utilities": [
+      {
+        "bytes": 35362,
+        "path": "full54/build_delta_packet.py",
+        "sha256": "abf72bdffe2190ce7e6b859dddda4d8c5c80d391cb45821b3786e080d3e23a45"
+      },
+      {
+        "bytes": 20852,
+        "path": "full54/bind_final_source4.py",
+        "sha256": "34bf97c52429a8993b7bafc15e2492593cb7f8138713830858e8b36c20c6336d"
+      }
+    ],
+    "historical_literal_scripts": "All other selected scripts retain .py.txt/.txt archival roles and original path/hash; not mislabeled maintained passive source. Active utilities have independent effective-config AST/behavior/control review included.",
+    "maintained_utility_independent_review": {
+      "bytes": 18401,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/independent-owner-reviews/review-maintained-utilities-effective-rufftoml.json",
+      "sha256": "39a6d10e49cac69716628379a9c71e79587e4d15335c9265bce872496c01d795"
+    },
+    "portable_replay_limit": "Utilities require exact referenced cloud inputs or explicit reconstruction; direct arbitrary local rerun not established."
+  },
+  "author_is_reviewer": false,
+  "authors": "Root publication assembly; /root/full54 maintained utilities; product author /root/ingress_author",
+  "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "boundary_claims": {
+    "copy_index_cycle_avoidance": "Indices/copy-validation/final custody report are explicit unindexed control files; reviewed immutable payload excludes its own future review copy.",
+    "foreign_owner_packets": "A protected reasons/defaultHTTP, Scientist finite-float loader, G/Core/IR facade/generated companions and C/F/D consumer adoption remain owner-ready and unapplied by E.",
+    "institutional_or_production_scientific_authority": "not_established",
+    "join": "Typed multi Profile2 refusal, retained singleton/generic/P1, no equal-mixture assumption. Combine explicitly lossy diagnostic/non-gating.",
+    "no_future_evidence_commit_SHA": true,
+    "raw_admission": "Common before-coercion Profile2 boundary and composition/full binding refusal before callbacks/derived-law publication; generic raw CAS negative artifacts are not claimed authority."
+  },
+  "checks": {
+    "complete_lint": {
+      "denominator": 381,
+      "effective_configuration": {
+        "bytes": 247,
+        "path": "policy-engine/ruff.toml",
+        "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+      },
+      "outcomes": {
+        "Ruff": {
+          "E_diagnostics": 0,
+          "diagnostics": 292,
+          "outcome": "FAIL",
+          "paths": 14,
+          "writer_diagnostics": {
+            "A": 1,
+            "B": 35,
+            "G": 256
+          }
+        },
+        "format": {
+          "E_paths": 0,
+          "outcome": "FAIL",
+          "paths": 14
+        }
+      },
+      "writer_counts": {
+        "A": 2,
+        "B": 13,
+        "E": 352,
+        "F": 2,
+        "G": 12
+      }
+    },
+    "current_native": [
+      {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 195,
+        "SKIP": 0,
+        "label": "affected-defining"
+      },
+      {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 3,
+        "SKIP": 0,
+        "label": "architecture-maintained-controls"
+      }
+    ],
+    "current_whole_architecture": {
+      "catalogue_baseline_drifts": 3,
+      "complete_receipt": {
+        "bytes": 5460,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/root-observations/architecture-current/receipt.json",
+        "sha256": "e717f9d507a030f4afeea4e6199787cc6c05d98603c390cfb5c472f8a71e526e"
+      },
+      "complete_stdout_bytes": 127152,
+      "deep_import_messages": 151,
+      "outcome": "FAIL",
+      "required_generated_drifts": 2
+    },
+    "earlier_reds_retained": "e4 193PASS/2FAIL, b2 1457PASS/8FAIL, earlier type7errors1warning then4errors0warnings, wrapper/toolERROR, explicit-pyproject and actual default E1/format2 historical red not rewritten/promoted.",
+    "healthy_cases_counted_inside_195_not_added": true,
+    "healthy_configured_HMC_NUTS_cases": 2,
+    "remaining_global_selectors": "Static invocation/runtime API/OpenAPI/workspace13/CI23 successors/whole type/Atlas remain individually limited or UNRUN as final-verification-binding states; current architecture/lint FAIL not inherited.",
+    "scoped_type_reuse": {
+      "actual_child_exit": 0,
+      "all_selected_current_blobs_equal": true,
+      "baseline_freshness": "reported_outdated",
+      "errorCount": 0,
+      "executed_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "selected_files": 3,
+      "source4_rerun": false,
+      "warningCount": 0,
+      "whole_repository_type": "UNRUN"
+    }
+  },
+  "copy_corruption_controls": "Root saved normal/-O five actual refused corruptions each; independently read receipts pin immutable index. Reviewer independently recomputed all current literal bytes and source/status layers without product reruns.",
+  "deciding_documents": [
+    {
+      "bytes": 4792,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/README.md",
+      "sha256": "2844c05580619ed6c3be5d353890cbe3e38c467cce51f1326e38b6ff9cc29c43"
+    },
+    {
+      "bytes": 18010,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/implementation-handoff.json",
+      "sha256": "3b0f739d35d1f381e0242cf593570fc0c9a79b4d9d2832cdd5b954bb389330f3"
+    },
+    {
+      "bytes": 5315,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/final-verification-binding.json",
+      "sha256": "701ce50ba77269a014df16f5b3483564727aab1a185b2f132274a01f04c94b2d"
+    },
+    {
+      "bytes": 243560,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-delta-associations-v2-source11082.json",
+      "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+    },
+    {
+      "bytes": 10951,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54/all54-final-source4-verification-binding-v2.json",
+      "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+    },
+    {
+      "bytes": 109814,
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/publication-lint/receipt.json",
+      "sha256": "1a67f168c79011f30d94a41acb5a1f72fc70edd614c7d1ec96bda5f4b2e9578c"
+    }
+  ],
+  "disposition": "GO_bounded_literal_publication_custody",
+  "identical_copy_index": {
+    "bytes": 266750,
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/copy-index.json",
+    "sha256": "6d50cdf878e811bea7d3288a58ff497794b6b78e42fb68d9d27483d1adbced27"
+  },
+  "immutable_payload_index": {
+    "bytes": 266750,
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/payload-index.json",
+    "sha256": "6d50cdf878e811bea7d3288a58ff497794b6b78e42fb68d9d27483d1adbced27"
+  },
+  "lease": "CLOSED",
+  "limitations": [
+    "Literal custody and bounded source/check scope only; G accepts code and each original finding separately.",
+    "Full current architecture/global Ruff/format remain FAIL; selected healthy controls cannot confer global PASS.",
+    "No production datasets transferred or generated scientific/institutional/noise/feed/R2 authority.",
+    "Unapplied canonical owner packets and scoped external inputs remain explicit.",
+    "Copy-index reviewed immutable before report copy; later publication commit/readback belongs to Root."
+  ],
+  "payload": {
+    "all_literal_sizes_hashes_verified_twice": true,
+    "bytes": 9688213,
+    "current_original_matches": 438,
+    "files": 441,
+    "historical_original_variants": 3,
+    "mapping_basis": "(original_path, sha256), including utility formatter historical variants",
+    "no_unexpected_unindexed_files": true,
+    "original_paths_with_multiple_hashes": {
+      "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py": [
+        "094f59dd079e7612a145e53d08fbe8e1d046663c032bc881822517e56d0ee918",
+        "34bf97c52429a8993b7bafc15e2492593cb7f8138713830858e8b36c20c6336d"
+      ],
+      "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py": [
+        "363ed2bf0e38400baf48dcac6ae034bb62daf119779c1e8799902deb7483f52c",
+        "4f970d5492db1b7316563d6d3d7e0bb10e7884f08761c1abc700a356c8ee3cc0",
+        "abf72bdffe2190ce7e6b859dddda4d8c5c80d391cb45821b3786e080d3e23a45"
+      ]
+    },
+    "unique_safe_portable_paths": 441
+  },
+  "predicate_basis": "independently_reconciled",
+  "reviewer": "/root/ingress_oracle",
+  "reviewer_changes": {
+    "Git": false,
+    "children": false,
+    "only_scratch_report": true,
+    "product": false,
+    "repo": false,
+    "test_reruns": false
+  },
+  "schema": "policyos.e02.E.independent_publication_custody_review.v1",
+  "scope": "Literal publication/input/source/check/status custody only; no product/backend/authority or repeated all54 scientific verification, no G finding closure.",
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "source_custody": {
+    "append_only_chain": [
+      "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "e4b97c15196d8e276745f55a4367da83586511d9",
+      "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+    ],
+    "complete_implementation_footprint_paths": 7,
+    "footprint_source_bytes_git_blobs_reconciled": true,
+    "no_protected_owner_writes": true,
+    "product_source_not_changed_by_reviewer": true,
+    "tracked_source_clean": true
+  },
+  "status_layers": {
+    "B198_historical_closed_retained": true,
+    "B201_B202": "Appointed E decisions and bounded closed proposals retained; G independent closure unpromoted.",
+    "E_proposed_outcomes": {
+      "closed": 43,
+      "held": 2,
+      "limited": 9
+    },
+    "all54_unique_rows": 54,
+    "bundles": 22,
+    "coverage_IDs_reconciled": true,
+    "formal_G_intake": 0,
+    "formal_ledger_changes": 0,
+    "held_factual_inputs": [
+      "B194",
+      "B197"
+    ],
+    "historical_ledger": {
+      "closed": 1,
+      "held": 4,
+      "partial": 49
+    },
+    "limited_original_rows": [
+      "B172",
+      "B173",
+      "B190",
+      "B200",
+      "B32",
+      "LA-051",
+      "LA-053",
+      "LA-054",
+      "LA-055"
+    ],
+    "links": 55
+  },
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+}

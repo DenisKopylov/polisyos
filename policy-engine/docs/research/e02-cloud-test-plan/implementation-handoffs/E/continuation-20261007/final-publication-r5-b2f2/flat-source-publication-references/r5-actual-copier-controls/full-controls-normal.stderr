@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-final-copier.py.txt", line 112, in <module>
+    if not report['all_controls_PASS']:raise ValueError('actual copier controls failed')
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: actual copier controls failed

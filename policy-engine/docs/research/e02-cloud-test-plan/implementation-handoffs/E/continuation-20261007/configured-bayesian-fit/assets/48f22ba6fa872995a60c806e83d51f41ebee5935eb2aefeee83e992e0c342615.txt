@@ -1,0 +1,929 @@
+{
+  "prediction_result": {
+    "coefficients": {
+      "intercept": 9.178706884037553e-05,
+      "x0": 0.0
+    },
+    "embedding_fidelity_certificate": null,
+    "feature_importances": {},
+    "metadata": {
+      "num_chains": 2,
+      "num_samples": 32,
+      "runtime_backend_health": {
+        "available": true,
+        "default_runtime": "numpy",
+        "engines": [
+          {
+            "available": true,
+            "detail": null,
+            "engine": "numpy",
+            "version": "2.3.5"
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:numpyro",
+            "engine": "numpyro",
+            "version": null
+          },
+          {
+            "available": true,
+            "detail": null,
+            "engine": "jax",
+            "version": "0.8.2"
+          },
+          {
+            "available": true,
+            "detail": null,
+            "engine": "jaxlib",
+            "version": "0.8.2"
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:arviz",
+            "engine": "arviz",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:sbi",
+            "engine": "sbi",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:torch",
+            "engine": "torch",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:pymc",
+            "engine": "pymc",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:pymc-bart",
+            "engine": "pymc_bart",
+            "version": null
+          }
+        ],
+        "method_variant": "hmc",
+        "preferred_engine": "numpyro",
+        "warnings": [
+          "numpyro_unavailable:using_numpy_fallback"
+        ]
+      },
+      "runtime_backend_requested": "numpy",
+      "runtime_backend_used": "numpy"
+    },
+    "method_name": "bayesian_hmc_regression",
+    "metrics": {
+      "mae": 0.1200183574137681,
+      "r_squared": -4.212433000194693e-07,
+      "rmse": 0.1414213860237058
+    },
+    "model_info": {
+      "estimator": "BayesianHMCRegression",
+      "library": "numpy"
+    },
+    "predictions": [
+      9.178706884037553e-05,
+      9.178706884037553e-05,
+      9.178706884037553e-05,
+      9.178706884037553e-05,
+      9.178706884037553e-05
+    ],
+    "target": [
+      -0.2,
+      0.1,
+      0.2,
+      -0.1,
+      0.0
+    ]
+  },
+  "result": {
+    "credible_intervals": {
+      "coefficients": [
+        0.09176147315466879,
+        0.2659529095036865
+      ],
+      "intercept": [
+        -0.08532897063174719,
+        0.09668014050699884
+      ],
+      "sigma": [
+        0.06112659653551034,
+        0.23840065496759172
+      ]
+    },
+    "degradation_reason": "thread_configuration_not_pinned_single_thread",
+    "diagnostic_gates": {
+      "bfmi": true,
+      "bulk_ess": false,
+      "divergences": false,
+      "max_treedepth_hits": true,
+      "minimum_chains": false,
+      "rhat": false,
+      "tail_ess": false
+    },
+    "diagnostics": {
+      "acceptance_rate": 0.9296875,
+      "credible_mass": 0.9,
+      "divergences": 0.0,
+      "draws_per_split_chain": 16.0,
+      "ess_bulk_min": 9.41545591825048,
+      "ess_tail_min": 10.998925886143931,
+      "n_leapfrog": 8.0,
+      "num_chains": 2.0,
+      "num_samples": 32.0,
+      "num_split_chains": 4.0,
+      "num_warmup": 32.0,
+      "quantile_mcse_relative_max": 0.5489579898695532,
+      "rhat_max": 1.1428196913446727,
+      "step_size": 0.015
+    },
+    "diagnostics_per_chain": {
+      "0": {
+        "acceptance_rate": 0.921875,
+        "bfmi": 0.973904405892424,
+        "divergences": 0.0,
+        "final_step_size": 0.03959439883395159,
+        "max_treedepth_hits": 0.0
+      },
+      "1": {
+        "acceptance_rate": 0.9375,
+        "bfmi": 1.2537736922782114,
+        "divergences": 1.0,
+        "final_step_size": 0.050597001156429636,
+        "max_treedepth_hits": 0.0
+      }
+    },
+    "diagnostics_summary": {
+      "acceptance_rate": 0.9296875,
+      "bfmi": 0.973904405892424,
+      "divergences": 1.0,
+      "invalid_bfmi_count": 0.0,
+      "invalid_bulk_ess_count": 0.0,
+      "invalid_rhat_count": 0.0,
+      "invalid_tail_ess_count": 0.0,
+      "max_rhat": 1.1428196913446727,
+      "max_treedepth_hits": 0.0,
+      "mean_acceptance_rate": 0.9296875,
+      "min_bfmi": 0.973904405892424,
+      "min_bulk_ess": 17.63126243559549,
+      "min_tail_ess": 24.38095238095238,
+      "minimum_required_ess": 200.0,
+      "num_monitored_chains": 2.0,
+      "num_scalar_parameters_monitored": 3.0
+    },
+    "draw_layout": {
+      "array_order": "C",
+      "axis_order": [
+        "chain",
+        "draw",
+        "parameter"
+      ],
+      "canonicalization_version": "foundry.bayesian.draws.v1",
+      "dtype": "<f8"
+    },
+    "draws_ref": "artifact://foundry/bayesian/posterior/sha256:3b66740812535430f3ad2237e78988e489cf364a347bf1f1b1b3d99df44b57dd",
+    "metadata": {
+      "feature_names": [
+        "x0"
+      ],
+      "runtime_backend_health": {
+        "available": true,
+        "default_runtime": "numpy",
+        "engines": [
+          {
+            "available": true,
+            "detail": null,
+            "engine": "numpy",
+            "version": "2.3.5"
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:numpyro",
+            "engine": "numpyro",
+            "version": null
+          },
+          {
+            "available": true,
+            "detail": null,
+            "engine": "jax",
+            "version": "0.8.2"
+          },
+          {
+            "available": true,
+            "detail": null,
+            "engine": "jaxlib",
+            "version": "0.8.2"
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:arviz",
+            "engine": "arviz",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:sbi",
+            "engine": "sbi",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:torch",
+            "engine": "torch",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:pymc",
+            "engine": "pymc",
+            "version": null
+          },
+          {
+            "available": false,
+            "detail": "missing_dependency:pymc-bart",
+            "engine": "pymc_bart",
+            "version": null
+          }
+        ],
+        "method_variant": "hmc",
+        "preferred_engine": "numpyro",
+        "warnings": [
+          "numpyro_unavailable:using_numpy_fallback"
+        ]
+      },
+      "runtime_backend_requested": "numpy",
+      "runtime_backend_used": "numpy",
+      "uncertainty_decomposition": {
+        "aleatoric": {
+          "composition_provenance": null,
+          "confidence_interval": [
+            -0.205880951415,
+            0.206064525552
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "normal",
+          "distribution_payload": null,
+          "gate_eligible": true,
+          "interval_semantics": "credible_interval",
+          "is_heuristic_ci": false,
+          "metadata": {
+            "component": "aleatoric",
+            "method_name": "bayesian_hmc_regression",
+            "runtime_backend_used": "numpy"
+          },
+          "numeric_policy": {
+            "absolute_tolerance": 1e-12,
+            "decimal_places": 12,
+            "mode": "float_round_12",
+            "policy_id": "bounded_float_v1"
+          },
+          "point_estimate": 9.1787069e-05,
+          "propagation_method": "monte_carlo",
+          "sample_size": null,
+          "schema_version": "1.1",
+          "source": "calibration"
+        },
+        "diagnostics": {
+          "aleatoric_std": 0.12522253354869323,
+          "confidence_level": 0.9,
+          "epistemic_std": 0.06031526276521708,
+          "total_std": 0.13899141639249088
+        },
+        "epistemic": {
+          "composition_provenance": null,
+          "confidence_interval": [
+            -0.099117991651,
+            0.099301565789
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "normal",
+          "distribution_payload": null,
+          "gate_eligible": true,
+          "interval_semantics": "credible_interval",
+          "is_heuristic_ci": false,
+          "metadata": {
+            "component": "epistemic",
+            "method_name": "bayesian_hmc_regression",
+            "runtime_backend_used": "numpy"
+          },
+          "numeric_policy": {
+            "absolute_tolerance": 1e-12,
+            "decimal_places": 12,
+            "mode": "float_round_12",
+            "policy_id": "bounded_float_v1"
+          },
+          "point_estimate": 9.1787069e-05,
+          "propagation_method": "monte_carlo",
+          "sample_size": null,
+          "schema_version": "1.1",
+          "source": "calibration"
+        },
+        "metric_id": "linear_regression_prediction",
+        "total": {
+          "composition_provenance": null,
+          "confidence_interval": [
+            -0.228528748299,
+            0.228712322437
+          ],
+          "confidence_level": 0.9,
+          "distribution_family": "normal",
+          "distribution_payload": null,
+          "gate_eligible": true,
+          "interval_semantics": "credible_interval",
+          "is_heuristic_ci": false,
+          "metadata": {
+            "component": "total",
+            "method_name": "bayesian_hmc_regression",
+            "runtime_backend_used": "numpy"
+          },
+          "numeric_policy": {
+            "absolute_tolerance": 1e-12,
+            "decimal_places": 12,
+            "mode": "float_round_12",
+            "policy_id": "bounded_float_v1"
+          },
+          "point_estimate": 9.1787069e-05,
+          "propagation_method": "monte_carlo",
+          "sample_size": null,
+          "schema_version": "1.1",
+          "source": "calibration"
+        }
+      }
+    },
+    "method_name": "bayesian_hmc_regression",
+    "modes": [],
+    "multimodality_status": {
+      "downgrade": {
+        "mode_conditional_reporting_required": false,
+        "ordinary_mean_summary_allowed": false,
+        "posterior_readiness": "not_ready",
+        "recommendation_policy": "single_policy_recommendation_not_allowed",
+        "summary_policy": "diagnostics_only_refit_or_more_exploration_required"
+      },
+      "evidence_strength": "exploratory",
+      "limitations": [
+        "Sample-only test cannot exclude unvisited modes.",
+        "Mode count is a lower bound.",
+        "Mode weights are observed draw fractions unless chains mix between modes or reweighting is validated."
+      ],
+      "modes": {
+        "assignments_available": false,
+        "mode_ids": [],
+        "mode_weight_reliability": "unknown",
+        "n_detected_lower_bound": 0
+      },
+      "policy_relevance": {
+        "assessed": false,
+        "classification": "not_assessed",
+        "single_recommendation_allowed": false
+      },
+      "sampler_adequacy": {
+        "bfmi_min": 0.973904405892424,
+        "bulk_ess_min": 17.63126243559549,
+        "divergences": 1.0,
+        "max_treedepth_saturation_rate": 0.0,
+        "passed": false,
+        "rhat_max": 1.1428196913446727,
+        "tail_ess_min": 24.38095238095238
+      },
+      "scope": [
+        "joint_unconstrained_parameters"
+      ],
+      "state": "inconclusive_sampling_geometry",
+      "test": {
+        "alpha_detect": 0.01,
+        "alpha_warn": 0.1,
+        "calibration_method": "autocorrelation_adjusted_projection_distance_bootstrap:hartigan_dip_when_available:calibrated_spacing_fallback:global_min_p:gaussian_and_student_t",
+        "n_eff_used": 20.0,
+        "name": "PMD-HMC",
+        "null_reference": [
+          "elliptical_gaussian",
+          "elliptical_student_t"
+        ],
+        "observer_strategy": "percentile_observer_80_90_95",
+        "p_global": 0.7692307692307693,
+        "projection_strategy": "axis_seeded_random_unit_projections_by_scope",
+        "version": "0.2.0",
+        "view_count": 200
+      }
+    },
+    "posterior_means": {
+      "coefficients": 0.1700244988306544,
+      "intercept": 9.178706884037553e-05,
+      "sigma": 0.12522253354869323
+    },
+    "posterior_stds": {
+      "coefficients": 0.07601616626303592,
+      "intercept": 0.06031526276521708,
+      "sigma": 0.054240553917199
+    },
+    "prior_sensitivity": {
+      "admissible_prior_class": {
+        "class_id": "linear_gaussian_policy_v1",
+        "constraints": [
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "proper_prior",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "finite_prior_predictive_simulator",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "support_compatible",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "scale_equivariant_under_catalog_standardization",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {
+              "data_conditioning_mode": "none",
+              "uses_outcome_to_set_prior": false
+            },
+            "estimated_probability": null,
+            "name": "no_prohibited_outcome_leakage_in_hyperparameters",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "posterior_and_prior_predictive_computation_auditable",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "strict_finite_variance_beta_tail",
+            "passed": true,
+            "threshold": null
+          },
+          {
+            "details": {},
+            "estimated_probability": null,
+            "name": "positive_sigma_prior_scale",
+            "passed": true,
+            "threshold": null
+          }
+        ],
+        "hyperparameter_space": {
+          "nu_beta": {
+            "baseline": 10.0,
+            "lower": 3.0,
+            "transform": "identity",
+            "upper": 30.0
+          },
+          "prior_scale": {
+            "baseline": 2.0,
+            "lower": 0.001,
+            "transform": "log",
+            "upper": 1000.0
+          },
+          "sigma_scale": {
+            "baseline": 2.0,
+            "lower": 0.001,
+            "transform": "log",
+            "upper": 1000.0
+          }
+        },
+        "notes": []
+      },
+      "admissible_prior_class_id": "linear_gaussian_policy_v1",
+      "data_conditioning_mode": "none",
+      "failure_reasons": [],
+      "metadata": {
+        "estimand_count": 1,
+        "prior_predictive_seed": 9128
+      },
+      "model_family": "linear",
+      "prior_class_calibration": null,
+      "prior_predictive_check": {
+        "alpha": 0.05,
+        "calibration": "exchangeability_rank",
+        "conditioned_on": [
+          "covariates",
+          "sampling_design"
+        ],
+        "diagnostics": [
+          {
+            "name": "outcome_median",
+            "observed": 0.0,
+            "prior_predictive_rank": 0.45384615384615384,
+            "simulated_mean": 0.1412690707019681,
+            "simulated_sd": 2.970440141109408
+          },
+          {
+            "name": "outcome_mad",
+            "observed": 0.1,
+            "prior_predictive_rank": 0.03076923076923077,
+            "simulated_mean": 2.5085075387207167,
+            "simulated_sd": 4.926649364293368
+          },
+          {
+            "name": "outcome_tail_max_abs",
+            "observed": 0.2,
+            "prior_predictive_rank": 0.03076923076923077,
+            "simulated_mean": 6.327264586963967,
+            "simulated_sd": 10.192895215729902
+          },
+          {
+            "name": "raw_policy_contrast",
+            "observed": 0.8999999999999999,
+            "prior_predictive_rank": 0.7769230769230769,
+            "simulated_mean": -0.041555557060177696,
+            "simulated_sd": 0.7696547004261087
+          },
+          {
+            "name": "linear_prior_signal_ratio",
+            "observed": 2.0000000000000004,
+            "prior_predictive_rank": 0.6538461538461539,
+            "simulated_mean": 3.2479962381219023,
+            "simulated_sd": 4.052590082990647
+          },
+          {
+            "name": "linear_residual_scale_envelope",
+            "observed": 0.1,
+            "prior_predictive_rank": 0.03076923076923077,
+            "simulated_mean": 2.5085075387207167,
+            "simulated_sd": 4.926649364293368
+          }
+        ],
+        "monte_carlo_se": 0.03675483128026688,
+        "n_simulations": 128,
+        "observed_nonconformity": 0.9384615384615385,
+        "p_value": 0.2248062015503876,
+        "rejected_diagnostics": [],
+        "status": "pass"
+      },
+      "readiness_tier_achieved": "tier_1",
+      "readiness_tier_requested": "tier_1",
+      "selected_prior_id": "bayesian_hmc_regression_normal_halfnormal_prior_v1",
+      "sensitivity": {
+        "baseline_half_width": 0.09100455556937301,
+        "baseline_interval": [
+          -0.08532897063174719,
+          0.09668014050699884
+        ],
+        "contraction": 1.0,
+        "credible_interval_level": 0.9,
+        "curve": [
+          {
+            "effective_sample_size": 63.9899514123949,
+            "half_width": 0.09259257925130981,
+            "hyperparameter": "prior_scale",
+            "interval": [
+              -0.08893414759025083,
+              0.09625101091236882
+            ],
+            "multiplier": 0.5,
+            "refit_required": true
+          },
+          {
+            "effective_sample_size": 63.99934846104481,
+            "half_width": 0.09257294945422254,
+            "hyperparameter": "prior_scale",
+            "interval": [
+              -0.08887026990812365,
+              0.09627562900032141
+            ],
+            "multiplier": 2.0,
+            "refit_required": true
+          }
+        ],
+        "decision_stability": 1.0,
+        "elasticities": {
+          "prior_scale": -0.0001529432136506864
+        },
+        "estimand_id": "intercept",
+        "expansion": 1.0174499361268377,
+        "hyperparameter_metric": "max_abs_log_scale_shift",
+        "max_center_shift_in_half_widths": 0.022165409895652438,
+        "pass": true,
+        "perturbation_radius": "log(2)",
+        "warnings": [
+          "importance_weight_ess_below_refit_threshold"
+        ],
+        "width_factor": 1.0174499361268377
+      },
+      "sensitivity_by_estimand": [
+        {
+          "baseline_half_width": 0.09100455556937301,
+          "baseline_interval": [
+            -0.08532897063174719,
+            0.09668014050699884
+          ],
+          "contraction": 1.0,
+          "credible_interval_level": 0.9,
+          "curve": [
+            {
+              "effective_sample_size": 63.9899514123949,
+              "half_width": 0.09259257925130981,
+              "hyperparameter": "prior_scale",
+              "interval": [
+                -0.08893414759025083,
+                0.09625101091236882
+              ],
+              "multiplier": 0.5,
+              "refit_required": true
+            },
+            {
+              "effective_sample_size": 63.99934846104481,
+              "half_width": 0.09257294945422254,
+              "hyperparameter": "prior_scale",
+              "interval": [
+                -0.08887026990812365,
+                0.09627562900032141
+              ],
+              "multiplier": 2.0,
+              "refit_required": true
+            }
+          ],
+          "decision_stability": 1.0,
+          "elasticities": {
+            "prior_scale": -0.0001529432136506864
+          },
+          "estimand_id": "intercept",
+          "expansion": 1.0174499361268377,
+          "hyperparameter_metric": "max_abs_log_scale_shift",
+          "max_center_shift_in_half_widths": 0.022165409895652438,
+          "pass": true,
+          "perturbation_radius": "log(2)",
+          "warnings": [
+            "importance_weight_ess_below_refit_threshold"
+          ],
+          "width_factor": 1.0174499361268377
+        }
+      ],
+      "status": "pass",
+      "uses_outcome_to_set_prior": false,
+      "version": "1.0",
+      "warnings": [
+        "importance_weight_ess_below_refit_threshold"
+      ]
+    },
+    "reproducibility": {
+      "chain_seed_derivation": "SeedSequence([root_seed, sampler_code, contract_salt, chain_id, phase, iteration, purpose, stream_tokens...])",
+      "contract_version": "foundry.bayesian.reference_sampler.v1",
+      "degradation_reasons": [
+        "thread_configuration_not_pinned_single_thread"
+      ],
+      "determinism_envelope": {
+        "arch_family": "x86_64",
+        "chain_execution": "sequential",
+        "contract_version": "foundry.bayesian.reference_sampler.v1",
+        "effective_runtime_backend": "numpy",
+        "execution_device": "cpu:bayesian",
+        "float_precision": "float64",
+        "gpu_allowed": false,
+        "jit_enabled": false,
+        "libc": {
+          "lib": "glibc",
+          "version": "2.41"
+        },
+        "machine": "x86_64",
+        "numpy_runtime_config": {
+          "blas_name": "scipy-openblas",
+          "blas_version": "0.3.30",
+          "host_cpu": "x86_64",
+          "host_family": "x86_64",
+          "host_system": "linux",
+          "lapack_name": "scipy-openblas",
+          "lapack_version": "0.3.30"
+        },
+        "numpy_version": "2.3.5",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "processor": "",
+        "python_implementation": "CPython",
+        "python_version": "3.14.7",
+        "requested_runtime_backend": "numpy",
+        "rng_partitioning": {
+          "components": [
+            "root_seed",
+            "sampler_code",
+            "contract_salt",
+            "chain_id",
+            "phase",
+            "iteration",
+            "purpose",
+            "stream_tokens"
+          ],
+          "scheme": "seedsequence_substreams"
+        },
+        "sampler_kernel": "hmc",
+        "thread_configuration": {
+          "observed": {},
+          "required_variables": [
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "single_thread_pinned": false
+        }
+      },
+      "draw_layout": {
+        "array_order": "C",
+        "axis_order": [
+          "chain",
+          "draw",
+          "parameter"
+        ],
+        "canonicalization_version": "foundry.bayesian.draws.v1",
+        "dtype": "<f8"
+      },
+      "effective_determinism_tier": "statistical",
+      "effective_runtime_backend": "numpy",
+      "envelope_id": "sha256:13ffc17f9a80922f4e57b13eec4787ba865b57d38ca5680bbb2cac2641b01586",
+      "observed_tolerance_budget": {
+        "abs_tol_p50": null,
+        "abs_tol_p95": null,
+        "abs_tol_p99": null,
+        "budget_source": "seed_prior",
+        "canary_suite_id": null,
+        "distributional_metrics": {
+          "ks_statistic": null,
+          "q50_abs_error": null,
+          "q90_width_abs_error": null
+        },
+        "downgraded_from": null,
+        "downgraded_to": null,
+        "expected_budget": {
+          "cross_architecture_abs_tol": null,
+          "cross_architecture_ks_tol": 0.12,
+          "cross_architecture_q50_abs_tol": 0.1,
+          "cross_architecture_q90_width_abs_tol": 0.12,
+          "cross_architecture_rel_tol": null,
+          "same_architecture_abs_tol": null,
+          "same_architecture_ks_tol": 0.08,
+          "same_architecture_q50_abs_tol": 0.05,
+          "same_architecture_q90_width_abs_tol": 0.08,
+          "same_architecture_rel_tol": null,
+          "same_fingerprint_abs_tol": null,
+          "same_fingerprint_ks_tol": 0.05,
+          "same_fingerprint_q50_abs_tol": 0.02,
+          "same_fingerprint_q90_width_abs_tol": 0.05,
+          "same_fingerprint_rel_tol": null,
+          "semantic_mode": "distributional_replay"
+        },
+        "failure_reasons": [],
+        "mode": "distributional",
+        "reference_fingerprint": "3e10dac3118b73f4",
+        "rel_tol_p50": null,
+        "rel_tol_p95": null,
+        "rel_tol_p99": null,
+        "route_key": {
+          "arch_family": "x86_64",
+          "autotune_key": null,
+          "backend_route": "bayesian:numpy",
+          "blas_vendor": "unknown",
+          "device_family": "cpu",
+          "dtype_mode": "float64_capable",
+          "jax_matmul_precision": null,
+          "solver_name": "numpy",
+          "solver_options_hash": null,
+          "thread_policy": "default",
+          "xla_flags_hash": null
+        },
+        "sample_count": 0,
+        "scope": "same_fingerprint",
+        "solver_residual_budget": {
+          "dual": null,
+          "gap": null,
+          "optimality": null,
+          "primal": null
+        },
+        "ulp_tol_p99": null,
+        "validation_status": "compatible"
+      },
+      "replay_output_hash": "sha256:3b66740812535430f3ad2237e78988e489cf364a347bf1f1b1b3d99df44b57dd",
+      "requested_determinism_tier": "library_deterministic",
+      "requested_runtime_backend": "numpy",
+      "root_seed": 321,
+      "route_key": {
+        "arch_family": "x86_64",
+        "autotune_key": null,
+        "backend_route": "bayesian:numpy",
+        "blas_vendor": "unknown",
+        "device_family": "cpu",
+        "dtype_mode": "float64_capable",
+        "jax_matmul_precision": null,
+        "solver_name": "numpy",
+        "solver_options_hash": null,
+        "thread_policy": "default",
+        "xla_flags_hash": null
+      },
+      "warmup_output_hash": "sha256:f0be1e81c2a2aabd773477827c8e6e1590067ff424cdb010c0cd8ed358bc27c4"
+    },
+    "sampler_family": "mcmc",
+    "sampler_kernel": "hmc",
+    "simulator_diagnostic_ref": null,
+    "status": "diagnostics_failed",
+    "truthfulness": {
+      "assumptions_checked": {
+        "bfmi": true,
+        "bulk_ess": false,
+        "divergences": false,
+        "max_treedepth_hits": true,
+        "minimum_chains": false,
+        "rhat": false,
+        "tail_ess": false
+      },
+      "basis": "asymptotic_sampler_runtime_diagnostics",
+      "benchmark_regime": null,
+      "coverage_tolerance": null,
+      "diagnostics": {
+        "acceptance_rate": 0.9296875,
+        "bfmi": 0.973904405892424,
+        "divergences": 1.0,
+        "invalid_bfmi_count": 0.0,
+        "invalid_bulk_ess_count": 0.0,
+        "invalid_rhat_count": 0.0,
+        "invalid_tail_ess_count": 0.0,
+        "max_rhat": 1.1428196913446727,
+        "max_treedepth_hits": 0.0,
+        "mean_acceptance_rate": 0.9296875,
+        "min_bfmi": 0.973904405892424,
+        "min_bulk_ess": 17.63126243559549,
+        "min_tail_ess": 24.38095238095238,
+        "minimum_required_ess": 200.0,
+        "num_monitored_chains": 2.0,
+        "num_scalar_parameters_monitored": 3.0
+      },
+      "downgrade_reasons": [
+        "diagnostic_gate_failed:minimum_chains",
+        "diagnostic_gate_failed:rhat",
+        "diagnostic_gate_failed:bulk_ess",
+        "diagnostic_gate_failed:tail_ess",
+        "diagnostic_gate_failed:divergences"
+      ],
+      "tier": "APPROXIMATE_UNCALIBRATED"
+    },
+    "truthfulness_receipt": null,
+    "truthfulness_tier": "APPROXIMATE_UNCALIBRATED",
+    "warmup_draws_ref": "artifact://foundry/bayesian/warmup/sha256:f0be1e81c2a2aabd773477827c8e6e1590067ff424cdb010c0cd8ed358bc27c4",
+    "warnings": [
+      "diagnostic_gate_failed:minimum_chains",
+      "diagnostic_gate_failed:rhat",
+      "diagnostic_gate_failed:bulk_ess",
+      "diagnostic_gate_failed:tail_ess",
+      "diagnostic_gate_failed:divergences",
+      "determinism_degraded:thread_configuration_not_pinned_single_thread",
+      "posterior_geometry:inconclusive_sampling_geometry"
+    ]
+  },
+  "uncertainty_envelope": {
+    "composition_provenance": null,
+    "confidence_interval": [
+      0.061126596536,
+      0.238400654968
+    ],
+    "confidence_level": 0.9,
+    "distribution_family": "unknown",
+    "distribution_payload": null,
+    "gate_eligible": true,
+    "interval_semantics": "credible_interval",
+    "is_heuristic_ci": false,
+    "metadata": {
+      "method_name": "bayesian_hmc_regression",
+      "num_chains": 2.0,
+      "parameter": "sigma",
+      "simulator_diagnostic_ref": null,
+      "truthfulness_basis": "asymptotic_sampler_runtime_diagnostics",
+      "truthfulness_tier": "APPROXIMATE_UNCALIBRATED"
+    },
+    "numeric_policy": {
+      "absolute_tolerance": 1e-12,
+      "decimal_places": 12,
+      "mode": "float_round_12",
+      "policy_id": "bounded_float_v1"
+    },
+    "point_estimate": 0.125222533549,
+    "propagation_method": "monte_carlo",
+    "sample_size": 32,
+    "schema_version": "1.1",
+    "source": "calibration"
+  }
+}

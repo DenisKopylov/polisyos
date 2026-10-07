@@ -1,0 +1,68 @@
+Merge made by the 'ort' strategy.
+ .../README.md                                      |   5 +
+ .../corrective-implementation-commit.stderr.txt    |  10 +
+ .../corrective-implementation-commit.stdout.txt    |   9 +
+ .../author/corrective-implementation-readback.json | 124 ++++++
+ .../author/implementation-commit.stderr.txt        |  10 +
+ .../author/implementation-commit.stdout.txt        |  11 +
+ .../author/implementation-fetch.stderr.txt         |   2 +
+ .../author/implementation-fetch.stdout.txt         |   0
+ .../author/implementation-push.stderr.txt          |   2 +
+ .../author/implementation-push.stdout.txt          |   7 +
+ .../author/implementation-readback.json            |  76 ++++
+ .../complete-independent-evidence/README.md        |   1 +
+ .../complete-independent-evidence/copy-index.json  | 116 ++++++
+ .../e02-E-DoE-basis2824-independent.stderr.txt     |   0
+ .../e02-E-DoE-basis2824-independent.stdout.txt     | 179 ++++++++
+ .../e02-E-review-DoE-basis2824.py.txt              |  38 ++
+ .../effective-unknown-record-removal.py.txt        | 116 ++++++
+ .../complete-independent-evidence/healthy.json     | 178 ++++++++
+ .../immutable-validator.py.txt                     | 116 ++++++
+ .../normal-healthy.stderr.txt                      |   0
+ .../normal-healthy.stdout.txt                      | 145 +++++++
+ .../normal-old_escape_native_PASS.stderr.txt       |  16 +
+ .../normal-old_escape_native_PASS.stdout.txt       |   0
+ .../old_escape_native_PASS.json                    | 178 ++++++++
+ .../optimized-healthy.stderr.txt                   |   0
+ .../optimized-healthy.stdout.txt                   | 145 +++++++
+ .../optimized-old_escape_native_PASS.stderr.txt    |  16 +
+ .../optimized-old_escape_native_PASS.stdout.txt    |   0
+ .../original-publication-selection.json            |  92 +++++
+ .../complete-independent-evidence/review.json      | 179 ++++++++
+ .../copy-index.json                                |  76 ++++
+ .../implementation-handoff.json                    | 460 +++++++++++++++++++++
+ .../independent/corrective-review.json             | 179 ++++++++
+ 33 files changed, 2486 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-readback.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-readback.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/copy-index.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-DoE-basis2824-independent.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-DoE-basis2824-independent.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/e02-E-review-DoE-basis2824.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/effective-unknown-record-removal.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/healthy.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/immutable-validator.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-healthy.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-healthy.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-old_escape_native_PASS.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/normal-old_escape_native_PASS.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/old_escape_native_PASS.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-healthy.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-healthy.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-old_escape_native_PASS.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/optimized-old_escape_native_PASS.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/original-publication-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/complete-independent-evidence/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/copy-index.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/implementation-handoff.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/independent/corrective-review.json

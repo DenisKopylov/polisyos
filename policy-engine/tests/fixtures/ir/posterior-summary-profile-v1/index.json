@@ -1,0 +1,221 @@
+{
+  "schema": "policyos.e02.literal_old700_profile_CAS_fixtures.v1",
+  "source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "same_source_blobs_in": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "records": [
+    {
+      "label": "generated_ids_same_marginals",
+      "path": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+      "bytes": 2636,
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "a",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "-1"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "-1"
+        },
+        {
+          "_type": "float",
+          "repr": "1"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_input_order",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    },
+    {
+      "label": "generated_ids_same_marginals",
+      "path": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+      "bytes": 2636,
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "b",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "-1"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "-1"
+        },
+        {
+          "_type": "float",
+          "repr": "1"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_input_order",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    },
+    {
+      "label": "generated_ids_reversed_marginals",
+      "path": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+      "bytes": 2636,
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "b",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "-1"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "-1"
+        },
+        {
+          "_type": "float",
+          "repr": "1"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_input_order",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    },
+    {
+      "label": "generated_ids_reversed_marginals",
+      "path": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+      "bytes": 2636,
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "a",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "-1"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "-1"
+        },
+        {
+          "_type": "float",
+          "repr": "1"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_input_order",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    },
+    {
+      "label": "explicit_shared_ids_healthy",
+      "path": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+      "bytes": 2633,
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "a",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "-1"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "-1"
+        },
+        {
+          "_type": "float",
+          "repr": "1"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_supplied_ids",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    },
+    {
+      "label": "explicit_shared_ids_healthy",
+      "path": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+      "bytes": 2633,
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "b",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "-1"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "-1"
+        },
+        {
+          "_type": "float",
+          "repr": "1"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_supplied_ids",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    },
+    {
+      "label": "finite_probability_residual",
+      "path": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+      "bytes": 13717,
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+      "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+      "profile_version": "1.0",
+      "parameter_name": "x",
+      "expected_old_named_mean": {
+        "_type": "float",
+        "repr": "10000000000000"
+      },
+      "expected_generic_median": {
+        "_type": "float",
+        "repr": "0"
+      },
+      "expected_equal_tail_interval": [
+        {
+          "_type": "float",
+          "repr": "0"
+        },
+        {
+          "_type": "float",
+          "repr": "0"
+        }
+      ],
+      "expected_gate_eligible": false,
+      "row_identity_basis": "producer_input_order",
+      "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+    }
+  ],
+  "count": 7,
+  "bytes": 29527,
+  "expectation": "Reader decode/replay must preserve historical records rather than silently reinterpret raw oldprofile1 into new exactlaw semantics. New law-dependent computations may independently refuse an unestablished joint premise.",
+  "no_new_candidate_check_run": true
+}

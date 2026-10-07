@@ -1,0 +1,294 @@
+{
+  "files": [
+    {
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10725,
+      "sha256": "4d0db046be5f12048bb054df7b696cf4c8ab55e972d85fdf1c3fe70d17d6c48c"
+    },
+    {
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 27467,
+      "sha256": "c7f26e555546bd6df47bb38ee17230e3e15b328be1f0e1138027347f7cac6475"
+    },
+    {
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 83064,
+      "sha256": "4225ef4c48aa6902728fdeb7c0e83b238720533b34185684654af99a5543ab98"
+    },
+    {
+      "path": "checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 9231,
+      "sha256": "7ba5c0832875663bcb976fdd8a5fbd98d44e9477f35fa7eafc7139128e38ba23"
+    },
+    {
+      "path": "checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 80,
+      "sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445"
+    },
+    {
+      "path": "checks/cal-and-welfare-consumer/pytest.xml",
+      "bytes": 13206,
+      "sha256": "015168156d8813a2839df34482a93bfa3392c5f6d2e9c8d8fbe92129da7806ff"
+    },
+    {
+      "path": "checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9748,
+      "sha256": "6055929e7cd97e657d4f27038d7d058770507a5297fefbaf1e22e62a829df91d"
+    },
+    {
+      "path": "checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "path": "checks/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 12578,
+      "sha256": "f20b6f0a768529f58cb53399ceee21a89b718dea024e1af662f61eb2be2e78ac"
+    },
+    {
+      "path": "checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9908,
+      "sha256": "2740d9c559ec052996a66949a8a1f9165393174f55a3c9856b725b21c5fc75b0"
+    },
+    {
+      "path": "checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "path": "checks/doe-salib-and-consumer-factory/pytest.xml",
+      "bytes": 36923,
+      "sha256": "90d62680e5a8561eac7b84a4305b6bc7f1b49b8346c63e57fe15aefa37c97a9b"
+    },
+    {
+      "path": "checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 9105,
+      "sha256": "a7dbffd6fda375e031501f75c60e5a0d5884c4d2956fb275e26639cb174801f1"
+    },
+    {
+      "path": "checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "path": "checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "bytes": 10247,
+      "sha256": "eec6bf246784495c175758ebcdc0f8fac525703643364cac4a35463aa31bccb7"
+    },
+    {
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10736,
+      "sha256": "54907a421f1465ed436966cbee443aa9833e959afb5463562eb46d4cd3da751e"
+    },
+    {
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 1211,
+      "sha256": "e30590be9bb410eedcca770b51880771edbedba8f304958a6106555b88480bc9"
+    },
+    {
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 77342,
+      "sha256": "1d5eb59e499850a7a6f00f645dbf25d74db7d4c56753f178f6637de896c1c2ad"
+    },
+    {
+      "path": "checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9512,
+      "sha256": "7f4cff0752a61f5876a9909523de0bccce18168fd112f3d3bf426b1a80a308b0"
+    },
+    {
+      "path": "checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "bytes": 1476,
+      "sha256": "e22364128cba3f0cb7e70513baa654112d5e58b38fc0621c2acd09d347eabf8b"
+    },
+    {
+      "path": "checks/pcl-continuous-persistence/pytest.xml",
+      "bytes": 16109,
+      "sha256": "b4e20214655161f61754d743f82a3d05d7703e0eea69da58f2acda4e95462b77"
+    },
+    {
+      "path": "checks/results-importer/results-importer.json",
+      "bytes": 8190,
+      "sha256": "c06c52558e1a763fdcea1475df8e2f26fc1b2d080e62a773b9adb8d30924470d"
+    },
+    {
+      "path": "checks/results-importer/results-importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "cleanup-candidates.json",
+      "bytes": 4901,
+      "sha256": "577aeb29f9c068c717ae649d9995e5bf0df41f6356d6179ef00cab4f8ba6c481"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 229,
+      "sha256": "14b9df672cbd133e37fe38f9b175dd66c87c017deebdff7296f31b5362583305"
+    },
+    {
+      "path": "owner-packets/test_a_frc_native_cas_status_reason.py",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 222241,
+      "sha256": "bd26afab49c458e24d30d00da4d7d90fa4a0325c3a68134be423662c0569146e"
+    },
+    {
+      "path": "publication-receipt.json",
+      "bytes": 521985,
+      "sha256": "f651a7db8e06e059ae93c04ea949b4a9c9cf364d7fbaeaf2cd1e874ca7cc3457"
+    },
+    {
+      "path": "raw-custody.json",
+      "bytes": 1895,
+      "sha256": "17a1fb1f9df1d430d578433e5db855fa14423736ab82da43a49a733340e237bb"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 198,
+      "sha256": "ab798620abff8a9fac8b1330b40ed97acb8ce3d9f49ce43ac8b39dea5cfc80ee"
+    }
+  ],
+  "file_count": 30,
+  "total_bytes": 1116921,
+  "self_index_excluded": true,
+  "wave_source_assets": [
+    {
+      "path": "plan.json",
+      "bytes": 222241,
+      "sha256": "bd26afab49c458e24d30d00da4d7d90fa4a0325c3a68134be423662c0569146e"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 198,
+      "sha256": "ab798620abff8a9fac8b1330b40ed97acb8ce3d9f49ce43ac8b39dea5cfc80ee"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 229,
+      "sha256": "14b9df672cbd133e37fe38f9b175dd66c87c017deebdff7296f31b5362583305"
+    },
+    {
+      "path": "owner-packets/test_a_frc_native_cas_status_reason.py",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "path": "checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9512,
+      "sha256": "7f4cff0752a61f5876a9909523de0bccce18168fd112f3d3bf426b1a80a308b0"
+    },
+    {
+      "path": "checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "bytes": 1476,
+      "sha256": "e22364128cba3f0cb7e70513baa654112d5e58b38fc0621c2acd09d347eabf8b"
+    },
+    {
+      "path": "checks/pcl-continuous-persistence/pytest.xml",
+      "bytes": 16109,
+      "sha256": "b4e20214655161f61754d743f82a3d05d7703e0eea69da58f2acda4e95462b77"
+    },
+    {
+      "path": "checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9748,
+      "sha256": "6055929e7cd97e657d4f27038d7d058770507a5297fefbaf1e22e62a829df91d"
+    },
+    {
+      "path": "checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "path": "checks/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 12578,
+      "sha256": "f20b6f0a768529f58cb53399ceee21a89b718dea024e1af662f61eb2be2e78ac"
+    },
+    {
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10725,
+      "sha256": "4d0db046be5f12048bb054df7b696cf4c8ab55e972d85fdf1c3fe70d17d6c48c"
+    },
+    {
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 27467,
+      "sha256": "c7f26e555546bd6df47bb38ee17230e3e15b328be1f0e1138027347f7cac6475"
+    },
+    {
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 83064,
+      "sha256": "4225ef4c48aa6902728fdeb7c0e83b238720533b34185684654af99a5543ab98"
+    },
+    {
+      "path": "checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 9231,
+      "sha256": "7ba5c0832875663bcb976fdd8a5fbd98d44e9477f35fa7eafc7139128e38ba23"
+    },
+    {
+      "path": "checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 80,
+      "sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445"
+    },
+    {
+      "path": "checks/cal-and-welfare-consumer/pytest.xml",
+      "bytes": 13206,
+      "sha256": "015168156d8813a2839df34482a93bfa3392c5f6d2e9c8d8fbe92129da7806ff"
+    },
+    {
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10736,
+      "sha256": "54907a421f1465ed436966cbee443aa9833e959afb5463562eb46d4cd3da751e"
+    },
+    {
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 1211,
+      "sha256": "e30590be9bb410eedcca770b51880771edbedba8f304958a6106555b88480bc9"
+    },
+    {
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 77342,
+      "sha256": "1d5eb59e499850a7a6f00f645dbf25d74db7d4c56753f178f6637de896c1c2ad"
+    },
+    {
+      "path": "checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9908,
+      "sha256": "2740d9c559ec052996a66949a8a1f9165393174f55a3c9856b725b21c5fc75b0"
+    },
+    {
+      "path": "checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "path": "checks/doe-salib-and-consumer-factory/pytest.xml",
+      "bytes": 36923,
+      "sha256": "90d62680e5a8561eac7b84a4305b6bc7f1b49b8346c63e57fe15aefa37c97a9b"
+    },
+    {
+      "path": "checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 9105,
+      "sha256": "a7dbffd6fda375e031501f75c60e5a0d5884c4d2956fb275e26639cb174801f1"
+    },
+    {
+      "path": "checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "path": "checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "bytes": 10247,
+      "sha256": "eec6bf246784495c175758ebcdc0f8fac525703643364cac4a35463aa31bccb7"
+    },
+    {
+      "path": "checks/results-importer/results-importer.json",
+      "bytes": 8190,
+      "sha256": "c06c52558e1a763fdcea1475df8e2f26fc1b2d080e62a773b9adb8d30924470d"
+    },
+    {
+      "path": "checks/results-importer/results-importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    }
+  ]
+}

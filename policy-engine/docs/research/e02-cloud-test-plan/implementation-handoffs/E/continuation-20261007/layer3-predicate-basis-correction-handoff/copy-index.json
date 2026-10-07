@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.copy_index.v1",
+  "records": [
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-commit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stdout.txt",
+      "bytes": 1736,
+      "sha256": "91627765cc24602cf215b44295e336bdce62e0e07f6e279cf2a86726a4b82d05"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-commit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "004aa7aa3a5d97add549764bae93da3f2e007d8dd145ccae69282ce6cc81129c"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-readback.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-readback.json",
+      "bytes": 3779,
+      "sha256": "357ebbb074202ed928e112dede98fd7be2273f595a3db88fc359d4e6cb7846b8"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-push.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stdout.txt",
+      "bytes": 486,
+      "sha256": "3d22a47465be290b6cf98055fd61b9834f5fa9db501ce54a8b7ea22853e4ac13"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-push.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-push.stderr.txt",
+      "bytes": 126,
+      "sha256": "f4aa8f51f2f809054eb8771be0477e66d7f77c4fdc841f2128d5b641d28e1ede"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-fetch.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/implementation-fetch.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/implementation-fetch.stderr.txt",
+      "bytes": 131,
+      "sha256": "e9b69189319718510ee2ea81bf93d0cc032b7d5bf74f862541242eb4a8f0f068"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/corrective-implementation-commit.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stdout.txt",
+      "bytes": 1511,
+      "sha256": "e7d2d2b79b366fddaeccd3e17ed417665b93ce1e62702186b21057f2983deeb2"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/corrective-implementation-commit.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "b8ab27124c28e4b8a735baf15a55f794358832ee97db687414d6a268c434ef86"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-predicate-basis-9d6c-20261007/corrective-implementation-readback.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/author/corrective-implementation-readback.json",
+      "bytes": 6537,
+      "sha256": "c351d7d6bdfc91fb5af7937c51d3df4229f70f11ac7ed5e88e75439f383af291"
+    },
+    {
+      "original_path": "/tmp/e02-E-DoE-basis2824-independent/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction-handoff/independent/corrective-review.json",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+    }
+  ],
+  "copies": 11,
+  "total_bytes": 23833,
+  "implementation_candidate": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+  "implementation_tree": "a067361f310259449bea5dd90b86c4d96796e5b0",
+  "handoff_SHA_not_self_referenced": true
+}

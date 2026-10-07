@@ -1,0 +1,329 @@
+{
+  "candidate": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+  "tree": "bdda55333993ee5f734cb224e3d3b4299bd7fd84",
+  "source_sha256": {
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py": "516fb0a8d02d76494f1990bf36ddc6e074f1a5891e8607f25254e689495ba00a",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "ecd18058f2541334469654bf109f3f09ed789330ec4d422967105c09d317e200",
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py": "2f47d93c96a3f7ce5f78f6c785246429d86a484ae96cecac069235e0e9e51431",
+    "policy-engine/src/polisyos/foundry/calibration/report.py": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "c439fd0234c1d923485451f195b61b4a51fa0055f3a1f1288e5c20ec6be9459b"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "jax": "0.8.2",
+    "numpy": "2.3.5",
+    "jax_backend": "cpu",
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ],
+    "x64": false,
+    "thread_controls": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null
+    },
+    "source_origins": {
+      "hessian": "/workspace/e02-E-cal-20261006/policy-engine/src/polisyos/foundry/calibration/hessian.py"
+    }
+  },
+  "wall_seconds": 13.272408831995563,
+  "checks": [
+    {
+      "name": "gaussian_raw_information",
+      "outcome": "PASS",
+      "evidence": {
+        "hessian": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.1111111119389534
+          ]
+        ],
+        "covariance": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            0.0,
+            8.999999932944775
+          ]
+        ],
+        "std": [
+          2.0,
+          2.999999988824129
+        ],
+        "gradient": [
+          0.0,
+          0.0
+        ],
+        "dtype": "float32"
+      }
+    },
+    {
+      "name": "independent_central_difference_0.1",
+      "outcome": "PASS",
+      "evidence": {
+        "independent_fd": [
+          [
+            0.2500000000000001,
+            0.0
+          ],
+          [
+            0.0,
+            0.11111111111111129
+          ]
+        ],
+        "step": 0.1
+      }
+    },
+    {
+      "name": "independent_central_difference_0.05",
+      "outcome": "PASS",
+      "evidence": {
+        "independent_fd": [
+          [
+            0.2500000000000004,
+            0.0
+          ],
+          [
+            0.0,
+            0.11111111111111081
+          ]
+        ],
+        "step": 0.05
+      }
+    },
+    {
+      "name": "generic_same_curvature",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          0.1111111119389534,
+          0.25
+        ],
+        "covariance": null,
+        "reason": "generic_objective_curvature_only",
+        "raw_rank": 2
+      }
+    },
+    {
+      "name": "huber",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          1.0,
+          1.0
+        ],
+        "covariance": null,
+        "reason": "generic_objective_curvature_only",
+        "raw_rank": 2
+      }
+    },
+    {
+      "name": "saddle",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          -2.0,
+          2.0
+        ],
+        "covariance": null,
+        "reason": "negative_curvature",
+        "raw_rank": 2
+      }
+    },
+    {
+      "name": "flat",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          0.0,
+          0.0
+        ],
+        "covariance": null,
+        "reason": "singular_or_flat_curvature",
+        "raw_rank": 0
+      }
+    },
+    {
+      "name": "singular",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          0.0,
+          2.0
+        ],
+        "covariance": null,
+        "reason": "singular_or_flat_curvature",
+        "raw_rank": 1
+      }
+    },
+    {
+      "name": "ill_conditioned",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          1.0000000116860974e-07,
+          1.0
+        ],
+        "covariance": null,
+        "reason": "ill_conditioned_curvature",
+        "raw_rank": 2
+      }
+    },
+    {
+      "name": "nonstationary",
+      "outcome": "PASS",
+      "evidence": {
+        "raw_eigenvalues": [
+          0.1111111119389534,
+          0.25
+        ],
+        "covariance": null,
+        "reason": "nonstationary_point",
+        "raw_rank": 2
+      }
+    },
+    {
+      "name": "nonfinite_objective_nan",
+      "outcome": "PASS",
+      "evidence": {
+        "objective": "nan",
+        "gradient": [
+          0.0,
+          0.0
+        ],
+        "hessian": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "covariance": null,
+        "reason": "nonfinite_objective"
+      }
+    },
+    {
+      "name": "nonfinite_objective_inf",
+      "outcome": "PASS",
+      "evidence": {
+        "objective": "inf",
+        "gradient": [
+          0.0,
+          0.0
+        ],
+        "hessian": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "covariance": null,
+        "reason": "nonfinite_objective"
+      }
+    },
+    {
+      "name": "property_removal_detected",
+      "outcome": "PASS",
+      "evidence": {
+        "markers_retained": true,
+        "mutant_generic_covariance": [
+          [
+            4.0,
+            0.0
+          ],
+          [
+            0.0,
+            8.999999932944775
+          ]
+        ],
+        "normal_generic_covariance": null
+      }
+    },
+    {
+      "name": "measurement_raw_objective_oracle_first",
+      "outcome": "PASS",
+      "evidence": {
+        "rate": 0.25,
+        "declared_weights": [
+          1.0,
+          0.1
+        ],
+        "independent_loss": 568.1818181818181,
+        "actual_loss": 568.1818237304688,
+        "independent_hessian": 25454.545454545452,
+        "actual_hessian": 25454.544921875
+      }
+    },
+    {
+      "name": "measurement_raw_objective_oracle_second",
+      "outcome": "PASS",
+      "evidence": {
+        "rate": 0.25,
+        "declared_weights": [
+          0.1,
+          1.0
+        ],
+        "independent_loss": 56.81818181818181,
+        "actual_loss": 56.81818389892578,
+        "independent_hessian": 74545.45454545454,
+        "actual_hessian": 74545.453125
+      }
+    },
+    {
+      "name": "objective_identity_binds_measurement_quality",
+      "outcome": "PASS",
+      "evidence": {
+        "first_identity": "35cc2128d7c60db2e20a45720d0fde04b3f38bc1ce937c784d63b4ad7c2df1d1",
+        "second_identity": "1010f99ecc0cbc2343fd34813e10e11cb7be0092db55816f9916a44c835bd69f",
+        "first_loss": 568.1818237304688,
+        "second_loss": 56.81818389892578,
+        "first_hessian": {
+          "strategy": "exact",
+          "derivative_dtype": "float32",
+          "objective_value": 568.1818237304688,
+          "objective_dtype": "float32",
+          "objective_finite": true,
+          "raw_eigenvalues": [
+            25454.544921875
+          ],
+          "raw_rank": 1,
+          "condition_number": 1.0,
+          "covariance_unavailable_reason": "generic_objective_curvature_only",
+          "fallback_reason": null
+        },
+        "second_hessian": {
+          "strategy": "exact",
+          "derivative_dtype": "float32",
+          "objective_value": 56.81818389892578,
+          "objective_dtype": "float32",
+          "objective_finite": true,
+          "raw_eigenvalues": [
+            74545.453125
+          ],
+          "raw_rank": 1,
+          "condition_number": 1.0,
+          "covariance_unavailable_reason": "generic_objective_curvature_only",
+          "fallback_reason": null
+        },
+        "input_delta": "trust_weight [1,.1] -> [.1,1]; all configured targets/model/seed/observed_values fixed"
+      }
+    }
+  ]
+}

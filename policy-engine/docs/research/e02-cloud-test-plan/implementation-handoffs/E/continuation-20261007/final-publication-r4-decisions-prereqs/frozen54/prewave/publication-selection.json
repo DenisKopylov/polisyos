@@ -1,0 +1,94 @@
+{
+  "schema": "policyos.e02.E.current-prewave-publication-selection.v1",
+  "source": {
+    "sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "root_checkout": "/workspace/e02-E-continuation-20261006"
+  },
+  "selection": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+      "bytes": 305737,
+      "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d",
+      "portable_relative": "criteria-prewave/current-prewave-all-54-owner-dispositions.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-owner-decisions-summary.json",
+      "bytes": 35512,
+      "sha256": "24912ce99b76d14831faa03f38592ecfb3956c65bb74aa53c5c05fd6a5be226c",
+      "portable_relative": "criteria-prewave/current-prewave-owner-decisions-summary.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt",
+      "bytes": 17219,
+      "sha256": "8c889e151a532c312cd93effc45dc50497d32a2c43afafdd18afcdf8deb38062",
+      "portable_relative": "criteria-prewave/build-prewave-dispositions.py.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/validate-prewave-dispositions.py.txt",
+      "bytes": 3160,
+      "sha256": "cdd13216c5c9a431d3ac6a28912dc336c7dca7800ce82016d28356803e54fc03",
+      "portable_relative": "criteria-prewave/validate-prewave-dispositions.py.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_relative": "criteria-prewave/current-prewave-build.stdout.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build.stderr.txt",
+      "bytes": 1174,
+      "sha256": "59ae10b3c1fd66ef1ac318b2c2f46a768d2565d80ab440f57bd1117fe8b8158f",
+      "portable_relative": "criteria-prewave/current-prewave-build.stderr.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build-corrected.stdout.json",
+      "bytes": 316,
+      "sha256": "287d6f11c363c7c808eb2134d45ae93943bb95f697a1723d1bcb0e55df99b0c6",
+      "portable_relative": "criteria-prewave/current-prewave-build-corrected.stdout.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-build-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_relative": "criteria-prewave/current-prewave-build-corrected.stderr.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stdout.json",
+      "bytes": 1820,
+      "sha256": "e56a961049864e225dc9d58bef833653699f175f48d1819a47a6f318772bedfb",
+      "portable_relative": "criteria-prewave/current-prewave-validation-normal.stdout.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_relative": "criteria-prewave/current-prewave-validation-normal.stderr.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stdout.json",
+      "bytes": 1820,
+      "sha256": "9ced811541ef36e3849ab6efe5a000bf54fbb00b18b01af37e25e081a3fb8746",
+      "portable_relative": "criteria-prewave/current-prewave-validation-optimized.stdout.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-validation-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_relative": "criteria-prewave/current-prewave-validation-optimized.stderr.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-packet-custody.json",
+      "bytes": 3913,
+      "sha256": "1f52a048902560529a2f2458abf17b00db351c653e2ab35b9db0b890e632e023",
+      "portable_relative": "criteria-prewave/current-prewave-packet-custody.json"
+    }
+  ],
+  "files": 13,
+  "bytes": 370671,
+  "history_rule": "Do not overwrite prior criteria/IR publication selection or historical E receipts. This is an additional bounded current prewave overlay.",
+  "next_owner": "Root final closeout assembler; oracle adds exact current-wave criterion bindings after independent recomputation",
+  "production_data": false,
+  "raw_CAS_fixtures": false
+}

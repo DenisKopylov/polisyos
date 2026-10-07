@@ -1,0 +1,35 @@
+{
+  "candidate": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "mode": "normal",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py",
+    "--candidate",
+    "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+    "--label",
+    "normal"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "exit_code": 0,
+  "started_at_UTC": "2026-10-07T19:31:41.082763+00:00",
+  "wall_seconds": 15.819344532996183,
+  "outputs": [
+    {
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.stdout.txt",
+      "bytes": 269,
+      "sha256": "af8d40d34ebfb38a11fe76f839fe8d8b7ac768acfc26586dd3043d869a4b70d7"
+    },
+    {
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.json",
+      "bytes": 537645,
+      "sha256": "19a044cda4f8a57a80cf88e7be60c548b48d579e9ac7d0aac91650b54f2bb25a"
+    }
+  ],
+  "inherited_environment": "existing configured .venv; only PYTHONDONTWRITEBYTECODE=1 added, no artificial process/thread/CPU quotas"
+}

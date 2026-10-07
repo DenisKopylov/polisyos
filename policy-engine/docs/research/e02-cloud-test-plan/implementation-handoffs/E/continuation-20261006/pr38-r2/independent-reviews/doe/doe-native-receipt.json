@@ -1,0 +1,261 @@
+{
+  "source_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+  "source_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+  "lane_head": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "mode": "native",
+  "checks": [
+    {
+      "case": "independent_ANOVA_truth",
+      "outcome": "PASS",
+      "detail": {
+        "mean": "3/2",
+        "variance": "25/36",
+        "main_variance": "1/3",
+        "interaction_variance": "1/36",
+        "S1": 0.48,
+        "S2": 0.04,
+        "ST": 0.52
+      }
+    },
+    {
+      "case": "native_interaction_oracle",
+      "outcome": "PASS",
+      "detail": {
+        "S1": {
+          "x": 0.4822708720736341,
+          "z": 0.48262772408733584
+        },
+        "S2": {
+          "x": {
+            "z": 0.038085452106164375
+          }
+        },
+        "ST": {
+          "x": 0.5199491843337259,
+          "z": 0.5232121997761711
+        },
+        "runs": 6144,
+        "dtype": "float64"
+      }
+    },
+    {
+      "case": "paired_whole_block_estimands_order_identity",
+      "outcome": "PASS",
+      "detail": {
+        "S1": {
+          "x": 0.48227087207363406,
+          "z": 0.4826277240873359
+        },
+        "S2": {
+          "x": {
+            "z": 0.03808545210616443
+          }
+        },
+        "ST": {
+          "x": 0.5199491843337258,
+          "z": 0.5232121997761712
+        },
+        "old_analysis_id": "09c7d251d698a27171502b5eded26414280501bc15c3e22853e2dc49cc19a144",
+        "new_analysis_id": "28ffa60edb11ff533bbf8d8a4360deb2d1f324bc90646fce75fb99cdd1c8677b"
+      }
+    },
+    {
+      "case": "old_result_new_paired_order_writer",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sensitivity result does not bind the supplied ordered experiment"
+      }
+    },
+    {
+      "case": "duplicate_block",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol samples do not match the canonical seeded ordered design (only complete Saltelli block permutations are admitted)"
+      }
+    },
+    {
+      "case": "missing_block",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol samples do not match the canonical seeded ordered design (only complete Saltelli block permutations are admitted)"
+      }
+    },
+    {
+      "case": "interior_roles",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol samples do not match the canonical seeded ordered design (only complete Saltelli block permutations are admitted)"
+      }
+    },
+    {
+      "case": "wrong_seed",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol samples do not match the canonical seeded ordered design (only complete Saltelli block permutations are admitted)"
+      }
+    },
+    {
+      "case": "wrong_distribution",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol samples do not match the canonical seeded ordered design (only complete Saltelli block permutations are admitted)"
+      }
+    },
+    {
+      "case": "content_valid_stale_paired_order",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "content_valid_misaligned_outputs",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "content_valid_forged_S2",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "content_valid_forged_denominator",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "content_valid_wrong_kind",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Expected a DOE sensitivity analysis artifact kind/schema"
+      }
+    },
+    {
+      "case": "content_valid_wrong_schema",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Expected a DOE sensitivity analysis artifact kind/schema"
+      }
+    },
+    {
+      "case": "content_valid_wrong_purpose",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValidationError",
+        "message": "1 validation error for _AnalysisReceipt\nauthority_purpose\n  Input should be 'exploratory_parameter_experiment' [type=literal_error, input_value='causal_effect', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+      }
+    },
+    {
+      "case": "current_analyzer_version_mismatch",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "current_analyzer_numeric_mismatch",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Persisted DOE sensitivity result does not reproduce"
+      }
+    },
+    {
+      "case": "independent_interaction_oracle_detects_property_removal",
+      "outcome": "PASS",
+      "detail": {
+        "marker_preserved": "SALib@1.5.2:sobol",
+        "observed_S2": {
+          "x": {
+            "z": 0.99
+          }
+        },
+        "oracle_S2": 0.04
+      }
+    },
+    {
+      "case": "pre_evaluator_law_seed_unknown_42",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol sensitivity requires an explicitly independent input law"
+      }
+    },
+    {
+      "case": "pre_evaluator_law_seed_dependent_42",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol sensitivity requires an explicitly independent input law"
+      }
+    },
+    {
+      "case": "pre_evaluator_law_seed_independent_None",
+      "outcome": "PASS",
+      "detail": {
+        "error_type": "ValueError",
+        "message": "Sobol sensitivity requires a seed to reconcile its ordered design"
+      }
+    },
+    {
+      "case": "actual_bridge_producer_store",
+      "outcome": "PASS",
+      "detail": {
+        "evaluator_calls": 6144,
+        "analysis_ref": {
+          "artifact_id": "sha256:181c2483a9ce8028200e0cbde3c52d129d641cfec94c3832b1b7ca2294619626",
+          "kind": "doe_sensitivity_analysis",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "case": "bounded_Morris_scale_whole_trajectory_reuse",
+      "outcome": "PASS",
+      "detail": {
+        "mu_star": {
+          "x": 20.0,
+          "z": 3.0
+        },
+        "runs": 24
+      }
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "numpy": "2.3.5",
+    "SALib": "1.5.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "thread_caps": {},
+    "UV_NO_SYNC": "1"
+  },
+  "source_snapshot": {
+    "file_count": 2912,
+    "sha256": "5e3a2534ae2186ac577103371cf3d0c984ce7f358283674a184522bdb0ba0ef0"
+  },
+  "source_before_after_identical": true,
+  "polisyos_module_count": 837,
+  "all_polisyos_origins_pinned": true,
+  "loaded_analysis_sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+  "post_import_wall_s": 3.572961491008755
+}

@@ -1,0 +1,102 @@
+import hashlib,json,os,platform,subprocess,sys
+from pathlib import Path
+STAGE=Path('/tmp/e02-E-closed-additions-publication-r4-stage')
+REPO=Path('/workspace/e02-E-frc-20261006')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+BASE='2e28bed33d179d1d0f9db4b6cbb3837d809c42c0'
+CAND='737ea6b8ec43f5dff64bd5ccbb3a357b4fb6c3d5'
+TREE='bc06dc4ef6ec474a68b9cff5b8d61ff2b13f2acc'
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+SOURCE_TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions-handoff'
+DEST=REPO/PREFIX
+if DEST.exists(): raise ValueError('new handoff destination must not exist')
+env=dict(os.environ,GIT_OPTIONAL_LOCKS='0')
+def git(repo,*args):return subprocess.check_output(['git',*args],cwd=repo,env=env).decode().strip()
+def info(b):return {'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(path,obj):path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+'\n')
+if git(REPO,'rev-parse','HEAD')!=CAND or git(REPO,'status','--porcelain','--untracked-files=no'):raise ValueError('author candidate guard')
+root_before={'head':git(ROOT,'rev-parse','HEAD'),'tree':git(ROOT,'rev-parse','HEAD^{tree}'),'tracked_status':git(ROOT,'status','--porcelain','--untracked-files=no')}
+if root_before!={'head':SOURCE,'tree':SOURCE_TREE,'tracked_status':''}:raise ValueError('root freeze guard')
+selp=Path('/tmp/e02-E-closed-additions-custody-independent-doe/publication-selection.json')
+selection=json.loads(selp.read_text());actual=info(selp.read_bytes())
+if actual!={'bytes':22527,'sha256':'60284bd3a8808a9588de3b71849d60cdfd813f733d85884ce0b8d1b7e652f466'}:raise ValueError('independent selection pin')
+rows=[]
+def copy(src,portable,role,expected=None):
+ p=Path(src);b=p.read_bytes();i=info(b)
+ if expected and i!=expected:raise ValueError('original custody '+str(src))
+ target=DEST/portable
+ if target.exists() or '..' in Path(portable).parts or Path(portable).is_absolute() or target.suffix=='.py':raise ValueError('portable collision/path')
+ target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b)
+ rows.append({'source_path':str(p),'portable_path':portable,'role':role,**i})
+for a in selection['assets']:
+ copy(a['source_path'],'independent/'+a['portable_path'],'literal independent normal/optimized custody, ten corrupt controls and effective exact-member removal; own cleanup semantics excluded',{k:a[k] for k in ('bytes','sha256')})
+copy(selp,'independent/publication-selection.json','fixed literal independent57-asset selector')
+for n in ('resume-admission.json','resume-admission.stderr.txt','author-custody-controls.json','dry-run.stdout.json','dry-run.stderr.txt','leaf-copy.stdout.json','leaf-copy.stderr.txt','leaf-footprint.json','implementation-commit.stdout.txt','implementation-commit.stderr.txt','csv-companion-commit.stdout.txt','csv-companion-commit.stderr.txt','implementation-Git-readback.json','build-handoff.py.txt','attempt1-build-handoff.py.txt','attempt1-build-handoff.stdout.json','attempt1-build-handoff.stderr.txt','attempt2-build-handoff.py.txt','attempt2-build-handoff.stdout.json','attempt2-build-handoff.stderr.txt'):
+ copy(STAGE/n,'author/'+n,'literal author admission, copying or append-only Git execution record; no source/numeric test')
+# Source-reported external review: do not relabel its historical050 source as current700.
+audit_ref='855cb26a7a2c9fea60356663cf81e7d01e20c738'
+audit_path='policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/E-IR-decision.md'
+audit=subprocess.check_output(['git','show',audit_ref+':'+audit_path],cwd=REPO,env=env)
+audit_copy=STAGE/'G855-E-IR-decision.md';audit_copy.write_bytes(audit)
+copy(audit_copy,'author/G855-E-IR-decision.md','literal G review; its cited source050 is historical; current seam qualification separately source-reported by root/oracle')
+probe_selection=Path('/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json')
+if info(probe_selection.read_bytes())!={'bytes':3201,'sha256':'b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048'}:raise ValueError('G855 actual probe selector')
+copy(probe_selection,'current-IR/publication-selection.json','exact separate current IR falsifier selector; not a seventh selector of the closed implementation')
+ps=json.loads(probe_selection.read_text())
+for a in ps['assets']:
+ copy(a['source_path'],'current-IR/'+a['destination'],'literal independent actual current64d falsifier evidence; technical open, no source correction in this DOC carrier',{k:a[k] for k in ('bytes','sha256')})
+gold=Path('/tmp/e02-E-ir-G855-conditions-independent-64d/goldexact-finite-oracle.json')
+if gold.exists():copy(gold,'current-IR/goldexact-finite-oracle.json','independent exact finite-law oracle',{'bytes':6369,'sha256':'9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc'})
+
+index={'schema':'policyos.e02.closed_additions_handoff_literal_copy_index.v1','implementation_candidate_sha':CAND,'implementation_candidate_tree_sha':TREE,'verification_source_sha':SOURCE,'verification_source_tree_sha':SOURCE_TREE,'copied_files':len(rows),'copied_bytes':sum(a['bytes'] for a in rows),'copies':rows,'no_original_stdout_rewritten':True,'source_tests_gate_numerical_execution':False}
+save(DEST/'copy-index.json',index)
+implementation=git(REPO,'diff','--name-only',BASE,CAND).splitlines()
+impl_bytes=sum(len(subprocess.check_output(['git','show',CAND+':'+p],cwd=REPO,env=env)) for p in implementation)
+manifest=json.loads((STAGE/'manifest.json').read_text())
+normal=json.loads((DEST/'independent/normal/independent-review.json').read_text())
+optimized=json.loads((DEST/'independent/optimized/independent-review.json').read_text())
+for review in (normal,optimized):
+ if not review['verdict'].startswith('GO bounded') or review['candidate']!=CAND or review['implementation_path_count']!=160:raise ValueError('independent GO input')
+header={'schema':'policyos.e02.closed_additions_handoff_environment.v1','python_executable':sys.executable,'python_version':sys.version,'platform':platform.platform(),'root_source_guard':root_before,'leaf_branch':git(REPO,'branch','--show-current'),'leaf_head':CAND,'leaf_tree':TREE,'selected_environment':{k:os.environ.get(k) for k in ('TMPDIR','UV_CACHE_DIR','UV_PYTHON','PYTHONDONTWRITEBYTECODE')},'captured_by':'stdlib only; no ROOT interpreter/env/lock mutation; ROOT Git reads with GIT_OPTIONAL_LOCKS=0','source_numeric_gate_repeated':False}
+save(DEST/'environment.json',header)
+metadata=['copy-index.json','environment.json','README.md','implementation-handoff.json']
+handoff_paths=sorted(PREFIX+'/'+r['portable_path'] for r in rows)+[PREFIX+'/'+n for n in metadata]
+root_after={'head':git(ROOT,'rev-parse','HEAD'),'tree':git(ROOT,'rev-parse','HEAD^{tree}'),'tracked_status':git(ROOT,'status','--porcelain','--untracked-files=no')}
+if root_after!=root_before:raise ValueError('root changed during DOC-only handoff')
+handoff={
+ 'schema':'policyos.e02.closed_six_packet_publication_handoff.v1',
+ 'base_sha':BASE,'base_tree_sha':'6f3ff36401d8507abc9e099d1cf74ec37f54aad3','candidate_sha':CAND,'candidate_tree_sha':TREE,
+ 'verification_source_sha':SOURCE,'verification_source_tree_sha':SOURCE_TREE,
+ 'handoff_future_commit_sha':'Excluded: publication commit/readback receipt is written only after commit.',
+ 'canonical_writer':'frc_r4 owns this DOC carrier/copier; original packet authors and A/G retain native consumer, public surface and gate/mechanism ownership.',
+ 'worktree':{'branch':'codex/e02-E-frc-20261006','absolute_path':str(REPO),'resume_admission':'author/resume-admission.json','exit_code':0},
+ 'implementation_footprint':implementation,'implementation_path_count':len(implementation),'implementation_total_bytes':impl_bytes,
+ 'implementation_active_python_paths':[p for p in implementation if p.endswith('.py')],'source_test_mutation_paths':[],
+ 'environment':'environment.json','selected_subset':manifest['selection_inputs'],
+ 'membership':{k:manifest[k] for k in ('logical_count_including_selectors','logical_bytes_including_selectors','unique_payload_files','unique_payload_bytes','deduplicated_logical_aliases','destination_collision_count','content_collision_count')},
+ 'runtime_property_path':'final-publication-r4-closed-additions/copy-closed-additions.py.txt; pure custody preflight before destination creation',
+ 'predicate_basis':{'original_selector_identity':'six fixed original selector SHA256/byte bindings','members':'independently decode each actual selector and compare exact Counter of all248 logical selected members plus6 selectors, including declared alias/role/stored_at fields','payload':'recompute154 literal carrier hashes/bytes, first-content canonical routes,100 alias bindings and complete Git objects','guards':'path-safe DOC-only destinations, no active.py, no original history rewrite'},
+ 'independent_oracle':{'normal':'independent/normal/independent-review.json','optimized':'independent/optimized/independent-review.json','selected_originals':'independent/publication-selection.json','scope':'independent custody only; own tenth-cleanup semantic review excluded'},
+ 'negative_controls':{'count_per_mode':10,'normal_argv_and_output':'independent/normal/independent-review.json#actual_cli_controls','optimized_argv_and_output':'independent/optimized/independent-review.json#actual_cli_controls','cases':[r['name'] for r in normal['actual_cli_controls'] if r.get('exit_code')==1],'actual_outcome':'each corrupt/omission CLI exits1 before any destination creation'},
+ 'removal_control':{'source':'independent/normal/membership-removal.py.txt','case':'effective-membership-removal-admits-omission','expected':'exact Counter-predicate removal only; marker remains; same mandatory omission is accepted and writes159 rather than160; defining custody propertyFAIL','output':'independent/normal/effective-membership-removal-admits-omission/stdout.txt'},
+ 'checks':{'literal_copy_custody':'PASS independently in normal/-O modes','implementation_Git160':'PASS','native_backend_gate_execution_by_this_slice':'UNRUN: no such execution is requested for DOC-only carrier','global_gate_or_finding_PASS':False},
+ 'commands':{'resume_admission':{'argv':['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/polisyos-tools','workspace','doctor','--worktree-admission','resume','--branch','codex/e02-E-frc-20261006','--path',str(REPO)],'cwd':str(REPO/'policy-engine'),'environment':{'PYTHONDONTWRITEBYTECODE':'1'},'reason':'Existing installed CLI read-only admission avoids UV/env-lock mutation while ROOT backend uses frozen source. Actual full JSON and stderr retained.'},'actual_copier_commands':'author/dry-run.stdout.json; independent review records complete actual healthy, negative and removal argv','ordinary_implementation_commits':['author/implementation-commit.stdout.txt','author/csv-companion-commit.stdout.txt'],'publication':'ordinary append-only E branch push after thin independent metadata review; later exact commit/fetch/readback receipt'},
+ 'historical_publication_companion':{'first_commit':'ca382269e1083c0618bd73abba81054a1433ab28','first_commit_paths':159,'missing_companion':'catalog-owner/author/native-attempt1/source-rows.csv','cause':'Existing ignore rule skipped this one literal CSV during ordinary git add.','correction_commit':CAND,'correction':'Ordinary append-only explicit git add -f of exact one CSV;160 final paths. No ignore baseline or history rewrite.','receipt':'author/implementation-Git-readback.json'},
+ 'preserved_historical_checks':{'original_http':{'outcome':normal['original_http_outcome'],'counts':normal['original_http_counts']},'exact_cycleboard_retry':{'outcome':normal['bounded_cycleboard_outcome'],'counts':normal['bounded_cycleboard_counts']},'catalog_originals':'5feed/e441/558ea historical records, old12 controls, corrected V2/21controls+65typed summaries and independent removals retained; no native helper patch acceptance inferred'},
+ 'current_IR_qualification':{'G_review_ref':audit_ref,'G_review_path':audit_path,'literal_review':'author/G855-E-IR-decision.md','G_cited_source_scope':'Audit pins older E050. Separate copied independent actual64d receipts establish two current700/64d reachable seams; this carrier performs no new falsifier execution.','current_actual_falsifiers':'current-IR/actual-conditions-counterexamples.json','current_independent_owner_response':'current-IR/independent-owner-response.json','current_falsifier_selector':'current-IR/publication-selection.json','current_technical_work':{'B201':'open','B202':'open'},'remaining_code':'Content-bound explicit aligned joint row/source premise and same probability convention for stored functionals vs inverse-CDF final residual; imports_r4 owns correction, oracle owns independent acceptance.','semantic_ratification':'Canonical E appointment and four tracked choices cdaea067935c8062a6a13fab8d7ffb53ae5fd401 remain valid.','historical_ledger':'held statuses unchanged; frozen b821/9ce/ba5 E43/9/2 proposals remain frozen observations, not current closure.','code_fix_in_this_carrier':False},
+ 'publication_capability_scope':'Byte-exact closed evidence custody and apply-ready owner packets only; no new source/math, native consumer acceptance, production authority, original finding closure or globalPASS.',
+ 'not_included':['RUNNING ROOT full backend61243','final global supplement and current361 lint denominator','NEW closed install/prerequisite selector fbb77f96','full current54 selector ba5f8701/b821/join current layer','IR correction source and its independent acceptance','new source or generated artifact changes'],
+ 'limitations':['Original FAIL/ERROR/UNRUN outcomes and missing archive/custody refs remain literal.','Catalog process-global scoped fixture helper seam remains owner-ready; canonical A next patch/defaultHTTP/a11y acceptance not delivered by this DOC carrier.','Cleanup own-author semantic independence excluded here; oracle semantic review remains separate.','Production data is absent from cloud and remains local read-only; no production PASS claimed.'],
+ 'next_owner':{'E_root':'Merge closed DOC carrier only on safe ROOT clean boundary, combine independent final gate/current54 supplements honestly.','A_G_frontend_runtime':'Review/apply catalog typed fixture helper patch and rerun affected real HTTP/a11y at canonical writer.','E_imports_r4_oracle':'Deliver/independently accept current B201/B202 joint identity/probability class fixes.','G':'Integration publisher and separate code vs finding acceptance.'},
+ 'copied_handoff_files':len(rows),'copied_handoff_bytes':index['copied_bytes'],'handoff_copy_index':{'path':'copy-index.json',**info((DEST/'copy-index.json').read_bytes())},
+ 'root_before':root_before,'root_after':root_after,'ROOT_source_env_locks_written':False,'source_numeric_wave_repeated':False,
+ 'handoff_footprint':sorted(handoff_paths),'handoff_path_count':len(handoff_paths),'full_footprint':sorted(implementation+handoff_paths),'full_path_count':len(implementation)+len(handoff_paths),
+ 'cleanup':'No cleanup performed by this carrier; old repeatable scratch trees are candidates only after deciding receipts and no active users; unique source/evidence retained.'
+}
+if handoff['negative_controls']['count_per_mode']!=len(handoff['negative_controls']['cases']):raise ValueError('negative count')
+save(DEST/'implementation-handoff.json',handoff)
+(DEST/'README.md').write_text('''# Closed six-packet evidence handoff\n\nImplementation `737ea6b8` / tree `bc06dc4e` contains 160 additive DOC paths: frontend retries, HTTP attribution, exact CycleBoard retry, tenth cleanup and both corrected catalog selector chains. Its 254 logical rows bind all 248 selected members plus six literal selectors to 154 byte-exact carriers and 100 aliases. Independent normal/-O custody review covers all Git bytes, ten corrupt CLI refusals and effective predicate removal.\n\nThis separate handoff records the implementation before its own publication commit. `copy-index.json` binds every copied author/independent original; script snapshots are passive `.py.txt`. The original 159-path commit omitted one ignored CSV; an ordinary append-only exact CSV commit completed the 160-path footprint without changing ignores or history.\n\nROOT numerical/gate source remains `64d7444a` / tree `aef23574`; this packet performs no native or global rerun. Historical HTTP FAIL, frontend errors/UNRUN, original catalog escapes and missing archive refs remain unchanged. A/G retain canonical helper/runtime acceptance.\n\nCurrent B201/B202 technical work is **open** after root/oracle confirmed new current700/64d counterexamples reported from G855. Canonical owner appointment and the four recorded semantic choices remain valid; the historical held ledger and frozen earlier closure proposals remain observations. This DOC carrier contains no IR correction or finding closure.\n\nThe RUNNING backend, final global supplement/current361 lint denominator, newly closed install packet and full current54 data publication are separate dependencies. See `implementation-handoff.json` for exact source/selector identities, ownership, controls, environment and the complete footprint.\n''')
+actual_paths=sorted(str(p.relative_to(REPO)) for p in DEST.rglob('*') if p.is_file())
+if actual_paths!=sorted(handoff_paths):raise ValueError('full handoff path set')
+print(json.dumps({'copied_files':len(rows),'copied_bytes':index['copied_bytes'],'handoff_paths':len(actual_paths),'full_paths':len(implementation)+len(actual_paths),'fixed_metadata':{n:info((DEST/n).read_bytes()) for n in metadata}},indent=2))

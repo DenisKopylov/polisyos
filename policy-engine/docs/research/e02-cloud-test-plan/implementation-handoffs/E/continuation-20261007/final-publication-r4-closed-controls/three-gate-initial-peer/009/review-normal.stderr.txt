@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review.py.txt", line 380, in <module>
+    main()
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review.py.txt", line 366, in main
+    output["eight_native_attempt_bindings"] = reconcile_packet(packet, base)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review.py.txt", line 191, in reconcile_packet
+    require(len(before["metadata_rows"]) == 207, "ROOT207 metadata denominator changed")
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review.py.txt", line 22, in require
+    raise ValueError(reason)
+ValueError: ROOT207 metadata denominator changed

@@ -1,0 +1,25 @@
+{
+  "candidate": "e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62",
+  "copied_files": 334,
+  "copied_bytes": 1033929,
+  "handoff_paths": 338,
+  "full_paths": 521,
+  "metadata": {
+    "copy-index.json": {
+      "bytes": 153027,
+      "sha256": "d6cfa90d5eb9d9a49b8c7f942ad91e829270f5425fc4250bf96b7c606fbd6a26"
+    },
+    "environment.json": {
+      "bytes": 6645,
+      "sha256": "359f364b45b3b9e98936e697f5811990fefee4c1fefd063ba99e4c9e5d224a3b"
+    },
+    "README.md": {
+      "bytes": 1738,
+      "sha256": "db81d34d5e747cb8c0c6ce0eae55b718dc1f6b9193ace683c38f161cb957f7ee"
+    },
+    "implementation-handoff.json": {
+      "bytes": 303359,
+      "sha256": "b47a74f7cf9348878c60584bc993fdcafdef4f5ce1aec2612254557b19097213"
+    }
+  }
+}

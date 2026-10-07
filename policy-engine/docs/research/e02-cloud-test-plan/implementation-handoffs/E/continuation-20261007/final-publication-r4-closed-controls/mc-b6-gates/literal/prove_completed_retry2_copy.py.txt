@@ -1,0 +1,22 @@
+import hashlib,json,os,pathlib,subprocess,time
+r=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=r/'architecture-retained-retry2/source';mc=pathlib.Path('/workspace/e02-E-mc-20261006');head='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4'
+raw=subprocess.check_output(['git','ls-tree','-rz',head,'--','policy-engine'],cwd=mc);tracked={}
+for value in raw.split(b'\0'):
+ if not value:continue
+ fields,name=value.split(b'\t',1);mode,kind,oid=fields.decode().split();name=name.decode().removeprefix('policy-engine/');tracked[name]=(mode,kind,oid)
+rows=[];bad=[];extra=[];symlinks=[]
+for q in p.rglob('*'):
+ if q.is_dir() and not q.is_symlink():continue
+ rel=str(q.relative_to(p));data=os.readlink(q).encode() if q.is_symlink() else q.read_bytes();git_blob=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest();row={'relative':rel,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'git_blob':git_blob,'symlink':q.is_symlink()}
+ if rel in tracked:
+  row['expected_git_blob']=tracked[rel][2];rows.append(row)
+  if git_blob!=tracked[rel][2]:bad.append(rel)
+ elif q.is_symlink():symlinks.append({**row,'target':os.readlink(q)})
+ else:extra.append(row)
+with (r/'completed-retry2-copy-Git-bindings.json').open('x') as f:json.dump(rows,f,indent=2);f.write('\n')
+required=[r/'architecture-retry1'/x for x in ('receipt.json','started.json','stdout.txt','stderr.txt','complete-source-inputs-before.json','complete-source-inputs-after.json')]
+refs=[{'path':str(q),'bytes':q.stat().st_size,'sha256':hashlib.sha256(q.read_bytes()).hexdigest()} for q in required]
+proof={'schema':'policyos.e02.E.failed_retry1_copy_proof.v1','source':head,'copy':str(p),'tracked_files_exact_Git_blob_binding':not bad,'tracked_regular_file_count':sum(not x['symlink'] for x in rows),'tracked_regular_bytes':sum(x['bytes'] for x in rows if not x['symlink']),'mismatch_paths':bad,'binding_index':{'path':str(r/'completed-retry2-copy-Git-bindings.json'),'bytes':(r/'completed-retry2-copy-Git-bindings.json').stat().st_size,'sha256':hashlib.sha256((r/'completed-retry2-copy-Git-bindings.json').read_bytes()).hexdigest()},'untracked_regular_files':extra,'untracked_symlinks':symlinks,'private_env_exists':(p.parent/'environment').exists(),'private_env_preserved':True,'required_generator_outputs_preserved':True,'private_env_installed_metadata_count':len(list((p.parent/'environment').rglob('*.dist-info/METADATA'))),'outputs_regular_files':[str(x) for x in (p.parent/'outputs').rglob('*') if x.is_file()],'deciding_files_outside_copy':refs,'active_users':[],'active_user_admission':'Fresh scoped check happens immediately in deletion runner before any action','time_unix':time.time()}
+if bad or any(x['relative'] not in ['.polisyos-tools/timing.jsonl','.polisyos-tools/.timing.jsonl.lock'] for x in extra):raise RuntimeError('unexpected copy property')
+with (r/'completed-retry2-source-copy-preflight.json').open('x') as f:json.dump(proof,f,indent=2);f.write('\n')
+print(json.dumps({k:v for k,v in proof.items() if k not in ['deciding_files_outside_copy','untracked_symlinks']},indent=2))

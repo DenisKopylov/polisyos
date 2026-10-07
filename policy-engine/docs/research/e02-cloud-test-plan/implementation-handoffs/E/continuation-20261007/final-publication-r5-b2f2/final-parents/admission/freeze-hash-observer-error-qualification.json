@@ -1,0 +1,20 @@
+{
+  "schema": "policyos.e02.final_parent_freeze_ref_observer_qualification.v1",
+  "current": {
+    "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+    "bytes": 4697,
+    "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+  },
+  "original_publication_declared_freeze": {
+    "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+    "bytes": 4697,
+    "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+  },
+  "current_matches_original": true,
+  "prior_helper_claim": "Freeze current literal was appended after its publication-readback freeze reference",
+  "prior_claim_outcome": "ERROR observer claim, not an actual artifact/source failure",
+  "reason": "Claim was sent before the standalone admission calculation ran; that admission code failed to parse and established no mismatch. Direct full literal hash recomputation now matches. No different historical-reference hypothesis or modifying writer is established.",
+  "source_tree_package_metadata_and_native_checks_unaffected": true,
+  "original_freeze_readback_preserved_without_overwrite": true,
+  "root_source_or_receipt_written": false
+}

@@ -1,0 +1,449 @@
+FFFFFFFFFFFF..........................................FFFFFF..........FF [ 92%]
+FF....                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses0')
+raw_value = True, inlet = 'legacy_cas', operation = 'push'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses1')
+raw_value = '1.0', inlet = 'legacy_cas', operation = 'push'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses2')
+raw_value = True, inlet = 'model', operation = 'push'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses3')
+raw_value = '1.0', inlet = 'model', operation = 'push'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses4')
+raw_value = True, inlet = 'legacy_cas', operation = 'compress'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses5')
+raw_value = '1.0', inlet = 'legacy_cas', operation = 'compress'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses6')
+raw_value = True, inlet = 'model', operation = 'compress'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses7')
+raw_value = '1.0', inlet = 'model', operation = 'compress'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses8')
+raw_value = True, inlet = 'legacy_cas', operation = 'pull'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses9')
+raw_value = '1.0', inlet = 'legacy_cas', operation = 'pull'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-True] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses10')
+raw_value = True, inlet = 'model', operation = 'pull'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_raw_profile2_type_refuses11')
+raw_value = '1.0', inlet = 'model', operation = 'pull'
+
+    @pytest.mark.parametrize("raw_value", [True, "1.0"])
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    @pytest.mark.parametrize("operation", ["push", "compress", "pull"])
+    def test_raw_profile2_type_refuses_before_public_callback_or_publication(
+        tmp_path, raw_value, inlet, operation
+    ):
+        raw = _source().model_dump(mode="json")
+        raw["distribution_payload"]["samples"][1] = raw_value
+        calls = []
+        outputs = []
+>       with pytest.raises(ValueError, match="finite real non-bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:84: Failed
+_ test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_required] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_partial_profile_declarati0')
+declaration = 'posterior_summary_profile_required', inlet = 'legacy_cas'
+
+    @pytest.mark.parametrize(
+        "declaration", ["posterior_summary_profile_required", "posterior_summary_profile_id", "posterior_summary_profile_version"]
+    )
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+        raw = _source().model_dump(mode="json")
+        raw["metadata"] = {declaration: raw["metadata"][declaration]}
+>       with pytest.raises(ValueError, match="profile is missing"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:141: Failed
+_ test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_id] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_partial_profile_declarati1')
+declaration = 'posterior_summary_profile_id', inlet = 'legacy_cas'
+
+    @pytest.mark.parametrize(
+        "declaration", ["posterior_summary_profile_required", "posterior_summary_profile_id", "posterior_summary_profile_version"]
+    )
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+        raw = _source().model_dump(mode="json")
+        raw["metadata"] = {declaration: raw["metadata"][declaration]}
+>       with pytest.raises(ValueError, match="profile is missing"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:141: Failed
+_ test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_version] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_partial_profile_declarati2')
+declaration = 'posterior_summary_profile_version', inlet = 'legacy_cas'
+
+    @pytest.mark.parametrize(
+        "declaration", ["posterior_summary_profile_required", "posterior_summary_profile_id", "posterior_summary_profile_version"]
+    )
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+        raw = _source().model_dump(mode="json")
+        raw["metadata"] = {declaration: raw["metadata"][declaration]}
+>       with pytest.raises(ValueError, match="profile is missing"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:141: Failed
+_ test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_required] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_partial_profile_declarati3')
+declaration = 'posterior_summary_profile_required', inlet = 'model'
+
+    @pytest.mark.parametrize(
+        "declaration", ["posterior_summary_profile_required", "posterior_summary_profile_id", "posterior_summary_profile_version"]
+    )
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+        raw = _source().model_dump(mode="json")
+        raw["metadata"] = {declaration: raw["metadata"][declaration]}
+>       with pytest.raises(ValueError, match="profile is missing"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:141: Failed
+_ test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_id] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_partial_profile_declarati4')
+declaration = 'posterior_summary_profile_id', inlet = 'model'
+
+    @pytest.mark.parametrize(
+        "declaration", ["posterior_summary_profile_required", "posterior_summary_profile_id", "posterior_summary_profile_version"]
+    )
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+        raw = _source().model_dump(mode="json")
+        raw["metadata"] = {declaration: raw["metadata"][declaration]}
+>       with pytest.raises(ValueError, match="profile is missing"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:141: Failed
+_ test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_version] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_partial_profile_declarati5')
+declaration = 'posterior_summary_profile_version', inlet = 'model'
+
+    @pytest.mark.parametrize(
+        "declaration", ["posterior_summary_profile_required", "posterior_summary_profile_id", "posterior_summary_profile_version"]
+    )
+    @pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
+    def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
+        raw = _source().model_dump(mode="json")
+        raw["metadata"] = {declaration: raw["metadata"][declaration]}
+>       with pytest.raises(ValueError, match="profile is missing"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:141: Failed
+_ test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_first] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_profile2_multi_join_refus0')
+order = 'profile_first', sibling = 'profile2'
+
+    @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+    @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+    def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+        left = _source((2.0,))
+        right = _source((10.0, 14.0))
+        assert sum(left.distribution_payload.weights) == 0.5
+        assert sum(right.distribution_payload.weights) == 1.0
+        if sibling == "generic":
+            right = right.model_copy(update={"metadata": {}})
+        pair = (left, right) if order == "profile_first" else (right, left)
+>       with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.ir.analytics.uncertainty.UncertaintyCompatibilityError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:211: Failed
+_ test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_last] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_profile2_multi_join_refus1')
+order = 'profile_last', sibling = 'profile2'
+
+    @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+    @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+    def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+        left = _source((2.0,))
+        right = _source((10.0, 14.0))
+        assert sum(left.distribution_payload.weights) == 0.5
+        assert sum(right.distribution_payload.weights) == 1.0
+        if sibling == "generic":
+            right = right.model_copy(update={"metadata": {}})
+        pair = (left, right) if order == "profile_first" else (right, left)
+>       with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.ir.analytics.uncertainty.UncertaintyCompatibilityError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:211: Failed
+_ test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_first] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_profile2_multi_join_refus2')
+order = 'profile_first', sibling = 'generic'
+
+    @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+    @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+    def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+        left = _source((2.0,))
+        right = _source((10.0, 14.0))
+        assert sum(left.distribution_payload.weights) == 0.5
+        assert sum(right.distribution_payload.weights) == 1.0
+        if sibling == "generic":
+            right = right.model_copy(update={"metadata": {}})
+        pair = (left, right) if order == "profile_first" else (right, left)
+>       with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.ir.analytics.uncertainty.UncertaintyCompatibilityError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:211: Failed
+_ test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_last] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-253/test_profile2_multi_join_refus3')
+order = 'profile_last', sibling = 'generic'
+
+    @pytest.mark.parametrize("order", ["profile_first", "profile_last"])
+    @pytest.mark.parametrize("sibling", ["profile2", "generic"])
+    def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
+        left = _source((2.0,))
+        right = _source((10.0, 14.0))
+        assert sum(left.distribution_payload.weights) == 0.5
+        assert sum(right.distribution_payload.weights) == 1.0
+        if sibling == "generic":
+            right = right.model_copy(update={"metadata": {}})
+        pair = (left, right) if order == "profile_first" else (right, left)
+>       with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.ir.analytics.uncertainty.UncertaintyCompatibilityError'>
+
+/tmp/e02-E-ingress-author-thirteenth-20261007/patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py:211: Failed
+=========================== short test summary info ============================
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-True]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-legacy_cas-1.0]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-True]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[push-model-1.0]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-True]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-legacy_cas-1.0]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-True]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[compress-model-1.0]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-True]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-legacy_cas-1.0]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-True]
+FAILED ::test_raw_profile2_type_refuses_before_public_callback_or_publication[pull-model-1.0]
+FAILED ::test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_required]
+FAILED ::test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_id]
+FAILED ::test_partial_profile_declaration_refuses_at_raw_inlet[legacy_cas-posterior_summary_profile_version]
+FAILED ::test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_required]
+FAILED ::test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_id]
+FAILED ::test_partial_profile_declaration_refuses_at_raw_inlet[model-posterior_summary_profile_version]
+FAILED ::test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_first]
+FAILED ::test_profile2_multi_join_refuses_before_generic_lowering[profile2-profile_last]
+FAILED ::test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_first]
+FAILED ::test_profile2_multi_join_refuses_before_generic_lowering[generic-profile_last]
+22 failed, 56 passed in 7.81s

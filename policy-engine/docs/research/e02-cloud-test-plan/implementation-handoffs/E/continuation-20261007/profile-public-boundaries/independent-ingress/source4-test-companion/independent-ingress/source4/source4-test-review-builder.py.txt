@@ -1,0 +1,88 @@
+import ast,hashlib,json,pathlib,subprocess,sys,xml.etree.ElementTree as ET
+R=pathlib.Path('/workspace/e02-E-continuation-20261006'); S=pathlib.Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007'); W=pathlib.Path('/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave')
+P='e4b97c15196d8e276745f55a4367da83586511d9'; B='df5258b7ddfade5b952e3b21ef28116ced40fa68'
+C=sys.argv[1]; T=sys.argv[2]; path='policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py'
+def sh(*args):return subprocess.check_output(args,cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def info(p):
+ p=pathlib.Path(p); b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def dump(p,d):p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
+assert sh('git','rev-parse','HEAD').decode().strip()==C
+assert sh('git','rev-parse',C+'^').decode().strip()==P
+assert sh('git','rev-parse',C+'^{tree}').decode().strip()==T
+assert sh('git','diff','--name-only',P,C).decode().strip()==path
+old=sh('git','show',P+':'+path); new=sh('git','show',C+':'+path)
+old_ast=ast.parse(old); new_ast=ast.parse(new)
+name='test_law_losing_compression_clears_complete_profile_declaration'
+f0=next(x for x in old_ast.body if isinstance(x,ast.FunctionDef) and x.name==name)
+f1=next(x for x in new_ast.body if isinstance(x,ast.FunctionDef) and x.name==name)
+# Prefix ends after creation of the unchanged forged projection, before with-block.
+with0=next(i for i,x in enumerate(f0.body) if isinstance(x,ast.With))
+with1=next(i for i,x in enumerate(f1.body) if isinstance(x,ast.With))
+assert ast.dump(ast.Module(body=f0.body[:with0],type_ignores=[]))==ast.dump(ast.Module(body=f1.body[:with1],type_ignores=[]))
+assert ast.dump(ast.Module(body=f0.decorator_list,type_ignores=[]))==ast.dump(ast.Module(body=f1.decorator_list,type_ignores=[]))
+constants=[n.value for n in ast.walk(f1) if isinstance(n,ast.Constant)]
+assert 'exact carrier' in constants and 'Value error, posterior summary raw carrier is missing' in constants
+assert 'ValidationError' in {x.id for x in ast.walk(f1) if isinstance(x,ast.Name)}
+text=new.decode(); assert 'read_posterior_summary_profile(forged)' in text
+assert 'ref = persist_uncertainty_envelope(store, forged)' in text
+assert 'assert store.verify(ref.artifact_id).ok' in text
+assert 'load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "stale"), ref)' in text
+assert 'with pytest.raises(ValidationError) as refusal:' in text
+assert 'refusal.value.errors()[0]["msg"]' in text
+# Every other definition/import, except added canonical Pydantic ValidationError, stays same AST.
+def strip(a):
+ return [ast.dump(n) for n in a.body if not (isinstance(n,ast.FunctionDef) and n.name==name) and not (isinstance(n,ast.ImportFrom) and n.module=='pydantic' and len(n.names)==1 and n.names[0].name=='ValidationError')]
+assert strip(old_ast)==strip(new_ast)
+diff=sh('git','diff','--no-ext-diff',P,C,'--',path); diffpath=S/'source4-test-only.diff'; diffpath.write_bytes(diff)
+wave=json.loads((W/'affected-defining.receipt.json').read_text()); assert wave['source']==P and wave['tree']=='48af48c6462db76be9ba962dc6df07a9a1977963' and wave['exit_code']==1
+xml=ET.parse(W/'affected-defining.junit.xml').getroot(); suites=list(xml.iter('testsuite')); assert len(suites)==1
+assert all(suites[0].get(k)==v for k,v in {'tests':'195','failures':'2','errors':'0','skipped':'0'}.items())
+failures=[e.get('name') for e in xml.iter('testcase') if e.find('failure') is not None]
+assert sorted(failures)==sorted([name+'[interval]',name+'[moments]'])
+stdout=(W/'affected-defining.stdout.txt').read_text(); assert stdout.count('Expected regex: \'exact carrier\'')==2 and 'posterior summary raw carrier is missing' in stdout
+source_helper=sh('git','show',C+':policy-engine/src/polisyos/ir/analytics/posterior_summary.py').decode()
+assert 'if not isinstance(carrier, dict) or carrier.get("carrier_type") != "posterior_samples":\n        raise ValueError("posterior summary raw carrier is missing")' in source_helper
+unchanged=[]
+for p in ['policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/ir/analytics/posterior_summary.py','policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py','policy-engine/tests/unit/ir/test_posterior_summary.py','policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py']:
+ a=sh('git','show',P+':'+p); b=sh('git','show',C+':'+p);assert a==b
+ unchanged.append({'path':p,'parent_and_current_blob':sh('git','rev-parse',C+':'+p).decode().strip(),'bytes':len(b),'sha256':sha(b)})
+foot=[]
+for p in sh('git','diff','--name-only',B,C).decode().splitlines():
+ b=sh('git','show',C+':'+p)
+ foot.append({'path':p,'candidate_blob':sh('git','rev-parse',C+':'+p).decode().strip(),'candidate_bytes':len(b),'candidate_sha256':sha(b)})
+assert len(foot)==7
+review={
+ 'schema':'policyos.e02.independent_source_review.v1','reviewer':'/root/ingress_oracle','author':'/root/ingress_author; sole Root source writer','reviewer_authored_product_source':False,
+ 'base':B,'delta_parent':P,'candidate':C,'tree':T,'source_acceptance':'GO_bounded_test_companion_corrective_delta','source_runtime_lease':'CLOSED','predicate_basis':'independently_reconciled',
+ 'delta_paths':[path],'complete_footprint_from_slice_base':foot,'complete_immutable_diff':info(diffpath),
+ 'behavioral_review':{
+  'retained_native_negative':'Original forged carrier-less projection retains source Profile2 metadata; direct named-profile computation still separately requires ValueError exact carrier refusal.',
+  'fresh_native_negative':'Same forged object persists in configured actual CAS; artifact integrity verify is asserted, then a fresh FileSystemCAS legacy loader must raise actual Pydantic ValidationError with exact msg Value error, posterior summary raw carrier is missing.',
+  'earlier_admission':'Exact diagnostic independently traced to existing common raw validator requiring posterior_samples carrier. Test now covers both in-memory law refusal and persisted earlier raw refusal; no assertion removed or broad generic error accepted.',
+  'unchanged_positive_oracle':'Complete test prefix, decorators interval/moments, cleared profile/context/joint markers, explicit loss limitation, mean1 and sqrt99 moments, confidence bounds and APPROXIMATION provenance assertions byte/AST retained.',
+  'no_runtime_changes':'Exact parent→candidate diff is one test file only; every other definition except new canonical ValidationError import is AST-identical. No skip/xfail/new facade/schema/generated edit, no numerical law/materializer change.'
+ },
+ 'unchanged_property_dependencies':unchanged,
+ 'prior_source3_independent_GO':info(S/'review-final-e4b97.json'),
+ 'historical_wave':{
+  'source':P,'tree':wave['tree'],'outcome':'FAIL','tests':195,'PASS':193,'FAIL':2,'ERROR':0,'SKIP':0,'failed_test_identities':failures,
+  'cause':'Strict ingress already correctly refused same forged missing posterior_samples before old exact-carrier downstream assertion; both failures are exact expectation stage mismatch, not runtime-law success.',
+  'complete_receipt':info(W/'affected-defining.receipt.json'),'complete_stdout':info(W/'affected-defining.stdout.txt'),'complete_stderr':info(W/'affected-defining.stderr.txt'),'complete_junit':info(W/'affected-defining.junit.xml'),
+  'not_relabelled':'These 193 PASS/2 FAIL remain Source3 observations; they are never claimed Source4 PASS.'
+ },
+ 'current_candidate_checks':{'affected_maintained_wave':'UNRUN; Root re-freeze and one justified affected wave after this independent test delta GO','native387_repeat':'UNRUN; no runtime/guard/join dependency changed, prior exact-body evidence reused with original source identity','whole_type_gate':'UNRUN','type_dependency_transfer':'Source3 actual canonical selected3files child0/0errors0warnings observation remains Source3; all three product bytes/Git blobs exact unchanged into Source4. No blanket current/global type PASS claimed.'},
+ 'finding_scope':{'ids':['B201','B202'],'bounded_proposal_only':True,'historical_status_unchanged':True,'G_formal_acceptance':False},
+ 'limitations':['No production source/fit/institutional authority proof','Canonical API/schema and A/C/F consumer adoption remain their owner-bound packets','Full global gates and G intake independent of this test delta'],
+ 'patterns':['P01','P02','P09','P14','P29','P31','P33','P35','P37','P38','P40','P41'],'P41':'not_established',
+ 'publication_scope':'Complete moderate historical Source3 outputs are retained with exact source; no fixture trees or complete source copies; no future evidence self-SHA.'
+}
+f=S/'review-final-source4-test-companion.json';dump(f,review)
+assets=[]
+def add(p,role):
+ d=info(p); assets.append({'source_path':d['path'],'portable_path':'independent-ingress/source4/'+pathlib.Path(p).name+('.txt' if pathlib.Path(p).suffix=='.py' else ''),'bytes':d['bytes'],'sha256':d['sha256'],'role':role})
+for p in [f,S/'source4-test-review-builder.py',diffpath]:add(p,'Independent immutable test-only corrective review and exact delta')
+for name0 in ['affected-defining.receipt.json','affected-defining.stdout.txt','affected-defining.stderr.txt','affected-defining.junit.xml']:add(W/name0,'Historical exact Source3 193PASS/2FAIL wave; not Source4 outcome')
+sel={'schema':'policyos.e02.publication_selection.v1','candidate':C,'tree':T,'source_acceptance':review['source_acceptance'],'assets':assets,'files':len(assets),'bytes':sum(a['bytes'] for a in assets),'prior_selector':info(S/'publication-selection-final-e4b97.json'),'excluded':'All native fixture/CAS trees, complete copied source and repeated settled numeric suites. Source4 Root affected wave to be published as a separate actual candidate receipt.','no_self_reference':'Immutable Source4 commit/tree pinned; no future evidence Git SHA self-reference.'}
+i=S/'publication-selection-source4-test-companion.json';dump(i,sel)
+print(json.dumps({'candidate':C,'tree':T,'review':info(f),'selection':info(i),'selected_files':sel['files'],'selected_bytes':sel['bytes'],'source_runtime_lease':'CLOSED'},indent=2))

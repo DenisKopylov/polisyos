@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.E.attempted_receipt_admission_controls.v1",
+  "check_outcome": "PASS",
+  "optimized": false,
+  "new_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-current-37-selector-index.py.txt",
+    "bytes": 16865,
+    "sha256": "a4b115a24caec4f6465010681495b34aed1e2780fb036312d407c3ca43deea60"
+  },
+  "old_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-current-37-selector-index.before-attempt-evidence.py.txt",
+    "bytes": 15581,
+    "sha256": "1567b6629db1bea2ffd8d2ac1367fbf116f14dfe1f64534a6e32c49f9398c12a"
+  },
+  "verifier_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-attempt-receipt-admission.py.txt",
+    "bytes": 5016,
+    "sha256": "3ec25fdb90c455795b204b3fc8d863dd3a0b3c92cbe3b1b16bdb823bc8481f12"
+  },
+  "fixture_input": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-control/attempted.stdout.txt",
+    "bytes": 4096,
+    "sha256": "26d34a5b1f137df927def464d6349c43b62f535b4ed981e4d3de969d1be9d5b4"
+  },
+  "fixture_scope": "First4096 bytes of complete native CI02 stdout replayed with its receipt intentionally omitted. This controlled admission fixture is not the actual current CI02 execution state or a new native test result.",
+  "old_without_final_receipt": {
+    "outcome": "UNRUN",
+    "execution_running": false,
+    "receipt_not_final": false,
+    "reason": "No separate deciding receipt or active capturer observed"
+  },
+  "current_without_final_receipt": {
+    "outcome": null,
+    "execution_running": false,
+    "receipt_not_final": true,
+    "observed_attempt_stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/attempt-admission-control/attempted.stdout.txt",
+      "bytes": 4096,
+      "sha256": "26d34a5b1f137df927def464d6349c43b62f535b4ed981e4d3de969d1be9d5b4"
+    },
+    "reason": "Attempt output exists without a final receipt or live capturer; outcome and termination cause are not established"
+  },
+  "never_attempted": {
+    "outcome": "UNRUN",
+    "execution_running": false,
+    "receipt_not_final": false,
+    "reason": "No separate deciding receipt, attempt output or active capturer observed"
+  },
+  "actually_running_branch": {
+    "outcome": null,
+    "execution_running": true,
+    "receipt_not_final": true,
+    "actual_capturers": [
+      {
+        "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+      }
+    ],
+    "reason": "Actual invocation running; final outcome is not yet observed"
+  },
+  "effective_property_removal": {
+    "outcome": "UNRUN",
+    "execution_running": false,
+    "receipt_not_final": false,
+    "reason": "No separate deciding receipt, attempt output or active capturer observed"
+  },
+  "native_selectors_rerun": false,
+  "processes_terminated": false,
+  "root_source_or_env_mutated": false
+}

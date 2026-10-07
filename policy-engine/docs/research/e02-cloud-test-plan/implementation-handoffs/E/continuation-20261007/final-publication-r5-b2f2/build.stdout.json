@@ -1,0 +1,10 @@
+{
+  "logical_count": 1167,
+  "original_logical_bytes": 173281765,
+  "stored_logical_bytes": 85641576,
+  "unique_payload_files": 688,
+  "unique_payload_bytes": 41151229,
+  "deduplicated_occurrences": 479,
+  "metadata_files": 10,
+  "expected_git_paths": 698
+}

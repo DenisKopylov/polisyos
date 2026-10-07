@@ -1,0 +1,20 @@
+{
+  "full_mapping": {
+    "current_files": 5939,
+    "base_files": 5904,
+    "source_files": 2702,
+    "current_sha256": "e2baaea008ec325222bfd1faaa3a8342747b93707a644dc94a9d28b19911b548",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "rows": 115,
+  "by_bounded_writer": {
+    "E": 86,
+    "B": 18,
+    "not_established": 11
+  },
+  "owner_packet": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-complete-20-95-owner-attribution.json",
+    "bytes": 767388,
+    "sha256": "27db8bf8544f8df52b6d1bb3fc8853f3aa23ff4d1a3b8cc56831fe5abc16bdf9"
+  }
+}

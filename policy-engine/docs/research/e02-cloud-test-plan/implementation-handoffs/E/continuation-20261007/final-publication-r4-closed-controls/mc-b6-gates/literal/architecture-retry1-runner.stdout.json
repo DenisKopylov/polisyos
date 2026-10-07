@@ -1,0 +1,9 @@
+{
+  "stage": "architecture-retry1",
+  "outcome": "ERROR",
+  "canonical": "UNRUN",
+  "exit_code": 2,
+  "source_immutable": true,
+  "root_env_metadata_unchanged": true,
+  "wall_seconds": 52.95637249946594
+}

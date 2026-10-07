@@ -1,0 +1,65 @@
+{
+  "scope": "Immutable moderate independent collectorv4 GO, historicalv2/v3HOLD preserved",
+  "primary": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/review.json",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/delta_controls.py.txt",
+      "bytes": 10723,
+      "sha256": "9ba4d2186ee1f546048ae10588a58dc636e1129d822be168cb7a10ea343ba994"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/delta-controls.json",
+      "bytes": 12239,
+      "sha256": "5b28a7ff095743c0f28281476500cd60ff66d63b3faa76ac49409ecc7534295e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/delta-controls.stdout",
+      "bytes": 12239,
+      "sha256": "5b28a7ff095743c0f28281476500cd60ff66d63b3faa76ac49409ecc7534295e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/delta-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/full-source-role-predicate-removed.py.txt",
+      "bytes": 32898,
+      "sha256": "810bb636a89039a6bb3bc6c3eed1fec3e50a92709be12184e264ffbf57d81799"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/freeze_packet.py.txt",
+      "bytes": 6404,
+      "sha256": "b0f0c0df1aaa5e711d71a0647b12aaf5cf6e83f126a914b9c28d117d8279e715"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/configured-source-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/configured-source-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/configured-source-format.stdout",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/configured-source-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v4/review.json",
+      "bytes": 6065,
+      "sha256": "fa77f3ad5c84dff1da14b30bda53674c206d8f8c06d89eb71c98161f4f52a5c9"
+    }
+  ],
+  "file_count": 11,
+  "total_bytes": 80612,
+  "index_self_excluded": true,
+  "actual_raw_private_or_synthetic_fixture_payloads_included": false
+}

@@ -1,0 +1,52 @@
+{
+  "archives": [
+    {
+      "source": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/raw/full-changed-python-catalog.json",
+        "bytes": 1840815,
+        "sha256": "f03fe2bef4dee954c1d0de23e6ac4489753e25c2c95c9cccb8cadb4e9387ed8a"
+      },
+      "archive": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/full-changed-python-catalog.json.gz",
+        "bytes": 97750,
+        "sha256": "2f8c92a0300d4b26704e4e8934d7de52013e9fc6daa20d83b9eb7b893be15c3e"
+      },
+      "decoded_bytes": 1840815,
+      "decoded_sha256": "f03fe2bef4dee954c1d0de23e6ac4489753e25c2c95c9cccb8cadb4e9387ed8a",
+      "actual_stream_roundtrip_equal": true,
+      "scope": "code/Git/AST context only; no backend/production evidence"
+    },
+    {
+      "source": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/raw/full-main198-to-2dc99fe3-footprint.json",
+        "bytes": 2966867,
+        "sha256": "05f656e9a19f22d7eb6fc8fd3b81a86730122196d022a7e97e54d279d7f462f2"
+      },
+      "archive": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/full-main198-to-2dc99fe3-footprint.json.gz",
+        "bytes": 95494,
+        "sha256": "cba4338b103a5a208c2040aef9b42e78792d524a3a7aef7c5424fe080094dcbc"
+      },
+      "decoded_bytes": 2966867,
+      "decoded_sha256": "05f656e9a19f22d7eb6fc8fd3b81a86730122196d022a7e97e54d279d7f462f2",
+      "actual_stream_roundtrip_equal": true,
+      "scope": "code/Git/AST context only; no backend/production evidence"
+    },
+    {
+      "source": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/raw/full-source-static-and-literal-dynamic-imports.json",
+        "bytes": 25459888,
+        "sha256": "9afd981d9b5eb845f40e09268136f23de9e7059b760ae1aebc44ef47b555154c"
+      },
+      "archive": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/full-source-static-and-literal-dynamic-imports.json.gz",
+        "bytes": 1199537,
+        "sha256": "acd072d6abb5cdf9aa157d7951d8374e9cc41ac9640ed6975a08c8a600342606"
+      },
+      "decoded_bytes": 25459888,
+      "decoded_sha256": "9afd981d9b5eb845f40e09268136f23de9e7059b760ae1aebc44ef47b555154c",
+      "actual_stream_roundtrip_equal": true,
+      "scope": "code/Git/AST context only; no backend/production evidence"
+    }
+  ]
+}

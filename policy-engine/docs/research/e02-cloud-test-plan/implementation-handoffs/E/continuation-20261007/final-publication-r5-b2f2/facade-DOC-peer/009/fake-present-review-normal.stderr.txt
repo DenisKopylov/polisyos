@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fake-present-review-normal/validate-handoff.py.txt", line 35, in <module>
+    if __name__=='__main__':print(json.dumps(validate(Path(sys.argv[1])),indent=2))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fake-present-review-normal/validate-handoff.py.txt", line 33, in validate
+    if type(row['bytes'])is not int or len(b)!=row['bytes']or sha(b)!=row['sha256']:raise ValueError('complete literal original deciding bytes')
+                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: complete literal original deciding bytes

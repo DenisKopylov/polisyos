@@ -1,0 +1,204 @@
+{
+  "schema": "policyos.e02.E.author_packet_controls.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "optimized": true,
+  "outcome": "PASS",
+  "scope": "Author recomputing controls, independent review separate.",
+  "cases": [
+    {
+      "case": "healthy complete projection and sparse original rows",
+      "outcome": "PASS"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "canonical_full_ABI_count"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "full ABI denominator"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "canonical_full_ABI_count"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "full ABI denominator"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "old99IR_keys_retained"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "old keys retained"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "changed_generated_companions",
+          0,
+          "path"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "generated companion identity"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "runtime_confidence_dependencies"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "runtime dependency denominator"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "runtime_source_aggregate"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "runtime aggregate identity"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "global_required_gate_outcome"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "no global gate projection PASS"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "capability_state"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "current generated capability"
+    },
+    {
+      "case": [
+        "projection",
+        [
+          "numeric_or_broad_wave_repeated"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "wave custody"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "ROOT64d_current_proposals_preserved",
+          "closed"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "ROOT technical open preservation"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "historical_ledger_preserved",
+          "held"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "historical ledger preservation"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "G_formal_intake_or_ROOT3932_integration_asserted"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "G acceptance separation"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "rows",
+          2,
+          "predicate_basis",
+          "gate_eligible"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "non-gating actual purpose"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "rows",
+          3,
+          "predicate_basis",
+          "supplied_alignment_unit_estimand_context_premise"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "scientific alignment premise"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "rows",
+          2,
+          "original_criterion",
+          "text"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "original criterion bytes"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "exact_supported_law_semantics",
+          "uniform_mesh"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "finite mesh approximation admission"
+    },
+    {
+      "case": [
+        "owner",
+        [
+          "ROOT_backend",
+          "outcome"
+        ]
+      ],
+      "outcome": "PASS",
+      "actual_refusal": "no running backend PASS"
+    },
+    {
+      "case": "effective summary admission removal retains source and property markers",
+      "outcome": "PASS",
+      "actual_divergence": "1493 and false global PASS admitted only after actual validator AST-body removal"
+    }
+  ]
+}

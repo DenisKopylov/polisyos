@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 218, in <module>
+    main()
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 181, in main
+    counts = validate(p, manifest)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 158, in validate
+    expected = recompute_expected(p, manifest)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 135, in recompute_expected
+    raise ValueError('unsafe staged carrier path')
+ValueError: unsafe staged carrier path

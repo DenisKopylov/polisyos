@@ -1,0 +1,29 @@
+from pathlib import Path
+import json,logging,runpy,numpy as np
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import PropagateWelfareNode
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF,ARTIFACT_WELFARE_BUNDLE_REF
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope,DistributionFamily,PropagationMethod,UncertaintySource,IntervalSemantics,ParametricFitCarrier,PosteriorSamplesCarrier,persist_uncertainty_envelope
+from polisyos.ir.analytics.welfare import load_welfare_bundle
+store=FileSystemCAS(Path("/workspace/e02-E-pr38-r2-receipts/technical-held-trace/b194-atom-cas"))
+registry=build_default_registry_bundle(store).bundle_ref
+ctx=ExecutionContext(store=store,run=RunContext.start(store=store,registry_bundle=registry,run_id="B194_atom_native"),logger=logging.getLogger("b194.native"))
+helper=runpy.run_path("tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py")
+sim=helper["_b197_simulation_result"](store)
+env=UncertaintyEnvelope(point_estimate=.5,confidence_interval=(0.,1.),confidence_level=None,distribution_family=DistributionFamily.BOOTSTRAP,source=UncertaintySource.MANUAL,propagation_method=PropagationMethod.NONE,interval_semantics=IntervalSemantics.HEURISTIC_RANGE,is_heuristic_ci=True,gate_eligible=False,distribution_payload=PosteriorSamplesCarrier(samples=(0.,1.),weights=(.5,.5)))
+env_ref=persist_uncertainty_envelope(store,env)
+state=ExperimentState(run_id="B194_atom_native",artifacts_index={ARTIFACT_SIMULATION_RESULT_REF:sim},params={"welfare_config":{"metric_order":["A"],"pe_response":{"A":1.},"weights":[1.],"ge_technical_coefficients":[[.5]],"ge_entry_map":{"x":[0,0]},"input_envelopes":{"x":env_ref.model_dump(mode="json")},"credible_method":"monte_carlo"},"propagation_config":{"preferred_method":"monte_carlo","mc_n_samples":100,"mc_min_valid_samples":10,"mc_seed":0}})
+outcome=PropagateWelfareNode().execute(ctx,state)
+print(json.dumps({"native_node_status":outcome.status,"error":None if outcome.error is None else outcome.error.model_dump(mode="json")},indent=2))
+if outcome.status=="ok":
+ bundle=load_welfare_bundle(FileSystemCAS(store.root),outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+ report=from_canonical_bytes(store.get_bytes(bundle.diagnostics["propagation_report_ref"]))
+ outcomes=from_canonical_bytes(store.get_bytes(report["draw_outcomes_ref"]["artifact_id"]))
+ sampled=[row["sampled_input"]["x"] for row in outcomes["sampled_inputs"]]
+ print(json.dumps({"independent_declared_support":[0.,1.],"expected_failure_mass":.5,"actual_out_of_support_draw_count":sum(v not in (0.,1.) for v in sampled),"sampled_min":min(sampled),"sampled_max":max(sampled)},indent=2))
+ print(json.dumps({"bundle_status":bundle.status.value,"credible_interval":bundle.credible_interval,"report":report},indent=2))

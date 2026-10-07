@@ -1,0 +1,27 @@
+{
+  "branch": "codex/e02-E-doe-20261006",
+  "path": "/workspace/e02-E-doe-20261006",
+  "original_head": "2e0ad6260ad5a7e4aefb63397e5ad85dab5ae7ac",
+  "merges": [
+    {
+      "name": "ROOT-supported-finite-bucket-companion",
+      "incoming": "d0038a6e52867e820fd96f4706746ec501a80273",
+      "before": "2e0ad6260ad5a7e4aefb63397e5ad85dab5ae7ac",
+      "after": "458bd7781cf0e30998dd3b5dd3da62c87cec53bf",
+      "tree": "22656365e2270c253fdb39fda5cedc34b0995b96",
+      "exit_code": 0
+    },
+    {
+      "name": "G-twelfth-wave",
+      "incoming": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+      "before": "458bd7781cf0e30998dd3b5dd3da62c87cec53bf",
+      "after": "dee36f110824425f8f612874cb111398d9546e7d",
+      "tree": "c545506928e0c1036a2ce266d34f2995779928bb",
+      "exit_code": 0
+    }
+  ],
+  "head": "dee36f110824425f8f612874cb111398d9546e7d",
+  "tree": "c545506928e0c1036a2ce266d34f2995779928bb",
+  "status": "",
+  "recorded_unix": 1791384636.5003917
+}

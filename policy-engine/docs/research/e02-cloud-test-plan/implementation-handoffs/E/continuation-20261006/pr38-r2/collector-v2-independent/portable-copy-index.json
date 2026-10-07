@@ -1,0 +1,77 @@
+{
+  "schema": "e02.E.complete-portable-evidence.v1",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/review.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/README.md",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/README.md",
+      "bytes": 775,
+      "sha256": "9447db8fa5a410ce81c5c8909530a0f262b7a176933b24ba52ba5d2238993298"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/collector_controls.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/collector_controls.py",
+      "bytes": 5599,
+      "sha256": "9e16ad00f208239e5fb1c64f334ca43b3f5799ed9f0098f9fcfdc1d92c77c9a2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/controls.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/controls.json",
+      "bytes": 4810,
+      "sha256": "2a6a09d0e60b3bc77aadc7236e6dac5de28129447bf454288bb6ea9b8a9aa28e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/controls.stdout",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/controls.stdout",
+      "bytes": 4810,
+      "sha256": "2a6a09d0e60b3bc77aadc7236e6dac5de28129447bf454288bb6ea9b8a9aa28e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/counts_guard_removed.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/counts_guard_removed.py.txt",
+      "bytes": 27938,
+      "sha256": "b79fa8b2442ae126ebd10029a61f1fe6cb44738fd997e52c8d61ec3ab88ae314"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody-initial-denominator-harness-error.stdout",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/custody-initial-denominator-harness-error.stdout",
+      "bytes": 266,
+      "sha256": "3f65d47f9f0e0206ac98ecb1dd0a0ebf682a703d3f98a4c549a14d8cd7af7105"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody-review.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/custody-review.json",
+      "bytes": 62246,
+      "sha256": "973df2c38ef9c672957ad673896928a2a6dc1cd929643675a0442a1720ec17e9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody.stdout",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/custody.stdout",
+      "bytes": 3150,
+      "sha256": "3588fea6fd2a8508712b35a3910a50a47f64a88193b9946daafbbfd124ba8da5"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody_review.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/custody_review.py",
+      "bytes": 9705,
+      "sha256": "def4e89a7bd9f5495b89dc48032a21799215e015274114247abe5f2c836138ca"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/review.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/review.json",
+      "bytes": 4933,
+      "sha256": "78122e9ebc050fc12ac1ac5c6371adc24cfc7238e562cf53ca6706815325fe5d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/copy-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-collector-review-1e1/copy-index.json",
+      "bytes": 1814,
+      "sha256": "269244b6de0bc14867c6ca9c723c31dcb9169dd8ec1ebadfbdcd881098d69e0c"
+    }
+  ],
+  "complete": true,
+  "copies": 11,
+  "bytes": 126046,
+  "raw_private_inputs_copied": false,
+  "scope": "Exact full moderate source/author/independent owner packet; historical and current receipt scopes remain unchanged; no finding closure ratification"
+}

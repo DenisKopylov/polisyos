@@ -1,0 +1,111 @@
+"""Bind current-session docs-only BKT correction and independent common summary.
+
+Run after attach_common_wave.py; never change source or numerical candidate refs.
+"""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path('/workspace/e02-E-20261006-receipts/closure-independent/closeout')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/'
+FROZEN = '58e2d97965c0826c44843a78dcb2f8698d9950a3'
+TREE = 'ffd0d56892f8e515838af4c5b160cb9ac6d988ed'
+DOC_SHA = '801045b58cf141e923f129f2eb7649da8edeb4ed'
+BKT_PATH = PREFIX + 'backtest-replay-admission.json'
+SUMMARY_PATH = PREFIX + 'continuation-20261006/common-wave/summary.json'
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def write_json(path, obj):
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + '\n')
+
+raw = subprocess.check_output(['git', 'show', DOC_SHA + ':' + BKT_PATH], cwd=ROOT)
+author = json.loads(raw)
+assert digest(raw) == 'ef4f112e223935fc64b7c38c848d5deff27054c6518207a9df44bcd9570eba21'
+changed = subprocess.check_output(['git', 'diff-tree', '--no-commit-id', '--name-only', '-r', DOC_SHA], cwd=ROOT).decode().splitlines()
+assert changed and all(p.endswith(('.md', '.json')) for p in changed), changed
+assert not subprocess.check_output(['git', 'diff', DOC_SHA + '^', DOC_SHA, '--', 'policy-engine/src', 'policy-engine/tests'], cwd=ROOT).strip()
+summary_raw = (ROOT / SUMMARY_PATH).read_bytes()
+summary = json.loads(summary_raw)
+assert summary['candidate_sha'] == FROZEN and summary['candidate_tree_sha'] == TREE
+assert summary['source_test_framed_sha256'] == '9f8a51ddde321609d106d7ee7d747bde6a3182b7cc6747e1254d344e2ebd85fc'
+assert summary['inventory'] == {'bundles': 22, 'unique_findings': 54, 'finding_bundle_links': 55}
+assert summary['test_path_denominator'] == 110
+assert summary['numerical_wave']['totals'] == {'cases': 1125, 'passed': 1123, 'failed': 2, 'errors': 0, 'skipped': 0}
+summary_ref = {'path': SUMMARY_PATH, 'sha256': digest(summary_raw), 'candidate_sha': FROZEN, 'candidate_tree_sha': TREE,
+               'binding': 'Exact current-session summary bytes observed; evidence documentation commit is owned by root and does not retag numerical source.'}
+metadata = {'immutable_ref': DOC_SHA + ':' + BKT_PATH, 'sha256': digest(raw), 'docs_only': True,
+            'changed_paths': changed, 'source_test_diff_empty': True, 'numerical_candidate_unchanged': FROZEN,
+            'updated_criteria': ['B169', 'B170', 'B171', 'B174'], 'new_numerical_wave_required': False,
+            'previous_docs_only_correction': '9f5a485791b69b0c0a0eb7b3845702bf0c8f8472',
+            'latest_correction': 'Final receipt fixes B171 selector and exact original-bundle line locators; all requested selectors verified against frozen XML.'}
+xml = ET.parse('/workspace/e02-E-20261006-receipts/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml')
+cases = list(xml.getroot().iter('testcase'))
+overlay_path = OUT / 'all-54-closeout.json'
+overlay = json.loads(overlay_path.read_text())
+overlay['common_wave_summary_binding'] = summary_ref
+overlay['latest_bkt_documentation_correction'] = metadata
+for row in overlay['rows']:
+    if not row['finding_id'].startswith('B') or not 166 <= int(row['finding_id'][1:]) <= 175:
+        continue
+    ar = next(r for r in author['finding_verdicts'] if r['finding_id'] == row['finding_id'])
+    row['latest_author_receipt_ref'] = metadata['immutable_ref']
+    row['latest_author_receipt_sha256'] = metadata['sha256']
+    row['latest_author_criterion_note'] = ar['reason']
+    if 'criterion_source' in ar:
+        row['latest_author_original_bundle_locator'] = ar['criterion_source']
+    row['next_owner'] = ar['next_owner']
+    if 'deciding_check_selectors' not in ar:
+        continue
+    checks = []
+    for reported in ar['deciding_check_selectors']:
+        pieces = reported.split('::')
+        module = pieces[0].removesuffix('.py').replace('/', '.')
+        cls = module + ('.' + '.'.join(pieces[1:-1]) if len(pieces) > 2 else '')
+        name = pieces[-1]
+        matched = [c for c in cases if c.get('classname') == cls and (c.get('name') == name or c.get('name', '').startswith(name + '['))]
+        correction = None
+        if not matched and row['finding_id'] == 'B171' and name == 'test_micro_rmse_is_partition_invariant':
+            corrected = name + '_and_macro_is_explicit'
+            matched = [c for c in cases if c.get('classname') == cls and c.get('name') == corrected]
+            correction = 'Author receipt used a shortened selector; exact frozen XML name has _and_macro_is_explicit suffix. No new replay inferred.'
+        assert matched, (row['finding_id'], reported)
+        assert all(c.find('failure') is None and c.find('error') is None and c.find('skipped') is None for c in matched)
+        checks.append({'author_reported_selector': reported, 'actual_frozen_xml_selectors': [c.get('classname') + '::' + c.get('name') for c in matched],
+                       'outcome': 'PASS', 'matched_cases': len(matched), 'selector_correction': correction,
+                       'candidate_sha': FROZEN, 'junit_ref': PREFIX + 'continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.xml'})
+    row['criterion_specific_actual_xml_checks'] = checks
+assert len(overlay['rows']) == 54
+assert overlay['finding_verdict_counts'] == {'limited': 49, 'held': 4, 'closed': 1}
+assert sum(r['criterion_complete_owner_adjudication_candidate'] for r in overlay['rows']) == 33
+write_json(overlay_path, overlay)
+recipes_path = OUT / 'local-G-closeout-recipes.json'
+recipes = json.loads(recipes_path.read_text())
+recipes['latest_bkt_documentation_correction'] = metadata
+recipes['common_wave_summary_binding'] = summary_ref
+write_json(recipes_path, recipes)
+md_path = OUT / 'all-54-closeout.md'
+md = md_path.read_text()
+note = ('\n\nLatest BKT author correction: docs-only `' + DOC_SHA + '`, receipt SHA256 `' + digest(raw) +
+        '`. Source/tests and numerical candidate remain `' + FROZEN +
+        '`. B169/B170/B171/B174 criterion notes, original-bundle locators and exact XML selectors are recorded in the JSON. The final author receipt correctly names `test_micro_rmse_is_partition_invariant_and_macro_is_explicit`; its actual frozen case passed. '
+        'Common summary: `' + SUMMARY_PATH + '`, SHA256 `' + digest(summary_raw) + '`.\n')
+if 'Latest BKT author correction:' in md:
+    md = md.split('\n\nLatest BKT author correction:', 1)[0]
+md_path.write_text(md + note)
+index_path = OUT / 'closeout-artifact-index.json'
+index = json.loads(index_path.read_text())
+index['final_documentation_binding'] = metadata
+index['common_wave_summary_binding'] = summary_ref
+index['reproduce']['postprocess_argv'] = ['python3', str(Path(__file__).resolve())]
+paths = [Path(f['path']) for f in index['files']]
+if Path(__file__).resolve() not in paths:
+    paths.append(Path(__file__).resolve())
+index['files'] = [{'path': str(p), 'bytes': p.stat().st_size, 'sha256': digest(p.read_bytes())} for p in paths]
+write_json(index_path, index)
+for p in [overlay_path, md_path, recipes_path, index_path]:
+    print(json.dumps({'path': str(p), 'bytes': p.stat().st_size, 'sha256': digest(p.read_bytes())}))

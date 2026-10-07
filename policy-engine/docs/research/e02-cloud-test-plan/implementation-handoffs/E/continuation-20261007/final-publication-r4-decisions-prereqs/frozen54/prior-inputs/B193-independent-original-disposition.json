@@ -1,0 +1,418 @@
+{
+  "reviewer": "criteria_r4; independent original-row re-adjudication; no source authoring",
+  "id": "B193",
+  "bundle": "UQP-03",
+  "accountable_scope": "E-W03 / E root estimator-method owner; generic mechanism criterion",
+  "original_source_criterion": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      4782,
+      4791
+    ],
+    "fragment_sha256": "ad591257998b80b71a8a6337f202dce1dad9e02c934525527c310d8e336022bf",
+    "fragment_exact_expected": true,
+    "text": "## B193. \u0410\u0434\u0430\u043f\u0442\u0438\u0432\u043d\u0430\u044f \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u0438\u0437\u043c\u0435\u0440\u044f\u0435\u0442 \u0448\u0438\u0440\u0438\u043d\u0443 \u0432\u044b\u0445\u043e\u0434\u043d\u043e\u0433\u043e \u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u044f \u0438 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043e\u0442 \u0440\u0430\u0437\u043c\u0435\u0440\u0430 batch\n\n**\u041e\u0441\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0438 \u043f\u0440\u0438\u0447\u0438\u043d\u0430.** `_check_adaptive_stop` \u0441\u0440\u0430\u0432\u043d\u0438\u0432\u0430\u0435\u0442 (\u0432\u0435\u0440\u0445\u043d\u0438\u0439\u2212\u043d\u0438\u0436\u043d\u0438\u0439 percentile)/|mean| \u0441 `ci_half_width_target`. \u042d\u0442\u043e \u0448\u0438\u0440\u0438\u043d\u0430 \u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u044f \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u043e\u0432, \u0430 \u043d\u0435 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438 \u043e\u0448\u0438\u0431\u043a\u0430 \u0435\u0433\u043e \u0441\u0440\u0435\u0434\u043d\u0435\u0433\u043e, \u043a\u0432\u0430\u043d\u0442\u0438\u043b\u044f \u0438\u043b\u0438 CDF; \u0444\u0430\u043a\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0434\u0435\u043b\u0435\u043d\u0438\u044f \u043d\u0430 \u0434\u0432\u0430 \u0442\u0430\u043a\u0436\u0435 \u043d\u0435\u0442. \u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0432\u044b\u0437\u044b\u0432\u0430\u0435\u0442\u0441\u044f \u0442\u043e\u043b\u044c\u043a\u043e \u043d\u0430 \u0433\u0440\u0430\u043d\u0438\u0446\u0435 batch \u0438 \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u0442\u043e\u0447\u043d\u043e\u0433\u043e `n_generated % check_interval == 0`. C18.R03, R08; P27\u2013P29.\n\n**\u0412\u043e\u0441\u043f\u0440\u043e\u0438\u0437\u0432\u0435\u0434\u0435\u043d\u0438\u0435.** \u0414\u043b\u044f \u043e\u0434\u0438\u043d\u0430\u043a\u043e\u0432\u043e \u043f\u0440\u0435\u0434\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u043d\u043e\u0433\u043e \u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u0438\u044f 99/101 \u043e\u0442\u043d\u043e\u0441\u0438\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u0448\u0438\u0440\u0438\u043d\u0430 0,02 \u043d\u0435 \u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043f\u0440\u0438 \u043f\u0435\u0440\u0435\u0445\u043e\u0434\u0435 \u043e\u0442 200 \u043a 10 000 \u0442\u043e\u0447\u043a\u0430\u043c; \u043f\u0440\u0430\u0432\u0438\u043b\u043e \u043d\u0435 \u043e\u0441\u0442\u0430\u043d\u0430\u0432\u043b\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u043f\u0440\u0438 \u043f\u043e\u0440\u043e\u0433\u0435 0,01. \u0418\u043b\u043b\u044e\u0441\u0442\u0440\u0430\u0442\u0438\u0432\u043d\u0430\u044f \u043e\u0442\u043d\u043e\u0441\u0438\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u043f\u043e\u043b\u0443\u0448\u0438\u0440\u0438\u043d\u0430 \u043e\u0431\u044b\u0447\u043d\u043e\u0439 \u043e\u0446\u0435\u043d\u043a\u0438 \u0441\u0440\u0435\u0434\u043d\u0435\u0433\u043e \u043d\u0430 10 000 \u043d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u044b\u0445 \u0442\u043e\u0447\u043a\u0430\u0445 \u043f\u043e\u0440\u044f\u0434\u043a\u0430 0,000196 \u2014 \u044d\u0442\u043e \u0441\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432, \u041d\u0415 \u0441\u0435\u0440\u0442\u0438\u0444\u0438\u043a\u0430\u0442 \u043f\u043e\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u043d\u043e\u0439 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438. \u0414\u043b\u044f \u0441\u043e\u0432\u0435\u0440\u0448\u0435\u043d\u043d\u043e \u043f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u043e\u0433\u043e \u0432\u044b\u0445\u043e\u0434\u0430 \u0438 max=240, min=50, check_interval=100 batch=60 \u0432\u044b\u043f\u043e\u043b\u043d\u0438\u043b 240 \u043f\u0440\u043e\u0433\u043e\u043d\u043e\u0432, \u0430 batch=50 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u043b\u0441\u044f \u043d\u0430 100. \u041f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u044b\u0439 \u0440\u044f\u0434 \u043d\u0430 \u0434\u043e\u0441\u0442\u0438\u0433\u043d\u0443\u0442\u043e\u0439 \u043f\u0440\u043e\u0432\u0435\u0440\u043e\u0447\u043d\u043e\u0439 \u0433\u0440\u0430\u043d\u0438\u0446\u0435 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044e\u0449\u0435\u0435 \u043f\u0440\u0430\u0432\u0438\u043b\u043e \u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u043e \u043e\u0441\u0442\u0430\u043d\u0430\u0432\u043b\u0438\u0432\u0430\u0435\u0442.\n\n**\u041f\u0440\u0435\u0434\u043f\u043e\u0447\u0442\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0435 \u0438\u0441\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435.** \u042f\u0432\u043d\u043e \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c \u0446\u0435\u043b\u044c: \u0447\u0438\u0441\u043b\u0435\u043d\u043d\u0430\u044f \u0442\u043e\u0447\u043d\u043e\u0441\u0442\u044c \u0441\u0440\u0435\u0434\u043d\u0435\u0433\u043e/\u043a\u0432\u0430\u043d\u0442\u0438\u043b\u0438/CDF \u043b\u0438\u0431\u043e \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u0442\u0435\u043b\u044c\u043d\u043e\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0435 \u0440\u0435\u0448\u0435\u043d\u0438\u044f \u043f\u043e \u0448\u0438\u0440\u0438\u043d\u0435 \u0432\u044b\u0445\u043e\u0434\u043d\u043e\u0433\u043e \u0434\u0438\u0430\u043f\u0430\u0437\u043e\u043d\u0430. \u0414\u043b\u044f \u043f\u0435\u0440\u0432\u043e\u0439 \u043e\u0446\u0435\u043d\u0438\u0432\u0430\u0442\u044c \u043e\u0448\u0438\u0431\u043a\u0443 \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u043e\u0433\u043e \u0444\u0443\u043d\u043a\u0446\u0438\u043e\u043d\u0430\u043b\u0430 \u0441 \u0434\u043e\u043f\u0443\u0441\u0442\u0438\u043c\u044b\u043c sequential-\u043f\u043b\u0430\u043d\u043e\u043c; \u0434\u043b\u044f \u0432\u0442\u043e\u0440\u043e\u0439 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0441\u043c\u044b\u0441\u043b \u043d\u0435\u0440\u0435\u0448\u0430\u044e\u0449\u0435\u0433\u043e \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0430 \u043f\u0440\u0438 \u0448\u0438\u0440\u043e\u043a\u043e\u0439 \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u0438. \u041f\u043b\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438 \u043f\u043e \u0434\u043e\u0441\u0442\u0438\u0436\u0435\u043d\u0438\u044e \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u0433\u043e \u043f\u043e\u0440\u043e\u0433\u0430, \u043d\u0435 \u043f\u043e \u0441\u043b\u0443\u0447\u0430\u0439\u043d\u043e\u043c\u0443 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u044e batch \u0441 \u043c\u043e\u0434\u0443\u043b\u0435\u043c; \u043f\u0440\u0438 \u043d\u0435\u043e\u0431\u0445\u043e\u0434\u0438\u043c\u043e\u0441\u0442\u0438 \u0440\u0430\u0437\u0440\u0435\u0437\u0430\u0442\u044c batch \u0442\u043e\u0447\u043d\u043e \u043d\u0430 \u0433\u0440\u0430\u043d\u0438\u0446\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438.\n\n**\u041e\u0433\u043e\u0432\u043e\u0440\u043a\u0438 \u0438 \u043f\u0440\u0438\u0451\u043c\u043a\u0430.** \u041d\u0435\u043b\u044c\u0437\u044f \u0442\u0440\u0435\u0431\u043e\u0432\u0430\u0442\u044c, \u0447\u0442\u043e\u0431\u044b \u0444\u0438\u0437\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u044c \u0438\u0441\u0447\u0435\u0437\u043b\u0430 \u043e\u0442 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u044f sample size; \u043d\u0435\u043b\u044c\u0437\u044f \u043f\u043e\u0434\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u03c3/\u221an \u0432 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b \u0438\u043d\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0430. \u041f\u0440\u043e\u0441\u0442\u0430\u044f \u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u0430\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u043f\u043e\u0441\u043b\u0435 \u043a\u0430\u0436\u0434\u043e\u0433\u043e batch \u0441\u0430\u043c\u0430 \u043f\u043e \u0441\u0435\u0431\u0435 \u043d\u0435 \u043e\u0431\u0435\u0441\u043f\u0435\u0447\u0438\u0432\u0430\u0435\u0442 \u0434\u043e\u0432\u0435\u0440\u0438\u0442\u0435\u043b\u044c\u043d\u0443\u044e \u0433\u0430\u0440\u0430\u043d\u0442\u0438\u044e, \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u044c\u043d\u0443\u044e \u043f\u0440\u0438 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u043b\u044c\u043d\u043e\u043c \u043c\u043e\u043c\u0435\u043d\u0442\u0435 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438. \u041f\u0430\u043a\u0435\u0442\u043d\u0430\u044f \u043e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430, budget cap \u0438 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u044c \u0447\u0435\u0441\u0442\u043d\u043e \u0437\u0430\u043a\u043e\u043d\u0447\u0438\u0442\u044c \u043d\u0430 \u043b\u0438\u043c\u0438\u0442\u0435 \u043e\u0441\u0442\u0430\u044e\u0442\u0441\u044f. \u042d\u0442\u043e \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u044b\u0439 \u0440\u0435\u0437\u0435\u0440\u0432 \u0432\u044b\u0447\u0438\u0441\u043b\u0435\u043d\u0438\u0439; \u043f\u0430\u043c\u044f\u0442\u044c \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044e\u0449\u0435\u0433\u043e max-size \u0431\u0443\u0444\u0435\u0440\u0430 \u0438 \u043f\u043e\u043b\u043d\u0430\u044f UQ-\u0441\u0435\u0440\u0442\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u044f \u0434\u0430\u043d\u043d\u044b\u043c \u043e\u043f\u044b\u0442\u043e\u043c \u043d\u0435 \u043e\u043f\u0442\u0438\u043c\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u043d\u044b.\n\n"
+  },
+  "historical_ledger_status_preserved": "partial",
+  "independent_original_criterion_disposition": "accepted",
+  "proposed_finding_outcome": "closed",
+  "formal_ledger_mutation": false,
+  "bounded_acceptance_scope": "Implemented independent-pilot frozen-N IID [0,1] mean accuracy profile plus correct complete-net RQMC estimator error. This is the chosen approved method for the original error-functional/stopping defect, not a claim about unknown served laws, arbitrary statistics or production authority.",
+  "basis": "recomputed",
+  "review_source_sha": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+  "review_source_tree": "cf815e7dc87f7fbe7406f211feaf89ec1b71051b",
+  "historical_deciding_source_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_reuse": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "a9_equals_current": true,
+      "current_sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f",
+      "current_bytes": 24137
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "a9_equals_current": true,
+      "current_sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+      "current_bytes": 70840
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+      "a9_equals_current": true,
+      "current_sha256": "1ceae2547477a8a49739d4e74f86354d08a18ad8b852fb06db68801adbf2843a",
+      "current_bytes": 1710
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+      "a9_equals_current": true,
+      "current_sha256": "0c85e8343ab2695ad9337713c38cb1749cb77f65500611bec1beb70e11523c83",
+      "current_bytes": 1566
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "a9_equals_current": true,
+      "current_sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "current_bytes": 20616
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+      "a9_equals_current": true,
+      "current_sha256": "08076ce97d747c1b6c29cfcdf31b68f126c68382fb8b7da3a58a2f9a5e830da5",
+      "current_bytes": 31464
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "a9_equals_current": true,
+      "current_sha256": "7bb4f295ae81a373d68f3acbd19f02f6a4f1def7c05f29ea1e944c6e41dd9b78",
+      "current_bytes": 22224
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "a9_equals_current": true,
+      "current_sha256": "841fcc9df8665345695e079f9c6294d7fc7a6daca2306598f014ebefc713bc26",
+      "current_bytes": 2378
+    }
+  ],
+  "existing_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "bytes": 1599060,
+      "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/review.json",
+      "bytes": 27050,
+      "sha256": "795461cb93b6ca83c6eb0506e1200c5f131552d1ccc6e4165580d0b169e8b84b",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/independent-mean-oracle.json",
+      "bytes": 2152,
+      "sha256": "efc7b23a50a7643a2379946b73b9dffd03687785b9b9c48d5b2924e92121e51b",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/certificate_probe.py",
+      "bytes": 6005,
+      "sha256": "2e921157c7ccbed6c756ef3104e57e1d72c763ec279ee6ce4fe8b2f551c98c08",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "current_working_source_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/certificate_probe.py",
+        "bytes": 7959,
+        "sha256": "a09c6069a29d7f760ffc1a70077a1c0c19a28ebd4bad470adfcfd11dc613208b"
+      },
+      "current_working_source_differs_from_historical": true,
+      "git_blob": "be6fc9997ce585899c268c33f52f8c5fd970a39b",
+      "historical_git_source_exact": true,
+      "reason": "Published source utility repaired append-only by current lint slice; historical deciding command/source and raw stdout are pinned to exact e9 Git, not current utility bytes.",
+      "historical_source_scratch_copy": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/B193-exact-e9-certificate_probe.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-native.json",
+      "bytes": 1395,
+      "sha256": "f84584835bbfc800bad0a1469af6c9552cbabc935bb7de7976b6d8318f3b2626",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-native.stdout",
+      "bytes": 123115,
+      "sha256": "1c05a8dd667416042a34ee872f72ab037ebe0a1699894d8cc44d873ecd8edbbe",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-removal.json",
+      "bytes": 1408,
+      "sha256": "ba096283ae61b50e2547195c6d9039ef9ac403afd1630c2b7c5979470958db43",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/facade-certificate-removal.stdout",
+      "bytes": 1905,
+      "sha256": "0e611eb9add987dc59b0dff5988d90ee96a560ca5465848a4213cf2be5519ac6",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 64345,
+      "sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354",
+      "git_revision": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "exact_committed_bytes_equal": true
+    }
+  ],
+  "exact_original_row_selectors_recomputed": [
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_pilot_budget_native_mean_and_fresh_cas_readback",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_opaque_evaluator_cannot_self_certify_bounded_iid_mean",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_rqmc_complete_nets_and_replica_estimator_error",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_legacy_predictive_spread_never_authorizes_optional_stopping",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[200]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[663]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_explicit_mean_budget_counts_pilot_and_main_stochastic_draws[664]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mean_error_interval-zero_width]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mc_n_samples-999]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mc_n_valid-999]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mc_n_failed-1]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[predictive_interval_semantics-mean_confidence_interval]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mc_seed-999]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mc_std-0]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_all_advertised_estimator_fields[mc_sampling_method-sobol]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[confidence_interval-value0]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[distribution_family-normal]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[source-manual]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[propagation_method-none]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[interval_semantics-heuristic_range]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[is_heuristic_ci-True]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_its_predictive_compatibility_carrier[sample_size-999]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_bounded_fixed_budget_retains_complete_carrier_below_legacy_minimum",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_bounded_budget_over_declared_maximum_emits_no_certificate",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_entire_canonical_evaluator_recipe[response]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_entire_canonical_evaluator_recipe[extra]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_entire_canonical_evaluator_recipe[missing]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.foundry.uncertainty.test_sampling_admission",
+      "name": "test_mean_certificate_reconciles_entire_canonical_evaluator_recipe[boolean]",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.remediation.test_uqp_03",
+      "name": "test_legacy_adaptive_peeking_is_disabled_without_bounded_mean_profile",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    },
+    {
+      "classname": "tests.unit.remediation.test_uqp_03",
+      "name": "test_adaptive_distribution_width_does_not_shrink_for_stable_wide_outputs",
+      "outcome": "PASS",
+      "exact_xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "expected_xml_sha256": "9e95e3371eca4bda0f58c8caa0fbcb4acd66ced62ec9d74b2584eeefee0da354"
+    }
+  ],
+  "native_positive_pipeline": {
+    "producer": "Configured PropagateUncertaintyNode response_threshold constructs actual BoundedIndicatorResponse, dispatcher admits exact singleton U[0,1] and output metric. Callback-supplied bounded_iid flag is refused.",
+    "artifact": "Typed envelope retains explicit evaluator recipe/law hashes, pilot/main stream identities, pilot moments, frozen N, mean error interval and predictive interval semantics separately; same CAS persists envelope/report/SimulationResult.",
+    "consumer": "Fresh configured CAS read -> verify_mean_certificate independently replays seed-derived pilot/main rows, recomputes N/moments/carrier/counts/recipe/metadata/interval and budget; opaque served model does not inherit this authority.",
+    "oracle": "Independent all-zero pilot256: U=sqrt(log160/512)=.0995612819216314 and N=ceil((2U+2*.05/3)*log80/.05^2)=408. Actual main mean excludes256 pilot rows. mc_batch_size10/200/4096 produces identical408 main rows."
+  },
+  "criterion_properties": [
+    {
+      "required": "Estimator error is a named functional, distinct from predictive spread",
+      "evidence": "BoundedIIDMeanPlan.estimand bounded_iid_mean, separate mean_error_interval and mean certificate; predictive quantiles remain output-spread compatibility carrier. Independent RQMC std(replicate means,ddof=1)/sqrt(R) distinct from pooled mc_std."
+    },
+    {
+      "required": "A valid stopping plan and reached-boundary behavior, not batch modulo peeking",
+      "evidence": "Chosen approved method fixes main N once from an independent pilot and excludes pilot from estimate. Three incompatible batch sizes give identical frozen408 rows; unsupported legacy repeated fixed-time peeking is disabled, request ends truthfully at declared budget. There is no sequential confidence claim."
+    },
+    {
+      "required": "Budget cap and honest completion remain",
+      "evidence": "Explicit mean maxima200 and663 refuse certificate before main when pilot+main cannotfit;664 admits256+408. Random/Sobol/Halton explicit computational budgets fit/refuse without exceeding cap; Sobol complete2^m points per replicate."
+    },
+    {
+      "required": "Physical spread does not disappear as n grows, no sigma/sqrt(n) replacement of individual-result interval",
+      "evidence": "Stable99/101 output legacy method retainswideoutput/non-stop and original max240. RQMC estimator SE uses independent replicate means while pooled output std>.1 persists."
+    }
+  ],
+  "independent_negative_and_property_removal": {
+    "native_negative": "CAS-valid main_stream replaced with pilot_stream is refused by actual node fresh certificate read. Exact declared evaluator recipe, mean_error_interval, counts, budget, carrier fields, seed and sampling method forgeries are rejected.",
+    "property_removal": "Committed independent certificate_probe installs no-op public verify export before actual node import while preserving symbol/name. Forged certificate then publishes; independent consumer assertion fails with exact expected exit1. Original test count alone is not the closure basis."
+  },
+  "remaining_application_boundaries": [
+    {
+      "scope": "Unknown/opaque served evaluator or law",
+      "owner": "Scientist configured evaluator/source-law producer for that application",
+      "minimal_input": "Named actual functional, admitted bounded same IID law or alternate theorem/profile and purpose, exact content-bound recipe",
+      "does_not_block_generic_B193_original_criterion": true
+    },
+    {
+      "scope": "Quantile/CDF/interval/anytime stopping",
+      "owner": "E method owner if separately requested",
+      "next_result": "New estimator-specific theorem/profile and independent producer/readback evidence. Current mean certificate does not certify these."
+    },
+    {
+      "scope": "Neighbor B194 per-draw failed support",
+      "owner": "Served evaluator/source-law owner; historicalheld preserved",
+      "does_not_merge_with_B193": true
+    },
+    {
+      "scope": "B190 provenance/unit affine and B200 information-unit relationship",
+      "owner": "Original respective producer/relationship owners",
+      "unchanged": "Separate limited boundaries retained."
+    }
+  ],
+  "new_IR_dependency_check_pending": "Upcoming posterior-profile source alters same node/raw reader and shared law-hash helper; before final candidate acceptance run exact real_node_persists_and_replays_independent_pilot_certificate plus pilot/readback and RQMC affected selectors on immutable append source. No repeat a9 commonwave.",
+  "check_outcome": "Existing exact original30 selectors PASS on historicala9, byte-identical affected mechanism retained at current source; not a new wavePASS",
+  "old_disposition_correction": "Previous limited row treated opaque served law as blanket prerequisite. This narrower original-card adjudication accepts the configured canonical bounded positive and honest unsupported boundaries, without deleting historical row/receipt.",
+  "source_writes": false,
+  "new_environment": false,
+  "broad_wave": false
+}

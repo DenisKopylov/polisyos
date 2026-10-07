@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.publication_selection.v1",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/review-source2-typed-readiness-addendum.json",
+      "portable_path": "Source2-typed-readiness/review-source2-typed-readiness-addendum.json",
+      "bytes": 1587,
+      "sha256": "a74585a74ceb5924aaf3ca192b949c39ab60c1d0598ad3a4b43be68da565845a",
+      "role": "complete independent-read current scoped typed-readiness deciding output and qualification; not a new execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.stdout.txt",
+      "portable_path": "Source2-typed-readiness/final-frozen-typecheck.stdout.txt",
+      "bytes": 2650,
+      "sha256": "fda9d24a3ac49f57d80cc982b0cf576bf431ecf94827913a9a414163ce85a484",
+      "role": "complete independent-read current scoped typed-readiness deciding output and qualification; not a new execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.stderr.txt",
+      "portable_path": "Source2-typed-readiness/final-frozen-typecheck.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent-read current scoped typed-readiness deciding output and qualification; not a new execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.receipt.json",
+      "portable_path": "Source2-typed-readiness/final-frozen-typecheck.receipt.json",
+      "bytes": 7159,
+      "sha256": "c4bfbd74749ec5112beab917a092e1cbb7e468712f0f2af78e4f7141bdb049cd",
+      "role": "complete independent-read current scoped typed-readiness deciding output and qualification; not a new execution"
+    }
+  ],
+  "files": 4,
+  "bytes": 11396,
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702"
+}

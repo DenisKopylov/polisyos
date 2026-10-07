@@ -1,0 +1,4 @@
+{"argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py", "policy-engine/tests/unit/remediation/test_frc_02_owner.py", "policy-engine/tests/unit/remediation/test_frc_02_bridge.py", "policy-engine/tests/unit/remediation/test_frc_02.py", "policy-engine/tests/unit/remediation/test_frc_02_s10.py", "policy-engine/tests/unit/runtime/quality/test_calibration_ledger.py"], "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea"}
+.............................................................            [100%]
+61 passed in 31.72s
+{"exit_code": 0, "wall_s": 38.5888042949955, "max_rss_kib": 830432}

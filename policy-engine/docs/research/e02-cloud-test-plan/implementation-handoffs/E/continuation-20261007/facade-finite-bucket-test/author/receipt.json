@@ -1,0 +1,140 @@
+{
+  "schema": "policyos.e02.facade_test_companion_checks.v1",
+  "base": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "base_tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "changed_path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+  "source_bytes": 6648,
+  "source_sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da",
+  "checks": [
+    {
+      "name": "property",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/calibration/test_evidence_facades.py::test_public_finite_law_admission_preserves_atoms_and_domain",
+        "--junitxml",
+        "/tmp/e02-E-facade-test-companion-author-20261007/property.xml",
+        "--basetemp",
+        "/tmp/e02-E-facade-test-companion-author-20261007/pytest-base",
+        "-o",
+        "cache_dir=/tmp/e02-E-facade-test-companion-author-20261007/pytest-cache",
+        "--benchmark-storage=file:///tmp/e02-E-facade-test-companion-author-20261007/benchmarks"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "started_at": "2026-10-07T14:40:57.070808+00:00",
+      "completed_at": "2026-10-07T14:41:07.141644+00:00",
+      "selected_env": {
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-facade-test-companion-author-20261007/tmp/property",
+        "RUFF_CACHE_DIR": "/tmp/e02-E-facade-test-companion-author-20261007/cache/property",
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "XLA_FLAGS": null
+      }
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "started_at": "2026-10-07T14:40:57.071721+00:00",
+      "completed_at": "2026-10-07T14:40:57.154762+00:00",
+      "selected_env": {
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-facade-test-companion-author-20261007/tmp/ruff",
+        "RUFF_CACHE_DIR": "/tmp/e02-E-facade-test-companion-author-20261007/cache/ruff",
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "XLA_FLAGS": null
+      }
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "started_at": "2026-10-07T14:40:57.072616+00:00",
+      "completed_at": "2026-10-07T14:40:57.154597+00:00",
+      "selected_env": {
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "TMPDIR": "/tmp/e02-E-facade-test-companion-author-20261007/tmp/format",
+        "RUFF_CACHE_DIR": "/tmp/e02-E-facade-test-companion-author-20261007/cache/format",
+        "UV_NO_SYNC": "1",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "XLA_FLAGS": null
+      }
+    }
+  ],
+  "independent_old_source_analytic_native_controls": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/review.json",
+  "production_source_changed": false,
+  "old_complete_wave_retained": {
+    "cases": 1317,
+    "PASS": 1308,
+    "FAIL": 9
+  },
+  "new_full_wave_claimed": false,
+  "files": [
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.stdout.txt",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.xml",
+      "bytes": 397,
+      "sha256": "2f104f7dbf7080c605188203fed31405080c388a64104eaead9eefa027b7ad1d"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/tmp/e02-E-facade-test-companion-author-20261007/status-before.nul",
+      "bytes": 243,
+      "sha256": "57a6636290942d3f941cc3041f658545a1915ca5eeea247cc337ba98d5a1e27f"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "packet": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/three-selector-packet-v3-optimized.json",
+    "bytes": 23106,
+    "sha256": "2d704be9fb2448e6f2453971f7ecfa633873db7540f0f39fa7952a6969037249"
+  },
+  "healthy": true,
+  "corrupt_controls": 18,
+  "current": {
+    "architecture": {
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "stage": "architecture-retry2",
+      "deep_edge_count": 151,
+      "deep_path_count": 79,
+      "required_generator_families": 4,
+      "complete_observed_output_count": 6,
+      "UNRUN": false
+    },
+    "runtime_api_contract": {
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "stage": "runtime-api-contract",
+      "OpenAPI_render": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/tmp/retained-runtime-openapi.raw.json",
+        "bytes": 2812414,
+        "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+      },
+      "same_render_architecture": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+        "bytes": 2812414,
+        "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+      },
+      "schema_components": 573,
+      "confidence_dependency_count": 1494,
+      "source_dependency_hash": "sha256:2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa",
+      "validation_receipt_hash": "sha256:71cf23848b8cfea79c0abbdd2af381769070138f0758bba151e6a91b7e2e357d",
+      "validation_status": "passed",
+      "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+      "endpoint_or_authorization_execution": false,
+      "prior3932_actual_native_render_byte_equal": true,
+      "additional_b6_projection_delta_established": false
+    },
+    "static_invocation": {
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "stage": "static-invocation-retry4",
+      "full_native_raw_receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json",
+        "bytes": 171837783,
+        "sha256": "f67477ef9598cb1f9a4628dcacf574146f9c753fd42efc57a482505957fcd776"
+      },
+      "fresh_complete_mechanism_counts": {
+        "mechanisms": 13140,
+        "regressions": 20,
+        "new_unresolved_by_construction": 95,
+        "unresolved_by_construction": 9243,
+        "indirect_boundaries": 34683,
+        "unresolved_receiver_calls": 140192
+      },
+      "root_count": 401,
+      "full_input_denominator": {
+        "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+        "current_files": 5939,
+        "base_files": 5904,
+        "source_files": 2702,
+        "current_sha256": "e2baaea008ec325222bfd1faaa3a8342747b93707a644dc94a9d28b19911b548",
+        "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+      },
+      "coverage": "partial",
+      "runtime_invocation_established": false,
+      "predicate_provenance": "recomputed",
+      "historical_abnormal_exit_PID_kill_cause": "not_established",
+      "latest_native_abnormal_exit": false
+    }
+  }
+}

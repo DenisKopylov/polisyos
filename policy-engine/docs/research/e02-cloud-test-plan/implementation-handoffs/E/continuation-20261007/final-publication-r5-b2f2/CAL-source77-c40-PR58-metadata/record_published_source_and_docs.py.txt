@@ -1,0 +1,35 @@
+"""Close metadata-only publication/readbacks, separate from runtime/finding decisions."""
+import datetime,hashlib,json,pathlib,subprocess
+REPO=pathlib.Path('/workspace/e02-E-cal-20261006');OUT=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-readback');OUT.mkdir(exist_ok=False)
+SOURCE='77b4d68ec37e3f34b84ce4fd1787746e3d5f5322';SOURCE_TREE='d5efa295c8af983a86a620a120ab091aae580db3';DOC='c40b2f5767bb5810bc8ac4c2ead9510f8c01430b';DOC_TREE='b596c99e8edc0e6735c942f0415fb50ecccfa331';BRANCH='codex/e02-E-cal-20261006';PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/configured-bayesian-fit/'
+commands=[]
+def ref(path):
+ path=pathlib.Path(path);b=path.read_bytes();return {'path':str(path),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def run(name,args):
+ start=datetime.datetime.now(datetime.timezone.utc).isoformat();v=subprocess.run(args,cwd=REPO,capture_output=True);a=OUT/(name+'.stdout.txt');b=OUT/(name+'.stderr.txt');a.write_bytes(v.stdout);b.write_bytes(v.stderr);commands.append({'name':name,'argv':args,'cwd':str(REPO),'started_at':start,'ended_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'exit_code':v.returncode,'stdout':ref(a),'stderr':ref(b)})
+ if v.returncode:raise ValueError('readback_failed '+name)
+ return v.stdout
+head=run('before-head',['git','rev-parse','HEAD','HEAD^{tree}']).decode().splitlines();status=run('before-status',['git','status','--porcelain'])
+if head!=[DOC,DOC_TREE] or status:raise ValueError('current_boundary_changed')
+source=run('source-tree',['git','rev-parse',SOURCE+'^{tree}']).decode().strip();parent=run('doc-parent',['git','rev-parse',DOC+'^']).decode().strip()
+if source!=SOURCE_TREE or parent!=SOURCE:raise ValueError('source_doc_identity_mismatch')
+run('source-ancestor',['git','merge-base','--is-ancestor',SOURCE,DOC]);remote=run('remote-topic',['git','ls-remote','origin','refs/heads/'+BRANCH]).decode().split()[0]
+if remote!=DOC:raise ValueError('remote_topic_changed')
+pr=json.loads(run('pr58',['gh','pr','view','58','--json','number,url,state,title,headRefName,headRefOid,baseRefName,body']))
+if pr['number']!=58 or pr['url']!='https://github.com/DenisKopylov/polisyos/pull/58' or pr['state']!='OPEN' or pr['headRefName']!=BRANCH or pr['headRefOid']!=DOC:raise ValueError('PR_identity_mismatch')
+delta=run('source-doc-delta',['git','diff','--name-only',SOURCE,DOC]).decode().splitlines()
+if len(delta)!=962 or any(not p.startswith(PREFIX) or p.endswith('.py') for p in delta):raise ValueError('DOC_footprint_mismatch')
+source_files=json.loads((REPO/PREFIX/'implementation-handoff.json').read_text())['changed_paths'];rows=[]
+for path in source_files:
+ old=run('source-file-'+str(len(rows)),['git','show',SOURCE+':'+path]);new=run('doc-file-'+str(len(rows)),['git','show',DOC+':'+path])
+ if old!=new or (REPO/path).read_bytes()!=old:raise ValueError('product_source_changed')
+ rows.append({'path':path,'bytes':len(old),'sha256':hashlib.sha256(old).hexdigest(),'source77_doc_c40_physical_equal':True})
+assets=[]
+for path in delta:
+ b=run('doc-blob-'+str(len(assets)),['git','show',DOC+':'+path])
+ if (REPO/path).read_bytes()!=b:raise ValueError('published_DOC_byte_mismatch')
+ assets.append({'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+after=run('after-head',['git','rev-parse','HEAD','HEAD^{tree}']).decode().splitlines();afterstatus=run('after-status',['git','status','--porcelain'])
+if after!=head or afterstatus:raise ValueError('readback_mutated_lane')
+receipt={'schema':'policyos.e02.metadata_only_source_DOC_publication_readback.v1','source_sha':SOURCE,'source_tree':SOURCE_TREE,'DOC_sha':DOC,'DOC_tree':DOC_TREE,'DOC_direct_parent':parent,'topic':BRANCH,'remote_head':remote,'PR':{k:pr[k] for k in ['number','url','state','title','headRefName','headRefOid','baseRefName']},'handoff_prefix':PREFIX,'source_changed_paths':rows,'passive_publication_paths':assets,'passive_path_count':len(assets),'passive_total_bytes':sum(r['bytes'] for r in assets),'active_python_count':0,'source_preserved':True,'clean_before_after':True,'original_source_publication':ref('/tmp/e02-E-bayesian-fit-bridge-r6/source-publication-77b4/receipt.json'),'original_DOC_publication':ref('/tmp/e02-E-bayesian-fit-bridge-r6/doc-publication/readback.json'),'commands':commands,'app_attachment_status':'Root reports successful actual nativePR58 attachment; this reader does not reconstruct unavailable root app tool bytes. Own earlier duplicate pending wrapper was terminated after Root success.','runtime_backend_tests_repeated':False,'package_or_source_mutation':False,'main_pushed':False,'finding_and_global_decision_separate':True}
+(OUT/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'source':SOURCE,'DOC':DOC,'remote':remote,'PR':pr['url'],'passive_paths':len(assets),'passive_bytes':receipt['passive_total_bytes'],'source_preserved':True},indent=2))

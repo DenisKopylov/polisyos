@@ -1,0 +1,154 @@
+"""Independent v4 full-source-role delta; no product/native/global gate execution."""
+from argparse import Namespace
+from pathlib import Path
+import ast
+import hashlib
+import json
+import os
+import platform
+import runpy
+import shutil
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path(__file__).parent
+SOURCE = Path('/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v4.py')
+V3 = Path('/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py')
+OLD_FIXTURE = Path('/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/synthetic-controls-v2/positive/wave')
+AUTHOR_INDEX = Path('/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/copy-index.json')
+PREVIOUS_INDEX = Path('/workspace/e02-E-pr38-r2-receipts/independent-collector-review-v3/copy-index.json')
+identity = lambda p: dict(bytes=p.stat().st_size, sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+expected_v4 = dict(bytes=38197, sha256='faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc')
+expected_v3 = dict(bytes=38152, sha256='a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec')
+assert identity(SOURCE) == expected_v4
+assert identity(V3) == expected_v3
+assert identity(PREVIOUS_INDEX)['sha256'] == 'cf178965f2f4c7548599c49cdddfe250764a4dd2535fc253f217c523896ffc03'
+assert identity(AUTHOR_INDEX)['sha256'] == 'd380077d8e636ee33e92c8ed6343a9c59e938f0d1b350f4f1a99db976b751e42'
+
+def validate_index(path):
+    data = json.loads(path.read_text())
+    assert len(data['files']) == data['file_count']
+    assert sum(row['bytes'] for row in data['files']) == data['total_bytes']
+    for row in data['files']:
+        assert identity(Path(row['path'])) == dict(bytes=row['bytes'], sha256=row['sha256'])
+    return dict(path=str(path), **identity(path), assets=data['file_count'], asset_bytes=data['total_bytes'])
+
+previous_index = validate_index(PREVIOUS_INDEX)
+author_index = validate_index(AUTHOR_INDEX)
+tree3 = ast.parse(V3.read_bytes())
+tree4 = ast.parse(SOURCE.read_bytes())
+body3 = {node.name: node for node in tree3.body if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
+body4 = {node.name: node for node in tree4.body if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
+assert set(body3) == set(body4)
+assert [name for name in body3 if ast.dump(body3[name]) != ast.dump(body4[name])] == ['public_evidence']
+# Reconstruct only the historical role predicate and prove complete module AST identity.
+normalized = ast.parse(SOURCE.read_bytes())
+function = next(node for node in normalized.body if isinstance(node, ast.FunctionDef) and node.name == 'public_evidence')
+parts_index = next(i for i, node in enumerate(function.body) if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'parts' for t in node.targets))
+function.body[parts_index:parts_index+1] = ast.parse('relative = resolved.relative_to(root)\nparts = [part.casefold() for part in relative.parts]').body
+assert ast.dump(normalized) == ast.dump(tree3)
+module = runpy.run_path(str(SOURCE), run_name='independent_v4_protocol_delta')
+original_v4 = SOURCE.read_bytes()
+old_fixture_identity = {str(p.relative_to(OLD_FIXTURE)): identity(p) for p in OLD_FIXTURE.rglob('*') if p.is_file()}
+root_before = subprocess.check_output(['git','rev-parse','HEAD','HEAD^{tree}'], cwd=ROOT, text=True).splitlines()
+
+def rewrite(value, wave):
+    if isinstance(value, str):
+        return value.replace(str(OLD_FIXTURE), str(wave))
+    if isinstance(value, list):
+        return [rewrite(v, wave) for v in value]
+    if isinstance(value, dict):
+        return {k:rewrite(v,wave) for k,v in value.items()}
+    return value
+
+def freeze_fixture(name, role, source_module=module):
+    wave = OUT/'synthetic-controls'/name/'wave'
+    shutil.copytree(OLD_FIXTURE, wave)
+    for path in wave.rglob('*.json'):
+        path.write_text(json.dumps(rewrite(json.loads(path.read_text()), wave), indent=2)+'\n')
+    plan = json.loads((wave/'plan.json').read_text())
+    assert plan['collector_control_only'] is True
+    freeze = wave/role/'source-freeze.json' if role in {'raw','private'} else wave.parent/'standalone-source-freeze.json'
+    freeze.parent.mkdir(exist_ok=True)
+    data = dict(frozen_sha=plan['candidate_sha'], tree=plan['candidate_tree_sha'], one_wave_output_root=str(wave), remote_ls_readback_sha=plan['candidate_sha'], source_tree_dirty=False, reviews=[], synthetic_only_marker='Harmless metadata marker, zero actual private input.')
+    freeze.write_text(json.dumps(data, indent=2)+'\n')
+    pub = wave.parent/'publication'
+    try:
+        observed = source_module['collect'](Namespace(repo=ROOT, candidate=plan['candidate_sha'], wave_root=wave, publication_root=pub, freeze_receipt=freeze, max_moderate_bytes=8*1024*1024, capture_incomplete=False))
+        state = observed['collection_state']
+        reason = None
+    except source_module['EvidenceAdmissionError'] as error:
+        state = 'TYPED_REFUSAL'
+        reason = str(error)
+    copied = pub/'source-freeze-receipt.json'
+    copied_equal = copied.exists() and copied.read_bytes() == freeze.read_bytes()
+    return {'name':name, 'role':role, 'state':state, 'reason':reason, 'publication_created':pub.exists(), 'synthetic_payload_copied':copied_equal, 'product_native_or_gate_commands_executed':0}
+
+rows = [freeze_fixture('raw-refusal','raw'), freeze_fixture('private-refusal','private'), freeze_fixture('standalone-positive','standalone')]
+for row in rows[:2]:
+    assert row['state'] == 'TYPED_REFUSAL' and not row['publication_created'] and not row['synthetic_payload_copied']
+assert rows[2]['state'] == 'CONTROL_COMPLETE_BOUND' and rows[2]['synthetic_payload_copied']
+# Public role predicate is shared across payload kinds even when caller sets root=parent.
+role_rows = []
+for role in ['raw','private','RaW','PRIvate','git-config-private-holder']:
+    for name in ['check.stdout.txt','check.json','pytest.xml','owner_packet.py','source-freeze.json']:
+        path = OUT/'pure-admission-controls'/role/name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('Synthetic role marker only.\n')
+        try:
+            module['public_evidence'](path.parent, path)
+            raise AssertionError('role escape was accepted')
+        except module['EvidenceAdmissionError'] as error:
+            role_rows.append({'role':role,'payload_kind':name,'state':'TYPED_REFUSAL','reason':str(error)})
+assert len(role_rows) == 25
+standalone = OUT/'pure-admission-controls'/'safe'/'external-source-freeze.json'
+standalone.parent.mkdir(exist_ok=True)
+standalone.write_text('Synthetic standalone metadata marker.\n')
+assert module['public_evidence'](standalone.parent, standalone, expected=standalone) == standalone
+actual = Path('/workspace/e02-E-pr38-r2-receipts/source-freeze-5e3e37276.json')
+actual_before = identity(actual)
+assert module['public_evidence'](actual.parent, actual, expected=actual) == actual
+assert identity(actual) == actual_before
+# Existing symlink policy remains effective for external admission roots too.
+leaf = standalone.parent/'leaf-link.json'
+leaf.symlink_to(standalone)
+parent = OUT/'pure-admission-controls'/'linked-parent'
+parent.symlink_to(standalone.parent, target_is_directory=True)
+symlinks = []
+for label, path, root in [('leaf',leaf,leaf.parent),('parent',parent/standalone.name,parent.resolve())]:
+    try:
+        module['public_evidence'](root,path)
+        raise AssertionError('symlink accepted')
+    except module['EvidenceAdmissionError'] as error:
+        symlinks.append({'kind':label,'state':'TYPED_REFUSAL','reason':str(error),'payload_copied':False})
+
+# Effective targeted removal restores historical semantics, retaining protocol names/fields.
+removed_tree = ast.parse(SOURCE.read_bytes())
+public = next(node for node in removed_tree.body if isinstance(node,ast.FunctionDef) and node.name=='public_evidence')
+changed = 0
+for node in public.body:
+    if isinstance(node, ast.Assign) and any(isinstance(t,ast.Name) and t.id=='parts' for t in node.targets):
+        node.value = ast.parse('[part.casefold() for part in resolved.relative_to(root).parts]',mode='eval').body
+        changed += 1
+assert changed == 1
+ast.fix_missing_locations(removed_tree)
+(OUT/'full-source-role-predicate-removed.py.txt').write_text(ast.unparse(removed_tree)+'\n')
+removed = {'__name__':'independent_removed_v4_role','__file__':str(SOURCE)}
+exec(compile(removed_tree,str(SOURCE)+'[full-role-predicate-removed]','exec'),removed)
+removals = [freeze_fixture('raw-property-removal','raw',removed), freeze_fixture('private-property-removal','private',removed)]
+for row in removals:
+    assert row['state']=='CONTROL_COMPLETE_BOUND' and row['synthetic_payload_copied']
+    row['outcome']='EXPECTED_DISCRIMINATING_ESCAPE'
+assert SOURCE.read_bytes() == original_v4
+assert identity(V3) == expected_v3
+for name, observed in old_fixture_identity.items():
+    assert identity(OLD_FIXTURE/name) == observed
+assert validate_index(PREVIOUS_INDEX) == previous_index
+assert validate_index(AUTHOR_INDEX) == author_index
+caps = {name:os.environ.get(name) for name in module['CAPS']}
+assert all(value is None for value in caps.values())
+root_after = subprocess.check_output(['git','rev-parse','HEAD','HEAD^{tree}'],cwd=ROOT,text=True).splitlines()
+result = {'source':{'path':str(SOURCE),**expected_v4}, 'unchanged_previous_source':{'path':str(V3),**expected_v3}, 'exact_AST_changed_function':'public_evidence', 'complete_rest_AST_identical':True, 'prior_independent_index':previous_index, 'author_index_verified':author_index, 'collector_freeze_controls':rows, 'common_role_controls':role_rows, 'common_role_count':len(role_rows), 'external_standalone_synthetic_positive':True, 'actual_standalone_metadata_admission':{'path':str(actual),**actual_before}, 'symlink_controls':symlinks, 'effective_property_removal_controls':removals, 'root_before':root_before,'root_after':root_after,'original_source_and_author_fixture_unchanged':True,'scope':'Independent protocol delta only, no numeric/product/global gate runs. Reuses historical14controls/custody by exact unchanged AST and indexed bytes.','environment':{'python':sys.executable,'version':sys.version,'platform':platform.platform(),'UV_NO_SYNC':os.environ.get('UV_NO_SYNC'),'PYTHONDONTWRITEBYTECODE':os.environ.get('PYTHONDONTWRITEBYTECODE'),'cpu_caps':caps},'product_native_or_gate_commands_executed':0,'reusable_collector_verdict':'GO-bounded-common-public-role-and-exact-owner-attribution-protocol','historical_actual_custody':'GO retained, no new numerical evidence','finding_closure':False}
+(OUT/'delta-controls.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

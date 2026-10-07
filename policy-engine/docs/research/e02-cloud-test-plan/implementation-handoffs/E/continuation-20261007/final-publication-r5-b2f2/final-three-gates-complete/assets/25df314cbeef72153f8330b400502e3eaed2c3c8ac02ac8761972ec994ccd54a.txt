@@ -1,0 +1,13 @@
+{
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "paths": [
+    "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/source",
+    "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/environment"
+  ],
+  "source_unique_rows_count": 1,
+  "environment_logical_bytes": 1085410548,
+  "environment_physical_bytes": 1123508224,
+  "distribution_count": 159,
+  "action": "Read-only candidates only; no deletion. Parent must preserve any unique source rows and prove noactiveusers before cleanup."
+}

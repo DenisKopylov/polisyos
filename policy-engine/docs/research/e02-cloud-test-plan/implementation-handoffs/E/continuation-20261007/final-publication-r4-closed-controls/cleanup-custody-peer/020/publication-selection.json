@@ -1,0 +1,115 @@
+{
+  "schema": "policyos.e02.moderate-publication-selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "operation": "exact3 reversible raw byte archival",
+  "whole_ROOT_input_immutable": false,
+  "file_count": 17,
+  "total_bytes": 85395,
+  "files": [
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-exact-raw.before-unique-observation.py.txt",
+      "bytes": 8513,
+      "sha256": "7d7ecd094a669ccb4c094b6fdbc8e658abbf6cd9b557b40504cc4110e1cbe93c"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-exact-raw.py.txt",
+      "bytes": 8645,
+      "sha256": "49b20c62ca78908e754dfaa294e0a0e07b84d458e2f355b3dcb9312b79a49609"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-first-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-first-retry.stdout.jsonl",
+      "bytes": 524,
+      "sha256": "54adbcb773bcae906b19f19eaef83124c147dbbcb273dadf94e2c8af99298b98"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-first.stderr.txt",
+      "bytes": 869,
+      "sha256": "16b6933569523599bd215d930c4665334720bacc466133bf4a710e3e3a8de30a"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-first.stdout.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-rest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-rest.stdout.jsonl",
+      "bytes": 770,
+      "sha256": "2e8a2b57ac01ec6f427d0bdbac36a33a8bbf391d7a99bcfe45d00b8331a11bd1"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-result-first.json",
+      "bytes": 13058,
+      "sha256": "726349537879c129ea96b543d42ac9eaa2d240a69d9407940202c44d3ec8fe5b"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-result.json",
+      "bytes": 31202,
+      "sha256": "71a2b41f0d4512b7e4dc38ab0f789ae4f01fa6e3ff6337a7006a637ffc4bad77"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/corrected-wave-a9f78817-proc-before-retirement-1791381116387004828-674556.json",
+      "bytes": 2552,
+      "sha256": "398753b3f75ae7a64a55a5212d2548aa193efb9589bf5a57cdb8943b0f3b919f"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/corrected-wave-a9f78817-proc-initial-1791381116387004828-674556.json",
+      "bytes": 2552,
+      "sha256": "488f93406a6e9df4eedde04521a78c785fab75528f20429fad741ecc74dbd5d3"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/frozen-wave-64d7444a-proc-before-retirement.json",
+      "bytes": 2522,
+      "sha256": "c248b0131dd54ade1e1209540e41438f4a1911b3bf19ef0599571db72da5067a"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/frozen-wave-64d7444a-proc-initial.json",
+      "bytes": 2522,
+      "sha256": "dda80328f88f83cc4f2edef08928ee4d984138160871986d354d2531b505d85a"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/historical-wave-5e3e3727-proc-before-retirement-1791381119184461865-674556.json",
+      "bytes": 2512,
+      "sha256": "0344a191ff2f6ca77d127ff8557ac804dc9a6be9b49d8349a8821ca3b796648a"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/historical-wave-5e3e3727-proc-initial-1791381119184461865-674556.json",
+      "bytes": 2511,
+      "sha256": "484f6cfcdd3df8c435ae9aede2e80981d65c0c7e9ea0e9f945345fa920c7cccb"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/publication-qualification.json",
+      "bytes": 6643,
+      "sha256": "8919b0af530185af7e2b640610aa2e84e8087d81010702460ed21c0e663451ae"
+    }
+  ],
+  "complete_archives_retained_ignored_references": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/frozen-wave-64d7444a.production-invocation.raw.json.gz",
+      "bytes": 6518181,
+      "sha256": "2203291c8ac19de0d9c37c675f3164c179355c260baf76c784dfb40d12d88f1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/corrected-wave-a9f78817.production-invocation.raw.json.gz",
+      "bytes": 6513037,
+      "sha256": "b975e44dbadf1de0d57df53ad4faa9c2c16d310652580caa576ff58aa3017953"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/historical-wave-5e3e3727.production-invocation.raw.json.gz",
+      "bytes": 6513079,
+      "sha256": "7f3769dc47c7109cdb03347e50a821abc044023b332e3f252210109a817b7910"
+    }
+  ],
+  "large_plaintext_or_archives_included": false,
+  "independent_review": "pending separate peer; operation/own recomputations are factual receipts only"
+}

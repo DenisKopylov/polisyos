@@ -1,0 +1,66 @@
+{
+  "assets": [
+    {
+      "bytes": 8989,
+      "portable_path": "independent-ingress/source4/review-final-source4-test-companion.json",
+      "role": "Independent immutable test-only corrective review and exact delta",
+      "sha256": "27a87e3cc65dc113261001793b17004487811592f47aedece6e2d8e2599028ac",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/review-final-source4-test-companion.json"
+    },
+    {
+      "bytes": 10055,
+      "portable_path": "independent-ingress/source4/source4-test-review-builder.py.txt",
+      "role": "Independent immutable test-only corrective review and exact delta",
+      "sha256": "4139aa14742e8fdf02bb579bd383e98114b47d69b81f573ee849dc7338e6717f",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source4-test-review-builder.py"
+    },
+    {
+      "bytes": 1705,
+      "portable_path": "independent-ingress/source4/source4-test-only.diff",
+      "role": "Independent immutable test-only corrective review and exact delta",
+      "sha256": "6bf492e4dda46832cf5a8db2ec775842b135b3edf1ecd8b10b928a4441188d76",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source4-test-only.diff"
+    },
+    {
+      "bytes": 40573,
+      "portable_path": "independent-ingress/source4/affected-defining.receipt.json",
+      "role": "Historical exact Source3 193PASS/2FAIL wave; not Source4 outcome",
+      "sha256": "792a202b05ed949aee8888ee0b3f02979092b9caed46120e889a69ab8fb18fd9",
+      "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining.receipt.json"
+    },
+    {
+      "bytes": 12005,
+      "portable_path": "independent-ingress/source4/affected-defining.stdout.txt",
+      "role": "Historical exact Source3 193PASS/2FAIL wave; not Source4 outcome",
+      "sha256": "b211fc6c2835495ca6410e5952318befcb89d0454abfdb2bbe00b3ec93f4be73",
+      "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "independent-ingress/source4/affected-defining.stderr.txt",
+      "role": "Historical exact Source3 193PASS/2FAIL wave; not Source4 outcome",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining.stderr.txt"
+    },
+    {
+      "bytes": 44554,
+      "portable_path": "independent-ingress/source4/affected-defining.junit.xml",
+      "role": "Historical exact Source3 193PASS/2FAIL wave; not Source4 outcome",
+      "sha256": "5d26ba777973d47904d575b0bc2420fd41f3a6196c7847967e1afec3eb0349b1",
+      "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining.junit.xml"
+    }
+  ],
+  "bytes": 117881,
+  "candidate": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "excluded": "All native fixture/CAS trees, complete copied source and repeated settled numeric suites. Source4 Root affected wave to be published as a separate actual candidate receipt.",
+  "files": 7,
+  "no_self_reference": "Immutable Source4 commit/tree pinned; no future evidence Git SHA self-reference.",
+  "prior_selector": {
+    "bytes": 7444,
+    "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/publication-selection-final-e4b97.json",
+    "sha256": "bc2d1c1f4f71ce56c60b0a38ad7c9744ac3e96e99b1c8689a35f38483f08bbdb"
+  },
+  "schema": "policyos.e02.publication_selection.v1",
+  "source_acceptance": "GO_bounded_test_companion_corrective_delta",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb"
+}

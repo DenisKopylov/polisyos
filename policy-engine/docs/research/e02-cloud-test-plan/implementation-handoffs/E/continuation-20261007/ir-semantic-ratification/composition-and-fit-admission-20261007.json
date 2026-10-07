@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.E_scoped_semantic_implementation_addendum.v1",
+  "owner": "E",
+  "original_findings": ["B201", "B202"],
+  "appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "ratified_four_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "finite_ratio_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "current_G_review": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+  "review_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/owner-actions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-runtime.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-oracle.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-companion-plan.md"
+  ],
+  "decision_status": "ratified_for_scoped_implementation",
+  "scope": "Existing Profile2 composition consumers and a configured persisted Bayesian-method corpus inlet; no transfer of other IR, Foundry, shared generator or scientific authority.",
+  "composition": {
+    "complete_single_coordinate_push_forward": {
+      "admission": "Reconcile the source profile and exact carrier before invoking the map. A scalar API without the complete sibling group refuses a multicoordinate declared profile before any map callback.",
+      "functionals": "Reuse the existing exact binary-weight ratio mean, median and equal-tail inverse empirical CDF. The envelope point remains median; the separately named mean is rebound to the transformed corpus.",
+      "carrier": "Retain actual ordered draw IDs, sample axis and ratio weights; regenerate content and joint digests and the Profile2 record for the transformed single-coordinate law.",
+      "binding": "An arbitrary map does not establish unchanged unit or estimand. Clear the derived parameter binding and context.parameters. Retain parent refs/time/purpose only as explicitly inherited non-authoritative lineage; bind a parent-profile hash. Never copy old fit/noise/covariance authority onto the output.",
+      "failed_support": "Non-real, bool or nonfinite transformed values refuse publication of a new Profile2 law. A success-only subset is not the unconditional push-forward.",
+      "gate_eligible": false
+    },
+    "compression": {
+      "particles": "Preserve a declared profile only when the reconstructed carrier is content-identical, including sample axis, rows and weights. Otherwise clear the complete profile, named-functional and joint-law declaration and label the limitation.",
+      "interval_and_moments": "Clear all posterior-profile, named-functional and joint-law markers, force non-gating and record loss of the full law. For a Profile2 moment projection reuse its exact-ratio mean and population spread; this is a moment approximation, not the original posterior or inferential covariance."
+    },
+    "pull_back": "Retain constraint-only semantics and non-gating status. Clear posterior-profile and joint authority declarations; never label selected upstream particles as the original posterior. Where admitted finite ratio particles are reduced, reuse the exact finite mean rather than an overflowing float numerator.",
+    "legacy": "Keep Profile1 decoder/replay/functionals and unprofiled behavior unchanged. No new outer envelope version or reinterpretation of v1.1 is authorized.",
+    "level_convention": "Existing binary64 tail-level arithmetic followed by exact classification of the resulting finite quantile is retained. This addendum does not promise exact rational algebra on credible_mass."
+  },
+  "configured_fit_inlet": {
+    "producer": "Reuse the existing configured Scientist MethodBackend and reference HMC/NUTS producer, whose persisted sampling MethodResult and MethodExecutionEvidence retain a chain-major foundry.bayesian.draws.v1 corpus. No new sampler or fabricated CalibrationReport is authorized.",
+    "consumer": "An explicit E PropagateUncertainty inlet takes both bayesian_method_result_ref and bayesian_method_evidence_ref together, plus a typed expected fit binding to a supported existing method and exact configured source input refs.",
+    "admission": "Resolve both refs through the same configured CAS; recompute kinds, schema versions, payload/content identity, evidence-to-result and configured source-ref relationships, posterior stage, complete chain/draw/parameter layout, corpus digest and recorded reproducibility identity before creating envelopes or invoking the uncertainty evaluator.",
+    "row_identity": "Derive shared row IDs from the admitted actual corpus digest and chain/draw coordinates. Flatten only the producer's declared complete chain-major parameter layout; equal marginal lengths alone are insufficient.",
+    "unknown_inputs": "Unknown units, estimands, fit/noise law and model/source provenance remain unknown. Optional supplied parameter bindings remain declarations unless an independent consumer contract checks them. Full requested hyperparameter identity not retained by the existing producer remains not_established; recorded effective diagnostics are not a substitute.",
+    "persistence": "Persist existing Profile2 uncertainty envelopes with method-result, evidence and configured source InputRef relationships, reopen them with a fresh configured CAS reader, admit the complete group, and use the existing native MC consumer.",
+    "oracle": "Independent Fraction reductions of the actual retained finite corpus and paired differences define the summary/carrier test. A closed-form Gaussian comparison may be a separately labelled finite-MCMC diagnostic with declared tolerance; it never establishes mixing, fit quality, coverage or source-law authority.",
+    "gate_eligible": false
+  },
+  "writers": {
+    "DOE_leaf": ["policy-engine/src/polisyos/ir/analytics/uncertainty.py", "policy-engine/src/polisyos/ir/analytics/posterior_summary.py", "exclusive composition behavioral tests and release companion"],
+    "CAL_leaf": ["E calibration posterior adapter and necessary owned typed exports", "E PropagateUncertainty configured inlet", "exclusive configured-fit behavioral tests and release companion"],
+    "protected": ["BayesianRunner/catalog/MethodBackend shared writers", "A generation_cycle.py/run_lifecycle.py", "G generated schemas/inventory/OpenAPI", "Core/IR facade leases outside the scoped E appointment"]
+  },
+  "verification_required": [
+    "Exact old-source finite-mean overflow, inverse-CDF atom and stale-profile fresh-read counterexamples",
+    "Actual new public helpers, fresh persisted readback, source admission removal and proxy divergence controls",
+    "Real configured Bayesian producer backend and persisted pair with independent finite-corpus oracle",
+    "Wrong pair/layout/source/digest and admission-removal controls before new sampler/evaluator callbacks",
+    "Scoped real carrier/type guard BasedPyright check without suppression",
+    "Independent immutable source review before final source freeze"
+  ],
+  "predicate_basis": {
+    "semantic_owner_decision": "consumer_asserted",
+    "prior_measured_receipts": "independently_reconciled",
+    "new_implementation_and_checks": "not_established",
+    "source_law_and_scientific_authority": "not_established",
+    "G_code_and_finding_acceptance": "not_established"
+  },
+  "finding_ledger_changed": false,
+  "finding_closure": false,
+  "implementation_state": "planned; authoring and independent verification required"
+}

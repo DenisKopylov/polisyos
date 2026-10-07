@@ -1,0 +1,33 @@
+{
+  "capture_kind": "observer around the exact test's subprocess.run; original CompletedProcess is returned unchanged",
+  "child_argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-c",
+    "\nfrom __future__ import annotations\n\nimport json\nimport os\nimport sys\nfrom pathlib import Path\nfrom types import SimpleNamespace\n\nimport polisyos.runtime.quality.generation_cycle as generation_cycle\nfrom polisyos.core.artifacts import FileSystemCAS\nfrom polisyos.runtime.quality.design_problem import DesignProblem\nfrom polisyos.runtime.quality.generation_cycle import (\n    SimulationPortObservation,\n    _DefaultSimulationBoundFoundryValuePort,\n)\nfrom polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding\nfrom polisyos.runtime.quality.world_model_record import WorldModelRecord\n\nhandoff = json.load(sys.stdin)\nrepo_root = Path(handoff[\"repo_root\"]).resolve()\nactual_source = Path(generation_cycle.__file__).resolve()\nexpected_source = (repo_root / \"src/polisyos/runtime/quality/generation_cycle.py\").resolve()\nif actual_source != expected_source:\n    raise AssertionError(f\"wrong_runtime_source:{actual_source}\")\n\natoms = tuple(\n    InterventionAtomBinding.model_validate(item)\n    for item in handoff[\"candidate\"][\"intervention_atoms\"]\n)\ncandidate = SimpleNamespace(\n    candidate_id=handoff[\"candidate\"][\"candidate_id\"],\n    atom=atoms[0],\n    intervention_atoms=atoms,\n)\nproblem = DesignProblem.model_validate(handoff[\"problem\"])\nworld = WorldModelRecord.model_validate(handoff[\"world_model_record\"])\nsimulation = SimulationPortObservation.model_validate(handoff[\"simulation\"]).model_copy(\n    update={\"world_model_record\": world}\n)\nobservation = _DefaultSimulationBoundFoundryValuePort(\n    repo_root=repo_root,\n    cycle_substrate_context=None,\n    artifact_store=FileSystemCAS(Path(handoff[\"store_root\"])),\n)(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)\nprint(json.dumps({\n    \"consumer_pid\": os.getpid(),\n    \"runtime_source\": str(actual_source),\n    \"observation\": observation.model_dump(mode=\"json\"),\n}, sort_keys=True))\n"
+  ],
+  "child_cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine",
+  "child_environment_subset": {
+    "JAX_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu",
+    "JAX_PLATFORM_NAME": "cpu",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/runtime:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine/tests:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+  },
+  "child_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "child_returncode": 0,
+  "parent_pid": 78885,
+  "payload_candidate_repo_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry/policy-engine",
+  "payload_candidate_store_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/outputs/attempt2/basetemp/test_hard_n5_feasibility_filte0/runtime-cas",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 1719,
+  "stdout_sha256": "8c794bb98dd7012906526e01ec0ec1e64bc9832376f7e2c958b6d9a8fcd9b69c"
+}

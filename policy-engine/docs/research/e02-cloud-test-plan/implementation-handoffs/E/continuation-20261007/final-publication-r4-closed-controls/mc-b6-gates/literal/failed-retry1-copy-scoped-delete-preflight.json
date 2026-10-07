@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.E.scoped_failed_copy_deletion_preflight.v1",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1/source",
+  "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tracked_Git_duplicate_files": 18961,
+  "tracked_Git_duplicate_bytes": 562220662,
+  "proof_sha256": "b9bda1ec1fc28464c41db9e4c2e12c48d08e61ea1a864a16004d9777ccd24f94",
+  "preserved_unique_ignored_timing_artifacts": [
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1/source/.polisyos-tools/.timing.jsonl.lock",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/failed-retry1-copy-unique-native-instrumentation/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1/source/.polisyos-tools/timing.jsonl",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/failed-retry1-copy-unique-native-instrumentation/timing.jsonl",
+      "bytes": 768,
+      "sha256": "eb398a72dcd728964811422bb43ae303f46b2d3c58303df707fd850ad2593c41"
+    }
+  ],
+  "active_users": [],
+  "unknown_task_actor_permissions": [],
+  "task_actor_live_processes_scanned": 16,
+  "outside_host_services": [
+    {
+      "pid": 199,
+      "uid": 0,
+      "name": "dockerd",
+      "scope": "host service outside copied-checkout task actor scope"
+    },
+    {
+      "pid": 250,
+      "uid": 0,
+      "name": "containerd",
+      "scope": "host service outside copied-checkout task actor scope"
+    }
+  ],
+  "private_env_created": true,
+  "private_env_empty_and_preserved": true,
+  "unique_generator_outputs": false,
+  "deciding_output_refs": [
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/receipt.json",
+      "bytes": 95066,
+      "sha256": "3ca6de3453a549e9476ff584871db2ea6401ae4580ad0c2582faba8e88a541e7"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/started.json",
+      "bytes": 48277,
+      "sha256": "8b5a8a326d204b98d628d19a2037085575dc879552f15c39fff3b4f8bde72a1e"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/stdout.txt",
+      "bytes": 124938,
+      "sha256": "083783b424b11d34606ab741e9be193e7653e61d62723164bedb6ff7c3453be7"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/complete-source-inputs-before.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/complete-source-inputs-after.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    }
+  ],
+  "authorization": "Explicit parent/user cloud-only unused repeatable source-copy deletion; original MC code/docs/Git/input identities preserved."
+}

@@ -1,0 +1,280 @@
+{
+  "schema": "e02-independent-final-summary-facade-source-review:1",
+  "source": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "parent": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "source_disposition": "GO",
+  "finding_closure": false,
+  "upstream_CAL9147_accepted": false,
+  "complete_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml",
+      "bytes": 1236,
+      "sha256": "28bb46a8dec6f12cb06fbb7618cf3380f705ca4ac9604ba27d5a1b2e31135af5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 6219,
+      "sha256": "0832ecd5bbc8547964979208616724f12a8ef0cb438d3b4aba977ff3c402a155"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 4481,
+      "sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 9314,
+      "sha256": "728909258a25e96510b3b9b93957fc14ae217869d1ec61f527997909d26c021a"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 15730,
+      "sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "bytes": 14451,
+      "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642"
+    }
+  ],
+  "current_native_counts": {
+    "cases": 6,
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "current_delta_controls": [
+    {
+      "case": "one_test_delta_five_other_source_paths_byte_equal_e456",
+      "status": "PASS",
+      "delta": [
+        "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "reused_runtime_source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc"
+    },
+    {
+      "case": "ecde_math_dependency_reuse",
+      "status": "PASS",
+      "exact_source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "math_test_repeated": false
+    },
+    {
+      "case": "complete_four_Python_static_and_dynamic_imports",
+      "status": "PASS",
+      "Core_canonical_module_edges": [
+        {
+          "module": "polisyos.core",
+          "names": [
+            "artifacts"
+          ]
+        },
+        {
+          "module": "polisyos.core",
+          "names": [
+            "canon"
+          ]
+        }
+      ],
+      "new_test_backing_owner_dynamic_edge_removed": true
+    },
+    {
+      "case": "present_root_marker_actual_deep_schema_constructor_refused",
+      "status": "PASS",
+      "architecture_admission": "REFUSE",
+      "refusal": "Core import is not a declared supported entrypoint: polisyos.core.artifacts",
+      "root_module_marker_retained": true,
+      "actual_mutated_native_CAS_reader_test": "PASS",
+      "proxy_divergence": "Runtime same-object CAS test passes; exact declared architecture import still refuses."
+    },
+    {
+      "case": "sole_declared_Core_import_predicate_removal_re_admits_deep_constructor",
+      "status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "Core_policy_and_root_marker_and_body_retained": true,
+      "only_admission_binding_removed": true,
+      "false_source_import_admitted": true
+    },
+    {
+      "case": "present_fake_Core_root_schema_binding_breaks_real_fresh_CAS_reader",
+      "status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "root_module_and_name_markers_retained": true,
+      "actual_native_failure": "posterior summary CAS kind/schema/content is invalid"
+    }
+  ],
+  "historical_e456_native_counts": {
+    "cases": 93,
+    "PASS": 93,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "historical_e456_runtime_controls": {
+    "controls": 15,
+    "PASS": 15
+  },
+  "historical_e456_source_disposition": "CHANGE_REQUIRED",
+  "history_qualification": "e456 numerical/caller observations are preserved; ace corrects newly added Core deep edge and backing-owner dynamic oracle import. Counts are not added or rebranded as one new99case suite.",
+  "reviewed_ecde_source_reuse": "Exact uncertainty.py/posterior_summary.py bodies equal reviewed ecde; no underlying numeric production code changed by either facade commit.",
+  "runtime_properties": [
+    {
+      "property": "Canonical lazy producer/DTO identity and actual public consumers",
+      "basis": "recomputed",
+      "explanation": "Existing canonical objects, both real IR changed callsites, affected native93cases at e456; lazy-arm/name-marker removal and actual changed-caller present-fake controls expose propertyFAIL. Remaining five source paths byte-equal ace/e456."
+    },
+    {
+      "property": "Independent finite functionals/fresh typed CAS/raw support admission",
+      "basis": "independently_reconciled",
+      "explanation": "99zeros+100 mean1/median0/[0,0] plus two-atom1:2 finite-level atom versus interpolation proxy; actual kind/schema/rawbool negatives and unchanged ecde defining math reused. New corrected facade six cases freshly pass."
+    },
+    {
+      "property": "Current complete static/literal dynamic four-Python import edges",
+      "basis": "recomputed",
+      "explanation": "Edited CAS calls all use existing Core-root artifacts module; canonical owner identity uses already loaded sys.modules with explicit expected producer module. Deep SchemaInfo adversary retains Core-root marker and native CAS behavior but admission refuses; predicate removal accepts wrong import."
+    },
+    {
+      "property": "Present Core-root schema identity supplies actual readback semantics",
+      "basis": "recomputed",
+      "explanation": "Fake SchemaInfo retains root/name markers but actual fresh CAS reader refuses wrong schema; full types/counts/source refs are also guarded normal and optimized."
+    },
+    {
+      "property": "Scientific/source/fit/noise/coverage/institutional authority",
+      "basis": "not_established",
+      "explanation": "Finite fixture, identity, receipts and producer flags do not confer authority; actual outputs remain non-gating."
+    },
+    {
+      "property": "Upstream CAL returned-ref repair, final source freeze/new common wave/generated companions/G finding acceptance",
+      "basis": "not_established",
+      "explanation": "Separate owners/reviews; no global/HMC/common-wave or upstream9147 acceptance is claimed by this bounded companion GO."
+    }
+  ],
+  "bound_input_negative_controls": [
+    {
+      "case": "stale_source",
+      "status": "PASS",
+      "refusal": "identity/count/scope promotion"
+    },
+    {
+      "case": "false_tree",
+      "status": "PASS",
+      "refusal": "identity/count/scope promotion"
+    },
+    {
+      "case": "count_bool",
+      "status": "PASS",
+      "refusal": "identity/count/scope promotion"
+    },
+    {
+      "case": "new_total_inflate",
+      "status": "PASS",
+      "refusal": "identity/count/scope promotion"
+    },
+    {
+      "case": "missing_path",
+      "status": "PASS",
+      "refusal": "complete six path source footprint required"
+    },
+    {
+      "case": "hash",
+      "status": "PASS",
+      "refusal": "source hash/size mismatch"
+    },
+    {
+      "case": "size_bool",
+      "status": "PASS",
+      "refusal": "source hash/size mismatch"
+    },
+    {
+      "case": "closure",
+      "status": "PASS",
+      "refusal": "identity/count/scope promotion"
+    },
+    {
+      "case": "upstream",
+      "status": "PASS",
+      "refusal": "identity/count/scope promotion"
+    },
+    {
+      "case": "extra_authority",
+      "status": "PASS",
+      "refusal": "exact fields required"
+    }
+  ],
+  "complete_deciding_refs": [
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json",
+      "bytes": 8925,
+      "sha256": "c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml",
+      "bytes": 1181,
+      "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json",
+      "bytes": 8928,
+      "sha256": "2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt",
+      "bytes": 70,
+      "sha256": "82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json",
+      "bytes": 23147,
+      "sha256": "187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.json",
+      "bytes": 14593,
+      "sha256": "8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json",
+      "bytes": 25530,
+      "sha256": "1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json",
+      "bytes": 13227,
+      "sha256": "6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309"
+    },
+    {
+      "path": "/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json",
+      "bytes": 8520,
+      "sha256": "49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90"
+    }
+  ],
+  "new_common_wave": "UNRUN",
+  "full_architecture_gate_reexecuted": false,
+  "source_written": false,
+  "root_env_package_writer": false,
+  "receipt_recompute_optimized": 1,
+  "closure_rule": "Source GO only. E proposal/ledger/G acceptance and original finding criterion remain separate.",
+  "remaining_owner": "Root closes separately reviewed upstream CAL repair then freezes/reviews affected gate queue; G owns generated inventory/formal integration intake."
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "name": "ruff",
+    "argv": [
+      ".venv/bin/ruff",
+      "check",
+      "src/polisyos/ir/analytics/uncertainty.py",
+      "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "tests/unit/ir/test_posterior_summary.py",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source-gates/ruff.stdout.txt",
+    "stderr": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source-gates/ruff.stderr.txt",
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "format",
+    "argv": [
+      ".venv/bin/ruff",
+      "format",
+      "--check",
+      "src/polisyos/ir/analytics/uncertainty.py",
+      "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "tests/unit/ir/test_posterior_summary.py",
+      "tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source-gates/format.stdout.txt",
+    "stderr": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source-gates/format.stderr.txt",
+    "stdout_sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source-gates/diff.stdout.txt",
+    "stderr": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/source-gates/diff.stderr.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

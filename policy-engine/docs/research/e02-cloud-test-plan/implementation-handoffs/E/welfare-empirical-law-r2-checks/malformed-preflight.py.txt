@@ -1,0 +1,28 @@
+from __future__ import annotations
+import json,runpy
+from pathlib import Path
+from polisyos.core.artifacts import FileSystemCAS,PutOptions,SchemaInfo
+from polisyos.core.canon import CanonSpec,from_canonical_bytes
+from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as module
+fixture=runpy.run_path('tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py')
+ctx,state,source=fixture['_native_fixture'](Path('/workspace/e02-E-pr38-r2-receipts/welfare-malformed-preflight-cas'))
+results=[]
+for value in [{'real':0.0,'imag':1.0},'1+2j',True]:
+ payload=from_canonical_bytes(ctx.store.get_bytes(source.artifact_id));payload['distribution_payload']['samples'][0]=value
+ fake=ctx.store.put_json(payload,PutOptions(kind='ir.uncertainty_envelope',media_type='application/json',schema=SchemaInfo(name='ir.uncertainty_envelope',version='1.1')),canon_spec=CanonSpec(forbid_floats=False))
+ state.params['welfare_config']['input_envelopes']['A']=fake.model_dump(mode='json')
+ calls=[];original=module._build_simulation_fn
+ def observe(*args,**kwargs):
+  function,*rest=original(*args,**kwargs)
+  def counted(**params):calls.append(params);return function(**params)
+  return counted,*rest
+ module._build_simulation_fn=observe
+ try:
+  outcome=module.PropagateWelfareNode().execute(ctx,state)
+  result={'outcome':outcome.status,'error':None if outcome.error is None else outcome.error.model_dump(mode='json')}
+ except Exception as exc: result={'outcome':'rejected_by_existing_IR_load','error_type':type(exc).__name__,'message':str(exc)}
+ finally: module._build_simulation_fn=original
+ result.update({'wire_value':value,'callback_count':len(calls),'source_hash_valid':ctx.store.verify(fake).ok})
+ if value is not True: assert not calls and result['outcome']!='ok'
+ results.append(result)
+print(json.dumps({'source_sha':'884681db485b7466b183a206f83bbe0635f86ca3','results':results},indent=2))

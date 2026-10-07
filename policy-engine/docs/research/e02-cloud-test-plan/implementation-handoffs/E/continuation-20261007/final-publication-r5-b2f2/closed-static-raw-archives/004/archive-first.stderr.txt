@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-exact-raw.py", line 50, in <module>
+    prefixes=[str(old),str(real),str(old.parent),str(real.parent)];start_scan=scan(prefixes);dump(O/(x['slug']+'-proc-initial.json'),start_scan);need(not start_scan['users'] and not start_scan['unreadable_others'],'observable active/unknown source users')
+                                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-exact-raw.py", line 6, in need
+    if not c:raise ValueError(m)
+             ^^^^^^^^^^^^^^^^^^^
+ValueError: observable active/unknown source users

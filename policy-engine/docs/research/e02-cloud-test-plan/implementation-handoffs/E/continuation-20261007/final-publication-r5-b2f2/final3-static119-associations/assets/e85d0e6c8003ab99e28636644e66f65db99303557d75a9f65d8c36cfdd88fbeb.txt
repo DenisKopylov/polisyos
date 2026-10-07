@@ -1,0 +1,69 @@
+"""Join closed AST records to actual named tests and accepted role bodies, not served dispatch."""
+from pathlib import Path
+import hashlib,json,collections,subprocess
+ROOT=Path('/workspace/e02-E-continuation-20261006');OUT=Path('/tmp/e02-E-final3-static-witness-qualification-b2f2f65e-20261007');OUT.mkdir()
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def read(p,h=None):
+ b=Path(p).read_bytes()
+ if h is not None and sha(b)!=h:raise RuntimeError('immutable input hash drift')
+ return json.loads(b)
+def ref(p):
+ b=Path(p).read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+records_path=Path('/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/all-119-native-mechanism-records.json')
+records=read(records_path)
+case_path=Path('/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json')
+cases=read(case_path,'baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5')
+join_path=Path('/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json')
+join=read(join_path,'7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b')
+if records['source']!=cases['source_sha'] or cases['source_sha']!=join['candidate']:raise RuntimeError('source join drift')
+roles={r['current_source']['path'].removeprefix('policy-engine/'):r for r in join['source_role_qualification']}
+# Complete current source-role fields are checked against immutable Git, not a declared body-equality flag.
+for r in roles.values():
+ cur=r['current_source'];old=r['accepted_source'];a=subprocess.run(['git','show',cur['revision']+':'+cur['path']],cwd=ROOT,capture_output=True,check=True).stdout
+ b=subprocess.run(['git','show',old['revision']+':'+old['path']],cwd=ROOT,capture_output=True,check=True).stdout
+ if a!=b or sha(a)!=cur['sha256'] or sha(b)!=old['sha256']:raise RuntimeError('accepted role body mismatch')
+ evidence=r['accepted_evidence'];read(evidence['path'],evidence['sha256'])
+current_cases=cases['cases'];groups={}
+def group(name,classname_prefixes,body):
+ selected=[c for c in current_cases if any(c.get('classname','').startswith(p) for p in classname_prefixes)]
+ groups[name]={'scope':body,'actual_case_count':len(selected),'actual_outcomes':dict(collections.Counter(c['outcome'] for c in selected)),'actual_cases':selected,'case_source_ref':ref(case_path),'claim':'Actual named tests executed on b2. Family association is not per-symbol instrumentation or default served dispatch.'}
+group('DDM',['tests.unit.ddm','tests.unit.remediation.test_ddm'],'Fresh model-registry/rebind/veto generic library fixtures; current feed/freshness/invalidation and identity-bound R2/purpose remain external owner inputs.')
+group('PCL',['tests.unit.calibration','tests.unit.ir.analytics.test_calibration_diagnostics_report','tests.unit.foundry.methods.catalog.econometrics.test_advanced_persistence'],'Actual configuredCAS interval/pair persistence and fresh integrity-valid count forgery controls; source/history/signoff requirements stay separately bound.')
+group('FRC_BKT',['tests.unit.remediation.test_bkt','tests.unit.remediation.test_frc','tests.unit.scientist.methods.backtesting','tests.unit.scientist.governance.test_backtest_matrix'],'Actual native masked-model execution/replay and ETS producer separate persistedcandidate/evidence fixtures; A default/HTTP verifier currently has eight failures in family321; native E fixture is not production-history evidence or trusted A verifier.')
+group('CAL_NODE',['tests.unit.foundry.calibration','tests.unit.scientist.nodes.test_calibration_report_consumer','tests.unit.scientist.nodes.test_bayesian_fit_consumer','tests.unit.scientist.nodes.builtins.simulate.test_propagate_welfare','tests.unit.scientist.nodes.builtins.simulate.test_welfare','tests.unit.scientist.nodes.test_propagate_uncertainty_node'],'Actual calibration/report/fitted corpus/fresh node and welfare fixtures; new fit source-review77 plus current exactbodybinding; generic fit neither mixing/quality nor noise/source fit authority. Unchanged324 CAL64d cases not rerun and cannot be called current.')
+group('MC_IR',['tests.unit.foundry.uncertainty','tests.unit.ir.test_posterior','tests.unit.ir.test_uncertainty','tests.unit.remediation.test_uqp','tests.unit.remediation.test_uqs','tests.unit.scientist.nodes.test_propagate_uncertainty_node','tests.unit.scientist.nodes.builtins.simulate.test_welfare'],'Exact finite-ratio/admitted joint law, finiteU buckets, complete outcomes/fixed mean budget/independent scrambles, Profile1 replay/Profile2 freshCAS and lawful composition. Source3932 common-law bodies/current ecde composition and77 node qualified separately; no covariance-only joint authority.')
+group('DOE',['tests.unit.scientist.methods.doe','tests.unit.scientist.methods.autotune.test_sensitivity_bridge','tests.unit.remediation.test_doe'],'Actual SALib1.5.2 sampler/analyzer, admitted actualMorris plan, interaction and wholepaired-block receipts, freshE factory; defaultSearch analysis_ref/reopen/ranking edge remains D responsibility.')
+group('B_CONTROL',['tests.unit.runtime.http.test_control_plane_store'],'Actual currentG checkpoint control-plane59 generic library fixtures only. Other B async/budget default dispatch outside E deciding fixture is unmeasured here.')
+def family(path):
+ if '/ddm/' in path:return 'DDM'
+ if '/doe/' in path or '/autotune/sensitivity_bridge.py' in path or '/search/sensitivity_adapter.py' in path:return 'DOE'
+ if '/backtesting/' in path or '/governance/backtest_matrix.py' in path or '/calibration/forecast_bridge.py' in path or '/simulate/run_simulation.py' in path:return 'FRC_BKT'
+ if path.startswith('src/polisyos/calibration/') or 'calibration_diagnostics.py' in path or '/methods/catalog/econometrics/advanced.py' in path or '/execute/_internal/graph/' in path:return 'PCL'
+ if '/foundry/calibration/' in path or '/simulate/propagate_welfare.py' in path or '/simulate/propagate_uncertainty.py' in path:return 'CAL_NODE'
+ if '/foundry/uncertainty/' in path or '/ir/analytics/' in path:return 'MC_IR'
+ return 'B_CONTROL'
+def exact_matches(callers):
+ selected=[]
+ for c in current_cases:
+  cname=c.get('classname') or '';fq=cname+'.'+c['name'].split('[',1)[0]
+  matches=[caller for caller in callers if caller==fq or caller.startswith(fq+'.') or caller.startswith(fq+':')]
+  if matches:selected.append({'case':c,'AST_caller_records':matches})
+ return selected
+boundaries={
+'DDM':{'owner':'E DDM library; institutional feed/R2 owners','unmeasured':'Actual live feed completeness/freshness/invalidations and identity-bound R2 deployment-purpose/signoff. Fresh registry library fixtures do not measure institutional authority.','next_result':'Provide immutable current feed/source/model/rule/time/invalidation refs and R2identity/purpose input; fresh consumer independently rebinds expiry/veto and signoff.'},
+'PCL':{'owner':'E PCL producers; source/history owner where original row requires actual observations','unmeasured':'Source row/time/split identity outside the admitted synthetic pairs. Counts and freshCAS recomputation are measured; production history is recipe-local only.','next_result':'Run current exactcase recipe against native persistedpairs/source IDs; supply genuine row/time/split binding only for original criterion requiring it.'},
+'FRC_BKT':{'owner':'E FRC/BKT producers; A generation_cycle.py/run_lifecycle.py; G localhistory reader','unmeasured':'A default/HTTP trusted verifier/surface currentlyred; synthetic native masked replay and ETSfixtures are not factual productionhistory.','next_result':'A resolves sameconfiguredCAS and recomputes typedprofile/source/metric/unit/split/horizon/pairs/counts/threshold/purpose/six time roles, reads ownpersisted verifier decision freshly. G uses scopedread-only nativehistory recipe when required.'},
+'CAL_NODE':{'owner':'E CAL/nativeNode; source-fit-noise owner B197; servedlaw owner B194','unmeasured':'Actual source/fit/noise/targetjoin and served evaluator domain remain held; configured reference HMC/NUTS finite corpus is generic non-gating witness. Some unchanged CALHessian/calibrator helpers have no current1465 selected caller case.','next_result':'Provide identitybound actual source/job/result/evidence/noise/targetjoin forB197 and served evaluator/source law/domain forB194; rerun only affected actual consumer property. No generic source fixture substitutes authority.'},
+'MC_IR':{'owner':'E scopedIR semantic/MC producer and nativeNode; C/F/IR publicconsumer owners','unmeasured':'DefaultC/F consumers not asserted by namedgeneric tests. Per-symbol runtimeinstrumentation absent for publiclazy helper edges; exact source-role receipt supplies bounded native law/reader property only.','next_result':'Canonical consumer integrates declaredProfile2 CASlaw/rowIDs/units/estimand lineage and fresh reader; unresolvedlaw refuses beforecallback. PreserveProfile1 replay and gatefalse.'},
+'DOE':{'owner':'E sampler/analyzer/artifact/factory; D defaultSearch consumer','unmeasured':'D defaultSearch served analysis_ref codec/reopen/ranking boundary; mathematical sampler/analyzer/fingerprint originalB100 independent.','next_result':'D binds actual persistedanalysis_ref to defaultSearch result, freshlyreopens and tests ranking plus integrity-valid forged receipt, after canonical APIadmission.'},
+'B_CONTROL':{'owner':'B durableledger/async/execution consumers','unmeasured':'E packet does not establish B async/budget caller dispatch or defaultserved execution; currentcontrol-plane59 fixture is not everyB symbol runtimewitness.','next_result':'B uses specificallydeclared handoffcallers and currentfresh persistence/recovery/terminalsettlement nativecontrols; record full source+input identity.'}}
+rows=[]
+for r in records['rows']:
+ rec=r['native_mechanism_record'];path=rec['path'];f=family(path);role=roles.get(path)
+ src=Path(r['source_input']['path']).read_bytes()
+ if sha(src)!=r['source_input']['sha256']:raise RuntimeError('current symbolsource drift')
+ matched=exact_matches(rec.get('test_callers',[]))
+ rows.append({'symbol':r['symbol'],'check_class':r['check_class'],'native_static_status':rec['status'],'source_input':r['source_input'],'current_writer':r['current_writer'],'writer_basis':r['writer_basis'],'actual_AST_source_callers':rec.get('source_callers',[]),'actual_AST_test_callers':rec.get('test_callers',[]),'current_executed_named_test_callers':matched,'direct_AST_named_test_cases_count':len(matched),'qualified_accepted_role_native_receipt':role,'actual_closed_case_group':f,'remaining_boundary':boundaries[f],'measurement_limit':'Namedtest execution and staticcall association do not show each branch taken; accepted role evidence proves only recorded native bounded properties. Thisproxyrecord remains nativeuninvoked/unresolved. No new defaultproduction invocation or closure is inferred.'})
+if len(rows)!=119 or collections.Counter(r['current_writer'] for r in rows)!=collections.Counter({'E':91,'B':28}):raise RuntimeError('native119 ownerCounter drift')
+x={'schema':'policyos.e02.final_static119.runtime_witness_qualification.v1','source':join['candidate'],'tree':join['tree'],'static_actual':{'regressions':24,'new_unresolved':95,'rows':119,'E':91,'B':28,'native_outcome':'FAIL','coverage':'partial'},'inputs':{'native119_records':ref(records_path),'current_case_index':ref(case_path),'qualified_current54_join':ref(join_path)},'source_role_actual_Git_equal_checks':len(roles),'case_groups':groups,'rows':rows,'measured_default_production_dispatch':False,'finding_closure':False,'new_native_execution':False,'P41':'not_established','rule':'One row per exact native119symbol; keep actualtest outcomes/source-role bound native witnesses and explicit unmeasured consumerseams separate from graphstatus.'}
+p=OUT/'all-119-qualified-native-boundaries.json';p.write_text(json.dumps(x,indent=2)+'\n');print(json.dumps({'path':str(p),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes()),'rows':len(rows),'with_current_resolved_named_testcases':sum(bool(r['current_executed_named_test_callers']) for r in rows),'with_exactaccepted_role':sum(r['qualified_accepted_role_native_receipt'] is not None for r in rows),'groups':{k:len(v['actual_cases']) for k,v in groups.items()}}))

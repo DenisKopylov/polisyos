@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.literal_common_wave_delivery_copy_index.v1",
+  "reviewed_publication_sha": "ac2682a66afd8fd5beef39d15fd82ec58e10dd6d",
+  "reviewed_publication_tree": "e332ae6113ee710e0e0bf7e09299bdcc1dcc573e",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "copied_files": 22,
+  "copied_bytes": 165554,
+  "copies": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/immutable-publication-review.json",
+      "portable_path": "independent/immutable-publication-review.json",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 85526,
+      "sha256": "ab1f708eeb53676423601b54f44c9d4840dc4c53b16972665bf7945d89690c75"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/review_common_publication.py",
+      "portable_path": "independent/review_common_publication.py.txt",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 11006,
+      "sha256": "86477a63714e7f51dba5bf78590a0be5a3b7581d3f473df47d28d82156fc328a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-review.stdout",
+      "portable_path": "independent/review.stdout",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 376,
+      "sha256": "fd191c7e722ab078af2fc8ad67a9d2355e7dc50548750c8c4d88d88b71929c8e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-review.stderr",
+      "portable_path": "independent/review.stderr",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/executed-validator-v2.py.txt",
+      "portable_path": "independent/executed-validator-v2.py.txt",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 8814,
+      "sha256": "0118719cadfa06c3b4f207191f073186e452de264e33bbe7eb9e10cbbd990318"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-normal.stdout.json",
+      "portable_path": "independent/validator-normal.stdout.json",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 2221,
+      "sha256": "4fd53ee0bc4a53e2538214ee438173c5dbf731ccd548fe32387f588c92434b12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-normal.stderr",
+      "portable_path": "independent/validator-normal.stderr",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-optimized.stdout.json",
+      "portable_path": "independent/validator-optimized.stdout.json",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 2221,
+      "sha256": "4fd53ee0bc4a53e2538214ee438173c5dbf731ccd548fe32387f588c92434b12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/validator-optimized.stderr",
+      "portable_path": "independent/validator-optimized.stderr",
+      "role": "independent immutableac268 custody/data-parser review; no numerical rerun",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/common-wave-publication-independent/publication-selection.json",
+      "portable_path": "independent/publication-selection.json",
+      "role": "fixed independent moderate selector, separate from its nine selected assets",
+      "bytes": 3450,
+      "sha256": "eb6d769bd14c7b131d8de6de9f4b05af050309ec75c7916d19cfe823841a64e0"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/commit.stdout.txt",
+      "portable_path": "git/commit.stdout.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 16410,
+      "sha256": "8db811660a7f01c4821c1e954e2fa3adbea44b6bb03c27edd61f1b6b6e067150"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/commit.stderr.txt",
+      "portable_path": "git/commit.stderr.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 653,
+      "sha256": "cb237ae4188a3d88d3a9f1528475285aec07cbc7111bb02833214accf0bdaddd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/correction-commit.stdout.txt",
+      "portable_path": "git/correction-commit.stdout.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 1070,
+      "sha256": "12dce60b03f5b6023a015fb6348ac36718f465504c4c94bb4bb316b747984352"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/correction-commit.stderr.txt",
+      "portable_path": "git/correction-commit.stderr.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 653,
+      "sha256": "bfd09cfb4ad4b836579aa211a58b176a2566446442fb7006092d5491a0fece47"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/push.stdout.txt",
+      "portable_path": "git/push.stdout.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 486,
+      "sha256": "64770b0775fa06c9b20cd85ee08870adf731732cbf5fb592c1874c6c5d0c82e5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/push.stderr.txt",
+      "portable_path": "git/push.stderr.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 106,
+      "sha256": "555f5f0e2dd5e34dd2f3cf330ee4fbeb7796c2f73e16841264298a9ae9094c49"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/fetch.stdout.txt",
+      "portable_path": "git/fetch.stdout.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/fetch.stderr.txt",
+      "portable_path": "git/fetch.stderr.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 131,
+      "sha256": "e5e6c4cf98c1424d4db0d71b1477efd19adac80e0450bc43cf58184ea34dcc7a"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/before-push.remote-heads.txt",
+      "portable_path": "git/before-push.remote-heads.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 163,
+      "sha256": "85adc1f2843e20820c0a02e85f0634d44beee127cb6bf3f687708bdd2202b094"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/after-push.remote-heads.txt",
+      "portable_path": "git/after-push.remote-heads.txt",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 163,
+      "sha256": "d32ca345499333f9fd1810b4a20bd809a78b4e47af6d7475906444cb9a8dbc2f"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/local-commit-readback.json",
+      "portable_path": "git/local-commit-readback.json",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 15725,
+      "sha256": "5d7a3d59cf0c0162aab1eac8dc5b778cf93ccd64c2d21ba3a113bc603a56d0e4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/common-wave-publication-64d/correction-commit-readback.json",
+      "portable_path": "git/correction-commit-readback.json",
+      "role": "literal ordinary Git commit/hook/push/fetch/readback observation",
+      "bytes": 16380,
+      "sha256": "cfd1341adbe4c12ab32c823f35af5749fd5f2400501798a5aa3f571b6ed5a59e"
+    }
+  ],
+  "active_python": false,
+  "source_test_execution": false
+}

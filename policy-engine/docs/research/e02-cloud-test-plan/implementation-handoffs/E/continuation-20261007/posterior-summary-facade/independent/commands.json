@@ -1,0 +1,97 @@
+{
+  "schema": "e02-independent-summary-facade-executed-commands:1",
+  "candidate": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "candidate_tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "commands": [
+    {
+      "phase": "historical_e456",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py"
+      ],
+      "exit_code": 0,
+      "actual_inner_argv_env": "historical-e456/selectors.json",
+      "scope": "Actual93affected caller tests; no HMC/fullwave"
+    },
+    {
+      "phase": "historical_e456",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "scope": "15cold-lazy/freshCAS/bool/kind/schema/interpolation/removal/AST controls; bounded sourceCHANGE_REQUIRED"
+    },
+    {
+      "phase": "historical_e456",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "scope": "Two exact changed native caller functions through presentfake public binding; expected propertyFAIL"
+    },
+    {
+      "phase": "current_ace",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py"
+      ],
+      "exit_code": 0,
+      "actual_inner_argv_env": "selectors.json",
+      "scope": "Six newly affected facade cases only; old93notrepeated"
+    },
+    {
+      "phase": "current_ace",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "scope": "6delta controls/exact dependency reuse/current four-Python complete imports"
+    },
+    {
+      "phase": "current_ace",
+      "argv": [
+        "python3",
+        "/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py"
+      ],
+      "exit_code": 0,
+      "scope": "Closed source/JUnit/ref receipt reconciliation;10corrupt controls; no native reexecution"
+    },
+    {
+      "phase": "current_ace",
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py"
+      ],
+      "exit_code": 0,
+      "scope": "Same pure10corrupt controls under optimized interpreter; no native reexecution"
+    }
+  ],
+  "historical_observer_error": {
+    "phase": "e456reviewcollector",
+    "exit_code": 1,
+    "cause": "Collector missing whitespace formed invalid0or token; corrected collector only, no source/native test repeat",
+    "source": "historical-e456/historical-collector-syntax-observer.py.txt",
+    "stderr": "historical-e456/historical-collector-syntax-observer.stderr.txt"
+  },
+  "script_source_and_library_mutations": "Only subprocess-local fake/removal function/module bindings; no repository/source/env/package/Git writes.",
+  "new_common_wave": "UNRUN",
+  "upstream_CAL9147_accepted": false,
+  "finding_closure": false
+}

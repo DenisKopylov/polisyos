@@ -1,0 +1,43 @@
+{
+  "schema": "e02.portable-evidence-copy.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly-dependency-review-c79.json",
+      "bytes": 51942,
+      "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly.initial-harness-scope.stdout.txt",
+      "bytes": 560,
+      "sha256": "36d5dbb67341f31e2f5abd1ac4ef1d9be2727e5952fabfb6064d615ede059940"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly.stdout.txt",
+      "bytes": 436,
+      "sha256": "6c18e4c889aee98de1bbc868023aa67b2b702a614da9cf09f57df412b7474557"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/full-committed-footprint.tsv",
+      "bytes": 131643,
+      "sha256": "7f6805a5ed0f5336552e67c95c40d35fc3fe5c77253e130d4f47394cee4c49db"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.initial.py.txt",
+      "bytes": 19176,
+      "sha256": "a4900cb9a00510a09e04c6f7ce2e036bb4d3dd6bed4a8ffd48f9c3c0161adea5"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+      "bytes": 19843,
+      "sha256": "dc0bcae7e141e00ebf5bef6317891a62b2fdbc46c4970d15a368d9a88b68f1f5"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/copy-index.json",
+      "bytes": 2058,
+      "sha256": "ce8ee23858ad4f32c04127c790f2ee680e34a2b989f388e93210034bbfb5c133"
+    }
+  ],
+  "total_files": 7,
+  "total_bytes": 225658,
+  "scope": "Independent c79 product assembly GO, allcurrentproductblobs unchanged at4758; sourcewavecontrols4758 separateindependentreviewpending"
+}

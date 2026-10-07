@@ -1,0 +1,185 @@
+import argparse
+import datetime
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import subprocess
+from pathlib import Path
+
+STAGE = Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+LEAF = Path('/workspace/e02-E-frc-20261006')
+COMMIT = 'c229fe8c0cc31c910de2bd2dc0e84e30be87da2c'
+RELATIVE = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt'
+
+
+def git(repo, *args):
+    return subprocess.check_output(['git', '-C', str(repo), *args])
+
+
+def snapshot(repo):
+    return {'head': git(repo, 'rev-parse', 'HEAD').decode().strip(),
+            'tree': git(repo, 'rev-parse', 'HEAD^{tree}').decode().strip(),
+            'tracked_status': git(repo, 'status', '--porcelain=v1', '-uno').decode(),
+            'atomic': False,
+            'observed_at': datetime.datetime.now(datetime.UTC).isoformat()}
+
+
+program = (LEAF / RELATIVE).read_bytes()
+if program != git(LEAF, 'show', COMMIT + ':' + RELATIVE):
+    raise ValueError('immutable c229 custody mechanism bytes')
+loader = importlib.machinery.SourceFileLoader('existing_c229_custody', str(LEAF / RELATIVE))
+specification = importlib.util.spec_from_loader(loader.name, loader)
+mechanism = importlib.util.module_from_spec(specification)
+loader.exec_module(mechanism)
+original_passive = mechanism.passive
+
+
+def finite_storage_route(family, name, body):
+    route = original_passive(family, name, body)
+    try:
+        decoded = body.decode('utf-8')
+        binary = any(ord(character) < 32 and character not in '\t\n\r' for character in decoded)
+    except UnicodeDecodeError:
+        binary = True
+    # Binary identity remains literal. Never advertise it as UTF-8 text.
+    if binary and route.endswith(('.txt', '.json')):
+        route = route.rsplit('.', 1)[0] + '.bin'
+    return route
+
+
+mechanism.passive = finite_storage_route
+original_expand = mechanism.expand
+
+
+def registered_expand(entry, document, lookup=None):
+    schema = 'policyos.e02.final3.moderate_literal_selection.v1'
+    if entry.get('member_schema') != schema:
+        return original_expand(entry, document, lookup)
+    if document.get('schema') != schema or entry['member_class'] != 'assets':
+        raise ValueError('registered exact moderate selector schema')
+    raw_rows = document.get('assets')
+    if not isinstance(raw_rows, list) or len(raw_rows) != entry['members']:
+        raise ValueError('complete registered encoded member denominator')
+    admitted = []
+    for raw in raw_rows:
+        if not isinstance(raw, dict) or set(raw) != {'logical_name', 'original_path', 'portable_path', 'bytes', 'sha256', 'encoding', 'decoded_bytes', 'decoded_sha256'}:
+            raise ValueError('whole registered encoded member shape')
+        route = raw['portable_path']
+        if not isinstance(route, str) or not route or Path(route).is_absolute() or any(part in ('', '.', '..') for part in route.split('/')) or '\\' in route or any(ord(c) < 32 for c in route):
+            raise ValueError('pure full relative encoded source context')
+        logical_name = raw['logical_name']
+        if not isinstance(logical_name, str) or not logical_name or Path(logical_name).is_absolute() or any(part in ('', '.', '..') for part in logical_name.split('/')) or '\\' in logical_name or any(ord(c) < 32 for c in logical_name):
+            raise ValueError('pure full relative logical member context')
+        if raw['encoding'] not in ('literal', 'gzip'):
+            raise ValueError('unsupported registered evidence encoding')
+        original = mechanism.identity({'path': raw['original_path'], 'bytes': raw['decoded_bytes'], 'sha256': raw['decoded_sha256']})
+        if '\\' in original['path'] or any(ord(c) < 32 for c in original['path']) or any(part in ('.', '..') for part in original['path'].split('/')):
+            raise ValueError('pure full absolute original source context')
+        stored = mechanism.identity({'path': str(Path(entry['path']).parent / route), 'bytes': raw['bytes'], 'sha256': raw['sha256']})
+        admitted.append((raw, route, original, stored))
+    result = []
+    for raw, route, original, stored in admitted:
+        body = mechanism.admit_body(stored, lookup)
+        decoded = body if raw['encoding'] == 'literal' else mechanism.gzip.decompress(body)
+        if len(decoded) != original['bytes'] or mechanism.sha(decoded) != original['sha256']:
+            raise ValueError('complete decoded original byte identity')
+        if lookup is None:
+            mechanism.admit_body(original, None)
+        result.append({'family': entry['family'], 'selection_source_path': entry['path'],
+                       'member_class': 'assets', 'original': original, 'stored': stored,
+                       'storage_mode': 'literal' if raw['encoding'] == 'literal' else 'gzip_literal_archive',
+                       'logical_destination': finite_storage_route(entry['family'], route, body),
+                       'selected_record': raw})
+    return result
+
+
+mechanism.expand = registered_expand
+parser = argparse.ArgumentParser()
+parser.add_argument('--queue', required=True)
+parser.add_argument('--inventory', required=True)
+args = parser.parse_args()
+queue_path, inventory_path = Path(args.queue), Path(args.inventory)
+if queue_path.parent != STAGE or inventory_path.parent != STAGE or inventory_path.suffix != '.json':
+    raise ValueError('pure fixed scratch-only queue/output route')
+if inventory_path.exists():
+    raise ValueError('preserve existing preparation observations; choose a fresh output')
+queue_bytes = queue_path.read_bytes()
+queue = mechanism.strict_json(queue_bytes)
+root_before, leaf_before = snapshot(ROOT), snapshot(LEAF)
+if root_before['head'] != queue['source'] or root_before['tree'] != queue['tree']:
+    raise ValueError('actual frozen b2 source identity')
+if root_before['tracked_status'] or leaf_before['tracked_status']:
+    raise ValueError('tracked source/leaf changed during read-only preparation')
+
+rows = []
+for entry in queue['closed_selector_inputs']:
+    body = mechanism.admit_body(entry, None)
+    document = mechanism.strict_json(body)
+    rows.extend(mechanism.expand(entry, document))
+    rows.append(mechanism.selector_row(entry))
+
+# Publication stdout/stderr are a separately explicit flat-member class,
+# rather than an inferred recursive selection from arbitrary JSON fields.
+freeze_root = Path('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007')
+for path in sorted(freeze_root.iterdir()):
+    if not path.is_file() or path.name in ('complete-source-inputs.json', 'root-environment-metadata.json'):
+        continue  # Already complete literal members of the parent selector.
+    body = path.read_bytes()
+    ref = {'path': str(path), 'bytes': len(body), 'sha256': mechanism.sha(body)}
+    rows.append({'family': 'source-freeze-and-publication',
+                 'selection_source_path': str(freeze_root / 'publication-readback.json'),
+                 'member_class': 'explicit-flat-file', 'original': ref, 'stored': ref,
+                 'storage_mode': 'literal',
+                 'logical_destination': finite_storage_route('source-freeze-and-publication', path.name, body),
+                 'selected_record': ref})
+
+route_keys = {}
+for row in rows:
+    ref = row['stored']
+    mechanism.admit_body(ref, None)
+    key = (ref['sha256'], ref['bytes'])
+    previous = route_keys.setdefault(row['logical_destination'], key)
+    if previous != key:
+        raise ValueError('distinct content collides at one portable route')
+logical, copies = mechanism.carriers(rows)
+
+root_after, leaf_after = snapshot(ROOT), snapshot(LEAF)
+for before, after in ((root_before, root_after), (leaf_before, leaf_after)):
+    for key in ('head', 'tree', 'tracked_status'):
+        if before[key] != after[key]:
+            raise ValueError('sequential read-only preparation source guard')
+
+counts = {'closed_selector_count': len(queue['closed_selector_inputs']),
+          'selected_original_members': sum(x['members'] for x in queue['closed_selector_inputs']),
+          'explicit_flat_member_count': sum(x['member_class'] == 'explicit-flat-file' for x in logical),
+          'logical_count_including_original_selectors': len(logical),
+          'content_unique_count': len(copies),
+          'content_unique_bytes': sum(x['stored']['bytes'] for x in copies),
+          'deduplicated_occurrences': len(logical) - len(copies)}
+manifest = {'schema': 'policyos.e02.final_b2_flat_custody_preparation.v1',
+            'state': 'PREPARATION_ONLY_PENDING_FINAL_INPUTS_AND_INDEPENDENT_REVIEW',
+            'source': queue['source'], 'tree': queue['tree'],
+            'proposed_git_prefix': queue['proposed_git_prefix'],
+            'queue': {'path': str(queue_path), 'bytes': len(queue_bytes), 'sha256': mechanism.sha(queue_bytes)},
+            'selection_inputs': queue['closed_selector_inputs'],
+            'logical_sources': logical, 'canonical_copies': copies, 'counts': counts,
+            'ROOT_before': root_before, 'ROOT_after': root_after,
+            'own_lane_before': leaf_before, 'own_lane_after': leaf_after,
+            'mechanism': {'commit': COMMIT, 'path': RELATIVE, 'bytes': len(program), 'sha256': mechanism.sha(program),
+                          'unchanged_reused_functions': ['strict_json', 'canonical', 'identity', 'admit_body', 'expand', 'selector_row', 'carriers'],
+                          'narrow_route_delta': 'literal binary bytes with text/JSON route become .bin; original paths/hash/size/selected records remain intact'},
+            'pending': queue['pending'],
+            'native_source_numeric_gate_execution': False,
+            'ROOT_or_leaf_source_env_locks_outputs_written': False,
+            'destination_files_written': 0, 'formal_G_or_finding_acceptance': False,
+            'predicate_basis': {'original_selector_member_counter': {'basis': 'recomputed', 'explanation': 'complete original rows plus original selectors; aliases retain raw records'},
+                                'literal_byte_identity': {'basis': 'recomputed', 'explanation': 'all referenced original contents rehashed before and after dedup; no payload copy'},
+                                'published_current_custody': {'basis': 'not_established', 'explanation': 'scratch preparation only; pending selectors and independent review prevent final publication'},
+                                'source_native_scientific_or_gate_disposition': {'basis': 'not_established', 'explanation': 'original author observations preserved; no replay or new disposition by preparation'}}}
+inventory_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
+print(json.dumps(counts | {'inventory': str(inventory_path),
+                          'inventory_bytes': inventory_path.stat().st_size,
+                          'inventory_sha256': hashlib.sha256(inventory_path.read_bytes()).hexdigest(),
+                          'final_payload_closed': False}, indent=2))

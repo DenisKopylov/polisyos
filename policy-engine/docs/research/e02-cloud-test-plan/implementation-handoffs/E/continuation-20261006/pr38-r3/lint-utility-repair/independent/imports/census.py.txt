@@ -1,0 +1,79 @@
+"""Read immutable utility ASTs and classify every original assertion predicate."""
+import ast
+import collections
+import copy
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+REPO=Path('/workspace/e02-E-cal05-20261006')
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/import-lint-independent')
+BASE='8047bfdbb1a7e8c4b031384acf6b45e302591620'
+FINAL='90c6f82ab8c9ca056f69635487f299bea6245862'
+paths=json.loads(Path('/workspace/e02-E-pr38-r3-receipts/lint-r4/source-inputs.json').read_text())['owned_paths']
+
+def blob(ref,path):
+ return subprocess.check_output(['/usr/bin/git','show',ref+':'+path],cwd=REPO)
+def dump(node):
+ return ast.dump(node,include_attributes=False)
+def normalized(node,mapping=None):
+ node=copy.deepcopy(node)
+ class Names(ast.NodeTransformer):
+  def visit_Name(self,n):
+   n.id=(mapping or {}).get(n.id,n.id); return n
+  def visit_Call(self,n):
+   self.generic_visit(n)
+   if isinstance(n.func,ast.Name) and n.func.id=='_resolve_executable' and len(n.args)==1 and isinstance(n.args[0],ast.Constant): return n.args[0]
+   n.keywords=sorted(n.keywords,key=lambda k:k.arg or '')
+   return n
+ return dump(Names().visit(node))
+def mappings(old,new):
+ old_assign=collections.defaultdict(set);new_assign=collections.defaultdict(set)
+ for tree,store in [(old,old_assign),(new,new_assign)]:
+  for n in ast.walk(tree):
+   if isinstance(n,(ast.Assign,ast.AnnAssign)) and n.value is not None:
+    targets=n.targets if isinstance(n,ast.Assign) else [n.target]
+    if len(targets)==1 and isinstance(targets[0],ast.Name): store[normalized(n.value)].add(targets[0].id)
+ result={}
+ for k,v in old_assign.items():
+  if len(v)==1 and len(new_assign.get(k,set()))==1:
+   a=next(iter(v)); b=next(iter(new_assign[k]));
+   if a!=b:result[b]=a
+ return result
+
+def negated(n):
+ if isinstance(n,ast.UnaryOp) and isinstance(n.op,ast.Not):return n.operand,'double_not'
+ if isinstance(n,ast.Compare) and len(n.ops)==1:
+  inverse={ast.Eq:ast.NotEq,ast.NotEq:ast.Eq,ast.Is:ast.IsNot,ast.IsNot:ast.Is,ast.In:ast.NotIn,ast.NotIn:ast.In}
+  if type(n.ops[0]) in inverse:
+   out=copy.deepcopy(n);out.ops=[inverse[type(n.ops[0])]()];return out,'single_comparison_inversion'
+ return ast.UnaryOp(op=ast.Not(),operand=n),'logical_not'
+records=[];totals=collections.Counter()
+for path in paths:
+ b=blob(BASE,path);c=blob(FINAL,path);old=ast.parse(b);new=ast.parse(c);mapnew=mappings(old,new)
+ tests=[n for n in ast.walk(old) if isinstance(n,ast.Assert)]
+ failures=[n for n in ast.walk(new) if isinstance(n,ast.If) and any(isinstance(x,ast.Raise) and (isinstance(x.exc,ast.Name) and x.exc.id=='AssertionError' or isinstance(x.exc,ast.Call) and isinstance(x.exc.func,ast.Name) and x.exc.func.id=='AssertionError') for x in n.body)]
+ lookup=collections.defaultdict(list)
+ for n in failures:lookup[normalized(n.test,mapnew)].append(n)
+ rows=[]
+ for n in tests:
+  complement,kind=negated(n.test)
+  options=lookup.get(normalized(complement),[])
+  if not options and kind!='logical_not':
+   options=lookup.get(normalized(ast.UnaryOp(op=ast.Not(),operand=n.test)),[])
+   if options:kind='logical_not'
+  if options:
+   match=options.pop(0); totals[kind]+=1
+   row={'old_line':n.lineno,'new_line':match.lineno,'class':kind,'old_predicate':ast.unparse(n.test),'new_failure_predicate':ast.unparse(match.test)}
+  else:
+   totals['unmatched']+=1;row={'old_line':n.lineno,'class':'unmatched','old_predicate':ast.unparse(n.test),'old_dump':normalized(n.test)}
+  rows.append(row)
+ totals['original_assertions']+=len(tests)
+ if tests:records.append({'path':path,'old_sha256':hashlib.sha256(b).hexdigest(),'candidate_sha256':hashlib.sha256(c).hexdigest(),'renames':mapnew,'rows':rows,'new_failure_predicates':[{'line':n.lineno,'predicate':ast.unparse(n.test),'normalized':normalized(n.test,mapnew)} for n in failures]})
+out={'schema':'policyos.e02.independent_predicate_census.v1','base':BASE,'candidate':FINAL,'utility_denominator':len(paths),'totals':dict(totals),'records':records,'limits':'AST complement census classifies guard forms; runtime type/sideeffect admission requires independent class controls. No finding closure.'}
+(ROOT/'predicate-census.json').write_text(json.dumps(out,indent=2)+'\n')
+summary={k:v for k,v in out.items() if k!='records'}
+summary['unmatched_records']=[{**{k:v for k,v in row.items() if k not in ['rows','new_failure_predicates']},'rows':[x for x in row['rows'] if x['class']=='unmatched'],'new_failure_predicates':row['new_failure_predicates']} for row in records if any(x['class']=='unmatched' for x in row['rows'])]
+(ROOT/'predicate-complement-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+sys.stdout.write(json.dumps({k:v for k,v in summary.items() if k!='unmatched_records'},indent=2)+'\n')

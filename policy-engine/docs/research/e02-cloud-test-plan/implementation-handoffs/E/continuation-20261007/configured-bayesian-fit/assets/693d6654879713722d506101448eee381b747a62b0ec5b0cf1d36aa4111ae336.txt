@@ -1,0 +1,11 @@
+{
+  "include": [
+    "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "src/polisyos/foundry/calibration/bayesian_fit_bridge.py"
+  ],
+  "extraPaths": [
+    "src"
+  ],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "standard"
+}

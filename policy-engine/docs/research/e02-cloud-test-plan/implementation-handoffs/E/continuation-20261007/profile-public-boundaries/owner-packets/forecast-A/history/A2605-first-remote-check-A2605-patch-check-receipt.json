@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "git",
+    "apply",
+    "--check",
+    "/tmp/e02-E-forecast-packet-thirteenth-20261007/A2605-status-reason-carry.patch.txt"
+  ],
+  "cwd": "/tmp/e02-E-forecast-packet-thirteenth-20261007/ignored-patch-check-input",
+  "exit": 0,
+  "patch_applied": false,
+  "patch_bytes": 2456,
+  "patch_sha256": "4d054b2baac3a8ea79c4642ece4f4d679ee604c83d216c770d08cc501d28f52a",
+  "product_runtime_outcome": "UNRUN",
+  "scope": "read-only patch context applicability, not behavioral proof",
+  "source": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "source_blob": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+  "source_sha256": "a1b87490e228fc9364ef77955bb0d911eaa4571e093ee7183108d91b37681f6b",
+  "stderr": "",
+  "stdout": ""
+}

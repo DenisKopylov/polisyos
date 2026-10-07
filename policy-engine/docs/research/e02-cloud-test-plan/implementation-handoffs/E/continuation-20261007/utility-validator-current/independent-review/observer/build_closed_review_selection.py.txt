@@ -1,0 +1,33 @@
+from __future__ import annotations
+import hashlib,json,pathlib
+D=pathlib.Path('/tmp/e02-E-validator-format-independent-r4');R=pathlib.Path('/workspace/e02-E-frc-20261006');P=R/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary'
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+normal=json.loads((D/'review-2350-normal.stdout.json').read_text());optimized=json.loads((D/'review-2350-optimized.stdout.json').read_text());sourcecheck=json.loads((D/'source-Ruff-format-2350.json').read_text());summary={'schema':'policyos.e02.closed_independent_utility_source_GO.v1','source':normal['source'],'tree':normal['tree'],'base':normal['base'],'outcome':'GO bounded utility source only','actual_CLI_current':{'normal':0,'optimized':0,'actual_corrupt_controls_each':14},'actual_CLI_default':{'normal':1,'optimized':1,'reason':'copy-index portable bytes mismatch; historical program212 index retained'},'old_Git212_actual_helpers':{'healthy':'PASS','normal_corrupt_controls':14,'optimized_corrupt_controls':14,'tracked_files':219,'old_main_scope':'Author literal oldmain CLI replay remains independently-byte-bound author evidence; own exactGit originalhelper replay is separate, not claimed a newoldmain CLI invocation.'},'malformed_whole_source_object_controls_each':21,'new_callback_count':0,'sole_entry_call_removal_late_None_dot_bool_callback_counts':[2,2,2],'old_red_None_dot_bool_callback_counts':[2,2,2],'Ruff_format_affected_program':[x['exit_code'] for x in sourcecheck['checks']],'historical_original_unchanged_files':normal['historical_file_count'],'validate_copy_index_AST_unchanged':True,'validate_main_review_scope':normal['AST_review'],'normal_review':ref(D/'review-2350-normal.stdout.json'),'optimized_review':ref(D/'review-2350-optimized.stdout.json'),'affected_source_style_receipt':ref(D/'source-Ruff-format-2350.json'),'source_global_finding_outcomes':'No numerical/fullglobal repeat. This utilityGO does not accept scientific source700/current3932 findings or required globalgates. Historical scientific receipt/index literal; newfindingproposals{}; currentselfbinding derivative separate.','P41':'not_established','ROOT_FRC_source_environment_written':False,'nondeciding_observer_history':'First live input late-path probe hit legacy selfhash refusal before path admission, so zero callbacks there do not measure pathpreflight. Exact immutable219Git replay then established old2callbacks; originalconfounded stdout retained as history.'}
+(D/'final-source-GO.json').write_text(json.dumps(summary,indent=2)+'\n')
+files=[]
+def add(p,portable,role):
+ r=ref(p)
+ if portable.endswith('.json'):json.loads(p.read_bytes())
+ if portable.endswith('.py'):raise ValueError('passive publication source required')
+ files.append({**r,'portable_path':portable,'role':role})
+for name in ['review_2350_candidate.py','replay_old_git212.py','probe_old212_whole_record_path.py','build_closed_review_selection.py']:
+ add(D/name,'observer/'+name+'.txt','literal read-only reviewer source')
+for name in ['review-2350-normal.stdout.json','review-2350-normal.stderr.txt','review-2350-optimized.stdout.json','review-2350-optimized.stderr.txt','old212-git-replay-normal.stdout.json','old212-git-replay-normal.stderr.txt','old212-git-replay-optimized.stdout.json','old212-git-replay-optimized.stderr.txt','old212-whole-record-path-normal.stdout.json','old212-whole-record-path-normal.stderr.txt','old212-whole-record-path-optimized.stdout.json','old212-whole-record-path-optimized.stderr.txt','old212-path-admission-probe.stdout.json','old212-path-admission-probe.stderr.txt','current-2350-normal.stdout.txt','current-2350-normal.stderr.txt','current-2350-optimized.stdout.txt','current-2350-optimized.stderr.txt','historical-default-2350-normal.stdout.txt','historical-default-2350-normal.stderr.txt','historical-default-2350-optimized.stdout.txt','historical-default-2350-optimized.stderr.txt','source-Ruff-format-2350.json','source-Ruff-2350.stdout.txt','source-Ruff-2350.stderr.txt','source-format-2350.stdout.txt','source-format-2350.stderr.txt','final-source-GO.json']:
+ add(D/name,'outputs/'+name,'exact closed reviewer output; confounded initialprobe labeled historical nondeciding')
+# Freeze the exact programs, not duplicate219 historical data or author overlays.
+for label,p in [('old212',(D/'immutable-old212-publication/validate.py')),('current2350',P/'validate.py')]:
+ target=D/(label+'-source.py.txt');target.write_bytes(p.read_bytes());add(target,'source/'+target.name,'exact independently inspected program bytes')
+if len({r['portable_path'] for r in files})!=len(files):raise ValueError('duplicate portable path')
+unique={}
+for r in files:
+ key=(r['bytes'],r['sha256'])
+ if key in unique:
+  if pathlib.Path(r['path']).read_bytes()!=pathlib.Path(unique[key]['path']).read_bytes():raise ValueError('content collision')
+  r['content_alias_of']=unique[key]['portable_path']
+ else:unique[key]=r
+selection={'schema':'policyos.e02.closed_moderate_independent_utility_source_review_selection.v1','source':normal['source'],'tree':normal['tree'],'base':normal['base'],'outcome':'GO bounded utility source; global/finding verdict separate','asset_count':len(files),'logical_bytes':sum(r['bytes'] for r in files),'content_unique_count':len(unique),'content_unique_bytes':sum(r['bytes'] for r in unique.values()),'assets':files,'immutable219_input_fixture_raw_not_copied_again':'Complete219 Git path/object/size/hash index in bothold212replay outputs, reproducible from3d002987 Git; no ignoredpyc used.','author_three_source_paths_not_duplicated':'Exact complete3-path footprint/hash index in both2350review outputs; Git2350 resolvesbothcurrentJSON overlays and source.','pending_builder_stdout_excluded':True,'empty_JSON_count':sum(r['bytes']==0 and r['portable_path'].endswith('.json') for r in files)}
+(D/'publication-selection-2350.json').write_text(json.dumps(selection,indent=2)+'\n')
+for r in files:
+ if ref(pathlib.Path(r['path']))['sha256']!=r['sha256']:raise ValueError('selected source/output changed')
+print(json.dumps({'selection':ref(D/'publication-selection-2350.json'),'source_GO':ref(D/'final-source-GO.json'),'logical':len(files),'unique':len(unique),'unique_bytes':selection['content_unique_bytes']},indent=2))

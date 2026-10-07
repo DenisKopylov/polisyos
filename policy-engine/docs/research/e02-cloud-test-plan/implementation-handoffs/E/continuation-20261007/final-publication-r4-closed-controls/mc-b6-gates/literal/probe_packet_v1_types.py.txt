@@ -1,0 +1,14 @@
+import ast,copy,hashlib,json,pathlib,sys
+r=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=r/'build_gate_packet.py.txt';tree=ast.parse(p.read_text());body=[]
+for n in tree.body:
+ if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='summary' for t in n.targets):break
+ body.append(n)
+ns={'__name__':'packet_v1_type_probe'};exec(compile(ast.Module(body=body,type_ignores=[]),str(p),'exec'),ns);healthy=json.loads((r/'three-selector-packet.json').read_text());cases=[]
+for label,mutate in [('native_exit_bool',lambda x:x['current']['architecture'].__setitem__('native_exit_code',True)),('top_source_guard_int',lambda x:x.__setitem__('source_immutable',1))]:
+ bad=copy.deepcopy(healthy);mutate(bad)
+ try:ns['validate'](bad)
+ except ValueError as e:cases.append({'case':label,'accepted':False,'reason':str(e)})
+ else:cases.append({'case':label,'accepted':True,'receipt_and_source_refs_preserved':True})
+v={'schema':'policyos.e02.E.actual_packet_v1_type_escapes.v1','source':'b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4','actual_observer_source':{'path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()},'cases':cases,'native_gate_or_source_edited':False,'scope':'Historical summary validator type counterexamples; actual complete native outcomes remain correct.'}
+with (r/'packet-v1-type-escapes.json').open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps(v,indent=2))

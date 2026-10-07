@@ -1,0 +1,46 @@
+from pathlib import Path
+import copy,hashlib,json,os,stat,subprocess
+D=Path('/tmp/e02-E-terminal-root-restore-independent-20261007');D.mkdir(exist_ok=True)
+P=Path('/tmp/e02-E-terminal-root-restore-20261007/receipt.json');R=Path('/workspace/e02-E-continuation-20261006');HEAD='64d7444a18c55df7b88b71b7699a2f1b25ca24bd';TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+N=R.parent/'e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.json'
+def need(q,m):
+ if not q:raise ValueError(m)
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def verify(r):
+ p=Path(r['path']);b=p.read_bytes();need(len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256'],'literal complete snapshot hash/size '+str(p));return b
+j=json.loads(P.read_text());ob=json.loads(verify(j['observed_midrun']));native=json.loads(N.read_text());expected={r['path']:r for r in ob['rows']}
+def validate(d,full=True):
+ need(d['source']==HEAD and d['tree']==TREE and subprocess.check_output(['git','rev-parse',HEAD+'^{tree}'],cwd=R,text=True).strip()==TREE,'immutable source tree')
+ need(type(d['restored_count']) is int and len(d['rows'])==d['restored_count']==29 and {x['path'] for x in d['rows']}==set(expected),'exact terminal path denominator')
+ need(d['historical_full_input_immutability'] is False and d['native_outcome']==native['outcome']=='FAIL' and d['native_exit_code']==native['exit_code']==137 and d['native_JUnit_counts'] is native['counts'] is None and d['native_full_scope_completion_established'] is False and d['native_caller_attribution']=='not_established' and d['global_quiescence_claimed'] is False and d['restoration_does_not_retroactively_validate_native_run'] is True,'no retrospective native/fullinput/caller authority')
+ need(not Path(native['junit']).exists(),'no native JUnit fabricated')
+ if full:
+  records=[]
+  for row in d['rows']:
+   terminal=verify(row['terminal']);savedgit=verify(row['git64d']);old=subprocess.check_output(['git','show',HEAD+':'+row['path']],cwd=R)
+   need(savedgit==old,'independent immutable Git body '+row['path'])
+   mid=expected[row['path']];need(hashlib.sha256(terminal).hexdigest()==mid['current']['sha256'] and len(terminal)==mid['current']['bytes'],'terminal equals original midrun body '+row['path'])
+   need(hashlib.sha256(savedgit).hexdigest()==mid['head']['sha256'] and len(savedgit)==mid['head']['bytes'],'original immutable source body binding')
+   live=R/row['path'];need(not live.is_symlink() and live.is_file(),'restored file kind')
+   need(live.read_bytes()==old and stat.S_IMODE(live.stat().st_mode)==row['mode'],'current body and preserved terminal permission bits')
+   need(row['restored']['sha256']==row['git64d']['sha256'] and row['restored']['bytes']==row['git64d']['bytes'],'closed restore metadata consistency')
+   records.append({'path':row['path'],'terminal_bytes':len(terminal),'Git_bytes':len(savedgit),'permission_bits':row['mode'],'terminal_changed_from_Git':terminal!=savedgit,'terminal_matches_midrun':True,'saved_and_live_restored_bytes_equal_immutable64d':True})
+  for x in d['unique_untracked_preserved']:need((R/x['path']).read_bytes()==verify(x['saved']),'unique original and saved snapshot')
+  before=verify(d['status_before']).split(b'\0');after=verify(d['status_after']).split(b'\0')
+  tracked={x[3:].decode() for x in before if x and x[:2]!=b'??'}
+  need(tracked==set(expected) and all(x[:2]==b' M' for x in before if x and x[:2]!=b'??'),'captured exact29 status')
+  need(all(x[:2]==b'??' for x in after if x),'captured tracked clean after')
+  for key in ('process_before','process_after'):
+   b=verify(d[key]);pids={int(z.split(None,1)[0]) for z in b.splitlines()[1:] if z.split() and z.split()[0].isdigit()}
+   need(not {536903,536937,536940}&pids,'captured native PIDs absent')
+  need(len(d['unique_untracked_preserved'])==12,'exact twelve retained useful artifacts/locks')
+  return records
+ return []
+records=validate(j);controls=[]
+for name,fn in [('omitted_row_adjusted_count',lambda d:(d['rows'].pop(),d.__setitem__('restored_count',28))),('count_bool',lambda d:d.__setitem__('restored_count',True)),('wrong_tree',lambda d:d.__setitem__('tree','0'*40)),('false_native_PASS',lambda d:d.__setitem__('native_outcome','PASS')),('false_full_input_immutable',lambda d:d.__setitem__('historical_full_input_immutability',True)),('false_native_caller',lambda d:d.__setitem__('native_caller_attribution','native generator'))]:
+ d=copy.deepcopy(j);fn(d)
+ try:validate(d,False)
+ except ValueError as e:controls.append({'case':name,'outcome':'refused','reason':str(e)})
+ else:raise ValueError('negative admitted '+name)
+review={'schema':'policyos.e02.independent_terminal_restore_custody_review.v1','outcome':'GO bounded byte restoration custody','source':HEAD,'tree':TREE,'receipt':ref(P),'operation_source':ref(Path('/tmp/e02-E-terminal-root-restore-20261007.py')),'native_closed_receipt':ref(N),'rows':records,'counts':{'tracked_restored':29,'terminal_snapshot_bytes':sum(x['terminal_bytes'] for x in records),'immutable_Git_snapshot_bytes':sum(x['Git_bytes'] for x in records),'unique_original_and_saved_artifacts':12,'unique_saved_bytes':sum(x['saved']['bytes'] for x in j['unique_untracked_preserved']),'corrupt_metadata_refusals':len(controls)},'controls':controls,'qualifications':['29 terminal bodies match fixed midrun observations; restored bodies independently equal immutable64d Git objects, retained generated permissions, all58 snapshot bodies retain exact recorded hashes.','Status snapshots show exact29 tracked M before and only retained two untracked directory prefixes afterwards. These are historical moment snapshots; current HEAD may append-merge and no requirement live HEAD remain64d.','No execution of restoring script or native backend by reviewer. Restoration script source only performs admitted29 atomic byte replacements after saved snapshot and rechecks; no Git reset/checkout/history change.','12 unique original/saved files retained including one screenshot and eleven lock files.','Native closed receipt FAIL exit137 with countsnull/noJUnit remains. No retrospective PASS, full denominator completion, cause attribution or global process quiescence established.'],'P37_basis':[{'predicate':'saved snapshots versus immutable64d original objects and midrun bytes','basis':'independently_reconciled'},{'predicate':'captured status/path/hash/mode/unique preservation and corrupt claims','basis':'recomputed'},{'predicate':'native individual caller, full scope completion, historical full input immutability, global quiescence','basis':'not_established'}]}
+p=D/'review.json';p.write_text(json.dumps(review,indent=2)+'\n');print(json.dumps(review,indent=2))

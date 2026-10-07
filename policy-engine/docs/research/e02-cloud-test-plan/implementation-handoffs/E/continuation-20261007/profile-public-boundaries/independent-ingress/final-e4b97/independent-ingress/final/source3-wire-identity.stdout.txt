@@ -1,0 +1,8 @@
+{
+  "candidate": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "outcomes": {
+    "PASS": 2,
+    "FAIL": 0
+  },
+  "prior_current_ref": "sha256:ccfdb684de92c0755b377a49ba81e95f3afc0adc898c683eb05d5af7ed763437"
+}

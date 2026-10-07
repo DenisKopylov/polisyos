@@ -1,0 +1,105 @@
+"""Exercise canonical collector on exact selected source and marker-preserving fake."""
+from __future__ import annotations
+import argparse
+import dataclasses
+import hashlib
+import importlib.util
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+from unittest.mock import patch
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--candidate', required=True)
+parser.add_argument('--base', required=True)
+parser.add_argument('--repo', required=True)
+parser.add_argument('--destination', required=True)
+args = parser.parse_args()
+REPO = Path(args.repo)
+DEST = Path(args.destination)
+
+def require(value, reason):
+    if not value:
+        raise AssertionError(reason)
+
+def git(*argv):
+    return subprocess.check_output(['/usr/bin/git', '-C', str(REPO), *argv])
+
+def read(ref, path):
+    return git('show', ref + ':' + path)
+
+for ref in (args.candidate, args.base):
+    require(re.fullmatch('[0-9a-f]{40}', ref), 'full immutable SHA required')
+paths = ['policy-engine/pyproject.toml', 'policy-engine/tools/devx/architecture/guardrails.py', 'policy-engine/architecture/public_surface/contract.toml', 'policy-engine/architecture/baselines/imports/deep_import.json']
+changed = git('diff', '--name-only', args.base, args.candidate).decode().splitlines()
+source_paths = [p for p in changed if p.startswith('policy-engine/src/polisyos/') and p.endswith('.py')]
+rows = []
+for label, ref in [('base', args.base), ('candidate', args.candidate)]:
+    fixture = DEST / label / 'policy-engine'
+    bindings = []
+    for path in paths:
+        value = read(ref, path)
+        target = fixture / path.removeprefix('policy-engine/')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(value)
+        bindings.append({'path': path, 'git_blob': git('rev-parse', ref + ':' + path).decode().strip(), 'sha256': hashlib.sha256(value).hexdigest(), 'bytes': len(value)})
+    loaded_source = []
+    for path in source_paths:
+        listed = git('ls-tree', '--name-only', ref, '--', path)
+        if not listed:
+            continue
+        value = read(ref, path)
+        target = fixture / path.removeprefix('policy-engine/')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(value)
+        loaded_source.append({'path': path, 'bytes': len(value), 'sha256': hashlib.sha256(value).hexdigest()})
+    (fixture / 'src').mkdir(parents=True, exist_ok=True)
+    spec = importlib.util.spec_from_file_location('ir_review_architecture_' + label, fixture / 'tools/devx/architecture/guardrails.py')
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    module.REPO_ROOT = fixture
+    module.SRC_ROOT = fixture / 'src'
+    policies = module._parse_public_surface(fixture / 'architecture/public_surface/contract.toml')
+    baseline = fixture / 'architecture/baselines/imports/deep_import.json'
+    edges = module.collect_deep_import_edges(policies)
+    violations = module._check_deep_import_creep(baseline_path=baseline, current_edges=edges)
+    rows.append({'role': label, 'sha': ref, 'source_path_count': len(loaded_source), 'source_files': loaded_source, 'contract_bindings': bindings, 'complete_edges': [dataclasses.asdict(v) for v in edges], 'complete_violations': [dataclasses.asdict(v) for v in violations]})
+    if label == 'candidate':
+        current, current_root, current_policies, current_baseline = module, fixture, policies, baseline
+
+baseline_bytes = current_baseline.read_bytes()
+contract_path = current_root / 'architecture/public_surface/contract.toml'
+contract_bytes = contract_path.read_bytes()
+source = current_root / 'src/polisyos/scientist/nodes/builtins/simulate/profile_facade_probe.py'
+source.parent.mkdir(parents=True, exist_ok=True)
+fixtures = {
+    'healthy_declared_analytics_facade': '# Uses supported public posterior facade.\nfrom polisyos.ir.analytics import posterior_nominal_mean as PublicPosteriorMean\n',
+    'present_but_fake_deep_facade': '# Uses supported public posterior facade.\nfrom polisyos.ir.analytics.posterior_summary import posterior_nominal_mean as PublicPosteriorMean\n',
+}
+controls = []
+for name, value in fixtures.items():
+    source.write_text(value)
+    edges = current.collect_deep_import_edges(current_policies)
+    violations = current._check_deep_import_creep(baseline_path=current_baseline, current_edges=edges)
+    matched = [v for v in violations if v.source_module == 'polisyos.scientist.nodes.builtins.simulate.profile_facade_probe']
+    require(bool(matched) == (name == 'present_but_fake_deep_facade'), 'actual route predicate missed fake facade')
+    controls.append({'case': name, 'outcome': 'PASS', 'source_sha256': hashlib.sha256(value.encode()).hexdigest(), 'probe_violation_count': len(matched), 'probe_violations': [dataclasses.asdict(v) for v in matched], 'total_selected_source_violation_count': len(violations)})
+with patch.object(current, '_maybe_add_deep_import', lambda **kwargs: None):
+    removed_edges = current.collect_deep_import_edges(current_policies)
+    removed_violations = current._check_deep_import_creep(baseline_path=current_baseline, current_edges=removed_edges)
+try:
+    require(any(v.source_module == 'polisyos.scientist.nodes.builtins.simulate.profile_facade_probe' for v in removed_violations), 'actual collector property removed while public markers survive')
+except AssertionError as error:
+    removal = {'discriminator': 'PASS', 'required_negative_gate': 'FAIL', 'reason': str(error), 'actual_edge_count': len(removed_edges), 'actual_violation_count': len(removed_violations)}
+else:
+    raise AssertionError('collector removal escaped required negative')
+require(current_baseline.read_bytes() == baseline_bytes and contract_path.read_bytes() == contract_bytes, 'contract or complete baseline modified')
+old_keys = {(row['source_module'], row['target_module']) for row in rows[0]['complete_edges']}
+new_keys = {(row['source_module'], row['target_module']) for row in rows[1]['complete_edges']}
+result = {'schema': 'policyos.e02.E.author_finite_law_architecture_controls.v1', 'candidate': args.candidate, 'base': args.base, 'candidate_tree': git('rev-parse', args.candidate + '^{tree}').decode().strip(), 'actual_runtime_path': ['guardrails.collect_deep_import_edges', 'guardrails._check_deep_import_creep'], 'predicate_basis': 'recomputed', 'selected_complete_product_source_denominator': len(source_paths), 'source_receipts': rows, 'new_actual_deep_edges': sorted(new_keys - old_keys), 'removed_actual_deep_edges': sorted(old_keys - new_keys), 'controls': controls, 'property_removal': removal, 'baseline_unchanged': True, 'contract_unchanged': True, 'proxy_divergence': 'PublicPosteriorMean alias/comment remains identical while actual AST module changes from supported analytics entrypoint to a private deep module.', 'unresolved_by_construction': ['Tests/docs/ABI companions are outside the canonical product-source collector; full changed-Python import census records them separately.', 'These complete selected-source checks do not run full global architecture workflow or establish export identity or lawful runtime content.'], 'limits': 'Selected immutable product-source blobs copied only into scratch fixtures; no author/source/checkouts changed, no baseline/exception expansion. Existing selected deep violations are retained; no P41 inherited attribution or full architecture PASS is claimed.'}
+DEST.mkdir(parents=True, exist_ok=True)
+(DEST / 'architecture-controls.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({k: v for k, v in result.items() if k != 'source_receipts'}, indent=2))

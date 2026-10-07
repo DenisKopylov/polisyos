@@ -1,0 +1,16 @@
+{
+  "branch": "codex/e02-E-doe-20261006",
+  "candidate": "73e298743bb5f56e40d5ad31446ce2728db02ff7",
+  "tree": "0dba6c8a03f009838a72589965ff8676c1177005",
+  "status": "",
+  "actual_commit_tool_exit_code": 0,
+  "original_commit_stream_boundary": "Tool return was truncated at output limit (Git stat+commit combined); no literal full raw commit stdout was captured. This exact postcommit Git readback independently establishes the completed immutable commit. No fabricated raw stream.",
+  "actual_commit_argv": [
+    "git",
+    "commit",
+    "-m",
+    "docs(e02): hand off native Layer3 default-root write isolation"
+  ],
+  "display_command_unquoted": "git commit -m docs(e02): hand off native Layer3 default-root write isolation",
+  "display_command_is_not_shell_recipe": true
+}

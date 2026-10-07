@@ -1,0 +1,23 @@
+{
+  "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+    "--mode",
+    "bootstrap",
+    "-q",
+    "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_invalid_bootstrap_shape_rejects_before_callable_or_rng",
+    "-o",
+    "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-bootstrap-cache",
+    "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-bootstrap-002"
+  ],
+  "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+  "returncode": 1,
+  "wall_s": 28.14859798300313,
+  "rss_kib_direct_and_children": 533020,
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "output": "final-bootstrap-removal.log"
+}

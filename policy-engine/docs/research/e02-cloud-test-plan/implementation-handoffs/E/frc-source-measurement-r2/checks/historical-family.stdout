@@ -1,0 +1,15 @@
+......................................................F.                 [100%]
+=================================== FAILURES ===================================
+_____ test_forecast_exports_preserve_canonical_types_and_refuse_authority ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-177/test_forecast_exports_preserve0')
+
+    def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path: Path) -> None:
+        owner = importlib.import_module("polisyos.calibration.forecast_bridge")
+>       for name in calibration._FORECAST_EXPORTS:
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'polisyos.calibration' has no attribute '_FORECAST_EXPORTS'
+
+tests/unit/calibration/test_evidence_facades.py:17: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/calibration/test_evidence_facades.py::test_forecast_exports_preserve_canonical_types_and_refuse_authority

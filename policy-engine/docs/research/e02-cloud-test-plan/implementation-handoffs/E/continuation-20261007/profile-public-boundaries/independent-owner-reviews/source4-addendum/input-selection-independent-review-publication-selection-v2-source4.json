@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "reviewer": "/root/fit_packet",
+  "scope": "Independent API/forecast/full54 reviews, separate from own authored finite-float packet",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/initial-review.json",
+      "portable_path": "independent-api-review/initial-review.json",
+      "bytes": 2597,
+      "sha256": "0099a987b969d325f810ed50cd85a2d3ae0410b34eae8163c6a3c1baba75388e",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/readback.json",
+      "portable_path": "independent-api-review/readback.json",
+      "bytes": 21940,
+      "sha256": "610ec4f05dbdc37330b5806cccd2f79e4347815fb1a134c8ad1675880fb9ff01",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/final-review-v2.json",
+      "portable_path": "independent-api-review/final-review-v2.json",
+      "bytes": 13360,
+      "sha256": "3f334dfc689e532e7314da37f924df12169cb95dd047f44138b8cb99483fd148",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/three-patches-check.stdout.txt",
+      "portable_path": "independent-api-review/three-patches-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/three-patches-check.stderr.txt",
+      "portable_path": "independent-api-review/three-patches-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/three-patches-v2-check.stdout.txt",
+      "portable_path": "independent-api-review/three-patches-v2-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/three-patches-v2-check.stderr.txt",
+      "portable_path": "independent-api-review/three-patches-v2-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/final-source3-selector-review.json",
+      "portable_path": "independent-api-review/final-source3-selector-review.json",
+      "bytes": 9942,
+      "sha256": "2fe0e3d4860ffc32d1feaba064f0518e883472411367be4194f863dc4ea148b9",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-forecast-review/review.json",
+      "portable_path": "independent-forecast-review/review.json",
+      "bytes": 25403,
+      "sha256": "7e4057cfca28def6cb7bf3c5967bb0eeefcabede73950943f5b5031418af16a3",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-forecast-review/A332-independent-context-check.stdout.txt",
+      "portable_path": "independent-forecast-review/A332-independent-context-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-forecast-review/A332-independent-context-check.stderr.txt",
+      "portable_path": "independent-forecast-review/A332-independent-context-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-v2-source11082.json",
+      "portable_path": "independent-full54-review/review-v2-source11082.json",
+      "bytes": 72218,
+      "sha256": "b5b8ee8ea2566722c274736af37d8a41e8083d61c68ba5a0e6b6f2c9440be6e8",
+      "role": "non-author independent review/custody or complete exact read-only context-check output"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-source4-final.json",
+      "portable_path": "independent-full54-review/review-source4-final.json",
+      "bytes": 18002,
+      "sha256": "b672b909eb2fe4be5b736c0d10189b5d4d64e98373a569ddcc1e0349190d3e8c",
+      "role": "non-author Source4 final additive custody/status/actual output review; pure document controls normal/optimized, no numerical/backend rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-source4-final-optimized.json",
+      "portable_path": "independent-full54-review/review-source4-final-optimized.json",
+      "bytes": 18001,
+      "sha256": "3dbf0c8c4b0bbfc4d80a316114f1a20b7233c136f4790a8ba989d4344fc06e32",
+      "role": "non-author Source4 final additive custody/status/actual output review; pure document controls normal/optimized, no numerical/backend rerun"
+    }
+  ],
+  "files": 14,
+  "bytes": 181463,
+  "source_read_lease": "CLOSED",
+  "no_active_python_utility": true,
+  "numeric_backend_rerun": false,
+  "formal_G_acceptance": 0,
+  "historical_requested_full54_hash_mismatch": "Original242433B1e848 requested draft advanced; reviewer stopped, informed author/root, then reviewed immutable author V2 243560Bf840, retaining original variants in author custody. No decision inferred from mutable mismatch.",
+  "source3_additive_requirement": "Resolved by Source4 additive reviews: corrected frozen final bindingV2 and separately completed whole-architecture FAIL overlay. Original V2/prewave bytes, actual source identities and G0 retained; no global/scientific/finding closure promoted.",
+  "supersedes_selection_by_additive_assets": {
+    "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-review-publication-selection.json",
+    "bytes": 5842,
+    "sha256": "79fe951a1df07eb4d0de18d82695e64cab59cf71d155380cd44248d0393ae8b6"
+  }
+}

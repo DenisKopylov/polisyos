@@ -1,0 +1,13 @@
+.....................                                                    [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py::test_healthy_two_row_point_analysis_keeps_one_trajectory_limit
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py::test_admitted_original_work_keeps_whole_trajectory_drop_accounting
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:222: RuntimeWarning: Degrees of freedom <= 0 for slice
+    ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py::test_healthy_two_row_point_analysis_keeps_one_trajectory_limit
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py::test_admitted_original_work_keeps_whole_trajectory_drop_accounting
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:211: RuntimeWarning: invalid value encountered in divide
+    ret = um.true_divide(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

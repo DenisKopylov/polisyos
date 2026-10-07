@@ -1,0 +1,268 @@
+{
+  "schema": "e02.E.independent.final54.current_CASE_GATE_metadata_review.v1",
+  "outcome": "GO_SCOPED_METADATA",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "builder": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py",
+    "bytes": 22133,
+    "sha256": "f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+    "bytes": 1144158,
+    "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+  },
+  "companion_source_hashes": {
+    "join_globals.py": "f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878",
+    "prepare_v4.py": "bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d",
+    "join_wave_v2.py": "4863eec9812489df7b0582a33f6fdd5a9e57ed69d97ecbdaa00147d51473263a",
+    "current-all-54-b2-final-v4-normal.json": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+  },
+  "whole_actual_builder_output_equal": true,
+  "actual_cases": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_native_split": {
+    "cases": 1458,
+    "passed": 1457,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_A_split": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "complete_groups": [
+    {
+      "name": "pcl-continuous-persistence",
+      "count": 101,
+      "outcomes": {
+        "PASS": 101
+      },
+      "XML_sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4"
+    },
+    {
+      "name": "ddm-runtime-and-facade",
+      "count": 82,
+      "outcomes": {
+        "PASS": 82
+      },
+      "XML_sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7"
+    },
+    {
+      "name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "count": 321,
+      "outcomes": {
+        "PASS": 313,
+        "FAIL": 8
+      },
+      "XML_sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8"
+    },
+    {
+      "name": "cal-and-welfare-consumer",
+      "count": 69,
+      "outcomes": {
+        "PASS": 69
+      },
+      "XML_sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b"
+    },
+    {
+      "name": "mc-joint-law-support-and-scientist-consumer",
+      "count": 612,
+      "outcomes": {
+        "PASS": 612
+      },
+      "XML_sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd"
+    },
+    {
+      "name": "doe-salib-and-consumer-factory",
+      "count": 221,
+      "outcomes": {
+        "PASS": 221
+      },
+      "XML_sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563"
+    },
+    {
+      "name": "g-checkpoint10-controlplanestore-companion",
+      "count": 59,
+      "outcomes": {
+        "PASS": 59
+      },
+      "XML_sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71"
+    }
+  ],
+  "case_identity_multiset_equal": true,
+  "checked_perrow_navigation_bindings": 1013,
+  "all_original54_22_55_and13_role_body_sourceconservation": true,
+  "source77_qualifier": "Only prior externalimports independent77review433 literal/hash binding; this reviewer does not self-review authored77 code",
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "bounded_E_proposals": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2,
+    "open": 0
+  },
+  "formal_G_acceptance": false,
+  "seven_gates": {
+    "FAIL": 7
+  },
+  "parent39stage_counts": {
+    "PASS": 1,
+    "FAIL": 2,
+    "UNRUN": 36
+  },
+  "parent_by_selector": {
+    "workspace-verify": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "ci-parity": {
+      "PASS": 0,
+      "FAIL": 1,
+      "UNRUN": 23
+    }
+  },
+  "controls": [
+    {
+      "case": "typed casecount1465→float",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "hide total8FAIL",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "hide native1FAIL",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "hide A7FAIL",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "individual gateFAIL→PASS",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "parent UNRUN→PASS",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "typed CIzeroPASS→False",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "actual gate receipt stale digest",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "global7 denominator→1",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "stale perrole digest",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "row owner pending→accepted",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "Gfalse→true",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "historical closedcount1→True",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "P37 explanation substituted basis",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "recipe currentcandidate→e9",
+      "outcome": "PASS",
+      "expected_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "case": "retotalled original54 member omission",
+      "outcome": "PASS",
+      "actual_refusal": true
+    },
+    {
+      "case": "effective soleguard removal hide native1FAIL",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_current_metadata_property": "FAIL",
+      "source_original_raw_refs_1465_globalFAIL_Gfalse_boundary_retained": true
+    },
+    {
+      "case": "effective soleguard removal individual gateFAIL→PASS",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_current_metadata_property": "FAIL",
+      "source_original_raw_refs_1465_globalFAIL_Gfalse_boundary_retained": true
+    },
+    {
+      "case": "effective soleguard removal parent UNRUN→PASS",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_current_metadata_property": "FAIL",
+      "source_original_raw_refs_1465_globalFAIL_Gfalse_boundary_retained": true
+    },
+    {
+      "case": "effective soleguard removal row owner pending→accepted",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_current_metadata_property": "FAIL",
+      "source_original_raw_refs_1465_globalFAIL_Gfalse_boundary_retained": true
+    },
+    {
+      "case": "effective soleguard removal recipe currentcandidate→e9",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_current_metadata_property": "FAIL",
+      "source_original_raw_refs_1465_globalFAIL_Gfalse_boundary_retained": true
+    }
+  ],
+  "author_is_other_agent": true,
+  "native_math_source_case_or_global_tests_executed": false,
+  "review_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "limits": [
+    "Finding decisions remain accountable E proposals; G code/closure intake separate",
+    "No native/math/runtime/HTTP/browser regeneration or protected Root207 write",
+    "Whole binary environment identity and P41 broad failure causation remain not_established",
+    "Case navigation is measured selector mapping, not automatic original criterion coverage or closure"
+  ]
+}

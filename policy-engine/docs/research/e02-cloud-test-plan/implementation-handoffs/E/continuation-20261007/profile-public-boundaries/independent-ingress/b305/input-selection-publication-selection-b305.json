@@ -1,0 +1,215 @@
+{
+  "assets": [
+    {
+      "bytes": 17981,
+      "portable_path": "probe.py.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "df825ee55233813d4553518b183db211f6899a67867ef700dee9f4c58e6131f0",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py"
+    },
+    {
+      "bytes": 2214,
+      "portable_path": "run-probes.py.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e53135968af55e63572faec5e68ca89c27e9079b6171d3596a0b8f1a83b6d54e",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/run-probes.py"
+    },
+    {
+      "bytes": 3556,
+      "portable_path": "join-removal.py.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "16efbb97d215ab4d050a736c9411fa15c10aaeee983cb31808d4d362609a8c65",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal.py"
+    },
+    {
+      "bytes": 5884,
+      "portable_path": "execution.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "1777120933272101f3ed9c1450bc3e18e1e1d1ff12cf433a2b2b1080d0d3723c",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/execution.json"
+    },
+    {
+      "bytes": 5512,
+      "portable_path": "runner.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "be438d1e7b022e277b88f6b1e2f75e7bd93edcffbc83def3d62fd68f2440fcc0",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/runner.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "runner.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/runner.stderr.txt"
+    },
+    {
+      "bytes": 7953,
+      "portable_path": "review-b305.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "18280b736cb23b502d2c78732b34f9b3de40ac306b9d0bc88f99ab3e3043faff",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/review-b305.json"
+    },
+    {
+      "bytes": 537645,
+      "portable_path": "normal.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "19a044cda4f8a57a80cf88e7be60c548b48d579e9ac7d0aac91650b54f2bb25a",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.json"
+    },
+    {
+      "bytes": 269,
+      "portable_path": "normal.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "af8d40d34ebfb38a11fe76f839fe8d8b7ac768acfc26586dd3043d869a4b70d7",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "normal.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.stderr.txt"
+    },
+    {
+      "bytes": 1260,
+      "portable_path": "normal.execution.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "13f48ecbb1c17923314d60828770b1a66cd6e81b541439b9a9692808a9cb2ca5",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal.execution.json"
+    },
+    {
+      "bytes": 538196,
+      "portable_path": "optimized.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "3331f4b907f6d4b5483ec7b6682e9b9bde45652d475f89b77795acb64638bb43",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized.json"
+    },
+    {
+      "bytes": 271,
+      "portable_path": "optimized.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "61db42b95c48dacce53273a3b435a574b5daf22c996e71b182a2a3b5a0e84612",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "optimized.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized.stderr.txt"
+    },
+    {
+      "bytes": 1284,
+      "portable_path": "optimized.execution.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "850db6d1d2bff872b634cbbfff498570a3c91c3fc67b548cf20ffa908624987d",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized.execution.json"
+    },
+    {
+      "bytes": 215767,
+      "portable_path": "normal-removal.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "de76d4dffa8343c781568a78c0d49716a68e629768f842cfe252318d86c71416",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal-removal.json"
+    },
+    {
+      "bytes": 275,
+      "portable_path": "normal-removal.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "7dc795b890f3e33420be90d8c298b95e2730b617d9095f28064dca63dace3389",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal-removal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "normal-removal.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal-removal.stderr.txt"
+    },
+    {
+      "bytes": 1324,
+      "portable_path": "normal-removal.execution.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "108ed54277479762fb4546f61e5d693ec198e33671e6edc5fb21fe6edbc1b672",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/normal-removal.execution.json"
+    },
+    {
+      "bytes": 215814,
+      "portable_path": "optimized-removal.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "2d37bfad3f4b43cf00bf61a6ce1f4a998daa4f561184c05e25f40194ec304add",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized-removal.json"
+    },
+    {
+      "bytes": 277,
+      "portable_path": "optimized-removal.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "8887cd5b54c927a66ce190b4d7ab204b0a894b5d215ae9561d87d1804a344889",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized-removal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "optimized-removal.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized-removal.stderr.txt"
+    },
+    {
+      "bytes": 1349,
+      "portable_path": "optimized-removal.execution.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "68df5d41ac0b08b42a81e538f204cdd23be2618a4a01cd8896e6a3506ddaeba8",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/optimized-removal.execution.json"
+    },
+    {
+      "bytes": 3870,
+      "portable_path": "join-removal-normal.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "bd99a71b8b598033e22c93bdf42bb3332c1837f2d36b594a6fab6ec8e6672cbc",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal-normal.json"
+    },
+    {
+      "bytes": 133,
+      "portable_path": "join-removal-normal.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "4755428dead0849aa2780be3636f74d73062ffad9ae14d9545cc425a90bd8b62",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal-normal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "join-removal-normal.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal-normal.stderr.txt"
+    },
+    {
+      "bytes": 3870,
+      "portable_path": "join-removal-optimized.json",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "9e92fa512103d384c0f2eb6a2a6020b8590f3d03c56f79cbcc715d129984872d",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal-optimized.json"
+    },
+    {
+      "bytes": 133,
+      "portable_path": "join-removal-optimized.stdout.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "f2f3e20722672a9cbaaaae84b6119c460683a9e864fddd569ba37022c471d984",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal-optimized.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "join-removal-optimized.stderr.txt",
+      "role": "complete deciding native/read-only review output, command, source identity, environment or reproducer; no copied CAS fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/join-removal-optimized.stderr.txt"
+    }
+  ],
+  "bytes": 1564837,
+  "candidate": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "files": 29,
+  "non_selected": "All copied CAS fixtures, caches and complete source copies; exact Git source refs and reproducible input law stay in probe/result.",
+  "runtime_property_verdict": "GO_bounded_raw_Profile2_ingress_and_multi_join_mechanisms",
+  "schema": "policyos.e02.publication_selection.v1",
+  "source_acceptance": "HOLD_pending_mandatory_test_companion_and_current_scoped_typecheck_corrections",
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084"
+}

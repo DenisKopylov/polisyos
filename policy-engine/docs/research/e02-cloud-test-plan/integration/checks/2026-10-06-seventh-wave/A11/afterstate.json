@@ -1,0 +1,16 @@
+{
+  "active_pytest_verify_processes": [],
+  "candidate_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+  "candidate_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+  "g_branch": "codex/e02-integration",
+  "g_head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "g_status_porcelain": "",
+  "junit_errors": 0,
+  "junit_failures": 0,
+  "junit_skipped": 0,
+  "junit_tests": 11,
+  "observed_at_utc": "2026-10-06T19:21:19.757253+00:00",
+  "pytest_exit_code": 0,
+  "source_input_after_all_match": true,
+  "source_input_before_all_match": true
+}

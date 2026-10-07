@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/qualify-writers.py.txt", line 235, in <module>
+    main()
+  File "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/qualify-writers.py.txt", line 69, in main
+    require(
+  File "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/qualify-writers.py.txt", line 24, in require
+    raise ValueError(message)
+ValueError: actual full owner-input and independent Git Python membership

@@ -1,0 +1,117 @@
+{
+  "schema": "e02.E.publication-freeze-role-adapter-receipt.v3",
+  "scope": "Bounded scratch publicationinput representation correction, not newsourcefreeze or collector/productcodechange. No numerical/gate rerun or root/Git/config/HEAD/ref mutation. IndependentDoE review next.",
+  "original_source_freeze": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/source-freeze-a9f78817c.json",
+    "bytes": 6358,
+    "sha256": "f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4"
+  },
+  "frozen_typed_publication_carrier": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+    "bytes": 7951,
+    "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+  },
+  "frozen_adapter": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+    "bytes": 7493,
+    "sha256": "b7decef4df3596751c69928f3ad55cedca91eb201aedc4e077046194a7c19f6b"
+  },
+  "author_controls": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py",
+    "bytes": 6226,
+    "sha256": "cd21245abcbe6b5c9a8e64d1067dfd5b5a19ec6bc49e6d3e1440b2a095b6b2ff"
+  },
+  "candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "frozen_at_utc_original_unchanged": "2026-10-06T17:52:09.403133+00:00",
+  "source_env_wave_closure_fields": "Every originalfield value preserved; only reviews splitrepresentation plus newtypedpublication_representation metadata. Original schema/sourcefreeze remainsv2; typedrepresentation hasdistinctv3schema.",
+  "review_denominator": {
+    "original": 8,
+    "candidateGit": 6,
+    "externalcontent_bound": 2,
+    "omitted": 0
+  },
+  "runtime_property": "Strict adapter anchors original6358B/f901 frozenreceipt and exact full8recordset, six unchangedGit fields/hash/bytes/computedblob atcandidatea9, two originalexternals with role/sourcea9/treec02e/originalfreezehash/completecontentbinding. Uses pinnedcanonicalv4 publicpathguard for fullraw/private/casefold/symlink denial before reads/copies. ExternalJSONdeclaredcurrentpins separately verified, not reclassified asGit refs.",
+  "predicate_basis": "P37 sourcefreezeidentity and independentreview denominator remain separate from outcome/authority. P40 commontypedrole/currentpin/originalfreeze/content admission for all externalrecords; no fakeGitpaths or droppedreview.",
+  "first_invocation_failure": {
+    "candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "exit_code": 1,
+    "underlyingGitreturncode": 128,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-collector-launch/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-collector-launch/collector.stderr.txt",
+      "bytes": 2176,
+      "sha256": "51cfd0e75356b4e8fdcb6f737bb221a0b79f29447f27e9fe089dfeae9aa734f2"
+    },
+    "publication_created": false,
+    "reason": "Canonicalv4 reviews[] expectsGitcandidatepath; originalincludedtwo absoluteexternalpaths. Failedbeforepublicationcreation; initialinputerror preserved, numericstage results unchanged."
+  },
+  "author_control_results": {
+    "BOUND": 1,
+    "TYPED_REFUSAL": 15,
+    "REACCEPTED_only_predicate_removed": 2,
+    "full_output": "adapter-controls.json",
+    "removals": "Removingonlysourcepinpredicate permits externaldeclaredold5e; removingonlyoriginalfreezebindingpredicate permits fakeoriginalhash. Allrecord/field/functionnames retained, no actualinputmutations.",
+    "negatives": "Corruptexternalrecordhash/size/pin/originalhash/role/path, omissionsGit/external, forgedcount, time/closuremutations refuse. Publicraw/private/git-config-private components and symlink refuse withoutcopy; syntheticmetadataonly."
+  },
+  "configured_checks": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py"
+      ],
+      "exit_code": 0,
+      "stdout": "configured-ruff.stdout.txt",
+      "stderr": "configured-ruff.stderr.txt",
+      "scope": "Twoownedmetadatahelper files only"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py"
+      ],
+      "exit_code": 0,
+      "stdout": "configured-format.stdout.txt",
+      "stderr": "configured-format.stderr.txt",
+      "scope": "Twoownedmetadatahelper files only"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": "adapter.stdout.txt",
+      "stderr": "adapter.stderr.txt",
+      "scope": "Createsfresh typedcarrier aftervalidation; no collector/native/gate execution"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py"
+      ],
+      "cwd": "/workspace",
+      "exit_code": 0,
+      "stdout": "controls.stdout.txt",
+      "stderr": "controls.stderr.txt",
+      "scope": "Metadataprotocol controls only"
+    }
+  ],
+  "external_validation_boundary": "Canonicalv4 does NOT validate external_content_bound_reviews unknownfields. This explicitauthoradapter plusindependentDoE validatesbothcompletecontents before canonicalretry; CALbinds originalandtypedcarrier separately. No v4 external-verification claim.",
+  "next": "AfterindependentDoEGO samefrozencanonicalv4 interpreter/SHA/wave args with newstandalonecarrier, samefresh absentpublicationroot. Preserveinitialstdout/stderr anduse distinctretrylognames, no newnumeric/gate wave. Root keepssourcefrozenuntilCALcustodyREADY.",
+  "cleanup": "No deletion/Trash. Syntheticmetadata path fixtures repeatablecandidates; preserveoriginalfreeze,externalcomplete reviews,source/docs/deciding receipts."
+}

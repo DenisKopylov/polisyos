@@ -1,0 +1,3 @@
+usage: copy-closed-controls.py.txt [-h] --manifest MANIFEST --destination-root
+                                   DESTINATION_ROOT --layout {stage,published}
+copy-closed-controls.py.txt: error: argument --layout: invalid choice: 'automatic' (choose from stage, published)

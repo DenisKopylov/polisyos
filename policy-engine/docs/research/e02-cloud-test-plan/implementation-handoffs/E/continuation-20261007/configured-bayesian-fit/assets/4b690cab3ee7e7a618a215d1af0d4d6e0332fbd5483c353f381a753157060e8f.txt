@@ -1,0 +1,125 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "branch": "codex/e02-E-cal-20261006",
+  "prior_remote": "491562fab29f61efda7eaa57d09791740a7d53cc",
+  "remote_readback": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "append_only": true,
+  "source_unchanged": true,
+  "clean_before_after": true,
+  "independent_source_review": "/tmp/e02-E-fit-independent-77b4-20261007/independent-review-77b4.json",
+  "commands": [
+    {
+      "name": "before-head",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:25.670657+00:00",
+      "exit_code": 0,
+      "stdout": "before-head.stdout.txt",
+      "stderr": "before-head.stderr.txt"
+    },
+    {
+      "name": "before-status",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:25.677465+00:00",
+      "exit_code": 0,
+      "stdout": "before-status.stdout.txt",
+      "stderr": "before-status.stderr.txt"
+    },
+    {
+      "name": "before-remote",
+      "argv": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-E-cal-20261006"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:25.763561+00:00",
+      "exit_code": 0,
+      "stdout": "before-remote.stdout.txt",
+      "stderr": "before-remote.stderr.txt"
+    },
+    {
+      "name": "remote-ancestor",
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "491562fab29f61efda7eaa57d09791740a7d53cc",
+        "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:27.029142+00:00",
+      "exit_code": 0,
+      "stdout": "remote-ancestor.stdout.txt",
+      "stderr": "remote-ancestor.stderr.txt"
+    },
+    {
+      "name": "push",
+      "argv": [
+        "git",
+        "push",
+        "origin",
+        "HEAD:refs/heads/codex/e02-E-cal-20261006"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:27.034574+00:00",
+      "exit_code": 0,
+      "stdout": "push.stdout.txt",
+      "stderr": "push.stderr.txt"
+    },
+    {
+      "name": "after-remote",
+      "argv": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-E-cal-20261006"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:29.864273+00:00",
+      "exit_code": 0,
+      "stdout": "after-remote.stdout.txt",
+      "stderr": "after-remote.stderr.txt"
+    },
+    {
+      "name": "after-head",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:31.086408+00:00",
+      "exit_code": 0,
+      "stdout": "after-head.stdout.txt",
+      "stderr": "after-head.stderr.txt"
+    },
+    {
+      "name": "after-status",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "started_at": "2026-10-07T15:58:31.101529+00:00",
+      "exit_code": 0,
+      "stdout": "after-status.stdout.txt",
+      "stderr": "after-status.stderr.txt"
+    }
+  ],
+  "published_main": false
+}

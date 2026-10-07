@@ -1,0 +1,2164 @@
+{
+  "schema": "policyos.e02.E.final54_owner_navigation_index.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "complete_denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "finding_bundle_links": 55
+  },
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "E_bounded_proposals": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2,
+    "open": 0
+  },
+  "current_numeric_counts": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "current_global_gate_outcomes": {
+    "FAIL": 7
+  },
+  "current_parent_stage_outcomes": {
+    "PASS": 1,
+    "FAIL": 2,
+    "UNRUN": 36
+  },
+  "G_formal_acceptance": false,
+  "formal_ledger_change": false,
+  "rows": [
+    {
+      "id": "B32",
+      "bundle_ids": [
+        "FRC-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "A",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/0"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 75,
+        "FAIL": 3
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B32"
+        ],
+        "owner": "A",
+        "minimal_inputs": "E admitted ForecastOwnerRequest/profile/source schema/unit/split/horizon/six-time-role refs and separate candidate/evidence refs in the same CAS; then A independent default/HTTP verifier.",
+        "next_verifiable_result": "Actual ETS -> persisted receipt/evidence -> A resolver recomputation -> fresh persisted grade/S6/default/HTTP decision. Missing-ref reason differs from resolved floor failure; unresolved fake mapping refuses. E packet is an implementation dependency, not missing production data.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "A",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/0"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B97",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/1"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 23
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/1"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B98",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/2"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 4
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/2"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B99",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/3"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 78
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/3"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B100",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/4"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 15
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/4"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B101",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/5"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 6
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/5"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B102",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/6"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 24
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/6"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B103",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/7"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 4
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/7"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B104",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/8"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 3
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/8"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B105",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/9"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 6
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/9"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B166",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/10"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 12
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/10"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B167",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/11"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 6
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/11"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B168",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/12"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 8
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/12"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B169",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/13"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 13
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/13"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B170",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/14"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 3
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/14"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B171",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/15"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 1
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/15"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B172",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist accountable trust-purpose/profile owner",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/16"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 11
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B172"
+        ],
+        "owner": "Scientist accountable trust-purpose/profile owner",
+        "minimal_inputs": "Versioned trust-grade purpose/profile; criterion-supported meaningful-bias margin/equivalence sampling/interval assumptions only where positive neutrality is requested.",
+        "next_verifiable_result": "Constant nonzero residual retains descriptive magnitude and unavailable inference cannot grant trust. Existing current diagnostics pass; owner-approved positive profile and equivalence case required before any neutrality/GradeA authority.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Scientist accountable trust-purpose/profile owner",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/16"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B173",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist accountable trust-purpose/profile owner",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/17"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 9
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B173"
+        ],
+        "owner": "Scientist accountable trust-purpose/profile owner",
+        "minimal_inputs": "Same versioned trust-purpose/profile; runtime backend identity and declared inference/equivalence use.",
+        "next_verifiable_result": "Current df2 analytic t oracle agrees p=1 and p=.12168993434632014; missing SciPy degrades honestly. Preserve partial/limited explicitly per user until profile input; never convert non-significance to equivalence.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Scientist accountable trust-purpose/profile owner",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/17"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B174",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/18"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 16
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/18"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B175",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/19"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 13
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/19"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B176",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/20"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/20"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B177",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/21"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/21"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B178",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/22"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/22"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B179",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/23"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/23"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B180",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/24"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/24"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B181",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/25"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/25"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B182",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/26"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/26"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B183",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/27"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/27"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B184",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/28"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/28"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B185",
+      "bundle_ids": [
+        "CAL-05"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/29"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/29"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B186",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/30"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 3
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/30"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B187",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/31"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 19
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/31"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B188",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/32"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 95
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/32"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B189",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/33"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 2
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/33"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B190",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/34"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 6
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B190"
+        ],
+        "owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+        "minimal_inputs": "Existing actual configured model/evaluator or source-bound Jacobian; input-output axis/unit mapping and immutable model/objective/source refs, or explicitly declared affine response with content-bound provenance/units.",
+        "next_verifiable_result": "Real response or admitted Jacobian -> existing persisted response/sensitivity artifact -> configured Node propagation -> fresh read. Zero-baseline y=x-2 retains variance; partial/unresolved/fake or wrong-unit map cannot gain authority. Current params-only map is not that producer.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/34"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B191",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/35"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 3
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/35"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B192",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/36"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 109
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/36"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B193",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/37"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 30
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "G formal intake after current frozen-wave receipt reconciliation",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/37"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B194",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "historical_ledger_status": "held",
+      "E_bounded_proposed_finding_outcome": "held",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/38"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 42
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B194"
+        ],
+        "owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+        "minimal_inputs": "Owner-admitted exact served evaluator/model/config/source/joint-law/output/domain refs in configured CAS; same-input transient retry classification only if that profile requests retries.",
+        "next_verifiable_result": "Existing dispatcher -> every addressed terminal draw outcome -> persisted report/envelope -> fresh served consumer. Requested=success+failure/refusal; success-only conditional mean remains labeled/refused for unconditional authority. Native Welfare128=92+36 is an established generic sibling, not missing served input.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/38"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B195",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/39"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/39"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B196",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/40"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/40"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B197",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "historical_ledger_status": "held",
+      "E_bounded_proposed_finding_outcome": "held",
+      "owner_decision": "pending",
+      "accountable_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/41"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 31
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B197"
+        ],
+        "owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+        "minimal_inputs": "Actual CalibratorInputs/model/objective/source-target time/unit/split join, declared likelihood/noise/fit assumptions, trainable field/tie coordinate mapping and configured CAS/report refs.",
+        "next_verifiable_result": "Real configured fit -> strict Foundry CalibrationReportv2 -> fresh existing Node/Welfare consumer. Recompute J/axis/cross-covariance/nullspace and reject wrong/Funnel kind/schema/config/objective. Generic known-noise fixture is technical positive only; factual source-fit authority remains held.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/41"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B198",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "historical_ledger_status": "closed",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/42"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E final new-source regression; reopen only if defining-property counterexample exists",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/42"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B199",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/43"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 17
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/43"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B200",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/44"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 12
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "B200"
+        ],
+        "owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+        "minimal_inputs": "Content-bound information-unit relationship artifact: source identities, same/different measurement/replicate, shared data/covariance, prior/likelihood/posterior lineage, same estimand/unit.",
+        "next_verifiable_result": "Producer relationships -> CAS -> fresh aggregator: four copies remain std1; independently admitted measurements can narrow under their declared joint law. Equal values or origin strings alone cannot establish independence.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/44"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B201",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/45"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "G/canonical IR generated/public companion writers; G formal finding intake separately",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/45"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B202",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/46"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 81
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "G/canonical IR generated/public companion writers; G formal finding intake separately",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/46"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "B203",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/47"
+      },
+      "current_case_navigation_counts": {},
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/47"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "LA-051",
+      "bundle_ids": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "A with E ForecastOwner supplier",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/48"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 75,
+        "FAIL": 3
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "LA-051"
+        ],
+        "owner": "A with E ForecastOwner supplier",
+        "minimal_inputs": "Same configured CAS ForecastOwner positive/negative packet and profile/purpose/source/rule/time refs; same estimator shape with different actual holdout outcomes.",
+        "next_verifiable_result": "A source-resolved measured numerator/denominator and all bound field/time predicates changes the fresh default/HTTP result; nominal confidence alone cannot become observed calibration. Terminal causal/treatment/policy refusal remains.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "A with E ForecastOwner supplier",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/48"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "LA-052",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/49"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 28
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/49"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "LA-053",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/50"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 61
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "LA-053"
+        ],
+        "owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+        "minimal_inputs": "Tracked actual compatibility support window/API classification; current canonical/root/alias identity and migrated native numerical consumer corpus.",
+        "next_verifiable_result": "Owner-approved compatibility window and existing public inventory identify whether retirement is due. Until that decision retain alias; actual object/exception/native-corpus parity already passes. Do not invent arbitrary sunset or remove supported alias.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/50"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "LA-054",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/51"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 42
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "LA-054"
+        ],
+        "owner": "DDM applicability/live-feed/deployment-purpose owners",
+        "minimal_inputs": "Exact current source report/model/detector/regime/metric/window/rule/expiry refs, complete observed invalidation feed and freshness policy; target consumer identity.",
+        "next_verifiable_result": "Current source -> distinctv2 registry -> fresh source rebind/public deployment consumer. Missing/delayed/incomplete feed, wrong subject/metric/regime, expiry and trigger retain typed refusal; historical calibration pass cannot substitute current validity.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/51"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "LA-055",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/52"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 15
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": {
+        "ids": [
+          "LA-055"
+        ],
+        "owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+        "minimal_inputs": "Actual observed complete current window plus source validity and independently identity-bound R2/purpose input where R2 override is exercised; explicit baseline/veto precedence.",
+        "next_verifiable_result": "Fresh persisted restriction stays veto; valid R2 issuer can exercise only admitted R2 exception; R0/R1/failed certificate and R4/R3 persisted veto cannot be overridden. Boolean signoff or synthetic [] proves only library branch, not institution/deployment authority.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs."
+      },
+      "next_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/52"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    },
+    {
+      "id": "LA-056",
+      "bundle_ids": [
+        "DDM-01"
+      ],
+      "historical_ledger_status": "partial",
+      "E_bounded_proposed_finding_outcome": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "formal_G_acceptance": false,
+      "formal_ledger_change": false,
+      "exact_original_and_deciding_evidence": {
+        "source": {
+          "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "bytes": 1144158,
+          "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+        },
+        "finding_fragment": "#/rows/53"
+      },
+      "current_case_navigation_counts": {
+        "PASS": 6
+      },
+      "case_navigation_not_criterion_approval": true,
+      "remaining_input_or_implementation": null,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "current_source_qualification": {
+        "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "source_roles_ref": "#/source_role_qualification",
+        "individual_decision_input": {
+          "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+          "bytes": 314142,
+          "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+          "fragment": "#/rows/53"
+        },
+        "new_owner_decision_or_ledger_change": false
+      }
+    }
+  ]
+}

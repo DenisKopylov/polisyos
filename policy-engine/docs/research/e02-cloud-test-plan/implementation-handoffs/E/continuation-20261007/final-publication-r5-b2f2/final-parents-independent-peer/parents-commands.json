@@ -1,0 +1,18 @@
+{
+  "actual_commands": [
+    [
+      "python3",
+      "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py",
+      "parents"
+    ],
+    [
+      "python3",
+      "-O",
+      "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py",
+      "parents"
+    ]
+  ],
+  "native_or_numeric_or_canonical_child_repeated": false,
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "reviewer_metadata_observer_correction": "Initial parent count assumed207 total guard records; actual207 package METADATA plus3 protected control refs=210. Original refusal/source preserved; native receipts unchanged."
+}

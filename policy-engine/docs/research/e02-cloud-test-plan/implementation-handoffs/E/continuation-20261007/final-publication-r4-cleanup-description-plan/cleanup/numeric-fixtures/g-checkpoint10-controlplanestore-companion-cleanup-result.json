@@ -1,0 +1,44 @@
+{
+  "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+  "started_unix": 1791376309.092743,
+  "ended_unix": 1791376309.1029382,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "native_outcome": "PASS",
+  "native_exit_code": 0,
+  "native_counts": {
+    "cases": 59,
+    "passed": 59,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion.tar.gz",
+    "bytes": 385217,
+    "sha256": "0df62a91226b20a38e51743ee0eebf9a9e022a517c85bb7a68e7f2dbb6006172"
+  },
+  "inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-full-inventory.json",
+    "bytes": 62779,
+    "sha256": "1a3e5d7a778e35d2f223309de5c2d65eeea09a97f1659e7173805c6d791c1a42"
+  },
+  "archive_members": 176,
+  "archived_file_bytes": 9282888,
+  "allocated_regular_fixture_bytes": 9293824,
+  "actual_filesystem_before": {
+    "observed_unix": 1791376309.092739,
+    "free_bytes": 3521142784,
+    "available_bytes": 1786380288
+  },
+  "actual_filesystem_after": {
+    "observed_unix": 1791376309.1022642,
+    "free_bytes": 3530895360,
+    "available_bytes": 1796132864
+  },
+  "immediate_available_delta_bytes": 9752576,
+  "absent_after": true,
+  "preserved_ALL_unique_unmatched_data": true,
+  "deciding_outputs_originals_saved_and_unchanged": true,
+  "source_env_unchanged": true
+}

@@ -1,0 +1,56 @@
+import ast,collections,copy,hashlib,json,pathlib,subprocess,sys
+O=pathlib.Path('/tmp/e02-E-fit-publication-independent-77b4-20261007');R=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/final-publication-preparation');REPO=pathlib.Path('/workspace/e02-E-cal-20261006');S=R/'validate_final_publication-v3.py.txt'
+raw=S.read_bytes()
+if hashlib.sha256(raw).hexdigest()!='52684bde9c9568545d12d399d82cc7c8db77b05830964b4aaa304dbfe1c12bb8':raise RuntimeError('immutable_validator_mismatch')
+ns={'__name__':'actual_validator_v3','__file__':str(S)};exec(compile(raw,str(S),'exec'),ns)
+index=json.loads((R/'copy-index.json').read_text());desc=json.loads((R/'publication-descriptor-v3-pending.json').read_text());h=json.loads((R/'implementation-handoff.json').read_text());summary=json.loads((R/'bounded-summary.json').read_text());history=json.loads((R/'copy-index-pending.json').read_text())
+checks=[]
+for r in desc['refs']:
+ data=(R/r['path']).read_bytes()
+ if len(data)!=r['bytes']or hashlib.sha256(data).hexdigest()!=r['sha256']:raise RuntimeError('descriptor_ref_mismatch:'+r['path'])
+checks.append({'name':'full_descriptor_literal_refs','outcome':'PASS','count':len(desc['refs'])})
+stored=collections.Counter(r['stored_at']for r in index['files']);physical={str(p.relative_to(R))for p in (R/'assets').iterdir()if p.is_file()}
+if physical!=set(stored):raise RuntimeError('physical_asset_denominator_mismatch')
+binary=[];logical=0
+for name in stored:
+ data=(R/name).read_bytes();r=next(r for r in index['files']if r['stored_at']==name)
+ if len(data)!=r['bytes']or hashlib.sha256(data).hexdigest()!=r['sha256']:raise RuntimeError('asset_byte_mismatch')
+ try:data.decode('utf8');ext='.txt'
+ except UnicodeDecodeError:ext='.bin';binary.append(name)
+ if not name.endswith(ext):raise RuntimeError('binary_text_suffix_mismatch')
+ logical+=stored[name]
+checks.append({'name':'all_actual_physical_and_logical_assets','outcome':'PASS','logical':logical,'unique':len(physical),'binary_unique':len(binary),'binary_logical':sum(stored[x]for x in binary)})
+supp=json.loads((R/'supplement-index.json').read_text())
+for r in supp['files']:
+ data=(R/r['stored_at']).read_bytes()
+ if len(data)!=r['bytes']or hashlib.sha256(data).hexdigest()!=r['sha256']:raise RuntimeError('supplement_byte_mismatch')
+checks.append({'name':'separate_supplement_closure','outcome':'PASS','logical':len(supp['files'])})
+derived=ns['derive'](R,REPO,index=index);ns['admit_summary'](summary,derived[0]);ns['admit_handoff'](h,derived)
+checks.append({'name':'healthy_actual_git_raw_derived_summary','outcome':'PASS','source':'77b4d68ec37e3f34b84ce4fd1787746e3d5f5322','full_ancestry_paths':derived[0]['full_ancestry_path_count'],'affected_native':derived[0]['affected_native'],'typing':derived[0]['scoped_typing']})
+# Reproduce the actual original20+3 author controls with literal exact source, no backend reruns.
+author=ns['controls'](R,REPO)
+if author['control_count']!=23 or any(r['outcome']!='PASS'for r in author['controls']):raise RuntimeError('author_control_reproduction_failed')
+checks.append({'name':'actual23_author_typed_count_counter_controls','outcome':'PASS','controls':author['controls']})
+chosen=[('independent_GO',next(r for r in index['files']if r['logical_at']=='independent-final77/independent-review-77b4.json')),('native_HMC_input_blob',next(r for r in index['files']if r['logical_at'].startswith('independent-final77/pytest-base/real-bayesian-fit0/')and r['logical_at'].endswith('.blob'))),('historical_source_receipt',next(r for r in index['files']if r['logical_at'].endswith('independent-review-9147.json')))]
+mutants=[]
+for name,record in chosen:
+ bad=copy.deepcopy(index);bad['files']=[r for r in bad['files']if r['logical_at']!=record['logical_at']];unique={r['stored_at']:(r['bytes'],r['sha256'])for r in bad['files']};bad.update(logical_count=len(bad['files']),unique_carrier_count=len(unique),unique_bytes=sum(r[0]for r in unique.values()));calls=[]
+ try:ns['derive'](R,REPO,index=bad,git_call=lambda argv:calls.append(argv))
+ except ValueError as e:
+  if str(e)!='required_member_counter_mismatch'or calls:raise RuntimeError('wrong_refusal_property')
+  checks.append({'name':'retotalled_'+name+'_omission','outcome':'PASS','actual_refusal':str(e),'git_callback_count':0,'source_summary_PASS_unchanged':True,'removed_logical':record['logical_at']})
+ else:raise RuntimeError('actual_missing_required_member_still_admitted')
+ mutants.append((name,bad))
+# Preserve basis/hash/source/XML/raw/Git checks and remove only actual new Counter equality.
+tree=ast.parse(raw);function=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='admit_required_counter');targets=[n for n in function.body if isinstance(n,ast.If)and isinstance(n.test,ast.Compare)and isinstance(n.test.left,ast.Name)and n.test.left.id=='actual']
+if len(targets)!=1:raise RuntimeError('actual_Counter_target_not_unique')
+targets[0].test=ast.Constant(False);ast.fix_missing_locations(tree);removed={'__name__':'removed_actual_counter_v3','__file__':str(S)};exec(compile(tree,'actual-one-Counter-predicate-removed','exec'),removed)
+for name,bad in mutants:
+ d=removed['derive'](R,REPO,index=bad);removed['admit_summary'](summary,d[0]);removed['admit_handoff'](h,d)
+ checks.append({'name':'effective_Counter_removal_'+name,'outcome':'PASS','defining_member_property':'FAIL','whole_actual_derive_and_summary_admitted':True,'trusted_original0dab_counter_and_remaining_raw_Git_checks_unchanged':True})
+# Exact API route declarations against literal frozen canonical table, no facade edits.
+import tomllib
+contract=tomllib.loads((R/'public-surface-contract.toml.txt').read_text());allowed={name for p in contract['package']for name in p['supported_entrypoints']};api=h['public_api_and_architecture'];declared=api.get('supported_import_entrypoints',api.get('admitted_facades',[]))
+if not declared or any(n not in allowed for n in declared):raise RuntimeError('unsupported_entrypoint_claim')
+checks.append({'name':'corrected_supported_import_entrypoints','outcome':'PASS','declared':declared,'contract_sha256':hashlib.sha256((R/'public-surface-contract.toml.txt').read_bytes()).hexdigest()})
+print(json.dumps({'candidate':'77b4d68ec37e3f34b84ce4fd1787746e3d5f5322','tree':'d5efa295c8af983a86a620a120ab091aae580db3','disposition':'GO','validator_sha256':hashlib.sha256(raw).hexdigest(),'descriptor_sha256':hashlib.sha256((R/'publication-descriptor-v3-pending.json').read_bytes()).hexdigest(),'checks':checks,'optimization_mode':not __debug__,'interpreter':sys.executable,'python_version':sys.version,'scope':'stdlib/Git literal custody and typed claimed check-field projections; SOURCE77/native/backend acceptance remains separate, no new native/math/global/source/environment actions','old_V2_actual_false_admissions':'preserved independent normal/-O immutable history; corrected V3 covers entire required member class'},indent=2))

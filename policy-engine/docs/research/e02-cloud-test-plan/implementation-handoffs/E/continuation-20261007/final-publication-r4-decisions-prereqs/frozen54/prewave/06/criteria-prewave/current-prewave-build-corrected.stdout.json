@@ -1,0 +1,13 @@
+{
+  "output": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json",
+    "bytes": 305737,
+    "sha256": "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+  },
+  "counts": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2,
+    "open": 0
+  }
+}

@@ -1,0 +1,72 @@
+"""One affected maintained wave on an immutable independently reviewed source."""
+from __future__ import annotations
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+import xml.etree.ElementTree as ET
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+OUT = Path("/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4")
+SOURCE = "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c"
+TREE = "192e584c646ee6df303b8793e7b92aa741dcaebb"
+OUT.mkdir(exist_ok=False)
+assert subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip() == SOURCE
+assert subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT, text=True).strip() == TREE
+assert not subprocess.check_output(["git", "diff", "--name-only"], cwd=ROOT, text=True).strip()
+PYTHON = str(ROOT / "policy-engine/.venv/bin/python")
+JOBS = {
+    "affected-defining": [
+        "tests/unit/ir/test_uncertainty_profile_ingress.py",
+        "tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "tests/unit/ir/test_posterior_summary.py",
+        "tests/unit/ir/test_uncertainty.py",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py::test_real_configured_backend_corpus_persists_and_fresh_node_consumes",
+    ],
+    "architecture-maintained-controls": [
+        "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_corrupt_supported_entrypoint_fails_check",
+        "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_enumerates_every_supported_entrypoint_facade",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_guardrails_detects_new_deep_import_creep",
+    ],
+}
+processes = []
+for label, selectors in JOBS.items():
+    command = [PYTHON, "-B", "-m", "pytest", "-q", "--basetemp=" + str(OUT / (label + "-fixtures")), "--junitxml=" + str(OUT / (label + ".junit.xml")), *selectors]
+    stdout = (OUT / (label + ".stdout.txt")).open("wb")
+    stderr = (OUT / (label + ".stderr.txt")).open("wb")
+    started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    start = time.monotonic()
+    env = os.environ.copy()
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    process = subprocess.Popen(command, cwd=ROOT / "policy-engine", env=env, stdout=stdout, stderr=stderr)
+    processes.append((label, command, process, stdout, stderr, started, start))
+receipts = []
+for label, command, process, stdout, stderr, started, start in processes:
+    code = process.wait()
+    stdout.close()
+    stderr.close()
+    xml = OUT / (label + ".junit.xml")
+    states = {"PASS": 0, "FAIL": 0, "ERROR": 0, "SKIP": 0}
+    cases = []
+    if xml.exists():
+        for case in ET.parse(xml).iter("testcase"):
+            state = "ERROR" if case.find("error") is not None else "FAIL" if case.find("failure") is not None else "SKIP" if case.find("skipped") is not None else "PASS"
+            states[state] += 1
+            cases.append({"classname": case.get("classname"), "name": case.get("name"), "outcome": state})
+    assets = []
+    for suffix in (".stdout.txt", ".stderr.txt", ".junit.xml"):
+        path = OUT / (label + suffix)
+        if path.exists():
+            data = path.read_bytes()
+            assets.append({"path": str(path), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+    receipt = {"source": SOURCE, "tree": TREE, "label": label, "argv": command, "cwd": str(ROOT / "policy-engine"), "started_at_UTC": started, "wall_seconds": time.monotonic() - start, "exit_code": code, "outcomes": states, "cases": cases, "complete_outputs": assets, "environment": "existing repo-declared .venv; only PYTHONDONTWRITEBYTECODE=1 added; no CPU/thread/worker/process caps", "scope": "affected maintained property/consumer wave only; old 1465-case b2 and seven global gates not relabeled current"}
+    (OUT / (label + ".receipt.json")).write_text(json.dumps(receipt, indent=2) + "\n")
+    receipts.append(receipt)
+    print(label, code, states, flush=True)
+assert not subprocess.check_output(["git", "diff", "--name-only"], cwd=ROOT, text=True).strip()
+(OUT / "wave-receipt.json").write_text(json.dumps({"schema": "policyos.e02.frozen_affected_wave.v1", "source": SOURCE, "tree": TREE, "runs": receipts, "tracked_postflight_clean": True}, indent=2) + "\n")
+raise SystemExit(0 if all(row["exit_code"] == 0 for row in receipts) else 1)

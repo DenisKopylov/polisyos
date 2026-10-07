@@ -1,0 +1,23 @@
+{
+  "schema": "policyos.e02.E.actual_packet_v1_type_escapes.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "actual_observer_source": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/build_gate_packet.py.txt",
+    "bytes": 9133,
+    "sha256": "bed899acba1cc4b663a0740cd96ea51e156610c31c32dd6a4ab79a3626daf2d1"
+  },
+  "cases": [
+    {
+      "case": "native_exit_bool",
+      "accepted": true,
+      "receipt_and_source_refs_preserved": true
+    },
+    {
+      "case": "top_source_guard_int",
+      "accepted": true,
+      "receipt_and_source_refs_preserved": true
+    }
+  ],
+  "native_gate_or_source_edited": false,
+  "scope": "Historical summary validator type counterexamples; actual complete native outcomes remain correct."
+}

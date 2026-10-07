@@ -1,0 +1,165 @@
+"""Exercise current utility inlet, custody, stdout and archived-input properties."""
+from __future__ import annotations
+
+import ast
+import contextlib
+import copy
+import hashlib
+import importlib.util
+import io
+import json
+import subprocess
+import sys
+from argparse import Namespace
+from pathlib import Path
+from unittest.mock import patch
+
+REPO = Path('/workspace/e02-E-cal05-20261006')
+SCRATCH = Path('/workspace/e02-E-pr38-r3-receipts/lint-r4')
+E = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/'
+R2 = E + 'continuation-20261006/pr38-r2/'
+ARCHIVE = 'e9cb425e4dfe888720f93eb84f1667f24a8a92c4'
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+RESULTS: list[dict[str, object]] = []
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
+def load(relative: str, name: str) -> object:
+    spec = importlib.util.spec_from_file_location(name, REPO / relative)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def record(name: str, result: object) -> None:
+    RESULTS.append({'name': name, 'outcome': 'PASS', 'result': result})
+
+
+def refusal(callback: object, name: str) -> None:
+    try:
+        callback()
+    except (ValueError, AssertionError):
+        record(name, 'refused')
+    else:
+        raise AssertionError('admission missing: ' + name)
+
+
+def main() -> None:
+    owned = json.loads((SCRATCH / 'source-inputs.json').read_text())['owned_paths']
+    stdout_helpers = 0
+    compile_count = 0
+    for relative in owned:
+        tree = ast.parse((REPO / relative).read_text())
+        compile(tree, relative, 'exec')
+        compile_count += 1
+        helper = next((node for node in tree.body if isinstance(node, ast.FunctionDef)
+                       and node.name == '_write_stdout'), None)
+        if helper is None:
+            continue
+        definition = ast.Module(body=[helper], type_ignores=[])
+        namespace = {'sys': sys}
+        exec(compile(definition, relative, 'exec'), namespace)  # actual source definition
+        for values in [(), ('Русский',), ('a', 2, {'a': 1}), ('', '\n'), (None, True)]:
+            for flush in (False, True):
+                expected, actual = io.StringIO(), io.StringIO()
+                with contextlib.redirect_stdout(expected):
+                    print(*values, flush=flush)
+                with contextlib.redirect_stdout(actual):
+                    namespace['_write_stdout'](*values, flush=flush)
+                require(actual.getvalue() == expected.getvalue(), relative)
+        stdout_helpers += 1
+    record('compile_complete_owned_inputs', compile_count)
+    record('actual_stdout_helpers_positional_flush_bytes', stdout_helpers)
+
+    copies = load(R2 + 'validate_review_copies.py', 'current_copy_validator')
+    index = json.loads((REPO / R2 / 'independent-reviews/copy-index.json').read_text())['records']
+    copies.validate(REPO, index, ARCHIVE, historical=True)
+    record('archived_original_copy_index', len(index))
+    refusal(lambda: copies.validate(REPO, index, ARCHIVE), 'current_copies_are_not_archived_bytes')
+    for field, value in [('sha256', '0' * 64), ('bytes', -1), ('copied_path', '../escape')]:
+        changed = copy.deepcopy(index)
+        changed[-1][field] = value
+        refusal(lambda: copies.validate(REPO, changed, ARCHIVE, historical=True),
+                'copy_' + field + '_negative')
+    with patch.object(copies, '_git_bytes') as child:
+        refusal(lambda: copies.validate(REPO, index, '--output=bad', historical=True),
+                'copy_option_revision_before_git')
+        require(child.call_count == 0, 'copy revision invoked Git')
+        changed = copy.deepcopy(index)
+        changed[-1]['copied_path'] = '-option'
+        refusal(lambda: copies.validate(REPO, changed, ARCHIVE, historical=True),
+                'copy_last_bad_record_before_git')
+        require(child.call_count == 0, 'copy path invoked Git')
+    for relative, name in [(R2 + 'criteria-frozen-a9-v2/validate.py', 'criteria'),
+                           (R2 + 'final-closeout-independent/exact-Git-inputs/validate.py', 'mirror')]:
+        module = load(relative, name)
+        folder = REPO / R2 / 'criteria-frozen-a9-v2'
+        values = [json.loads((folder / file).read_text()) for file in
+                  ['all-54-update.json', 'current-local-G-recipes.json', 'input-index.json',
+                   'current-case-index.json', 'current-lint-publication-debt.json']]
+        for label, edit in [('last_source_ref', lambda data: data[2]['inputs'][-1].update(source_sha='--output=bad')),
+                            ('last_source_path', lambda data: data[2]['inputs'][-1].update(path='../escape')),
+                            ('last_portable_ref', lambda data: data[2]['portable_inputs'][-1].update(evidence_git_commit='--output=bad'))]:
+            changed = copy.deepcopy(values)
+            edit(changed)
+            with patch.object(module, 'git') as child:
+                refusal(lambda: module.check(*changed, REPO), name + '_' + label + '_preflight')
+                require(child.call_count == 0, 'criteria preflight invoked Git')
+        for label, args in [('show_option', ('show', '--output=bad:path')),
+                            ('rev_parse_option', ('rev-parse', '--output=bad'))]:
+            with patch.object(module.subprocess, 'check_output') as child:
+                refusal(lambda: module.git(str(REPO), *args), name + '_' + label)
+                require(child.call_count == 0, 'criteria object inlet invoked Git')
+
+    pcl = load(E + 'pcl-configured-consumer-20261006-logs/verify_receipt.py', 'pcl_custody')
+    receipt = json.loads((REPO / E / 'pcl-configured-consumer-20261006.json').read_text())
+    pcl_index = json.loads((REPO / E / 'pcl-configured-consumer-20261006-logs/copy-index.json').read_text())
+    record('pcl_pinned_publication_readback', pcl.verify(REPO, receipt, pcl_index, publication_revision=ARCHIVE))
+    bad_index = copy.deepcopy(pcl_index)
+    bad_index['files'][0]['sha256'] = '0' * 64
+    refusal(lambda: pcl.verify(REPO, receipt, bad_index, publication_revision=ARCHIVE), 'pcl_forged_digest')
+    for field in ('candidate_sha', 'slice_base_sha'):
+        changed = copy.deepcopy(receipt)
+        changed[field] = '--output=bad'
+        with patch.object(pcl.subprocess, 'check_output') as first, patch.object(pcl.subprocess, 'check_call') as second:
+            refusal(lambda: pcl.verify(REPO, changed, pcl_index), 'pcl_' + field + '_before_git')
+            require(first.call_count + second.call_count == 0, 'PCL malformed ref invoked child')
+
+    plan = load(R2 + 'wave-controls/plan_wave.py', 'current_plan')
+    args = Namespace(repo=REPO, candidate=None, comparison_base=BASE,
+                     output_root=SCRATCH / 'plan-only-not-executed', no_owner_packets=False)
+    prepared = plan.prepare(args)
+    numeric = [job for job in prepared['jobs'] if job['kind'] == 'numerical']
+    gates = [job for job in prepared['jobs'] if job['kind'] != 'numerical']
+    require(all(job['environment']['POLISYOS_METRICS_PORT'] == '0' for job in numeric), 'numeric port missing')
+    require(all('POLISYOS_METRICS_PORT' not in job['environment'] for job in gates), 'gate port override')
+    record('actual_plan_numeric_ports_gate_no_override', {'numeric': len(numeric), 'gates': len(gates), 'execution_state': prepared['execution_state']})
+    for field in ('candidate', 'comparison_base'):
+        bad_args = copy.copy(args)
+        setattr(bad_args, field, '--output=bad')
+        with patch.object(plan, 'git') as child:
+            refusal(lambda: plan.prepare(bad_args), 'plan_' + field + '_before_git')
+            require(child.call_count == 0, 'plan malformed ref invoked Git')
+    checker = load(R2 + 'wave-controls/run_check.py', 'current_check')
+    good = SCRATCH / 'healthy.xml'
+    good.write_text('<testsuite><testcase name="ok"/><testcase name="bad"><failure/></testcase></testsuite>')
+    require(checker.junit_counts(good) == {'cases': 2, 'passed': 1, 'failed': 1, 'errors': 0, 'skipped': 0}, 'JUnit counts')
+    record('actual_junit_denominator', checker.junit_counts(good))
+    entity = SCRATCH / 'entity.xml'
+    entity.write_text('<!DOCTYPE test [<!ENTITY hidden "payload">]><testsuite><testcase name="&hidden;"/></testsuite>')
+    try:
+        checker.junit_counts(entity)
+    except Exception as error:
+        require(type(error).__name__ in {'DTDForbidden', 'EntitiesForbidden'}, 'wrong XML refusal')
+        record('actual_xml_entity_refusal', type(error).__name__)
+    else:
+        raise AssertionError('XML entity accepted')
+    print(json.dumps({'checks': RESULTS, 'finding_closure': False, 'numeric_wave_repeated': False}, indent=2))
+
+
+if __name__ == '__main__':
+    main()

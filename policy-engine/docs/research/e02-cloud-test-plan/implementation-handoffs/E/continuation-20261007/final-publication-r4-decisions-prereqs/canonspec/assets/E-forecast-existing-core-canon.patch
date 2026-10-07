@@ -1,0 +1,37 @@
+--- a/policy-engine/src/polisyos/calibration/forecast_bridge.py
++++ b/policy-engine/src/polisyos/calibration/forecast_bridge.py
+@@ -29,6 +29,8 @@
+     model_validator,
+ )
+ 
++from polisyos.core import canon as core_canon
++
+ from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
+ from polisyos.ir.artifacts import (
+     ArtifactID,
+@@ -36,7 +38,6 @@
+     get_json_artifact,
+     put_json_artifact,
+ )
+-from polisyos.ir.model_layer.canon import CanonSpec
+ from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
+ 
+ EmpiricalEvidenceKind = Literal["observed_interval_comparisons", "unavailable"]
+@@ -673,7 +674,7 @@
+         schema_name=EVIDENCE_SCHEMA_NAME,
+         schema_version=EVIDENCE_SCHEMA_VERSION,
+         inputs=inputs,
+-        canon_spec=CanonSpec(forbid_floats=False),
++        canon_spec=core_canon.CanonSpec(forbid_floats=False),
+     )
+     return EmpiricalCalibrationEvidenceRef.model_validate(payload)
+ 
+@@ -783,7 +784,7 @@
+         schema_name="polisyos.calibration.forecast_candidate_receipt",
+         schema_version="1.0",
+         inputs=_candidate_receipt_inputs(receipt),
+-        canon_spec=CanonSpec(forbid_floats=False),
++        canon_spec=core_canon.CanonSpec(forbid_floats=False),
+     )
+     return ForecastCandidateReceiptRef.model_validate(payload)
+ 

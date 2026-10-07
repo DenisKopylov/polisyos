@@ -1,0 +1,136 @@
+from __future__ import annotations
+from collections import Counter
+from copy import deepcopy
+from fractions import Fraction
+import hashlib,importlib,importlib.metadata,importlib.util,json,os,subprocess,sys,tempfile,traceback
+from pathlib import Path
+import numpy as np
+from polisyos.core import artifacts as ca,canon as cc
+from polisyos.core.contracts import SimulationResult
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior as produce
+from polisyos.foundry.uncertainty.sampling_admission import joint_carrier_digest
+from polisyos.ir.analytics import PosteriorParameterBinding,PosteriorSummaryContext,load_posterior_summary_envelope,posterior_nominal_mean,read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope,persist_uncertainty_envelope,load_uncertainty_envelope
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+ps=importlib.import_module('polisyos.ir.analytics.posterior_summary')
+ROOT=Path('/workspace/e02-E-frc-20261006'); OUT=Path('/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review'); CAND='c8616e2babe1f0674799c12f07faffa5d6bd266d'; BASE='cdaea067935c8062a6a13fab8d7ffb53ae5fd401'
+paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',BASE,CAND]).decode().splitlines()
+def identity():
+ d={}
+ for path in paths:
+  original=subprocess.check_output(['git','-C',str(ROOT),'show',CAND+':'+path]);actual=(ROOT/path).read_bytes();assert actual==original,path
+  d[path]={'sha256':hashlib.sha256(actual).hexdigest(),'bytes':len(actual)}
+ return d
+before=identity();cases=[];scratch=[]
+def directory(name):
+ p=Path(tempfile.mkdtemp(prefix=name+'-',dir=OUT));scratch.append(str(p));return p
+def save_fresh(env,root):
+ ref=persist_uncertainty_envelope(ca.FileSystemCAS(root),env);fresh=load_posterior_summary_envelope(ca.FileSystemCAS(root),ref);return ref,fresh
+spec=importlib.util.spec_from_file_location('native_fixture',ROOT/'policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py');fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+def run_node(draws,*,mutation=None,weights=None):
+ ctx,state,refs=fixture._posterior_node_fixture(directory('node'),draws,mutation=mutation,weights=weights)
+ calls=[];builders=[];original=node._build_propagation_fn
+ def observe(*a,**kw):
+  builders.append(dict(kw['nominal_params']));fn,mapped=original(*a,**kw)
+  def measured(**params):calls.append({k:float(v) for k,v in params.items()});return fn(**params)
+  measured._sensitivity_map=fn._sensitivity_map
+  return measured,mapped
+ node._build_propagation_fn=observe
+ try:
+  outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+  if outcome.status!='ok':return {'status':outcome.status,'error':str(outcome.error),'calls':calls,'builders':builders}
+  fresh=ca.FileSystemCAS(ctx.store.root if hasattr(ctx.store,'root') else directory('unused')) if False else ctx.store
+  sim=SimulationResult.model_validate(cc.from_canonical_bytes(fresh.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+  result=load_uncertainty_envelope(fresh,sim.uncertainty_envelopes['y'])
+  return {'status':outcome.status,'calls':calls,'builders':builders,'output':result,'refs':refs}
+ except Exception as exc:return {'exception_type':type(exc).__name__,'is_value_error':isinstance(exc,ValueError),'exception':str(exc),'calls':calls,'builders':builders}
+ finally:node._build_propagation_fn=original
+import math
+from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
+
+def case(name,fn):
+ try:detail=fn();cases.append({'id':name,'check_status':'PASS','detail':detail})
+ except Exception as exc:cases.append({'id':name,'check_status':'FAIL','error':repr(exc),'traceback':traceback.format_exc()})
+
+def adapter():
+ root=directory('adapter');store=CoreToIRArtifactStoreAdapter(ca.FileSystemCAS(root));env=produce({'x':[0,1]}).parameter_envelopes['x'];ref=persist_uncertainty_envelope(store,env)
+ class Counted:
+  def __init__(self,tamper=False):self.reads=0;self.tamper=tamper
+  def get_bytes(self,aid):self.reads+=1;return store.get_bytes(aid)+(b' ' if self.tamper else b'')
+  def get_manifest(self,aid):return store.get_manifest(aid)
+ healthy=Counted();fresh=load_posterior_summary_envelope(healthy,ref);assert healthy.reads==1 and posterior_nominal_mean(fresh)==.5
+ bad=Counted(True);callbacks=[]
+ try:
+  decoded=load_posterior_summary_envelope(bad,ref);callbacks.append(posterior_nominal_mean(decoded))
+ except ValueError as exc:reason=str(exc)
+ else:raise AssertionError('same JSON wrong exact bytes accepted')
+ assert bad.reads==1 and callbacks==[]
+ return {'healthy_named_mean':.5,'healthy_byte_reads':healthy.reads,'tampered_byte_reads':bad.reads,'tampered_callback_count':len(callbacks),'actual_refusal':reason,'canonical_adapter_ref':ref.model_dump(mode='json')}
+case('canonical_IRadapter_single_read_and_exact_bytes',adapter)
+for draws,mutation in [({'x':[0,1]},'consistent_joint'),({'a':[-1,1],'b':[-1,1]},'consistent_joint'),({'a':[-1,1],'b':[-1,1]},'incomplete_joint')]:
+ def refusal(draws=draws,mutation=mutation):
+  r=run_node(draws,mutation=mutation);assert r.get('is_value_error') and r['calls']==[] and r['builders']==[]
+  return {'actual_refusal':r['exception'],'actual_callbacks':0,'actual_builders':0}
+ case('native_group_refusal_'+str(len(draws))+'_'+mutation,refusal)
+
+def oldhash():
+ summary=produce({'α':[-1,1],'β':[1,-1]},sample_axis='σ_axis',draw_ids=['r:ñ','r:λ']);names=['α','β'];ids=['r:ñ','r:λ']
+ payload={'parameter_order':names,'draw_ids':ids,'carriers':[summary.parameter_envelopes[n].distribution_payload.model_dump(mode='json') for n in names]};expected=hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+ actual=joint_carrier_digest(names,summary.parameter_envelopes,ids);actualIR=ps.posterior_joint_carrier_digest(names,summary.parameter_envelopes,ids)
+ assert expected==actual==actualIR
+ return {'independent_original_JSON_sha256':expected,'new_shared_Foundry_sha256':actual,'new_IR_shared_sha256':actualIR,'unicode_axis_and_rows_retained':True}
+case('existing_shared_joint_hash_exact_format',oldhash)
+
+def publicguard():
+ out=[]
+ for axis in ['samples','probabilities']:
+  for bad in [True,np.bool_(True),'1.0']:
+   xs,p=(0.,1.),(.5,.5)
+   if axis=='samples':xs=(0.,bad)
+   else:p=(.5,bad)
+   try:ps.posterior_summary_functionals(xs,p,.9)
+   except ValueError as exc:out.append({'axis':axis,'raw_type':type(bad).__name__,'actual_refusal':str(exc)})
+   else:raise AssertionError((axis,bad))
+ assert ps.posterior_summary_functionals((0.,1.),(.5,.5),.9)==(.5,0.,(0.,1.))
+ return {'six_typed_refusals':out,'healthy_float_control':[.5,0.,[0.,1.]]}
+case('public_real_non_bool_axes',publicguard)
+
+def large():
+ summary=produce({'x':[0.,1e200]});ref,fresh=save_fresh(summary.parameter_envelopes['x'],directory('large'));std=math.hypot(math.sqrt(.5)*(-5e199),math.sqrt(.5)*5e199)
+ assert std==5e199 and summary.uncertainty_decomposition['x']['diagnostics']['total_std']==std and posterior_nominal_mean(fresh)==5e199 and fresh.confidence_interval==(0,1e200)
+ assert all(not summary.uncertainty_decomposition['x'][n]['gate_eligible'] for n in ['total','epistemic','aleatoric'])
+ try:produce({'x':[-1.79e308,1.79e308]})
+ except ValueError as exc:reason=str(exc)
+ else:raise AssertionError('nonfinite diagnostic bounds accepted')
+ return {'independent_finite_std':std,'actual_diagnostic_std':summary.uncertainty_decomposition['x']['diagnostics']['total_std'],'fresh_named_mean':posterior_nominal_mean(fresh),'fresh_interval':fresh.confidence_interval,'gaussian_span_overflow_typed_refusal':reason,'scope':'IR/NumPy finite corpus; no float32 backend range promise or inferential covariance authority.'}
+case('finite_scaled_hypot_and_diagnostic_range_refusal',large)
+
+def context_group(remove=False):
+ ctx,state,refs=fixture._posterior_node_fixture(directory('context-group'),{'a':[-1,1],'b':[-1,1]});env=load_posterior_summary_envelope(ctx.store,refs['b']);raw=env.model_dump(mode='json');pf=raw['metadata']['posterior_summary_profile'];pf['context']['purpose']='different_purpose';pf['context_content_hash']=PosteriorSummaryContext.model_validate(pf['context']).content_hash
+ newref=persist_uncertainty_envelope(ctx.store,UncertaintyEnvelope.model_validate(raw));old=state.inputs[fixture.INPUT_CALIBRATION_REPORT_REF] if hasattr(fixture,'INPUT_CALIBRATION_REPORT_REF') else None
+ from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF
+ old=state.inputs[INPUT_CALIBRATION_REPORT_REF];manifest=ctx.store.get_manifest(old.artifact_id);r=cc.from_canonical_bytes(ctx.store.get_bytes(old.artifact_id));r['uncertainty_envelope_refs']['b']=newref.model_dump(mode='json');state.inputs[INPUT_CALIBRATION_REPORT_REF]=ctx.store.put_json(r,ca.PutOptions(kind=manifest.kind,media_type=manifest.media_type,schema=manifest.artifact_schema,inputs=manifest.inputs),canon_spec=cc.CanonSpec(forbid_floats=False,exclude_none=False))
+ calls=[];builders=[];original=node._build_propagation_fn;admit=node.admit_posterior_summary_profiles
+ def observe(*a,**kw):
+  builders.append(kw);fn,mapped=original(*a,**kw)
+  def measured(**p):calls.append(p);return fn(**p)
+  measured._sensitivity_map=fn._sensitivity_map;return measured,mapped
+ node._build_propagation_fn=observe
+ if remove:node.admit_posterior_summary_profiles=lambda *a,**kw:None
+ try:
+  try:outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+  except ValueError as exc:
+   assert not remove and not calls and not builders
+   return {'actual_refusal':str(exc),'actual_callbacks':0,'actual_builders':0,'individually_content_valid_contexts':True}
+  assert remove and outcome.status=='ok' and len(calls)==257
+  try:assert calls==[]
+  except AssertionError:return {'property_removal_effective':True,'required_negative_assertion_outcome':'FAIL','actual_callbacks':len(calls),'actual_builders':len(builders),'CAS_profiles_and_context_hashes_retained':True}
+  raise AssertionError('removed admission did not falsify callback0')
+ finally:node._build_propagation_fn=original;node.admit_posterior_summary_profiles=admit
+case('native_content_valid_context_disagreement',context_group)
+case('effective_complete_group_context_admission_removal',lambda:context_group(True))
+assert identity()==before
+record={'schema':'policyos.e02.independent_ir_delta_review.v1','candidate':CAND,'tree':'135ab8cff4026f3fa366ce997e4aa9b181441218','base':BASE,'parent_candidate':'c87f532e6ce6ab2507d937c10eb6eff8153c1699','source_unchanged':True,'footprint':before,'cases':cases,'counts':dict(Counter(x['check_status'] for x in cases)),'environment':{'python':sys.version,**{p:importlib.metadata.version(p) for p in ['numpy','scipy','pydantic','jax','pytest']}},'cleanup_candidates':scratch,'limits':['Unchanged c87 native28case corpus reused under explicit source delta review; no broad family wave.','Old generic-label v1.1 compatibility amendment pending separate owner-author correction; not falsely called old ABI pass.','Signed zero producer/CAS identity probe recorded separately.']}
+(OUT/'independent-delta-results.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2));sys.exit(bool(record['counts'].get('FAIL')))

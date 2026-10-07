@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.covariance_facade_collector_generator.v1",
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "actual_collector": "guardrails.collect_deep_import_edges(_parse_public_surface(contract))",
+  "collector_source_sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+  "selected_full_source_denominator": {
+    "polisyos.foundry.uncertainty": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+  },
+  "selected_old_edges": [
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.common.logger",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.manifest",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.store",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.canon",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.components",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.fabric",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.foundry",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.calibration.report",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.config",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.covariance",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.dependence_structure",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.phase4_dynamics",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.uncertainty",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.welfare",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.observation.bundles",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.registry.refs"
+  ],
+  "selected_new_edges": [
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.common.logger",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.manifest",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.store",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.canon",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.components",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.fabric",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.foundry",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.calibration.report",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.config",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.dependence_structure",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.phase4_dynamics",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.uncertainty",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.welfare",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.observation.bundles",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.registry.refs"
+  ],
+  "removed_owned_covariance_edge": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.covariance",
+  "new_cross_root_private_edges": [],
+  "exports_present_old_route_negative": {
+    "exports": 25,
+    "owned_covariance_edge_retained": true,
+    "outcome": "EXPECTED_FAIL_actual_collector"
+  },
+  "canonical_generator": "build_public_surface_inventory + render_public_surface_json/markdown; all base facade source reads bound to exact5e",
+  "baseline_generated_bytes_exact": true,
+  "postimage_counts": {
+    "Calibration": 29,
+    "Foundry uncertainty": 25,
+    "DDM": 17
+  },
+  "only_owned_entrypoint_JSON_changed": true,
+  "Welfare_non_import_AST_unchanged": true,
+  "covariance_body_bytes_unchanged": {
+    "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "sha256": "f6ca43c06d2a699d2bcaa0b48d5eeffc82a0933014d1742ec49ea9b8bbfdfab1"
+  },
+  "private_import_introducing_commit": "28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+  "P41": "Original full5e guard FAIL retained separately. Exact selected native collector reproduced owned covariance red. No prior full guard rerun/disjointness or inherited/global architecture PASS asserted.",
+  "other_private_edges": "Listed full selected remainder stays named; Core/IR/API owner admission and remaining foreign packets remain separate. No baseline/exception/shared contract change."
+}

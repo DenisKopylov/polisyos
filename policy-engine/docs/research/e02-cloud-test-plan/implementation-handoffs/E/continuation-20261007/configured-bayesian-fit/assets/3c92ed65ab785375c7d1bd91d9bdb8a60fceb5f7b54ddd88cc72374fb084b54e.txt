@@ -1,0 +1,181 @@
+{
+  "source": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+  "tree": "dcbc46f07f50c4efa438586bbb6e9314b35f3862",
+  "parent": "779af0674d25f7a272a4267efcface920558eaba",
+  "original_slice_base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "delta_footprint": [
+    {
+      "change": "M",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+      "bytes": 2108,
+      "sha256": "6b7f1d8a7517be7f3f5abaf6dbcfd667a2cd5dac07e83c861e2c5b8eb4c45502",
+      "blob": "0ad890e35c34e08d1999cfa71e3ec3d6a4da3ae7",
+      "physicalGitEqual": true
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "bytes": 18180,
+      "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674",
+      "blob": "1306214ad83d92ce5778deb7257bafcd08be7e38",
+      "physicalGitEqual": true
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 22717,
+      "sha256": "7fa878dcc4c1119f3b3dc01c77099313eaca93a7d1aad5cb5115d5f903cec87b",
+      "blob": "f554ffaa601e5eb700831795a368f093835f099d",
+      "physicalGitEqual": true
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+      "bytes": 27018,
+      "sha256": "20c505ea4e08cd2270bc94ed9027c6a1adf31b743976c43ec1ddc2d01fa010d7",
+      "blob": "45ecb28dce3ad726a0477c0a7062a2147482537e",
+      "physicalGitEqual": true
+    }
+  ],
+  "independent_native_tests": {
+    "status": "PASS",
+    "junit": {
+      "tests": 74,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "receipt": "pytest.receipt.json",
+    "contains_actual12newprofilemutants_permethod_and4sharedguard_removalcontrols_permethod": true
+  },
+  "typing": {
+    "status": "PASS",
+    "summary": {
+      "filesAnalyzed": 2,
+      "errorCount": 0,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 2.536
+    },
+    "actual_command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/basedpyright",
+      "--project",
+      "/tmp/e02-E-fit-independent-9147-20261007/pyright-current.json",
+      "--pythonpath",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "--outputjson"
+    ],
+    "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+    "scope": "same existing scoped bridge+node standard config; previousexact3cc7/current6338same7 owned errors nowremoved; no globaltypingclaim"
+  },
+  "prior_falsifiers": {
+    "status": "fixed",
+    "supported_profile_guard": "exactcurrentproducer version+completeparameter set/ranks/commonrows admission before envelopepublication/evaluator",
+    "field_roles": "metadata guard says structural finite-corpus only; source/model/noise/mixing authoritynot_established",
+    "current74tests": "actual all priorunsupportedversions/ranks/missingcoordinate variantsrefuse; guard-removal controls fromnative actualsource read andexecuted inindependent74"
+  },
+  "confirmed_new_boundary_regression": {
+    "property": "typed returned envelope reference kind/media authority from old IRpublisher mustsurvive Corewriter replacement",
+    "actual_results": [
+      {
+        "method": "hmc",
+        "current_node_outcome": "ADMITTED",
+        "status": "ok",
+        "output_refs": {
+          "y": {
+            "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+            "kind": "forged.wrong_kind",
+            "media_type": "text/plain"
+          }
+        },
+        "spy_calls": [
+          "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+          "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+        ],
+        "old_IR_publisher_outcome": "REFUSED",
+        "old_exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+      },
+      {
+        "method": "nuts",
+        "current_node_outcome": "ADMITTED",
+        "status": "ok",
+        "output_refs": {
+          "y": {
+            "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+            "kind": "forged.wrong_kind",
+            "media_type": "text/plain"
+          }
+        },
+        "spy_calls": [
+          "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+          "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+        ],
+        "old_IR_publisher_outcome": "REFUSED",
+        "old_exception": "ValidationError:2 validation errors for UncertaintyEnvelopeRef\nkind\n  Input should be 'ir.uncertainty_envelope' [type=literal_error, input_value='forged.wrong_kind', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error\nmedia_type\n  Input should be 'application/json' [type=literal_error, input_value='text/plain', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error"
+      }
+    ],
+    "wrong_ref_payload_schema_andCAS_content": "unchanged valid; onlyreturned refkind/media falsified",
+    "proxy_divergence": "oldactualIRtypedpublisher REFUSED2Literalfields; newactualnode persists mismatchedoutput refs andreturnsok",
+    "spy_counts_qualification": "wrong-return-ref observer initiallyretained mutablecallslist: recorded2calls combines one currentnativewriter andoneoldwrappercontrol; not a current-onlycallbackcountclaim",
+    "required_fix": "existingCorepublic contracts.UncertaintyEnvelopeRef typedDTO validation of stable3-field dict, CoreArtifactRef revalidation forCoreartifactlists andtypedIRDTO map forSimulationResult; useexistingfacade, no foreignexports/casts/codec copy"
+  },
+  "selected_view_healthy_companion": {
+    "actual_results": [
+      {
+        "method": "hmc",
+        "current_node_outcome": "ADMITTED",
+        "status": "ok",
+        "output_refs": {
+          "y": {
+            "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "spy_calls": [
+          "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998"
+        ],
+        "old_IR_publisher_outcome": "ADMITTED",
+        "old_ref": {
+          "artifact_id": "sha256:e27600e5a70ee032a9edaa411f435aed31bfaa167d3b8c5ecc424c68395d3998",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "fresh_strict_simulation_reader": "ADMITTED"
+      },
+      {
+        "method": "nuts",
+        "current_node_outcome": "ADMITTED",
+        "status": "ok",
+        "output_refs": {
+          "y": {
+            "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "spy_calls": [
+          "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79"
+        ],
+        "old_IR_publisher_outcome": "ADMITTED",
+        "old_ref": {
+          "artifact_id": "sha256:6626e9463b1217f41212ccf6e37170b81af09db0bfb9976073f97822075daa79",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "fresh_strict_simulation_reader": "ADMITTED"
+      }
+    ],
+    "outcome": "PASS",
+    "qualification": "potentialextra-wire-field hypothesis wasfalsified: selectedprofile privatefielddoesnotserialize; currentstrictSimulationResult reader andoldIRpublisher bothADMIT/stable3wirefields; no extra wire blocker andno claimoldviewwasconsumed"
+  },
+  "disposition": "CHANGE_REQUIRED",
+  "source_guard": "CLOSED; author may minimalappend returned-ref type contract correction",
+  "finding_status": "unchanged; source/test outcomes distinct fromoriginal finding closure",
+  "limitations": [
+    "No global architecture/API/static/CI result",
+    "No production source/fit/noise/mixing authority",
+    "No full environment binary/file guard; ROOT207207METADATA+pyvenvcfg+Pythonbinary209records unchanged duringindependent74",
+    "Current scopedtypedPASS doesnotwaive any otherpaths or oldglobaltyping evidence"
+  ]
+}

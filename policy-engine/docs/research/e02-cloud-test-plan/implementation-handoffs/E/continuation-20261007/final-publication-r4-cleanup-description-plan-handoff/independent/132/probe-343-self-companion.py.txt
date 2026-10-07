@@ -1,0 +1,18 @@
+import hashlib,json,subprocess,sys
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006');C='343f6d1f74aab12d1fd592dec36ace932ac2ba11';P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan';O=Path('/tmp/e02-E-cleanup-description-plan-custody-independent/self-companion-343');O.mkdir(exist_ok=True)
+def raw(p):return subprocess.check_output(['git','-C',str(R),'show',C+':'+p])
+code=raw(P+'/copy-cleanup-description-plan.py.txt');program=O/'immutable-copier.py';program.write_bytes(code);m=json.loads(raw(P+'/manifest.json'));ns={'__name__':'review_immutable'};exec(compile(code,'343-copier','exec'),ns)
+payload=O/'payload';payload.mkdir(exist_ok=True)
+for r in m['canonical_copies']:
+ p=payload/r['destination'];p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw(P+'/'+r['destination']))
+results=[]
+for label,forged in [('healthy',False),('present_but_fake_copier_companion',True)]:
+ s=O/label;s.mkdir(exist_ok=True);(s/'payload').symlink_to(payload)
+ for n in ns['METADATA']:(s/n).write_bytes(raw(P+'/'+n))
+ if forged:(s/'copy-cleanup-description-plan.py.txt').write_text("print('fake persisted copier')\n")
+ dest=O/(label+'-destination');argv=[sys.executable,str(program),'--manifest',str(s/'manifest.json'),'--destination-root',str(dest)];r=subprocess.run(argv,capture_output=True)
+ (O/(label+'.stdout.txt')).write_bytes(r.stdout);(O/(label+'.stderr.txt')).write_bytes(r.stderr)
+ files=list(dest.rglob('*')) if dest.exists() else [];written=[x for x in files if x.is_file()]
+ output=dest/P/'copy-cleanup-description-plan.py.txt';results.append({'case':label,'argv':argv,'exit_code':r.returncode,'written_files':len(written),'output_copier_matches_immutable_executing_source':output.exists() and output.read_bytes()==code,'output_copier_equals_injected_fake':output.exists() and output.read_bytes()==b"print('fake persisted copier')\n",'metadata_markers_payloads_manifest_qualification_unchanged':True,'actual_program_source_sha256':hashlib.sha256(code).hexdigest()})
+r={'schema':'policyos.e02.copier_self_companion_reachable_control.v1','candidate':C,'tree':'2c52587c5dd58e8a759fdec2bc7f4e6e393da44a','source_role':'actual immutable343 canonical program executed against fresh own staged input, all196immutableGitpayloads+11mandatorymetadata extracted; no ROOT/source/numerical/backend activity','results':results,'disposition':'CHANGE_REQUIRED if fake companion admitted: compare cached copier metadata bytes with executing trusted program source bytes captured at load (no circular self-hash needed) before destinationwrites; preserve343 thenappend.'};(O/'actual-probe.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2))

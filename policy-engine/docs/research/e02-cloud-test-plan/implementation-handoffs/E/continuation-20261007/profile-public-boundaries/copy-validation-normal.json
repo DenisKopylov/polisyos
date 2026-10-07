@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.literal_copy_validation.v1",
+  "mode": "normal",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "argv": [
+    "/tmp/e02-E-pr38-thirteenth-continuation-20261007/validate-publication-index.py"
+  ],
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "payload_index": {
+    "bytes": 266750,
+    "sha256": "6d50cdf878e811bea7d3288a58ff497794b6b78e42fb68d9d27483d1adbced27"
+  },
+  "positive": {
+    "files": 441,
+    "bytes": 9688213,
+    "active_python_utilities": [
+      "full54/bind_final_source4.py",
+      "full54/build_delta_packet.py"
+    ]
+  },
+  "negative_controls": [
+    {
+      "control": "wrong_source",
+      "outcome": "refused",
+      "reason": "exact immutable product identity"
+    },
+    {
+      "control": "missing_footprint_row",
+      "outcome": "refused",
+      "reason": "complete publication footprint"
+    },
+    {
+      "control": "forged_digest",
+      "outcome": "refused",
+      "reason": "recomputed exact publication byte identity"
+    },
+    {
+      "control": "forged_size",
+      "outcome": "refused",
+      "reason": "recomputed exact publication byte identity"
+    },
+    {
+      "control": "duplicate_path",
+      "outcome": "refused",
+      "reason": "duplicate portable publication path"
+    }
+  ],
+  "check_outcome": "PASS",
+  "scope": "Recomputed literal copy/source/footprint/status custody only; does not confer scientific authority or finding closure"
+}

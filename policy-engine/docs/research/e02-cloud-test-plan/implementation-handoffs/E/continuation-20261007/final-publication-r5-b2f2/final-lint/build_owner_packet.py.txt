@@ -1,0 +1,24 @@
+"""Build current owner packet from complete closed frozen native lint/format outputs."""
+import collections,hashlib,json,pathlib
+P=pathlib.Path('/tmp/e02-E-final-root-lint-b2f2f65e-20261007');ROOT=pathlib.Path('/workspace/e02-E-continuation-20261006')
+def ref(name):
+ f=P/name;b=f.read_bytes();return {'path':str(f),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+i=json.loads((P/'inputs.json').read_text());r=json.loads((P/'capture-receipt.json').read_text());d=json.loads((P/'ruff.stdout.txt').read_text());rows={x['path']:x for x in i['python_rows']};groups=collections.defaultdict(list)
+for item in d:
+ path=pathlib.Path(item['filename']).relative_to(ROOT).as_posix()
+ if path not in rows:raise ValueError('diagnostic_outside_denominator')
+ groups[path].append(item)
+formats=[]
+for line in (P/'ruff-format.stdout.txt').read_text().splitlines():
+ if line.startswith('Would reformat: '):
+  path='policy-engine/'+line[len('Would reformat: '):]
+  if path not in rows:raise ValueError('format_outside_denominator')
+  formats.append(path)
+paths=[]
+for path in sorted(set(groups)|set(formats)):
+ row=rows[path];factual=row['writer_attribution']['writer'];origin='C' if '/C-canon/' in path else 'D' if '/D-budget/' in path else 'B' if '/B-model/' in path else 'F' if '/F35-decision/' in path else factual
+ paths.append({'path':path,'object_id':row['object_id'],'bytes':row['bytes'],'sha256':row['sha256'],'factual_writer':factual,'canonical_owner':row['writer_attribution'].get('canonical_owner'),'originating_boundary':origin,'diagnostic_count':len(groups.get(path,[])),'diagnostic_codes':dict(collections.Counter(x['code'] for x in groups.get(path,[]))),'format_required':path in formats,'source_mutated':False,'P41':'not_established'})
+checks={x['name']:x for x in r['checks']}
+summary={'source':i['candidate'],'tree':i['tree'],'base':i['base'],'complete_python_input_count':len(rows),'factual_writer_counts':dict(collections.Counter(x['writer_attribution']['writer'] for x in rows.values())),'ruff_exit_code':checks['ruff']['exit_code'],'format_exit_code':checks['ruff-format']['exit_code'],'diagnostic_count':len(d),'diagnostic_path_count':len(groups),'format_path_count':len(formats),'diagnostics_by_factual_writer':dict(collections.Counter(rows[pathlib.Path(x['filename']).relative_to(ROOT).as_posix()]['writer_attribution']['writer'] for x in d)),'E_diagnostic_count':sum(len(items) for path,items in groups.items() if rows[path]['writer_attribution']['writer']=='E'),'E_format_path_count':sum(rows[path]['writer_attribution']['writer']=='E' for path in formats),'source_config_environment_immutable':r['source_and_config_before_after_unchanged'] and r['metadata_before_after_unchanged'],'global_pass':False,'P41':'not_established'}
+packet={'schema':'policyos.e02.actual_current_lint_owner_packet.v1','summary':summary,'affected_owner_paths':paths,'basis':[ref(n) for n in ['inputs.json','capture-receipt.json','ruff.stdout.txt','ruff.stderr.txt','ruff.json','ruff-format.stdout.txt','ruff-format.stderr.txt','ruff-format.json','record_and_check.py','native-discovered-settings.stdout.txt','ruff-version.stdout.txt','python-version.stdout.txt']],'next_owner':'G routes direct A/B utility inputs and G-published archived C/D/B/F Python inputs; E349 currently have no native diagnostics/format requests. No foreign edits, exclusions or baseline widening.','exact_old_base_replay':'not performed: P41/inherited-source attribution not_established','source_or_env_or_foreign_code_changed':False,'source_delta_since_prior2dc':'freshfullGit8430pathdenominator includes actual962 passiveCALhandoff additions, activePython378 and their codebytes unchanged; fullnativecommands executed on frozenb2'}
+(P/'owner-packet.json').write_text(json.dumps(packet,indent=2)+'\n');print(json.dumps(summary,indent=2))

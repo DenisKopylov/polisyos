@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+    "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+    "-o",
+    "cache_dir=/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/compat-cache",
+    "--basetemp",
+    "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/compat-fixture",
+    "--junitxml",
+    "/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction/compat.junit.xml"
+  ],
+  "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+  "exit_code": 0,
+  "elapsed_seconds": 16.7343533039093,
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "source_sha256_before": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+  "source_sha256_after": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+  "source_immutable": true,
+  "scope": "affected existing node persistence/readback consumers, because actual output writer dependency changed; no unchanged CAL/JAX/Hessian wave"
+}

@@ -1,0 +1,98 @@
+"""Preserve complete closed moderate inputs/outputs without copying the large raw graph."""
+import gzip
+import hashlib
+import json
+from pathlib import Path
+
+BASE = Path('/tmp')
+OUT = BASE / 'e02-E-final3-publication-b2f2f65e-20261007'
+OUT.mkdir()
+(OUT / 'assets').mkdir()
+logical = []
+storage = {}
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def add(name, path):
+    data = path.read_bytes()
+    digest = sha(data)
+    compressed = len(data) > 180000
+    try:
+        data.decode('utf-8')
+        utf8 = True
+    except UnicodeDecodeError:
+        utf8 = False
+    encoding = 'gzip' if compressed else 'literal'
+    encoded = gzip.compress(data, mtime=0) if compressed else data
+    key = (digest, encoding)
+    if key not in storage:
+        portable = 'assets/' + digest + ('.bin' if compressed or not utf8 else '.txt')
+        with (OUT / portable).open('xb') as stream:
+            stream.write(encoded)
+        storage[key] = {'portable_path': portable, 'bytes': len(encoded), 'sha256': sha(encoded),
+                        'encoding': encoding, 'decoded_bytes': len(data), 'decoded_sha256': digest}
+    logical.append({'logical_name': name, 'original_path': str(path), **storage[key]})
+
+stages = ['architecture', 'runtime-api-contract', 'static-invocation',
+          'architecture-retry-corepack', 'runtime-api-contract-retry-corepack',
+          'static-invocation-retry-capacity']
+for name in stages:
+    stage = BASE / ('e02-E-final3-b2f2f65e-20261007-' + name)
+    receipt = json.loads((stage / 'receipt.json').read_text())
+    if receipt['source'] != 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641' or not receipt['source_immutable']:
+        raise RuntimeError('unclosed or wrong native source')
+    for member in ['receipt.json', 'started.json', 'stdout.txt', 'stderr.txt',
+                   'complete-source-inputs-before.json', 'complete-source-inputs-after.json']:
+        add('attempts/' + name + '/' + member, stage / member)
+    if (stage / 'retained-runtime-catalog.json').exists():
+        add('attempts/' + name + '/retained-runtime-catalog.json', stage / 'retained-runtime-catalog.json')
+        catalog = json.loads((stage / 'retained-runtime-catalog.json').read_text())
+        for i, ref in enumerate(catalog['openapi_captures_raw_only']):
+            add('attempts/' + name + '/actual-openapi-' + str(i) + '.json', Path(ref['path']))
+        for ref in catalog['complete_generated_client_outputs_raw_only']:
+            add('attempts/' + name + '/client/' + Path(ref['path']).name, Path(ref['path']))
+    outputs = stage / 'retained-workspace/outputs'
+    if outputs.exists():
+        for path in sorted(outputs.rglob('*')):
+            if path.is_file() and not path.is_symlink():
+                add('attempts/' + name + '/outputs/' + str(path.relative_to(outputs)), path)
+
+for label in ['runtime-corepack-repair-proof', 'architecture-corepack-repair-proof',
+              'architecture-retirement-admission']:
+    folder = BASE / ('e02-E-final3-b2f2f65e-20261007-' + label)
+    for path in sorted(folder.iterdir()):
+        if path.is_file():
+            add('support/' + label + '/' + path.name, path)
+for path in sorted((BASE / 'e02-E-final3-static-attribution-b2f2f65e-20261007').iterdir()):
+    if path.is_file():
+        add('static-current/' + path.name, path)
+for filename in ['e02-E-final3-closed-index-b2f2f65e-20261007.json',
+                 'e02-E-final3-closed-index-b2f2f65e-20261007-v2.json',
+                 'e02-E-final3-static-attribution-b2f2f65e-20261007.py.txt']:
+    add('current/' + filename, BASE / filename)
+add('observers/run_final_gate_when_leased.py.txt', BASE / 'e02-E-final3-preparation-20261007/run_final_gate_when_leased.py.txt')
+add('observers/retained_runtime_api_cli.py.txt', Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py'))
+add('observers/build-publication.py.txt', Path(__file__))
+reconciliation = Path('/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/current-import-debt-reconciliation.json')
+add('owners/current-import-debt-reconciliation.json', reconciliation)
+writer = Path('/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/writer-qualification-v4.json')
+add('owners/complete-writer-qualification-v4.json', writer)
+review = Path('/tmp/e02-E-fit-independent-77b4-20261007/independent-review-77b4.json')
+add('native-witnesses/independent-fit-review-77b4.json', review)
+
+selection = {'schema': 'policyos.e02.final3.moderate_literal_selection.v1',
+             'source': 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641',
+             'tree': '4cbbed1d9392832729cab92c6615f9a1d03a41c7',
+             'assets': logical, 'logical_count': len(logical), 'unique_count': len(storage),
+             'unique_bytes': sum(r['bytes'] for r in storage.values()),
+             'large_raw_static_graph': 'Not copied to publication; full ignored raw path/bytes/SHA and complete native corpus/119 changed rows are bound by current metadata.',
+             'private_git_configuration': 'Private raw configuration excluded; exact identity hash remains in each actual receipt.',
+             'scope': 'Literal complete outer native outputs/source/environment frames, six actual attempts, all current required generator outputs; healthy child stdout discarded by canonical native tool is not claimed captured.',
+             'native_outcomes': {'architecture': 'FAIL', 'runtime-api-contract': 'FAIL', 'static-invocation': 'FAIL'},
+             'finding_closure': False, 'P41': 'not_established'}
+with (OUT / 'publication-selection.json').open('x') as stream:
+    json.dump(selection, stream, indent=2)
+    stream.write('\n')
+print(json.dumps({'root': str(OUT), 'logical_count': len(logical), 'unique_count': len(storage),
+                  'unique_bytes': selection['unique_bytes'], 'selection_sha256': sha((OUT / 'publication-selection.json').read_bytes())}))

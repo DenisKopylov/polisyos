@@ -1,0 +1,24 @@
+{
+  "mode": "normal",
+  "case": "selected_members_int_to_float",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-selected_members_int_to_float/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-selected_members_int_to_float/destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-selected_members_int_to_float/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-selected_members_int_to_float/stderr.txt",
+    "bytes": 1141,
+    "sha256": "e58cbdd63b4419a9c91e14fba3388345c1c052e2115c802fecb7590ff0282aaa"
+  }
+}

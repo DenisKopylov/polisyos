@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 287, in <module>
+    main()
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 249, in main
+    counts = validate(p, manifest, args.layout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 224, in validate
+    payload_root = carrier_root(p, manifest, layout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 189, in carrier_root
+    raise ValueError('ambiguous stage/published carrier layout')
+ValueError: ambiguous stage/published carrier layout

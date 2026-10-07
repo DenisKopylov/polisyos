@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.cleanup_description_plan_publication_qualification.v1",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "cleanup": {
+    "closed_selector": "f522e7f42a508643e167d66bcbaf7600f6c4c75dace6988039d32d3983f82e6f",
+    "scope": "two closed source copies and eight closed numeric fixtures, original actions only; no cleanup by this carrier",
+    "payload_records": 73758,
+    "tar_members_including_ten_root_directories": 73768,
+    "ten_tar_root_directories": 10,
+    "archive_payloads_copied": false,
+    "unique_archives_fullinventories": "ignored immutable refs; no full archive/data/source trees copied",
+    "history": "old rawHEAD predicate false→actual pathset correction and old fourthprefix observerERROR→actual activebackendpath fiveusers/disjoint correction retained"
+  },
+  "PR_description": {
+    "historical": "original920581 CHANGE_REQUIRED; 12 original imports/loader vs separate newCanonSpec edge were conflated",
+    "current": "append470d05 independently GO; original12 loader denominator distinct from newCanonSpec typed edge",
+    "body_or_remote_updated_by_this_carrier": false,
+    "current_go_scope": "closed body/head/ref/source/count custody only; no code/finding/globalCI acceptance",
+    "temporal_scope": "Frozen original920581→470d05 closed body chain only; newer1cce→707 source/input-drift correction is a separate future packet and not copied or accepted by this carrier."
+  },
+  "lint": {
+    "status": "PLAN_ONLY",
+    "prospective_python_paths": 366,
+    "actual_merged_ROOT_candidate": "UNRUN",
+    "Ruff": "UNRUN",
+    "format": "UNRUN",
+    "future_refresh_required": true,
+    "plan_scope": "prospective source3932/admitted refs; fullactualmerge and latest incomingDOC denominator require fresh reconciliation before native lint",
+    "new_active_Python_by_this_carrier": 0
+  },
+  "prior_publication": {
+    "source": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+    "tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+    "scope": "closed thinGO and exact normal push/tracking/remote readback; no finding or globalPASS"
+  },
+  "ROOT_inputs": {
+    "generated_input_drift_snapshot": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0",
+    "observed_generated_paths": 29,
+    "whole_tracked_clean": false,
+    "broad_source_input_immutable": false,
+    "native_mutating_caller_and_P41": "not_established; suppliedfixture writers identified by root separately, actual individual native caller attribution not established here",
+    "sourcefreeze_waiver": false,
+    "snapshot_atomic": false
+  },
+  "new_MC_source": {
+    "3932": "separate DTO/source boundedGO",
+    "current_da079_docs573": "separate sourceauthor publication",
+    "formal_G_finding_closure": false,
+    "source_files_copied_by_this_carrier": false
+  },
+  "G_fixture_packet_copied_or_accepted": false,
+  "source_tests_native_numeric_globalgate_executed": false,
+  "ROOT_source_env_locks_written": false,
+  "global_or_finding_PASS": false
+}

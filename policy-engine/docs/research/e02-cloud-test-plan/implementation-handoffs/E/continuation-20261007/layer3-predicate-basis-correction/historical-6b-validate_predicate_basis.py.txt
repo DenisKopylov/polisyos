@@ -1,0 +1,89 @@
+"""Validate additive P37 metadata and prior immutable documents, never native tests."""
+from __future__ import annotations
+import argparse,copy,hashlib,json,re,subprocess
+from pathlib import Path
+PRIOR='9d6c9fa14e082d067fd13f6e02d6b10b00547d89'
+TREE='33ec3a2ecdc2a36211f220d78dd6dc925734c15f'
+BASE='7537ef95beed07d02a3b72343b082ff3b7fd14e2'
+BASEPATH='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/'
+EXPECTED={
+ 'immutable_candidate_and_tree':'recomputed',
+ 'literal_copy_hash_size_and_git_blob':'recomputed',
+ 'selected_member_multiset':'recomputed',
+ 'source_helper_output_reconciliation':'independently_reconciled',
+ 'original_to_published_copy_reconciliation':'independently_reconciled',
+ 'fixture_containment_admission_before_archive':'independently_reconciled',
+ 'full_native_fixture_outcome':'not_established',
+ 'complete_input_isolation':'not_established',
+ 'current_native_caller_P41':'not_established',
+ 'finding_closure_or_institutional_authority':'not_established',
+}
+ENUM={'recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established'}
+
+def require(ok,why):
+ if not ok:raise ValueError(why)
+
+def read(repo,ref,path):
+ require(isinstance(ref,str) and re.fullmatch('[0-9a-f]{40}',ref) is not None,'exact immutable source SHA')
+ require(isinstance(path,str) and path and not Path(path).is_absolute() and '..' not in Path(path).parts and not path.startswith('-'),'Git source path')
+ return subprocess.run(['git','-C',str(repo),'show',ref+':'+path],check=True,capture_output=True).stdout
+
+def asset(repo,record):
+ require(type(record['bytes']) is int and record['bytes']>=0,'typed bytes')
+ require(isinstance(record['sha256'],str) and re.fullmatch('[0-9a-f]{64}',record['sha256']) is not None,'typed digest')
+ p=Path(record['path'])
+ data=p.read_bytes() if p.is_absolute() else read(repo,record.get('source_sha',PRIOR),record['path'])
+ require(len(data)==record['bytes'] and hashlib.sha256(data).hexdigest()==record['sha256'],'exact evidence bytes')
+ if 'git_blob' in record:
+  require(subprocess.run(['git','-C',str(repo),'rev-parse',record['source_sha']+':'+record['path']],check=True,capture_output=True).stdout.decode().strip()==record['git_blob'],'Git blob binding')
+ return data
+
+def admit(repo,packet,*,remove_basis=False):
+ require(packet['prior_publication_sha']==PRIOR and packet['prior_publication_tree_sha']==TREE,'prior publication identity')
+ require(subprocess.run(['git','-C',str(repo),'rev-parse',PRIOR+'^{tree}'],check=True,capture_output=True).stdout.decode().strip()==TREE,'prior actual tree')
+ require(packet['runtime_source_sha']=='64d7444a18c55df7b88b71b7699a2f1b25ca24bd' and packet['runtime_source_tree_sha']=='aef23574d3162abb19bf5a1c67d02624ff9d4d1d','runtime source remains64d')
+ require(packet['passive_metadata_only'] is True and packet['native_execution'] is False,'passive-only boundary')
+ asset(repo,dict(packet['prior_handoff'],source_sha=PRIOR))
+ rows=packet['predicate_basis'];require(isinstance(rows,list) and len(rows)==10,'complete predicate count')
+ names=[r['predicate'] for r in rows];require(len(set(names))==10 and set(names)==set(EXPECTED),'complete declared predicate set')
+ for row in rows:
+  require(row['basis'] in ENUM,'canonical vocabulary')
+  if not remove_basis:require(row['basis']==EXPECTED[row['predicate']],'frozen predicate basis')
+  asset(repo,row['evidence_ref'])
+ for name,rec in packet['authority_bounds'].items():
+  require(name in EXPECTED and EXPECTED[name]=='not_established','unknown authority scope')
+  require(rec['basis']=='not_established' and rec['positive_claim'] is False,'unknown premise cannot yield positive claim')
+ require(set(packet['authority_bounds'])=={n for n,b in EXPECTED.items() if b=='not_established'},'complete unknown authority bounds')
+ return {'predicate_count':len(rows),'basis_counts':{b:sum(r['basis']==b for r in rows) for b in sorted(ENUM)},'native_execution':False}
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--repo',type=Path,required=True);p.add_argument('--packet',type=Path,required=True);args=p.parse_args();packet=json.loads(args.packet.read_text())
+ healthy=admit(args.repo,packet)
+ paths=subprocess.run(['git','-C',str(args.repo),'diff','--name-only',BASE,PRIOR],check=True,capture_output=True).stdout.decode().splitlines()
+ require(len(paths)==111 and all(path.startswith(BASEPATH+'layer3-native-root-write-owner-packet') and not path.endswith('.py') for path in paths),'prior111DOC footprint')
+ preserved=[]
+ for path in paths:
+  old=read(args.repo,PRIOR,path);require((args.repo/path).read_bytes()==old,'prior publication changed')
+  preserved.append({'path':path,'bytes':len(old),'sha256':hashlib.sha256(old).hexdigest()})
+ literal=[]
+ for folder in ['layer3-native-root-write-owner-packet','layer3-native-root-write-owner-packet-handoff']:
+  idx=json.loads(read(args.repo,PRIOR,BASEPATH+folder+'/copy-index.json'));literal += idx['records']
+ require(len(literal)==106,'prior95+11 literal count')
+ controls=[]
+ def probe(name,mut):
+  bad=copy.deepcopy(packet);mut(bad)
+  try:admit(args.repo,bad)
+  except (ValueError,TypeError):controls.append({'case':name,'outcome':'REFUSED'});return bad
+  raise RuntimeError('corrupt metadata admitted: '+name)
+ bad=probe('upgrade_current_native_P41_to_recomputed',lambda x:next(r for r in x['predicate_basis'] if r['predicate']=='current_native_caller_P41').__setitem__('basis','recomputed'))
+ probe('drop_one_predicate',lambda x:x['predicate_basis'].pop())
+ probe('wrong_candidate_tree',lambda x:x.__setitem__('prior_publication_tree_sha','0'*40))
+ probe('wrong_evidence_digest_keep_basis',lambda x:x['predicate_basis'][0]['evidence_ref'].__setitem__('sha256','0'*64))
+ probe('bool_evidence_bytes',lambda x:x['predicate_basis'][0]['evidence_ref'].__setitem__('bytes',True))
+ probe('claim_full_input_isolation_under_unknown',lambda x:x['authority_bounds']['complete_input_isolation'].__setitem__('positive_claim',True))
+ probe('invent_current_native_PASS',lambda x:x.__setitem__('native_execution',True))
+ probe('unknown_basis_word',lambda x:x['predicate_basis'][0].__setitem__('basis','verified_here'))
+ removed=admit(args.repo,bad,remove_basis=True)
+ require(next(r for r in bad['predicate_basis'] if r['predicate']=='current_native_caller_P41')['basis']!=EXPECTED['current_native_caller_P41'],'removal divergence')
+ print(json.dumps({'schema':'policyos.e02.passive_P37_metadata_validation.v1','outcome':'PASS','prior_publication_sha':PRIOR,'prior_publication_tree_sha':TREE,'prior111DOC_paths_byte_identical':True,'preserved_literal_copies':len(literal),'preserved_literal_bytes':sum(r['bytes'] for r in literal),'healthy':healthy,'controls':controls,'controls_refused':len(controls),'effective_removal':{'sole_predicate_removed':'frozen predicate basis','marker_preservation':True,'actual_corrupt_P41_basis_admitted':removed,'defining_provenance_property':'FAIL'},'native_or_global_test_callbacks':0,'author_verification_not_independent_GO':True},indent=2))
+if __name__=='__main__':main()

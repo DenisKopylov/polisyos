@@ -1,0 +1,40 @@
+{
+  "scope": "Helper/main admission controls only, no product test or wave subprocess; no deletion",
+  "cases": [
+    {
+      "case": "existing-output",
+      "refused": true,
+      "error_type": "RuntimeError",
+      "reason": "requested wave output root exists; preserve it and choose fresh scratch",
+      "prepare_callback_count": 0,
+      "sentinel_unchanged": true
+    },
+    {
+      "case": "dangling-output-link",
+      "refused": true,
+      "error_type": "RuntimeError",
+      "reason": "requested wave output root exists; preserve it and choose fresh scratch",
+      "prepare_callback_count": 0,
+      "sentinel_unchanged": true
+    },
+    {
+      "case": "existing-numeric-basetemp",
+      "refused": true,
+      "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+      "process_callback_count": 0,
+      "sentinel_unchanged": true,
+      "wave_output_not_created": true
+    }
+  ],
+  "property_removal": {
+    "guard_removed_with_existing_basetemp": "admitted",
+    "required_refusal_control_would_fail": true,
+    "process_launch_not_attempted": true,
+    "sentinel_unchanged": true
+  },
+  "all_process_callbacks": 0,
+  "all_preparation_callbacks_for_output_refusals": 0,
+  "fresh_root_atomic_mkdir": true,
+  "dangling_link_target_not_created": true,
+  "fixtures_preserved": true
+}

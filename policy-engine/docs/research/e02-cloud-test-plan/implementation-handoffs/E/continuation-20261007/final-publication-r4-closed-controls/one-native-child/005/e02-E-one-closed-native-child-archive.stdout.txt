@@ -1,0 +1,27 @@
+Admitted fresh readable no-users, inventory hashing exact closed child.
+{"inventory": {"path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before.json", "bytes": 8081306, "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"}, "writable_budget_guard": 813578637, "fresh_writable_overlay": 1234894848}
+Archive closed; independently stream reading complete actual tar members/bodies.
+Full archive/body/source inventory equal; retiring only one authorized closed plain child.
+{
+  "receipt": {
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/receipt.json",
+    "bytes": 10789,
+    "sha256": "1ec5b9463914cdc30a6a29078961f8824315d174029f9fe69ca401850bcb984d"
+  },
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "bytes": 116892698,
+    "sha256": "59fe87ef275be44536403f38eb739b2f91dba64cd88f79eb6dc35481d9f71441"
+  },
+  "counts": {
+    "regular_source_files": 18575,
+    "regular_source_bytes_path_sum": 527866253,
+    "source_directories": 2024,
+    "symlinks": 3,
+    "full_tar_members": 20602,
+    "tar_regular_payload_members": 18575,
+    "tar_hardlink_members": 0,
+    "tar_stored_regular_payload_bytes": 527866253
+  },
+  "overlay_writable_after": 1698734080
+}

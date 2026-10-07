@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-native-catalog-packet-independent-64d/review_v2_publication_custody.py", line 55, in <module>
+    observations.append({'source_path':str(path),'stored_at':target,'bytes':len(raw),'sha256':entry['sha256'],'publication_role':entry['publication_role']})
+                                                                                                                                 ~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'publication_role'

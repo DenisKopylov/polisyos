@@ -1,0 +1,17 @@
+import hashlib,json,os,subprocess
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006');S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage');C='98e913252845384f275092d86714c3d18a647218';P='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62';B='737c9e3115abac3fefe76920b08c05e76a5bee17'
+env=dict(os.environ,GIT_OPTIONAL_LOCKS='0')
+def git(*args):return subprocess.check_output(['git',*args],cwd=R,env=env)
+paths=git('diff','--name-only',P,C).decode().splitlines();rows=[]
+for p in paths:
+ b=git('show',C+':'+p);physical=(R/p).read_bytes()
+ if b!=physical or p.endswith('.py'):raise ValueError('literal Git/source path guard')
+ if p.endswith('.json'):json.loads(b)
+ rows.append({'path':p,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+prior=git('diff','--name-only',B,P).decode().splitlines()
+for p in prior:
+ if git('rev-parse',P+':'+p)!=git('rev-parse',C+':'+p):raise ValueError('prior implementation changed')
+o={'candidate':C,'tree':git('rev-parse',C+'^{tree}').decode().strip(),'parent':P,'delta_paths':len(rows),'delta_bytes':sum(r['bytes'] for r in rows),'prior_implementation_paths':len(prior),'prior_implementation_unchanged':True,'union_paths':len(prior)+len(rows),'active_python':[],'paths':rows}
+if o['delta_paths']!=338 or o['delta_bytes']!=1498698:raise ValueError('summary')
+(S/'handoff-Git-readback.json').write_text(json.dumps(o,indent=2)+'\n');print(json.dumps({k:v for k,v in o.items() if k!='paths'},indent=2))

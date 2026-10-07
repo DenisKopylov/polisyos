@@ -1,0 +1,16 @@
+{
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "command": [
+    "git",
+    "apply",
+    "--check",
+    "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "patch_sha256": "3838278b4419d3d17053282e0a3f5c248ef100b6b2c3b41c34d032b499dc0580",
+  "mutation": false
+}

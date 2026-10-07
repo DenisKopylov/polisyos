@@ -1,0 +1,50 @@
+--- a/policy-engine/src/polisyos/core/__init__.py
++++ b/policy-engine/src/polisyos/core/__init__.py
+@@ -32,6 +32,21 @@
+     "security",
+ )
+ _LAZY_EXPORTS = {
++    "ArtifactRef": ("polisyos.core.artifacts", "ArtifactRef"),
++    "ArtifactStore": ("polisyos.core.artifacts", "ArtifactStore"),
++    "ArtifactWriteOptions": ("polisyos.core.artifacts", "ArtifactWriteOptions"),
++    "PutOptions": ("polisyos.core.artifacts", "PutOptions"),
++    "SchemaInfo": ("polisyos.core.artifacts", "SchemaInfo"),
++    "input_ref_from_artifact_ref": (
++        "polisyos.core.artifacts",
++        "input_ref_from_artifact_ref",
++    ),
++    "CanonSpec": ("polisyos.core.canon", "CanonSpec"),
++    "from_canonical_bytes": ("polisyos.core.canon", "from_canonical_bytes"),
++    "load_registry_bundle_content": (
++        "polisyos.core.registry",
++        "load_registry_bundle_content",
++    ),
+     "FileSystemSignedArtifactEvidenceRepository": (
+         "polisyos.core.artifacts.signed_evidence",
+         "FileSystemSignedArtifactEvidenceRepository",
+@@ -171,13 +186,24 @@
+ )
+ 
+ if TYPE_CHECKING:
+-    from polisyos.core.artifacts.signed_evidence import FileSystemSignedArtifactEvidenceRepository
++    from polisyos.core.artifacts.signed_evidence import (
++        FileSystemSignedArtifactEvidenceRepository,
++    )
+     from polisyos.core.security.full_prefix import (
+         FullPrefixVerifier,
+         build_full_prefix_bundle,
+     )
+ 
+ __all__ = [
++    "ArtifactRef",
++    "ArtifactStore",
++    "ArtifactWriteOptions",
++    "PutOptions",
++    "SchemaInfo",
++    "input_ref_from_artifact_ref",
++    "CanonSpec",
++    "from_canonical_bytes",
++    "load_registry_bundle_content",
+     "FULL_PREFIX_EVALUATION_TABLE",
+     "FULL_PREFIX_FAILURE_DESCRIPTORS",
+     "FULL_PREFIX_TERMINAL_BY_RESULT_KIND",

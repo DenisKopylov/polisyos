@@ -1,0 +1,246 @@
+Measured: generated OpenAPI byte drift, declared OpenAPI hardening invariants, and generated runtime client byte drift when requested.
+Not measured: endpoint execution, authorization behavior, client behavior, production deployment, or hosted CI.
+--- /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json (committed)
++++ /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json (generated)
+@@ -58105,18 +58105,18 @@
+                           "semantic_role": "scope_total_spend"
+                         }
+                       },
+-                      "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
++                      "projection_hash": "sha256:a388e309f5d495e79fde2393284ac1fb73fd287c8f1dc2529c399c30744a404c",
+                       "projection_id": "confidence-ledger-risk-spend",
+                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
+                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
+-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
++                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Aa388e309f5d495e79fde2393284ac1fb73fd287c8f1dc2529c399c30744a404c&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A5888515dff0b49de599fcdd87dd41b5b9d62747b7c62868b53122d41b69b9a73",
+                       "replay_pins": {
+                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+-                        "projection_hash": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
++                        "projection_hash": "sha256:a388e309f5d495e79fde2393284ac1fb73fd287c8f1dc2529c399c30744a404c",
+                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+                         "source_as_of": "2026-02-11T12:00:00Z",
+-                        "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b"
++                        "source_dependency_hash": "sha256:5888515dff0b49de599fcdd87dd41b5b9d62747b7c62868b53122d41b69b9a73"
+                       },
+                       "source": {
+                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+@@ -58125,8 +58125,8 @@
+                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+                         "validation": {
+                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
+-                          "bound_dependency_aggregate_identity": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+-                          "bound_dependency_count": 1489,
++                          "bound_dependency_aggregate_identity": "sha256:5888515dff0b49de599fcdd87dd41b5b9d62747b7c62868b53122d41b69b9a73",
++                          "bound_dependency_count": 1495,
+                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
+                           "issue_codes": [],
+                           "recomputed_total_spend_denominator": 1,
+@@ -58141,16 +58141,16 @@
+                           "status": "passed",
+                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+-                          "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
++                          "worker_validation_receipt_hash": "sha256:6b70559647106dea01f7cf07fbf284118cb6deebf5216557bd8b934fe4511e73"
+                         }
+                       },
+                       "source_blocked_reason": null,
+-                      "source_dependency_hash": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
++                      "source_dependency_hash": "sha256:5888515dff0b49de599fcdd87dd41b5b9d62747b7c62868b53122d41b69b9a73",
+                       "source_rule_version": null,
+                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+-                      "worker_validation_receipt_hash": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+-                      "worker_validation_receipt_ref": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2"
++                      "worker_validation_receipt_hash": "sha256:6b70559647106dea01f7cf07fbf284118cb6deebf5216557bd8b934fe4511e73",
++                      "worker_validation_receipt_ref": "owner-validation:sha256:6b70559647106dea01f7cf07fbf284118cb6deebf5216557bd8b934fe4511e73"
+                     }
+                   }
+                 },
+Runtime API contract check UNRUN: no complete verdict: _RuntimeClientInspectionUnavailableError: Runtime API client generation exited with return code 1 during family drift check: /workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13170
+    throw new Error(
+          ^
+
+Error: Error when performing the request to https://registry.npmjs.org/pnpm/-/pnpm-10.33.2.tgz; for troubleshooting help, see https://github.com/nodejs/corepack#troubleshooting
+    at fetch (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13170:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchUrlStream (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13200:20)
+    ... 4 lines matching cause stack trace ...
+    at async Object.runMain (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:14838:7) {
+  [cause]: TypeError: fetch failed
+      at node:internal/deps/undici/undici:15270:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async fetch (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13165:16)
+      at async fetchUrlStream (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13200:20)
+      at async download (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13352:18)
+      at async installVersion (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13466:55)
+      at async Engine.ensurePackageManager (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:13994:32)
+      at async Engine.executePackageManagerRequest (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:14111:25)
+      at async Object.runMain (/workspace/.polisyos-environment/node-v22.23.3-linux-x64/lib/node_modules/corepack/dist/lib/corepack.cjs:14838:7) {
+    [cause]: AggregateError [ECONNREFUSED]: 
+        at internalConnectMultiple (node:net:1135:18)
+        at internalConnectMultiple (node:net:1211:5)
+        at Timeout.internalConnectMultipleTimeout (node:net:1743:5)
+        at listOnTimeout (node:internal/timers:587:11)
+        at process.processTimers (node:internal/timers:521:7) {
+      code: 'ECONNREFUSED',
+      [errors]: [
+        Error: connect ECONNREFUSED 104.16.8.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.8.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:622:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:622',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.6.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.6.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:b22:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:b22',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.0.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.0.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:222:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:222',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.9.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.9.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:922:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:922',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.3.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.3.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:122:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:122',
+          port: 443
+        },
+        Error: connect ECONNREFUSED 104.16.11.34:443
+            at createConnectionError (node:net:1679:14)
+            at afterConnectMultiple (node:net:1709:16) {
+          errno: -111,
+          code: 'ECONNREFUSED',
+          syscall: 'connect',
+          address: '104.16.11.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:322:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at afterConnectMultiple (node:net:1716:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:322',
+          port: 443
+        },
+        Error: connect ETIMEDOUT 104.16.4.34:443
+            at createConnectionError (node:net:1679:14)
+            at Timeout.internalConnectMultipleTimeout (node:net:1738:38)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -110,
+          code: 'ETIMEDOUT',
+          syscall: 'connect',
+          address: '104.16.4.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:722:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at Timeout.internalConnectMultipleTimeout (node:net:1743:5)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:722',
+          port: 443
+        },
+        Error: connect ETIMEDOUT 104.16.10.34:443
+            at createConnectionError (node:net:1679:14)
+            at Timeout.internalConnectMultipleTimeout (node:net:1738:38)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -110,
+          code: 'ETIMEDOUT',
+          syscall: 'connect',
+          address: '104.16.10.34',
+          port: 443
+        },
+        Error: connect ENETUNREACH 2606:4700::6810:22:443 - Local (:::0)
+            at internalConnectMultiple (node:net:1207:16)
+            at Timeout.internalConnectMultipleTimeout (node:net:1743:5)
+            at listOnTimeout (node:internal/timers:587:11)
+            at process.processTimers (node:internal/timers:521:7) {
+          errno: -101,
+          code: 'ENETUNREACH',
+          syscall: 'connect',
+          address: '2606:4700::6810:22',
+          port: 443
+        }
+      ]
+    }
+  }
+}
+
+Node.js v22.23.3
+- partial coverage: OpenAPI drift detected for /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json. Regenerate with tools/ops_runners/runtime/export_runtime_openapi.py.

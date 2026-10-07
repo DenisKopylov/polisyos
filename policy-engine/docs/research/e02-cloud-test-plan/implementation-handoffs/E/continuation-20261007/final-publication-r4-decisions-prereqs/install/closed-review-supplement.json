@@ -1,0 +1,98 @@
+{
+  "schema": "policyos.e02.closed_declared_dependency_custody_closeout.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "review_outcome": "GO",
+  "review_scope": "Evidence-reader/typed summary/custody only, separately measured completed installation and native prerequisite capability. No backend/global gate/finding closure.",
+  "author_validator": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+    "bytes": 24184,
+    "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e"
+  },
+  "author_packet": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/closed-install-custody.json",
+    "bytes": 12804,
+    "sha256": "8b1e16abe34bdd5971e350823571194083ee156f6969a893a88d7600a96cc110"
+  },
+  "author_inputs": {
+    "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/input-index.json",
+    "bytes": 10648,
+    "sha256": "38ff6845c0b8cc7a61bd359a2d0de8af7529090c7db9150336f2c5fe9e35877c"
+  },
+  "controls": {
+    "normal": {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-normal.stdout.json",
+      "bytes": 7898,
+      "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20"
+    },
+    "optimized": {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-optimized.stdout.json",
+      "bytes": 7898,
+      "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20"
+    },
+    "counts": 36,
+    "typed_claims": 194
+  },
+  "independent_reviewer": "/root/doe_r4; not the author",
+  "independent_reviews": {
+    "normal": {
+      "path": "/tmp/e02-E-install-custody-independent-doe-20261007/normal/independent-review.json",
+      "bytes": 24076,
+      "sha256": "32222a644a1fac2a9c65b33f3bdc88ee56bbbec175d317ed860e143fc7584527"
+    },
+    "optimized": {
+      "path": "/tmp/e02-E-install-custody-independent-doe-20261007/optimized/independent-review.json",
+      "bytes": 24079,
+      "sha256": "9e46fc439d7c28fe692860e8525bcc15b375e77ef922d824feea02579bed25ee"
+    },
+    "pending_aliases": {
+      "path": "/tmp/e02-E-install-custody-independent-doe-20261007/independent-pending-publication-alias-review.json",
+      "bytes": 22485,
+      "sha256": "e2d8cb118778368115172e1b044762fecfc8cb708f3e6bdbae14cf7c3c11be4d"
+    },
+    "selected_outputs": {
+      "path": "/tmp/e02-E-install-custody-independent-doe-20261007/publication-selection-v2.json",
+      "bytes": 5634,
+      "sha256": "556a343973fae37aeaee75bebf5935ae07341d34cf8bb08a03335ce581fedda0"
+    }
+  },
+  "independent_scope": "Both modes14 controls each: eight marker-preserving summary corruptions rejected, actual copied-byte corruption and input omission refused before any Git child, four summary-predicate removal counterexamples preserve native markers and re-admit invalid summaries. All32 literal input refs, all207 physicalMETADATA, four ignoredwheelhashes/ZIPMETADATA and six64d sourcecompanions rechecked.",
+  "basis": {
+    "historical_distributions": 203,
+    "current_distributions": 207,
+    "old_records_unchanged": 203,
+    "four_added": {
+      "hatchling": "1.27.0",
+      "ortools": "9.15.6755",
+      "immutabledict": "4.2.2",
+      "trove-classifiers": "2026.9.21.13"
+    },
+    "protected_versions": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "salib": "1.5.2"
+    },
+    "ignored_wheels_bytes": 29938701,
+    "before_unconditional_quiescence": false,
+    "unreadable_infrastructure_pids": [
+      199,
+      250
+    ]
+  },
+  "retained_history": [
+    "Original8-row selector describes UNRUN and stays literal.",
+    "Actual installpostruntime pending and metadata-delta runtime pending text remain literal; subsequent completed preflightexit0 is a distinct observation.",
+    "Originalworkspace14FAIL2/6cases/2errors/4skips is preserved; active fullretry outcome is not inferred.",
+    "Old publicationtimestamp precision was not_established; original receipt and pushstdout unchanged. New corrective lsremote10:59:30.911716\u219210:59:32.246115 explicitly binds64d.",
+    "Author observer attempts1+2 and intermediate builder-v3 source-boundary are recorded separately; they are not native regressions.",
+    "Initial publicationselector lacked explicit alias paths; its bytes remain historical, current selector defines logical_at vs stored_at.",
+    "Independent first alias observer assumed assets instead of files; its ERROR is preserved by reviewer, corrected thin receipt is GO."
+  ],
+  "root_source_or_environment_mutated": false,
+  "native_backend_repeated": false,
+  "finding_closure": false,
+  "global_ci_pass": false,
+  "remaining_owner_result": "E root finishes exact active workspace14/backend required successors and records native outcome independently; FRC carries this completed moderate DOC packet; G accepts publication and findings separately."
+}

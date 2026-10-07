@@ -1,0 +1,151 @@
+{
+  "schema": "e02-independent-summary-facade-corrective-delta:1",
+  "source": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "parent": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "source_disposition": "GO",
+  "before": {
+    "source": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+    "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml",
+        "bytes": 1236,
+        "sha256": "28bb46a8dec6f12cb06fbb7618cf3380f705ca4ac9604ba27d5a1b2e31135af5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "bytes": 6219,
+        "sha256": "0832ecd5bbc8547964979208616724f12a8ef0cb438d3b4aba977ff3c402a155"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 4481,
+        "sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "bytes": 9314,
+        "sha256": "728909258a25e96510b3b9b93957fc14ae217869d1ec61f527997909d26c021a"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "bytes": 15730,
+        "sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14451,
+        "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642"
+      }
+    ],
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n"
+  },
+  "after": {
+    "source": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+    "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml",
+        "bytes": 1236,
+        "sha256": "28bb46a8dec6f12cb06fbb7618cf3380f705ca4ac9604ba27d5a1b2e31135af5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "bytes": 6219,
+        "sha256": "0832ecd5bbc8547964979208616724f12a8ef0cb438d3b4aba977ff3c402a155"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 4481,
+        "sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "bytes": 9314,
+        "sha256": "728909258a25e96510b3b9b93957fc14ae217869d1ec61f527997909d26c021a"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "bytes": 15730,
+        "sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14451,
+        "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642"
+      }
+    ],
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n"
+  },
+  "controls": [
+    {
+      "case": "one_test_delta_five_other_source_paths_byte_equal_e456",
+      "status": "PASS",
+      "delta": [
+        "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "reused_runtime_source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc"
+    },
+    {
+      "case": "ecde_math_dependency_reuse",
+      "status": "PASS",
+      "exact_source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "math_test_repeated": false
+    },
+    {
+      "case": "complete_four_Python_static_and_dynamic_imports",
+      "status": "PASS",
+      "Core_canonical_module_edges": [
+        {
+          "module": "polisyos.core",
+          "names": [
+            "artifacts"
+          ]
+        },
+        {
+          "module": "polisyos.core",
+          "names": [
+            "canon"
+          ]
+        }
+      ],
+      "new_test_backing_owner_dynamic_edge_removed": true
+    },
+    {
+      "case": "present_root_marker_actual_deep_schema_constructor_refused",
+      "status": "PASS",
+      "architecture_admission": "REFUSE",
+      "refusal": "Core import is not a declared supported entrypoint: polisyos.core.artifacts",
+      "root_module_marker_retained": true,
+      "actual_mutated_native_CAS_reader_test": "PASS",
+      "proxy_divergence": "Runtime same-object CAS test passes; exact declared architecture import still refuses."
+    },
+    {
+      "case": "sole_declared_Core_import_predicate_removal_re_admits_deep_constructor",
+      "status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "Core_policy_and_root_marker_and_body_retained": true,
+      "only_admission_binding_removed": true,
+      "false_source_import_admitted": true
+    },
+    {
+      "case": "present_fake_Core_root_schema_binding_breaks_real_fresh_CAS_reader",
+      "status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "root_module_and_name_markers_retained": true,
+      "actual_native_failure": "posterior summary CAS kind/schema/content is invalid"
+    }
+  ],
+  "counts": {
+    "PASS": 6
+  },
+  "canonical_type_identity": true,
+  "source_written": false,
+  "root_env_package_writer": false,
+  "finding_closure": false,
+  "upstream_CAL9147_accepted": false,
+  "full_architecture_gate": "UNRUN",
+  "scope": "One test-only corrective delta and complete four-Python import census; unchanged e456 runtime/caller and ecde math reused explicitly. Independent affected six cases are separate receipt."
+}

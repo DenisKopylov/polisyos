@@ -1,0 +1,10 @@
+{
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/public-surface-packet.tar.gz",
+    "bytes": 23141051,
+    "sha256": "197d8f80f9b00e4afa24f1ad777e4ba2cb39e5415afbce308e582ac91da16186"
+  },
+  "top_level_member": "public-surface-packet",
+  "fresh_reopen_command": "mkdir -p /tmp/e02-E-reopen-public-surface-packet-fresh && tar -xzf /workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/public-surface-packet.tar.gz -C /tmp/e02-E-reopen-public-surface-packet-fresh",
+  "qualification": "Choose a genuinely fresh empty extraction directory; absolute historical symlink strings are preserved and are not followed by archive/readback. Reopen restores all archived catalog bytes/modes/link strings and exact PAX mtime; no promise of historical external target availability."
+}

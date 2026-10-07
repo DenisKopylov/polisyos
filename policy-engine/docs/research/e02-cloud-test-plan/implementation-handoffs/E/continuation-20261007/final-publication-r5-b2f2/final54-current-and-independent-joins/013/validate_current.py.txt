@@ -1,0 +1,214 @@
+"""Recompute final54 native receipt joins and refuse corrupt preserved-marker claims."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+
+def mutate(value: dict[str, Any], pointer: str, replacement: object) -> dict[str, Any]:
+    result = copy.deepcopy(value)
+    current: Any = result
+    parts = pointer.split("/")
+    for part in parts[:-1]:
+        current = current[int(part)] if isinstance(current, list) else current[part]
+    if isinstance(current, list):
+        current[int(parts[-1])] = replacement
+    else:
+        current[parts[-1]] = replacement
+    return result
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-module", type=Path, required=True)
+    parser.add_argument("--join-module", type=Path, required=True)
+    parser.add_argument("--packet", type=Path, required=True)
+    args = parser.parse_args()
+    source_module = runpy.run_path(str(args.source_module), run_name="immutable_source_binding")
+    join_module = runpy.run_path(str(args.join_module), run_name="actual_native_join")
+    expected, facts = join_module["build"](source_module)
+    observed = json.loads(args.packet.read_bytes())
+    controls: list[dict[str, Any]] = []
+
+    def validate(packet: dict[str, Any]) -> None:
+        join_module["admit_wave_claims"](packet, facts, source_module["same"])
+        join_module["admit_final_claims"](packet, expected, source_module["same"])
+
+    validate(observed)
+    controls.append({"case": "healthy54_source_roles_and_full1465_native_cases", "outcome": "PASS"})
+    mutations = [
+        (
+            "original_source_preparation_native104_as1",
+            "current_numeric_wave/native_test_path_count",
+            1,
+        ),
+        (
+            "original_source_preparation_env207_as1",
+            "environment/distribution_metadata_count",
+            1,
+        ),
+        (
+            "original_source_preparation_export_count_asTrue",
+            "import_owner_dependencies/original12/owner_export_pending",
+            True,
+        ),
+        (
+            "original_source_preparation_fit77_as3932",
+            "scientific_fit_boundary/accepted_source",
+            source_module["OLD"],
+        ),
+        ("source_sha_forged", "candidate", "0" * 40),
+        ("source_tree_forged", "tree", "0" * 40),
+        ("actual_count_bool", "current_numeric_wave/counts/cases", True),
+        ("actual_count_float", "current_numeric_wave/counts/cases", 1465.0),
+        ("native_FAIL_as_PASS", "current_numeric_wave/check_outcome", "PASS"),
+        ("A_failures_as_native", "current_numeric_wave/A_packet_counts/cases", 0),
+        (
+            "numeric_receipt_digest_forged",
+            "current_numeric_wave/jobs/0/native_receipt/sha256",
+            "0" * 64,
+        ),
+        (
+            "numeric_source_frame_forged",
+            "current_numeric_wave/jobs/0/source_frame/framed_sha256",
+            "0" * 64,
+        ),
+        (
+            "current_case_name_forged",
+            "rows/0/current_check_links/selector_navigation/exact_current_case_bindings/0/name",
+            "test_present_but_fake",
+        ),
+        (
+            "current_case_outcome_forged",
+            "rows/0/current_check_links/selector_navigation/exact_current_case_bindings/0/outcome",
+            "ERROR",
+        ),
+        ("retotalled_finding_duplicate", "rows/0/id", observed["rows"][1]["id"]),
+        ("unchanged_historical_closed_bool", "historical_ledger/closed", True),
+        ("bounded_proposal_float", "bounded_E_proposals/closed", 43.0),
+        (
+            "criterion_original_hash_forged",
+            "rows/0/criterion_evidence/original_criterion_refs/0/sha256",
+            "0" * 64,
+        ),
+        (
+            "source_role_old_unqualified_body",
+            "source_role_qualification/4/accepted_source/revision",
+            source_module["OLD"],
+        ),
+        ("configured_fit_institutional_claim", "scientific_fit_boundary/gate_eligible", True),
+        ("G_formal_acceptance_by_count", "formal_G_acceptance", True),
+        ("global_pending_as_PASS", "current_global_gates/check_outcome", "PASS"),
+        (
+            "loss_of_A_failure_trace_ref",
+            "current_A_default_consumer_boundary/complete_trace_ref/sha256",
+            "0" * 64,
+        ),
+    ]
+    for name, pointer, replacement in mutations:
+        changed = mutate(observed, pointer, replacement)
+        try:
+            validate(changed)
+        except (ValueError, KeyError, TypeError) as exc:
+            controls.append(
+                {"case": name, "outcome": "PASS", "actual_admission": "REFUSE", "reason": str(exc)}
+            )
+        else:
+            raise ValueError("corrupt final field admitted: " + name)
+    omission = copy.deepcopy(observed)
+    omission["rows"][0]["current_check_links"]["selector_navigation"][
+        "exact_current_case_bindings"
+    ].pop()
+    try:
+        validate(omission)
+    except ValueError as exc:
+        controls.append(
+            {
+                "case": "actual_case_binding_removed_all_outer_markers_retained",
+                "outcome": "PASS",
+                "actual_admission": "REFUSE",
+                "reason": str(exc),
+            }
+        )
+    else:
+        raise ValueError("omitted actual case admitted")
+    # Keep native1465/source/header facts admitted; remove only full output-claim
+    # predicate to demonstrate the real current case-binding falsifier escapes.
+    tree = ast.parse(args.join_module.read_text())
+    removals = 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_final_claims":
+            node.body = [ast.Pass()]
+            removals += 1
+    source_module["require"](removals == 1, "exact one final-claim function removed")
+    removed: dict[str, Any] = {"__name__": "effective_final_claim_removal"}
+    exec(compile(ast.fix_missing_locations(tree), str(args.join_module), "exec"), removed)  # noqa: S102 -- fixed own observer source AST
+    forgery = mutate(
+        observed,
+        "rows/0/current_check_links/selector_navigation/exact_current_case_bindings/0/name",
+        "test_present_but_fake",
+    )
+    removed["admit_wave_claims"](forgery, facts, source_module["same"])
+    removed["admit_final_claims"](forgery, expected, source_module["same"])
+    controls.append(
+        {
+            "case": "sole_final_claim_guard_removal_re_admits_false_case_link",
+            "outcome": "PASS",
+            "actual_admission": "ACCEPT",
+            "defining_property_outcome": "FAIL",
+            "native1465_and_source_header_guards_retained": True,
+        }
+    )
+    original_environment = json.loads(
+        Path(expected["environment"]["snapshot"]["path"]).read_bytes()
+    )
+    current_environment = [
+        source_module["reference"](Path(row["path"])) for row in original_environment
+    ]
+    source_module["require"](
+        source_module["same"](current_environment, original_environment),
+        "current ROOT207 metadata byte guard",
+    )
+    source_module["require"](
+        source_module["git"]("rev-parse", "HEAD").decode().strip() == source_module["SOURCE"],
+        "current source HEAD guard",
+    )
+    source_module["require"](
+        not source_module["git"]("status", "--porcelain", "--untracked-files=no"),
+        "current tracked source clean",
+    )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "schema": "policyos.e02.E.final54-current-native-recomputing-validator.v1",
+                "optimized": not __debug__,
+                "candidate": source_module["SOURCE"],
+                "tree": source_module["TREE"],
+                "packet": source_module["reference"](args.packet),
+                "source_module": source_module["reference"](args.source_module),
+                "join_module": source_module["reference"](args.join_module),
+                "complete_case_counts": facts["counts"],
+                "native_counts_excluding_A": facts["native_counts_excluding_A_packet"],
+                "A_counts": facts["A_packet_counts"],
+                "ROOT_metadata_count": len(current_environment),
+                "ROOT_metadata_unchanged": True,
+                "controls": controls,
+                "control_count": len(controls),
+                "finding_acceptance_or_native_tests_reexecuted": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

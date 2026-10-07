@@ -1,0 +1,130 @@
+[
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/pcl-continuous-persistence",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/pcl-continuous-persistence",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/pcl-continuous-persistence/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/pcl-continuous-persistence/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/ddm-runtime-and-facade",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/ddm-runtime-and-facade",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/ddm-runtime-and-facade/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/ddm-runtime-and-facade/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/bkt-frc-s10-and-adjacent-report-consumers",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/cal-and-welfare-consumer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/cal-and-welfare-consumer",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/cal-and-welfare-consumer/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/cal-and-welfare-consumer/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/mc-joint-law-support-and-scientist-consumer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/mc-joint-law-support-and-scientist-consumer",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/mc-joint-law-support-and-scientist-consumer/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/mc-joint-law-support-and-scientist-consumer/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/doe-salib-and-consumer-factory",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/doe-salib-and-consumer-factory",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/doe-salib-and-consumer-factory/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/doe-salib-and-consumer-factory/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/g-checkpoint10-controlplanestore-companion",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/temporary/g-checkpoint10-controlplanestore-companion",
+    "kind": "numeric_basetemp"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/g-checkpoint10-controlplanestore-companion/cache/pytest",
+    "kind": "pytest_cache"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks/g-checkpoint10-controlplanestore-companion/cache/benchmarks",
+    "kind": "benchmark_storage"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/tmp-env/results-importer",
+    "kind": "TMPDIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/cache/results-importer",
+    "kind": "RUFF_CACHE_DIR"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/umbrella-temp/workspace-verify",
+    "kind": "umbrella_temporary"
+  },
+  {
+    "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/umbrella-temp/ci-parity",
+    "kind": "umbrella_temporary"
+  }
+]

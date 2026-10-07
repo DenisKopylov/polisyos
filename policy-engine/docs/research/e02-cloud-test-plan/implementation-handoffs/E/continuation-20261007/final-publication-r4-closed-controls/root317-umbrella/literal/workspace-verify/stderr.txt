@@ -1,0 +1,15 @@
+browserType.launch: Executable doesn't exist at /tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/cache/xdg/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at [eval]:3:34
+    at [eval]:5:3
+    at [eval]-wrapper:6:24 {
+  name: 'Error'
+}
+Resolved 418 packages in 104ms

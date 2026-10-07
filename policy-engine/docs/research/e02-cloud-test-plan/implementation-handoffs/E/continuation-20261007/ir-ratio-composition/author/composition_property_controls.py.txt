@@ -1,0 +1,81 @@
+"""Actual public composition controls; independent source review remains external."""
+from pathlib import Path
+from unittest.mock import patch
+from fractions import Fraction
+import argparse, hashlib, inspect, json, subprocess, sys
+import numpy as np
+from polisyos.core import artifacts as core_artifacts
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import read_posterior_summary_profile
+from polisyos.ir.analytics import uncertainty as u
+parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);args=parser.parse_args();out=Path(args.output);out.mkdir();rows=[]
+def source(samples):
+ return summarize_bayesian_calibration_posterior({'x':samples},draw_ids=[f'row:{i}' for i in range(len(samples))],sample_axis='chain:draw').parameter_envelopes['x']
+def fresh(env,name):
+ root=out/name;ref=u.persist_uncertainty_envelope(core_artifacts.FileSystemCAS(root),env);read=u.load_uncertainty_envelope(core_artifacts.FileSystemCAS(root),ref)
+ return read,ref.model_dump(mode='json')
+def record(name,mode,run):
+ observed,data=run();required=mode=='healthy'
+ if observed is not required:raise RuntimeError(f'{name}: ineffective control or failed property')
+ rows.append({'name':name,'mode':mode,'defining_property': 'PASS' if observed else 'FAIL','control_result':'PASS','actual':data})
+big=source([1.6e308]*4);plain=source([1.,2.,3.,4.])
+def big_probe():
+ try:
+  read,ref=fresh(u.push_forward_envelope(lambda x:x,big),'big');profile=read_posterior_summary_profile(read)
+  expect=float(sum((Fraction(x) for x in (1.6e308,)*4),Fraction())/4)
+  return read.point_estimate==expect and profile.posterior_mean==expect, {'mean':profile.posterior_mean,'median':read.point_estimate,'ref':ref,'oracle':'Fraction(sum)/4'}
+ except ValueError as exc:return False,{'exception_type':type(exc).__name__,'exception':str(exc)}
+record('finite_huge_mean_public_helper_fresh_read','healthy',big_probe)
+with patch.object(u,'_ratio_composition_profile',return_value=None):record('remove_profile_dispatch_reintroduces_finite_mean_overflow','property_removed',big_probe)
+def profile_probe():
+ read,ref=fresh(u.push_forward_envelope(lambda x:2*x,plain),'push');profile=read_posterior_summary_profile(read)
+ return profile is not None and profile.posterior_mean==5.,{'profile':None if profile is None else profile.model_dump(mode='json'),'ref':ref,'median':read.point_estimate}
+record('transformed_carrier_profile_readback','healthy',profile_probe)
+with patch.object(u,'_reissue_ratio_profile',side_effect=lambda result,profile,mean:result):record('remove_profile_reissue_loses_declared_functionals','property_removed',profile_probe)
+def cleared_probe(target):
+ read,ref=fresh(u.compress_envelope(plain,target=target),'compressed-'+target)
+ try:return read_posterior_summary_profile(read) is None,{'ref':ref,'metadata':read.metadata}
+ except ValueError as exc:return False,{'ref':ref,'exception':str(exc),'exception_type':type(exc).__name__}
+for target in ['interval','moments']:
+ record('compression_clears_'+target,'healthy',lambda:cleared_probe(target))
+ with patch.object(u,'_derived_ratio_metadata',side_effect=lambda *a,**kw:plain.metadata):record('remove_complete_marker_clear_'+target,'property_removed',lambda:cleared_probe(target))
+def paired_probe():
+ env=summarize_bayesian_calibration_posterior({'a':[0.,1.],'b':[0.,1.]},draw_ids=['paired:0','paired:1']).parameter_envelopes['a'];calls=[]
+ try:u.push_forward_envelope(lambda x:calls.append(x) or x,env);refused=False
+ except ValueError as exc:refused=True
+ return refused and not calls,{'callback_count':len(calls),'refused':refused}
+record('paired_incomplete_source_pre_callback_admission','healthy',paired_probe)
+with patch.object(u,'_ratio_composition_profile',return_value=None):record('remove_admission_invokes_incomplete_joint_callbacks','property_removed',paired_probe)
+def invalid_probe():
+ try:
+  result=u.push_forward_envelope(lambda x:True if x==1 else x,plain);refused=False;published=result.metadata.get('posterior_summary_profile_id')
+ except ValueError:refused=True;published=None
+ return refused,{'refused':refused,'profile_published':published}
+record('failed_bool_support_whole_law_refusal','healthy',invalid_probe)
+with patch.object(u,'_finite_ratio_map_values',side_effect=lambda values:np.asarray([float(x) for x in values])):record('remove_support_guard_publishes_coerced_bool_law','property_removed',invalid_probe)
+def constraint_probe():
+ read,ref=fresh(u.pull_back_envelope(lambda x:x,plain,upstream_particles=u.PosteriorSamplesCarrier(samples=(1.,2.,3.,4.))),'constraint')
+ try:return read_posterior_summary_profile(read) is None,{'ref':ref,'point':read.point_estimate,'exactness':read.composition_provenance.exactness.value}
+ except ValueError as exc:return False,{'ref':ref,'exception':str(exc)}
+record('constraint_pullback_clears_original_law','healthy',constraint_probe)
+with patch.object(u,'_derived_ratio_metadata',side_effect=lambda *a,**kw:plain.metadata):record('remove_pullback_marker_clear_retains_stale_law','property_removed',constraint_probe)
+
+def incomplete_probe(operation):
+ env=source([0.,1.]);env=env.model_copy(update={'metadata':{'posterior_summary_profile_required':True}});calls=[];cas_ref=None;consumer_rejection=None
+ def func(x):calls.append(x);return x
+ try:
+  if operation=='push':result=u.push_forward_envelope(func,env)
+  elif operation=='compress':result=u.compress_envelope(env,target='interval')
+  else:result=u.pull_back_envelope(func,env,upstream_particles=(0.,1.))
+  prepublication_refused=False;read,cas_ref=fresh(result,'incomplete-'+operation)
+  try:read_posterior_summary_profile(read)
+  except ValueError as exc:consumer_rejection=str(exc)
+ except ValueError as exc:prepublication_refused=True;consumer_rejection=str(exc)
+ return prepublication_refused and not calls and cas_ref is None,{'callback_count':len(calls),'prepublication_refused':prepublication_refused,'persisted_ref':cas_ref,'fresh_reader_rejection':consumer_rejection,'original_marker':True}
+for op in ['push','compress','pull']:
+ record('unknown_declaration_prepublication_'+op,'healthy',lambda:incomplete_probe(op))
+ with patch.object(u,'_ratio_composition_profile',return_value=None):record('remove_shared_declaration_inlet_'+op,'property_removed',lambda:incomplete_probe(op))
+
+repo=Path('/workspace/e02-E-doe-20261006');paths=['policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/ir/analytics/posterior_summary.py','policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py','policy-engine/src/polisyos/ir/analytics/README.md','policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml']
+receipt={'schema':'policyos.e02.profile2_composition_property_controls.v1','source_sha':subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD']).decode().strip(),'tree':subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD^{tree}']).decode().strip(),'source_inputs':[{'path':p,'bytes':len((repo/p).read_bytes()),'sha256':hashlib.sha256((repo/p).read_bytes()).hexdigest()} for p in paths],'observer_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'interpreter':sys.executable,'optimize':sys.flags.optimize,'rows':rows,'control_count':len(rows),'producer':'configured summarize_bayesian_calibration_posterior','consumer':'actual public composition; persist_uncertainty_envelope; fresh FileSystemCAS load/read profile','predicate_basis':{'numeric_reductions':'recomputed','fresh_consumer_read':'recomputed','source_binding':'recomputed','independent_author_review':'not_established','fit/source_law_authority':'not_established'},'finding_closure':False,'global_gate_pass':False}
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'control_count':len(rows),'source':receipt['source_sha'],'removal_properties':[r['defining_property'] for r in rows if r['mode']=='property_removed']}))

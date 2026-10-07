@@ -1,0 +1,154 @@
+{
+  "task": "Exact persisted JSON-Mapping manifest follow-up; no pytest",
+  "candidate": {
+    "sha": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+    "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src"
+  },
+  "integration_checkout_observed_after_run": {
+    "head": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "branch": "codex/e02-integration",
+    "status_sb": "## codex/e02-integration...origin/codex/e02-integration\n?? policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-d030.md\n?? policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-offline-519e.md\n?? policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/\n?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/",
+    "note": "The four untracked tenth-wave documentation paths were already visible before this isolated probe. Probe ran only from the exact candidate archive and added ignored scratch outputs."
+  },
+  "execution": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/mapping-exact/probe.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine",
+    "python": "Python 3.14.3",
+    "environment": {
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "C_CANON_GROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+    },
+    "timeout_seconds": 60,
+    "timed_out": false,
+    "exit_code": 0,
+    "wall_seconds": 0.5690927499672398,
+    "maxrss_platform_units": 71352320,
+    "disk_free_before": 25255022592,
+    "disk_free_after": 25254957056
+  },
+  "public_runtime_results": {
+    "real_FileSystemCAS_typed_manifest_roundtrip": "PASS",
+    "exact_unmodified_JSON_mapping_roundtrip": "FAIL",
+    "mapping_exception": {
+      "message": "unsupported_ir_canon_profile",
+      "type": "polisyos.ir.model_layer.canon.CanonViolation"
+    },
+    "get_bytes_callback_count_before_reader": 0,
+    "get_bytes_callback_count_after_reader": 0,
+    "manifest_dump_json_sha256_before": "1a5cff6d9d71af8f34f122b54893d96c584df732a1adbdd6d70876c999440e48",
+    "manifest_dump_json_sha256_returned_by_mapping_view": "1a5cff6d9d71af8f34f122b54893d96c584df732a1adbdd6d70876c999440e48",
+    "manifest_dump_json_sha256_after": "1a5cff6d9d71af8f34f122b54893d96c584df732a1adbdd6d70876c999440e48",
+    "manifest_bytes_unchanged": true,
+    "canon_profile": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": true,
+      "forbid_nan_inf": true,
+      "max_depth": 128,
+      "name": "polisyos.canon.json",
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true,
+      "version": "0.2.0"
+    },
+    "separators_json_type": "list",
+    "separators_json_value": [
+      ",",
+      ":"
+    ],
+    "artifact_id": "sha256:f4df55e6de10b8c61c4efd63e481c983ae2243bdda3a09694a3edacb028a1ead",
+    "cas_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/mapping-exact/cas",
+    "full_unmodified_manifest_in_stdout": true
+  },
+  "module_origin_pin": {
+    "candidate_only_import_guard": true,
+    "loaded_polisyos_modules": 80,
+    "loaded_modules_blob_exact": true,
+    "origin_sha256_manifest_path": "module-origins.json",
+    "origin_sha256_manifest_sha256": "91e095f99d7e7e65028f45ef76a6532fcbf67ba9dbcf1142516331bf5d15d287",
+    "critical_origins": [
+      {
+        "module": "polisyos.common.canonical",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src/polisyos/common/canonical.py",
+        "git_path": "policy-engine/src/polisyos/common/canonical.py",
+        "source_sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "git_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+        "blob_match": true
+      },
+      {
+        "module": "polisyos.core.artifacts.ir_adapter",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "git_path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "source_sha256": "0f7917f1504ae07f47b7f124885a4fd78a58fbeda3b2b666247397ebbca87c16",
+        "git_blob": "2c64cde2211232cc4f09e0b8ca24ed3bdbdbbc31",
+        "blob_match": true
+      },
+      {
+        "module": "polisyos.core.artifacts.manifest",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "git_path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "source_sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+        "git_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "blob_match": true
+      },
+      {
+        "module": "polisyos.core.artifacts.store",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "source_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+        "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+        "blob_match": true
+      },
+      {
+        "module": "polisyos.ir.artifacts.io",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src/polisyos/ir/artifacts/io.py",
+        "git_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "source_sha256": "97a5d1b553b4d791f73b744d5a41775301057cec797c4671b5280bdc180037cb",
+        "git_blob": "bdf14cf60f3c6e832d43c8704c42e2bc3da9029d",
+        "blob_match": true
+      },
+      {
+        "module": "polisyos.ir.model_layer.canon",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "git_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "source_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+        "blob_match": true
+      }
+    ]
+  },
+  "outputs": {
+    "probe.py": {
+      "sha256": "1ad19f77f3e1f367ff5d21c1efc1b6f9bc18175c0bbdda2b3dc36fba93ed1215",
+      "bytes": 6261
+    },
+    "stdout.txt": {
+      "sha256": "8c861fb629805a9bb343dafc359b8a314d9beecd2ea878866b29331dd75b7a80",
+      "bytes": 43230
+    },
+    "stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "supervisor-receipt.json": {
+      "sha256": "9148cdcf08b1ceabbe7e817f72b5046bfeeb1debb55650204e03e2a9f9d2eeb4",
+      "bytes": 2026
+    },
+    "module-origins.json": {
+      "sha256": "91e095f99d7e7e65028f45ef76a6532fcbf67ba9dbcf1142516331bf5d15d287",
+      "bytes": 43002
+    }
+  },
+  "raw_full_output": "stdout.txt",
+  "interpretation": "The mapping is the persisted FileSystemCAS ArtifactManifest.model_dump(mode=json) with no field override or normalization. Its manifest SHA is equal before return, at mapping return, and after the reader call. Strict canon-profile validation rejects separators list before get_bytes; the callback count remains zero. This independently confirms the candidate limitation without the prior probe shortcut.",
+  "finding_closure": "not claimed"
+}

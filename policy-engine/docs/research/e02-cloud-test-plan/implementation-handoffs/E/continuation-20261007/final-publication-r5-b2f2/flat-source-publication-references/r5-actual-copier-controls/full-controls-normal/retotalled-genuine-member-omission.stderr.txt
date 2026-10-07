@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 287, in <module>
+    main()
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 249, in main
+    counts = validate(p, manifest, args.layout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 225, in validate
+    expected = recompute_expected(p, manifest, payload_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 211, in recompute_expected
+    expected.extend(expand(spec, strict_json(selector), lookup))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 112, in expand
+    return expand_registered(spec, doc, lookup)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 101, in expand_registered
+    body = admit_body(stored, lookup)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt", line 47, in admit_body
+    body = Path(ref['path']).read_bytes() if lookup is None else lookup[(ref['sha256'], ref['bytes'])]
+                                                                 ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: ('60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6', 97015)

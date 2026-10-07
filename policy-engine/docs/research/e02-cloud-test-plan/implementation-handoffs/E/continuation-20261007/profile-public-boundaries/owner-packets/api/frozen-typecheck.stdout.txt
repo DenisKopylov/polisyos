@@ -1,0 +1,142 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791401626841",
+    "generalDiagnostics": [
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "Argument missing for parameter \"schema_version\"",
+            "range": {
+                "start": {
+                    "line": 157,
+                    "character": 11
+                },
+                "end": {
+                    "line": 173,
+                    "character": 5
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "\"parameters\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 279,
+                    "character": 19
+                },
+                "end": {
+                    "line": 279,
+                    "character": 29
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "Argument missing for parameter \"schema_version\"",
+            "range": {
+                "start": {
+                    "line": 297,
+                    "character": 42
+                },
+                "end": {
+                    "line": 321,
+                    "character": 9
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "Argument of type \"generic[Any] | complex | str | bytes | memoryview[int]\" cannot be assigned to parameter \"x\" of type \"ConvertibleToFloat\" in function \"__new__\"\n  Type \"generic[Any] | complex | str | bytes | memoryview[int]\" is not assignable to type \"ConvertibleToFloat\"\n    Type \"complex\" is not assignable to type \"ConvertibleToFloat\"\n      \"complex\" is not assignable to \"str\"\n      \"complex\" is incompatible with protocol \"Buffer\"\n        \"__buffer__\" is not present\n      \"complex\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"complex\" is incompatible with protocol \"SupportsIndex\"\n  ...",
+            "range": {
+                "start": {
+                    "line": 329,
+                    "character": 38
+                },
+                "end": {
+                    "line": 329,
+                    "character": 47
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "Argument of type \"generic[Any] | complex | str | bytes | memoryview[int]\" cannot be assigned to parameter \"x\" of type \"ConvertibleToFloat\" in function \"__new__\"\n  Type \"generic[Any] | complex | str | bytes | memoryview[int]\" is not assignable to type \"ConvertibleToFloat\"\n    Type \"complex\" is not assignable to type \"ConvertibleToFloat\"\n      \"complex\" is not assignable to \"str\"\n      \"complex\" is incompatible with protocol \"Buffer\"\n        \"__buffer__\" is not present\n      \"complex\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"complex\" is incompatible with protocol \"SupportsIndex\"",
+            "range": {
+                "start": {
+                    "line": 329,
+                    "character": 38
+                },
+                "end": {
+                    "line": 329,
+                    "character": 47
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "\"parameters\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 378,
+                    "character": 28
+                },
+                "end": {
+                    "line": 378,
+                    "character": 38
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "\"content_hash\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 380,
+                    "character": 41
+                },
+                "end": {
+                    "line": 380,
+                    "character": 53
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "severity": "warning",
+            "message": "\"_profile_declared\" is private and used outside of the module in which it is declared",
+            "range": {
+                "start": {
+                    "line": 1390,
+                    "character": 12
+                },
+                "end": {
+                    "line": 1390,
+                    "character": 29
+                }
+            },
+            "rule": "reportPrivateUsage"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 3,
+        "errorCount": 7,
+        "warningCount": 1,
+        "informationCount": 0,
+        "timeInSec": 3.366
+    }
+}

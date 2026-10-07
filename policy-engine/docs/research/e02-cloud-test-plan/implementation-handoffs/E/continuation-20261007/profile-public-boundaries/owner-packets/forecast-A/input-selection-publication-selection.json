@@ -1,0 +1,217 @@
+{
+  "active_Python_files": 0,
+  "assets": [
+    {
+      "bytes": 5476,
+      "portable_path": "README.md",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "7e5231a2ba4de199adae622ce6a8d93cdcf25443d545e6427a09ea010c322179",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/README.md"
+    },
+    {
+      "bytes": 39323,
+      "portable_path": "E-to-A-reason-consumer-contract.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "557bc3f8990119823402fac1e1a94ff1566b1f767d1e7691d4b9c918342fa588",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/E-to-A-reason-consumer-contract.json"
+    },
+    {
+      "bytes": 154790,
+      "portable_path": "all-eight-failure-identities.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "cf5374ee26e5587c2919a67ffab3e0386c0567e0cc6f767e2454d99f785ed9fa",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/all-eight-failure-identities.json"
+    },
+    {
+      "bytes": 116518,
+      "portable_path": "full83-FRC-case-association.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "2944947a4568ea640b07d75982b2507129ee8eb3bf1597fa8cb7d5ad4a212d6f",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/full83-FRC-case-association.json"
+    },
+    {
+      "bytes": 8655,
+      "portable_path": "current-A-source-delta.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "301484bcae70e57556a062c928fdd4af6def8b77f1070a405527d8ddc14fada2",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-source-delta.json"
+    },
+    {
+      "bytes": 33520,
+      "portable_path": "current-A-source-commands.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "423734a8f8e1cb57dc1e0bea1f43735b675f9eec744b25bd4e71db4a6e7c9cd1",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-source-commands.json"
+    },
+    {
+      "bytes": 32450,
+      "portable_path": "A2605-to-A332-full-path-delta.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "9cf35b18e027fc9ca392f77aa49dd7b92f2d43111f0d82234035b69511beb919",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/A2605-to-A332-full-path-delta.json"
+    },
+    {
+      "bytes": 7192,
+      "portable_path": "current-A-four-function-delta.patch.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "78cb8d4ef41d5bd08bf8c17ad7512782e2bc820da5e2c7db43ecd0f7ed632b32",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-four-function-delta.patch.txt"
+    },
+    {
+      "bytes": 2456,
+      "portable_path": "A332-status-reason-carry.patch.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "52e5e0ea89c013bb139fdeba75f429f2b09b8ce79c8276404f8e698838f2ca34",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/A332-status-reason-carry.patch.txt"
+    },
+    {
+      "bytes": 728,
+      "portable_path": "A332-patch-check-receipt.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "ef2c6218d39e061b4d3147bf30398f975f683eb4d4af6e13dbc0468d51d4938c",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/A332-patch-check-receipt.json"
+    },
+    {
+      "bytes": 4107,
+      "portable_path": "current-A-E-upstream-composition-prerequisites.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "ad6109931563c7a01e50a23ba64c9672855a19468544b00c9794d4e8ff3ba748",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-E-upstream-composition-prerequisites.json"
+    },
+    {
+      "bytes": 3602,
+      "portable_path": "b2-to-b305-FRC-unchanged-dependency-basis.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "8daba7df47c8cd1c1d9cbb9a32f7c2748e23ede459bedf73717df1bfccda5485",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/b2-to-b305-FRC-unchanged-dependency-basis.json"
+    },
+    {
+      "bytes": 15671,
+      "portable_path": "literal-input-index.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "e40c603ef2647f29a7eed4490bc148f32b736f43d6a85aa569cd2034f1f44b87",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/literal-input-index.json"
+    },
+    {
+      "bytes": 10152,
+      "portable_path": "reconcile.py.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "b83f4704e86673bebdfd5e34eee9de59e00e96d039891ee47015b6f4266addbc",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/reconcile.py.txt"
+    },
+    {
+      "bytes": 389,
+      "portable_path": "reconcile-v3.stdout.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "544e31d3a09afa1d820e6f94c16edc6729db030516fb91f5e0a61e9116efc490",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/reconcile-v3.stdout.json"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "reconcile-v3.stderr.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/reconcile-v3.stderr.txt"
+    },
+    {
+      "bytes": 11112,
+      "portable_path": "current-A-source-delta-v2.py.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "3d139dc8589a114a3e2aa0a8f48b8415b9f45cb4e8f8747795c09b73c56b4941",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-source-delta-v2.py.txt"
+    },
+    {
+      "bytes": 353,
+      "portable_path": "current-A-source-delta-v2.stdout.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "44d17d0e5fbef9bdff935ed8bfd7dc62272197d080bd40b2c12639ec7bafb0ee",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-source-delta-v2.stdout.json"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "current-A-source-delta-v2.stderr.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/current-A-source-delta-v2.stderr.txt"
+    },
+    {
+      "bytes": 15998,
+      "portable_path": "build-contract.py.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "5ca256f758ec44ff606c2a43b86607152302647df133e3f25cc7355ad8e0bd4a",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/build-contract.py.txt"
+    },
+    {
+      "bytes": 431,
+      "portable_path": "build-contract-v3.stdout.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "567826c6c071a4e81d2dcc1ae3a7e933051a2770720e3c830d9656e9bd1d3dc5",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/build-contract-v3.stdout.json"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "build-contract-v3.stderr.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/build-contract-v3.stderr.txt"
+    },
+    {
+      "bytes": 462,
+      "portable_path": "history/A2605-first-remote-check-ERROR.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "da330e7331bdc89dc335b3e8b2d100ab6825052102b3707ecd0d243742e17e61",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/history/A2605-first-remote-check-ERROR.json"
+    },
+    {
+      "bytes": 9654,
+      "portable_path": "history/A2605-first-remote-check-current-A-source-delta.py.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "ef75ca2499c21e7afc8dadf4daf341f0a99e834af07830c41ca6dea9008b6d3a",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/history/A2605-first-remote-check-current-A-source-delta.py.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "history/A2605-first-remote-check-current-A-source-delta.stdout.json.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/history/A2605-first-remote-check-current-A-source-delta.stdout.json"
+    },
+    {
+      "bytes": 291,
+      "portable_path": "history/A2605-first-remote-check-current-A-source-delta.stderr.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "5c20be9231a3f89a4cd084fc66fd00f6195856e3a8410137422d7b2fabc25c57",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/history/A2605-first-remote-check-current-A-source-delta.stderr.txt"
+    },
+    {
+      "bytes": 729,
+      "portable_path": "history/A2605-first-remote-check-A2605-patch-check-receipt.json",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "0882338a3cc96b1d7115ff2767f3d6e008a16c7c75fa8ac868ea42cde898565a",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/history/A2605-first-remote-check-A2605-patch-check-receipt.json"
+    },
+    {
+      "bytes": 2456,
+      "portable_path": "history/A2605-first-remote-check-A2605-status-reason-carry.patch.txt",
+      "role": "complete new association/source-delta/owner contract/unapplied-patch/command/history output",
+      "sha256": "4d054b2baac3a8ea79c4642ece4f4d679ee604c83d216c770d08cc501d28f52a",
+      "source_path": "/tmp/e02-E-forecast-packet-thirteenth-20261007/history/A2605-first-remote-check-A2605-status-reason-carry.patch.txt"
+    }
+  ],
+  "bytes": 476515,
+  "current_A_product_runtime": "UNRUN",
+  "current_A_source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "files": 28,
+  "historical_scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "historical_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "new_E_dependency_readback": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "old_receipt_carrier": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "omitted_repeatable_inputs": [
+    "ignored-patch-check-input/"
+  ],
+  "original_31_inputs_reuse": "literal-input-index.json exact Git paths/blobs/hashes; no duplicate574KBoldcollector/originalcards/fulloldcopy",
+  "own_future_commit_SHA": null,
+  "schema": "policyos.e02.publication_selection.v1",
+  "slice": "forecast-reason-consumer-thirteenth",
+  "unit": "E"
+}

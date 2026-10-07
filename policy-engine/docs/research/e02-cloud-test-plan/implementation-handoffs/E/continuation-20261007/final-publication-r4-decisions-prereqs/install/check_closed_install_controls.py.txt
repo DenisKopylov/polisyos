@@ -1,0 +1,77 @@
+"""Exercise the real receipt validator on its closed inputs; no native dependency import."""
+import argparse,copy,hashlib,importlib.util,json,subprocess,sys,tempfile
+from pathlib import Path
+
+BASE=Path('/tmp/e02-E-declared-prereq-custody-64d-20261007')
+REPO=Path('/workspace/e02-E-continuation-20261006')
+
+def require(v,msg):
+ if not v:raise ValueError(msg)
+def load(path,name):
+ spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+def set_path(obj,path,value):
+ for k in path[:-1]:obj=obj[k]
+ obj[path[-1]]=value
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--base',type=Path,default=BASE);parser.add_argument('--repo',type=Path,default=REPO);args=parser.parse_args();base=args.base;repo=args.repo
+ source=base/'validate_closed_install.py';m=load(source,'closed_install');packet=json.loads((base/'closed-install-custody.json').read_text());healthy=m.validate(base,repo,packet);results=[{'control':'actual_closed_inputs_healthy','outcome':'PASS','receipt':healthy}]
+ mutants=[
+ ('old_count_proxy',['claims','metadata','old_distributions'],202),
+ ('new_count_proxy',['claims','metadata','current_distributions'],208),
+ ('count_bool_escape',['claims','metadata','physical_readback_count'],True),
+ ('changed_old_metadata_hidden',['claims','metadata','existing_metadata_changed'],['numpy']),
+ ('four_additions_omitted',['claims','metadata','added'],packet['claims']['metadata']['added'][:3]),
+ ('protected_version_relabel',['claims','metadata','protected_numerical_packages',0,'version'],'0.9.0'),
+ ('protected_hash_proxy',['claims','metadata','protected_numerical_packages',0,'sha256'],'0'*64),
+ ('source_ref_proxy',['claims','source'],'0'*40),
+ ('tree_ref_proxy',['claims','tree'],'0'*40),
+ ('preflight_exit_spoof',['claims','preflight','exit_code'],7),
+ ('cp_sat_int_to_bool',['claims','preflight','native_stdout','ortools_native_optimal_value'],True),
+ ('historical_unrun_reclassified',['claims','historical','recipe_outcome'],'PASS'),
+ ('historical_pending_reclassified',['claims','historical','delta_runtime_check_outcome'],'PASS'),
+ ('infra_quiescence_spoof',['claims','environment','fresh_quiescent'],True),
+ ('unreadable_scope_removed',['claims','environment','fresh_unreadable_live_processes'],[]),
+ ('wheel_copy_hidden',['claims','artifacts','payloads_copied'],True),
+ ('wheel_size_proxy',['claims','artifacts','total_bytes'],1),
+ ('claim_extra_authority',['claims','scope','global_backend_result_established'],True),
+ ('global_ci_false_to_true',['claims','scope','global_ci_pass'],True),
+ ('finding_closure_upgrade',['claims','scope','finding_closure'],True),
+ ('native_repeat_hidden',['claims','scope','native_executed_by_this_packet'],True),
+ ('old_selection_denominator',['claims','historical','old_selection_count'],7),
+ ('all_inputs_denominator',['claims','input_denominator','files'],1),
+ ('publication_timestamp_backfill',['claims','source_publication','original_observation_time'],'2026-10-07T10:32:31Z'),
+ ('publication_persisted_ref',['claims','source_publication','output','sha256'],'0'*64),
+ ]
+ for name,path,value in mutants:
+  altered=copy.deepcopy(packet);set_path(altered,path,value)
+  try:m.validate(base,repo,altered)
+  except ValueError as e:require(str(e)=='summary_mismatch','summary inlet exact refusal');results.append({'control':name,'outcome':'PASS','refusal':str(e),'native_marker_intact':altered['claims']['preflight']['check_outcome']=='PASS','installation_marker_intact':altered['claims']['install']['check_outcome']=='PASS'})
+  else:raise ValueError('corruption accepted:'+name)
+ # One concrete removal leaves input records, source reads, raw preflight PASS and all fields intact.
+ raw=source.read_text();needle='summary_receipt=admit_summary_claims(packet,expected)';require(raw.count(needle)==1,'single exact summary admission');mutant_source=raw.replace(needle,'summary_receipt={}');namespace={'__name__':'summary_property_removed'};exec(compile(mutant_source,str(source)+':property-removed','exec'),namespace)
+ for name,path,value in [mutants[0],mutants[5],mutants[13],mutants[22]]:
+  altered=copy.deepcopy(packet);set_path(altered,path,value);r=namespace['validate'](base,repo,altered);require(r['check_outcome']=='PASS','effective removal did not re-admit');results.append({'control':'effective_summary_removal:'+name,'outcome':'PASS','property_expected_refusal':'FAIL','mutant_validator_outcome':r['check_outcome'],'all_raw_closed_inputs_unchanged':True})
+ # Source-object admission before every Git child: late record and whole candidate class.
+ index,inputs,_=m.load_inputs(base);original_loader=m.load_inputs;original_child=m.subprocess.check_output
+ cases=[('late_option_ref','source_sha','--output=/tmp/forbidden'),('late_path_none','path',None),('late_path_dot','path','.'),('late_blob_bool','git_blob',True)]
+ for name,field,value in cases:
+  altered=copy.deepcopy(inputs);altered['source-readback']['rows'][-1][field]=value;counter={'calls':0}
+  def spy(*a,**k):counter['calls']+=1;raise ValueError('child reached before source admission')
+  m.load_inputs=lambda _base,a=altered:(index,a,{})
+  m.subprocess.check_output=spy
+  try:m.derive_claims(base,repo)
+  except ValueError as e:require(counter['calls']==0,'callback escape');results.append({'control':name,'outcome':'PASS','callback_count':counter['calls'],'refusal':str(e)})
+  else:raise ValueError('bad source accepted')
+  finally:m.load_inputs=original_loader;m.subprocess.check_output=original_child
+ # Closed metadata class falsifiers with hashes/order summaries recomputed, not stale-hash controls.
+ for name,field,value in [('raw_protected_int_to_bool','bytes',True),('raw_version_changed','version','0.9.0')]:
+  altered=copy.deepcopy(inputs);row=next(x for x in altered['after']['metadata']['distributions'] if x['name']=='jax');row[field]=value
+  metadata=altered['after']['metadata'];metadata['framed_sha256']=hashlib.sha256(json.dumps(metadata['distributions'],sort_keys=True,separators=(',',':')).encode()).hexdigest();altered['after']['metadata_after_framed_sha256']=metadata['framed_sha256'];metadata['protected_numerical_packages']=[r for r in metadata['distributions'] if m.normalize(r['name']) in m.PROTECTED]
+  m.load_inputs=lambda _base,a=altered:(index,a,{})
+  try:m.derive_claims(base,repo)
+  except ValueError as e:results.append({'control':name,'outcome':'PASS','refusal':str(e),'framed_hash_recomputed':True})
+  else:raise ValueError('raw metadata accepted')
+  finally:m.load_inputs=original_loader
+ report={'schema':'policyos.e02.closed_prerequisite_controls.v1','source':m.SOURCE,'tree':m.TREE,'outcome':'PASS','control_count':len(results),'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'summary_claim_count':healthy['summary_receipt']['structured_claims'],'controls':results,'native_backend_or_interpreter_repeated':False,'environment_mutated':False,'source_mutated':False,'finding_closure':False}
+ sys.stdout.write(json.dumps(report,indent=2)+'\n')
+if __name__=='__main__':main()

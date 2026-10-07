@@ -1,0 +1,261 @@
+{
+  "G_review_source": "2abc17f46a033a7879663486ff9946a95786601f",
+  "assets": [
+    {
+      "bytes": 83181,
+      "portable_path": "literal-JUnit/bkt-frc-s10-and-adjacent-report-consumers.xml",
+      "sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8",
+      "source_blob": "bc958a597694702469fbdfa65053172f2fb0b835",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 13208,
+      "portable_path": "literal-JUnit/cal-and-welfare-consumer.xml",
+      "sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b",
+      "source_blob": "079b8cb77bba7f2bf6d20cefba1826f526582bbf",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/cal-and-welfare-consumer/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 12578,
+      "portable_path": "literal-JUnit/ddm-runtime-and-facade.xml",
+      "sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7",
+      "source_blob": "b7a44861971feaf6741749da453a57c3fc9b8c04",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/ddm-runtime-and-facade/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 36925,
+      "portable_path": "literal-JUnit/doe-salib-and-consumer-factory.xml",
+      "sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563",
+      "source_blob": "a4cfec6db2b0d9bd0a56a86d96e0ccb32e96cc35",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 10247,
+      "portable_path": "literal-JUnit/g-checkpoint10-controlplanestore-companion.xml",
+      "sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71",
+      "source_blob": "3ce7bf0b0195919a45e98ee9a1ac060c025186bf",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 102935,
+      "portable_path": "literal-JUnit/mc-joint-law-support-and-scientist-consumer.xml",
+      "sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd",
+      "source_blob": "31d19423f5d9423c0b3dd5151730fbfc047982ec",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 15383,
+      "portable_path": "literal-JUnit/pcl-continuous-persistence.xml",
+      "sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4",
+      "source_blob": "3118e6340f1ef7e302439b7ac6f4280a25b6dae5",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/pcl-continuous-persistence/pytest.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 119161,
+      "portable_path": "G-authoritative/E54-current-decisions.json",
+      "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c",
+      "source_blob": "4dc2adb6f38f2c1674ec1c8b616d1985914e2b9e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+      "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+    },
+    {
+      "bytes": 8193,
+      "portable_path": "G-authoritative/E-gates-A-consumers.md",
+      "sha256": "f697df3a2aa624fe6722837ae056a3be7d09d30ad934768a52e19edd771e86a9",
+      "source_blob": "2b87c5582dbfdcdf4505dc738f24a1441edd965e",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-gates-A-consumers.md",
+      "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+    },
+    {
+      "bytes": 8548,
+      "portable_path": "G-authoritative/E-to-A-reason-carry.md",
+      "sha256": "6a392432cb49295afa685e1a8640dd22a4adbbd9b6cb680002e54c083941147d",
+      "source_blob": "0ab214e1912d71f032c90013e84f191768343ff8",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.md",
+      "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+    },
+    {
+      "bytes": 12254,
+      "portable_path": "G-authoritative/README.md",
+      "sha256": "e06ce2ae2053b5fb4a79e349ecf561248bbfa4eb7059bac4accab6fb7d95f99d",
+      "source_blob": "ab2e1d7d3fb9ed5864bf6896180832adc65fa63a",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/README.md",
+      "source_ref": "2abc17f46a033a7879663486ff9946a95786601f"
+    },
+    {
+      "bytes": 20737,
+      "portable_path": "original-cards/FRC-01.md",
+      "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee",
+      "source_blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+      "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "bytes": 19111,
+      "portable_path": "original-cards/FRC-02.md",
+      "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6",
+      "source_blob": "7b7ccd45665e14e2e898182454bb1d94f5259c8d",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+      "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "bytes": 12413,
+      "portable_path": "original-owners/bundle-owners.tsv",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "source_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "bytes": 9504,
+      "portable_path": "original-owners/finding-owners.tsv",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "source_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "bytes": 5746,
+      "portable_path": "authentic-native-packet/a-owner-contract.json",
+      "sha256": "f4981ba0117e18a80290555c545bf11d666a8585395cb5f4ada7fed796163fd1",
+      "source_blob": "f47621903cd61cc843aeb8b61480dd677e0291d2",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-owner-contract.json",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 5982,
+      "portable_path": "authentic-native-packet/a-status-reason-tests.py.txt",
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+      "source_blob": "6046e1770339def66d96c457778e2cbb03078d6f",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 3003,
+      "portable_path": "authentic-native-packet/README.md",
+      "sha256": "a405099a42b989c9900edacdc9e221727b0d028818d76e0ff482c3886b672c50",
+      "source_blob": "d18691bc14af3eda03ea2302549cba29d9adda78",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/README.md",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 22657,
+      "portable_path": "authentic-native-packet/implementation-handoff.json",
+      "sha256": "20fba51cc630a938871576cdd4dc9f9766a7f41269b015aa14c002d0b26e215b",
+      "source_blob": "7fa3f74c606856cd209c818d8b2fca5bd6f91563",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/implementation-handoff.json",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 4135,
+      "portable_path": "authentic-native-packet/checks/native-core-route-final.json",
+      "sha256": "faa5de6ed915077d31709986b8fde12682dc389525610ad2a9efbee082f7666b",
+      "source_blob": "179e9d3c85c25c58236f303ef1165605ea1b4879",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.json",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 8342,
+      "portable_path": "authentic-native-packet/checks/native-core-route-final.xml",
+      "sha256": "81efbdf536b5db0b30863a7c678406277159f94f41f643e75156e8aa385fe5f7",
+      "source_blob": "8db868cb50640aa873dd06ff5d0c23bdf582c0a5",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 3057,
+      "portable_path": "authentic-native-packet/checks/native-core-route-final.stdout",
+      "sha256": "23a1ab3af253ebb722030c074aaccc99a3e8286d3024923a80be354f4f0e66c2",
+      "source_blob": "9bb2f7ceea422e2783838cf0c449b61dbbcc2c56",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "authentic-native-packet/checks/native-core-route-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stderr",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 20923,
+      "portable_path": "authentic-native-packet/independent-review/frc-independent-review-1eba9f9e.json",
+      "sha256": "1c1b75c3b8fb77251df7fc475885894d1f7598b1141046ccf75f3a03db67cf46",
+      "source_blob": "4b2d5cc745db7b0933017f0d3701807671d1ff1a",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/frc-independent-review-1eba9f9e.json",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 10648,
+      "portable_path": "authentic-native-packet/independent-review/native-fRC-review-results.json",
+      "sha256": "d12b4bf0fcbafcb6e864e9f5af444dc64989497b8423b1510bd4b15507da529e",
+      "source_blob": "2d7d903fde8ab098aa27239061da1152666ee986",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/native-fRC-review-results.json",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 11146,
+      "portable_path": "authentic-native-packet/independent-review/probe_native_frc.py.txt",
+      "sha256": "b506635baada115153afaf03bbdd3e8d6c59ef781b7c5616532ad51db84d710e",
+      "source_blob": "306887b49827d80ad4880e796228abcbb8117fec",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/probe_native_frc.py.txt",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 4727,
+      "portable_path": "authentic-native-packet/independent-review/candidate-1eba-final.stdout.txt",
+      "sha256": "832dea50b5f4917d344fa041fa189dfdc245f32d75f56ab645d16fe73fbe5a1b",
+      "source_blob": "5f9fd300bfad6f491daaeb445f627791b4cbf94d",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stdout.txt",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 415,
+      "portable_path": "authentic-native-packet/independent-review/candidate-1eba-final.stderr.txt",
+      "sha256": "40e5860a66ceceac7a1d275f51ac24b7d3c22f64c04ddc26908048c4d8a80168",
+      "source_blob": "b30b2ccd0ad634dc51835f6dc5c7ac1ec11b0fbc",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stderr.txt",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    },
+    {
+      "bytes": 4547,
+      "portable_path": "authentic-native-packet/configured_forecast_request.py.txt",
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+      "source_blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea",
+      "source_path": "policy-engine/tests/_helpers/forecast.py",
+      "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "bytes": 16018,
+      "portable_path": "authentic-native-packet/test_frc_01-b2.py.txt",
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+      "source_blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "source_path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "source_ref": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+    },
+    {
+      "bytes": 574927,
+      "portable_path": "literal-wave-publication-receipt.json",
+      "sha256": "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f",
+      "source_blob": "8475b151d347eeb1f294eac40e9fae510fee264b",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/publication-receipt.json",
+      "source_ref": "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+    }
+  ],
+  "bytes": 1180651,
+  "carrier": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "files": 31,
+  "production_data": false,
+  "runtime_rerun": false,
+  "schema": "policyos.e02.literal_input_index.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+}

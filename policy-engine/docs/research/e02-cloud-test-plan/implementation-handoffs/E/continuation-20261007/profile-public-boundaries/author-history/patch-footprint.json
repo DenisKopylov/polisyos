@@ -1,0 +1,44 @@
+[
+  {
+    "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+    "original_bytes": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate_bytes": 1323,
+    "candidate_sha256": "82a80155636bf13db75170e46320daf4634d8cf51a39085735fb4159ad237223"
+  },
+  {
+    "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "original_bytes": 17155,
+    "original_sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+    "candidate_bytes": 17159,
+    "candidate_sha256": "82b9e77bc1da07223f6df644c166c47a4a127eacd47abe84185360c022c27224"
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+    "original_bytes": 9186,
+    "original_sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602",
+    "candidate_bytes": 10175,
+    "candidate_sha256": "216df7733150f0aea483bdec13b53c543d173809b41148612bcce4c928f2c726"
+  },
+  {
+    "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "original_bytes": 94084,
+    "original_sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d",
+    "candidate_bytes": 96198,
+    "candidate_sha256": "d28620b88968dd13fd1d467aebc2183098f44c460bb813b33612d1cbb181bfb0"
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "original_bytes": 15730,
+    "original_sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9",
+    "candidate_bytes": 15848,
+    "candidate_sha256": "0ff0a476dc48165ce73b0ade953d9af2ba182cc151fdb6c57ca21dd5da412f34"
+  },
+  {
+    "path": "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py",
+    "original_bytes": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate_bytes": 10145,
+    "candidate_sha256": "79e4e72361f1fc6a7addeb3c0cf16b604782985437ddf75a45c20c9ac9b2b2a4"
+  }
+]

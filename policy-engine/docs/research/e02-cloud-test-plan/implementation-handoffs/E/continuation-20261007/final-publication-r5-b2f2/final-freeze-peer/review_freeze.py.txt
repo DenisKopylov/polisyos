@@ -1,0 +1,64 @@
+from pathlib import Path
+from collections import Counter
+import copy,hashlib,json,re,subprocess,sys
+
+R=Path('/workspace/e02-E-continuation-20261006');P=Path('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007');O=Path(__file__).parent
+S='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641';T='4cbbed1d9392832729cab92c6615f9a1d03a41c7';PRE='2dc99fe3cbc9f184205d291ec80410bb8bbc1c76'
+def req(ok,msg):
+    if not ok:raise ValueError(msg)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):
+    b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def load(p):return json.loads(p.read_bytes())
+def git(*args):return subprocess.check_output(['git','--no-optional-locks',*args],cwd=R)
+def snap():return {'HEAD':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'tracked_status':git('status','--porcelain','--untracked-files=no').decode(),'status':git('status','--porcelain').decode()}
+before=snap();req(before['HEAD']==S and before['tree']==T,'actual frozen HEAD/tree')
+f=load(P/'freeze.json');pub=load(P/'publication-readback.json');rows=load(P/'complete-source-inputs.json');env=load(P/'root-environment-metadata.json')
+req(ref(P/'freeze.json')['sha256']=='4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c','literal completed sourcefreeze')
+paths=git('ls-tree','-r','--name-only',S).decode().splitlines();req(Counter(r['path'] for r in rows)==Counter(paths) and len(rows)==22005,'complete immutable22005 path Counter')
+for r in rows:req(set(r)=={'path','bytes','sha256','symlink'} and type(r['bytes']) is int and r['bytes']>=0 and type(r['symlink']) is bool and re.fullmatch('[0-9a-f]{64}',r['sha256']), 'strict input row type/digest')
+req(sum(r['bytes'] for r in rows)==620699802 and f['tracked_paths']==22005 and f['source_bytes']==620699802,'full input record denominator/bytes')
+sealed={r['path']:r for r in rows}
+for key in ('full_source_input_snapshot','ROOT_environment_metadata','current_prefreeze_lint_receipt','final_plan_recipe_readiness_review','final_CAL_DOC_merge','final_CAL_DOC_review','previous_UNRUN_preparation','previous_preparation_release'):
+    rr=f[key];req(ref(Path(rr['path']))==rr,'literal freeze ref '+key)
+for rr in f['source_and_companion_reviews']:req(ref(Path(rr['path']))==rr,'literal source review ref')
+req(f['candidate']==S and f['candidate_tree']==T and pub['source']==S and pub['tree']==T,'freeze/published identity')
+req(f['formal_G_acceptance'] is False and f['new_common_wave']=='UNRUN' and f['final_global_gates']=='UNRUN','freeze is prelaunch immutable observation; outcomes separate')
+req(f['source_frozen_for_common_wave'] is True and f['all_source_and_companion_DOC_reviews_closed'] is True,'rootdeclaredfreeze lease afterreview')
+diff=git('diff','--name-status',PRE,S).decode().splitlines();names=[r.split('\t')[1] for r in diff]
+req(len(names)==962 and all(r.startswith('A\t') for r in diff) and all('/docs/' in p and not p.endswith('.py') for p in names),'exact962additivepassiveCALDOC-onlydelta')
+req(not git('diff','--name-only',PRE,S,'--','policy-engine/src','policy-engine/tests','policy-engine/tools','policy-engine/architecture','policy-engine/schemas','AGENTS.md','policy-engine/CONTRIBUTING.md','policy-engine/pyproject.toml','policy-engine/uv.lock').strip(),'no reviewedruntime/configsource changes2dc→b2')
+lint=load(Path(f['current_prefreeze_lint_receipt']['path']));lintinputs=load(Path(lint['inputs']['path']));req(ref(Path(lint['inputs']['path']))==lint['inputs'],'full378sourceinputdescriptorcustody')
+actual_py=git('diff','--name-only','--diff-filter=ACMR',f['main_base'],S,'--','policy-engine').decode().splitlines();actual_py=sorted(p for p in actual_py if p.endswith('.py'))
+req(actual_py==sorted(r['path'] for r in lintinputs['python_rows']) and len(actual_py)==378,'actual current fullchanged378Python denominator')
+bodyrefs=[]
+for r in lintinputs['python_rows']:
+    p=r['path'];b=git('show',S+':'+p);req((R/p).read_bytes()==b and sha(b)==r['sha256'] and len(b)==r['bytes'] and sha(b)==sealed[p]['sha256'],'all378physical/immutable/ref bodies '+p)
+    req(git('show',PRE+':'+p)==b,'unchanged2dc reviewedsource '+p)
+    bodyrefs.append({'path':p,'bytes':len(b),'sha256':sha(b),'writer':r['writer_attribution']['writer']})
+counts=Counter(r['writer'] for r in bodyrefs);req(dict(counts)=={'A':2,'B':13,'E':349,'G':12,'F':2},'writer-specific current378 inputs')
+for r in lintinputs['effective_recursive_configuration_inputs']:
+    p=r['path'];b=git('show',S+':'+p);req(b==(R/p).read_bytes()==git('show',PRE+':'+p) and len(b)==r['bytes'] and sha(b)==r['sha256'],'exact nativeRuff recursiveconfig '+p)
+req(len(env)==207 and f['environment_metadata_count']==207,'actual Root207 snapshot')
+for r in env:
+    b=Path(r['path']).read_bytes();req(type(r['bytes']) is int and len(b)==r['bytes'] and sha(b)==r['sha256'],'readonlyall207METADATA')
+doctor=load(P/'admission-resume.stdout');req(doctor['status']=='admitted' and doctor['complete_verdict'] is True and doctor['requested']=={'branch':'codex/e02-E-continuation-20261006','mode':'resume','path':str(R)},'exact branch/path read-only admission')
+req(pub['remote_and_tracking_readback_equal'] is True and all(c['exit_code']==0 for c in pub['commands']),'closed publication actual commands')
+req((P/'remote-readback.stdout').read_text().split()[0]==S and git('rev-parse','origin/codex/e02-E-continuation-20261006').decode().strip()==S,'literalremote/currenttrackingreadbackexact')
+recipe=Path('/tmp/e02-E-final-composed-wave-refresh-20261007.py');req(ref(recipe)['sha256']=='b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0','closedrecipeunchanged')
+after=snap();req(after['HEAD']==S and after['tree']==T,'frozenHEADunchanged during peer')
+controls=[]
+def admit_claims(x):
+    req(x['candidate']==S and x['candidate_tree']==T,'exact frozen identity')
+    req(type(x['tracked_paths']) is int and x['tracked_paths']==len(rows) and type(x['source_bytes']) is int and x['source_bytes']==sum(r['bytes']for r in rows),'actual fullinput typed counts')
+    req(x['formal_G_acceptance'] is False and x['new_common_wave']=='UNRUN' and x['final_global_gates']=='UNRUN','frozenprelaunch notcurrentoutcome/authority')
+    req(x['full_source_input_snapshot']==ref(P/'complete-source-inputs.json'),'fullinputtable ref must stayliteral')
+admit_claims(f)
+for label,edit in [('candidate',lambda x:x.__setitem__('candidate','0'*40)),('tree',lambda x:x.__setitem__('candidate_tree','0'*40)),('typed_path_count_bool',lambda x:x.__setitem__('tracked_paths',True)),('byte_total',lambda x:x.__setitem__('source_bytes',1)),('fake_inventory_digest',lambda x:x['full_source_input_snapshot'].__setitem__('sha256','0'*64)),('numeric_PASS_promotion',lambda x:x.__setitem__('new_common_wave','PASS')),('global_PASS_promotion',lambda x:x.__setitem__('final_global_gates','PASS')),('G_acceptance_promotion',lambda x:x.__setitem__('formal_G_acceptance',True))]:
+    x=copy.deepcopy(f);edit(x)
+    try:admit_claims(x)
+    except ValueError as e:controls.append({'case':label,'refused':True,'reason':str(e)})
+    else:raise ValueError('badclaimadmitted '+label)
+out={'schema':'policyos.e02.independent_final_freeze_custody.v1','disposition':'GO frozen-source metadata/custody and sparse reviewed-source reuse only','source':S,'tree':T,'freeze':ref(P/'freeze.json'),'publication':ref(P/'publication-readback.json'),'full_snapshot':ref(P/'complete-source-inputs.json'),'full_input_paths':22005,'full_input_record_payloadbytes':620699802,'full620MBphysical_reread_by_peer':False,'full_framed_hash_from_original_root_capture':f['framed_sha256'],'full_framed_hash_scope':'Root recorded fulltracked raw-byte framing; peer independently verifies sealed full rowCounter/count/bytes and378source/config bodies. Actual before/after620MB source guards will be read from closed canonical run_check receipts; no inherited/global futureimmutability implied.','passive_CAL_DOC_delta':962,'active_source_Python_delta':0,'complete_changed_python_inputs':378,'writer_counts':dict(counts),'exact378_source_bodies':bodyrefs,'Root207_snapshot':ref(P/'root-environment-metadata.json'),'Root_environment_metadata_rows':207,'current_recipe':ref(recipe),'source_review_refs':f['source_and_companion_reviews'],'raw_freeze_admission_controls':controls,'frozen_snapshot_created_with_wave_UNRUN':True,'current_wave_outcomes':'PENDING actual closed receipts; neither runtime testcase counts nor aggregate outcomes predicted','check_or_finding_decision_inferred':False,'historical_ledger':{'partial':49,'held':4,'closed':1},'E_owner_proposals':{'closed':43,'limited':9,'held':2},'G_formal_acceptance':False,'native_or_global_commands_executed_by_peer':[],'before':before,'after':after,'limitations':['Existing two unique untracked directories preserved; wholeworkspaceclean is not claimed','FreezePUB and source-only review acceptance separate from scientific/institutional/finding closure','No final numeric/runtime case counts predicted; all PASS/FAIL/ERROR/SKIP/UNRUN must come from closed raw outputs','620MB fullsource bytes not redundantly rescanned while waveactive; Rootframed capture is explicit separate evidence source']}
+(O/('review-optimized.json' if sys.flags.optimize else 'review.json')).write_text(json.dumps(out,indent=2)+'\n')
+print(json.dumps({'disposition':out['disposition'],'source':S,'tree':T,'full_input_paths':22005,'record_payload_bytes':620699802,'passiveDOCdelta':962,'exactPython/configreuse':378,'E_python':349,'Rootmetadata':207,'control_refusals':8,'review':ref(O/('review-optimized.json' if sys.flags.optimize else 'review.json'))},indent=2))

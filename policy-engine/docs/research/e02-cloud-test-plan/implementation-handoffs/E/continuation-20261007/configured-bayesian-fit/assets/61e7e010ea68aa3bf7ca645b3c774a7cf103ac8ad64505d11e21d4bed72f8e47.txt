@@ -1,0 +1,5 @@
+{
+  "logical_count": 4007,
+  "unique_carrier_count": 911,
+  "unique_bytes": 13475728
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-parent-gates-custody-independent-20261007/review.py.txt", line 403, in <module>
+    main()
+  File "/tmp/e02-E-parent-gates-custody-independent-20261007/review.py.txt", line 325, in main
+    expected_binding = binding_expectations(qualification)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-parent-gates-custody-independent-20261007/review.py.txt", line 244, in binding_expectations
+    require(len(matches) == 1, f"unique_native_diff:{key}")
+  File "/tmp/e02-E-parent-gates-custody-independent-20261007/review.py.txt", line 37, in require
+    raise ValueError(reason)
+ValueError: unique_native_diff:bound_dependency_count

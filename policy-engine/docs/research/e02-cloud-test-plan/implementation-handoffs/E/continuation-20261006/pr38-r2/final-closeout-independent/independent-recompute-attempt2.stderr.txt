@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 246, in <module>
+    main()
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 163, in main
+    require(row["finding_owner_acceptance"] == ("historical closed retained; regression only" if fid == "B198" else "not decided; historical status unchanged"), "owner adjudication invented")
+  File "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/review_metadata_independently.py", line 30, in require
+    raise ValueError(reason)
+ValueError: owner adjudication invented

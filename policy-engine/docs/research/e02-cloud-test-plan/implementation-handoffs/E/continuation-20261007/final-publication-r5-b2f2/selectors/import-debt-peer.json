@@ -1,0 +1,306 @@
+{
+  "schema": "policyos.e02.moderate_import_reconciliation_selection.v1",
+  "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+  "scope": "GO bounded import census and source/writer qualification only",
+  "assets": [
+    {
+      "logical_name": "final-normal/current-import-debt-reconciliation.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/current-import-debt-reconciliation.json",
+      "bytes": 235253,
+      "sha256": "436b275617c8d3152155ef911de88c92ac1539573253663b4d1a08c2bbd66657"
+    },
+    {
+      "logical_name": "final-normal/writer-qualification-v4.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/writer-qualification-v4.json",
+      "bytes": 430880,
+      "sha256": "b5640d9de1f581fee1f2e44bea75a6462e2ea261fff62aaa89c108d7f1e91376"
+    },
+    {
+      "logical_name": "final-normal/admission-controls.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/admission-controls.json",
+      "bytes": 6667,
+      "sha256": "5680d217dae7a96142ee0b2f5002a6988f834ea4185e589dbcec2ae8f0ee9fcf"
+    },
+    {
+      "logical_name": "final-normal/execution-context.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/execution-context.json",
+      "bytes": 123057,
+      "sha256": "a0bef844083c4219516fb5cc7bea941d546a4f730cdb7e0419530f587200d725"
+    },
+    {
+      "logical_name": "final-normal/changed-source-current-cross-root-imports-v4.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/changed-source-current-cross-root-imports-v4.json",
+      "bytes": 217443,
+      "sha256": "6efb1d290445a423bd4d78e89cf352b61413d0efb126e5ca369ad4f953d63e24"
+    },
+    {
+      "logical_name": "final-normal/complete-changed-python-source-bindings.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/complete-changed-python-source-bindings.json",
+      "bytes": 389455,
+      "sha256": "3506aad1b54cfbd924189ff0cf2f2f47f467fd14b35d8a30e07b0cc9857ac7db"
+    },
+    {
+      "logical_name": "final-normal/actual-isolated-canonical-static-complete-output.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/actual-isolated-canonical-static-complete-output.json",
+      "bytes": 983652,
+      "sha256": "cfe72ce70f5122b2374b14eb02762ad51e009751012f8512bd8d96c6c62916c0"
+    },
+    {
+      "logical_name": "final-optimized/current-import-debt-reconciliation.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/current-import-debt-reconciliation.json",
+      "bytes": 235271,
+      "sha256": "4ebe8200d139a2cc6f22cb2759e7e5b46f282493b29782e056aa723d6b2ed1eb"
+    },
+    {
+      "logical_name": "final-optimized/writer-qualification-v4.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/writer-qualification-v4.json",
+      "bytes": 430886,
+      "sha256": "2c5c97969f5d5cc5c7f5e1f03181168ec97d9a5fc23b98d92d6a2a67acbdb237"
+    },
+    {
+      "logical_name": "final-optimized/admission-controls.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/admission-controls.json",
+      "bytes": 6666,
+      "sha256": "405815f0c83b7780fc010dbe024120623b814e34061b8db40d505c321c275ea7"
+    },
+    {
+      "logical_name": "final-optimized/execution-context.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/execution-context.json",
+      "bytes": 123057,
+      "sha256": "d6b4897f31834050747c4ed5f9697ed9e82a4b2e26684c9db71572b3f93a7f35"
+    },
+    {
+      "logical_name": "final-optimized/changed-source-current-cross-root-imports-v4.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/changed-source-current-cross-root-imports-v4.json",
+      "bytes": 217443,
+      "sha256": "6efb1d290445a423bd4d78e89cf352b61413d0efb126e5ca369ad4f953d63e24"
+    },
+    {
+      "logical_name": "final-optimized/complete-changed-python-source-bindings.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/complete-changed-python-source-bindings.json",
+      "bytes": 389455,
+      "sha256": "3506aad1b54cfbd924189ff0cf2f2f47f467fd14b35d8a30e07b0cc9857ac7db"
+    },
+    {
+      "logical_name": "final-optimized/actual-isolated-canonical-static-complete-output.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-optimized/actual-isolated-canonical-static-complete-output.json",
+      "bytes": 983652,
+      "sha256": "cfe72ce70f5122b2374b14eb02762ad51e009751012f8512bd8d96c6c62916c0"
+    },
+    {
+      "logical_name": "reconcile.py.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/reconcile.py.txt",
+      "bytes": 62045,
+      "sha256": "ccc5ff50a67b58eb9b4797af5fadfea8b8cec24e564bbf59cad4e5306ca5973c"
+    },
+    {
+      "logical_name": "qualify-writers.py.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/qualify-writers.py.txt",
+      "bytes": 9481,
+      "sha256": "66cd266a53aa95aaa937bcadd4ff8eec1aeadf3f77b3d75c3b965f30b92618ba"
+    },
+    {
+      "logical_name": "package.py.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/package.py.txt",
+      "bytes": 11077,
+      "sha256": "6a8a1cdf91e42a478316574c6fda0e1279909e1d28eaa6b15262957255925ce8"
+    },
+    {
+      "logical_name": "reconcile-initial-executed.py.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/reconcile-initial-executed.py.txt",
+      "bytes": 52533,
+      "sha256": "f3fe4cbb4c30796ed088da5861d1925fe6c1bd59b81fa811d83f1f5d06d43043"
+    },
+    {
+      "logical_name": "reconcile-helper-direct-definition-refusal.py.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/reconcile-helper-direct-definition-refusal.py.txt",
+      "bytes": 60065,
+      "sha256": "f706ee17f7115712653b8ec0fd161fd10a353a66cb39c09a4209d50abf9d40e7"
+    },
+    {
+      "logical_name": "qualify-writers-initial-executed.py.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/qualify-writers-initial-executed.py.txt",
+      "bytes": 9474,
+      "sha256": "49a1e77b4b142fdd42d217c1f9be8707b342028aa2b6aaec2b0886cddec0a143"
+    },
+    {
+      "logical_name": "normal-initial.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/normal-initial.stdout.json",
+      "bytes": 1301,
+      "sha256": "84b997a16d46b32013aa9cec463a63dfe1456615d670b4bbb8cc92faf152e3a9"
+    },
+    {
+      "logical_name": "normal-initial.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/normal-initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "normal-final.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/normal-final.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "normal-final.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/normal-final.stderr.txt",
+      "bytes": 520,
+      "sha256": "186458b0aa8d07d6c3c71a7bd90d421f192f1661b0877017d4a7ee6b31baa8b4"
+    },
+    {
+      "logical_name": "normal-v3.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/normal-v3.stdout.json",
+      "bytes": 1340,
+      "sha256": "083d84129ac9b2ced16b3bc6a4044f7ecc0115b33b135fb48ecd8591eac2772d"
+    },
+    {
+      "logical_name": "normal-v3.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/normal-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "optimized-v3.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/optimized-v3.stdout.json",
+      "bytes": 1349,
+      "sha256": "9c808ffbba4d2d2a2104873d2705db3939dbf615e1c90f6ba1f4f8a9681c5808"
+    },
+    {
+      "logical_name": "optimized-v3.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/optimized-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "writer-normal.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-normal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "writer-normal.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-normal.stderr.txt",
+      "bytes": 480,
+      "sha256": "49ae8c120cc12964f38f48273018a8f36b79652fd88515a28e396622dec66f97"
+    },
+    {
+      "logical_name": "writer-optimized.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-optimized.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "writer-optimized.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-optimized.stderr.txt",
+      "bytes": 480,
+      "sha256": "49ae8c120cc12964f38f48273018a8f36b79652fd88515a28e396622dec66f97"
+    },
+    {
+      "logical_name": "writer-normal-v2.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-normal-v2.stdout.json",
+      "bytes": 464,
+      "sha256": "91382a35a04216c65bb1e89e9f5ec98e8132a0ba503063a6103ce66028c4d5ba"
+    },
+    {
+      "logical_name": "writer-normal-v2.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "writer-optimized-v2.stdout.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-optimized-v2.stdout.json",
+      "bytes": 467,
+      "sha256": "5af2e596d32293b6636c3e8bfe2324e0df23507f0e16cc7893222d9011b09a84"
+    },
+    {
+      "logical_name": "writer-optimized-v2.stderr.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/writer-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "logical_name": "ruff-deciding.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/ruff-deciding.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "logical_name": "format-deciding.stdout.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/format-deciding.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "logical_name": "ruff-writer-v2.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/ruff-writer-v2.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "logical_name": "format-writer-v2.stdout.txt",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/format-writer-v2.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "logical_name": "current-patch-readonly-applicability.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/current-patch-readonly-applicability.json",
+      "bytes": 2311,
+      "sha256": "542f2e7c1624b4ab8e6a645e9fac9581ead36fabe5d6b087172f4752f78690f3"
+    },
+    {
+      "logical_name": "current-disposition.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/current-disposition.json",
+      "bytes": 15871,
+      "sha256": "3d75fd43093bcfe62e1948a5361a59470bf124844d5b863e321e2926ce6fdc74"
+    },
+    {
+      "logical_name": "observer-history-qualification.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/observer-history-qualification.json",
+      "bytes": 1848,
+      "sha256": "2989d0bcceb8830bc0ecb4427216a3a8058e03d3fe0682d76502bdfea021febf"
+    },
+    {
+      "logical_name": "closed-static-context-archive-index.json",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/closed-static-context-archive-index.json",
+      "bytes": 2365,
+      "sha256": "53f9877d39fe41e41881d000d8075a4ae40952d0a3637d4386fbd25547e28fe9"
+    },
+    {
+      "logical_name": "historical-original12-input.json",
+      "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/historical-12.json",
+      "bytes": 118037,
+      "sha256": "f09a55a4059475a89ca71ea8aa85111f0aa4e26379b9ffeb5760934d26e9058c"
+    },
+    {
+      "logical_name": "current-complete-writer-input.json",
+      "path": "/tmp/e02-E-root-prefreeze-lint-2dc99fe3-20261007/inputs.json",
+      "bytes": 520049,
+      "sha256": "71f5ec5100e5fd20d81b54adccaf9a1c32d2410d436ce8e45000b2b196eb33cd"
+    },
+    {
+      "logical_name": "complete-code-context/full-changed-python-catalog.json.gz",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/full-changed-python-catalog.json.gz",
+      "bytes": 97750,
+      "sha256": "2f8c92a0300d4b26704e4e8934d7de52013e9fc6daa20d83b9eb7b893be15c3e"
+    },
+    {
+      "logical_name": "complete-code-context/full-main198-to-2dc99fe3-footprint.json.gz",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/full-main198-to-2dc99fe3-footprint.json.gz",
+      "bytes": 95494,
+      "sha256": "cba4338b103a5a208c2040aef9b42e78792d524a3a7aef7c5424fe080094dcbc"
+    },
+    {
+      "logical_name": "complete-code-context/full-source-static-and-literal-dynamic-imports.json.gz",
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/full-source-static-and-literal-dynamic-imports.json.gz",
+      "bytes": 1199537,
+      "sha256": "acd072d6abb5cdf9aa157d7951d8374e9cc41ac9640ed6975a08c8a600342606"
+    }
+  ],
+  "logical_count": 49,
+  "unique_count": 36,
+  "unique_bytes": 5446172,
+  "deciding_state": "closed source-observer/ref/membership controls; full gate and API owner implementation remain separate"
+}

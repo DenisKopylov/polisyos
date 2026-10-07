@@ -1,0 +1,57 @@
+{
+  "scope": "read-only current-checkout apply--check; patches remain UNAPPLIED; applicability is not public/API owner admission",
+  "observed_root_head": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "results": [
+    {
+      "patch": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+      "bytes": 1257,
+      "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a",
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "applied": false
+    },
+    {
+      "patch": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+      "bytes": 1928,
+      "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508",
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "applied": false
+    },
+    {
+      "patch": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/canonspec/assets/IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+      "bytes": 1015,
+      "sha256": "12f527d63ff94602e6edcb5010f4a145c3d89f6e04216a5a3879b4000975481d",
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/e02-E-continuation-20261006",
+        "apply",
+        "--check",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/canonspec/assets/IR-owner-existing-spec-export-and-E-caller-proposal.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "applied": false
+    }
+  ]
+}

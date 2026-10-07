@@ -1,0 +1,23 @@
+from pathlib import Path
+import copy,json,hashlib,subprocess
+R=Path('/workspace/e02-E-continuation-20261006');B=R/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be-predicate-basis.json';D=Path('/tmp/e02-E-root-checkpoint15a5-independent');packet=json.loads(B.read_text());expected={'Git_source_identity':'recomputed','product_test_source_reuse':'recomputed','reference_custody':'recomputed','importer':'recomputed','finite_joint_law':'independently_reconciled','legacy_compatibility':'independently_reconciled','native_backend':'recomputed','finding_owner_dispositions':'recomputed','final_freeze_wave':'not_established','unestablished_authority_and_completion':'not_established'}
+def need(q,m):
+ if not q:raise ValueError(m)
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def validate(d):
+ need({k:v['basis'] for k,v in d['predicate_basis'].items()}==expected,'complete frozen canonical P37 basis')
+ need(d['corrects']['commit']=='15a5cd7b764f8839bc31b493e7a16cf3d12a114a' and d['candidate']=='290324be1f497f50e7bc32ad3307fd5e3f807493' and d['candidate_tree']=='64d40a230d319894d1a57b740e4f34eea58741c5','exact prior checkpoint candidate')
+ need(ref(Path(d['corrects']['receipt']['path']))==d['corrects']['receipt'],'unchanged original667777 checkpoint bytes')
+ need(d['original_checkpoint_bytes_preserved'] is True and d['evidence_self_future_SHA_reference'] is False and d['new_source_or_native_test_execution'] is False,'passive corrective boundary')
+ need(d['predicate_basis']['native_backend']['outcome']=='FAIL' and d['predicate_basis']['native_backend']['source_input_admission']=='FAIL' and d['predicate_basis']['native_backend']['whole_scope_completion']=='not_established' and d['predicate_basis']['native_backend']['individual_caller_P41']=='not_established' and d['predicate_basis']['native_backend']['post_restore_retroactive_PASS'] is False,'native outcome/unknown predicates')
+ need(d['predicate_basis']['final_freeze_wave']['check_outcome']=='UNRUN' and d['predicate_basis']['finding_owner_dispositions']['G_formal_acceptance']=='not_established','no future wave or G acceptance')
+for row in packet['predicate_basis']['Git_source_identity']['commands']:
+ need(row['exit_code']==0 and subprocess.run(row['command'],cwd=R,check=False,capture_output=True).returncode==0,'exact four ancestry commands')
+validate(packet);controls=[]
+for name,mut in [('prose_in_basis',lambda d:d['predicate_basis']['Git_source_identity'].__setitem__('basis','exact immutable Git')),('unknown_native_authority_promoted',lambda d:d['predicate_basis']['unestablished_authority_and_completion'].__setitem__('basis','recomputed')),('future_wavePASS',lambda d:d['predicate_basis']['final_freeze_wave'].__setitem__('check_outcome','PASS')),('nativePASS',lambda d:d['predicate_basis']['native_backend'].__setitem__('outcome','PASS')),('Gformalaccepted',lambda d:d['predicate_basis']['finding_owner_dispositions'].__setitem__('G_formal_acceptance','accepted')),('missing_predicate',lambda d:d['predicate_basis'].pop('legacy_compatibility'))]:
+ q=copy.deepcopy(packet);mut(q)
+ try:validate(q)
+ except ValueError as e:controls.append({'case':name,'outcome':'refused','reason':str(e)})
+ else:raise ValueError('admitted '+name)
+result={'schema':'policyos.e02.independent_sparse_P37_correction_review.v1','outcome':'GO metadata-only additive P37 repair','companion':ref(B),'source_checkpoint':'15a5cd7b764f8839bc31b493e7a16cf3d12a114a','original_checkpoint_byte_hash':'4126c544b316941db92e652c816e1fd35693ed57f3fa8f4207f441222134361f','reuse':ref(D/'review.json'),'resolved_prior_review':'Original sparse checkpoint exact2106path names/12Python bodies/7refs GO reused; missing/prose P37 bases corrected in companion; no source/consumer dependencies changed by correction.','basis_labels':expected,'actual_ancestry_commands':4,'controls':controls,'limitations':'No numeric/backend/consumer wave run; source3932 independent runtime/math and legacy reviews reused by exact12body comparison. E proposals43closed9limited2held remain separate from historical49partial4held1closed and Gformal intake pending. NativeFAIL137/nullcounts/input-admissionFAIL retained; futurefreeze definingwave UNRUN.'}
+p=D/'predicate-basis-correction-review.json';p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

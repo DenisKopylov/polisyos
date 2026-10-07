@@ -1,0 +1,10 @@
+{
+  "source_disposition": "GO",
+  "source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+  "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+  "peer_cases": 54,
+  "runtime_controls": 31,
+  "bound_input_corruptions_refused": 11,
+  "optimized": 0,
+  "review_path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/review.json"
+}

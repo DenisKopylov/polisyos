@@ -1,0 +1,18 @@
+{
+  "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "first_implementation": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+  "complete_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+  ],
+  "implementation_commits": [
+    "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+    "11082e91d61ace2f3bd7016d408341fdd6ec1702"
+  ]
+}

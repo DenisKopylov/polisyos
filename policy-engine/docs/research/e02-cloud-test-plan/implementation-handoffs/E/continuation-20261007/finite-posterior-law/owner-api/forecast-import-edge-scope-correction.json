@@ -1,0 +1,121 @@
+{
+  "schema": "policyos.e02.E.forecast_import_scope_qualification.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+  "bytes": 81721,
+  "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+  "full_absolute_import_AST_edges": [
+    {
+      "line": 32,
+      "module": "polisyos.ir.analytics.backtest",
+      "symbols": [
+        {
+          "name": "BacktestReport",
+          "asname": null
+        },
+        {
+          "name": "load_backtest_report",
+          "asname": null
+        }
+      ],
+      "level": 0
+    },
+    {
+      "line": 33,
+      "module": "polisyos.ir.artifacts",
+      "symbols": [
+        {
+          "name": "ArtifactID",
+          "asname": null
+        },
+        {
+          "name": "ArtifactStore",
+          "asname": null
+        },
+        {
+          "name": "get_json_artifact",
+          "asname": null
+        },
+        {
+          "name": "put_json_artifact",
+          "asname": null
+        }
+      ],
+      "level": 0
+    },
+    {
+      "line": 39,
+      "module": "polisyos.ir.model_layer.canon",
+      "symbols": [
+        {
+          "name": "CanonSpec",
+          "asname": null
+        }
+      ],
+      "level": 0
+    },
+    {
+      "line": 40,
+      "module": "polisyos.ir.registry.refs",
+      "symbols": [
+        {
+          "name": "ArtifactRefModel",
+          "asname": null
+        },
+        {
+          "name": "BacktestReportRef",
+          "asname": null
+        }
+      ],
+      "level": 0
+    },
+    {
+      "line": 995,
+      "module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "symbols": [
+        {
+          "name": "load_forecasting_uncertainty_bundle",
+          "asname": null
+        }
+      ],
+      "level": 0
+    },
+    {
+      "line": 998,
+      "module": "polisyos.ir.registry.refs",
+      "symbols": [
+        {
+          "name": "ForecastingUncertaintyBundleRef",
+          "asname": null
+        }
+      ],
+      "level": 0
+    }
+  ],
+  "historical_remaining_original_12": {
+    "module": "polisyos.ir.analytics.forecasting_uncertainty",
+    "symbol": "load_forecasting_uncertainty_bundle",
+    "line": 995,
+    "state": "owner_ready_IR_public_alias_missing",
+    "canonical_owner": "IR public API owner",
+    "packet": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+      "bytes": 15298,
+      "sha256": "1fdc4277f810fc826a052d46ed35fdf06fc8abc71109b4bfdd7157fa5763b57f"
+    }
+  },
+  "separate_current_newer_import_debt": {
+    "module": "polisyos.ir.model_layer.canon",
+    "symbol": "CanonSpec",
+    "line": 39,
+    "state": "CHANGE_REQUIRED_typed_CoreSpec_IRSpec_distinct_siblings",
+    "canonical_owner": "Core/IR artifacts/canon API owners; narrow alias or common protocol admission remains separate",
+    "packet": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typed-owner-qualification-v3.json",
+      "bytes": 16136,
+      "sha256": "03e4629bf558a4089f2849cf18559f3488e26f4412e2849c872888f0536bca1f"
+    }
+  },
+  "historical_scope_correction": "The prior remaining-original12 description conflated CanonSpec with the actual forecast bundle loader edge. Original packets are retained unchanged; this exact-symbol qualification separates them.",
+  "closure_or_source_change": false
+}

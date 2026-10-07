@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.current_source_input_qualification.v1",
+  "source": "d0038a6e52867e820fd96f4706746ec501a80273",
+  "tree": "7cba4710faa6f504be29ac44a68397afb16e7dd2",
+  "parent_source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "prior_native_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "full_rename_aware_footprint": "M\tpolicy-engine/tests/unit/calibration/test_evidence_facades.py\n",
+  "changed_input": {
+    "old": {
+      "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 5641,
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8",
+      "git_blob": "0c393aa965fa8bcbff4f72b97ad6e4efcf8f2d4e"
+    },
+    "new": {
+      "source": "d0038a6e52867e820fd96f4706746ec501a80273",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 6648,
+      "sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da",
+      "git_blob": "cec19abb68103ebd25622fad67398b80e8525cc9"
+    },
+    "imports_added": [
+      "ImportFrom(module='fractions', names=[alias(name='Fraction')], level=0)"
+    ],
+    "imports_removed": [],
+    "call_expressions_added_with_multiplicity": [
+      "Attribute(value=Name(id='uncertainty', ctx=Load()), attr='admit_empirical_weights', ctx=Load())",
+      "Attribute(value=Name(id='uncertainty', ctx=Load()), attr='empirical_cdf', ctx=Load())",
+      "Attribute(value=Attribute(value=Name(id='np', ctx=Load()), attr='testing', ctx=Load()), attr='assert_array_equal', ctx=Load())",
+      "Attribute(value=Attribute(value=Name(id='np', ctx=Load()), attr='testing', ctx=Load()), attr='assert_array_equal', ctx=Load())",
+      "Attribute(value=Name(id='uncertainty', ctx=Load()), attr='admit_unit_uniform', ctx=Load())",
+      "Name(id='float', ctx=Load())",
+      "Name(id='float', ctx=Load())",
+      "Attribute(value=Name(id='np', ctx=Load()), attr='searchsorted', ctx=Load())",
+      "Name(id='Fraction', ctx=Load())",
+      "Attribute(value=Name(id='Fraction', ctx=Load()), attr='from_float', ctx=Load())",
+      "Attribute(value=Name(id='Fraction', ctx=Load()), attr='from_float', ctx=Load())",
+      "Attribute(value=Name(id='Fraction', ctx=Load()), attr='from_float', ctx=Load())",
+      "Attribute(value=Name(id='np', ctx=Load()), attr='nextafter', ctx=Load())",
+      "Attribute(value=Name(id='np', ctx=Load()), attr='nextafter', ctx=Load())"
+    ],
+    "call_expressions_removed_with_multiplicity": [],
+    "functions_changed": [
+      "test_public_finite_law_admission_preserves_atoms_and_domain"
+    ]
+  },
+  "static_denominator": {
+    "current_files": 5939,
+    "base_files": 5904,
+    "source_files": 2702,
+    "current_sha256": "852fc465ed16a338f8aca3fd1b737b485835da221be7677a88425812bceb2f95",
+    "prior_b6_current_sha256": "e2baaea008ec325222bfd1faaa3a8342747b93707a644dc94a9d28b19911b548",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5",
+    "roots_current": [
+      "polisyos.foundry.plugins.cli:main",
+      "tools.ops_runners.runtime_cli:main",
+      "polisyos.foundry.methods.catalog.causal.capabilities:main",
+      "tools.ops_runners.runtime_cli:foundry_main",
+      "tools.cli:main",
+      "polisyos.data_forge.domains.ukraine.cli:main"
+    ],
+    "roots_base": [
+      "polisyos.foundry.plugins.cli:main",
+      "tools.ops_runners.runtime_cli:main",
+      "polisyos.foundry.methods.catalog.causal.capabilities:main",
+      "tools.ops_runners.runtime_cli:foundry_main",
+      "tools.cli:main",
+      "polisyos.data_forge.domains.ukraine.cli:main"
+    ],
+    "complete_current_index": {
+      "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/complete-current-static-input-index.json",
+      "bytes": 1151062,
+      "sha256": "b1964900154b7b06b6b691ecbc7eee710d07fbecaf01b0d163e9ae4805c28f4e"
+    },
+    "canonical_algorithm": {
+      "source": "d0038a6e52867e820fd96f4706746ec501a80273",
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "bytes": 27007,
+      "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286",
+      "git_blob": "08474ca1c4ed05c21d338a734c36113c4667132b"
+    },
+    "native_graph_or_gate_rerun": false,
+    "qualified_old_result": "Original b6 full20regressions/95new-unresolved remains an old full graph observation. New test changes canonical input; no current full-graph counts or reachability verdict is inferred from this read-only denominator comparison."
+  },
+  "architecture_collector": {
+    "files": 2702,
+    "complete_edges": 3448,
+    "raw_violations": 151,
+    "reported_edges": 151,
+    "source_paths": 1056,
+    "complete_index": {
+      "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/complete-current-architecture-input-edge-index.json",
+      "bytes": 1501361,
+      "sha256": "c0ed46c116dea43e7838a0bd506452732c52fdc8d0e90caaf1d7242dc70c77c3"
+    },
+    "prior_b6_reported_tuples_equal": true,
+    "canonical_baseline_keys": 3330,
+    "canonical_exception_entries": 0,
+    "test_is_outside_actual_src_only_collector": true,
+    "policy_baseline_exception_and_product_diff": "",
+    "native_full_gate_rerun": false,
+    "qualification": "Only full source-only deep-import collector property reused/recomputed. Full native architecture151FAIL and generated freshness observations remain pinned b6; workspace roots and filesystem directory bindings may differ."
+  },
+  "product_tools_generator_ABI_dependency_comparison": {
+    "paths": [
+      "policy-engine/src",
+      "policy-engine/tools",
+      "policy-engine/schemas",
+      "policy-engine/architecture",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "policy-engine/package.json",
+      "policy-engine/pnpm-lock.yaml"
+    ],
+    "stdout": "",
+    "actual_complete_underlying_code_equal": true,
+    "fresh_runtime_confidence_binding_qualification": "ROOT317 actual native1494/ac34 binding differs b6 raw1494/2924; cause not_established, distinct correction receipt retained. No raw equality claim on d003."
+  },
+  "source_before_status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "source_after_status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "source_immutable": true,
+  "P41": "not_established",
+  "finding_closure": false,
+  "no_global_gate_repeat": true,
+  "observer": {
+    "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/qualify_source_input_v2.py.txt",
+    "bytes": 8795,
+    "sha256": "20ad6a12960a6011dde8e8695be63c0d6d0a030d9bd9687143da007f1bc66466"
+  },
+  "historical_observer_error": {
+    "source": {
+      "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/qualify_source_input.py.txt",
+      "bytes": 8280,
+      "sha256": "cd448f7ccdae7fca3a0e20d928bb99bd2e8d2dee2f7a2abb932d9cc0f4f616e6"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/observer.stderr.txt",
+      "bytes": 328,
+      "sha256": "7091f7460629e74d3b7e5b6fc7302b35e4d51b60a2fc5695e092d43a8ddbdf05"
+    },
+    "reason": "Entire collector wrongly compared to reported violations; static denominator stage completed and its full index is retained and reused; only affected architecture interpretation is corrected"
+  }
+}

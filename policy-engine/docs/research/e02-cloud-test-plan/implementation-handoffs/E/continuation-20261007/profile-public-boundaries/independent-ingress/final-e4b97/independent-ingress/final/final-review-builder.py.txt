@@ -1,0 +1,104 @@
+import copy,hashlib,json,pathlib,subprocess
+S=pathlib.Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+A=pathlib.Path('/tmp/e02-E-api-companions-thirteenth-20261007')
+R=pathlib.Path('/workspace/e02-E-continuation-20261006')
+C='e4b97c15196d8e276745f55a4367da83586511d9'
+P='11082e91d61ace2f3bd7016d408341fdd6ec1702'
+T='48af48c6462db76be9ba962dc6df07a9a1977963'
+def sh(*a): return subprocess.check_output(a,cwd=R)
+def digest(b): return hashlib.sha256(b).hexdigest()
+def info(p):
+ p=pathlib.Path(p); b=p.read_bytes(); return {'path':str(p),'bytes':len(b),'sha256':digest(b)}
+def verify(d):
+ p=pathlib.Path(d['path']); x=info(p); assert (x['bytes'],x['sha256'])==(d['bytes'],d['sha256']), (d,x)
+ return x
+def dump(p,d): p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
+assert sh('git','rev-parse','HEAD').decode().strip()==C
+assert sh('git','rev-parse',C+'^{tree}').decode().strip()==T
+assert sh('git','rev-parse',C+'^').decode().strip()==P
+receipt_path=A/'final-v3-frozen-typecheck.receipt.json'
+assert info(receipt_path)['sha256']=='d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91'
+tr=json.loads(receipt_path.read_text())
+assert tr['source']==C and tr['tree']==T and tr['base']==P
+assert tr['exit_code']==0 and tr['outcome']=='PASS'
+assert tr['summary']['filesAnalyzed']==3 and tr['summary']['errorCount']==0 and tr['summary']['warningCount']==0
+for k in ('stdout','stderr','actual_child_exit_saved_before_json_parse'): verify(tr[k])
+child=json.loads(pathlib.Path(tr['actual_child_exit_saved_before_json_parse']['path']).read_text())
+assert child['child_exit_code']==0 and child['source']==C and child['tree']==T
+assert child['argv']==tr['argv'] and child['stdout']==tr['stdout'] and child['stderr']==tr['stderr']
+out=pathlib.Path(tr['stdout']['path']).read_text(); start=out.index('{'); parsed=json.loads(out[start:])
+assert parsed['generalDiagnostics']==[] and parsed['summary']==tr['summary']
+assert out[:start]==tr['native_cli_preamble'] and 'went down by 1124' in out[:start]
+for d in tr['source_inputs']:
+ verify(d); b=sh('git','show',C+':'+d['repository_path'])
+ assert len(b)==d['bytes'] and digest(b)==d['sha256']
+ assert sh('git','rev-parse',C+':'+d['repository_path']).decode().strip()==d['git_blob']
+for d in tr['protected_inputs']+tr['tool_inputs']: verify(d)
+for k in ('stdout','stderr'): verify(tr['environment_command'][k])
+assert tr['canonical_config_and_baseline_unchanged'] and tr['source_unchanged'] and tr['whole_type_gate']=='UNRUN'
+wire=json.loads((S/'source3-wire-identity.json').read_text())
+assert wire['candidate']==C and wire['tree']==T and wire['outcomes']=={'PASS':2,'FAIL':0}
+assert wire['source_before']==wire['source_after'] and wire['source_before']['errors']==[]
+for d in wire['unchanged_native_review_dependencies']:
+ old=sh('git','show',P+':'+d['path']); new=sh('git','show',C+':'+d['path'])
+ assert old==new and digest(new)==d['sha256'] and len(new)==d['bytes']
+assert wire['rows'][0]['current_ref']==wire['rows'][0]['prior_ref']=='sha256:ccfdb684de92c0755b377a49ba81e95f3afc0adc898c683eb05d5af7ed763437'
+review=copy.deepcopy(json.loads((S/'review-final-11082.json').read_text()))
+review.update(candidate=C,tree=T,delta_parent=P,delta_paths=['policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py'],property_verdict='GO_bounded_raw_Profile2_ingress_and_multi_join_mechanisms',source_acceptance='GO_bounded_source_corrected_test_companions_and_current_scoped_typing',source_runtime_lease='CLOSED')
+for f in review['footprint']:
+ path=f['path']; b=sh('git','show',C+':'+path)
+ f.update(parent_blob=sh('git','rev-parse',P+':'+path).decode().strip(),candidate_blob=sh('git','rev-parse',C+':'+path).decode().strip(),candidate_bytes=len(b),candidate_sha256=digest(b))
+assert sh('git','diff','--name-only',P,C).decode().strip()==review['delta_paths'][0]
+review['current_scoped_typecheck']={
+ 'outcome':'PASS','source':C,'tree':T,'actual_child_exit':0,'summary':tr['summary'],
+ 'predicate_basis':'independently_reconciled','receipt':info(receipt_path),'stdout':tr['stdout'],'stderr':tr['stderr'],
+ 'actual_child_exit_saved_before_json_parse':tr['actual_child_exit_saved_before_json_parse'],
+ 'argv':tr['argv'],'cwd':tr['cwd'],'environment_overrides':tr['environment_overrides'],
+ 'input_identity_validation':'All three input bytes/hash/Git blobs reconciled against immutable Source3 and working bytes; protected project/baseline and tool inputs independently match complete owner receipt.',
+ 'native_cli_preamble_retained':tr['native_cli_preamble'],'baseline_freshness':'reported_outdated',
+ 'baseline_freshness_scope':'Separate CLI freshness observation retained; no baseline/config write. Selected three canonical-baselined source files only, not unbaselined or whole-repository type.',
+ 'canonical_config_and_baseline_unchanged':True,'whole_type_gate':'UNRUN','P41':'not_established'
+}
+review['source3_delta_review']={
+ 'resolved_context':'Replace optional local reassignment by nonoptional existing PosteriorSummaryContext only when None; actual declared context identity unchanged. No context/hash/axis semantic change.',
+ 'numeric_policy':'Use existing NumericPolicySpec(DECIMAL_EXACT) instead of coercible dict in actual DTO constructor; complete policy dumps/defaults independently equal.',
+ 'imports':'Two symbols from already imported uncertainty defining module; no new cross-root module edge/export/schema/generator change.',
+ 'scientific_math':'Exact samples/ratio weights/carrier/summary/joint digest code unchanged; no settled math/backend wave repeated.',
+ 'actual_native_identity':info(S/'source3-wire-identity.json'),
+ 'native_outcomes':wire['outcomes'],'native_producer_current_ref':wire['rows'][0]['current_ref'],
+ 'native_source_before_after':wire['source_before'],
+ 'unchanged_dependencies':wire['unchanged_native_review_dependencies']
+}
+review['native_evidence']['source3_tiny_dependency_run']={
+ 'source':C,'tree':T,'outcome':'PASS','cases':2,
+ 'property':'Actual producer -> configured CAS -> fresh strict named reader retains identical 2,999 canonical bytes and CAS ref versus Source2; typed policy/default/context equivalence measured separately.',
+ 'result':info(S/'source3-wire-identity.json')
+}
+review['native_evidence']['dependency_transfer_to_final']={
+ 'current_source':C,'observed_public_wave_source':P,
+ 'observations_remain_historical':'Source2 387 normal/O public cases and 28 normal/O actual raw-removal controls, 15 scalar/raw-CAS delta controls; earlier 4 normal/O join-removal controls remain b305 observations. No relabel as final execution.',
+ 'basis':'Full unchanged uncertainty.py/posterior_summary.py/test companions reconciled by exact old/new bytes/Git hashes; Source3 adapter-only typed/default representation delta independently reviewed and actual native final canonical identity demonstrated.',
+ 'changed_adapter_noise_branch':'Source2 SupportsFloat/SupportsIndex compatibility branch unchanged at Source3; prior 9 diagnostic scalar controls transfer only that diagnostic behavior, not likelihood/noise/covariance admission.'
+}
+review['immutable_review_history']['source2_review']=info(S/'review-final-11082.json')
+review['immutable_review_history']['source2_type_readiness_qualification']=info(S/'review-source2-typed-readiness-addendum.json')
+review['immutable_review_history']['type_readiness_resolution']='Historical owned 7 errors/1 warning (b305), then4 errors/0warnings (11082) stay recorded FAIL; final Source3 actual selected native child0/3files0errors0warnings independently reconciled. Previous wrapper parse ERROR is not converted to this PASS.'
+review['mandatory_companion_blocker']['next_result']='Single Root affected maintained pytest wave pending this final independent GO; no maintained pytest outcome claimed by reviewer.'
+review['unmeasured_boundaries'] += ['Root ONE affected maintained pytest wave pending independent review freeze','Whole-repository typecheck and broader global gate workflow remain independently UNRUN/pending owner receipts; three selected files do not certify them']
+review['publication_scope']='Complete moderate deciding outputs, exact environment/argv/source identities and genuine removal controls selected separately; no copied CAS fixtures or complete source tree, no future evidence commit SHA self-reference.'
+review_file=S/'review-final-e4b97.json'; dump(review_file,review)
+assets=[]
+def add(p,portable,role):
+ x=info(p); assets.append({'source_path':x['path'],'portable_path':portable,'bytes':x['bytes'],'sha256':x['sha256'],'role':role})
+for name in ['review-final-e4b97.json','final-review-builder.py','source3-wire-identity.py','source3-wire-identity.json','source3-wire-identity.stdout.txt','source3-wire-identity.stderr.txt']:
+ add(S/name,'independent-ingress/final/'+(name+'.txt' if name.endswith('.py') else name),'independent immutable delta review/native complete producer identity')
+for name in ['final-v3-frozen-typecheck.receipt.json','final-v3-frozen-typecheck.stdout.txt','final-v3-frozen-typecheck.stderr.txt','final-v3-frozen-typecheck-child-before-parse.json','final-v3-frozen-typecheck-environment.stdout.json','final-v3-frozen-typecheck-environment.stderr.txt','final-v3-frozen-typecheck-preflight.json','run_final_v3_frozen_typecheck.py']:
+ add(A/name,'independent-ingress/final/current-type/'+(name+'.txt' if name.endswith('.py') else name),'complete deciding canonical owner native type/environment/actual child/config/source identity')
+hist=[]
+for name in ['publication-selection-b305.json','publication-selection-final-11082.json','publication-selection-source2-type-qualification.json']:
+ p=S/name; d=json.loads(p.read_text()); x=info(p); x.update(selected_files=d['files'],selected_bytes=d['bytes']);hist.append(x)
+ for a in d['assets']:
+  b=pathlib.Path(a['source_path']).read_bytes(); assert len(b)==a['bytes'] and digest(b)==a['sha256']
+selection={'schema':'policyos.e02.publication_selection.v1','candidate':C,'tree':T,'source_acceptance':review['source_acceptance'],'assets':assets,'files':len(assets),'bytes':sum(a['bytes'] for a in assets),'history_selectors':hist,'excluded':'All CAS fixtures/__pycache__/copied complete source; no fresh math/native387 replay. Source2/b305 execution identities retained and transferred only exact unchanged dependencies. Root affected wave/global companions are separate deciding receipts.','no_self_reference':'Exact immutable source commits bound; this selector does not self-reference future evidence Git SHA.'}
+selection_file=S/'publication-selection-final-e4b97.json'; dump(selection_file,selection)
+print(json.dumps({'candidate':C,'tree':T,'review':info(review_file),'selection':info(selection_file),'selected_files':selection['files'],'selected_bytes':selection['bytes'],'native_current':wire['outcomes'],'type_outcome':review['current_scoped_typecheck']['outcome'],'type_actual_child_exit':0,'source_runtime_lease':'CLOSED'},indent=2))

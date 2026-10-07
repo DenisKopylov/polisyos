@@ -1,0 +1,241 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "frc-configured-producer",
+  "closure_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "bundle_ids": [
+    "FRC-01",
+    "FRC-02"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "integration_anchor_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_ancestor_check": true,
+  "implementation_commits": [
+    "5bd27323ecb0935a38908d2b09fa652762c5e4ea"
+  ],
+  "candidate_tree_sha": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+  "branch": "codex/e02-E-frc-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/40",
+  "remote_head_readback": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-candidate-evidence.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+  ],
+  "admission": {
+    "create_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/admission-create.json",
+    "resume_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/admission-resume.json",
+    "worktree_root": "/workspace/e02-E-frc-20261006",
+    "branch": "codex/e02-E-frc-20261006",
+    "executor": "/root; serialized read-only create and resume for exact pair"
+  },
+  "baseline_cells": [
+    {
+      "id": "F13-P109",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "source_ref": "integration_head",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:236,406-407",
+      "manifest_sha256": "2747a065030762fc81609e59e81db0029ac11cc6064f29e3d81a5cf3e289fe31",
+      "source_environment": "CPython3.14.2/uv0.9.21/Node22.22.0/pnpm10.33.2; selected extras lint,test,runtime,ml,analytics,bayesian,optimization-advanced,sensitivity,causal-discovery,causal-discovery-scale,search_bo,solvers,vector-search; NumPy/SciPy/JAX backend availability not equivalent to a served forecast witness",
+      "input_identity": "Tracked test_frc_01.py at source commit; instrumentation and exact overlay/raw bytes not transferred; source numeric threads1 and JAX_PLATFORMScpu are that old run only",
+      "outcome": "FAIL",
+      "cause_status": "not_established",
+      "raw_archive_transfer": "missing"
+    }
+  ],
+  "environment": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/environment.json",
+    "provisioning": "Read-only existing Python3.14.2 interpreter explicitly authorized by root; PYTHONPATH pins this lane source. Fresh Node22.23.3/corepack pnpm10.33.2 frozen installation satisfied repo hook; no thread/process caps set. No production data copied."
+  },
+  "input_closure": {
+    "tracked_fixture": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py@5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+    "input_law": "Deterministic numeric train1..30; holdout31..34 versus1000x4; strict ETS alpha.3 beta.1 horizon4 seed17; explicit six datetime roles2026-01-01 through2026-01-06 UTC; explicit candidate profile threshold.8; factual source admission is not established",
+    "artifact_roles": [
+      "forecast_request",
+      "forecast_profile",
+      "observed_source",
+      "observed_data",
+      "training_slice",
+      "method_artifact",
+      "calibration_rule",
+      "uncertainty_bundle",
+      "calibration_diagnostics",
+      "scope_binding",
+      "calibration_threshold",
+      "observed_outcome",
+      "prediction",
+      "evaluation_design",
+      "credible_evaluation",
+      "source_lineage",
+      "method_lineage",
+      "empirical_evidence"
+    ],
+    "actual_backend": "registered forecasting.univariate.exponential_smoothing@1.0.0 via MethodDispatcher NUMPY; built-in ETS, no statsmodels substitute"
+  },
+  "checks": [
+    {
+      "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "outcome": "PASS",
+      "scope": "5 native producer/persist/readback and forgery checks, 13.52s",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/focused.txt",
+      "output_sha256": "5366af3ee48160bde85e1cf055b870dc14448a67365c8f406a3826cd28c5316b"
+    },
+    {
+      "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "outcome": "PASS",
+      "scope": "61 focused+FRC02 owner/bridge/S10+calibration-ledger tests; 31.72s pytest / 38.5888s wall / 830432KiB maxRSS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/native-consumers.txt",
+      "output_sha256": "a72874960033e5cc9c72afb3b939b6bd9378fa83bc18be1d5f5dd8df8f064fe6"
+    },
+    {
+      "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "outcome": "FAIL",
+      "scope": "Expected negative: removing _replay_forecast_candidate while keeping markers makes the forged-source refusal assertion fail",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/removal.txt",
+      "output_sha256": "e9b1a2203f979d3f294d398a746cc9b3cd67c64fe95cfa0c63ca5819c311e5e0"
+    },
+    {
+      "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "outcome": "PASS",
+      "scope": "Ruff check and format for all three changed Python files",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/ruff.txt",
+      "output_sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b"
+    },
+    {
+      "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "outcome": "ERROR",
+      "scope": "/usr/bin/time missing; no pytest execution in this first attempt; actual suite rerun via Python subprocess/resource harness",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/runner-time-unavailable.txt",
+      "output_sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548"
+    },
+    {
+      "target_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "outcome": "FAIL",
+      "scope": "Independent /root suite:19PASS2FAIL; exact FRC01 time roles and missing-history S6 limitation-ref failures; isolated producer scope GO with bounds",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/independent-root-review.txt",
+      "output_sha256": "bb4516dc9e3d233bda6f93a299666250840cf2335224cb6cf7b52aa9c23bb453"
+    },
+    {
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "command": "PYTHONPATH=/workspace/e02-E-frc-20261006/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q policy-engine/tests/unit/remediation/test_frc_01.py",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/base-frc01.txt",
+      "output_sha256": "21422873ae8a9d06e0a2adc87c5ed48ba4b0084c38d6f394016f7996a3116820",
+      "result": "2 failed,5 passed in28.64s; this is a literal slice-base replay, not P41 inherited-red attribution"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "/root",
+    "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer-logs/independent-root-review.json",
+    "decision": "GO for bounded E producer integrity; FAIL/limited for A/default served consumer; no finding closure",
+    "source_review_limit": "Raw input CAS schemas are content checked against their actual manifests; a self-described manifest is not an admitted schema/profile/issuer"
+  },
+  "property": {
+    "statement": "A configured exact ForecastOwnerRequest is checked before ETS callback, then actual ordered heldout outcomes and persisted predictive intervals feed separately persisted empirical evidence and a candidate receipt through the same CAS; replay rejects switched source/request or false schema-valid counts.",
+    "runtime_path": [
+      "ForecastOwner(store,empirical_profile_ref=profile_ref).run(strict_request)",
+      "registered NumPy ETS MethodDispatcher",
+      "source-index-bound prediction/outcome/design/lineage artifacts and BacktestReport",
+      "produce_empirical_calibration_evidence -> persist_empirical_calibration_evidence -> load_empirical_calibration_evidence",
+      "persist_forecast_candidate_receipt -> fresh FileSystemCAS -> load_forecast_candidate_receipt",
+      "A default generation-cycle bridge and trusted verifier: bridge_missing/consumer_missing"
+    ],
+    "oracle": "Independent loop checks actual lower<=heldout<=upper numerator and full denominator; unchanged forecasts with outcomes changed only yield4/4 versus0/4.",
+    "proxy_divergence": "Nominal coverage remains.9 in both fixtures; measured coverage changes1.0 to0.0. Correct schema/hash/self-consistent false counts are rejected by actual report replay.",
+    "negative_controls": [
+      "Configured seed differs from persisted profile request: no numerical callback",
+      "Content-valid switched source/request profile bound to old evidence: reject actual source/ordered rows",
+      "Schema-valid hash-valid falsified count evidence: reject fresh consumer replay",
+      "Remove _replay_forecast_candidate while retaining schema/status/receipt markers: forged-source refusal negative becomes FAIL"
+    ],
+    "numerical_reconciliation": "Existing owner uses absolute1e-12 point/bound agreement. Persisted uncertainty bundle points may be rounded by its writer while raw report point remains30.999999999999993; generated prediction role uses persisted bundle points and replay checks report agreement within the same bound. Counts, row identity and source position remain exact."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_quantity": {
+    "source/pair/count/CAS-byte/request/profile-threshold consistency": "recomputed",
+    "profile/source factual admission": "consumer_asserted",
+    "external institutional issuer and trusted verifier identity": "not_established",
+    "A fresh served S10 projection": "not_established"
+  },
+  "capability_state_or_finding_state": "E configured producer/artifact/replay implemented; A default bridge_missing, independent verifier consumer_missing, served surface_missing; predictive_only and bridge_pending preserved",
+  "finding_verdicts": [
+    {
+      "finding_id": "B32",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "A generation-cycle temporal/S6 support reader; G independently accepts code and exact local/served check"
+    },
+    {
+      "finding_id": "LA-051",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "A default gateway configuration, trusted admitted predictive profile, independent verifier and served response/history lifecycle; E supplies configured producer refs"
+    }
+  ],
+  "p41": {
+    "literal_slice_base_replay": true,
+    "inherited_red_claim": false,
+    "attribution": "not_established",
+    "reason": "Exact FRC01 failures reproduce at base; zero intersection with complete gate input denominator is not established and changed forecast_bridge participates in runtime importing path. No red is waived or classified inherited."
+  },
+  "limitations_and_next_owner": [
+    "A must configure ForecastOwner with the same runtime ArtifactStore and selected admitted ForecastCalibrationProfile outside served payloads; profile presence/hash is not admission.",
+    "A must independently resolve/recompute source/scope/split/horizon/row pairs/counts/threshold/six times/method/rule/purpose and emit its own verifier result/build/config provenance; fresh served read repeats verification.",
+    "P40 bounded residual: a fully fabricated but mutually consistent fitted bundle/report/source/CAS graph can pass E integrity replay. This is the same source/verifier-provenance class, not an E issuer claim. Smallest missing capability is A trusted-profile-bound execution/recomputation with fresh served output; it is not on the default caller. Falsifier: retain valid E hashes/roles/credible flags and substitute a leaky/unadmitted/fabricated execution; A must deny.",
+    "A retains terminal treatment_assignment_not_owner_derived; predictive sibling must precede that refusal without lifting causal/treatment/policy denial.",
+    "A must repair exact FRC01 test_calibration_time_roles_are_preserved_from_bound_evidence and test_missing_calibration_evidence_refs_stays_typed_blocked; current independent19PASS2FAIL is recorded, not waived.",
+    "Production/model-specific calibration stays local read-only. Synthetic fixtures prove method and mechanism only. G needs exact candidate plus locally owner-admitted DataSnapshot/model/policy/rule/profile/source/split/time/seed binding for that separate check."
+  ],
+  "handoff_to_A": {
+    "configured_call": "ForecastOwner(runtime_store,empirical_profile_ref=profile_ref).run(ForecastOwnerRequest)",
+    "profile_kind": "ir.forecast_calibration_profile",
+    "profile_schema": "polisyos.calibration.forecast_calibration_profile@1.0",
+    "profile_fields": [
+      "profile_id",
+      "profile_version",
+      "request_ref",
+      "calibration_threshold",
+      "purpose=predictive_calibration"
+    ],
+    "profile_manifest_inputs": "exact single (request_ref.artifact_id,forecast_request) edge",
+    "request_writer": "persist_forecast_owner_request(runtime_store,strict_request)",
+    "evidence_ref_field": "ForecastOwnerResult.empirical_evidence_ref; kind ir.empirical_calibration_evidence; existing1.1 schema",
+    "candidate_receipt_ref_field": "ForecastOwnerResult.candidate_receipt_ref; kind ir.forecast_candidate_receipt; schema polisyos.calibration.forecast_candidate_receipt@1.0",
+    "resolver": "load_forecast_candidate_receipt(runtime_store,typed_receipt_ref) then load_empirical_calibration_evidence(runtime_store,receipt.empirical_evidence_ref); content replay is input to A verification, not authority",
+    "default_gap": "generation_cycle.py default FoundryValuePort constructor builds RealValueOwnerGateway without artifact_store/resolver; method currently maps causal method_result rather than configured forecast request; no runtime call of E ForecastOwner established",
+    "served_next_selector": "tests/unit/runtime/http/test_control_api.py::test_recursive_run_roundtrips_content_verified_frc_evidence_and_rejects_fake is a planned absent selector; A must implement it. Assert predictive sibling, fresh CAS-backed independent verifier output and unchanged treatment refusal."
+  },
+  "local_G_reproduce_recipe": {
+    "implementation_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+    "fetchable_topic": "codex/e02-E-frc-20261006",
+    "mechanism_command": "PYTHONPATH=/workspace/e02-E-frc-20261006/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+    "local_material_inputs": "Owner-selected local CAS containing admitted real DataSnapshot/metric history; exact strict ForecastOwnerRequest with requested train/holdout/horizon/method/params/report/model/policy/rule/six times/seed; explicit externally selected profile pointing to persisted request and owner-issued threshold. Do not invent IDs, dates, threshold or issuer.",
+    "local_actions": [
+      "Resolve the actual admitted request/profile through the configured same CAS; run ForecastOwner at exact implementation SHA and retain real input identity without moving data to cloud.",
+      "Load separate evidence and candidate receipt from a fresh configured store/process and independently recompute actual heldout interval hits/counts.",
+      "After A checkpoint, invoke ordinary default POST→persist→GET/new-process readback with that same admitted profile; inspect A verifier result/build/input provenance and preserve terminal causal refusal.",
+      "Repeat with same-schema valid-hash forged counts, wrong/leaky split, unadmitted profile and incompatible purpose; each A verification must deny."
+    ],
+    "outcome": "UNRUN for production history and A served route; owner/input required, not a synthetic production result"
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "trash_tools": "trash-put and gio absent",
+    "action": "No permanent cleanup. Exact repeatable candidates listed; code, docs, deciding outputs, shared interpreter and unique data preserved. Shared interpreter remains in use by other lanes.",
+    "candidates": [
+      "/workspace/e02-E-frc-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-frc-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/tmp/e02-frc-inspection-8zlsi3kv",
+      "/tmp/e02-frc-inspection-o28xayyv"
+    ]
+  },
+  "finding_closure": false
+}

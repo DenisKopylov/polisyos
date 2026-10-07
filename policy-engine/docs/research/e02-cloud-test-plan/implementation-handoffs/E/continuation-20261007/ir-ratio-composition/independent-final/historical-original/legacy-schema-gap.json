@@ -1,0 +1,327 @@
+{
+  "schema": "e02-independent-legacy-wire-compatibility-counterexample:1",
+  "candidate": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+  "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "cases": [
+    {
+      "operation": "push_forward_envelope",
+      "defining_property_status": "FAIL",
+      "input_schema_version": "1.0",
+      "differing_output_fields": [
+        "schema_version"
+      ],
+      "observations": [
+        {
+          "source": "exact_base",
+          "output": {
+            "schema_version": "1.1",
+            "numeric_policy": {
+              "policy_id": "bounded_float_v1",
+              "mode": "float_round_12",
+              "decimal_places": 12,
+              "absolute_tolerance": 1e-12
+            },
+            "point_estimate": 0.5,
+            "confidence_interval": [
+              0.0,
+              1.0
+            ],
+            "confidence_level": null,
+            "distribution_family": "bootstrap",
+            "source": "ensemble",
+            "propagation_method": "none",
+            "interval_semantics": "deterministic_bounds",
+            "distribution_payload": {
+              "carrier_type": "posterior_samples",
+              "samples": [
+                0.0,
+                1.0
+              ],
+              "sample_axis": "draw",
+              "weights": [
+                0.5,
+                0.5
+              ]
+            },
+            "composition_provenance": {
+              "native_flavour": "monte_carlo",
+              "composed_flavour": "monte_carlo",
+              "exactness": "outer_bound",
+              "certificate_kind": "exact",
+              "certificate_radius": 0.0,
+              "confidence_level": null,
+              "scope": [
+                "expectation",
+                "bounds",
+                "cdf"
+              ],
+              "origin_envelope_ids": [
+                "inline:0:ensemble:0.5:0.0:1.0"
+              ],
+              "operator_history": [
+                {
+                  "op": "push_forward",
+                  "stage_name": "push_forward_envelope",
+                  "input_flavours": [
+                    "monte_carlo"
+                  ],
+                  "output_flavour": "monte_carlo",
+                  "map_name": "identity",
+                  "lipschitz_bound": null,
+                  "bias_bound": null,
+                  "variance_bound": null,
+                  "sample_size": 2,
+                  "replicate_count": null,
+                  "qmc_method": null,
+                  "scrambled": null,
+                  "assumptions": [
+                    "law_preserving_particles"
+                  ],
+                  "notes": {
+                    "cert_policy": "auto"
+                  }
+                }
+              ]
+            },
+            "sample_size": 2,
+            "is_heuristic_ci": false,
+            "gate_eligible": false,
+            "metadata": {
+              "push_forward_map": "identity",
+              "push_forward_cert_policy": "auto"
+            }
+          }
+        },
+        {
+          "source": "candidate218",
+          "output": {
+            "schema_version": "1.0",
+            "numeric_policy": {
+              "policy_id": "bounded_float_v1",
+              "mode": "float_round_12",
+              "decimal_places": 12,
+              "absolute_tolerance": 1e-12
+            },
+            "point_estimate": 0.5,
+            "confidence_interval": [
+              0.0,
+              1.0
+            ],
+            "confidence_level": null,
+            "distribution_family": "bootstrap",
+            "source": "ensemble",
+            "propagation_method": "none",
+            "interval_semantics": "deterministic_bounds",
+            "distribution_payload": {
+              "carrier_type": "posterior_samples",
+              "samples": [
+                0.0,
+                1.0
+              ],
+              "sample_axis": "draw",
+              "weights": [
+                0.5,
+                0.5
+              ]
+            },
+            "composition_provenance": {
+              "native_flavour": "monte_carlo",
+              "composed_flavour": "monte_carlo",
+              "exactness": "outer_bound",
+              "certificate_kind": "exact",
+              "certificate_radius": 0.0,
+              "confidence_level": null,
+              "scope": [
+                "expectation",
+                "bounds",
+                "cdf"
+              ],
+              "origin_envelope_ids": [
+                "inline:0:ensemble:0.5:0.0:1.0"
+              ],
+              "operator_history": [
+                {
+                  "op": "push_forward",
+                  "stage_name": "push_forward_envelope",
+                  "input_flavours": [
+                    "monte_carlo"
+                  ],
+                  "output_flavour": "monte_carlo",
+                  "map_name": "identity",
+                  "lipschitz_bound": null,
+                  "bias_bound": null,
+                  "variance_bound": null,
+                  "sample_size": 2,
+                  "replicate_count": null,
+                  "qmc_method": null,
+                  "scrambled": null,
+                  "assumptions": [
+                    "law_preserving_particles"
+                  ],
+                  "notes": {
+                    "cert_policy": "auto"
+                  }
+                }
+              ]
+            },
+            "sample_size": 2,
+            "is_heuristic_ci": false,
+            "gate_eligible": false,
+            "metadata": {
+              "push_forward_map": "identity",
+              "push_forward_cert_policy": "auto"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "operation": "pull_back_envelope",
+      "defining_property_status": "FAIL",
+      "input_schema_version": "1.0",
+      "differing_output_fields": [
+        "schema_version"
+      ],
+      "observations": [
+        {
+          "source": "exact_base",
+          "output": {
+            "schema_version": "1.1",
+            "numeric_policy": {
+              "policy_id": "bounded_float_v1",
+              "mode": "float_round_12",
+              "decimal_places": 12,
+              "absolute_tolerance": 1e-12
+            },
+            "point_estimate": 0.5,
+            "confidence_interval": [
+              0.0,
+              1.0
+            ],
+            "confidence_level": null,
+            "distribution_family": "unknown",
+            "source": "ensemble",
+            "propagation_method": "none",
+            "interval_semantics": "deterministic_bounds",
+            "distribution_payload": null,
+            "composition_provenance": {
+              "native_flavour": "monte_carlo",
+              "composed_flavour": "monte_carlo",
+              "exactness": "constraint_only",
+              "certificate_kind": "exact",
+              "certificate_radius": 0.0,
+              "confidence_level": null,
+              "scope": [
+                "expectation",
+                "bounds"
+              ],
+              "origin_envelope_ids": [
+                "inline:0:ensemble:0.5:0.0:1.0"
+              ],
+              "operator_history": [
+                {
+                  "op": "pull_back",
+                  "stage_name": "pull_back_envelope",
+                  "input_flavours": [
+                    "monte_carlo"
+                  ],
+                  "output_flavour": "monte_carlo",
+                  "map_name": "identity",
+                  "lipschitz_bound": null,
+                  "bias_bound": null,
+                  "variance_bound": null,
+                  "sample_size": null,
+                  "replicate_count": null,
+                  "qmc_method": null,
+                  "scrambled": null,
+                  "assumptions": [
+                    "inverse_not_identified_without_structure"
+                  ],
+                  "notes": {
+                    "mode": "local_inverse"
+                  }
+                }
+              ]
+            },
+            "sample_size": null,
+            "is_heuristic_ci": false,
+            "gate_eligible": false,
+            "metadata": {
+              "pull_back_map": "identity"
+            }
+          }
+        },
+        {
+          "source": "candidate218",
+          "output": {
+            "schema_version": "1.0",
+            "numeric_policy": {
+              "policy_id": "bounded_float_v1",
+              "mode": "float_round_12",
+              "decimal_places": 12,
+              "absolute_tolerance": 1e-12
+            },
+            "point_estimate": 0.5,
+            "confidence_interval": [
+              0.0,
+              1.0
+            ],
+            "confidence_level": null,
+            "distribution_family": "unknown",
+            "source": "ensemble",
+            "propagation_method": "none",
+            "interval_semantics": "deterministic_bounds",
+            "distribution_payload": null,
+            "composition_provenance": {
+              "native_flavour": "monte_carlo",
+              "composed_flavour": "monte_carlo",
+              "exactness": "constraint_only",
+              "certificate_kind": "exact",
+              "certificate_radius": 0.0,
+              "confidence_level": null,
+              "scope": [
+                "expectation",
+                "bounds"
+              ],
+              "origin_envelope_ids": [
+                "inline:0:ensemble:0.5:0.0:1.0"
+              ],
+              "operator_history": [
+                {
+                  "op": "pull_back",
+                  "stage_name": "pull_back_envelope",
+                  "input_flavours": [
+                    "monte_carlo"
+                  ],
+                  "output_flavour": "monte_carlo",
+                  "map_name": "identity",
+                  "lipschitz_bound": null,
+                  "bias_bound": null,
+                  "variance_bound": null,
+                  "sample_size": null,
+                  "replicate_count": null,
+                  "qmc_method": null,
+                  "scrambled": null,
+                  "assumptions": [
+                    "inverse_not_identified_without_structure"
+                  ],
+                  "notes": {
+                    "mode": "local_inverse"
+                  }
+                }
+              ]
+            },
+            "sample_size": null,
+            "is_heuristic_ci": false,
+            "gate_eligible": false,
+            "metadata": {
+              "pull_back_map": "identity"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "bucket": "same legacy-compatibility class as callback ordering, one level deeper in output wire; legitimate unprofiled inputs are outside the ratified Profile2-only source change",
+  "source_written": false
+}

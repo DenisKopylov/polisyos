@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "commands": [
+    {
+      "name": "typed-ref-supplement-apply-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/tmp/e02-E-fit-packet-thirteenth-20261007/float-materializer-typed-ref-supplement.patch"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "wall_seconds": 0.00595087101100944,
+      "stdin_sha256": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_stdout": "typed-ref-supplement-apply-check.stdout.txt",
+      "full_stderr": "typed-ref-supplement-apply-check.stderr.txt"
+    },
+    {
+      "name": "probe-lint",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--stdin-filename",
+        "tools/quality/validation/e02_native_float_input_probe.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.0777965379820671,
+      "stdin_sha256": "3d1be3836786e924b9ec00476a7f0214d262cce568aa222bbd8b71db32fc8fa0",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_stdout": "probe-lint.stdout.txt",
+      "full_stderr": "probe-lint.stderr.txt"
+    },
+    {
+      "name": "tests-lint",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--stdin-filename",
+        "tests/unit/scientist/nodes/test_bayesian_fit_float_inlet.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.0498824669921305,
+      "stdin_sha256": "568c00a04687fe5803c0744c85a4505c35d2ea1a05c0561ce3f6a1555bbf1ce7",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_stdout": "tests-lint.stdout.txt",
+      "full_stderr": "tests-lint.stderr.txt"
+    },
+    {
+      "name": "native-input-v2",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "/tmp/e02-E-fit-packet-thirteenth-20261007/native_input_probe.py.txt",
+        "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-diagnostic-v2"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 1.490609492000658,
+      "stdin_sha256": null,
+      "stdout_sha256": "a566a2b5ce5de30c7a07c3520e1a1cd806a9d72b798feef37b14356cce713aef",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_stdout": "native-input-v2.stdout.txt",
+      "full_stderr": "native-input-v2.stderr.txt"
+    }
+  ],
+  "script": {
+    "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native_input_probe.py.txt",
+    "bytes": 6472,
+    "sha256": "3d1be3836786e924b9ec00476a7f0214d262cce568aa222bbd8b71db32fc8fa0"
+  },
+  "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "source_mutated": false,
+  "sampler_or_backend_rerun": false,
+  "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+  "thread_or_cpu_caps_set": false,
+  "initial_receipt": "native-input-probe-receipt.json",
+  "initial_scope": "Initial9 source observations retained; final script formatted/annotated and rerun once to bind current complete script bytes. No sampler/fullwave run."
+}

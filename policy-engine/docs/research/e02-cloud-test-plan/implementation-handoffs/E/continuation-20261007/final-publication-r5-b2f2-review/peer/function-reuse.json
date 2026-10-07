@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.independent.r5.function_reuse.v1",
+  "old": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+  "new": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v2/copy-final-publication.py.txt",
+  "function_count": 15,
+  "functions": [
+    {
+      "name": "sha",
+      "bytes": 58,
+      "sha256": "a68d1f8b9e00d551dcefbbf0b62b39fece9b5c67424351559ed36e471e1d3831",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "canonical",
+      "bytes": 126,
+      "sha256": "d023af43f6d190fd4c6e91df943d9b6b747e27b26d5b881e8b022687d1d20501",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "strict_json",
+      "bytes": 388,
+      "sha256": "9abf6c2a1c6196de21466ff916d9737c22ee59e6f96fcba1b380dbbb0607781c",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "identity",
+      "bytes": 686,
+      "sha256": "944ff23547ae8fd84aa0eb5c134b03c7ac8ac5c44f71535e0fa40f0a265c82b7",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "admit_body",
+      "bytes": 284,
+      "sha256": "6d9a7131ad0603fd8a2aea05f2b2452bf45df60d8b7bcbf01aff1a8bc3c00c12",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "_original_passive",
+      "bytes": 525,
+      "sha256": "aa621a7698b17d4f509dc0c545b79067a125092da15867c83733f05c9063b696",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "passive",
+      "bytes": 401,
+      "sha256": "b7ae2c66d2ef1ef88e57cf62653b4bbc0fe5edefbcbd47e6acdccf9a9adf9188",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "expand_registered",
+      "bytes": 2830,
+      "sha256": "37ff9bf9fce4284aa1a818f17fd7a68da588e978369f116df5d79040a2d13ded",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "expand",
+      "bytes": 3028,
+      "sha256": "3886f95ff15fb13d5b63e075c38bd714a080bfeb13720a36e690e67007c43da5",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "selector_row",
+      "bytes": 350,
+      "sha256": "3d4c3dc77161e3c34bd7ed8bd8d87bd5ad863a2ef54adba8667063d8b04626e9",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "carriers",
+      "bytes": 543,
+      "sha256": "ddc0f8aaac98a2d99ceef23211c6d6666c6a4041c2ce1b4b7d210d795e7e0e05",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "carrier_root",
+      "bytes": 926,
+      "sha256": "d14aac6fba6937fcfb32aadde9f3195792bd761f40546dfe24eca7e049d8acf8",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "recompute_expected",
+      "bytes": 965,
+      "sha256": "b11e7f0ed0384d1704aaece0f23d731198dac59fbafd050d3fe5ef28680dad53",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "validate",
+      "bytes": 2011,
+      "sha256": "a389fc792b9426a4bddc19e9ce72d57280772e2c695391100a77e474e660675b",
+      "exact_source_segment_equal": true
+    },
+    {
+      "name": "main",
+      "bytes": 2559,
+      "sha256": "84bc0277a841ae968d8962780fce7e670713f9cdc1655a410ae411fec666b83a",
+      "exact_source_segment_equal": true
+    }
+  ],
+  "scope": "Actual program function segments v1->v2 exact; constant/header/provider vectors changed. No native reexecution."
+}

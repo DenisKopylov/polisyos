@@ -1,0 +1,50 @@
+{
+  "receipt": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/capture-receipt.json",
+    "bytes": 93234,
+    "sha256": "799d19e3b7de110b2b5da67879485140fdc5ef2f1e28aab9656a2cd74a0e6087"
+  },
+  "inputs": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/inputs.json",
+    "bytes": 489645,
+    "sha256": "5a884ec11520c98b1d277215b40bad95b381c0ce61ff9e08576ef6b5663d7537"
+  },
+  "metadata_count": 184,
+  "writer_counts": {
+    "A": 2,
+    "B": 13,
+    "E": 344,
+    "G": 5,
+    "F": 2
+  },
+  "checks": [
+    {
+      "name": "ruff",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff.stdout.txt",
+        "bytes": 86385,
+        "sha256": "81f893c34ef05c42c9b503e9df1a35d28132d3a0bd51916e2faf8d94574960df"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "ruff-format",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-format.stdout.txt",
+        "bytes": 939,
+        "sha256": "215d13af0363c35c4c9c69469a1b8f0b7a7043e4f498f972efdd3ad23529fd17"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

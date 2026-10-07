@@ -1,0 +1,82 @@
+{
+  "schema": "policyos.e02.E.selection_membership_corrective_publication.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "main_selection": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection-v2.json",
+    "bytes": 217218,
+    "sha256": "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+  },
+  "earlier_closed_control_selection": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/final-control-publication-selection.json",
+    "bytes": 3487,
+    "sha256": "a7dc2865af7c8ab9d331c94e59c9e43a7b075ce676437b5aed9e0c8f6508b198"
+  },
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/validate_publication_selection_v3.py.txt",
+      "portable_path": "membership-correction/validate_publication_selection_v3.py.txt",
+      "bytes": 5463,
+      "sha256": "62513b73dfa872ea78338e7010af1c44c247bbee29ad75028d5925405d28d39d"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-normal.json",
+      "portable_path": "membership-correction/selection-membership-v3-normal.json",
+      "bytes": 4086,
+      "sha256": "0595637dd2cc40d7abf8595f0eff517be52220ed5e32026d098a2fabf0e91463"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-optimized.json",
+      "portable_path": "membership-correction/selection-membership-v3-optimized.json",
+      "bytes": 4085,
+      "sha256": "8d42c9288e77fcde46d3b0218dc3c463f64d25c3084478dc94fee0d9388f8ef7"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-normal.stdout.json",
+      "portable_path": "membership-correction/selection-membership-v3-normal.stdout.json",
+      "bytes": 4086,
+      "sha256": "0595637dd2cc40d7abf8595f0eff517be52220ed5e32026d098a2fabf0e91463"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-normal.stderr.txt",
+      "portable_path": "membership-correction/selection-membership-v3-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-optimized.stdout.json",
+      "portable_path": "membership-correction/selection-membership-v3-optimized.stdout.json",
+      "bytes": 4085,
+      "sha256": "8d42c9288e77fcde46d3b0218dc3c463f64d25c3084478dc94fee0d9388f8ef7"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-optimized.stderr.txt",
+      "portable_path": "membership-correction/selection-membership-v3-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/README-membership-correction-v3.md",
+      "portable_path": "membership-correction/README-membership-correction-v3.md",
+      "bytes": 2000,
+      "sha256": "ff7c500118652a7d3abf645baba9267146b0c29643cf1827a7ebee2b008c9ea6"
+    }
+  ],
+  "required_peer_selections": [
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/initial-review-publication-selection.json",
+      "bytes": 2837,
+      "sha256": "9e9326c96022cfbf28a00f0399b15f2c97c103067ef2a6e8f298921398a6d716"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/final-review-publication-selection.json",
+      "bytes": 4283,
+      "sha256": "653fab30ab1af8110c817310e18afb0ac9a65ae170b1caa40ede41f96cc386bb"
+    }
+  ],
+  "acceptance": "IndependentCounteradmission GO; originalnative/fullassetcustody GO separate; V2false omissions retained",
+  "alloutputsclosed_before_selection": true,
+  "source_native_math_reexecution": false,
+  "unique_assets": 8,
+  "bytes": 23805
+}

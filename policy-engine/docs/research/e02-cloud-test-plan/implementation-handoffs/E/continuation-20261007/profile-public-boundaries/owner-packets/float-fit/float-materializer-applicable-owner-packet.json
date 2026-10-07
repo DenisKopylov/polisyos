@@ -1,0 +1,29 @@
+{
+  "canonical_writer": "Scientist compute input-materializer owner; G routes source lease",
+  "candidate_source": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "protected_source_path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+  "protected_source_sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+  "patch_path": "/tmp/e02-E-bayesian-fit-bridge-r6/float-materializer-owner.patch",
+  "patch_sha256": "e0896df4944af562d8f43c96cedd72f80f62f3328dc1c81413a952dd084d8758",
+  "patch_scope": "existing canonical decoder only; application unperformed, kind/profile admission remains canonical owner review",
+  "git_apply_check": {
+    "argv": [
+      "git",
+      "apply",
+      "--check",
+      "/tmp/e02-E-bayesian-fit-bridge-r6/float-materializer-owner.patch"
+    ],
+    "cwd": "/workspace/e02-E-cal-20261006",
+    "exit_code": 0
+  },
+  "actual_old_defect_receipt": "float-materializer-owner.json",
+  "minimal_test_recipe": {
+    "real_producer": "scientist.compute.run_job(JobSpec(job_kind=method,input_refs=refs,method_fqn=bayesian.sampling.{hmc,nuts}@1.0.0,seed=321,method_params={runtime_backend:numpy,num_warmup:32,num_samples:32,num_chains:2,step_size:0.015,credible_mass:0.9,n_leapfrog:8 for HMC or max_depth:3 for NUTS}),cas_root=same_configured_root)",
+    "source_cas": "existing Core FileSystemCAS.put_json with CanonSpec(forbid_floats=False); features [[-1.0],[0.0],[1.0],[-0.5],[0.5]], target[-0.2,0.1,0.2,-0.1,0.0]",
+    "positive": "actual refs materialize finite numeric arrays; original fit result/evidence source input roles preserved; adapter/fresh consumer uses full retained corpus",
+    "negative": "malformed canonical payload and mismatched source kind/selected view refuse at canonical native inlet; preserve integer source and non-Bayesian callers",
+    "not_covered": "production source/model/noise truth, MCMC mixing and full requested hyperparameter identity"
+  },
+  "source_mutated": false,
+  "backend_rerun": false
+}

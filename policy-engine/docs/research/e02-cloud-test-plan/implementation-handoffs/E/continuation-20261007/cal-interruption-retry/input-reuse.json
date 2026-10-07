@@ -1,0 +1,18 @@
+{
+  "schema": "policyos.e02.interruption_retry_input_reuse.v1",
+  "original_importer_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/results-importer/results-importer.json",
+    "bytes": 8168,
+    "sha256": "6aaa1261b5ec92bfcd3bd491411ab79a7f8ef0d589b8e73c87e4d9baaaf874e7"
+  },
+  "source_identity": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "exact_source_matches_retry_admission": true,
+  "importer_check": "Frozen64d already actualPASS/sourceimmutable; unchangedinput reuse only, not re-executed by CAL retry",
+  "production_data": "No production history/law moved to cloud; same bounded native tests",
+  "retry_scope": "Only original29 CAL/Welfare testpaths",
+  "finding_closure": false
+}

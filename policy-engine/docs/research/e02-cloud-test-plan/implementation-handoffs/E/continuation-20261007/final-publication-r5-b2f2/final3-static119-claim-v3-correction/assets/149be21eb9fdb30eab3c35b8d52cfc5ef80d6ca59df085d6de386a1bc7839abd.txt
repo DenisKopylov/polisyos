@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.final_static119.semantic_attachment_class_correction.v3",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "trusted_map_sha256": "c77b27c6a69be9857968ad9a44a2dba99af7c01afcb7a96a35d1d82621d2af3e",
+  "prior19_controls": "Complete source/test/role fields derived from closed raw119,currentcase,qualifiedrole join. Preserved correct; unchanged V2literals retainoldgeneric semantic attachment escape class separately.",
+  "correction": "Full stricttyped ancillary root header/groups/source-role count and perrow writerbasis/consumerboundary/measurementlimit/association admitted against trusted literalmap. Derived actual fields remain independent conservationguard; no falseauthority from attachment allowed.",
+  "actual_controls_per_mode": 35,
+  "normal_optimized_stdout": {
+    "bytes": 8615,
+    "sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17",
+    "equal": true
+  },
+  "controls": "prior19+eight attachment/group-retotal refusals+eight actualsole ancillary comparison AST removal re-admissions, unchanged original source/native markers",
+  "actual_commands": [
+    [
+      "/usr/bin/python3",
+      "-S",
+      "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v3.py.txt"
+    ],
+    [
+      "/usr/bin/python3",
+      "-S",
+      "-O",
+      "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v3.py.txt"
+    ]
+  ],
+  "exit_codes": [
+    0,
+    0
+  ],
+  "guard_removal_scope": "Only actual typed_equal ancillary If replaced by Pass; trusted map bytehash guard and original source/case/role conservation remain active.",
+  "default_served_dispatch_measured": false,
+  "native_reruns": false,
+  "finding_closure": false,
+  "P41": "not_established",
+  "independent_thin_acceptance": "pending separate peerref"
+}

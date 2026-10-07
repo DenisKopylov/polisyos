@@ -1,0 +1,105 @@
+{
+  "source_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "cases": [
+    {
+      "module": "polisyos.ir.analytics",
+      "name": "PosteriorSamplesCarrier",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.ir.analytics' has no attribute 'PosteriorSamplesCarrier'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.ir.analytics",
+      "name": "ParametricFitCarrier",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.ir.analytics' has no attribute 'ParametricFitCarrier'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.ir.analytics",
+      "name": "load_forecasting_uncertainty_bundle",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.ir.analytics' has no attribute 'load_forecasting_uncertainty_bundle'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.ir.analytics",
+      "name": "persist_forecasting_uncertainty_bundle",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.ir.analytics' has no attribute 'persist_forecasting_uncertainty_bundle'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.ir.analytics",
+      "name": "load_uncertainty_envelope",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.ir.analytics' has no attribute 'load_uncertainty_envelope'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.ir.analytics",
+      "name": "persist_uncertainty_envelope",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.ir.analytics' has no attribute 'persist_uncertainty_envelope'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.foundry.execute",
+      "name": "get_state_path",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.foundry.execute' has no attribute 'get_state_path'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.foundry.execute",
+      "name": "load_state_snapshot",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.foundry.execute' has no attribute 'load_state_snapshot'",
+      "curated": false
+    },
+    {
+      "module": "polisyos.foundry.execute",
+      "name": "put_state_snapshot",
+      "outcome": "PASS",
+      "capability": "surface_missing",
+      "typed_error": "AttributeError",
+      "error": "module 'polisyos.foundry.execute' has no attribute 'put_state_snapshot'",
+      "curated": false
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+      "bytes": 47862
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "bytes": 1152
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1",
+      "bytes": 1561
+    }
+  ],
+  "scope": "Actual runtime API availability check only; does not infer statistical or authority semantics",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+}

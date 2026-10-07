@@ -1,0 +1,139 @@
+{
+  "schema": "policyos.e02.E.final_publication_verification_binding.v1",
+  "candidate": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "product_source_unchanged": true,
+  "current_full_python_lint": {
+    "input_denominator": 381,
+    "writer_counts": {
+      "A": 2,
+      "B": 13,
+      "E": 352,
+      "G": 12,
+      "F": 2
+    },
+    "Ruff": {
+      "check_outcome": "FAIL",
+      "diagnostics": 292,
+      "affected_paths": 14,
+      "E_diagnostics": 0,
+      "actual_writer_diagnostics": {
+        "A": 1,
+        "B": 35,
+        "G": 256
+      }
+    },
+    "format": {
+      "check_outcome": "FAIL",
+      "would_reformat_paths": 14,
+      "E_would_reformat": 0
+    },
+    "complete_receipt": {
+      "path": "publication-lint/receipt.json",
+      "bytes": 109814,
+      "sha256": "1a67f168c79011f30d94a41acb5a1f72fc70edd614c7d1ec96bda5f4b2e9578c"
+    },
+    "complete_inputs": {
+      "path": "publication-lint/inputs.json",
+      "bytes": 106802,
+      "sha256": "8b084b0cd3a936464b7b4d0fdcac174586435d142ee6ec394e814c4b4b9ca1e2"
+    },
+    "effective_configuration": {
+      "path": "policy-engine/ruff.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    }
+  },
+  "maintained_publication_utilities": [
+    {
+      "path": "full54/build_delta_packet.py",
+      "bytes": 35362,
+      "sha256": "abf72bdffe2190ce7e6b859dddda4d8c5c80d391cb45821b3786e080d3e23a45"
+    },
+    {
+      "path": "full54/bind_final_source4.py",
+      "bytes": 20852,
+      "sha256": "34bf97c52429a8993b7bafc15e2492593cb7f8138713830858e8b36c20c6336d"
+    }
+  ],
+  "final_document_controls": {
+    "path": "full54/input-selection-publication-selection-final-source4-v2.json",
+    "bytes": 26068,
+    "sha256": "8cb3fe78e2055cb93fdf9bc2b3f558bde22059844104e73fff18970f0897335e"
+  },
+  "historical_configuration_correction": {
+    "initial_native_receipt": {
+      "path": "publication-lint-initial-381/receipt.json",
+      "bytes": 110248,
+      "sha256": "3c829b9a3a820ceb7d4f0d57df23f0fc010c31a0781a7670090dd8ca02f09d6e"
+    },
+    "scope": "Complete actual293/E1 diagnostics and format2E red retained. Initial receipt configuration caption incorrectly named pyproject; actual command used default ruff.toml. Current utility correction and new complete check are separate. All publication-lint/ relative paths inside this initial receipt relocate to publication-lint-initial-381/.",
+    "correction_receipt": {
+      "path": "root-observations/lint-configuration-correction.json",
+      "bytes": 1041,
+      "sha256": "eda193f9692056ca117f095e039e7ccb6598c7d582f2367dd5f062febbc1bdec"
+    }
+  },
+  "current_all54_binding": {
+    "path": "full54/all54-final-source4-verification-binding-v2.json",
+    "bytes": 10951,
+    "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+  },
+  "current_full_architecture": "FAIL; seearchitecture-current-summary.json and full literal receipt. Three maintained controlsPASS do not turn global architecturegreen.",
+  "current_A_fresh_default_HTTP": "UNRUN; exact historical8failure associations and A332sourcegap/unappliedtypedpacket retained.",
+  "remaining_global_selectors": {
+    "static_invocation": "No new full invocation run; historical24regressions/95unresolved preserved as proxy, current owner E callsite/facade packets supplied. FullGcomposed replay remainsrequired.",
+    "runtime_API_OpenAPI": "No manual generatedwrite. Fullarchitecture currentfreshness shows OpenAPI drift; standalonecomplete runtime-API gate awaits canonicalGcompanions.",
+    "workspace_verify": "Historical13successorstagesUNRUN, not PASS. Required canonicalwrapper+successors afterowner prerequisites.",
+    "CI_parity": "Historical23successorstagesUNRUN, not PASS. Required canonicalworkflow+successors afterowner prerequisites.",
+    "whole_typecheck": "UNRUN; scoped3currentidentical-source diagnosticPASS only.",
+    "Atlas_retirement": "Separate selectorUNRUN; notpartof architectureguardrailscheck."
+  },
+  "finding_verdicts": {
+    "E_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "formal_G_intake": 0,
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "B198": "retained historicalclosed",
+    "check_outcome_is_not_finding_verdict": true
+  },
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P09",
+    "P10",
+    "P14",
+    "P27",
+    "P31",
+    "P29",
+    "P32",
+    "P33",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P39",
+    "P40",
+    "P41"
+  ],
+  "predicate_basis": {
+    "raw_public_preflight": "recomputed",
+    "exact_content_order_context_and_functionals": "independently_reconciled",
+    "actual_configured_fresh_Node": "consumer_asserted",
+    "current_native_child_exits_and_global_denominator": "recomputed",
+    "institutional_or_production_scientific_authority": "not_established"
+  },
+  "P41": "not_established",
+  "publication_review": "Non-author reviewer will pin immutable payload-index.json; this addendum pins actual prior source/check inputs, no future own commit SHA.",
+  "no_future_self_SHA": true,
+  "cleanup": "No permanent deletion; exact candidates inimplementation-handoff.json. Existing Root untracked unique data retained."
+}

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 102, in <module>
+    rows = check_manifest(manifest)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 92, in check_manifest
+    require(row['literal_alias'] is expected_alias, 'recomputed literal alias state')
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: recomputed literal alias state

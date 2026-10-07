@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.independent_static119_annotation_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/review.py.txt",
+      "portable_path": "review.py.txt",
+      "bytes": 10360,
+      "sha256": "b2831b1824ba4846c723d47dd1ec79a878f9413f821efb47317e3e9fe8313502",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/commands.json",
+      "portable_path": "commands.json",
+      "bytes": 1299,
+      "sha256": "ddede6efa5726766e7d9eb121950eb09da2d6d91229111589fffb1f78cdb1eaf",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/review-normal.json",
+      "portable_path": "review-normal.json",
+      "bytes": 14985,
+      "sha256": "c3042e1876f38ad6ec677fa185364d1d904b4195570d4f9904dde12a2a880fe4",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/review-normal.stderr.txt",
+      "portable_path": "review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/review-optimized.json",
+      "portable_path": "review-optimized.json",
+      "bytes": 14984,
+      "sha256": "febdb3b732d1692a3ce0b4d3f30b03d557c6bb36ed2c39e700607d62a989111c",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/review-optimized.stderr.txt",
+      "portable_path": "review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/historical-observer-v1.py.txt",
+      "portable_path": "historical-observer-v1.py.txt",
+      "bytes": 10353,
+      "sha256": "a554ae82244ea85b33c2a896ce74a00b0461597b29ca593c69a6a0b5e0c4cb64",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/historical-observer-v1.stdout.txt",
+      "portable_path": "historical-observer-v1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-witness-independent-b2-20261007/historical-observer-v1.stderr.txt",
+      "portable_path": "historical-observer-v1.stderr.txt",
+      "bytes": 597,
+      "sha256": "701659db0714f2dafda90a20c3943335e9e0237b6a8ca7e7fe9f632448ee036a",
+      "role": "closed independent whole119 source/case qualifier or actual ancillary typed control/removal/source/history"
+    }
+  ],
+  "files": 9,
+  "bytes": 52578,
+  "native_rerun": false,
+  "scope": "Thin static119 source/case annotation and ancillary class admission only; no branch/default production invocation or finding/G authority."
+}

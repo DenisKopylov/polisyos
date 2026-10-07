@@ -1,0 +1,10 @@
+{
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/backtest-old58-overlay.tar.gz",
+    "bytes": 38667627,
+    "sha256": "d338ff4cc02db013184b061d123c866916faf342a5fd94fa798ced3f609497f0"
+  },
+  "top_level_member": "backtest-old58-overlay",
+  "fresh_reopen_command": "mkdir -p /tmp/e02-E-reopen-backtest-old58-overlay-fresh && tar -xzf /workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/backtest-old58-overlay.tar.gz -C /tmp/e02-E-reopen-backtest-old58-overlay-fresh",
+  "qualification": "Choose a genuinely fresh empty extraction directory; absolute historical symlink strings are preserved and are not followed by archive/readback. Reopen restores all archived catalog bytes/modes/link strings and exact PAX mtime; no promise of historical external target availability."
+}

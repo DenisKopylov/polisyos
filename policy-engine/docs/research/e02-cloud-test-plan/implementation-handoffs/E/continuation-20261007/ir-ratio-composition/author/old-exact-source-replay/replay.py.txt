@@ -1,0 +1,31 @@
+from pathlib import Path
+import hashlib,json,subprocess,warnings
+import polisyos.ir
+polisyos.ir.__path__.insert(0,'/tmp/e02-E-ir-composition-r4-20261007/old-exact-source-replay/policy-engine/src/polisyos/ir')
+from polisyos.core import artifacts as core_artifacts
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import compress_envelope,push_forward_envelope,pull_back_envelope,persist_uncertainty_envelope,load_uncertainty_envelope,PosteriorSamplesCarrier
+R=Path('/workspace/e02-E-doe-20261006');O=Path('/tmp/e02-E-ir-composition-r4-20261007/old-exact-source-replay');rows=[]
+def record(name,call,expected):
+ try:
+  with warnings.catch_warnings(record=True) as ws:
+   warnings.simplefilter('always');result=call()
+  actual=result.model_dump(mode='json') if hasattr(result,'model_dump') else result
+  rows.append({'name':name,'expected':expected,'actual':actual,'warnings':[str(w.message) for w in ws],'refused':False})
+ except Exception as e:
+  rows.append({'name':name,'expected':expected,'refused':True,'exception_type':type(e).__name__,'exception':str(e)})
+def env(samples,weights=None,mass=.9):return summarize_bayesian_calibration_posterior({'x':samples},weights=weights,credible_mass=mass).parameter_envelopes['x']
+big=env([1.6e308]*4)
+record('finite_exact_mean_identity_push',lambda:push_forward_envelope(lambda x:x,big),{'exact_mean':1.6e308,'median':1.6e308,'bounds':[1.6e308]*2})
+atom=env([0.,1.],weights=[1.,2.],mass=.32)
+record('inverse_cdf_q034_identity_push',lambda:push_forward_envelope(lambda x:x,atom),{'mean':2/3,'median':1.,'bounds':[1.,1.],'finite_q':.34})
+plain=env([1.,2.,3.,4.])
+def fresh(call,name):
+ value=call();root=O/('old-cas-'+name);ref=persist_uncertainty_envelope(core_artifacts.FileSystemCAS(root),value);read=load_uncertainty_envelope(core_artifacts.FileSystemCAS(root),ref)
+ return {'ref':ref.model_dump(mode='json'),'loaded':read.model_dump(mode='json'),'reconciled_profile':read_posterior_summary_profile(read).model_dump(mode='json')}
+record('changed_carrier_fresh_CAS_push',lambda:fresh(lambda:push_forward_envelope(lambda x:2*x,plain),'push'),{'profile_matches_fresh_carrier':True})
+record('dropped_carrier_fresh_CAS_interval',lambda:fresh(lambda:compress_envelope(plain,target='interval'),'interval'),{'stale_profile_for_removed_carrier':False})
+record('pullback_large_finite_selected_mean',lambda:pull_back_envelope(lambda x:x,big,upstream_particles=PosteriorSamplesCarrier(samples=(1.6e308,)*4,weights=(.5,)*4)),{'finite_point':1.6e308,'constraint_only':True,'stale_profile':False})
+r={'source_sha':'dee36f110824425f8f612874cb111398d9546e7d','tree':'c545506928e0c1036a2ce266d34f2995779928bb','observer':{'path':__file__,'sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()},'rows':rows,'production_evidence':False}
+(O/'old-composition-falsifiers.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'source':r['source_sha'],'rows':[(x['name'],x['refused'],x.get('exception_type')) for x in rows]}))

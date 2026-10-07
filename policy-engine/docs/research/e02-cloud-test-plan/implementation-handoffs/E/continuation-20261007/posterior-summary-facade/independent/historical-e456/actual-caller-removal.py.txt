@@ -1,0 +1,26 @@
+from __future__ import annotations
+import hashlib,json,subprocess
+from pathlib import Path
+from polisyos.foundry import uncertainty as public
+ROOT=Path('/workspace/e02-E-continuation-20261006');OUT=Path(__file__).parent
+SHA='e4566c56f1d05479e4d8bc5bba562d701c17e5bc'
+if subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()!=SHA:raise ValueError('source moved')
+original=public.summarize_bayesian_calibration_posterior;original_getattr=public.__getattr__;DTO=public.BayesianCalibrationPosteriorSummary
+calls=[]
+def fake(*args,**kwargs):
+ calls.append({'kwargs':sorted(kwargs),'coordinate_count':len(args[0])})
+ raise RuntimeError('independent present-but-fake public producer refusal')
+rows=[]
+public.summarize_bayesian_calibration_posterior=fake
+for path,function in [('policy-engine/tests/unit/ir/test_posterior_summary.py','test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals'),('policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py','test_zero_spread_moment_projection_is_finite_non_gating')]:
+ body=subprocess.check_output(['git','show',f'{SHA}:{path}'],cwd=ROOT).decode();ns={'__name__':'independent_exact_changed_test','__file__':str(ROOT/path)}
+ exec(compile(body,str(ROOT/path),'exec'),ns)
+ before=len(calls)
+ try:ns[function](OUT/'fake-caller-fixtures'/function)
+ except RuntimeError as exc:error=str(exc)
+ else:raise ValueError('actual caller bypassed its public function')
+ if len(calls)!=before+1:raise ValueError('unexpected producer call count')
+ rows.append({'path':path,'source':SHA,'test':function,'source_sha256':hashlib.sha256(body.encode()).hexdigest(),'property_outcome':'FAIL','actual_public_spy_callbacks':1,'failure':error,'public_name_and_DTO_and_export_markers_retained':True})
+public.summarize_bayesian_calibration_posterior=original
+result={'schema':'e02-independent-exact-changed-callers-present-fake-control:1','source':SHA,'controls':rows,'actual_calls':calls,'check_status':'PASS','source_written':False,'scope':'Two exact immutable native caller functions, public binding only mutated in this isolated process; no whole suite/reimplementation.'}
+(OUT/'actual-caller-removal.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

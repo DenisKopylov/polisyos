@@ -1,0 +1,100 @@
+{
+  "scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "receipt_base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "tree": "7bec40f1926422c363a3cf3fa623089d85a68139",
+  "complete_source_path_denominator": 2917,
+  "python_denominator": 2703,
+  "matching_source_paths": [
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/privacy_transportability.py",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+  ],
+  "matching_python_paths": [
+    "policy-engine/src/polisyos/ir/analytics/privacy_transportability.py",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+  ],
+  "complete_git_grep_output": "outputs/base-public-route-trace.txt",
+  "same_raw_class": "P40 same raw-type admission class one level deeper: shared DTO before-validator covers CAS, direct model_validate, model_validate_json and constructor input before numeric coercion.",
+  "runtime_routes": [
+    [
+      "raw CAS bytes",
+      "get_json_artifact canonical decoder",
+      "load_uncertainty_envelope",
+      "UncertaintyEnvelope.model_validate",
+      "_canonicalize_numeric_payload raw admission",
+      "_ratio_composition_profile actual binding read",
+      "push_forward_envelope",
+      "persist_uncertainty_envelope",
+      "fresh load_posterior_summary_envelope/read_posterior_summary_profile"
+    ],
+    [
+      "direct raw mapping / raw JSON / kwargs",
+      "UncertaintyEnvelope common before-validator",
+      "compress_envelope particles, interval or moments",
+      "actual binding read",
+      "derived persistence/readback"
+    ],
+    [
+      "legacy raw loading or direct raw mapping",
+      "UncertaintyEnvelope common before-validator",
+      "pull_back_envelope",
+      "actual binding read before callback",
+      "constraint-only non-gating output"
+    ]
+  ],
+  "join": {
+    "default": "typed Profile2 multi-envelope refusal before generic lowering",
+    "unequal_totals": [
+      0.5,
+      1.0
+    ],
+    "mixture_assumptions": null,
+    "singleton": "identity object unchanged",
+    "generic_Profile1": "existing concatenation retained"
+  },
+  "combine": "multiple Profile2 interval summaries lose carrier/context/functionals and remain nongating; not preserved posterior law",
+  "raw_input_artifact_limitation": "Raw store.put_json may intentionally persist malformed negative input bytes. Profile2 raw type/context admission rejects at DTO loading; retained valid-shaped carrier/joint digest corruption is independently recomputed by composition before callback or derived publication. Single-coordinate read does not establish arbitrary multivariate source-law authority.",
+  "source_census_limits": [
+    "Git literal symbol census is not complete dynamic/external callgraph or proof of absent external invocation. No internal product join caller found in full Python symbol corpus; public external use remains supported/refused by native fixture."
+  ],
+  "closures": [
+    "B201",
+    "B202"
+  ],
+  "owner": "E-scoped technical owner; G code/finding decisions separate",
+  "native_author_iterations": {
+    "base_new_tests": "78: 56 PASS /22 FAIL /0ERROR; authentic strict reject vs legacy bool/string two actual callbacks, derived Profile2 fresh reader accepts",
+    "candidate_v1": "182:41 PASS /141 FAIL /0ERROR; common admission correctly exposed provisional producer required marker, narrow companion moved marker to final actual profile",
+    "candidate_v2_smoke": "11 PASS /154 deselected /0ERROR; one existing UnknownMarkWarning retained; not full current candidate wave"
+  },
+  "lint": "Initial direct scratch invocation had nonmatching per-file paths and 181 diagnostics; corrected actual original --stdin-filename applies canonical per-file exemptions. Final four Python inputs clean; complete original stdout retained, not inherited.",
+  "native_leases": "CLOSED; no active fixtures/users/processes from author at transfer",
+  "root_writes": false,
+  "children": false,
+  "branch_mutations": false,
+  "cleanup_performed": false,
+  "predicate_basis": {
+    "raw_type_admission": "recomputed",
+    "composition_content_binding": "recomputed",
+    "source_law_truth": "not_established",
+    "institutional_authority": "not_established"
+  }
+}

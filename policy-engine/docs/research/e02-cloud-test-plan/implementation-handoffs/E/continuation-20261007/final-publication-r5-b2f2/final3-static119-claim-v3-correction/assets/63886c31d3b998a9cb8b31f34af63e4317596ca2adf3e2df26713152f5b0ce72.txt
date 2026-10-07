@@ -1,0 +1,45 @@
+{
+  "schema": "policyos.e02.final_static119.historical_semantic_attachment_counterexamples.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "rows": [
+    {
+      "case": "schema",
+      "mutant_value": "unknown",
+      "actual_oldV2_outcome": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      },
+      "state": "FALSE_ADMITTED"
+    },
+    {
+      "case": "source_role_actual_Git_equal_checks",
+      "mutant_value": true,
+      "actual_oldV2_outcome": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      },
+      "state": "FALSE_ADMITTED"
+    },
+    {
+      "case": "row_remaining_boundary_owner",
+      "actual_oldV2_outcome": {
+        "state": "GO",
+        "rows": 119,
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "production_dispatch": false,
+        "finding_closure": false
+      },
+      "state": "FALSE_ADMITTED"
+    }
+  ],
+  "native_reruns": false
+}

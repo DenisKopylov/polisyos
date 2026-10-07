@@ -1,0 +1,4 @@
+[codex/e02-E-continuation-20261006 b305cef2f] fix(ir): admit Profile2 raw types before public lowering
+ 6 files changed, 329 insertions(+), 5 deletions(-)
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml
+ create mode 100644 policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py

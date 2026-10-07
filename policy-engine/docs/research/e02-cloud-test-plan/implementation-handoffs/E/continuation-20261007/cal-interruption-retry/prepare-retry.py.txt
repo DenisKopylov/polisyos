@@ -1,0 +1,90 @@
+"""Admit a one-group interruption retry, then expose the existing runner argv."""
+import hashlib
+import importlib.metadata
+import importlib.util
+import json
+import os
+import platform
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946')
+OLD = Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007')
+NAME = 'cal-and-welfare-consumer-retry'
+CANDIDATE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+RUNNER = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py'
+ORIGINAL = OLD / 'checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json'
+
+def bound(path):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+spec = importlib.util.spec_from_file_location('canonical_e02_run_check', RUNNER)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+original = json.loads(ORIGINAL.read_text())
+plan_path = OLD / 'plan.json'
+plan = json.loads(plan_path.read_text())
+assert original['candidate_sha'] == CANDIDATE
+assert original['exit_code'] == -9 and original['counts'] is None
+assert module.git(ROOT, 'rev-parse', 'HEAD') == CANDIDATE
+assert module.git(ROOT, 'rev-parse', 'HEAD^{tree}') == original['candidate_tree_sha']
+assert not module.git(ROOT, 'status', '--porcelain', '--untracked-files=no')
+assert hashlib.sha256(RUNNER.read_bytes()).hexdigest() == hashlib.sha256(module.git_bytes(ROOT,'show',CANDIDATE+':'+RUNNER.relative_to(ROOT).as_posix())).hexdigest()
+source = module.source_identity(ROOT)
+assert source == original['source_identity_before'] == original['source_identity_after']
+inputs = {}
+for name, old in original['input_files'].items():
+    p = ROOT / name
+    current = {**bound(p), 'git_blob': module.git(ROOT,'rev-parse',CANDIDATE+':'+name)}
+    assert all(current[k] == old[k] for k in ('bytes','sha256','git_blob'))
+    inputs[name] = current
+config = module.git_bytes(ROOT,'config','--null','--list','--show-origin','--show-scope')
+config_sha = hashlib.sha256(config).hexdigest()
+assert config_sha == original['git_input_config']['sha256']
+selectors = original['command'][11:]
+assert len(selectors) == 29 and all(s.startswith('tests/') for s in selectors)
+selected_assets = {}
+for name in selectors:
+    repo_name = 'policy-engine/' + name
+    current = bound(ROOT / repo_name)
+    expected = plan['source_test_assets'][repo_name]
+    assert current['bytes'] == expected['bytes'] and current['sha256'] == expected['sha256']
+    current['git_blob'] = module.git(ROOT,'rev-parse',CANDIDATE+':'+repo_name)
+    selected_assets[repo_name] = current
+command = list(original['command'])
+check_out = OUT / 'checks' / NAME
+command[5] = 'cache_dir=' + str(check_out / 'cache/pytest')
+command[6] = '--benchmark-storage=file://' + str(check_out / 'cache/benchmarks')
+command[8] = str(check_out / 'pytest.xml')
+command[10] = str(OUT / 'temporary' / NAME)
+allowed_indices = {5,6,8,10}
+assert all(a == b for i,(a,b) in enumerate(zip(command,original['command'])) if i not in allowed_indices)
+assert command[11:] == selectors
+selected_env = dict(original['environment']['selected_variables'])
+selected_env['TMPDIR'] = str(OUT / 'tmp-env' / NAME)
+selected_env['PYTHONDONTWRITEBYTECODE'] = plan['environment']['PYTHONDONTWRITEBYTECODE']
+for name, value in selected_env.items():
+    if value is None:
+        os.environ.pop(name, None)
+    else:
+        os.environ[name] = value
+caps = ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','XLA_FLAGS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','PYTEST_ADDOPTS')
+assert all(os.environ.get(n) is None for n in caps)
+packages = {name: importlib.metadata.version(name) for name in original['environment']['packages']}
+assert packages == original['environment']['packages']
+import jax
+import numpy as np
+backend = {'jax': {'default_backend': jax.default_backend(),'enable_x64': jax.config.jax_enable_x64,'devices':[{'platform': d.platform,'id': d.id,'kind':d.device_kind} for d in jax.devices()]}, 'numpy': np.show_config(mode='dicts')}
+assert backend == original['actual_numeric_backend']
+assert sys.executable == original['environment']['executable']
+for p in (check_out/'cache/pytest',check_out/'cache/benchmarks',OUT/'temporary',Path(selected_env['TMPDIR'])):
+    p.mkdir(parents=True,exist_ok=False)
+argv = [sys.executable,str(RUNNER),'--repo',str(ROOT),'--candidate',CANDIDATE,'--cwd',original['cwd'],'--output',str(check_out),'--name',NAME,'--junit',str(check_out/'pytest.xml'),'--',*command]
+cleanup_refs = [bound(Path('/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4')/name) for name in ('admitted-before-deletion.json','cleanup-result.json','cleanup-publication-receipt.json')]
+resources = {'timestamp_unix':time.time(),'meminfo':Path('/proc/meminfo').read_text(),'cgroup':{n:(Path('/sys/fs/cgroup')/n).read_text() for n in ('memory.current','memory.max','memory.events','memory.stat')},'storage':{str(p): {'total_bytes':os.statvfs(p).f_blocks*os.statvfs(p).f_frsize,'available_bytes':os.statvfs(p).f_bavail*os.statvfs(p).f_frsize} for p in (Path('/workspace'),Path('/tmp'))}}
+admission = {'schema':'policyos.e02.interruption_retry_admission.v1','execution_state':'ADMITTED_NOT_STARTED','scope':'Only original CAL_and_welfare_consumer group interruption retry, not another broad wave','original_receipt':bound(ORIGINAL),'original_stdout':bound(Path(original['stdout_path'])),'original_junit_present':Path(original['junit']).exists(),'original_observation':{'exit_code':original['exit_code'],'outcome':original['outcome'],'wall_seconds':original['wall_seconds'],'counts':original['counts'],'signal':'SIGKILL','per_process_oom_cause':'not_established'},'candidate_sha':CANDIDATE,'candidate_tree_sha':original['candidate_tree_sha'],'branch':module.git(ROOT,'branch','--show-current'),'tracked_dirty':'','untracked_status':module.git(ROOT,'status','--porcelain'),'source_identity':source,'input_files':inputs,'selected_test_assets':selected_assets,'selector_count':len(selectors),'selectors':selectors,'original_plan':bound(plan_path),'canonical_runner':{**bound(RUNNER),'git_blob':module.git(ROOT,'rev-parse',CANDIDATE+':'+RUNNER.relative_to(ROOT).as_posix())},'git_input_config_sha256':config_sha,'git_input_config_publication':'hash only, private config contents excluded','temporary_only_command_changed_indices':sorted(allowed_indices),'test_command':command,'runner_argv':argv,'cwd':original['cwd'],'environment':{'python':sys.version,'platform':platform.platform(),'cpu_count':os.cpu_count(),'packages':packages,'selected_variables':selected_env},'numeric_backend':backend,'artificial_caps':{name:os.environ.get(name) for name in caps},'resources_before':resources,'cleanup_receipts':cleanup_refs,'output_root':str(OUT),'finding_closure':False,'author_review':'executor only; oracle_r4 independently reviews inputs and receipt'}
+(OUT/'retry-admission.json').write_text(json.dumps(admission,indent=2,default=str)+'\n')
+print(json.dumps({'admission':str(OUT/'retry-admission.json'),'sha256':bound(OUT/'retry-admission.json')['sha256'],'argv':argv,'source_identity':source,'memory_current':resources['cgroup']['memory.current'],'artificial_caps':admission['artificial_caps']},indent=2))

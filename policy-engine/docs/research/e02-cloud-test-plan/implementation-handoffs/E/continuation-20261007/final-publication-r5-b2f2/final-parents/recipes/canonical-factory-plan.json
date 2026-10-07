@@ -1,0 +1,694 @@
+{
+  "schema": "policyos.e02.final_parent_canonical_factory_preparation.v1",
+  "check_status": "UNRUN",
+  "scope": "Actual canonical command-factory planning only, no command/gate/native/backend entry invoked. uv --version and Git are read-only metadata operations.",
+  "before": {
+    "head": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+    "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+    "tracked_delta": "",
+    "cached_delta": "",
+    "source_refs": [
+      {
+        "path": "policy-engine/tools/devx/workspace/verify.py",
+        "bytes": 12277,
+        "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+        "bytes": 11939,
+        "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_common.py",
+        "bytes": 7324,
+        "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "bytes": 7221,
+        "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/conftest.py",
+        "bytes": 588,
+        "sha256": "48dbbacf5d48bdbc012c5bfa817c37edbe17ebdad416d4d2a18f916ee6a37126"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+        "bytes": 12746,
+        "sha256": "371ac66d1e32d7e5b3c65a18d93588073c243fef5f1e30939255bdf92a9007ae"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+        "bytes": 17078,
+        "sha256": "31a6e918fe41cf8ca722e0bb72fba6b0f56c31c4df15582101ad36f377fa0c08"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+        "bytes": 7609,
+        "sha256": "5d8db50ec87df1f8aa5fe7322c1a8f13df02b4e596c7d2ddc839dcecbf5f93f3"
+      }
+    ]
+  },
+  "after": {
+    "head": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+    "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+    "tracked_delta": "",
+    "cached_delta": "",
+    "source_refs": [
+      {
+        "path": "policy-engine/tools/devx/workspace/verify.py",
+        "bytes": 12277,
+        "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+        "bytes": 11939,
+        "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_common.py",
+        "bytes": 7324,
+        "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "bytes": 7221,
+        "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/conftest.py",
+        "bytes": 588,
+        "sha256": "48dbbacf5d48bdbc012c5bfa817c37edbe17ebdad416d4d2a18f916ee6a37126"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+        "bytes": 12746,
+        "sha256": "371ac66d1e32d7e5b3c65a18d93588073c243fef5f1e30939255bdf92a9007ae"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+        "bytes": 17078,
+        "sha256": "31a6e918fe41cf8ca722e0bb72fba6b0f56c31c4df15582101ad36f377fa0c08"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+        "bytes": 7609,
+        "sha256": "5d8db50ec87df1f8aa5fe7322c1a8f13df02b4e596c7d2ddc839dcecbf5f93f3"
+      }
+    ]
+  },
+  "exact_planned_source_refs_unchanged": true,
+  "final_freeze_source_tree_output": "pending Root; observed current source is not an execution authorization",
+  "workspace_verify": {
+    "argv": [
+      "--backend-only"
+    ],
+    "stages": [
+      {
+        "label": "doctor",
+        "command": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.doctor",
+          "--skip-contract-checks"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "lint imports",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/lint_imports.py",
+          "--policy",
+          "architecture/imports/policy.toml",
+          "--exceptions",
+          "architecture/imports/exceptions.toml"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check package import gates (shell-package closure)",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-package-import-gates",
+          "--fail-closed",
+          "--json-output",
+          "_build/.tmp/last-mile/package-import-gates.json"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "lint foundry",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "-m",
+          "tools.quality.lint.lint_foundry",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check state reads",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check scholar imports",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check connector contracts",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "polisyos-tools",
+          "connectors",
+          "check-contracts",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check schema freshness",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "ml",
+          "python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check runtime API contract",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check last-mile inventory baseline",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "--json-output",
+          "_build/.tmp/last-mile/inventory.json",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "build honest diagnostics coverage dashboard",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "--repo-root",
+          ".",
+          "--output-dir",
+          "_build/honest-diagnostics/coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check honest diagnostics substrate drift",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_substrate_drift.py",
+          "--repo-root",
+          ".",
+          "--require-passing"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check extension example contract coverage",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py",
+          "--skip-install",
+          "--skip-discovery",
+          "--skip-pytest"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check schemas pure-data closure",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "-c",
+          "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "pytest fast backend gate",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "pytest",
+          "-m",
+          "not integration",
+          "--ignore=tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      }
+    ],
+    "planned_stage_count": 15
+  },
+  "ci_parity": {
+    "argv": [],
+    "stages": [
+      {
+        "label": "doctor",
+        "command": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.doctor"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "verify backend fast gate",
+        "command": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.verify",
+          "--backend-only",
+          "--skip-doctor"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "pytest runtime/http",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "pytest",
+          "tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check directory health ratchet",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/directory_health.py",
+          "--repo-root",
+          ".",
+          "--json-output",
+          "_build/.tmp/last-mile/directory-health.json",
+          "--markdown-output",
+          "_build/.tmp/last-mile/directory-health.md",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check test ratchets and helper topology",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/testing/report_test_ratchets.py",
+          "--format",
+          "json",
+          "--output",
+          "_build/.tmp/last-mile/test-ratchets.json",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check architecture phase6-1 report-only contracts",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "phase6-1",
+          "--json-output",
+          "_build/.tmp/last-mile/architecture-phase6-1.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check validator module-size budget",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "module-size",
+          "--json-output",
+          "_build/.tmp/last-mile/module-size.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "report debt ledger reconciliation",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_debt_ledger.py",
+          "--check",
+          "--report-only"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check extension example installability",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check ADR thematic index freshness",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/generate_adr_index.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check docs accuracy",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docs_accuracy.py",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "build docs in strict mode",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "check semantic docstring quality",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docstring_quality.py",
+          "--repo-root",
+          ".",
+          "--allowlist",
+          "tools/quality/validation/docstring_quality_allowlist.txt",
+          "--coverage-scope",
+          "public-surface",
+          "--minimum-coverage",
+          "85"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm typecheck",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm lint",
+        "command": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm format check",
+        "command": [
+          "npm",
+          "run",
+          "format:check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm architecture check",
+        "command": [
+          "npm",
+          "run",
+          "check:architecture"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm contract fixtures",
+        "command": [
+          "npm",
+          "run",
+          "contracts:verify"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm coverage",
+        "command": [
+          "npm",
+          "run",
+          "test:coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm build",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm build-storybook",
+        "command": [
+          "npm",
+          "run",
+          "build-storybook"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "Playwright browser install",
+        "command": [
+          "npm",
+          "run",
+          "playwright:install"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm Storybook interaction tests",
+        "command": [
+          "npm",
+          "run",
+          "test:storybook"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      },
+      {
+        "label": "npm accessibility suite",
+        "command": [
+          "npm",
+          "run",
+          "test:a11y"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "env": {},
+        "outcome": "UNRUN"
+      }
+    ],
+    "planned_stage_count": 24,
+    "nested_verify": "Existing canonical second command creates full14backend scope and retains every required stage. It may reach the broad pytest final step if all prerequisites PASS; this is not a selective E family wave."
+  },
+  "shared_mutable_outputs": [
+    "_build/.tmp/last-mile/package-import-gates.json",
+    "_build/.tmp/last-mile/inventory.json",
+    "_build/.tmp/last-mile/schemas-python-residue.txt",
+    "_build/honest-diagnostics/coverage/",
+    "_cache/hypothesis/repo_quality/",
+    "architecture/policy_design_case/layer3_g6*.json",
+    "architecture/policy_design_case/layer3_g7*.json",
+    "architecture/policy_design_case/layer3_g8*.json"
+  ],
+  "literal_static_writer_refs": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "lines": [
+        100,
+        135,
+        146
+      ]
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "lines": [
+        210,
+        240
+      ]
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+      "lines": [
+        51
+      ]
+    }
+  ],
+  "scheduling_qualification": "Distinct TMP/cache/basetemp avoid only those assigned namespaces. Exact same Root ignored output files, source-supplied write=True fixtures and hardcoded Hypothesis database are still common; existing wrapper has no inter-parent lock. Root schedules only these actual writer resources; unrelated cloud checks remain uncapped. Do not promise simultaneous parent safety if later stages become reachable.",
+  "fail_fast": "No skip/prerequisite override added. Actual failure location determines later UNRUN rows: e.g verify second-stage FAIL leaves13UNRUN; CI first-doctor FAIL leaves23UNRUN. Counts above are plans, not outcomes.",
+  "doctor_semantics": "Verify built-in --skip-contract-checks and CI nested --skip-doctor come from canonical repo factories. No additional skip doctor/contracts/browser flags added by observer.",
+  "P41": "not_established: static write=True reachability is scheduling evidence, not actual previous caller/cause attribution",
+  "resource_caps_added": false,
+  "package_install_or_sync_or_Root_source_write": false,
+  "source_native_numeric_gate_executed": false,
+  "finding_closure_or_global_acceptance": false
+}

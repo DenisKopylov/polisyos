@@ -1,0 +1,91 @@
+[
+  {
+    "case": "old-exact",
+    "harness_source_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "execution_head": "1e1b5028274814b7c4318671588202480390a6bc",
+    "harness_exit": 1,
+    "actual_JUnit": {
+      "cases": 1,
+      "passed": 0,
+      "failed": 0,
+      "errors": 1,
+      "skipped": 0
+    },
+    "nonpass": [
+      {
+        "name": "test_tmp_path_native_cas_and_fresh_integrity",
+        "classname": "",
+        "outcome": "errors",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/old-exact/temporary/native'\""
+      }
+    ],
+    "native_body_entry_count": 0,
+    "fresh_cas_readback": false,
+    "cas_sha256": null,
+    "receipt_path": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/old-exact/checks/independent-native/independent-native.json",
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/old-exact/checks/independent-native/independent-native.stdout.txt",
+      "bytes": 1886,
+      "sha256": "3262dbdac51fd793eba6f363cbe76a002f0ef8deea9898adc5866dd530b6cc54"
+    },
+    "input_source_immutable": true,
+    "backend_observer_qualification": "post-command collector process; no pytest-child numerical dtype claim"
+  },
+  {
+    "case": "new-committed",
+    "harness_source_sha": "06aec834d817b1cc90d98308f0755729a4153031",
+    "execution_head": "1e1b5028274814b7c4318671588202480390a6bc",
+    "harness_exit": 0,
+    "actual_JUnit": {
+      "cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "nonpass": [],
+    "native_body_entry_count": 1,
+    "fresh_cas_readback": true,
+    "cas_sha256": "e3a6f8728b95c5e0fd3431ccab4aea96cc3a5620399f49cd935510a7e5d899ca",
+    "receipt_path": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/new-committed/checks/independent-native/independent-native.json",
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/new-committed/checks/independent-native/independent-native.stdout.txt",
+      "bytes": 152,
+      "sha256": "2737364462c295603ca5413b5bd225f991c5602dc8f87cef6d17d7c61c8a3249"
+    },
+    "input_source_immutable": true,
+    "backend_observer_qualification": "post-command collector process; no pytest-child numerical dtype claim"
+  },
+  {
+    "case": "property-removal",
+    "harness_source_sha": "06aec834d817b1cc90d98308f0755729a4153031",
+    "execution_head": "1e1b5028274814b7c4318671588202480390a6bc",
+    "harness_exit": 1,
+    "actual_JUnit": {
+      "cases": 1,
+      "passed": 0,
+      "failed": 0,
+      "errors": 1,
+      "skipped": 0
+    },
+    "nonpass": [
+      {
+        "name": "test_tmp_path_native_cas_and_fresh_integrity",
+        "classname": "",
+        "outcome": "errors",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/property-removal/temporary/native'\""
+      }
+    ],
+    "native_body_entry_count": 0,
+    "fresh_cas_readback": false,
+    "cas_sha256": null,
+    "receipt_path": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/property-removal/checks/independent-native/independent-native.json",
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/harness-parent-independent-06aec834/native/property-removal/checks/independent-native/independent-native.stdout.txt",
+      "bytes": 1900,
+      "sha256": "8e72f9554faa77457524c8d41ade63339e58f4c59ad6e7a180adf93c4f6a7b8d"
+    },
+    "input_source_immutable": true,
+    "backend_observer_qualification": "post-command collector process; no pytest-child numerical dtype claim"
+  }
+]

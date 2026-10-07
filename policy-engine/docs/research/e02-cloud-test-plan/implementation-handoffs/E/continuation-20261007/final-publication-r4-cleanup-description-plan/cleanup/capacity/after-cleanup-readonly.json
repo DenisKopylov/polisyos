@@ -1,0 +1,106 @@
+{
+  "observed_unix": 1791376417.815287,
+  "source_SHA": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "raw_catalog": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/current-receipt-catalog-size-readonly.txt",
+    "bytes": 18295,
+    "sha256": "ef7b376af91cf32a549815ce8cfd94afba1894e5072b98c55e011fa89fc965a5"
+  },
+  "largest_rows": [
+    {
+      "allocated_du_bytes": 4674375680,
+      "path": "/workspace/e02-E-pr38-r3-receipts"
+    },
+    {
+      "allocated_du_bytes": 3951828992,
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4"
+    },
+    {
+      "allocated_du_bytes": 3921596416,
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry"
+    },
+    {
+      "allocated_du_bytes": 186056704,
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007"
+    },
+    {
+      "allocated_du_bytes": 171945984,
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw"
+    },
+    {
+      "allocated_du_bytes": 73818112,
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-r4"
+    },
+    {
+      "allocated_du_bytes": 61276160,
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch"
+    },
+    {
+      "allocated_du_bytes": 61272064,
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe"
+    },
+    {
+      "allocated_du_bytes": 61255680,
+      "path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent"
+    },
+    {
+      "allocated_du_bytes": 56455168,
+      "path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay-tmp"
+    },
+    {
+      "allocated_du_bytes": 54964224,
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4"
+    },
+    {
+      "allocated_du_bytes": 53739520,
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent"
+    },
+    {
+      "allocated_du_bytes": 36769792,
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007"
+    },
+    {
+      "allocated_du_bytes": 29954048,
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels"
+    },
+    {
+      "allocated_du_bytes": 28770304,
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4"
+    },
+    {
+      "allocated_du_bytes": 23498752,
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent"
+    },
+    {
+      "allocated_du_bytes": 17256448,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution"
+    },
+    {
+      "allocated_du_bytes": 16932864,
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay"
+    },
+    {
+      "allocated_du_bytes": 15773696,
+      "path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc"
+    },
+    {
+      "allocated_du_bytes": 15671296,
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent"
+    }
+  ],
+  "workspace_available_bytes": 1838067712,
+  "protected_active_growth": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry",
+    "du_total_bytes": 3921596416,
+    "state": "ACTIVE nativebackend61243; entirebasetemp/TMPDIR/cache/stdout/wheels untouched, no cleanup permitted"
+  },
+  "largest_remaining_potential_repeatable_child": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay-tmp",
+    "du_bytes": 56455168,
+    "receipt_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner-packet-review.json",
+    "receipt_bytes": 32619,
+    "receipt_sha256": "ddd49dc698b98f7f4dcec22dd991d9f9cf64da807aca8796ae848c966b53ea0b",
+    "state": "READ_ONLY candidate-plan only: full exact argv terminal receipt/full uniqueasset classification/0 users/archive proof still needed; no cleanup performed"
+  },
+  "assessment": "No multiGB unused fixture available in current Ereceipt catalog; activebackend dominates ~3.65GiB. Other closures/outputs are unique moderate source/evidence and remainpreserved. Source/wheels/env/Git registrations excluded."
+}

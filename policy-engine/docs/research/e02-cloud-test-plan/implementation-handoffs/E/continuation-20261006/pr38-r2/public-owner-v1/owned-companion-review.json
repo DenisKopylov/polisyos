@@ -1,0 +1,120 @@
+{
+  "review_role": "independent E-only publication companion reviewer",
+  "base_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "candidate_sha": "c0f146702219cd3280c3b7d06e9d2bc4c7b95dd6",
+  "candidate_tree": "b44e33a60b40f95f8993855aed65254aa25e72b3",
+  "verdict": "GO",
+  "bounded_claim": "canonical inventory/docs/readme agree with exact existing two owned facades; no global architecture gate or finding closure inferred",
+  "changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+  ],
+  "canonical_sync": {
+    "phase": "current-final",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "tools/devx/architecture/guardrails.py",
+      "sync",
+      "--skip-deep-import-baseline",
+      "--public-json",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-final/inventory.json",
+      "--public-md",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-final/public-surface.md",
+      "--generated-md",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-final/generated-artifacts.md"
+    ],
+    "cwd": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine",
+    "UV_NO_SYNC": "1",
+    "exit_code": 0,
+    "wall_seconds": 16.921982288360596,
+    "fixture_is_git_candidate": false,
+    "no_full_global_guard": true,
+    "input_paths": {
+      "src/polisyos/calibration/__init__.py": {
+        "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+        "bytes": 2217
+      },
+      "src/polisyos/calibration/forecast_bridge.py": {
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+        "bytes": 81721
+      },
+      "src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+        "bytes": 59611
+      },
+      "src/polisyos/foundry/uncertainty/__init__.py": {
+        "sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d",
+        "bytes": 1895
+      },
+      "tools/devx/architecture/guardrails.py": {
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+        "bytes": 103077
+      },
+      "architecture/public_surface/contract.toml": {
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+        "bytes": 19715
+      }
+    }
+  },
+  "public_surface": {
+    "polisyos.calibration": {
+      "count": 28,
+      "mode": "eager_exports",
+      "source_path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "source_sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+    },
+    "polisyos.foundry.uncertainty": {
+      "count": 16,
+      "mode": "eager_exports",
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "source_sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d"
+    }
+  },
+  "artifact_bytes": {
+    "policy-engine/architecture/public_surface/inventory.json": {
+      "sha256": "59e0950bbd7d8cf79e127bcee6494b1e00c3f4233c4829f74594ae0cb90009ee",
+      "bytes": 222451
+    },
+    "policy-engine/docs/reference/public-surface.md": {
+      "sha256": "f71a95386dc413204a517c7e1089af9ae6b9988f79eb4040afb1516488bee328",
+      "bytes": 153898
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+      "sha256": "eedc321d5fbd86e11c835ad584895fccc1caccd52cb95a6694fbf0a0b01b7158",
+      "bytes": 3788
+    }
+  },
+  "unrelated_inventory_delta": false,
+  "negative_controls": [
+    {
+      "label": "historical-count-markers-retained",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.calibration', 'count')"
+    },
+    {
+      "label": "removed-export-count-marker-retained",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.foundry.uncertainty', 'names')"
+    },
+    {
+      "label": "mode-marker-forged",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.foundry.uncertainty', 'mode')"
+    },
+    {
+      "label": "old-README-current-inventory",
+      "outcome": "REJECTED",
+      "reason": "README count"
+    },
+    {
+      "label": "exact-base-snapshot-divergence",
+      "outcome": "REJECTED",
+      "reason": "('polisyos.calibration', 'names')"
+    }
+  ],
+  "source_authority": "not_claimed",
+  "institutional_or_IR_semantic_authority": "not_claimed",
+  "required_owner_packets": "Core/IR/Foundry execute admissions remain not_ratified; proposed patches were exercised only in private fixture",
+  "P41_global_red": "not_established; this review measures canonical inventory delta only"
+}

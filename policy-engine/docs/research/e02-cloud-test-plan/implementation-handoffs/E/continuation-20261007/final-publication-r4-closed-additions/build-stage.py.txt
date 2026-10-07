@@ -1,0 +1,73 @@
+"""Stage six closed selector chains using only literal bytes; no ROOT writes."""
+from pathlib import Path
+import json
+import hashlib
+import subprocess
+
+STAGE = Path('/tmp/e02-E-closed-additions-publication-r4-stage')
+LEAF = Path('/workspace/e02-E-frc-20261006')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+BASE = '2e28bed33d179d1d0f9db4b6cbb3837d809c42c0'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions'
+SELECTIONS = [
+ ('frontend', Path('/tmp/e02-E-frontend-retry-analysis-64d/publication-selection.json')),
+ ('http-attribution', Path('/tmp/e02-E-http-error-independent-64d/publication-selection-final.json')),
+ ('cycleboard-retry', Path('/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/publication-selection-final.json')),
+ ('cleanup-ci11', Path('/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/publication-selection.json')),
+ ('catalog-owner', Path('/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection-v2.json')),
+ ('catalog-independent', Path('/tmp/e02-E-native-catalog-packet-independent-64d/publication-selection-final-v2.json')),
+]
+
+def require(ok, message):
+ if not ok: raise ValueError(message)
+
+def git(repo, *args):
+ return subprocess.check_output(['git','-C',str(repo),*args],text=True).strip()
+
+def sha(data): return hashlib.sha256(data).hexdigest()
+
+def members(family, selector):
+ return selector['assets'] + selector.get('identical_byte_aliases', []) if family=='frontend' else selector['assets']
+
+def destination(family, source_path, row, selector_path):
+ relative = row.get('portable_path', row.get('destination'))
+ if not relative:
+  try: relative = Path(source_path).relative_to(selector_path.parent).as_posix()
+  except ValueError: relative = 'actual-execution/' + '/'.join(Path(source_path).parts[-3:])
+ path=Path(relative)
+ require(not path.is_absolute() and '..' not in path.parts, 'portable source destination')
+ if path.name.endswith('.py'): path=path.with_name(path.name+'.txt')
+ return (Path(family)/path).as_posix()
+
+require(git(LEAF,'rev-parse','HEAD')==BASE, 'leaf base changed')
+require(git(ROOT,'rev-parse','HEAD')==SOURCE and git(ROOT,'rev-parse','HEAD^{tree}')==TREE, 'root source prerequisite changed')
+root_before=subprocess.check_output(['git','-C',str(ROOT),'status','--porcelain=v1','--untracked-files=no'],text=True)
+require(root_before=='','ROOT tracked changes')
+rows=[];canonical=[];by_content={};by_destination={};selectors=[]
+for family,path in SELECTIONS:
+ data=path.read_bytes();selector=json.loads(data);chosen=members(family,selector)
+ selected_byte_total=sum(row['bytes'] for row in chosen)
+ for row in chosen + [{'source_path':str(path),'portable_path':family+'-selection.json','bytes':len(data),'sha256':sha(data),'selector_original':True}]:
+  source=Path(row.get('source_path',row.get('path')))
+  literal=source.read_bytes()
+  require(len(literal)==row['bytes'] and sha(literal)==row['sha256'], 'original selected bytes changed: '+str(source))
+  current_family='selectors' if row.get('selector_original') else family
+  logical=destination(current_family,str(source),row,path)
+  key=(len(literal),sha(literal))
+  require(logical not in by_destination or by_destination[logical]==key, 'logical destination collision')
+  by_destination[logical]=key
+  alias=key in by_content
+  if not alias:
+   target=STAGE/'payload'/logical;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(literal)
+   item={'portable_path':logical,'staged_path':str(target),'bytes':len(literal),'sha256':sha(literal)};canonical.append(item);by_content[key]=item
+  item=by_content[key]
+  require((STAGE/'payload'/item['portable_path']).read_bytes()==literal, 'content digest collision')
+  rows.append({'family':current_family,'source_path':str(source),'source_bytes':len(literal),'source_sha256':sha(literal),'logical_destination':logical,'canonical_destination':item['portable_path'],'proposed_git_path':PREFIX+'/'+item['portable_path'],'literal_alias':alias,'declared_role':row.get('role'),'declared_stored_at':row.get('stored_at'),'declared_same_bytes_as':row.get('same_bytes_as')})
+ selectors.append({'family':family,'selection_source_path':str(path),'bytes':len(data),'sha256':sha(data),'selected_member_count':len(chosen),'selected_member_bytes':selected_byte_total,'declared_unique_count':selector.get('unique_assets',selector.get('count')),'declared_unique_bytes':selector.get('unique_bytes',selector.get('total_bytes')),'declared_logical_count':selector.get('logical_assets'),'scope':selector.get('scope',selector.get('verdict'))})
+root_after=subprocess.check_output(['git','-C',str(ROOT),'status','--porcelain=v1','--untracked-files=no'],text=True)
+require(root_after==root_before and git(ROOT,'rev-parse','HEAD')==SOURCE, 'ROOT changed during staging')
+manifest={'schema':'policyos.e02.closed_additions_selector_custody.v1','verification_source':SOURCE,'verification_tree':TREE,'publication_base':BASE,'publication_base_tree':git(LEAF,'rev-parse','HEAD^{tree}'),'proposed_git_prefix':PREFIX+'/','selection_inputs':selectors,'logical_count_including_selectors':len(rows),'logical_bytes_including_selectors':sum(row['source_bytes'] for row in rows),'unique_payload_files':len(canonical),'unique_payload_bytes':sum(row['bytes'] for row in canonical),'deduplicated_logical_aliases':sum(row['literal_alias'] for row in rows),'destination_collision_count':0,'content_collision_count':0,'logical_sources':rows,'canonical_copies':canonical,'root_tracked_status_before':root_before,'root_tracked_status_after':root_after,'ROOT_source_env_locks_written':False,'source_tests_gate_numeric_execution':False,'pending_excluded':['RUNNING ROOT backend source64d job61243','final root supplement/current361','final current all54/B821/join inputs'],'historical_bytes_policy':'Original failures, missing archive refs, old evidence escapes and author/independent observer corrections remain literal inside selected chains; no outcome reinterpretation.','scope':'Six closed selector chains only. Nativecatalog packet is owner-ready patch/test evidence, not source-owner acceptance or fullHTTP PASS. Cleanup semantic content remains its original owners; custody does not confer findings/scientific authority.'}
+(STAGE/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps({k:v for k,v in manifest.items() if k not in ('logical_sources','canonical_copies','selection_inputs')},indent=2))

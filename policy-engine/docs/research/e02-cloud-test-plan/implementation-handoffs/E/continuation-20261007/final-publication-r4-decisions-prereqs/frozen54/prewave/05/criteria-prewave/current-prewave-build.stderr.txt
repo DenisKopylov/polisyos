@@ -1,0 +1,21 @@
+/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt:245: SyntaxWarning: 'str' object is not callable; perhaps you missed a comma?
+  "The sampler/analyzer transform, support/quantile/truncation "
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt", line 386, in <module>
+    packet = build()
+  File "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-prewave-dispositions.py.txt", line 244, in build
+    pipeline["original_criterion_boundary"] = (
+                                              ~
+        "The sampler/analyzer transform, support/quantile/truncation "
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        "and persisted fingerprint/round-trip criterion is accepted. "
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    )(
+    ~^
+        "D's additional Search analysis_ref/codec/reopen/ranking edge"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        " is a separate owner dependency."
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+TypeError: 'str' object is not callable

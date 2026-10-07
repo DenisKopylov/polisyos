@@ -1,0 +1,20 @@
+{
+  "target_sha": "d94b1116cb852eb66722d47610dcd65d75faf503",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+    "--mode",
+    "cv",
+    "-q",
+    "tests/unit/scientist/methods/backtesting/test_cv.py::TestForwardChainingSplits::test_invalid_cv_parameters_are_rejected_before_loop[2-0-3]",
+    "-o",
+    "cache_dir=/workspace/e02-E-20261006-receipts/backtest-cv-cache",
+    "--basetemp=/workspace/e02-E-20261006-receipts/backtest-removal-cv-001"
+  ],
+  "outcome": "FAIL",
+  "returncode": 1,
+  "wall_s": 26.282130181003595,
+  "rss_kib_direct_and_children": 499772,
+  "expected_removed_property_result": "FAIL",
+  "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/cv-removal.log"
+}

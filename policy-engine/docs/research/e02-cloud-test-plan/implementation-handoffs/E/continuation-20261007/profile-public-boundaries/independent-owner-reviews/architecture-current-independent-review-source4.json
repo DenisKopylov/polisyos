@@ -1,0 +1,202 @@
+{
+  "schema": "policyos.e02.current_architecture_independent_classification.v1",
+  "reviewer": "/root/api_companions",
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "immutable_inputs": [
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/architecture-current/receipt.json",
+      "bytes": 5460,
+      "sha256": "e717f9d507a030f4afeea4e6199787cc6c05d98603c390cfb5c472f8a71e526e"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/architecture-current/preflight.json",
+      "bytes": 2930,
+      "sha256": "60b98b9662e5d092d6b9bf39c4883c8325c1dac49c01a668320175c26f0dbb96"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/architecture-current/stdout.txt",
+      "bytes": 127152,
+      "sha256": "ac20607c9fffe226bae5f6d6879ec0caedc0b4a88d153f54ccb8d4892507f883"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/architecture-current/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/architecture-current-summary.json",
+      "bytes": 2127,
+      "sha256": "b94af30412ce3f7e1a5c44f833f531805fc178eed21bd52bfced6d5fd17bf991"
+    }
+  ],
+  "actual_check": {
+    "argv": [
+      "/workspace/.polisyos-environment/uv/bin/uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "architecture",
+      "guardrails",
+      "check",
+      "--generated-freshness-workspace-root",
+      "/workspace/e02-E-thirteenth-architecture-recompute-source4-20261007",
+      "--generated-freshness-uv-cache-dir",
+      "/workspace/.polisyos-environment/cache/uv"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "child_exit": 1,
+    "outcome": "FAIL",
+    "wall_seconds": 260.9380916149821,
+    "tracked_source_clean_after": true,
+    "captured_pre_post_status_identical": true
+  },
+  "independent_classification": {
+    "exact_new_deep_import_message_count": 151,
+    "message_range": {
+      "first_line": 2178,
+      "last_line": 2328
+    },
+    "catalogue_and_baseline_drifts": [
+      {
+        "line": 6,
+        "message": "- Public surface inventory JSON drift detected."
+      },
+      {
+        "line": 132,
+        "message": "- Public surface reference doc drift detected."
+      },
+      {
+        "line": 286,
+        "message": "- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline."
+      }
+    ],
+    "required_generated_mismatches": [
+      {
+        "line": 2329,
+        "message": "- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json."
+      },
+      {
+        "line": 2330,
+        "message": "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+      }
+    ],
+    "clean_required_generated_families": [
+      {
+        "line": 2,
+        "message": "Generated artifact freshness clean: runtime-api-client (3 generator-observed outputs)."
+      },
+      {
+        "line": 3,
+        "message": "Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs)."
+      }
+    ],
+    "UNRUN_markers_in_this_complete_command": 0,
+    "standalone_Atlas_notice": {
+      "line": 4,
+      "text": "Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.",
+      "outcome": "UNRUN by this command; separate canonical selector required"
+    },
+    "count_method": "Full stdout line-prefix/whole-line predicates only. Unified diff deletion/addition rows were not counted as violations. No broad cause attribution for151 messages."
+  },
+  "API_ABI_companion_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "b1131c15a8fb98fe16b1f15fdfdfc709f922da49",
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+      "bytes": 52447,
+      "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+      "blob": "48eb8c09bd2470977fb7f86258d739a80738362c",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    }
+  ],
+  "source_companions": {
+    "IR_source_exports": 288,
+    "IR_committed_inventory_exports": 284,
+    "missing_inventory_reference_names": [
+      "PosteriorParameterBinding",
+      "PosteriorSummaryContext",
+      "PosteriorSummaryProfile",
+      "PosteriorSummaryProfileV2"
+    ],
+    "registered_Profile_ABIs": [
+      {
+        "abi_key": "posterior_summary_profile_v2",
+        "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfileV2",
+        "module": "ir",
+        "schema_file": "posterior_summary_profile_v2.schema.json",
+        "version_field": "profile_version"
+      },
+      {
+        "abi_key": "posterior_summary_profile",
+        "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+        "module": "ir",
+        "schema_file": "posterior_summary_profile.schema.json",
+        "version_field": "profile_version"
+      }
+    ],
+    "missing_snapshots_and_manifest_entries": true,
+    "canonical_next_owner": "G canonical generator on admitted composed source",
+    "required_order": [
+      "diagnostics gen-schema",
+      "architecture public surface sync without accepting deep baseline",
+      "diagnostics gen-schema --check",
+      "full architecture recomputing check"
+    ],
+    "no_hand_edit_or_baseline_widening": true
+  },
+  "different_denominators": {
+    "historical_current_API_packet": "23 new E cross-root module pairs,21 supported facades/2 private edges versus exactbase198 full changed-source census;3 preexisting E CanonSpec callers are separate",
+    "global_architecture_receipt": "151 whole-repository deep-import baseline messages, includes different full-source rules, private modules and existing baseline drift",
+    "implication": "Neither count excuses a red or is a finding criterion verdict; no numeric equality or inherited attribution inferred"
+  },
+  "remaining_global_selectors": "No execution claim for standalone Atlas, remaining standalone generated/runtime API/static invocation/workspace verify/CI parity successors or their owner prerequisites. This command has no UNRUN marker; that does not make those separate selectors PASS. Root/G records them independently.",
+  "predicate_basis": "independently_reconciled",
+  "P41": "not_established",
+  "P41_limit": "No exact slice-base whole-command/full-input-intersection replay; introducing cause/inherited state not established. Canonical writer assignment is not root-cause proof.",
+  "review_decision": "GO for this bounded output/custody classification; observed architecture check remains FAIL",
+  "finding_closure": "No G intake or original finding outcome changed",
+  "runtime_or_generator_reexecution_by_reviewer": false,
+  "source_generated_Git_mutation_by_reviewer": false,
+  "read_lease": "CLOSED"
+}

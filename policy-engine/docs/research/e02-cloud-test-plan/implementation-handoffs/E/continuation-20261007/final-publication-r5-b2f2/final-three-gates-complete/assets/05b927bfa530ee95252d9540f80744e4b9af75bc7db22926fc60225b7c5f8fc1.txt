@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.final_static_native_extraction.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "native_outcome": "FAIL",
+  "native_exit_code": 1,
+  "coverage": "partial",
+  "regressions": 24,
+  "new_unresolved": 95,
+  "all_unresolved": 9243,
+  "unresolved_receiver_calls": 140298,
+  "mechanisms": 13141,
+  "root_count": 401,
+  "full_native_denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5942,
+    "base_files": 5904,
+    "source_files": 2703,
+    "current_sha256": "b432d1626c604aff7f2e0aa3f1d93a28dd215a517515ec964d2b06ea5ebfd4e9",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "input_corpus": {
+    "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/full-native-input-corpus.json",
+    "bytes": 3764199,
+    "sha256": "e75af6ae7d7f1af56261e38e67ffc41d7ac5e50b4ee980fc1b2757054eb7e04f"
+  },
+  "complete_changed_records": {
+    "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/all-119-native-mechanism-records.json",
+    "bytes": 527404,
+    "sha256": "f4dd3ea0af0dad8e425f9f7acc5aaedadc23f639b5eab207bec4128a462f09af"
+  },
+  "runtime_invocation_established": false,
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "P41": "not_established: no exact full slice-base command replay",
+  "finding_closure": false,
+  "raw_stays_ignored": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/production-invocation.raw.json",
+    "bytes": 171903508,
+    "sha256": "2812e3d586163196ab036fea24b99ace8f2a3433d3279388c04e6b3d3ba2a529"
+  }
+}

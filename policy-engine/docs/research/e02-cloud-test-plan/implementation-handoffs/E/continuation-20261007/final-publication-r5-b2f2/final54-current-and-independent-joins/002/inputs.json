@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.E.final54-b2.inputs.v1",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "inputs": {
+    "owner54": {
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+      "bytes": 314142,
+      "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8"
+    },
+    "previous54_wave": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json",
+      "bytes": 948332,
+      "sha256": "9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872"
+    },
+    "sparse3932": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/sparse-original-row-decisions-3932.json",
+      "bytes": 57381,
+      "sha256": "9acba4ad109ffa6c3033cc89f83580951e245bb0f49b73677216c5d40ca85cde"
+    },
+    "composition_preparation": {
+      "path": "/tmp/e02-E-final54-IR-ecde-preparation-20261007/prepared-normal.json",
+      "bytes": 71820,
+      "sha256": "8b2a13504110bb83bc1e620391e875628d69bc643449d143ec2de3d80ec59201"
+    },
+    "composition_review": {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/review.json",
+      "bytes": 10428,
+      "sha256": "5528cfc117615c8d6ca05bead60682523c737bea4dc430b511da1cf53dc014ee"
+    },
+    "fit_review": {
+      "path": "/tmp/e02-E-fit-independent-77b4-20261007/independent-review-77b4.json",
+      "bytes": 12562,
+      "sha256": "4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f"
+    },
+    "facade_review": {
+      "path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json",
+      "bytes": 10915,
+      "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+    },
+    "facade_handoff_review": {
+      "path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.json",
+      "bytes": 64255,
+      "sha256": "a939c238acf54879ea461239195e784064b4b8e01f7e6e19f56da062529dc646"
+    },
+    "import_disposition": {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/current-disposition.json",
+      "bytes": 15871,
+      "sha256": "3d75fd43093bcfe62e1948a5361a59470bf124844d5b863e321e2926ce6fdc74"
+    },
+    "import_selection": {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/publication-selection.json",
+      "bytes": 14429,
+      "sha256": "7e6ba7de563a7b63858a14a78907153570a052fbe83d9bbb6356e52463cbb4ff"
+    },
+    "freeze": {
+      "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+    },
+    "published_readback": {
+      "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-readback.json",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15"
+    },
+    "environment": {
+      "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/root-environment-metadata.json",
+      "bytes": 51499,
+      "sha256": "16fbca8ff5fb15d5ce0add080e4d5492e8dd55e1ee551978a270c36d0eb6e847"
+    },
+    "numeric_plan": {
+      "path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/final-numeric-selector-plan.json",
+      "bytes": 229702,
+      "sha256": "7e4cdaf703bda4b7104945dcc34222f0d1ec99cd4d3a10fad2967571e5c0058e"
+    },
+    "wave_launch": {
+      "path": "/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/wave-started.json",
+      "bytes": 197,
+      "sha256": "f631af887dbe6c537e3b069acb24e69ca4368b3cfbb9ff654ee46e21cee3c51f"
+    },
+    "previous_terminal_backend": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.json",
+      "bytes": 8010,
+      "sha256": "201d44b003da6b4e63c5cea4384c752f44f8996b0da4ebe0a73fd1c8ead3227a"
+    },
+    "previous_terminal_selection": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/terminal-backend-decoder-publication-selection-v3.json",
+      "bytes": 13749,
+      "sha256": "3c07c778c1cfd3f1e53aaa9ab8d9b8b4ac2bae7869d5652238138011791afea4"
+    }
+  }
+}

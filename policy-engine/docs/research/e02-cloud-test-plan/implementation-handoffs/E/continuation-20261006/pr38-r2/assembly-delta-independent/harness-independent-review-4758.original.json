@@ -1,0 +1,195 @@
+{
+  "schema": "policyos.e02.independent_harness_review.v1",
+  "candidate": "4758d495abb81aa51fea8e28cd071ca9ff989155",
+  "tree": "c10843f74311d6973ccefea609cd7bf34bc828fe",
+  "base": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "reviewer": "E DoE author, independent from root/FRC harness writers; read-only, no source edits/children",
+  "verdict": "GO-bounded-owned-harness-readiness-and-preservation",
+  "source_inputs": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py": {
+      "sha256": "9adde423ab2cbfc841a8a2de41fc1c03906e3429b176fa17412fd22c09c47e87",
+      "bytes": 23015
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py": {
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6",
+      "bytes": 11192
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py": {
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173",
+      "bytes": 7225
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md": {
+      "sha256": "e8df2499206433fc9ebd6bd3fc317a02c914f0bc18f348e9d5f15ecd786f29e9",
+      "bytes": 4891
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json": {
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63",
+      "bytes": 2477
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json": {
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af",
+      "bytes": 9604
+    },
+    "policy-engine/pytest.ini": {
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021
+    },
+    "policy-engine/ruff.toml": {
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "bytes": 247
+    },
+    "policy-engine/pyproject.toml": {
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    "policy-engine/uv.lock": {
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    },
+    "policy-engine/tools/devx/workspace/ci_parity.py": {
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+      "bytes": 11939
+    },
+    "policy-engine/tools/devx/workspace/verify.py": {
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+      "bytes": 12277
+    },
+    "policy-engine/tools/devx/workspace/_common.py": {
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "bytes": 7324
+    },
+    "policy-engine/apps/runtime-dashboard/package.json": {
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599
+    },
+    "policy-engine/pnpm-lock.yaml": {
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "bytes": 482583
+    }
+  },
+  "author_patch": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/v2/wave-controls-configured-repair-v2.patch",
+    "sha256": "935428d3f81693dd80a3f9f89f0b1d1ff21a1c689666950c7ef59c00624cadbb",
+    "bytes": 23717
+  },
+  "property_controls": "harness-independent-review.json",
+  "denominator_correction": "denominator-correction.json",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/harness_review.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1"
+      },
+      "stdout": "harness-review.stdout",
+      "exit_code": 0,
+      "scope": "Independent metadata/native mocked-safety/JUnit controls only; no numeric/CI process."
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1"
+      },
+      "stdout": "configured-ruff.stdout",
+      "exit_code": 0,
+      "scope": "Three changed harness files only with actual repo ruff.toml; not full changed-Python gate."
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment": {
+        "UV_NO_SYNC": "1"
+      },
+      "stdout": "configured-format.stdout",
+      "exit_code": 0,
+      "scope": "Three changed harness files only with actual repo ruff.toml; not full changed-Python gate."
+    }
+  ],
+  "environment": {
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "packages": {
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "defusedxml": "0.7.1",
+      "pytest-benchmark": "5.2.3",
+      "playwright": "not-a-Python-package; JS identity in browser receipt"
+    },
+    "capability_receipt": "browser-capability-receipt.json",
+    "runtime_plan_selected_environment": {
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+      "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+      "UV_CACHE_DIR": null
+    }
+  },
+  "input_denominators": {
+    "native_test_paths": 120,
+    "A_owner_packet_paths": 2,
+    "total_test_file_inputs": 122,
+    "native_groups": 7,
+    "planned_Ruff_changed_Python_exact4758": 211,
+    "docs_witnesses_in_Ruff_denominator_exact4758": 109,
+    "focused_configured_Ruff_files": 3,
+    "runtime_test_cases": "UNRUN until actual JUnit; parametrization cannot be inferred from AST count"
+  },
+  "predicate_basis": {
+    "scratch_admission": "Path.exists OR Path.is_symlink before prepare/output exclusive mkdir; every numerical basetemp admitted before marker/importer and immediately before run. Negative removes actual function code while retaining names and identity, with fake process spy only.",
+    "pytest_defaults": "Actual repository pytest.ini importlib/strict-markers/cacheprovider kept, per-group cache_dir and benchmark storage overridden only to fresh unique paths.",
+    "stages": "Exact original numerical files preserved plus owned deltas/dependencies; canonical verify/ci-parity command factories retain doctor/backend/runtime/docs/frontend/browser according to actual declared options.",
+    "JUnit": "Actual defusedxml parser recomputes four independently supplied outcomes; DTD refusal checked.",
+    "browser": "Actual installed dashboard Playwright1.59.1 persistent Chromium147 launches and renders text4; binary/hash/package/native stdout recorded."
+  },
+  "limitations": [
+    "No numeric or full CI stage launched. Browser capability is not doctor, browser-suite, full CI or finding closure.",
+    "Actual common freeze candidate will include later receipt-only files; root must recompute full changed-Python denominator on that candidate. No inherited-red attribution or waiver.",
+    "Seven cloud numerical groups run without artificial caps; shared canonical generator/build/npm caches use serialized gate schedule. Atomic Hypothesis cache and post-command observer limitations remain in root final wave receipt.",
+    "All historical scripts/stdout preserved. Initial docs-count summary0 was reviewer prefix error corrected to109 without changing plan selection.",
+    "B194/B197/B201/B202 held and other historical finding ledger statuses are not changed by harness GO.",
+    "Initial validator attempt indexed its own redirected stdout, which was truncated before verification and correctly refused. Harness error preserved; final validator writes outside indexed publication files and stable PASS output is separately copied. No source/product failure or wave execution."
+  ],
+  "next_owner": {
+    "E_root": "Copy moderate immutable packet, freeze one reviewed clean candidate and run common numerical/global wave once, recording native JUnit/fail-fast/UNRUN outcomes separately.",
+    "G": "Review code admission separately from original criterion/finding owner decisions; exact production history checks remain local read-only."
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_performed": false,
+    "candidates_after_deciding_receipts_and_no_active_users": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/chromium-profile",
+      "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/preservation-controls"
+    ],
+    "preserve": [
+      "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness",
+      "product code/docs/source/law identities; original stdout and unique receipt data"
+    ],
+    "large_profile_excluded_from_Git": true
+  }
+}

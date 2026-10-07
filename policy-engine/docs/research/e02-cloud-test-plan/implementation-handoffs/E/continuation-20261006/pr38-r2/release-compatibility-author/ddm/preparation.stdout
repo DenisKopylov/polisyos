@@ -1,0 +1,174 @@
+{
+  "schema": "policyos.e02.ddm-release-companion-packet.v1",
+  "prepared_by": "/root/ddm_r2 (DDM author; not an independent code review)",
+  "base_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "base_tree": "b7dc087f12e08f388a73f582bf4888cda7500be8",
+  "canonical_decision_source": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md@a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "canonical_release_note_owner": "team-scientist",
+  "canonical_version_owner": "team-scientist",
+  "target": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+  "footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml"
+  ],
+  "patch": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/ddm-release-companion.patch",
+    "bytes": 3111,
+    "sha256": "78d972e269bb1faa18ac4fedf26aee892869eec520d4e9614ed2f662c98ef397"
+  },
+  "proposed_fragment": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/ddm-source-binding.proposed.toml",
+    "bytes": 2796,
+    "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+  },
+  "source_inputs": [
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "git_blob": "7090821f0d11bdb1252d5f3f9a995ce1ef7b25d5",
+      "bytes": 1667,
+      "sha256": "807fcc8d0348a1867ecd21851169113bd33f4f3971307cd4da2e06e0fae5e1d7"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md",
+      "git_blob": "72b607feb7a4c4f9bdf8f4e7a6c53a541819557e",
+      "bytes": 11071,
+      "sha256": "dfdf5e1803dbf8e31553b2d4bb5e4b71be58c3d498ccc9d6f35d8998f964bf4a"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/architecture/gates/compatibility_release.toml",
+      "git_blob": "c146111155f3be917cc34f107522deecf6529024",
+      "bytes": 5278,
+      "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/ops/release/release-fragment-policy.toml",
+      "git_blob": "f1cc16f9b488d93ef1c8d04f8565a0e6f9e42c92",
+      "bytes": 909,
+      "sha256": "d23c704803929d5f531424e61ca0c269d92b985f2cb1144d6674f3697985acbc"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/release-fragments/template.toml",
+      "git_blob": "941bf1eb30cde84490f43527acab6251372d7397",
+      "bytes": 995,
+      "sha256": "799fe6c6a79a579a0a9cee2f250f12add832e59cd7a4123cdbff0acd10756e6d"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/release-fragments/unreleased/2026-09-21-mig-02-manifest-path-rewrite.toml",
+      "git_blob": "3279fb90e1e3aaf3dbdc3341384f41ed09b11d97",
+      "bytes": 2532,
+      "sha256": "4049c9a66623a5d9e1861eb4158bf3daba5d1f87e334f56aac77111ed7efcf3e"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+      "git_blob": "bf4b94548619f4dcce395806a5ec70ea54b4847a",
+      "bytes": 26585,
+      "sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+      "git_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+      "bytes": 7873,
+      "sha256": "8365b630a97557f3483e7265145ac4b8b2306b6b438cf4257b3e7b72d9f79939"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+      "git_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+      "bytes": 4485,
+      "sha256": "f67350d1606ccc754a446790db635a812f78bba3d492f7ffc123063a666b3c84"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+      "git_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+      "bytes": 4074,
+      "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/src/polisyos/ddm/__init__.py",
+      "git_blob": "c4e4ce09a4d3e0570a3db2a4aacd008861279236",
+      "bytes": 2235,
+      "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "git_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+      "bytes": 222690,
+      "sha256": "21ab22cf9431660fd6318bca0ba8aa768ee01be9a5ca6ced1ae3b718211b26fe"
+    }
+  ],
+  "classification": {
+    "wire_change_class": "persisted-artifact-format",
+    "impact": "compatible_with_migration",
+    "facade_classification": "internal",
+    "facade_exports_unchanged": 17
+  },
+  "version_profile_evidence": {
+    "legacy_schema_id": "https://polisyos.local/schemas/ddm_15_7/model_registry_record.schema.json",
+    "current_schema_id": "https://polisyos.local/schemas/ddm_15_7/v2/model_registry_record.schema.json",
+    "distinct_schema_id": true,
+    "current_required_version": {
+      "const": "2"
+    },
+    "old_strict_reader_direction": "New v2 output incompatible with old strict reader; G53 and existing exact independent DDM receipt, not newly rerun here",
+    "migration": "Upgrade served readers before v2 emission; preserve historical v1 bytes; explicit prerelease enriched migration and exact fresh source rebind; no wire downgrade or authority inferred",
+    "deprecation": "No v1 removal date manufactured; original v1 reader/replay remains supported as historical non-gating projection"
+  },
+  "metadata_checks": {
+    "tomllib_parse": "PASS",
+    "actual_release_parser_structured_row": "PASS",
+    "actual_parser_contract_errors": [],
+    "negative_controls": [
+      {
+        "control": "missing_structured_owner",
+        "state": "REJECTED",
+        "errors": [
+          {
+            "check": "fragment-compatibility",
+            "severity": "error",
+            "subject": "release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration",
+            "message": "missing `owner`",
+            "detail": ""
+          }
+        ]
+      },
+      {
+        "control": "missing_structured_version_owner",
+        "state": "REJECTED",
+        "errors": [
+          {
+            "check": "fragment-compatibility",
+            "severity": "error",
+            "subject": "release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration",
+            "message": "missing `version_owner`",
+            "detail": ""
+          }
+        ]
+      }
+    ],
+    "git_apply_check": "PASS",
+    "repository_target_unchanged": true
+  },
+  "acceptance_scope": "Applicable metadata patch packet only, not independent acceptance of authored DDM code or finding closure",
+  "remaining_owner": "Root sole release-file writer applies/reconciles, independent backtest peer reviews metadata; team-scientist owns reader rollout and version profile",
+  "finding_boundaries": "LA-054/055 feed/currentness/signoff/deployment authority not established; LA-056 individual team-scientist API owner decision remains separate",
+  "new_numeric_checks": false,
+  "repository_or_git_mutations": false,
+  "cleanup_candidates": []
+}

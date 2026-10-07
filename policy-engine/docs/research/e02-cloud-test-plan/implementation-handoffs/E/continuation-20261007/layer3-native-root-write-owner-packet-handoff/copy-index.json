@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.owner_packet_handoff_literal_copy_index.v1",
+  "records": [
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publish_owner_packet.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publish_owner_packet.py.txt",
+      "bytes": 7535,
+      "sha256": "8eef36156d58a2d04b52a495fb156d56c1490ab7ff0f5569e54d9beb25d0785b"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-copy.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-copy.stdout.txt",
+      "bytes": 356,
+      "sha256": "3d0f34292f3cf2c229632366c5820d65d17d2a897836084214468935b7c79998"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-copy.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-copy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/validate_publication_custody.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/validate_publication_custody.py.txt",
+      "bytes": 4532,
+      "sha256": "5ad6c382d7d5c87aa7f7411e6a6fbe35767aef0de813afbcf24de8f0ac7fd742"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-custody.normal.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "bytes": 1606,
+      "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-custody.optimized.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.optimized.json",
+      "bytes": 1609,
+      "sha256": "4ea677614c246bf75e85d8abebcb4ad035e625d8ba2548fd84f12484268ffd93"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-custody.normal.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/publication-custody.optimized.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/implementation-doc-footprint.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/implementation-doc-footprint.json",
+      "bytes": 39091,
+      "sha256": "9687725a7bbcd452ccd4ec43ca0e30f6bf12e0e6c0b96c93989bfc891f26b314"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/implementation-postcommit-readback.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/implementation-postcommit-readback.json",
+      "bytes": 778,
+      "sha256": "c99b7d8985ddad7e3b9cc0f09a4713afd4b50d66190ca590aba1d8347ddee81f"
+    },
+    {
+      "original_path": "/tmp/e02-E-layer3-root-write-attribution-64d-20261007/prepare_doc_handoff.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/prepare_doc_handoff.py.txt",
+      "bytes": 8015,
+      "sha256": "ad4292d67f8b26b8e2179ba79cb2ddc88376127c4869de57e731912b97da8ea4"
+    }
+  ],
+  "copies": 11,
+  "total_bytes": 63522,
+  "implementation_candidate": "73e298743bb5f56e40d5ad31446ce2728db02ff7",
+  "implementation_tree": "0dba6c8a03f009838a72589965ff8676c1177005",
+  "handoff_SHA_not_self_referenced": true
+}

@@ -1,0 +1,155 @@
+{
+  "DOC_candidate": "fe9a8c5ee73c9ae0d122fdfd0e0b736c0e938386",
+  "binary_roles": [
+    {
+      "actual": "fixture/stderr.bin",
+      "case": "stderr.txt",
+      "expected": "fixture/stderr.bin",
+      "state": "GO"
+    },
+    {
+      "actual": "fixture/git-nul.bin",
+      "case": "git-nul.txt",
+      "expected": "fixture/git-nul.bin",
+      "state": "GO"
+    },
+    {
+      "actual": "fixture/control.bin",
+      "case": "control.txt",
+      "expected": "fixture/control.bin",
+      "state": "GO"
+    },
+    {
+      "actual": "fixture/empty.stdout.txt",
+      "case": "empty.stdout.json",
+      "expected": "fixture/empty.stdout.txt",
+      "state": "GO"
+    },
+    {
+      "actual": "fixture/error.stdout.txt",
+      "case": "error.stdout.json",
+      "expected": "fixture/error.stdout.txt",
+      "state": "GO"
+    },
+    {
+      "actual": "fixture/healthy.json",
+      "case": "healthy.json",
+      "expected": "fixture/healthy.json",
+      "state": "GO"
+    },
+    {
+      "actual": "fixture/script.py.txt",
+      "case": "script.py",
+      "expected": "fixture/script.py.txt",
+      "state": "GO"
+    }
+  ],
+  "controls": [
+    {
+      "case": "actual_literal_and_gzip",
+      "members": 2,
+      "state": "GO"
+    },
+    {
+      "case": "unsupported_encoding",
+      "exception": "ValueError",
+      "reason": "unsupported registered evidence encoding",
+      "state": "REFUSED"
+    },
+    {
+      "case": "boolean_stored_size",
+      "exception": "ValueError",
+      "reason": "complete typed source identity",
+      "state": "REFUSED"
+    },
+    {
+      "case": "boolean_decoded_size",
+      "exception": "ValueError",
+      "reason": "complete typed source identity",
+      "state": "REFUSED"
+    },
+    {
+      "case": "stored_hash",
+      "exception": "ValueError",
+      "reason": "original or stored bytes/hash /tmp/e02-E-r5-DOC-independent-fe9a-20261007/registered-normal/assets/compressed.bin",
+      "state": "REFUSED"
+    },
+    {
+      "case": "decoded_hash",
+      "exception": "ValueError",
+      "reason": "complete decoded original byte identity",
+      "state": "REFUSED"
+    },
+    {
+      "case": "decoded_size",
+      "exception": "ValueError",
+      "reason": "complete decoded original byte identity",
+      "state": "REFUSED"
+    },
+    {
+      "case": "relative_original",
+      "exception": "ValueError",
+      "reason": "complete typed source identity",
+      "state": "REFUSED"
+    },
+    {
+      "case": "original_traversal",
+      "exception": "ValueError",
+      "reason": "pure full absolute original source context",
+      "state": "REFUSED"
+    },
+    {
+      "case": "original_NUL",
+      "exception": "ValueError",
+      "reason": "pure full absolute original source context",
+      "state": "REFUSED"
+    },
+    {
+      "case": "stored_traversal",
+      "exception": "ValueError",
+      "reason": "pure full relative encoded source context",
+      "state": "REFUSED"
+    },
+    {
+      "case": "stored_absolute",
+      "exception": "ValueError",
+      "reason": "pure full relative encoded source context",
+      "state": "REFUSED"
+    },
+    {
+      "case": "logical_boolean",
+      "exception": "ValueError",
+      "reason": "pure full relative logical member context",
+      "state": "REFUSED"
+    },
+    {
+      "case": "logical_traversal",
+      "exception": "ValueError",
+      "reason": "pure full relative logical member context",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_member_count",
+      "exception": "ValueError",
+      "reason": "complete registered encoded member denominator",
+      "state": "REFUSED"
+    },
+    {
+      "case": "registered_schema",
+      "exception": "ValueError",
+      "reason": "registered exact moderate selector schema",
+      "state": "REFUSED"
+    },
+    {
+      "case": "actual_decoded_If_removed",
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "stored_bytes_and_marker_refs_kept": true
+    }
+  ],
+  "native_backend_executed": false,
+  "optimization_mode": false,
+  "program_sha256": "16462c62fcb8b9b1b361cf65b6cbbfb99755b627a34e9b6743cdf5829805de7e",
+  "publication_destination_writes": 0,
+  "schema": "policyos.e02.independent.r5.encoded_inlet.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+}

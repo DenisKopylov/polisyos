@@ -1,0 +1,45 @@
+{
+  "controls": [
+    {
+      "name": "original_closed197logical127storage_healthy",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actual_original_V2_native_receipt_retotted_omission",
+      "observation": "ADMITTED; CHANGE_REQUIRED custody validation only",
+      "original_source_tree_current_packet_and_raw_markers_unchanged": true
+    },
+    {
+      "actual_refusal": true,
+      "name": "independent_exact_required_member_counter_refuses_same_omission",
+      "outcome": "PASS"
+    },
+    {
+      "name": "independent_member_counter_guard_removal_readmits_same_omission",
+      "outcome": "PASS",
+      "removed_property": "admit_members body only"
+    }
+  ],
+  "disposition": "CHANGE_REQUIRED for mandatory selected-source admission; original literal custody separate.",
+  "native_or_math_gates_reexecuted": false,
+  "optimized": true,
+  "packet": {
+    "bytes": 23106,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/three-selector-packet-v3.json",
+    "sha256": "2d704be9fb2448e6f2453971f7ecfa633873db7540f0f39fa7952a6969037249"
+  },
+  "schema": "policyos.e02.E.current_three_gate_independent_custody.v1",
+  "selection": {
+    "bytes": 217218,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection-v2.json",
+    "sha256": "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+  },
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "source_or_ROOT_environment_modified": false,
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "validator": {
+    "bytes": 5410,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/validate_publication_selection_v2.py.txt",
+    "sha256": "80daaac41fe00be4e16b854e6ef10d763ed0dac64a434ad8516f2eb80f4080c1"
+  }
+}

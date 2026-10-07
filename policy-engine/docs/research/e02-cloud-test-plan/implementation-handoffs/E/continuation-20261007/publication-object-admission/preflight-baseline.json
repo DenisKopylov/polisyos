@@ -1,0 +1,115 @@
+{
+  "source_sha": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+  "probe": "Actual core validator and extracted literal actual helper function body; spy callbacks only, no external writes",
+  "controls": [
+    {
+      "name": "candidate_option",
+      "callback_count": 3,
+      "error": "ValueError",
+      "Git_callbacks": [
+        [
+          "rev-parse",
+          "--output=outside^{tree}"
+        ],
+        [
+          "diff",
+          "--name-only",
+          "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+          "--output=outside"
+        ],
+        [
+          "show",
+          "--output=outside:policy-engine/src/polisyos/calibration/continuous.py"
+        ]
+      ]
+    },
+    {
+      "name": "base_option",
+      "callback_count": 3,
+      "error": "ValueError",
+      "Git_callbacks": [
+        [
+          "rev-parse",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799^{tree}"
+        ],
+        [
+          "diff",
+          "--name-only",
+          "--output=outside",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+        ],
+        [
+          "show",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799:policy-engine/src/polisyos/calibration/continuous.py"
+        ]
+      ]
+    },
+    {
+      "name": "last_path_None",
+      "callback_count": 2,
+      "error": "ValueError",
+      "Git_callbacks": [
+        [
+          "rev-parse",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799^{tree}"
+        ],
+        [
+          "diff",
+          "--name-only",
+          "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+        ]
+      ]
+    },
+    {
+      "name": "last_path_dot",
+      "callback_count": 2,
+      "error": "ValueError",
+      "Git_callbacks": [
+        [
+          "rev-parse",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799^{tree}"
+        ],
+        [
+          "diff",
+          "--name-only",
+          "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+        ]
+      ]
+    },
+    {
+      "name": "last_path_bool",
+      "callback_count": 2,
+      "error": "ValueError",
+      "Git_callbacks": [
+        [
+          "rev-parse",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799^{tree}"
+        ],
+        [
+          "diff",
+          "--name-only",
+          "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+          "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+        ]
+      ]
+    },
+    {
+      "name": "imports_ref_--output=outside",
+      "callback_count": 1,
+      "error": "ValueError"
+    },
+    {
+      "name": "imports_ref_None",
+      "callback_count": 1,
+      "error": "ValueError"
+    },
+    {
+      "name": "imports_ref_True",
+      "callback_count": 1,
+      "error": "ValueError"
+    }
+  ],
+  "whole_class_preflight_established": false
+}

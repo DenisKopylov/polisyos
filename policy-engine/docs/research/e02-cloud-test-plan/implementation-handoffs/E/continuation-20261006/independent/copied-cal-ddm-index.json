@@ -1,0 +1,270 @@
+{
+  "schema": "policyos.e02.evidence_copy.v1",
+  "script_extension_note": "Original executed script bytes preserved as .py.txt; Python executes these paths directly. Original log bytes preserved as .stdout.txt. Receipt source paths retain exact session provenance; this index gives Git copies.",
+  "files": [
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/oracles.py",
+      "committed_path": "independent/cal/oracles.py.txt",
+      "bytes": 8312,
+      "sha256": "b7a824d2031a5abcc39663f514b280dfc49b7602b0ab23a9d1f7935c877d2e05"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/batch_oracles.py",
+      "committed_path": "independent/cal/batch_oracles.py.txt",
+      "bytes": 4053,
+      "sha256": "04da12b4a121e5310d187b073318d3b241a10f5551196b581686e3e2f70f575b"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/review-0cb369b6ef73.json",
+      "committed_path": "independent/cal/review-0cb369b6ef73.json",
+      "bytes": 22254,
+      "sha256": "9ef48cc49717da09ba1be923be82ab097c215bb4bc60d9493fc964778696fd17"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/final-targeted-0cb369b6ef73.log",
+      "committed_path": "independent/cal/final-targeted-0cb369b6ef73.stdout.txt",
+      "bytes": 160,
+      "sha256": "a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/final-targeted-0cb369b6ef73-receipt.json",
+      "committed_path": "independent/cal/final-targeted-0cb369b6ef73-receipt.json",
+      "bytes": 1114,
+      "sha256": "40f87503673c666dbacbc128d0b29c6108c339b439293a1e17fd9ad00b00789c"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/oracles-0cb369b6ef73.log",
+      "committed_path": "independent/cal/oracles-0cb369b6ef73.stdout.txt",
+      "bytes": 6189,
+      "sha256": "2da0fe0f6c6458b2b9860003568f71b334687d9dd90385bdbd0c6bb6ca210ff0"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/oracles-0cb369b6ef73-receipt.json",
+      "committed_path": "independent/cal/oracles-0cb369b6ef73-receipt.json",
+      "bytes": 8097,
+      "sha256": "e7eebc3000795940ba267d0543fdf8485182932b64aa2db43b1d213a17d834af"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/batch-oracles.log",
+      "committed_path": "independent/cal/batch-oracles.stdout.txt",
+      "bytes": 730,
+      "sha256": "521abf4bfecece73ef98efad7c4d94a63ec996dd1a25b429efbb2f7a2ae1e947"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/batch-oracles-receipt.json",
+      "committed_path": "independent/cal/batch-oracles-receipt.json",
+      "bytes": 2932,
+      "sha256": "39b74c320527d78d8202ecf7235056db712b69d7229a9126ea0a0b4d953f09a0"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/mixed-source-caveat.json",
+      "committed_path": "independent/cal/mixed-source-caveat.json",
+      "bytes": 896,
+      "sha256": "8620016e29312e65541af3586859469c260a9e20d4f0b8777ce86cc742b4470c"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare_failed_support.py",
+      "committed_path": "independent/cal/welfare_failed_support.py.txt",
+      "bytes": 4179,
+      "sha256": "5d445664b30e8e2b98ad73cf28d0cc655c8dcd3200f09aa9656b84cd41edc46d"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-failed-support-cas-resolved.log",
+      "committed_path": "independent/cal/welfare-failed-support-cas-resolved.stdout.txt",
+      "bytes": 2372,
+      "sha256": "9fbd9014cc2e82cf8ec84e2c99a8f9ccd1d13fbbbda90cba0f3482b3af5b10cf"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/cal-independent/welfare-failed-support-receipt.json",
+      "committed_path": "independent/cal/welfare-failed-support-receipt.json",
+      "bytes": 2907,
+      "sha256": "0d29c274852d151385a8fb73428fbd293b1acff977bf7e91783aaf41d07a20ff"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm_contract_controls.py",
+      "committed_path": "independent/ddm01/ddm_contract_controls.py.txt",
+      "bytes": 15096,
+      "sha256": "4ffdee7b06ed1338de3b7210687f09f7275b00ab5d14b10f1f9284be1c899315"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/contracts-only.py",
+      "committed_path": "independent/ddm01/ddm01/contracts-only.py.txt",
+      "bytes": 2566,
+      "sha256": "1ce1a67837978e3179eadaf0c492924f84879cac64c385e8935da9992b2047a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/contracts-only.stderr",
+      "committed_path": "independent/ddm01/ddm01/contracts-only.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/contracts-only.stdout",
+      "committed_path": "independent/ddm01/ddm01/contracts-only.stdout",
+      "bytes": 96,
+      "sha256": "dbbca3fd6f0e3a4bfecc40043b5cc268a3b25ba97ba36be42216a85125893388"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/ddm01-independent.json",
+      "committed_path": "independent/ddm01/ddm01/ddm01-independent.json",
+      "bytes": 12276,
+      "sha256": "e01cf823dbbc67eee599b2cc15bb52cdf5489384abd3685acfe85c40b5db0c4a"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/identity-json-pickle-schema-consumer.py",
+      "committed_path": "independent/ddm01/ddm01/identity-json-pickle-schema-consumer.py.txt",
+      "bytes": 8275,
+      "sha256": "2944d6a64c557c8252c0d9e533e749cf8f27c1e4be719fcb7b098647d4ac186d"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/identity-json-pickle-schema-consumer.stderr",
+      "committed_path": "independent/ddm01/ddm01/identity-json-pickle-schema-consumer.stderr",
+      "bytes": 1010,
+      "sha256": "0df9ba87c91dad18dba435ff41ec0dce66900afb6e4664a34250ef297de43dad"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/identity-json-pickle-schema-consumer.stdout",
+      "committed_path": "independent/ddm01/ddm01/identity-json-pickle-schema-consumer.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/integration-lazy-removal.py",
+      "committed_path": "independent/ddm01/ddm01/integration-lazy-removal.py.txt",
+      "bytes": 2566,
+      "sha256": "1ce1a67837978e3179eadaf0c492924f84879cac64c385e8935da9992b2047a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/integration-lazy-removal.stderr",
+      "committed_path": "independent/ddm01/ddm01/integration-lazy-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/integration-lazy-removal.stdout",
+      "committed_path": "independent/ddm01/ddm01/integration-lazy-removal.stdout",
+      "bytes": 191,
+      "sha256": "62c9d34af42f58f3817a8ea8307365b09fa2fa3fe562ee3f7a6a42530fc74f7f"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/native-ddm.stderr",
+      "committed_path": "independent/ddm01/ddm01/native-ddm.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/native-ddm.stdout",
+      "committed_path": "independent/ddm01/ddm01/native-ddm.stdout",
+      "bytes": 80,
+      "sha256": "45e00f2cc162072e381af0198bc09a54daa73544fa9cd47b4ed25760a061c4aa"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/root-lazy-removal.py",
+      "committed_path": "independent/ddm01/ddm01/root-lazy-removal.py.txt",
+      "bytes": 2566,
+      "sha256": "1ce1a67837978e3179eadaf0c492924f84879cac64c385e8935da9992b2047a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/root-lazy-removal.stderr",
+      "committed_path": "independent/ddm01/ddm01/root-lazy-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/root-lazy-removal.stdout",
+      "committed_path": "independent/ddm01/ddm01/root-lazy-removal.stdout",
+      "bytes": 184,
+      "sha256": "ffea8be94ce75c3366a77c96a794ec9531454a9e80a6259f7c64269e53b44f19"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/contracts-only.py",
+      "committed_path": "independent/ddm01/ddm01-corrected/contracts-only.py.txt",
+      "bytes": 2566,
+      "sha256": "1ce1a67837978e3179eadaf0c492924f84879cac64c385e8935da9992b2047a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/contracts-only.stderr",
+      "committed_path": "independent/ddm01/ddm01-corrected/contracts-only.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/contracts-only.stdout",
+      "committed_path": "independent/ddm01/ddm01-corrected/contracts-only.stdout",
+      "bytes": 96,
+      "sha256": "dbbca3fd6f0e3a4bfecc40043b5cc268a3b25ba97ba36be42216a85125893388"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/ddm01-independent.json",
+      "committed_path": "independent/ddm01/ddm01-corrected/ddm01-independent.json",
+      "bytes": 11851,
+      "sha256": "628c9280f4ec3c0392eb764653331f51175b86d67414243dc24b9b551aec33a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/identity-json-pickle-schema-consumer.py",
+      "committed_path": "independent/ddm01/ddm01-corrected/identity-json-pickle-schema-consumer.py.txt",
+      "bytes": 8336,
+      "sha256": "06b5bba92b331f71715ff3ce02d3892b6d52501d6d44170f20acacece7906c82"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/identity-json-pickle-schema-consumer.stderr",
+      "committed_path": "independent/ddm01/ddm01-corrected/identity-json-pickle-schema-consumer.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/identity-json-pickle-schema-consumer.stdout",
+      "committed_path": "independent/ddm01/ddm01-corrected/identity-json-pickle-schema-consumer.stdout",
+      "bytes": 506,
+      "sha256": "79683c2b79df22c7eaf34d5001dc0e3b25a9201e4cc114992821f00a89de6c54"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/integration-lazy-removal.py",
+      "committed_path": "independent/ddm01/ddm01-corrected/integration-lazy-removal.py.txt",
+      "bytes": 2566,
+      "sha256": "1ce1a67837978e3179eadaf0c492924f84879cac64c385e8935da9992b2047a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/integration-lazy-removal.stderr",
+      "committed_path": "independent/ddm01/ddm01-corrected/integration-lazy-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/integration-lazy-removal.stdout",
+      "committed_path": "independent/ddm01/ddm01-corrected/integration-lazy-removal.stdout",
+      "bytes": 191,
+      "sha256": "62c9d34af42f58f3817a8ea8307365b09fa2fa3fe562ee3f7a6a42530fc74f7f"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/native-ddm.stderr",
+      "committed_path": "independent/ddm01/ddm01-corrected/native-ddm.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/native-ddm.stdout",
+      "committed_path": "independent/ddm01/ddm01-corrected/native-ddm.stdout",
+      "bytes": 80,
+      "sha256": "45e00f2cc162072e381af0198bc09a54daa73544fa9cd47b4ed25760a061c4aa"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/root-lazy-removal.py",
+      "committed_path": "independent/ddm01/ddm01-corrected/root-lazy-removal.py.txt",
+      "bytes": 2566,
+      "sha256": "1ce1a67837978e3179eadaf0c492924f84879cac64c385e8935da9992b2047a1"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/root-lazy-removal.stderr",
+      "committed_path": "independent/ddm01/ddm01-corrected/root-lazy-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "session_source": "/workspace/e02-E-20261006-receipts/closure-independent/ddm01-corrected/root-lazy-removal.stdout",
+      "committed_path": "independent/ddm01/ddm01-corrected/root-lazy-removal.stdout",
+      "bytes": 184,
+      "sha256": "ffea8be94ce75c3366a77c96a794ec9531454a9e80a6259f7c64269e53b44f19"
+    }
+  ]
+}

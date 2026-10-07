@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.layer3_default_root_write_owner_packet.v2",
+  "source": {
+    "commit": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "read_only_source_bindings": "source-index.json"
+  },
+  "original_native_scope": {
+    "session": 61243,
+    "pid": 536940,
+    "receipt": "parent-observation.json",
+    "exact_proc_argv": "proc-536940-cmdline.txt",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "source_HEAD_unchanged": true,
+    "tracked_generated_inputs_mutated": 29,
+    "source_input_immutable_during_native_run": false,
+    "native_run_terminal_outcome": "UNRUN/pending at observation; no terminal count/PASS claimed"
+  },
+  "observed_class": {
+    "path": "tests REPO_ROOT \u2192 validator.validate_*(supplied_root, write=True) \u2192 _write_artifacts \u2192 _resolve_repo_path \u2192 _write_json/typed TOML writer \u2192 atomic_write_text \u2192 os.replace",
+    "source_proven_root_WRITE_true_calls": 13,
+    "real_unintercepted_positive_tests": {
+      "G6": [
+        100,
+        135,
+        146
+      ],
+      "G7": [
+        210,
+        240,
+        307,
+        338,
+        385
+      ],
+      "G8": [
+        51
+      ]
+    },
+    "intercepted_notes": [
+      "G6 at245 overrides artifact writer but does not write manifest separately; no direct write from this mocked call itself",
+      "G7 at297 overrides artifact writer, then validate separately persists readiness manifest",
+      "G8 at107/146 intercepts both artifact writer and _write_json; these do not establish actual file-write attribution"
+    ],
+    "modified_path_membership": "all-29-writer-membership.json",
+    "family_counts": {
+      "G6": 9,
+      "G7": 14,
+      "G8": 6
+    },
+    "selection": "pytest.ini testpaths=tests; taxonomy adds repo_quality, not integration; global fixture changes logger/JAX and does not replace roots"
+  },
+  "P41": {
+    "individual_actual_native_caller": "not_established",
+    "source_static_selected_write_class": "established",
+    "reason": "native command/source allows writes and observed paths match output contract; no captured execution stack/per-test runtime event links a specific mutation to a specific call; selected source is not exact runtime causation"
+  },
+  "owner_patch": {
+    "canonical_next_owner": "G coordinates canonical repo-quality/tools test owners; runtime proving-ground/API writers remain their canonical owners (A/runtime as appropriate); E has no shared writer lease",
+    "applied": false,
+    "file": "canonical-owner-test-isolation-v2.patch",
+    "footprint": [
+      "policy-engine/tests/repo_quality/conftest.py",
+      "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py"
+    ],
+    "changes": "module-scoped Git HEAD product snapshot at temporary path; autouse fixtures replace only test-module REPO_ROOT; actual runtime and validators unchanged; source artifact fingerprint checks detect checkout mutation",
+    "apply_check": "patch-apply-check.json",
+    "scoped_positive_and_removal": "writer-controls.normal.json, writer-controls.optimized.json; actual source write helpers and real atomic replacement; plain bundle payloads in /tmp only",
+    "healthy_declared_writes": {
+      "G6": 28,
+      "G7": 29,
+      "G8": 24
+    },
+    "healthy_source_standin_mutations": 0,
+    "removal_actual_source_standin_mutations": {
+      "G6": 28,
+      "G7": 29,
+      "G8": 24
+    },
+    "ROOT_writes_from_packet": 0,
+    "guard_order": "admit returned pytest base before mktemp; admit returned fixture root before archive.open/Gitarchive/extract; upstream pytest basetemp getter/creation separately scoped",
+    "fixture_admission_controls": {
+      "normal": "fixture-v2-controls.normal.json",
+      "optimized": "fixture-v2-controls.optimized.json",
+      "controls_per_mode": 5,
+      "healthy_extraction": true,
+      "in_checkout_base_refusal_before_mktemp": true,
+      "in_checkout_returned_root_refusal_before_archive": true,
+      "admission_removal_reaches_archive_and_extract": true,
+      "test_double_Git": "ordering proof only; full real Git snapshot native selectors UNRUN"
+    }
+  },
+  "required_next_checks": [
+    {
+      "owner": "canonical G/tools repo-quality test owner",
+      "result": "review/apply packet under own lease and extend shared isolation class to additional source-proven default-root write callers (additional-layer3-default-root-callers.json), avoiding a G6/G7/G8-only whole-suite claim"
+    },
+    {
+      "owner": "canonical test owner",
+      "argv": [
+        "uv",
+        "run",
+        "--no-sync",
+        "pytest",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py"
+      ],
+      "cwd": "fresh canonical admitted candidate policy-engine",
+      "outcome": "UNRUN",
+      "result": "actual unchanged runtime constructors and original readiness assertions pass/fail their declared contract against Git-snapshot fixture; ROOT tracked artifact fingerprints remain equal"
+    },
+    {
+      "owner": "independent canonical test reviewer",
+      "result": "remove autouse root binding only on isolated source-standin; actual writer returns checkout mutations; verify no test mutates real source checkout",
+      "outcome": "UNRUN for full runtime; bounded writer removal already observed FAIL"
+    },
+    {
+      "owner": "G/native backend runner",
+      "result": "when current original run closes, retain full JUnit/stdout and any failure traceback/captured per-test event; only then evaluate exact caller/P41 attribution; preserve current mutation snapshots before any restore or publication"
+    },
+    {
+      "owner": "canonical test owner",
+      "result": "check nested runtime source/default-root read boundaries and any Git metadata/resource assumptions; Git archive lacks .git. Whole tracked product is conservative complete fixture input, not proof native selectors pass"
+    }
+  ],
+  "limitations": [
+    "No shared product/test files edited or restored, no native backend/runtime construction repeated",
+    "Bounded81-output writer controls do not prove native bundle semantics, finding closure or CI PASS",
+    "Module fixture intentionally snapshots full tracked product once per module; no new environment/worktree; owner may narrow only after exact read-input proof",
+    "G2/G3/G4/G5/GL/GY neighboring writers are outside applied patch and remain canonical owner work",
+    "Historical prepare.v1 KeyError observerERROR preserved; corrected v2 gets exact G8 runtime path alias; no baseline failure reclassified",
+    "V2 guard tests use explicit fake Git archive producer and tiny actual tar extraction to measure ordering; no full tracked product fixture construction/runtime execution",
+    "V1 containment-order escape is historical CHANGE_REQUIRED, not hidden by passing actual writer-binding controls"
+  ],
+  "historical_v1": {
+    "owner_packet_sha256": "c5979ea7d2954bb7066a98bb975107961f908630674465e18eacf6674de21410",
+    "patch_sha256": "9f041635d8ce8be972e68019bf902bbad0a8d8e9791e16c63a1857696c80a7e1",
+    "selection_sha256": "ebfdd337de6bc01dada000fc7b6f03f596c32002c1618c51331b57b940ff32d3",
+    "outcome": "CHANGE_REQUIRED (independent reviewer found containment guard after source-copy callbacks); prior15 actual writer controls remain reusable unchanged"
+  },
+  "runtime_read_input_companion": "fixture-read-alias-companion.json; G6/G8 global DEFAULT_REPO_ROOT conformance reads require canonical input admission; complete fixture input closure not claimed"
+}

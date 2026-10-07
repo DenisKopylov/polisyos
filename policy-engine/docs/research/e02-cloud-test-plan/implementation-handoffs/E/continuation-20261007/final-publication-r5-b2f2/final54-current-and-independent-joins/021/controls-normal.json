@@ -1,0 +1,183 @@
+{
+  "schema": "policyos.e02.E.final54-preparation-controls.v1",
+  "optimized": false,
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "input": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/inputs.json",
+    "bytes": 4149,
+    "sha256": "416e0106b4ee30f4ba9efc74a7fee4686cd3e5fee07706661bdac468a6110372"
+  },
+  "observer_source": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare.py",
+    "bytes": 29677,
+    "sha256": "1e05ad7c5fabb9fadb7c962f0dd294ef36b2d1a1eac5d05dc10c26c10199f18e"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepared-v3-normal.json",
+    "bytes": 486911,
+    "sha256": "dc45081e4bd30aa7d6bc7f01ea6e336edad614dfbd4c2f7524c2d81778700c65"
+  },
+  "controls": [
+    {
+      "case": "healthy_current_source_all54_original_dispositions",
+      "outcome": "PASS"
+    },
+    {
+      "case": "false_current_source",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "current source claim"
+    },
+    {
+      "case": "false_current_tree",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "current source claim"
+    },
+    {
+      "case": "retotalled_duplicate_finding",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "exact54 row membership"
+    },
+    {
+      "case": "formal_ledger_promotion",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "no formal owner-intake promotion"
+    },
+    {
+      "case": "formal_G_promotion",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "no formal owner-intake promotion"
+    },
+    {
+      "case": "invented_new_owner_decision",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "no invented new owner decision"
+    },
+    {
+      "case": "historical_closed_count_bool",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "typed ledger summary"
+    },
+    {
+      "case": "proposal_closed_count_float",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "typed scoped proposal summary"
+    },
+    {
+      "case": "bundle_denominator_bool",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "typed complete denominator"
+    },
+    {
+      "case": "changed_original_owner_decision",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "individual original decision changed: owner_decision"
+    },
+    {
+      "case": "changed_original_criterion_hash",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "individual original decision changed: criterion_evidence"
+    },
+    {
+      "case": "invented_minimum_input",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "complete minimum-input/next-owner rows"
+    },
+    {
+      "case": "ratification_removed",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "actual appointed and ratified semantic decisions"
+    },
+    {
+      "case": "current_role_digest_forged",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "complete role/source/ref/type claims"
+    },
+    {
+      "case": "stale_whole_prior_role_reuse",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "complete role/source/ref/type claims"
+    },
+    {
+      "case": "invalid_P37_basis",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "complete role/source/ref/type claims"
+    },
+    {
+      "case": "invented_capability",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "canonical capability vocabulary"
+    },
+    {
+      "case": "finite_fit_flag_authority",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "configured finite fit is not scientific authority"
+    },
+    {
+      "case": "edge_denominator_float",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "typed current edge denominator"
+    },
+    {
+      "case": "pending_numeric_as_PASS",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "pending numerical outcomes cannot become PASS"
+    },
+    {
+      "case": "pending_global_as_PASS",
+      "outcome": "PASS",
+      "admission": "REFUSE",
+      "reason": "pending global outcomes cannot become PASS"
+    },
+    {
+      "case": "sole_source_claim_predicate_removal_re_admits_forged_current_role",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_property_outcome": "FAIL",
+      "other_header_owner_counts_P37_guards_active": true
+    },
+    {
+      "case": "invalid_Git_object_preflight",
+      "outcome": "PASS",
+      "refusal": "full exact SHA required"
+    },
+    {
+      "case": "invalid_Git_object_preflight",
+      "outcome": "PASS",
+      "refusal": "canonical repo path"
+    },
+    {
+      "case": "invalid_Git_object_preflight",
+      "outcome": "PASS",
+      "refusal": "repo path characters"
+    },
+    {
+      "case": "invalid_Git_object_preflight",
+      "outcome": "PASS",
+      "refusal": "full exact SHA required"
+    }
+  ],
+  "control_count": 27,
+  "invalid_Git_callbacks": 0,
+  "product_import_or_native_reexecution": false
+}

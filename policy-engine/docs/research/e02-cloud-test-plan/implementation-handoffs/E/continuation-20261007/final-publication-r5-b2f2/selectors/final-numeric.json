@@ -1,0 +1,503 @@
+{
+  "schema": "policyos.e02.final_numeric_publication_selection.v1",
+  "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "file_count": 63,
+  "total_bytes": 3499485,
+  "files": [
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "at": "canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 10815,
+      "sha256": "f3942245f7ec9b6b4eecf291562a3a8f6d5172fcd6be63ea0bd8d729d2ff4c69"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "at": "canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 27584,
+      "sha256": "989c1a5fe0e086f8207cb4512557ab6e75ba19aa2ae1b331e9828583af763b64"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "at": "canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 83181,
+      "sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "at": "canonical-collection/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 9313,
+      "sha256": "46665040423f12158dc05042fdfecd1c9204e64e9be57a1809c29a427468531d"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "at": "canonical-collection/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 80,
+      "sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/cal-and-welfare-consumer/pytest.xml",
+      "at": "canonical-collection/checks/cal-and-welfare-consumer/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 13208,
+      "sha256": "d8c92610ea1b9b7f9f2ea36a9204a83f7709ef6eebc90fca7ed90df8538b458b"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "at": "canonical-collection/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 9828,
+      "sha256": "9feca71fa2ce13a50631b94bce85e609edd471ff4de86ebe7f044f38fc01e4db"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "at": "canonical-collection/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+      "at": "canonical-collection/checks/ddm-runtime-and-facade/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 12578,
+      "sha256": "9dd13a329d708ab962458bac655c1c1278dcd0ec2090c8ae028ac2dbfa3c2cf7"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "at": "canonical-collection/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 9988,
+      "sha256": "3b85afc393b2472fc432d0f21dff5c243b63a584c774317dfb39f397f31fbf20"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "at": "canonical-collection/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "at": "canonical-collection/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 36925,
+      "sha256": "aa1dd304386a2ca5f5bfc12a342cb87e711dad57d4afd2cf68c686875c7ec563"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "at": "canonical-collection/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 9191,
+      "sha256": "5ce60e37e217b270e9150693502117a5359de365f0d4f6756cde28a60aa9857a"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "at": "canonical-collection/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "at": "canonical-collection/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 10247,
+      "sha256": "9d4c4914a9d829e0d91bb849b97f2ffea3031e181ad215d812789c59179eff71"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "at": "canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 10945,
+      "sha256": "9dd509e9c521c7a5eec486c4bd5a31d79b1cd3141468aff817d27fc0f4b5b37e"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "at": "canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 4532,
+      "sha256": "b2ce54dba485739fade9fe9a903e62d8062143114ce598a731b69c027f59a6d7"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "at": "canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 102935,
+      "sha256": "9aa2e03a46085ca85a5418d5fedcbb97cb37bc6eb3f5fa36f9ecd5cfe48fffbd"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "at": "canonical-collection/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 9595,
+      "sha256": "bcdda6d8383bfaac986a17022645362d968ae9a9c4a3c982927490ace70db840"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "at": "canonical-collection/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 160,
+      "sha256": "6674452e653bfb530342ae4a12971ba9538f6465c6ef2a5c3b8904713e1c32c9"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/pcl-continuous-persistence/pytest.xml",
+      "at": "canonical-collection/checks/pcl-continuous-persistence/pytest.xml",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 15383,
+      "sha256": "d2f663fa1f1cd49d8a06ca026960ec08e621ec6de0da49a40ca3ffc3da42c1f4"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/results-importer/results-importer.json",
+      "at": "canonical-collection/checks/results-importer/results-importer.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 8238,
+      "sha256": "c221d23b584f73e0f62e5ea13c4a1f1af71a6b16acdfb11f82508ae4a98862dd"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/checks/results-importer/results-importer.stdout.txt",
+      "at": "canonical-collection/checks/results-importer/results-importer.stdout.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/cleanup-candidates.json",
+      "at": "canonical-collection/cleanup-candidates.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 5189,
+      "sha256": "b27f2f8ecf9c51a273a1d44dee649b804f5fe52ae697c0e561c18cd765cd89d1"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/copy-index.json",
+      "at": "canonical-collection/copy-index.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 11269,
+      "sha256": "4fa8d1dc982b2f6932b75b78ffa1ea805238db97d3bd5aac307bef6cd503f8bf"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/execution-complete.json",
+      "at": "canonical-collection/execution-complete.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 228,
+      "sha256": "c9cc6b4c99cd883dc1873f2c15ecb9295da469ed0b68d03f417c0fbb520db2df"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/owner-packets/test_a_frc_native_cas_status_reason.py",
+      "at": "canonical-collection/owner-packets/test_a_frc_native_cas_status_reason.py.txt",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/plan.json",
+      "at": "canonical-collection/plan.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 229702,
+      "sha256": "7e4cdaf703bda4b7104945dcc34222f0d1ec99cd4d3a10fad2967571e5c0058e"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/publication-receipt.json",
+      "at": "canonical-collection/publication-receipt.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 574927,
+      "sha256": "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/raw-custody.json",
+      "at": "canonical-collection/raw-custody.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 1895,
+      "sha256": "17a1fb1f9df1d430d578433e5db855fa14423736ab82da43a49a733340e237bb"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/wave-started.json",
+      "at": "canonical-collection/wave-started.json",
+      "role": "Closed canonical collector custody/output; native stderr/stdout are complete combined streams",
+      "bytes": 197,
+      "sha256": "f631af887dbe6c537e3b069acb24e69ca4368b3cfbb9ff654ee46e21cee3c51f"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/CAL-transitive-dependency-bracket.json",
+      "at": "preparation/CAL-transitive-dependency-bracket.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 92257,
+      "sha256": "b74172db884cf698c8e0fa2517ca3a0f408e4d5143b23710591d944ca6f6fc7d"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/canonical-base-plan.json",
+      "at": "preparation/canonical-base-plan.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 208246,
+      "sha256": "4ca9b2acf0320ca6c4f5ab09ad23323a0eac7d417f62cad509ed133755033cb6"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/composition-fit-selector-delta.json",
+      "at": "preparation/composition-fit-selector-delta.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 3179,
+      "sha256": "d3990187d732e10af1d72fbb8ef13ae1b518afd6c5f88dacb755486150299dad"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/criterion-selector-map.json",
+      "at": "preparation/criterion-selector-map.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 75820,
+      "sha256": "48d388432b7130e76cb81166aeab67bda4321e846f4a3f8068e7c88036663572"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json",
+      "at": "preparation/current-case-index.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 447667,
+      "sha256": "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/defining-failure-index.json",
+      "at": "preparation/defining-failure-index.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 31706,
+      "sha256": "6b5a21f59af2ea874acc32697e05dddbd8f6713b04314ee81d3eb7761ab256cf"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/final-numeric-selector-plan.json",
+      "at": "preparation/final-numeric-selector-plan.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 229702,
+      "sha256": "7e4cdaf703bda4b7104945dcc34222f0d1ec99cd4d3a10fad2967571e5c0058e"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/full-source-input-git-tree.txt",
+      "at": "preparation/full-source-input-git-tree.txt",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 952039,
+      "sha256": "f358e36e0d6e5d6680e99b3f1a9e6f91e50cb9134baf703bd1127d65124efabb"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/harness-source-inputs.json",
+      "at": "preparation/harness-source-inputs.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 4216,
+      "sha256": "15797cd430fb966697a33dba6beba3bc93f1575d24b3d01be146460f0695571c"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/post-wave-root-readonly-environment-metadata.json",
+      "at": "preparation/post-wave-root-readonly-environment-metadata.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 53767,
+      "sha256": "d5f699885100729358b19389bd3902aead250d2f50e24f99712734f5d5f4bb00"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/preparation-admission.json",
+      "at": "preparation/preparation-admission.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 2292,
+      "sha256": "3246e6d8dd8f5a186dd89fc5e218fecbaf2685589de2fbb360ce5607bab070ed"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/retained-CAL-observation.json",
+      "at": "preparation/retained-CAL-observation.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 1856,
+      "sha256": "f1252dcaa8c69384a9cba545a42cacd7d29a2017e248c38389d4bec6644ac246"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/root-readonly-environment-metadata.json",
+      "at": "preparation/root-readonly-environment-metadata.json",
+      "role": "Exact current input/plan/environment/actual CaseIndex; preserved preparation UNRUN text does not determine terminal execution outcome",
+      "bytes": 53767,
+      "sha256": "d5f699885100729358b19389bd3902aead250d2f50e24f99712734f5d5f4bb00"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/stdout.txt",
+      "at": "launch/stdout.txt",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 13074,
+      "sha256": "2e4cdfced7f5da5dd5c7b59aefbad8923053d58c17b40b929e7cf1bdac50a746"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/stderr.txt",
+      "at": "launch/stderr.txt",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/terminal-public.json",
+      "at": "launch/terminal-public.json",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 4928,
+      "sha256": "774e08fd2b1ce419bfb2bfb7b838d35f80798b4837b167d142801854c69c31d4"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/pressure-observation-1.json",
+      "at": "launch/pressure-observation-1.json",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 27416,
+      "sha256": "7905fed55fd9e3bb02534915e161756ff1e8b8c3d46bcb738c623b94b1ab72eb"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stdout.txt",
+      "at": "launch/collector.stdout.txt",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector.stderr.txt",
+      "at": "launch/collector.stderr.txt",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 1749,
+      "sha256": "603a1a40adef801f635d8300e04ecddb00e84738bf736d4b51f275343e0f2e1c"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-execution.json",
+      "at": "launch/collector-execution.json",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 1754,
+      "sha256": "226538e909b210deb1b41f60374ce63327fde142a7beb7476892e8cd0beebbe8"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/post-execution-plan-materialization.json",
+      "at": "launch/post-execution-plan-materialization.json",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 4542,
+      "sha256": "5ec8db940614d3df4f84ee2200c42689100a6015a69e31225f79854222d89723"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current.stdout.txt",
+      "at": "launch/collector-current.stdout.txt",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 352,
+      "sha256": "2f527e4adfe2f7103e101a3db2544162dee254c9e3d94a25e864c72067e515ba"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current.stderr.txt",
+      "at": "launch/collector-current.stderr.txt",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z/collector-current-execution.json",
+      "at": "launch/collector-current-execution.json",
+      "role": "Closed actual argv/output/custody; original collectorERROR retained before current COMPLETE_BOUND; credential-bearing inheritance excluded",
+      "bytes": 1734,
+      "sha256": "12d03c0d915b558a98828076cd4fb6c490d69fe528e8f381658d99ffe40bad91"
+    },
+    {
+      "source": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+      "at": "source-freeze/freeze.json",
+      "role": "Parent exact frozen/published source authorization; execution/outputroot-specific bindings separately retained",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+    },
+    {
+      "source": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-readback.json",
+      "at": "source-freeze/publication-readback.json",
+      "role": "Parent exact frozen/published source authorization; execution/outputroot-specific bindings separately retained",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-refresh-20261007.py",
+      "at": "observer/final-composed-wave-refresh.py.txt",
+      "role": "Literal reviewed delegation/selection observer archive; no duplicate executor/library/environment",
+      "bytes": 10432,
+      "sha256": "b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-refresh-20261007-v1.py",
+      "at": "observer/final-composed-wave-refresh-historical-v1.py.txt",
+      "role": "Literal reviewed delegation/selection observer archive; no duplicate executor/library/environment",
+      "bytes": 10403,
+      "sha256": "e8a8cd368461e133a00e3f2d4b9d1bdfc41b1e7bc768ed08dabf1f4a88a52eb8"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/build_final_wave_plan.py",
+      "at": "observer/pinned-original-preparation-recipe.py.txt",
+      "role": "Literal reviewed delegation/selection observer archive; no duplicate executor/library/environment",
+      "bytes": 19366,
+      "sha256": "1faaff7e45a602a85d3496d4e322dcfc1e96d8b8f6aeae47311d9faf147986e3"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-selection-builder-b2f2f65e.py",
+      "at": "observer/build-publication-selection.py.txt",
+      "role": "Literal reviewed delegation/selection observer archive; no duplicate executor/library/environment",
+      "bytes": 6675,
+      "sha256": "1e51b3bbdb664de212ed9061fed1860a503e428fab8ff6a32e60a1096f9e4d4c"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/exact-reviewed-harness/prepare_current_owner_wave.py",
+      "at": "observer/prepare_current_owner_wave.py.txt",
+      "role": "Literal Git-derived reused canonical wrapper archive; bindings in harness-source-inputs.json",
+      "bytes": 11136,
+      "sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641"
+    },
+    {
+      "source": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/exact-reviewed-harness/retained_runtime_api_cli.py",
+      "at": "observer/retained_runtime_api_cli.py.txt",
+      "role": "Literal Git-derived reused canonical wrapper archive; bindings in harness-source-inputs.json",
+      "bytes": 5478,
+      "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+    }
+  ],
+  "native_case_outcomes": {
+    "cases": 1458,
+    "passed": 1457,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "numeric_case_outcomes": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "owner_A_packet_cases": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "numeric_stage_outcomes": {
+    "PASS": 6,
+    "FAIL": 1
+  },
+  "importer": {
+    "PASS": 1
+  },
+  "global_gates": "Not executed by numeric-only plan. Seven commands preserved; parent workflow observations separately joined. No full CI/gate PASS.",
+  "retained_old_CAL": "24 unchanged native CAL/JAX/Hessian paths not repeated; old64d324 remains historical source-qualified observation, not current PASS.",
+  "case_counts_source": "Actual complete seven JUnit streams decoded by unchanged canonical collector; no AST or prospective parametrized counts substituted.",
+  "late_plan_custody": "Original collectorERROR retained. Exact229702B prepared plan predating wave start post-terminal materialized into wave/plan.json; all8actual argv/cwd/source receipts matched before copy. No pre-wave materialization claim/no numeric rerun.",
+  "authority_boundary": "Current check outcomes only. Historical49partial/4held/1closed ledger and original owner decisions unchanged. Native/A consumer failures stay real; P41 attribution separately measured.",
+  "environment": "Existing ROOT207 before/after METADATA/pyvenv.cfg identical. Complete selected effective child variables in runner receipts; inherited secrets raw/ignored. No installs/new environment/caps.",
+  "publication_code_role": "Executed Python archived as .py.txt; original invocation/source paths remain exact.",
+  "excluded": [
+    "Private raw Git config",
+    "Credential-bearing raw launcher inherited environment",
+    "Repeatable CAS/cache/pytest temporary trees",
+    "Large complete parent source-input JSON/untracked root artifacts: exact original refs retained in source freeze",
+    "Old CAL324 native suite not rerun",
+    "Production datasets"
+  ],
+  "self_index_excluded": true,
+  "predicate_basis": {
+    "current_case_retallies": "recomputed",
+    "native_vs_owner_packet_case_attribution": "recomputed",
+    "source_copy_hash_size_git_refs": "recomputed",
+    "prepared_plan_actual_commands": "recomputed",
+    "current_independent_case_custody": "not_established",
+    "finding_authority_P41_red_cause": "not_established"
+  },
+  "independent_custody_next": "Peer review of current CaseIndex/receipt/selection pending; no independent GO inferred by this author selection."
+}

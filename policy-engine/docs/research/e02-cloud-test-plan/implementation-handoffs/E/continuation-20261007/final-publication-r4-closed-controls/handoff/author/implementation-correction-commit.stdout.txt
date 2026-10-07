@@ -1,0 +1,9 @@
+[codex/e02-E-frc-20261006 84153d3bf] docs(e02-E): include exact selected timing and owner snapshots
+ 7 files changed, 423 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/final-root-lint/exact-source/515c70d29f59f3175521642e72d04f1aaffc72d7.tsv
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/final-root-lint/exact-source/78b4385b8a9a3752d84d3389c8c4a972dd65f16b.tsv
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/completed-retry2-unique-native-instrumentation/timing.jsonl
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/failed-copy-unique-native-instrumentation/timing.jsonl
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/failed-retry1-copy-unique-native-instrumentation/timing.jsonl
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/static-invocation-retry3/passive-process-observations.jsonl
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/mc-b6-gates/literal/static-invocation-retry4/passive-process-observations.jsonl

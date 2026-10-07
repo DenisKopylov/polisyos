@@ -1,0 +1,29 @@
+{
+  "base": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "base_tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+  "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+  "base_bytes": 17634,
+  "base_sha256": "946e9160e69353b747b37de534f986e5b2d18eb0c6a070c6b65e3687f66692b1",
+  "candidate_bytes": 17806,
+  "candidate_sha256": "e8e81a9792edcc1a6df4d9783b02e64fc8f756f41d8eafd63d9bde40cd72dee3",
+  "patch_sha256": "c0aa1aa38d307dc100ae249877d18ae6f6ef379ec73236550f1d72e3caa9f171",
+  "ruff": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "--stdin-filename",
+      "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "-"
+    ],
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  "typecheck": "UNRUN by author; root authorized exact working-tree preflight before immutable commit",
+  "native_wave": "UNRUN by author; no broad rerun",
+  "root_writes": false,
+  "scope": "explicit nonOptional resolved_context and existing typed NumericPolicySpec; no schema/ratio/sample/authority semantics change, no new facade"
+}

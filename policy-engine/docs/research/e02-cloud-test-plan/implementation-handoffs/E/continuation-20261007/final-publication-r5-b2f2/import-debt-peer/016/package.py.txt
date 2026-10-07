@@ -1,0 +1,264 @@
+"""Close moderate import evidence, retaining all historical observations."""
+
+from __future__ import annotations
+
+import gzip
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+HERE = Path(__file__).resolve().parent
+
+
+def require(condition: object, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def ref(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def emit(name: str, value: object) -> dict[str, Any]:
+    path = HERE / name
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+    return ref(path)
+
+
+def main() -> None:
+    normal = HERE / "final-normal"
+    optimized = HERE / "final-optimized"
+    report = json.loads((normal / "current-import-debt-reconciliation.json").read_bytes())
+    writer = json.loads((normal / "writer-qualification-v4.json").read_bytes())
+    controls = json.loads((normal / "admission-controls.json").read_bytes())
+    require(len(controls["controls"]) == 20 and len(writer["controls"]) == 5, "closed controls")
+    for mode in [normal, optimized]:
+        context = json.loads((mode / "execution-context.json").read_bytes())
+        require(context["ROOT_metadata_unchanged"] is True, "protected metadata")
+        require(context["before"]["metadata"]["count"] == 207, "actual protected env count")
+    archive_rows = []
+    for path in sorted((normal / "raw").glob("*.json")):
+        archived = HERE / (path.name + ".gz")
+        body = path.read_bytes()
+        archived.write_bytes(gzip.compress(body, mtime=0))
+        decoded = gzip.decompress(archived.read_bytes())
+        require(decoded == body, "lossless full static/context archive")
+        archive_rows.append(
+            {
+                "source": ref(path),
+                "archive": ref(archived),
+                "decoded_bytes": len(decoded),
+                "decoded_sha256": hashlib.sha256(decoded).hexdigest(),
+                "actual_stream_roundtrip_equal": True,
+                "scope": "code/Git/AST context only; no backend/production evidence",
+            }
+        )
+    archive_ref = emit("closed-static-context-archive-index.json", {"archives": archive_rows})
+    corrections = {
+        "schema": "policyos.e02.import_reconciliation_observer_history.v1",
+        "scope": "Observer corrections only, no product/source/Git/environment mutation",
+        "initial_ace_observation": (
+            "ace655 receipt remains literal; root the"
+            "n authorized append-only source77+passiv"
+            "e docs to2dc. All12 properties retained;"
+            " Core root canon/contracts route adds23r"
+            "d admitted module edge and removes one p"
+            "rivate Core canon edge."
+        ),
+        "initial_direct_helper_definition_refusal": (
+            "An observer expected snapshot helpers to"
+            " be directly defined in execute.executor"
+            " and stopped before the final packet. Ac"
+            "tual executor reexports existing models/"
+            "snapshots definitions; corrected observe"
+            "r resolves each exact one-hop definition"
+            " and preserves the failure/stdout/source"
+            "."
+        ),
+        "initial_writer_membership_refusal": (
+            "Writer observer initially passed a dicti"
+            "onary to Counter, which treated binding "
+            "objects as counts. Corrected Counter(key"
+            "s) matches all378 actual paths; both ini"
+            "tial mode stderr and exact initial sourc"
+            "e remain."
+        ),
+        "source_foreign_attribution_correction": writer["historical_attribution_correction"],
+        "exploratory_module_root_correction": (
+            "A pre-observer probe used path component"
+            "4, yielding four false same-root Scienti"
+            "st edges. The executed observer uses mod"
+            "ule root component1 after polisyos, inde"
+            "pendently reproduces exact12 and directl"
+            "y compares actual canonical helper/colle"
+            "ctor output; no formal16-edge result was"
+            " accepted."
+        ),
+        "publication_role": (
+            "Initial Ruff/style outputs are historica"
+            "l, final executed observer sources pass "
+            "current policy-engine Ruff/format. No ea"
+            "rlier style observation is presented as "
+            "current PASS."
+        ),
+    }
+    correction_ref = emit("observer-history-qualification.json", corrections)
+    disposition = {
+        "schema": "policyos.e02.current_import_debt_disposition.v1",
+        "source": report["source"],
+        "tree": report["tree"],
+        "base": report["actual_base"],
+        "verdict": "GO bounded import census and source/writer qualification only",
+        "original12": report["original_12_dispositions"],
+        "current_full_denominators": report["current_complete_denominators"],
+        "current_actual_writer_counts": writer["actual_writer_counts"],
+        "current_actual_writer_role_counts": writer["writer_role_counts"],
+        "current_new_E_static_edges": {
+            "total": 23,
+            "admitted_entrypoint": 21,
+            "private_owner_dependency": 2,
+        },
+        "owner_ready_IR_seams": [
+            {
+                "id": row["id"],
+                "historical12_member": row["historical12_member"],
+                "canonical_writer": row["canonical_writer"],
+                "minimum_input": row["minimal_input"],
+                "next_result": row["next_checkable_result"],
+                "capability_state": row["capability_state"],
+                "public_lease_granted_here": False,
+            }
+            for row in report["owner_ready_IR_packets"]
+        ],
+        "additional_BKT_private_executor_seam": report[
+            "additional_exact_current_BKT_API_owner_boundary"
+        ],
+        "actual_canonical_isolated_collector": report[
+            "actual_isolated_canonical_static_collector_control"
+        ],
+        "actual_checks": {
+            "normal_source_policy_controls": 20,
+            "optimized_source_policy_controls": 20,
+            "normal_writer_controls": 5,
+            "optimized_writer_controls": 5,
+            "ROOT_metadata_count": 207,
+            "ROOT_metadata_unchanged": True,
+            "unsafe_Git_classes_child_callback_count": 0,
+            "source_root_literal_dynamic_and_relative_import_controls": "PASS",
+            "actual_isolated_canonical_collector_equality": "PASS",
+            "global_architecture_CLI_by_this_observer": "UNRUN",
+        },
+        "gate_and_finding_boundary": (
+            "No full architecture PASS or inherited P"
+            "41 attribution, no original finding clos"
+            "ure or formal G intake. Canonical final "
+            "gate and real owner implementation remai"
+            "n separate. Variable/wrapper dynamic imp"
+            "orts are unmeasured and explicitly retai"
+            "ned."
+        ),
+        "qualified_source_reports": [
+            ref(normal / "current-import-debt-reconciliation.json"),
+            ref(optimized / "current-import-debt-reconciliation.json"),
+        ],
+        "CURRENT_writer_qualification": [
+            ref(normal / "writer-qualification-v4.json"),
+            ref(optimized / "writer-qualification-v4.json"),
+        ],
+        "patch_applicability_only": ref(HERE / "current-patch-readonly-applicability.json"),
+        "history": correction_ref,
+        "full_static_and_footprint_archive_custody": archive_ref,
+        "production_data_or_backend_tests_or_product_imports": False,
+        "source_Git_or_environment_mutations": False,
+    }
+    emit("current-disposition.json", disposition)
+    selected: list[tuple[str, Path]] = []
+    for mode in [normal, optimized]:
+        for name in [
+            "current-import-debt-reconciliation.json",
+            "writer-qualification-v4.json",
+            "admission-controls.json",
+            "execution-context.json",
+            "changed-source-current-cross-root-imports-v4.json",
+            "complete-changed-python-source-bindings.json",
+            "actual-isolated-canonical-static-complete-output.json",
+        ]:
+            selected.append((mode.name + "/" + name, mode / name))
+    for name in [
+        "reconcile.py.txt",
+        "qualify-writers.py.txt",
+        "package.py.txt",
+        "reconcile-initial-executed.py.txt",
+        "reconcile-helper-direct-definition-refusal.py.txt",
+        "qualify-writers-initial-executed.py.txt",
+        "normal-initial.stdout.json",
+        "normal-initial.stderr.txt",
+        "normal-final.stdout.json",
+        "normal-final.stderr.txt",
+        "normal-v3.stdout.json",
+        "normal-v3.stderr.txt",
+        "optimized-v3.stdout.json",
+        "optimized-v3.stderr.txt",
+        "writer-normal.stdout.json",
+        "writer-normal.stderr.txt",
+        "writer-optimized.stdout.json",
+        "writer-optimized.stderr.txt",
+        "writer-normal-v2.stdout.json",
+        "writer-normal-v2.stderr.txt",
+        "writer-optimized-v2.stdout.json",
+        "writer-optimized-v2.stderr.txt",
+        "ruff-deciding.json",
+        "format-deciding.stdout.txt",
+        "ruff-writer-v2.json",
+        "format-writer-v2.stdout.txt",
+        "current-patch-readonly-applicability.json",
+        "current-disposition.json",
+        "observer-history-qualification.json",
+        "closed-static-context-archive-index.json",
+    ]:
+        selected.append((name, HERE / name))
+    selected.append(
+        (
+            "historical-original12-input.json",
+            Path("/workspace/e02-E-pr38-r3-receipts/imports-r4/historical-12.json"),
+        )
+    )
+    selected.append(
+        (
+            "current-complete-writer-input.json",
+            HERE.parent / "e02-E-root-prefreeze-lint-2dc99fe3-20261007/inputs.json",
+        )
+    )
+    selected += [
+        ("complete-code-context/" + Path(row["archive"]["path"]).name, Path(row["archive"]["path"]))
+        for row in archive_rows
+    ]
+    assets = []
+    for logical, path in selected:
+        record = ref(path)
+        require(path.is_file(), "closed literal selected output")
+        assets.append({"logical_name": logical, **record})
+    unique = {(row["sha256"], row["bytes"]) for row in assets}
+    index = {
+        "schema": "policyos.e02.moderate_import_reconciliation_selection.v1",
+        "source": report["source"],
+        "tree": report["tree"],
+        "scope": disposition["verdict"],
+        "assets": assets,
+        "logical_count": len(assets),
+        "unique_count": len(unique),
+        "unique_bytes": sum(size for _hash, size in unique),
+        "deciding_state": (
+            "closed source-observer/ref/membership co"
+            "ntrols; full gate and API owner implemen"
+            "tation remain separate"
+        ),
+    }
+    final = emit("publication-selection.json", index)
+    __import__("sys").stdout.write(json.dumps(final) + "\n")
+
+
+if __name__ == "__main__":
+    main()

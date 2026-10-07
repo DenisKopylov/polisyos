@@ -1,0 +1,3 @@
+/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/real_domain_removal_probe.py:11: ComplexWarning: Casting complex values to real discards the imaginary part
+  def unsafe_real(values):return np.asarray(values,dtype=np.float64)
+{"entry": "actual native MC", "callback_count": 0, "family": "unknown", "export_names_and_canonical_identities_retained": true, "source_files_unchanged": true}

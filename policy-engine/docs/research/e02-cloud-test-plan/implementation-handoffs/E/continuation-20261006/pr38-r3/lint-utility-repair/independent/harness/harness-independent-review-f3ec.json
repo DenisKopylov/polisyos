@@ -1,0 +1,2362 @@
+{
+  "schema": "policyos.e02.independent_harness_review.v1",
+  "reviewer": "doe_r4",
+  "author": "lint_r4",
+  "candidate_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "candidate_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+  "slice_base": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "spec_verdict": "BLOCKED",
+  "engineering_verdict": "BLOCKED",
+  "scope": {
+    "read_only": true,
+    "source_write": false,
+    "checkouts_created": false,
+    "children_created": false,
+    "reviewed_source_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+    ],
+    "full_author_216_utility_slice_reviewed": false,
+    "broad_numeric_wave_executed": false,
+    "canonical_full_verify_or_CI_executed": false,
+    "actual_prepare_executed_without_execute": true
+  },
+  "source_bindings": {
+    "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+    "source_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+    "baseline_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+    "rows": [
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/plan_wave.py",
+        "git_blob": "e5d3e4f47160177912e429b8b7bd0905064f0b96",
+        "bytes": 25810,
+        "sha256": "02c5412b012f34e69e24abddb8530b25e66c1076529c9ce9630329aa1fe8024c"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+        "git_blob": "e3a090698c812d98b09eb25cf2fa4e82d8b249e1",
+        "bytes": 12528,
+        "sha256": "c729c909ee6ec31daef9750b786e4515d38e078153031e6e08a299ae7fffa503"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/collect_wave.py",
+        "git_blob": "904ac4091c6c856ba0c977c9994a0b0c36a2bb47",
+        "bytes": 41242,
+        "sha256": "c9ece35b694a91e5cbdf4d0212eaab3345689c5301c0707d566fd5d9df9e7aba"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/uncapped_umbrella.py",
+        "git_blob": "06de7485b52139234316419370e899e95f29d6f2",
+        "bytes": 7221,
+        "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/proposal.json",
+        "git_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+        "bytes": 2477,
+        "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/original-wave-groups.json",
+        "git_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+        "bytes": 9604,
+        "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/README.md",
+        "git_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+        "bytes": 7038,
+        "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/plan_wave.py",
+        "git_blob": "28a68698dd944e32408542f9272a7f1d1f217841",
+        "bytes": 23905,
+        "sha256": "7e010e09d0c11ea8c9cf68c25b698eb9862171b81f68e50744caf087a8f66b6d"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/run_check.py",
+        "git_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+        "bytes": 11192,
+        "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/collect_wave.py",
+        "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+        "bytes": 38197,
+        "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/uncapped_umbrella.py",
+        "git_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+        "bytes": 7225,
+        "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/proposal.json",
+        "git_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+        "bytes": 2477,
+        "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/original-wave-groups.json",
+        "git_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+        "bytes": 9604,
+        "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+      },
+      {
+        "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+        "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/README.md",
+        "git_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+        "bytes": 7038,
+        "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383"
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/tools/devx/workspace/verify.py",
+        "git_blob": "c8c884f8edafdcf9f63d6572cb41a2929f3a64a9",
+        "bytes": 12277,
+        "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/tools/devx/workspace/ci_parity.py",
+        "git_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+        "bytes": 11939,
+        "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/tools/devx/workspace/_common.py",
+        "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+        "bytes": 7324,
+        "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "AGENTS.md",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "bytes": 22656,
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/CONTRIBUTING.md",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "bytes": 10553,
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+        "bytes": 20260,
+        "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "materialized": false
+      },
+      {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "repo_path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "materialized": false
+      }
+    ]
+  },
+  "changed_wave_control_footprint": [
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+  ],
+  "current_native_controls": {
+    "passed": 36,
+    "unexpected_failed": 1,
+    "part1": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+      "bytes": 6241,
+      "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+    },
+    "part2": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+      "bytes": 4851,
+      "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+    },
+    "native_edge": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    "expected_property_removal_failures": "Passed discriminators require the surgically weakened property to FAIL; they do not count as healthy product PASS."
+  },
+  "findings": [
+    {
+      "id": "HARN-SKIP-NONZERO",
+      "severity": "medium",
+      "runner_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "runner_line": 191,
+      "collector_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "collector_line": 597,
+      "trigger": "Actual pytest has two skipped JUnit testcases and exit0; actual enclosing native command then exits7.",
+      "actual": "run_check preserves exit7/returns7 but reports outcomeSKIP; collector accepts CONTROL_COMPLETE_BOUND with numeric_outcomes SKIP:1, no issues.",
+      "expected": "The command outcome remains FAIL with the two individual testcase SKIPs retained. A healthy exit0 all-skipped process is SKIP.",
+      "scope_limit": "No false overall zero/PASS is claimed: the numeric process exit7 is retained. The defect is contradictory published command classification and missing sibling consistency admission.",
+      "deciding_evidence": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+        "bytes": 4405,
+        "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+      },
+      "fix_packet": "Require exit_code==0 before run_check outcomeSKIP; independently reject collector SKIP with nonzero exit_code; add healthy exit0 all-skips and actual exit7 post-skip negative with effective removal."
+    }
+  ],
+  "trace_matrix": [
+    {
+      "property": "Exact base/candidate refs before Git children; malformed metadata admitted before publication",
+      "cases": [
+        {
+          "case": "invalid_plan_refusal_before_Git_callback",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 0
+          }
+        },
+        {
+          "case": "remove_plan_preflight_reaches_callback_with_markers_present",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_plan_refs_present": true,
+            "prepare_present": true
+          }
+        },
+        {
+          "case": "all_three_object_inlets_refuse_options_and_path_escape",
+          "outcome": "PASS",
+          "observed": {
+            "modules": 3,
+            "invalid_each": 4,
+            "valid_immutable_and_information_flag_each": 2
+          }
+        },
+        {
+          "case": "existing_scratch_refuses_without_removing_unique_data",
+          "outcome": "PASS",
+          "observed": {
+            "retained": {
+              "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/existing-pytest-base/unique.txt",
+              "bytes": 9,
+              "sha256": "b82d1a9647a440ff18d63edeecc18cac8b37512a79c4e1f557ca26fd30cf5ecf"
+            }
+          }
+        },
+        {
+          "case": "integrity_present_forged_counts_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "JUnit receipt counts mismatch"
+              }
+            ]
+          }
+        },
+        {
+          "case": "forged_PASS_despite_actual_failure_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "PASS conflicts with actual failed/error cases"
+              },
+              {
+                "reason": "completion disagrees with actual check receipts",
+                "kind": "numerical"
+              }
+            ]
+          }
+        },
+        {
+          "case": "wrong_candidate_tree_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "binding/input drift",
+                "predicates": {
+                  "candidate": true,
+                  "tree": false,
+                  "ending_head": true,
+                  "command": true,
+                  "cwd": true,
+                  "source_frames_equal": true,
+                  "source_immutable": true,
+                  "config_stable": true,
+                  "config_hashes_equal": true,
+                  "declared_inputs_bound_to_candidate_git": true,
+                  "tracked_path_count": true,
+                  "started_after_wave_start": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "case": "wrong_stdout_hash_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "stdout custody mismatch"
+              }
+            ]
+          }
+        },
+        {
+          "case": "collector_owner-relative-escape_refuses_before_Git_and_copy",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 0,
+            "publication_created": false
+          }
+        },
+        {
+          "case": "remove_collector_owner-relative-escape_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        },
+        {
+          "case": "collector_owner-option-like_refuses_before_Git_and_copy",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 0,
+            "publication_created": false
+          }
+        },
+        {
+          "case": "remove_collector_owner-option-like_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        },
+        {
+          "case": "collector_freeze-source-option_refuses_before_Git_and_copy",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 0,
+            "publication_created": false
+          }
+        },
+        {
+          "case": "remove_collector_freeze-source-option_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        },
+        {
+          "case": "collector_freeze-review-absolute_refuses_before_Git_and_copy",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 0,
+            "publication_created": false
+          }
+        },
+        {
+          "case": "remove_collector_freeze-review-absolute_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        }
+      ]
+    },
+    {
+      "property": "Actual process output/exit/source/environment custody, JUnit counts independently recomputed",
+      "cases": [
+        {
+          "case": "actual_prepare_only_complete_inputs",
+          "outcome": "PASS",
+          "observed": {
+            "native_files": 122,
+            "owner_packet_inputs": 2,
+            "full_python_lint_denominator": 340,
+            "missing": [],
+            "output_was_not_created": true
+          }
+        },
+        {
+          "case": "native_failure_error_skip_counts_recomputed_from_actual_pytest",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "all_native_cases_skipped_are_SKIP_not_PASS",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "native_receipts_source_environment_and_full_output_bound",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "collector_preserves_actual_failed_and_skipped_and_UNRUN_outcomes",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "integrity_present_forged_counts_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "JUnit receipt counts mismatch"
+              }
+            ]
+          }
+        },
+        {
+          "case": "forged_PASS_despite_actual_failure_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "PASS conflicts with actual failed/error cases"
+              },
+              {
+                "reason": "completion disagrees with actual check receipts",
+                "kind": "numerical"
+              }
+            ]
+          }
+        },
+        {
+          "case": "wrong_candidate_tree_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "binding/input drift",
+                "predicates": {
+                  "candidate": true,
+                  "tree": false,
+                  "ending_head": true,
+                  "command": true,
+                  "cwd": true,
+                  "source_frames_equal": true,
+                  "source_immutable": true,
+                  "config_stable": true,
+                  "config_hashes_equal": true,
+                  "declared_inputs_bound_to_candidate_git": true,
+                  "tracked_path_count": true,
+                  "started_after_wave_start": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "case": "wrong_stdout_hash_refused",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "stdout custody mismatch"
+              }
+            ]
+          }
+        },
+        {
+          "case": "numeric_quota_field_detected",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "numerical quota inherited",
+                "variables": {
+                  "OMP_NUM_THREADS": "1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "case": "remove_actual_count_predicate_keeps_markers_but_accepts_forged_PASS",
+          "outcome": "PASS",
+          "observed": {
+            "negative_gate_outcome": "FAIL",
+            "observed_state": "CONTROL_COMPLETE_BOUND",
+            "actual_counts": {
+              "cases": 6,
+              "passed": 1,
+              "failed": 1,
+              "errors": 1,
+              "skipped": 3
+            },
+            "reported_job_outcome": "PASS"
+          }
+        }
+      ]
+    },
+    {
+      "property": "No artificial numeric caps, PORT0 scoped to numeric jobs, ordered/nested failfast and UNRUN",
+      "cases": [
+        {
+          "case": "numeric_only_active_metrics_zero",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "unavailable_command_is_UNRUN_not_PASS",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "collector_preserves_actual_failed_and_skipped_and_UNRUN_outcomes",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "numeric_quota_field_detected",
+          "outcome": "PASS",
+          "observed": {
+            "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+            "issues": [
+              {
+                "job": "numeric-mixed",
+                "reason": "numerical quota inherited",
+                "variables": {
+                  "OMP_NUM_THREADS": "1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "case": "importer_terminal_missing_successors_preserved_UNRUN",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "native_uncapped_child_then_actual_failure_preserves_successor_UNRUN",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "healthy_all_actual_successors_execute_and_return_zero",
+          "outcome": "PASS",
+          "observed": true
+        },
+        {
+          "case": "remove_uncapping_assignment_preserves_markers_but_native_child_detects_actual_caps",
+          "outcome": "PASS",
+          "observed": {
+            "negative_gate_outcome": "FAIL",
+            "actual_caps": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "outer_exit": 1,
+            "declared_marker_caps": null
+          }
+        },
+        {
+          "case": "remove_failfast_preserves_markers_but_late_successor_executes_and_false_zero_detected",
+          "outcome": "PASS",
+          "observed": {
+            "negative_gate_outcome": "FAIL",
+            "outer_exit": 0,
+            "step_outcomes": [
+              "PASS",
+              "FAIL",
+              "PASS"
+            ],
+            "successor_exists": true
+          }
+        },
+        {
+          "case": "nested_verify_actual_failfast_preserves_both_CI_and_verify_successors_UNRUN",
+          "outcome": "PASS",
+          "observed": true
+        }
+      ],
+      "actual_metrics_observation": [
+        {
+          "job": "numeric-mixed",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "selected_metrics_port": "0",
+          "thread_cap_variables": {}
+        },
+        {
+          "job": "numeric-skip",
+          "outcome": "SKIP",
+          "exit_code": 0,
+          "selected_metrics_port": "0",
+          "thread_cap_variables": {}
+        },
+        {
+          "job": "results-importer",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "selected_metrics_port": null,
+          "thread_cap_variables": {}
+        },
+        {
+          "job": "missing-backend",
+          "outcome": "UNRUN",
+          "exit_code": 127,
+          "selected_metrics_port": null,
+          "thread_cap_variables": {}
+        }
+      ]
+    },
+    {
+      "property": "Property markers never replace runtime predicates",
+      "cases": [
+        {
+          "case": "remove_plan_preflight_reaches_callback_with_markers_present",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_plan_refs_present": true,
+            "prepare_present": true
+          }
+        },
+        {
+          "case": "remove_actual_count_predicate_keeps_markers_but_accepts_forged_PASS",
+          "outcome": "PASS",
+          "observed": {
+            "negative_gate_outcome": "FAIL",
+            "observed_state": "CONTROL_COMPLETE_BOUND",
+            "actual_counts": {
+              "cases": 6,
+              "passed": 1,
+              "failed": 1,
+              "errors": 1,
+              "skipped": 3
+            },
+            "reported_job_outcome": "PASS"
+          }
+        },
+        {
+          "case": "remove_uncapping_assignment_preserves_markers_but_native_child_detects_actual_caps",
+          "outcome": "PASS",
+          "observed": {
+            "negative_gate_outcome": "FAIL",
+            "actual_caps": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "outer_exit": 1,
+            "declared_marker_caps": null
+          }
+        },
+        {
+          "case": "remove_failfast_preserves_markers_but_late_successor_executes_and_false_zero_detected",
+          "outcome": "PASS",
+          "observed": {
+            "negative_gate_outcome": "FAIL",
+            "outer_exit": 0,
+            "step_outcomes": [
+              "PASS",
+              "FAIL",
+              "PASS"
+            ],
+            "successor_exists": true
+          }
+        },
+        {
+          "case": "remove_collector_owner-relative-escape_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        },
+        {
+          "case": "remove_collector_owner-option-like_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        },
+        {
+          "case": "remove_collector_freeze-source-option_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        },
+        {
+          "case": "remove_collector_freeze-review-absolute_preflight_keeps_helpers_but_reaches_Git",
+          "outcome": "PASS",
+          "observed": {
+            "callback_count": 1,
+            "negative_gate_outcome": "FAIL",
+            "admit_source_present": true,
+            "collect_present": true
+          }
+        }
+      ]
+    },
+    {
+      "property": "Refuse reusing existing scratch and retain unique data",
+      "cases": [
+        {
+          "case": "existing_scratch_refuses_without_removing_unique_data",
+          "outcome": "PASS",
+          "observed": {
+            "retained": {
+              "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/existing-pytest-base/unique.txt",
+              "bytes": 9,
+              "sha256": "b82d1a9647a440ff18d63edeecc18cac8b37512a79c4e1f557ca26fd30cf5ecf"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "property": "Truthful nonzero process result even when all native cases skip",
+      "case": {
+        "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "source_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+        "native_subprocess_results": [
+          {
+            "name": "results-importer",
+            "actual_capture_exit_code": 0,
+            "argv": [
+              "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+              "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+              "--repo",
+              "/workspace/e02-E-cal05-20261006",
+              "--candidate",
+              "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+              "--cwd",
+              "/workspace/e02-E-cal05-20261006/policy-engine",
+              "--output",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer",
+              "--name",
+              "results-importer",
+              "--",
+              "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+              "-c",
+              "print(\"tiny edge importer positive\")"
+            ],
+            "stdout": {
+              "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stdout.txt",
+              "bytes": 248,
+              "sha256": "cb099e91946b908f69f5ea195306f317d73e9e204a95a10d69a37ae72400d2b3"
+            },
+            "stderr": {
+              "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          {
+            "name": "numeric-skip-exit7",
+            "actual_capture_exit_code": 7,
+            "argv": [
+              "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+              "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+              "--repo",
+              "/workspace/e02-E-cal05-20261006",
+              "--candidate",
+              "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+              "--cwd",
+              "/workspace/e02-E-cal05-20261006/policy-engine",
+              "--output",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7",
+              "--name",
+              "numeric-skip-exit7",
+              "--junit",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+              "--",
+              "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+              "--basetemp",
+              "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/temporary/numeric-skip-exit7"
+            ],
+            "stdout": {
+              "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stdout.txt",
+              "bytes": 500,
+              "sha256": "aaba3fc6d49c309ca4ea4bc012845713c3777a1fc30c440b2842e8502094df1b"
+            },
+            "stderr": {
+              "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        ],
+        "actual_command_exit_code": 7,
+        "actual_JUnit_counts": {
+          "cases": 2,
+          "passed": 0,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 2
+        },
+        "reported_check_outcome": "SKIP",
+        "collector_state": "CONTROL_COMPLETE_BOUND",
+        "collector_numeric_outcomes": {
+          "SKIP": 1
+        },
+        "collector_issues": [],
+        "independent_expected_process_outcome": "FAIL",
+        "independent_property_outcome": "FAIL",
+        "control_only": true,
+        "common_wave_executed": false,
+        "fixture": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+          "bytes": 692,
+          "sha256": "2b2483069b43b9fe18d6ffb13f335aa36b5dabc8fa84b4a12e27c8610b88bd9a"
+        }
+      }
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stdout.txt",
+        "bytes": 127,
+        "sha256": "2d7f3b8d68c59c6d625f3f3da129946645b6d93e4872f24841c079886c6420ac"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness_part2.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stdout.txt",
+        "bytes": 127,
+        "sha256": "e7c717c24d12c7aba5d5678361bc63a9c8a487b7dd4de2ec89b056052855a9d0"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero_admitted.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "meaning": "Observer native execution succeeded; defining property FAIL is explicitly recorded in deciding JSON, not recoded as product PASS.",
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stdout.txt",
+        "bytes": 4405,
+        "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "observer_correction": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction-complete.json",
+    "bytes": 1098,
+    "sha256": "e1538f75e7a1156fb9c6c1573eda7e756373fa78c118707f2d5cb8b5d25e4bec"
+  },
+  "moderate_asset_index": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-prepare-plan.json",
+      "bytes": 192928,
+      "sha256": "44e5f0102a6c28f378359523b02cc7cf7bfb31914145bc3f1e6b343f69f3b080"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8589,
+      "sha256": "63d49ee2148c67ea09f5936a546f12d53c489d2b7b120e3115bb8ee5a502febf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "a15f94975fe14865cc97796f11d8d844e4807097f19574e5e271409e35b76daa"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "53be52cfa823b1beed7bbe02053a9f4efb4b2b243b14be816abe25c3081d3194"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.json",
+      "bytes": 8162,
+      "sha256": "000d51b6b234dd4ef44fc44514c28e6fc14e14394a22d4bc96d5a1a48fde07cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/execution-complete.json",
+      "bytes": 129,
+      "sha256": "7e00bb2fb80f283b25a33b68cc5f42723d5f39d676642fa69583f76db0469f13"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/plan.json",
+      "bytes": 41524,
+      "sha256": "fed69d626b08f434a42f255eb8cdef9dbbea5cd940b3e54201c0210223210941"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/wave-started.json",
+      "bytes": 97,
+      "sha256": "071deb9a36d1cc8774d7b8ef892ab14d00fb7059118b6311874ca3f757ac9fb1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8394,
+      "sha256": "87f1bec97a34fec7024b8bf46d4a476eac158b1d044129070ac1ed6176d338ce"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "ab6aa643641f138027cda64bdc1db5d1c18cb05662be83d2318a050a148cd9e8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "241d6a0728ad8e8c61641f069ccff7e74d15b24a4242a1251f9a3ff43b1a9503"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/checks/results-importer/results-importer.json",
+      "bytes": 8145,
+      "sha256": "6191a8e6c5e2b459eef1956c03fdec1198c5942def2abe8c2679e2e18c6c3b38"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/execution-complete.json",
+      "bytes": 129,
+      "sha256": "7e00bb2fb80f283b25a33b68cc5f42723d5f39d676642fa69583f76db0469f13"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/plan.json",
+      "bytes": 41309,
+      "sha256": "eca927c9d7d7f2c4e717c36cf059365349194348d7e7f5c6712a2f7d323187cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/wave-started.json",
+      "bytes": 97,
+      "sha256": "33ae7810fd26a9156b11e33ad9ea02a15044177e4348d3fa899d98bebcbb1f38"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/README.md",
+      "bytes": 7038,
+      "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/collect_wave.py",
+      "bytes": 38197,
+      "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/plan_wave.py",
+      "bytes": 23905,
+      "sha256": "7e010e09d0c11ea8c9cf68c25b698eb9862171b81f68e50744caf087a8f66b6d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/run_check.py",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/uncapped_umbrella.py",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8394,
+      "sha256": "87f1bec97a34fec7024b8bf46d4a476eac158b1d044129070ac1ed6176d338ce"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "ab6aa643641f138027cda64bdc1db5d1c18cb05662be83d2318a050a148cd9e8"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "241d6a0728ad8e8c61641f069ccff7e74d15b24a4242a1251f9a3ff43b1a9503"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/checks/results-importer/results-importer.json",
+      "bytes": 8145,
+      "sha256": "6191a8e6c5e2b459eef1956c03fdec1198c5942def2abe8c2679e2e18c6c3b38"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/execution-complete.json",
+      "bytes": 129,
+      "sha256": "7e00bb2fb80f283b25a33b68cc5f42723d5f39d676642fa69583f76db0469f13"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/plan.json",
+      "bytes": 41309,
+      "sha256": "eca927c9d7d7f2c4e717c36cf059365349194348d7e7f5c6712a2f7d323187cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7/wave-started.json",
+      "bytes": 97,
+      "sha256": "33ae7810fd26a9156b11e33ad9ea02a15044177e4348d3fa899d98bebcbb1f38"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 8589,
+      "sha256": "63d49ee2148c67ea09f5936a546f12d53c489d2b7b120e3115bb8ee5a502febf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "a15f94975fe14865cc97796f11d8d844e4807097f19574e5e271409e35b76daa"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "53be52cfa823b1beed7bbe02053a9f4efb4b2b243b14be816abe25c3081d3194"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/checks/results-importer/results-importer.json",
+      "bytes": 8162,
+      "sha256": "000d51b6b234dd4ef44fc44514c28e6fc14e14394a22d4bc96d5a1a48fde07cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 28,
+      "sha256": "f5ea3f3a34a508a7ad41b6007eae92b2ef50749ba4d6bbf14a96d3e2f5bb2f9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/cleanup-candidates.json",
+      "bytes": 928,
+      "sha256": "294e033806036f77a1bf738b4b5eac9bbac11829ec2e1e8106e045bdc01d618b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/copy-index.json",
+      "bytes": 3308,
+      "sha256": "c62474eff8f2dbcd3a2aa1973c6990ae406131be93b3a4a934ac0b8014ec1bb0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/execution-complete.json",
+      "bytes": 129,
+      "sha256": "7e00bb2fb80f283b25a33b68cc5f42723d5f39d676642fa69583f76db0469f13"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/plan.json",
+      "bytes": 41524,
+      "sha256": "fed69d626b08f434a42f255eb8cdef9dbbea5cd940b3e54201c0210223210941"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/publication-receipt.json",
+      "bytes": 18701,
+      "sha256": "e97ea2e4e638c7911ea56c498065ae21e5b2be0f8e4bf1d7a088d0be1cbd1266"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/raw-custody.json",
+      "bytes": 449,
+      "sha256": "92dcaa1f2f55dd9879c9c80b55d96f2562f0e40d27189b0bd978ec63f1eee893"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-actual-skipped-exit7-admitted/wave-started.json",
+      "bytes": 97,
+      "sha256": "071deb9a36d1cc8774d7b8ef892ab14d00fb7059118b6311874ca3f757ac9fb1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 7135,
+      "sha256": "dfbdf9d76adf70e9c1f00a636d1fb0bad33f657cecd370b038bd6078762ee78b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/copy-index.json",
+      "bytes": 5014,
+      "sha256": "f7cdd49c639fe50d6a571afe8634cb1c7d67e80e8ff85adc635a975f4f3fa82c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/execution-complete.json",
+      "bytes": 135,
+      "sha256": "0f844673aae7bcc10d6b1db8c8c248cefb3ca2abb589e844a70deb50bb774b31"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/publication-receipt.json",
+      "bytes": 34525,
+      "sha256": "5221d7d4eb96981cc001dc59874bda589e37c23828a85fb6b792b60c8aa1d462"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-count-removal/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 7135,
+      "sha256": "6db566c98fa964d1e314663c83e58a17b33767f77862f56285a43b5a3dc2def3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/copy-index.json",
+      "bytes": 5014,
+      "sha256": "ed73e70c48dbfd92a3da8b36f2bdf16e520ae3c74654ed714a5e2735f672cc5d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/publication-receipt.json",
+      "bytes": 34758,
+      "sha256": "3e4b445451707b02edec46485226b95ebe2bdcf5046ce54b01583168b5052e9f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-PASS/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 7135,
+      "sha256": "3de4f8ba8fdf7e55c725970a790d5894167fb292c0f444413d2dcbeec7226bb9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/copy-index.json",
+      "bytes": 5014,
+      "sha256": "051b661059d23b7b975bd77e66ea8188b2a8ef790835ab4578961b21390df986"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/publication-receipt.json",
+      "bytes": 34637,
+      "sha256": "16cecc707fbc693048db64ce1a55c921453154301939e06bc491ba3e3fa497a4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-forged-count/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/cleanup-candidates.json",
+      "bytes": 1197,
+      "sha256": "0d92647f15d195aead11ad12ea1e161d2b0b6fc303323b0405ec2f78f2a49261"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/copy-index.json",
+      "bytes": 1511,
+      "sha256": "3ff2073d02b3a140d267761072e3ed104597be1944eca6de6b86d1686b2d5142"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/not-started-after-importer.json",
+      "bytes": 113,
+      "sha256": "1bd1827a76d3c9e8e6f13d550484ef3e63b9b166646f10b05b4a2bd61bfbaa54"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/plan.json",
+      "bytes": 44850,
+      "sha256": "5fd5c1e25cdd06464c918a1c632eb85b2b9513685da33907c3ce917291491205"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/publication-receipt.json",
+      "bytes": 6591,
+      "sha256": "ffb3fd08a5680856befba5403b9d1fd670d67c6a4a0c6e6404a31f6a8ea3bb05"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/raw-custody.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-importer-stop/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 8636,
+      "sha256": "23dff58af495a1eef6e2ea21dc1917ce1cefc23644cdbf7e24f1fc7257492e2b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/copy-index.json",
+      "bytes": 5014,
+      "sha256": "1716b8cb278982391eb18e055b6703e2d94b9837cc19f2b4c06f709315817d4e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/publication-receipt.json",
+      "bytes": 34520,
+      "sha256": "3f5ecadd3c0a8804140e7c13ace18837f1058e4c76f2edec71642dcf394593f5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-positive-observed.json",
+      "bytes": 34520,
+      "sha256": "3f5ecadd3c0a8804140e7c13ace18837f1058e4c76f2edec71642dcf394593f5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 7134,
+      "sha256": "305eb453e309cafc2f10fb838cf19fca29025c156ee56fe82b35228e5bd2ffb7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/copy-index.json",
+      "bytes": 5014,
+      "sha256": "43d395e30dec2fc85dd20b8c56c4d3df4d80b8a5e5e38d1847310c82f35dcaac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/publication-receipt.json",
+      "bytes": 34686,
+      "sha256": "3df0d7803287e439f8662fa9daf80d7992e2e64a196ce72c474f5e91626566bb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-quota/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 7135,
+      "sha256": "cea26465237be33684f030417415885dae840d15f4e8691faa81ce9a276f9365"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/copy-index.json",
+      "bytes": 4654,
+      "sha256": "5b93bc9c4b0aac738b95206621c42b9bf5b2858430abfbff378946898de52f45"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/publication-receipt.json",
+      "bytes": 34631,
+      "sha256": "5fb209799c8f9c6ac5d01797ed63fa7d6032a520a37dc3469b6b429dc9abab52"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-stdout/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 7135,
+      "sha256": "a1a6579f6845e5ba2ee690733b46793b318ab43667ead90e8e386e30addd0999"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/cleanup-candidates.json",
+      "bytes": 1193,
+      "sha256": "2b0edfcffc13920517b68ff3634418ceeedea3c5ea8b1b42b38ae09246241e1c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/copy-index.json",
+      "bytes": 5014,
+      "sha256": "3828ef8c735a2f02a2b52cc61fb79df578d755f69d027aac5b1b51886dd94763"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/publication-receipt.json",
+      "bytes": 35054,
+      "sha256": "c646ee335c81df35870c8fc815cdaed53871c3b8c5a51d1205b84867c1843b82"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/raw-custody.json",
+      "bytes": 883,
+      "sha256": "8d4b95d4152b42751b7a6f92a3d351a9f49d79ba6609f681d8e5bc9264b834c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/collection-wrong-tree/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stdout.txt",
+      "bytes": 500,
+      "sha256": "aaba3fc6d49c309ca4ea4bc012845713c3777a1fc30c440b2842e8502094df1b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stdout.txt",
+      "bytes": 248,
+      "sha256": "cb099e91946b908f69f5ea195306f317d73e9e204a95a10d69a37ae72400d2b3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/existing-pytest-base/unique.txt",
+      "bytes": 9,
+      "sha256": "b82d1a9647a440ff18d63edeecc18cac8b37512a79c4e1f557ca26fd30cf5ecf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part1.json",
+      "bytes": 6241,
+      "sha256": "bd21b80886b97e0cab18c6f2b74f0dccca7e6dc46cd28e8af5d24f30e80b23c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-results-part2.json",
+      "bytes": 4851,
+      "sha256": "6fa5c12efdff4f7bb76cdecb3148a241fdb41555e6717434a7849a7af1aad382"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/importer-stop-wave/not-started-after-importer.json",
+      "bytes": 113,
+      "sha256": "1bd1827a76d3c9e8e6f13d550484ef3e63b9b166646f10b05b4a2bd61bfbaa54"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/importer-stop-wave/plan.json",
+      "bytes": 44850,
+      "sha256": "5fd5c1e25cdd06464c918a1c632eb85b2b9513685da33907c3ce917291491205"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/importer-stop-wave/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "bytes": 205,
+      "sha256": "b1b0e256deed9bfe9c416f86e5a24cb99b7aca3e9687de92464824061610032f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stdout.txt",
+      "bytes": 220,
+      "sha256": "dd6cd9f332eecbe5d3e19a72cfede70cedffbb719658155d6131269c003835f7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stdout.txt",
+      "bytes": 670,
+      "sha256": "bd111988619f8f1ff0997356e19d089a09eea12382a079756472dbd1c1e931a0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stdout.txt",
+      "bytes": 667,
+      "sha256": "d108d5df2aae4e7b20d521d195370e374eede4e68eaa4c3dc7272fe36380a665"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness-part2.stdout.txt",
+      "bytes": 127,
+      "sha256": "e7c717c24d12c7aba5d5678361bc63a9c8a487b7dd4de2ec89b056052855a9d0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-harness.stdout.txt",
+      "bytes": 127,
+      "sha256": "2d7f3b8d68c59c6d625f3f3da129946645b6d93e4872f24841c079886c6420ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero-admitted.stdout.txt",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stderr.txt",
+      "bytes": 553,
+      "sha256": "2be039b3a686187d7e16af24443a9f3e239c6897e3ed659bbbe2cc56ce3ffe70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe-skip-nonzero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness.py",
+      "bytes": 15151,
+      "sha256": "19c6bd9a174849bfb8f2206b6a7d76ad7165a0d9dcee852e0dc87b434d7120de"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness_part2.py",
+      "bytes": 8996,
+      "sha256": "8ba505c3d05b7e8056b063f1cb1fd5cb11c7234ae22a0403a6447543484eadb4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero.py",
+      "bytes": 4184,
+      "sha256": "eefcfa593564500baf7954c91c28d29e09fa6f5a337f94f62b3d037f263783c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_skip_nonzero_admitted.py",
+      "bytes": 4274,
+      "sha256": "d296e000bd05f9f4d92d8436010c48163ad7f8229f1d6ef94e9db7bb03e32936"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stdout.txt",
+      "bytes": 241,
+      "sha256": "9f7f6756a303cbb58315a7601fceb81f31a0d3c348352058cff786adbf9f0434"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-admitted-property-result.json",
+      "bytes": 4405,
+      "sha256": "14a247255dc32163a93f609e948dcbb2020094474307f6300d61dbc6eadde93f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction-complete.json",
+      "bytes": 1098,
+      "sha256": "e1538f75e7a1156fb9c6c1573eda7e756373fa78c118707f2d5cb8b5d25e4bec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip-nonzero-observer-correction.json",
+      "bytes": 727,
+      "sha256": "055bb1b890ecd41b520d11f59067b9446b67ada49dd167cb0fb1d8012ea5bc54"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7.py",
+      "bytes": 674,
+      "sha256": "47ced9d38e4f1cf8dad134f2549681982474efe2c62c296c7fbb7aeb3cd53315"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+      "bytes": 692,
+      "sha256": "2b2483069b43b9fe18d6ffb13f335aa36b5dabc8fa84b4a12e27c8610b88bd9a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-admission-freeze-review-absolute/external-freeze.json",
+      "bytes": 96,
+      "sha256": "57294500a5461fb5a856de7a4d9556dc112dc7dec010ab5fe039e35082a585a0"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-admission-freeze-review-absolute/plan.json",
+      "bytes": 42928,
+      "sha256": "c8c1ef8f7ba08e5746f1a7139026c9727f1b59fcb95a459c9a1853ede92febe5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-admission-freeze-source-option/external-freeze.json",
+      "bytes": 39,
+      "sha256": "4854c7b50775708044dfbb00eecec56d8db27448996938c2d2432354def9f576"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-admission-freeze-source-option/plan.json",
+      "bytes": 42926,
+      "sha256": "1d4ddcc4273b2cf8649e6b728d00c4bd8cf4f4761dcda1da2de7162dbda67568"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-admission-owner-option-like/plan.json",
+      "bytes": 42943,
+      "sha256": "5521b2f4f0fc2381a80c8ab6b8b48c3ab8c347923ff02e55621b129113e037cf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-admission-owner-relative-escape/plan.json",
+      "bytes": 42954,
+      "sha256": "420b5bd7476a5c54cc4f5db1b76fad7072c3e9e491a43ce1ed8378448c09d154"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/source-index.json",
+      "bytes": 10054,
+      "sha256": "2704a15dd79aa2b6501bc660a8765db624e1ec2dbee39961316e67296fe37a34"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/README.md",
+      "bytes": 7038,
+      "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/collect_wave.py",
+      "bytes": 41242,
+      "sha256": "c9ece35b694a91e5cbdf4d0212eaab3345689c5301c0707d566fd5d9df9e7aba"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/plan_wave.py",
+      "bytes": 25810,
+      "sha256": "02c5412b012f34e69e24abddb8530b25e66c1076529c9ce9630329aa1fe8024c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+      "bytes": 12528,
+      "sha256": "c729c909ee6ec31daef9750b786e4515d38e078153031e6e08a299ae7fffa503"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-run-results.json",
+      "bytes": 6927,
+      "sha256": "a794a49b7fd0494193a4a8f0c89346113b66c504f22847419be0dffab2b9e7de"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.json",
+      "bytes": 8141,
+      "sha256": "b67a36c107cfa30345f33e4452d34b2181a4659aa239a016981c3185a3deb389"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend/missing-backend.stdout.txt",
+      "bytes": 147,
+      "sha256": "dc0d57bdd65017c86999220330ea6e90d8b5d520ea103cd531b1d1f76d8cdff7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.json",
+      "bytes": 8636,
+      "sha256": "23dff58af495a1eef6e2ea21dc1917ce1cefc23644cdbf7e24f1fc7257492e2b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/numeric-mixed.stdout.txt",
+      "bytes": 1123,
+      "sha256": "7cee0919a233aaea4d59cece118ad26749af860abf37cfd6c798b66d73ce2d30"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "bytes": 1484,
+      "sha256": "9dc8793c858585fc6445ef09bbc4851572cf3a67aaf19923580617f792ac7cbb"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.json",
+      "bytes": 8637,
+      "sha256": "c901b5144e486d7169016586caf5e31d242e6c1d631b89dded91400b9855e0d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "971ac97e7227e2f799d27cd4761b0c767a64180e53a5967031c88593d341d1ec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "3e2d167849bde275fc387c5bac9ca7df22601d58f7bfbff992358e0f31871b70"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.json",
+      "bytes": 8070,
+      "sha256": "a746ad4b430edd2e3bb148079900cd4b2260a61e625de9a9fe922c28be224bd6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer/results-importer.stdout.txt",
+      "bytes": 23,
+      "sha256": "37f5c896f0d9fbe786a73d75fa985282a782d624220a6e6cc344ea46894c784b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/execution-complete.json",
+      "bytes": 166,
+      "sha256": "2f990be9fb9501c667371a25899f206645270929db3694c89ef08b3b22eed2af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/plan.json",
+      "bytes": 44836,
+      "sha256": "47f616e2cd002afe92dd5ee3ab393c001b907c4c23ab07a9d51ee90494ca5330"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/wave-started.json",
+      "bytes": 104,
+      "sha256": "05d094bede491efbb3407d89400d038e4ebc08ffa4c052d792abb6c91505b00b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py",
+      "bytes": 347,
+      "sha256": "cf304a8469b7983465ce573b38e587df160f19f264d6293562a021550e566a2a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_skip.py",
+      "bytes": 170,
+      "sha256": "3444e7c7e6745260de7b2731c3d9ffc5d2c024f10c106922379f5d12d76b15ca"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py",
+      "bytes": 477,
+      "sha256": "1b25743ee608109fbf7a237270dfe85c9ecc91e19e5083cae079227065e94103"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/driver-receipt.json",
+      "bytes": 400,
+      "sha256": "b503c5d1376df706c28880e0d5acdb6276127136c2e3db4b5e2f8707a727df50"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/stages.json",
+      "bytes": 2925,
+      "sha256": "13b994cafb2ca5584f9544f4fe26e26cf0c786e91a8238dd09bebcad0a47cc03"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "2edc582a540eac342622d2778b124cd6b940d185d486d985b94a0d81d25c516b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-native-subprocess-results.json",
+      "bytes": 7525,
+      "sha256": "dc27bcc812a64e501102ead7472831e8f34a087e271b6361712826fc4e2c7403"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/driver-receipt.json",
+      "bytes": 407,
+      "sha256": "939fee5991d04e51099bc1b84ec2fc847cb42aa62db1d02176869da1cbf8a950"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/stages.json",
+      "bytes": 4488,
+      "sha256": "3faab4a0917b153edb3a55e2f6d805e9555426f39ca1aef2b73475afce2d9ea3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "647541696005d7578d0bd7241adc27fa9235de1156ae759c0624950e7e56774e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/driver-receipt.json",
+      "bytes": 411,
+      "sha256": "5f3c65dc082875d7e335aa89966b3fcdd45f2d655cb7de3eb072b8286b523e27"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/executed-umbrella-source.py.txt",
+      "bytes": 7261,
+      "sha256": "068026f94e01176ebeb8c01c4b0c24582445f428003fbf47387235528626e7b3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/observed-child-environment.json",
+      "bytes": 176,
+      "sha256": "eadbfa60d71e0fc92f76210a5f30d27816950dd207e94dfaf0b94a0a4b75757a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/stages.json",
+      "bytes": 3755,
+      "sha256": "295e4b44f495a5bf69bc0d4beffaddf80e55aa6ed1be10ec36dd2ec4c3eddade"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stdout.txt",
+      "bytes": 1358,
+      "sha256": "70acf0adce950268b796984831707ad3cf925b7b1239863640b1e36598f7f595"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/driver-receipt.json",
+      "bytes": 416,
+      "sha256": "3fa561ac02b16caee50fd42aa7b4cc7bca3579cbbc36e0a4d0f2d7d5d52e9805"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/executed-umbrella-source.py.txt",
+      "bytes": 7325,
+      "sha256": "8ebb3496a293d6206764ac6a99548e6815f7fce25fd02547fa9aac61edac8ec3"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/stages.json",
+      "bytes": 3073,
+      "sha256": "f401ad9256e17c1cb6b9175266b872b4fe1d43dca910ea168a420908a580a631"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/successor-ran.txt",
+      "bytes": 28,
+      "sha256": "2e999c4e3b0374c2b884788e10da777c8cbff173a0778b85d689843c4b4e3381"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stdout.txt",
+      "bytes": 202,
+      "sha256": "cef9c69c0c4bca8ec9199e2f9920076a23fee14c031ae5625263cc4a072ab895"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/driver-receipt.json",
+      "bytes": 399,
+      "sha256": "d75e4d0b7f6fa641833017d3d853291cba280d80d11cc3d474706d3429f12137"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/observed-child-environment.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/stages.json",
+      "bytes": 2773,
+      "sha256": "e87bc0c196307c097639988ad976ead02bf41dfa84d48a63e1886e947431d214"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/successor-ran.txt",
+      "bytes": 28,
+      "sha256": "2e999c4e3b0374c2b884788e10da777c8cbff173a0778b85d689843c4b4e3381"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stdout.txt",
+      "bytes": 202,
+      "sha256": "1ab518a8633ca735881dd8580c94a5eec6bb65020f31d41433ff9109a050faf9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "bytes": 4172,
+      "sha256": "d8f846511c963e9e4db61e4a38629aa06e140f36d4dedb0ef71b9b24f646bede"
+    }
+  ],
+  "limitations": [
+    "Tiny factories and testcases exercise actual canonical subprocess/umbrella/collector seams only; they do not establish the canonical14/23 stage outcomes or any finding closure.",
+    "Actual prepare has122 native files,2 owner packets,340 Python lint paths on this exact f3ec source only; root must recompute the final composed candidate.",
+    "No broad defining suite, architecture/global static/generator/Ruff/workspace verify/CI parity was executed by this independent harness task.",
+    "P41 inherited attribution is not_established; no exact baseline full denominator execution was undertaken.",
+    "Post-command JAX/NumPy observer describes the observer process, not in-test dtype/config/law.",
+    "Review outside the four harness files belongs to criteria_r4/imports_r4 and relevant source owners.",
+    "Native Trash is unavailable; reproducible pytest scratch remains retained; full private Git configurations remain ignored/raw and are not public assets."
+  ],
+  "next_owner": {
+    "lint_r4": "Apply shared runner/collector outcome predicate fix and expose immutable candidate/tree; retain genuine SKIP/UNRUN behavior.",
+    "doe_r4": "Independently review the immutable delta and rerun only affected tiny native admission/removal controls.",
+    "root": "After all independent reviews and source freeze, run the single actual common numeric/gate wave and ready standalone successors; preserve true UNRUN umbrella outcomes separately."
+  },
+  "findings_closed": false,
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/tmp-env",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/retained-pytest-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/retained-pytest-scratch"
+  ],
+  "cleanup_performed": false
+}

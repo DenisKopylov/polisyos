@@ -1,0 +1,570 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v2",
+  "status": "independent_review_pending",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "files": [
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/historical-selection.json",
+      "bytes": 2486,
+      "sha256": "a1ffe97ab1eb7bf83a4835cb15f03e7d5cd05ec4fde24a839ea941e540e73299",
+      "stored_at": "inputs/historical-selection.json",
+      "role": "literal closed input:historical-selection",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/publication-selection.json",
+        "bytes": 2486,
+        "sha256": "a1ffe97ab1eb7bf83a4835cb15f03e7d5cd05ec4fde24a839ea941e540e73299"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/recipe.json",
+      "bytes": 11894,
+      "sha256": "4098541e4753242a62d29c40758e98dea70d9406dec26ec47569d51179347f99",
+      "stored_at": "inputs/recipe.json",
+      "role": "literal closed input:recipe",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json",
+        "bytes": 11894,
+        "sha256": "4098541e4753242a62d29c40758e98dea70d9406dec26ec47569d51179347f99"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/artifacts.json",
+      "bytes": 3938,
+      "sha256": "b5d2470a6dc28030488b3f9a3a91839c52fed7b31193e25171b39aa354c7feae",
+      "stored_at": "inputs/artifacts.json",
+      "role": "literal closed input:artifacts",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-dependency-artifacts.json",
+        "bytes": 3938,
+        "sha256": "b5d2470a6dc28030488b3f9a3a91839c52fed7b31193e25171b39aa354c7feae"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/requirements.txt",
+      "bytes": 406,
+      "sha256": "8c04f2b1cea4fac78dafdf548e2b5cad9a0658e360895ad216613cbb8f0967e1",
+      "stored_at": "inputs/requirements.txt",
+      "role": "literal closed input:requirements",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependencies.requirements.txt",
+        "bytes": 406,
+        "sha256": "8c04f2b1cea4fac78dafdf548e2b5cad9a0658e360895ad216613cbb8f0967e1"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/observer.txt",
+      "bytes": 6616,
+      "sha256": "93e9a2f50ff64ecd6432e78de6a8f28d9d57daf123a32d407a2071e066106d64",
+      "stored_at": "inputs/observer.txt",
+      "role": "literal closed input:observer",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/observe-root-environment.py.txt",
+        "bytes": 6616,
+        "sha256": "93e9a2f50ff64ecd6432e78de6a8f28d9d57daf123a32d407a2071e066106d64"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/historical-observation.json",
+      "bytes": 84697,
+      "sha256": "c1173ca53947224fac54a1fdb8582cf4ed94b01e7f96a235c1a01babc94e3d0d",
+      "stored_at": "inputs/historical-observation.json",
+      "role": "literal closed input:historical-observation",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-before-read-only.json",
+        "bytes": 84697,
+        "sha256": "c1173ca53947224fac54a1fdb8582cf4ed94b01e7f96a235c1a01babc94e3d0d"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/historical-observer-stdout.txt",
+      "bytes": 205,
+      "sha256": "dd9df4c26d2d5318709faec67eb0f98f741a74811564fa32c9989b1845d0954f",
+      "stored_at": "inputs/historical-observer-stdout.txt",
+      "role": "literal closed input:historical-observer-stdout",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-observer.stdout.txt",
+        "bytes": 205,
+        "sha256": "dd9df4c26d2d5318709faec67eb0f98f741a74811564fa32c9989b1845d0954f"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/historical-observer-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "literal closed input:historical-observer-stderr",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/root-environment-observer.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/a11y-old-admission.json",
+      "bytes": 8132,
+      "sha256": "efcc40be3465b5357762debf75feca233720a2db79ba6d239c7405033a92bc32",
+      "stored_at": "inputs/a11y-old-admission.json",
+      "role": "literal closed input:a11y-old-admission",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/a11y-shared-state-and-retry-packet.json",
+        "bytes": 8132,
+        "sha256": "efcc40be3465b5357762debf75feca233720a2db79ba6d239c7405033a92bc32"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/readiness.json",
+      "bytes": 4841,
+      "sha256": "5cea2ba06e4d63507c3409472351b06c55575268f6307ecd4b45d680fe132a3f",
+      "stored_at": "inputs/readiness.json",
+      "role": "literal closed input:readiness",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-four-dependency-install-readiness-v2.json",
+        "bytes": 4841,
+        "sha256": "5cea2ba06e4d63507c3409472351b06c55575268f6307ecd4b45d680fe132a3f"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/wheels-receipt.json",
+      "bytes": 2110,
+      "sha256": "a7d3a068eb867e602dd18b97c9eb1359e64123743bd2678516081e4dcf5d43a8",
+      "stored_at": "inputs/wheels-receipt.json",
+      "role": "literal closed input:wheels-receipt",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/admitted-wheels-receipt.json",
+        "bytes": 2110,
+        "sha256": "a7d3a068eb867e602dd18b97c9eb1359e64123743bd2678516081e4dcf5d43a8"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/prefetch-source.txt",
+      "bytes": 3550,
+      "sha256": "a614585fde1d0128c2a7c07a6efa106dd1eee9a87b62d82101b6882ff88e42ac",
+      "stored_at": "inputs/prefetch-source.txt",
+      "role": "literal closed input:prefetch-source",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/prefetch-admitted-wheels.py.txt",
+        "bytes": 3550,
+        "sha256": "a614585fde1d0128c2a7c07a6efa106dd1eee9a87b62d82101b6882ff88e42ac"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/admission-refusal.json",
+      "bytes": 4570,
+      "sha256": "528485453d3c8bb31de651be2360cb08cb31045ac5c3fbd7d01745c2948db2da",
+      "stored_at": "inputs/admission-refusal.json",
+      "role": "literal closed input:admission-refusal",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/cal05-existing-environment-admission-refusal.json",
+        "bytes": 4570,
+        "sha256": "528485453d3c8bb31de651be2360cb08cb31045ac5c3fbd7d01745c2948db2da"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/fresh-before.json",
+      "bytes": 69302,
+      "sha256": "25a99b2fd9f6316a9bd2617c9ecc7e130ee213b182e69378b6518ed9e0e26dc4",
+      "stored_at": "inputs/fresh-before.json",
+      "role": "literal closed input:fresh-before",
+      "original": {
+        "path": "/tmp/e02-E-backend-prereq-observation-20261007-1110.json",
+        "bytes": 69302,
+        "sha256": "25a99b2fd9f6316a9bd2617c9ecc7e130ee213b182e69378b6518ed9e0e26dc4"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/after.json",
+      "bytes": 70628,
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3",
+      "stored_at": "inputs/after.json",
+      "role": "literal closed input:after",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+        "bytes": 70628,
+        "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/install.json",
+      "bytes": 2857,
+      "sha256": "b9f262deaf2a01f13a6f072e31cfcac59673bc3ad6bd83271097823a81b10167",
+      "stored_at": "inputs/install.json",
+      "role": "literal closed input:install",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install-execution.json",
+        "bytes": 2857,
+        "sha256": "b9f262deaf2a01f13a6f072e31cfcac59673bc3ad6bd83271097823a81b10167"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/delta.json",
+      "bytes": 1740,
+      "sha256": "01e311f58d25e4919d1a09ed447819d0a23d8cfd8e790e6f95701a119a5e3c29",
+      "stored_at": "inputs/delta.json",
+      "role": "literal closed input:delta",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/metadata-delta.json",
+        "bytes": 1740,
+        "sha256": "01e311f58d25e4919d1a09ed447819d0a23d8cfd8e790e6f95701a119a5e3c29"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/install-stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "literal closed input:install-stdout",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/install-stderr.txt",
+      "bytes": 186,
+      "sha256": "a87cd7ac5f911b8b58ba0ac8b4ce0866c2952860dc337b7d61a467b43155deff",
+      "stored_at": "inputs/install-stderr.txt",
+      "role": "literal closed input:install-stderr",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/install.stderr.txt",
+        "bytes": 186,
+        "sha256": "a87cd7ac5f911b8b58ba0ac8b4ce0866c2952860dc337b7d61a467b43155deff"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/preflight.json",
+      "bytes": 1376,
+      "sha256": "89748aa91c3031fb476954db62017cff95f37fd344e4916e605f269476477b22",
+      "stored_at": "inputs/preflight.json",
+      "role": "literal closed input:preflight",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.json",
+        "bytes": 1376,
+        "sha256": "89748aa91c3031fb476954db62017cff95f37fd344e4916e605f269476477b22"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/preflight-source.txt",
+      "bytes": 790,
+      "sha256": "d2ee08ac1a54e146342ed330624821b3b998b4506b3b99b34cf70955c06995b5",
+      "stored_at": "inputs/preflight-source.txt",
+      "role": "literal closed input:preflight-source",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/actual-backend-preflight.py.txt",
+        "bytes": 790,
+        "sha256": "d2ee08ac1a54e146342ed330624821b3b998b4506b3b99b34cf70955c06995b5"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/preflight-stdout.txt",
+      "bytes": 324,
+      "sha256": "06e00139ffe3cd6140976e4aea91ad47497358acc03b8b91e22057d21788b42d",
+      "stored_at": "inputs/preflight-stdout.txt",
+      "role": "literal closed input:preflight-stdout",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stdout.txt",
+        "bytes": 324,
+        "sha256": "06e00139ffe3cd6140976e4aea91ad47497358acc03b8b91e22057d21788b42d"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/preflight-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "literal closed input:preflight-stderr",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/native-preflight.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/pyvenv-config.txt",
+      "bytes": 194,
+      "sha256": "2babae500cfeb9d798df4241f91104fd98a1f968dd54b8462273da6900c4fc3a",
+      "stored_at": "inputs/pyvenv-config.txt",
+      "role": "literal closed input:pyvenv-config",
+      "original": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/pyvenv.cfg",
+        "bytes": 194,
+        "sha256": "2babae500cfeb9d798df4241f91104fd98a1f968dd54b8462273da6900c4fc3a"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/original-workspace14.json",
+      "bytes": 9171,
+      "sha256": "93a201207a8a946509bf10858b7ccfc682ec65c279f9a1e7b633576c0d2b5b5d",
+      "stored_at": "inputs/original-workspace14.json",
+      "role": "literal closed input:original-workspace14",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.json",
+        "bytes": 9171,
+        "sha256": "93a201207a8a946509bf10858b7ccfc682ec65c279f9a1e7b633576c0d2b5b5d"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/original-workspace14-stdout.txt",
+      "bytes": 2434,
+      "sha256": "5c8c9c03402dd36e9d4147e0f160822d72a42b098f88c1f42fc6b352bd3c7fca",
+      "stored_at": "inputs/original-workspace14-stdout.txt",
+      "role": "literal closed input:original-workspace14-stdout",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.stdout.txt",
+        "bytes": 2434,
+        "sha256": "5c8c9c03402dd36e9d4147e0f160822d72a42b098f88c1f42fc6b352bd3c7fca"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/publication.json",
+      "bytes": 2586,
+      "sha256": "f812546291cdb5eb9dc80cc202d2087c82c04f352c0339e63b84d2d886d2a77b",
+      "stored_at": "inputs/publication.json",
+      "role": "literal closed input:publication",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt.json",
+        "bytes": 2586,
+        "sha256": "f812546291cdb5eb9dc80cc202d2087c82c04f352c0339e63b84d2d886d2a77b"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/publication-before-correction.txt",
+      "bytes": 1628,
+      "sha256": "542e2b5f75393b2f9503b388a6e0646d6325f21ff42fe465f8a6ad26707f5828",
+      "stored_at": "inputs/publication-before-correction.txt",
+      "role": "literal closed input:publication-before-correction",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/receipt-before-timestamp-correction.json.txt",
+        "bytes": 1628,
+        "sha256": "542e2b5f75393b2f9503b388a6e0646d6325f21ff42fe465f8a6ad26707f5828"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/publication-stdout.txt",
+      "bytes": 601,
+      "sha256": "2f384dea0553a415dd21fb86074d602866e8ce345b01bc17b9565c678421a8f9",
+      "stored_at": "inputs/publication-stdout.txt",
+      "role": "literal closed input:publication-stdout",
+      "original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/root-source-publication-64d/push-tool-combined.stdout.txt",
+        "bytes": 601,
+        "sha256": "2f384dea0553a415dd21fb86074d602866e8ce345b01bc17b9565c678421a8f9"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/physical-metadata.json",
+      "bytes": 65326,
+      "sha256": "d1af2266f084f05154bd71c88246c660fe059cf5f67ffc3c194c9506574d6b25",
+      "stored_at": "inputs/physical-metadata.json",
+      "role": "literal closed input:physical-metadata",
+      "original": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/physical-metadata-read-only.json",
+        "bytes": 65326,
+        "sha256": "d1af2266f084f05154bd71c88246c660fe059cf5f67ffc3c194c9506574d6b25"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/wheel-readback.json",
+      "bytes": 3472,
+      "sha256": "0c6e45747e981659c8df62d5c1330209cc62876734a07175c852be7bc4e31f60",
+      "stored_at": "inputs/wheel-readback.json",
+      "role": "literal closed input:wheel-readback",
+      "original": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/external-wheel-readback.json",
+        "bytes": 3472,
+        "sha256": "0c6e45747e981659c8df62d5c1330209cc62876734a07175c852be7bc4e31f60"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/inputs/source-readback.json",
+      "bytes": 3244,
+      "sha256": "f184ad9f842484ac7192374ecbbf36ac10cb4ff12c3256b06e68f61ef79008b5",
+      "stored_at": "inputs/source-readback.json",
+      "role": "literal closed input:source-readback",
+      "original": {
+        "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/source-input-readback.json",
+        "bytes": 3244,
+        "sha256": "f184ad9f842484ac7192374ecbbf36ac10cb4ff12c3256b06e68f61ef79008b5"
+      }
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/input-index.json",
+      "bytes": 10648,
+      "sha256": "38ff6845c0b8cc7a61bd359a2d0de8af7529090c7db9150336f2c5fe9e35877c",
+      "stored_at": "input-index.json",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/closed-install-custody.json",
+      "bytes": 12804,
+      "sha256": "8b1e16abe34bdd5971e350823571194083ee156f6969a893a88d7600a96cc110",
+      "stored_at": "closed-install-custody.json",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/capture_closed_inputs.py",
+      "bytes": 7431,
+      "sha256": "4b681c7b755bb5f6a57f89b0f16bd88177657c6bea5b4b4f56f19eb5e22c0856",
+      "stored_at": "capture_closed_inputs.py.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/capture-tool.stdout.txt",
+      "bytes": 136,
+      "sha256": "8230f1c85606d22d642b91fdbd95770ca4cd7b03d64cdab04c6b34e8f1089768",
+      "stored_at": "capture-tool.stdout.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.py",
+      "bytes": 24184,
+      "sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e",
+      "stored_at": "validate_closed_install.py.txt",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.attempt1.py.txt",
+      "bytes": 23567,
+      "sha256": "47ff5faec0604e1ee00cd4c469291e1bab0d8a6d78d09e476e5702391e84be2c",
+      "stored_at": "validate_closed_install.attempt1.py.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/validate_closed_install.attempt2.py.txt",
+      "bytes": 23565,
+      "sha256": "6a27d77988dc49c4b0efcf9cfc7d77cbf87fba05026e2a02684af761c589bb04",
+      "stored_at": "validate_closed_install.attempt2.py.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/check_closed_install_controls.py",
+      "bytes": 7033,
+      "sha256": "f8f6add995187aab0014f545c8c294494d0f62b35c7f75db017ce25ddd89bb45",
+      "stored_at": "check_closed_install_controls.py.txt",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/observer-execution.json",
+      "bytes": 9240,
+      "sha256": "0802ec6a0459a18c7040291435b2427ba725f5d7f34961478687f453101c7d1d",
+      "stored_at": "observer-execution.json",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/review-packet-pending.json",
+      "bytes": 3821,
+      "sha256": "2bfd642ff9469e350c691541b2a6735226a6cdc6e2849644c147e6f58ad4fff0",
+      "stored_at": "review-packet-pending.json",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-normal.stdout.json",
+      "bytes": 7898,
+      "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20",
+      "stored_at": "controls-normal.stdout.json",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-optimized.stdout.json",
+      "bytes": 7898,
+      "sha256": "f1146efe4568782e87dedaa9af252a68cbd4a8676c9aa948e4e8639a24901f20",
+      "stored_at": "controls-normal.stdout.json",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/controls-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-normal.stdout.json",
+      "bytes": 509,
+      "sha256": "32ca54885e9311c90e54729f9f8af602fc5ac7d710de3d0307548c8ac5d7e6f5",
+      "stored_at": "current-validator-normal.stdout.json",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-optimized.stdout.json",
+      "bytes": 509,
+      "sha256": "32ca54885e9311c90e54729f9f8af602fc5ac7d710de3d0307548c8ac5d7e6f5",
+      "stored_at": "current-validator-normal.stdout.json",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/current-validator-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "current validator/control"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder.stderr.txt",
+      "bytes": 2601,
+      "sha256": "e6ecf4cefa6b8af90b6e27479859ac7e226e99d048283dacfa1297f4d24c6f3d",
+      "stored_at": "builder.stderr.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v2.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v2.stderr.txt",
+      "bytes": 1231,
+      "sha256": "ea516e51873b2bccb159b58c5de631ab5024f7da4207959356fa67aaf1da9b67",
+      "stored_at": "builder-v2.stderr.txt",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v3.stdout.json",
+      "bytes": 509,
+      "sha256": "32ca54885e9311c90e54729f9f8af602fc5ac7d710de3d0307548c8ac5d7e6f5",
+      "stored_at": "current-validator-normal.stdout.json",
+      "role": "preserved observer/publication context"
+    },
+    {
+      "path": "/tmp/e02-E-declared-prereq-custody-64d-20261007/builder-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_at": "inputs/historical-observer-stderr.txt",
+      "role": "preserved observer/publication context"
+    }
+  ],
+  "logical_files": 56,
+  "unique_files": 44,
+  "total_unique_bytes": 503972,
+  "external_reproducible_payloads": {
+    "copied": false,
+    "wheel_count": 4,
+    "wheel_bytes": 29938701
+  },
+  "replay": "Materialize stored_at copies; restore archived current .py.txt observer to .py in fresh scratch by exact hash for controls import; use any repository containing source64d with --repo. Literal inputs use original absolute paths only as recorded identity; no live environment/native backend or package import is performed by validator. source Git objects are read-only. Empty stdout roles archive as .txt. Alias rows must map through stored_at, not fabricate missing paths.",
+  "limits": "Closed installation+preflight capability and evidence custody only; global backend/CI/finding closure not established. All historicalUNRUN/pending bytes retained; ignored wheels29MB exactrefs not copied."
+}

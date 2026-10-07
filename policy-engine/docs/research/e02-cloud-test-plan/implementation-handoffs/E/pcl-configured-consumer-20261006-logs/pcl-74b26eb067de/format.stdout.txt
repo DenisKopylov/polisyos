@@ -1,0 +1,2 @@
+Would reformat: tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py
+1 file would be reformatted, 3 files already formatted

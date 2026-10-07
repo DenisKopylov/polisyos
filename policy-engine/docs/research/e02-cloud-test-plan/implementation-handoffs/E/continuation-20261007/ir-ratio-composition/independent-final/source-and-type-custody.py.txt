@@ -1,0 +1,113 @@
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tomllib
+
+ROOT = Path('/workspace/e02-E-doe-20261006')
+OUT = Path(__file__).parent
+SHA = 'ecde9d2d8d9d13cba87420930105e378010a1acc'
+TREE = '41d52f7b26d7d10757b479f55dd412d97fa051c4'
+AUTH = Path('/tmp/e02-E-ir-composition-r4-20261007')
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+assert git('rev-parse', 'HEAD').decode().strip() == SHA
+assert git('rev-parse', 'HEAD^{tree}').decode().strip() == TREE
+baseline = (ROOT / 'policy-engine/architecture/baselines/basedpyright/baseline.json').read_bytes()
+original_baseline = (AUTH / 'basedpyright-original-baseline.json').read_bytes()
+assert baseline == original_baseline
+config_bytes = (ROOT / 'policy-engine/basedpyright.toml').read_bytes()
+config = tomllib.loads(config_bytes.decode())['tool']['basedpyright']
+assert config_bytes == git('show', SHA + ':policy-engine/basedpyright.toml')
+private_bytes = (AUTH / 'basedpyright-ecde-config.json').read_bytes()
+private = json.loads(private_bytes)
+assert set(private) == set(config)
+assert {k: v for k, v in config.items() if k != 'baselineFile'} == {k: v for k, v in private.items() if k != 'baselineFile'}
+assert private['baselineFile'] == str(AUTH / 'basedpyright-ecde-baseline.json')
+receipt = json.loads((AUTH / 'basedpyright-ecde-receipt.json').read_bytes())
+assert receipt['source_sha'] == SHA and receipt['tree'] == TREE
+assert receipt['exit_code'] == 0 and receipt['summary']['filesAnalyzed'] == 2
+assert all(receipt['summary'][k] == 0 for k in ('errorCount', 'warningCount', 'informationCount'))
+assert receipt['canonical_baseline_sha256'] == hashlib.sha256(baseline).hexdigest()
+assert receipt['private_baseline_input_sha256'] == hashlib.sha256(original_baseline).hexdigest()
+assert receipt['original_config_sha256'] == hashlib.sha256(config_bytes).hexdigest()
+assert receipt['actual_config_sha256'] == hashlib.sha256(private_bytes).hexdigest()
+assert receipt['private_baseline_after_sha256'] == hashlib.sha256((AUTH / 'basedpyright-ecde-baseline.json').read_bytes()).hexdigest()
+parsed = json.loads((AUTH / 'basedpyright-ecde-parsed.json').read_bytes())
+stdout = (AUTH / 'basedpyright-ecde.stdout.txt').read_text()
+assert json.loads(stdout[stdout.index('{'):]) == parsed
+assert parsed['summary'] == receipt['summary'] and parsed['generalDiagnostics'] == []
+for row in receipt['source_files']:
+    assert hashlib.sha256((ROOT / 'policy-engine' / row['path']).read_bytes()).hexdigest() == row['sha256']
+assert not (ROOT / 'policy-engine/e02-composition-ecde-type-private.json').exists()
+
+# A complete bounded static census, not grep-zero and not evidence of arbitrary dynamic dispatch.
+targets = {'push_forward_envelope', 'pull_back_envelope', 'compress_envelope'}
+files = git('ls-files', 'policy-engine/src/**/*.py', 'policy-engine/tests/**/*.py').decode().splitlines()
+assert len(files) == len(set(files))
+inputs, references, errors = [], [], []
+for path in files:
+    body = (ROOT / path).read_bytes()
+    inputs.append({'path': path, 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()})
+    try:
+        tree = ast.parse(body, filename=path)
+    except SyntaxError as exc:
+        errors.append({'path': path, 'error': str(exc)})
+        continue
+    imported = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                imported[alias.asname or alias.name] = (node.module or '') + '.' + alias.name
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                imported[alias.asname or alias.name] = alias.name
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if isinstance(node.func, ast.Name):
+            target = node.func.id
+            resolved = imported.get(target, target)
+        elif isinstance(node.func, ast.Attribute):
+            target = node.func.attr
+            try:
+                expr = ast.unparse(node.func)
+            except Exception:
+                expr = target
+            first, _, tail = expr.partition('.')
+            resolved = imported.get(first, first) + ('.' + tail if tail else '')
+        else:
+            continue
+        if target in targets:
+            references.append({'path': path, 'line': node.lineno, 'target': target, 'resolved_static_spelling': resolved,
+                               'surface': 'test' if path.startswith('policy-engine/tests/') else 'source'})
+assert errors == []
+product = [row for row in references if row['surface'] == 'source']
+full = {'schema': 'e02-independent-composition-static-census:1', 'source': SHA, 'tree': TREE,
+        'input_files': inputs, 'input_count': len(inputs), 'references': references,
+        'source_references': product, 'errors': errors,
+        'limitation': 'Complete tracked Python source/tests denominator, static call spellings only; dynamic/reflection/injected external caller reachability unmeasured.'}
+(OUT / 'caller-census.json').write_text(json.dumps(full, indent=2) + '\n')
+assert git('rev-parse', 'HEAD').decode().strip() == SHA
+assert git('rev-parse', 'HEAD^{tree}').decode().strip() == TREE
+result = {'schema': 'e02-independent-composition-source-type-custody:1', 'source': SHA, 'tree': TREE,
+          'type_result': 'PASS', 'type_scope': 'Canonical original settings/same project root/two selected changed modules; original tracked baseline untouched; scratch baseline pruned. Not unbaselined/global type PASS.',
+          'type_reexecuted': False, 'actual_author_receipt': receipt,
+          'original_baseline_bytes': len(baseline), 'original_baseline_sha256': hashlib.sha256(baseline).hexdigest(),
+          'supported_config_settings_equal_except_scratch_baseline': True,
+          'complete_static_census_inputs': len(inputs), 'static_source_references': product,
+          'census_bytes': (OUT / 'caller-census.json').stat().st_size,
+          'census_sha256': hashlib.sha256((OUT / 'caller-census.json').read_bytes()).hexdigest(),
+          'source_written': False,
+          'limitations': ['Unsupported .json.tmp 9-errors/209-warnings observer uses fallback config, retained historically; not current canonical type outcome.',
+                          'Earlier actual tracked baseline prune/restoration observations retained, not overwritten by isolated supported run.',
+                          'No dynamic production caller, generated surface, scientific authority, finding closure or whole gate PASS inferred.']}
+(OUT / 'source-and-type-custody.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result, indent=2))

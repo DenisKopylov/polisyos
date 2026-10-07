@@ -1,0 +1,62 @@
+{
+  "historical_source": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+  "lost_original_author_assets": [
+    "profile-correction/normal.stdout.txt",
+    "profile-correction/normal.stderr.txt",
+    "profile-correction/normal.junit.xml",
+    "profile-correction/optimized.stdout.txt",
+    "profile-correction/optimized.stderr.txt",
+    "profile-correction/optimized.junit.xml",
+    "profile-correction/receipt.json",
+    "profile-correction/compat.stdout.txt",
+    "profile-correction/compat.stderr.txt",
+    "profile-correction/compat.junit.xml",
+    "profile-correction/compat-receipt.json"
+  ],
+  "cause": "Copied capturer output-root replacement did not match full absolute-path literal; later affected output-ref runs reused and overwrote historical author74 and23 outputs/fixtures. New artifacts at those paths are later observations, not historical bytes.",
+  "original_author74_and23_literal_bytes_available": false,
+  "original_hashes_custody": "not_established; no complete earlier separately saved per-output hash index",
+  "retained_source_and_observation_summary": "9147 source Git remains exact; earlier tool observations recorded74 normal/-O and23 compatibility PASS; these observations are not substitute raw evidence",
+  "deciding_independent_historical_receipts": [
+    "/tmp/e02-E-fit-independent-9147-20261007/publication-selection-9147.json",
+    "/tmp/e02-E-fit-independent-9147-20261007/independent-review-9147.json"
+  ],
+  "current_failed_returnedref_observer_assets_copied": [
+    {
+      "path": "normal.stdout.txt",
+      "bytes": 156150,
+      "sha256": "59797fc6d75dfaced8fb040cea3c0d6070731c2d1548f710e4c3c412cf07428d"
+    },
+    {
+      "path": "normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "normal.junit.xml",
+      "bytes": 28237,
+      "sha256": "e5ac125785b7fea8776aca1712ecc4e396be09ae17788ab4beffd4e2eab50952"
+    },
+    {
+      "path": "optimized.stdout.txt",
+      "bytes": 156629,
+      "sha256": "732a75bf4314b511cfe91bb99ca26cf2b0317f52a0bc060fdfeac4178d8b3466"
+    },
+    {
+      "path": "optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "optimized.junit.xml",
+      "bytes": 28261,
+      "sha256": "9d1e8f1b658b5c55f3a896d71f0a72e51650a92ef90223bd84c5b9a86c88d336"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 2884,
+      "sha256": "146a2bc1b8fedb3e825883b8c4f92c1b0cc4b7c8b7b997f1871e27da4b0c49fb"
+    }
+  ],
+  "future_capture_guard": "Every fresh output root must not exist before launch; use explicit absolute replacement and a source literal inequality check."
+}

@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.closed_control_source_revision_summary.v1",
+  "publication_base": "5739c0fa4037ddf91fbca425e3fd3190dc7aa969",
+  "source_candidate": "c229fe8c0cc31c910de2bd2dc0e84e30be87da2c",
+  "source_tree": "7f2589243b91633d10903ea9818c93f0757b3344",
+  "source_paths": 512,
+  "source_bytes": 21807963,
+  "new_active_Python": 0,
+  "membership": {
+    "logical_count": 688,
+    "original_logical_bytes": 149268072,
+    "stored_logical_bytes": 42415027,
+    "unique_payload_files": 502,
+    "unique_payload_bytes": 20491584,
+    "deduplicated_occurrences": 186
+  },
+  "original_selector_receipts": 24,
+  "original_selected_members": 664,
+  "checks": {
+    "normal": {
+      "stage": {
+        "path": "/tmp/e02-E-final-moderate-controls-v4-normal/review.json",
+        "bytes": 24776,
+        "sha256": "2cdddd0eeb3dc1c5304bb4f516d15a392fa92e1193cca22f0879e6436ae0fc8c",
+        "outcome": "PASS DOC custody controls",
+        "refusals": 26,
+        "healthy_files": 512,
+        "effective_removal_property": "required custody property FAIL when sole corresponding guard is removed"
+      },
+      "published_layout": {
+        "path": "/tmp/e02-E-Git-layout-controls-normal/review.json",
+        "bytes": 6971,
+        "sha256": "56365878c277fb5629cd18b47c3ba7691456546cdab97d5dc2fc3e09e9480667",
+        "outcome": "PASS explicit published-layout custody controls",
+        "refusals": 5,
+        "healthy_files": 512,
+        "effective_removal_property": "required custody property FAIL when sole corresponding guard is removed"
+      }
+    },
+    "optimized": {
+      "stage": {
+        "path": "/tmp/e02-E-final-moderate-controls-v4-optimized/review.json",
+        "bytes": 25342,
+        "sha256": "13b4f43ba3d9d33b6884a1464e5963d7e961a414157e5da330238058c23f4f99",
+        "outcome": "PASS DOC custody controls",
+        "refusals": 26,
+        "healthy_files": 512,
+        "effective_removal_property": "required custody property FAIL when sole corresponding guard is removed"
+      },
+      "published_layout": {
+        "path": "/tmp/e02-E-Git-layout-controls-optimized/review.json",
+        "bytes": 7105,
+        "sha256": "cef28153e2efae5f6686b4ac2fb10d070b4c4671956e2b51132f76b82ce9ec2d",
+        "outcome": "PASS explicit published-layout custody controls",
+        "refusals": 5,
+        "healthy_files": 512,
+        "effective_removal_property": "required custody property FAIL when sole corresponding guard is removed"
+      }
+    }
+  },
+  "historical": {
+    "ba5": "505actualGit/512physical;7moderate ignored originals corrected by ordinary84153append",
+    "84153": "512GitbutactualarchivedreplayFAILbeforewrites; stagingonlylayout corrected by c229explicit stage|published plus incomplete/mixed refusal"
+  },
+  "scope": {
+    "source_native_numeric_global_gates_executed": false,
+    "ROOT_modified": false,
+    "finding_acceptance": false,
+    "G_integration_generator_patches_applied": false,
+    "future_source_freeze_wave_current54": "not established by this carrier"
+  },
+  "cleanup_candidates": {
+    "paths": [
+      "/tmp/e02-E-final-moderate-controls-normal",
+      "/tmp/e02-E-final-moderate-controls-optimized",
+      "/tmp/e02-E-final-moderate-controls-v2-normal",
+      "/tmp/e02-E-final-moderate-controls-v2-optimized",
+      "/tmp/e02-E-final-moderate-controls-v3-normal",
+      "/tmp/e02-E-final-moderate-controls-v3-optimized",
+      "/tmp/e02-E-final-moderate-controls-v4-normal",
+      "/tmp/e02-E-final-moderate-controls-v4-optimized",
+      "/tmp/e02-E-Git-layout-controls-normal",
+      "/tmp/e02-E-Git-layout-controls-optimized"
+    ],
+    "action": "no deletion by this slice; native Trash unavailable here; retain unique receipts/code and check active users before authorized cleanup"
+  }
+}

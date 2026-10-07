@@ -1,0 +1,366 @@
+{
+  "P37": {
+    "literal_source_case_conservation": "independently_reconciled",
+    "served_branches_and_finding_authority": "not_established",
+    "typed_and_Counter_controls": "recomputed"
+  },
+  "V3": {
+    "bytes": 8180,
+    "path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v3.py.txt",
+    "sha256": "8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6"
+  },
+  "actual119": {
+    "accepted_role_association_rows": 35,
+    "current_named_test_association_rows": 48,
+    "independently_previously_verified_roles": 13,
+    "named_case_bindings": 914,
+    "rows": 119
+  },
+  "controls": [
+    {
+      "case": "healthy_full119",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "GO"
+    },
+    {
+      "case": "complete_semantic_attachment_0",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_1",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_2",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_3",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_4",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_5",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_6",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "complete_semantic_attachment_7",
+      "reason": "typed_complete_witness_semantic_attachment_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_0",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_1",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_2",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_3",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_4",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_5",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_6",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    },
+    {
+      "case": "actual_ancillary_predicate_removed_7",
+      "result": {
+        "current_named_callers": 48,
+        "exactaccepted_role": 35,
+        "finding_closure": false,
+        "production_dispatch": false,
+        "rows": 119,
+        "state": "GO"
+      },
+      "state": "ADMITTED_PROPERTY_FAIL",
+      "trusted_source_map_SHA_guard_remains": true
+    }
+  ],
+  "disposition": "GO literal complete119 source/case annotation and complete typed semantic ancillary admission; no default-dispatch or finding authority",
+  "limits": [
+    "Static unresolved/uninvoked statuses remain FAIL/partial proxy observations.",
+    "Named executed-test associations do not prove branches or production dispatch.",
+    "13 prior independent accepted current source-role checks reused; no duplicate source/math review."
+  ],
+  "native_tests_or_gates_repeated": false,
+  "optimization_mode": true,
+  "schema": "policyos.e02.independent.static119.annotation.v1",
+  "selector_custody": [
+    {
+      "logical": 10,
+      "members": [
+        {
+          "bytes": 77230,
+          "decoded_bytes": 1373845,
+          "decoded_sha256": "c77b27c6a69be9857968ad9a44a2dba99af7c01afcb7a96a35d1d82621d2af3e",
+          "logical_name": "witnesses/all-119-qualified-native-boundaries.json",
+          "original_path": "/tmp/e02-E-final3-static-witness-qualification-b2f2f65e-20261007/all-119-qualified-native-boundaries.json",
+          "portable_path": "assets/c77b27c6a69be9857968ad9a44a2dba99af7c01afcb7a96a35d1d82621d2af3e.bin",
+          "sha256": "1335acbd6cdc4781cae954fa86177fc5048b55f7ad22940d6972adb5bb2f277a"
+        },
+        {
+          "bytes": 12200,
+          "decoded_bytes": 12200,
+          "decoded_sha256": "e85d0e6c8003ab99e28636644e66f65db99303557d75a9f65d8c36cfdd88fbeb",
+          "logical_name": "observers/join-witnesses.py.txt",
+          "original_path": "/tmp/e02-E-final3-map-static-witnesses-b2f2f65e-20261007.py.txt",
+          "portable_path": "assets/e85d0e6c8003ab99e28636644e66f65db99303557d75a9f65d8c36cfdd88fbeb.txt",
+          "sha256": "e85d0e6c8003ab99e28636644e66f65db99303557d75a9f65d8c36cfdd88fbeb"
+        },
+        {
+          "bytes": 5737,
+          "decoded_bytes": 5737,
+          "decoded_sha256": "d1cd2ce825f5a40f7da91c4a9f293a849400775b8c108f17edfc37473d489ce0",
+          "logical_name": "controls/validate-witness-map-v2.py.txt",
+          "original_path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v2.py.txt",
+          "portable_path": "assets/d1cd2ce825f5a40f7da91c4a9f293a849400775b8c108f17edfc37473d489ce0.txt",
+          "sha256": "d1cd2ce825f5a40f7da91c4a9f293a849400775b8c108f17edfc37473d489ce0"
+        },
+        {
+          "bytes": 4894,
+          "decoded_bytes": 4894,
+          "decoded_sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a",
+          "logical_name": "controls/normal.json",
+          "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v2-normal.json",
+          "portable_path": "assets/11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a.txt",
+          "sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a"
+        },
+        {
+          "bytes": 4894,
+          "decoded_bytes": 4894,
+          "decoded_sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a",
+          "logical_name": "controls/optimized.json",
+          "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v2-optimized.json",
+          "portable_path": "assets/11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a.txt",
+          "sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a"
+        },
+        {
+          "bytes": 28807,
+          "decoded_bytes": 447667,
+          "decoded_sha256": "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5",
+          "logical_name": "inputs/current-case-index.json",
+          "original_path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json",
+          "portable_path": "assets/baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5.bin",
+          "sha256": "5033025ae82152a1e897b5c20cba7de2243ae817712115a3d0f52778d31f4d81"
+        },
+        {
+          "bytes": 130032,
+          "decoded_bytes": 1144158,
+          "decoded_sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b",
+          "logical_name": "inputs/current-owner-source-role-join.json",
+          "original_path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+          "portable_path": "assets/7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b.bin",
+          "sha256": "b7bdafc12d7d8f0f288e86034f013014e52a6bcde2c8d18672a18dbac16abae3"
+        },
+        {
+          "bytes": 5708,
+          "decoded_bytes": 5708,
+          "decoded_sha256": "22bce7cb82647cee8629b1f2422a494803437cc9507952419f4a0538dfc91716",
+          "logical_name": "historical/first-observer-validator.py.txt",
+          "original_path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007.py.txt",
+          "portable_path": "assets/22bce7cb82647cee8629b1f2422a494803437cc9507952419f4a0538dfc91716.txt",
+          "sha256": "22bce7cb82647cee8629b1f2422a494803437cc9507952419f4a0538dfc91716"
+        },
+        {
+          "bytes": 304,
+          "decoded_bytes": 304,
+          "decoded_sha256": "b22b3fd1c6cb1732be672ab0da4b1bfab7a20ada1e13d84251eb943064d5b066",
+          "logical_name": "historical/first-observer-error.txt",
+          "original_path": "/tmp/e02-E-final3-witness-validation-first-observer-error.txt",
+          "portable_path": "assets/b22b3fd1c6cb1732be672ab0da4b1bfab7a20ada1e13d84251eb943064d5b066.txt",
+          "sha256": "b22b3fd1c6cb1732be672ab0da4b1bfab7a20ada1e13d84251eb943064d5b066"
+        },
+        {
+          "bytes": 1438,
+          "decoded_bytes": 1438,
+          "decoded_sha256": "c36e705f10efdeb4184ca45ed71a79541f855f39649e603152718b96e0ec2422",
+          "logical_name": "controls/control-receipt.json",
+          "original_path": "/tmp/e02-E-final3-witness-supplement-b2f2f65e-20261007/control-receipt.json",
+          "portable_path": "assets/c36e705f10efdeb4184ca45ed71a79541f855f39649e603152718b96e0ec2422.txt",
+          "sha256": "c36e705f10efdeb4184ca45ed71a79541f855f39649e603152718b96e0ec2422"
+        }
+      ],
+      "selector": {
+        "bytes": 6002,
+        "path": "/tmp/e02-E-final3-witness-supplement-b2f2f65e-20261007/publication-selection.json",
+        "sha256": "d99833380c2f3c39bd14cd712afc3ef8c9ca3a714345e2b1c0bdde9f288ecaee"
+      },
+      "stored_bytes": 266350,
+      "unique": 9
+    },
+    {
+      "logical": 5,
+      "members": [
+        {
+          "bytes": 1843,
+          "decoded_bytes": 1843,
+          "decoded_sha256": "149be21eb9fdb30eab3c35b8d52cfc5ef80d6ca59df085d6de386a1bc7839abd",
+          "logical_name": "current/correction-receipt.json",
+          "original_path": "/tmp/e02-E-final3-witness-claim-correction-b2f2f65e-20261007/correction-receipt.json",
+          "portable_path": "assets/149be21eb9fdb30eab3c35b8d52cfc5ef80d6ca59df085d6de386a1bc7839abd.txt",
+          "sha256": "149be21eb9fdb30eab3c35b8d52cfc5ef80d6ca59df085d6de386a1bc7839abd"
+        },
+        {
+          "bytes": 8180,
+          "decoded_bytes": 8180,
+          "decoded_sha256": "8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6",
+          "logical_name": "current/validator-v3.py.txt",
+          "original_path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v3.py.txt",
+          "portable_path": "assets/8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6.txt",
+          "sha256": "8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6"
+        },
+        {
+          "bytes": 8615,
+          "decoded_bytes": 8615,
+          "decoded_sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17",
+          "logical_name": "current/normal.json",
+          "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v3-normal.json",
+          "portable_path": "assets/c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17.txt",
+          "sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17"
+        },
+        {
+          "bytes": 8615,
+          "decoded_bytes": 8615,
+          "decoded_sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17",
+          "logical_name": "current/optimized.json",
+          "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v3-optimized.json",
+          "portable_path": "assets/c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17.txt",
+          "sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17"
+        },
+        {
+          "bytes": 1195,
+          "decoded_bytes": 1195,
+          "decoded_sha256": "63886c31d3b998a9cb8b31f34af63e4317596ca2adf3e2df26713152f5b0ce72",
+          "logical_name": "historical/V2-semantic-escapes.json",
+          "original_path": "/tmp/e02-E-final3-witness-validation-v2-semantic-escapes.json",
+          "portable_path": "assets/63886c31d3b998a9cb8b31f34af63e4317596ca2adf3e2df26713152f5b0ce72.txt",
+          "sha256": "63886c31d3b998a9cb8b31f34af63e4317596ca2adf3e2df26713152f5b0ce72"
+        }
+      ],
+      "selector": {
+        "bytes": 3175,
+        "path": "/tmp/e02-E-final3-witness-claim-correction-b2f2f65e-20261007/publication-selection.json",
+        "sha256": "d43afe828cb30840f7e3ce2c824a700c44a0a60e57544c0d437ffcdac7eb624e"
+      },
+      "stored_bytes": 19833,
+      "unique": 4
+    }
+  ],
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_guard_after": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tracked_status": "",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "source_guard_before": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tracked_status": "",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "unchanged_V2_functions_reused": [
+    "typed_equal",
+    "derive",
+    "admit_claims",
+    "validate",
+    "setpath"
+  ]
+}

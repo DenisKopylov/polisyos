@@ -1,0 +1,14 @@
+updated undefined with 3041 errors (went down by 1124)
+
+{
+    "version": "1.39.0",
+    "time": "1791386342945",
+    "generalDiagnostics": [],
+    "summary": {
+        "filesAnalyzed": 2,
+        "errorCount": 0,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 4.254
+    }
+}

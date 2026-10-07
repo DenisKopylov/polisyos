@@ -1,0 +1,46 @@
+{
+  "schema": "policyos.e02.final3.publication_header_class_correction.v3",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "trusted_main_selection_sha256": "1c6619d44223e3715d02906b2181752f3fbeef0a9c2060a2a53228f54d6f85f5",
+  "historical_initialV2_admission": "Full memberCounter/physical/native receipt claims protected; semantic publication root headers were unguarded. Peer actual changing tree/nativeoutcomes/P41/schema/scope admitted. Native literal facts and original main selection correct and unchanged. OldV2 controls and exact peerred retained.",
+  "corrective_property": "Before any carrierIO admit the full stricttyped semantic rootheader against bytepinned original selection; excludes only assets and three count/bytes fields covered by existing Counter and typed physical recomputation. No semantic field allowlist can silentlyomit a newclaim.",
+  "actual_controls_per_mode": 37,
+  "controls": {
+    "prior_unchanged_literal_and_typed_and_Counter_controls": 23,
+    "new_root_header_refusals_before_carrierIO": 7,
+    "actualsole_header_AST_If_removed_then_header_mutants_admitted": 7
+  },
+  "stdout": {
+    "bytes": 12127,
+    "sha256": "a8946ff089facd18361e4572d74ac7d5343b095593c8aaead174af2f30288f40",
+    "normal_optimized_equal": true
+  },
+  "actual_commands": [
+    [
+      "/usr/bin/python3",
+      "-S",
+      "/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v3r2.py.txt"
+    ],
+    [
+      "/usr/bin/python3",
+      "-S",
+      "-O",
+      "/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v3r2.py.txt"
+    ]
+  ],
+  "exit_codes": [
+    0,
+    0
+  ],
+  "native_reruns": false,
+  "ROOT_or_environment_writes": false,
+  "finding_closure": false,
+  "P41": "not_established",
+  "current_native_outcomes": {
+    "architecture": "FAIL",
+    "runtime-api-contract": "FAIL",
+    "static-invocation": "FAIL"
+  },
+  "independent_admission_acceptance": "pending distinct peerreceipt; source/math/native gate facts alreadyclosed separately"
+}

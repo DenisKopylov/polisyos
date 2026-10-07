@@ -1,0 +1,158 @@
+{
+  "schema": "e02.E.original54.association-validation.v1",
+  "scope": "Author recomputing associations/source hashes; not independent product review or scientific finding closure",
+  "packet": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+    "bytes": 243560,
+    "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+  },
+  "candidate": {
+    "commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+    "branch": "codex/e02-E-continuation-20261006",
+    "scientific_ancestor": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "published_evidence_ancestor": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "compared_G_source": "2abc17f46a033a7879663486ff9946a95786601f",
+    "full_footprint_since_evidence_head": [
+      "A\tpolicy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+      "M\tpolicy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "M\tpolicy-engine/src/polisyos/ir/analytics/README.md",
+      "M\tpolicy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "M\tpolicy-engine/tests/unit/ir/test_posterior_summary.py",
+      "A\tpolicy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "product_test_tool_schema_architecture_release_footprint_since_b2": [
+      "A\tpolicy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+      "M\tpolicy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "M\tpolicy-engine/src/polisyos/ir/analytics/README.md",
+      "M\tpolicy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "M\tpolicy-engine/tests/unit/ir/test_posterior_summary.py",
+      "A\tpolicy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "passive_doc_evidence_delta_since_b2": {
+      "paths": 894,
+      "exact_command": [
+        "git",
+        "diff",
+        "--name-status",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+        "--"
+      ],
+      "complete_stdout_sha256": "897f03b8cd846dda9f9f7ae63b9b38cba9610282190bc1bc005de87423ea9404",
+      "source": "Original b2→df525 passive handoff plus current complete df525→candidate footprint; no b2 wave is relabeled current."
+    },
+    "source_snapshot_immutable": true,
+    "independent_review_and_deciding_receipts_complete": false
+  },
+  "denominator": {
+    "bundles": 22,
+    "finding_ids": 54,
+    "ID_to_bundle_links": 55,
+    "shared_link": "LA-051 in FRC-01 and FRC-02"
+  },
+  "status_layers": {
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "retained_E_author_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "retained_E_individual_decisions": {
+      "accepted": 43,
+      "pending": 11
+    },
+    "formal_G_acceptance": 0,
+    "formal_ledger_change": false,
+    "B198": "Historical closed retained; no new defining-property falsifier established.",
+    "rule": "Proposal, historical ledger, check outcome, independent source recommendation and formal G intake are separate. New public-boundary completion requires its own evidence."
+  },
+  "positive_control": "exact rows, criterion cards, owner TSV, source dependencies and A cases admitted",
+  "corrupt_field_controls": [
+    {
+      "control": "remove_original_row",
+      "observed": "refused",
+      "reason": "exact 54 original row identities/order"
+    },
+    {
+      "control": "remove_shared_LA051_bundle_link",
+      "observed": "refused",
+      "reason": "exact 55 ID-to-bundle associations"
+    },
+    {
+      "control": "promote_historical_partial",
+      "observed": "refused",
+      "reason": "historical ledger layer"
+    },
+    {
+      "control": "declare_G_acceptance_from_author_count",
+      "observed": "refused",
+      "reason": "formal G acceptance is separate"
+    },
+    {
+      "control": "overwrite_original_criterion",
+      "observed": "refused",
+      "reason": "exact original property B32"
+    },
+    {
+      "control": "forge_original_card_digest",
+      "observed": "refused",
+      "reason": "original full cards and owner TSV content identity"
+    },
+    {
+      "control": "delete_unavailable_served_input",
+      "observed": "refused",
+      "reason": "missing exact external input B194"
+    },
+    {
+      "control": "drop_five_A_failures",
+      "observed": "refused",
+      "reason": "eight unique historical A reason failures"
+    },
+    {
+      "control": "double_count_A_shared_failures",
+      "observed": "refused",
+      "reason": "eight unique historical A reason failures"
+    },
+    {
+      "control": "A_source_diagnostic_as_native_PASS",
+      "observed": "refused",
+      "reason": "A source-level review is not a current native run"
+    },
+    {
+      "control": "claim_existing_A_consumer_absent",
+      "observed": "refused",
+      "reason": "existing consumer cannot be claimed wholly absent"
+    },
+    {
+      "control": "move_b2_wave_to_future_candidate",
+      "observed": "refused",
+      "reason": "b2 wave does not belong to new candidate"
+    },
+    {
+      "control": "Profile2_ratio_law_grants_authority",
+      "observed": "refused",
+      "reason": "finite law does not confer gate authority"
+    },
+    {
+      "control": "generic_fixture_as_production_authority",
+      "observed": "refused",
+      "reason": "synthetic fixture not factual authority"
+    },
+    {
+      "control": "new_boundary_complete_without_review_receipts",
+      "observed": "refused",
+      "reason": "new mechanism requires immutable source/review/receipts"
+    },
+    {
+      "control": "false_unchanged_source_digest",
+      "observed": "refused",
+      "reason": "dependency bytes recomputed from exact Git source"
+    }
+  ],
+  "result": "PASS"
+}

@@ -1,0 +1,109 @@
+"""Independent narrow header-admission delta; no native/gate execution."""
+import ast
+import copy
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+
+P = Path('/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v3r2.py.txt')
+OLD = Path('/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v2.py.txt')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+
+
+def ref(path):
+    b = path.read_bytes()
+    return {'path': str(path), 'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest()}
+
+
+def guard():
+    def git(*args):
+        return subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True, text=True, check=True).stdout
+    return {'source': git('rev-parse', 'HEAD').strip(), 'tree': git('rev-parse', 'HEAD^{tree}').strip(), 'tracked_status': git('status', '--porcelain', '--untracked-files=no')}
+
+
+def functions(path):
+    return {n.name: n for n in ast.parse(path.read_text()).body if isinstance(n, ast.FunctionDef)}
+
+
+def main():
+    before = guard()
+    if before != {'source': SOURCE, 'tree': TREE, 'tracked_status': ''}:
+        raise ValueError('Root_frozen_source_guard')
+    if ref(P)['sha256'] != '369644231e53e2837124b69d8d46320418b51ba19e88ec9c44740784536187ab':
+        raise ValueError('V3_source_pin')
+    old, current = functions(OLD), functions(P)
+    unchanged = []
+    for name in old:
+        if name == 'run_controls':
+            continue
+        node = copy.deepcopy(current[name])
+        if name == 'validate':
+            call = node.body.pop(0)
+            if ast.dump(call) != ast.dump(ast.parse('admit_root_header(selection)').body[0]):
+                raise ValueError('unexpected_validate_delta')
+        if ast.dump(node) != ast.dump(old[name]):
+            raise ValueError('old_body_not_reused:' + name)
+        unchanged.append(name)
+    loader = importlib.machinery.SourceFileLoader('_final3_v3_independent', str(P))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    m = importlib.util.module_from_spec(spec)
+    loader.exec_module(m)
+    selection = m.trusted()
+    healthy = m.validate(selection, m.ROOT)
+    changes = [('tree', '0' * 40), ('native_outcomes', {'architecture': 'PASS', 'runtime-api-contract': 'PASS', 'static-invocation': 'PASS'}),
+               ('P41', 'recomputed'), ('schema', 'unknown'), ('scope', 'Full served verification and CI PASS'),
+               ('large_raw_static_graph', 'Complete raw graph copied with actual runtime authority'),
+               ('private_git_configuration', 'All private raw configuration captured'),
+               ('finding_closure', 0), ('unexpected_authority', True)]
+    rows = [{'case': 'healthy_current_immutable_full73', 'state': 'GO', 'result': healthy}]
+    physical = m.physical
+    calls = []
+    def observe(*args, **kwargs):
+        calls.append(True)
+        return physical(*args, **kwargs)
+    m.physical = observe
+    try:
+        for field, value in changes:
+            mutant = copy.deepcopy(selection)
+            mutant[field] = value
+            calls.clear()
+            try:
+                m.validate(mutant, m.ROOT)
+            except ValueError as exc:
+                if calls:
+                    raise RuntimeError('refusal_after_carrier_reads')
+                rows.append({'case': 'typed_header_' + field, 'state': 'REFUSED', 'reason': str(exc), 'carrier_IO_calls': len(calls)})
+            else:
+                raise RuntimeError('typed_header_escape:' + field)
+    finally:
+        m.physical = physical
+    original = m.admit_root_header
+    m.admit_root_header = m.remove_actual_guard('admit_root_header')
+    try:
+        for field, value in changes[:7]:
+            mutant = copy.deepcopy(selection)
+            mutant[field] = value
+            result = m.validate(mutant, m.ROOT)
+            rows.append({'case': 'actual_single_header_If_removed_' + field, 'state': 'ADMITTED_PROPERTY_FAIL',
+                         'full73_members_native_receipts_kept': True, 'result': result})
+    finally:
+        m.admit_root_header = original
+    after = guard()
+    if before != after:
+        raise ValueError('Root_source_changed_during_read')
+    return {'schema': 'policyos.e02.independent.final3.header_delta.v1', 'source': SOURCE, 'tree': TREE, 'source_guard_before': before, 'source_guard_after': after,
+            'current_validator': ref(P), 'old_validator': ref(OLD), 'old_functions_reused': unchanged,
+            'reused_actual23controls': [ref(Path('/tmp/e02-E-final3-independent-b2-20261007/admission-v2-' + mode + '.json')) for mode in ('normal', 'optimized')],
+            'historical_V2_header_escape_preserved': True, 'rows': rows, 'case_count': len(rows),
+            'optimization_mode': not __debug__, 'disposition': 'GO current V3 complete typed semantic root-header admission with native/custody fixed observations retained',
+            'native_or_gates_rerun': False, 'finding_or_G_authority': False,
+            'P37': {'literal_native_body_and_reuse': 'recomputed', 'peer_typed_property_controls': 'independently_reconciled', 'P41_and_finding_authority': 'not_established'}}
+
+
+if __name__ == '__main__':
+    print(json.dumps(main(), indent=2, sort_keys=True))

@@ -1,0 +1,64 @@
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_JournaledNested(count=1, tag='stable'), input_type=_JournaledNested])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_JournaledNested(count=1, tag='stable'), input_type=_JournaledNested])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_JournaledNested(count=1, tag='stable'), input_type=_JournaledNested])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_JournaledNested(count=1, tag='stable'), input_type=_JournaledNested])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledNested(count=1, tag='stable'), input_type=_JournaledNested])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledNested(count=1, tag='stable'), input_type=_JournaledNested])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=Nested(count=1, tag='stable'), input_type=Nested])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=Nested(count=1, tag='stable'), input_type=Nested])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=Nested(count=1, tag='stable'), input_type=Nested])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=Nested(count=1, tag='stable'), input_type=Nested])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=Nested(count=1, tag='stable'), input_type=Nested])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=Nested(count=1, tag='stable'), input_type=Nested])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(count=1, tag='stable'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(count=1, tag='stable'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(count=1, tag='stable'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(count=1, tag='stable'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(count=1, tag='stable'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(count=1, tag='stable'), input_type=_JournaledValidatorModel])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=ValidatorModel(count=1, tag='stable'), input_type=ValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=ValidatorModel(count=1, tag='stable'), input_type=ValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=ValidatorModel(count=1, tag='stable'), input_type=ValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=ValidatorModel(count=1, tag='stable'), input_type=ValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=ValidatorModel(count=1, tag='stable'), input_type=ValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=ValidatorModel(count=1, tag='stable'), input_type=ValidatorModel])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(...='changed-by-validator'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(...='changed-by-validator'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(...='changed-by-validator'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(...='changed-by-validator'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(...='changed-by-validator'), input_type=_JournaledValidatorModel])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledValidatorModel(...='changed-by-validator'), input_type=_JournaledValidatorModel])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 1, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 1, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 1, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 1, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 1, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 1, 'sibling': 9}), input_type=_JournaledRootPayload])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=RootPayload(root={'count': 1, 'sibling': 9}), input_type=RootPayload])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=RootPayload(root={'count': 1, 'sibling': 9}), input_type=RootPayload])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=RootPayload(root={'count': 1, 'sibling': 9}), input_type=RootPayload])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=RootPayload(root={'count': 1, 'sibling': 9}), input_type=RootPayload])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=RootPayload(root={'count': 1, 'sibling': 9}), input_type=RootPayload])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=RootPayload(root={'count': 1, 'sibling': 9}), input_type=RootPayload])
+  return self.__pydantic_serializer__.to_python(
+/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 2, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 2, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 2, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 2, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 2, 'sibling': 9}), input_type=_JournaledRootPayload])
+  PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_JournaledRootPayload(roo...ount': 2, 'sibling': 9}), input_type=_JournaledRootPayload])
+  return self.__pydantic_serializer__.to_python(

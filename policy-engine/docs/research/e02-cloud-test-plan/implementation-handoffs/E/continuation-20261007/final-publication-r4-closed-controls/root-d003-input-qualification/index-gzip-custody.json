@@ -1,0 +1,21 @@
+{
+  "literal_gzip_assets": [
+    {
+      "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/complete-current-static-input-index.json.gz",
+      "bytes": 316919,
+      "sha256": "6bafaedcc5a1c1a7788adc1aa4b2f0404ae0836033a98bbf00308bef166bfa0c",
+      "decoded_path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/complete-current-static-input-index.json",
+      "decoded_bytes": 1151062,
+      "decoded_sha256": "b1964900154b7b06b6b691ecbc7eee710d07fbecaf01b0d163e9ae4805c28f4e"
+    },
+    {
+      "path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/complete-current-architecture-input-edge-index.json.gz",
+      "bytes": 179805,
+      "sha256": "42a85ed76245573b4547ba0fd97416c2defb6aad2c34aa083113b56eb3bb38bd",
+      "decoded_path": "/tmp/e02-E-ROOT-d003-input-qualification-20261007/complete-current-architecture-input-edge-index.json",
+      "decoded_bytes": 1501361,
+      "decoded_sha256": "c0ed46c116dea43e7838a0bd506452732c52fdc8d0e90caaf1d7242dc70c77c3"
+    }
+  ],
+  "source": "d0038a6e52867e820fd96f4706746ec501a80273"
+}

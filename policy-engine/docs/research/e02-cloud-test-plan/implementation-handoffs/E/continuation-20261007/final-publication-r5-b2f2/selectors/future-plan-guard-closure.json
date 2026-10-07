@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.future_custody_closed_guard_selection.v1",
+  "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "file_count": 2,
+  "total_bytes": 54683,
+  "files": [
+    {
+      "source": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/guard-closure.json",
+      "at": "guard-closure.json",
+      "role": "Closed actual ROOT/b943/207-metadata read-only lease guard; original145asset selector unchanged",
+      "bytes": 916,
+      "sha256": "6f4be7cc09f90b2a85ab5551f2822768a21968cfd93ab25a55da1fccf2b8324a"
+    },
+    {
+      "source": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/root-readonly-metadata-closed.json",
+      "at": "root-readonly-metadata-closed.json",
+      "role": "Closed actual ROOT/b943/207-metadata read-only lease guard; original145asset selector unchanged",
+      "bytes": 53767,
+      "sha256": "d5f699885100729358b19389bd3902aead250d2f50e24f99712734f5d5f4bb00"
+    }
+  ],
+  "original_future_selection": {
+    "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/publication-selection.json",
+    "bytes": 71650,
+    "sha256": "700b25ae0cbc1ead0c0992ab64051e8a5c50d2ea38057e8adcc11a5ff1da2353"
+  },
+  "independent_or_source_acceptance": false,
+  "self_index_excluded": true
+}

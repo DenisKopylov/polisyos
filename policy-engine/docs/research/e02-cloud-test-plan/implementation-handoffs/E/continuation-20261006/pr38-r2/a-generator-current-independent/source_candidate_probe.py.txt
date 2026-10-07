@@ -1,0 +1,35 @@
+"""Pure author-validator counterexample; no writes to source/author packet."""
+from pathlib import Path
+import ast
+import copy
+import hashlib
+import json
+import shutil
+import subprocess
+
+AUTHOR=Path('/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817')
+OUT=Path(__file__).parent
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+script=AUTHOR/'validate_binding.py.txt'
+original=script.read_bytes()
+tree=ast.parse(original)
+function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='validate')
+only=ast.Module(body=[function],type_ignores=[])
+namespace={'sha256':hashlib.sha256,'subprocess':subprocess,'GIT':str(Path(shutil.which('git')).resolve()),'REPO':ROOT}
+exec(compile(only,str(script)+'[pure-function-only]','exec'),namespace)
+binding=json.loads((AUTHOR/'source-binding-a9f78817.json').read_text())
+packet=json.loads((AUTHOR/'dependency-packet-a9f78817.json').read_text())
+namespace['validate'](binding,packet)
+mutated=copy.deepcopy(binding)
+mutated['source_rows'][0]['current_source']['commit']='5e3e3727685132f270a3a07b9f63dd962a88cd96'
+# Both commits exist and resolve identical real module bytes, but "current" row has wrong source candidate.
+assert subprocess.check_output(['git','-C',str(ROOT),'show',mutated['source_rows'][0]['current_source']['commit']+':'+mutated['source_rows'][0]['path']]) == subprocess.check_output(['git','-C',str(ROOT),'show',packet['current_committed_source']['sha']+':'+mutated['source_rows'][0]['path']])
+try:
+    namespace['validate'](mutated,packet)
+    outcome='ACCEPTED-valid-bytes-wrong-current-source-candidate'
+except ValueError as error:
+    outcome='REJECTED '+str(error)
+assert script.read_bytes()==original
+result={'scope':'Pure author metadata-validator function only; zero product/native/gate commands; author packet unchanged','source_script':str(script),'source_script_sha256':hashlib.sha256(original).hexdigest(),'declared_current_candidate':packet['current_committed_source']['sha'],'forged_current_row_commit':mutated['source_rows'][0]['current_source']['commit'],'same_real_source_bytes':True,'outcome':outcome,'current_actual_packet':'All actual published rows still point correctly to a9; this is a validator discriminator, not actual custody corruption.'}
+(OUT/'source-candidate-probe.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

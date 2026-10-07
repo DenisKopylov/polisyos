@@ -1,0 +1,82 @@
+{
+  "control_count": 10,
+  "controls": [
+    {
+      "name": "healthy_full197logical127storage_native_physical_gzip_validation",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "mandatory closed full member Counter assets",
+      "name": "native_receipt_retotalled_omission",
+      "native_marker_refs_preserved": true,
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "mandatory closed full member Counter assets",
+      "name": "current_selector_packet_retotalled_omission",
+      "native_marker_refs_preserved": true,
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "mandatory closed full member Counter assets",
+      "name": "complete_source_gzip_retotalled_omission",
+      "native_marker_refs_preserved": true,
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "trusted selection semantic/source/native headers",
+      "name": "source_header",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "trusted complete member denominator logical_asset_count",
+      "name": "logical_count_float",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "trusted complete member denominator unique_asset_count",
+      "name": "storage_count_float",
+      "outcome": "PASS"
+    },
+    {
+      "actual_false_admission": true,
+      "name": "native_receipt_actual_new_guard_removal",
+      "original_physical_logical_types_and_gzip_validator_active": true,
+      "outcome": "PASS",
+      "removed_property": "admit_mandatory_members body only"
+    },
+    {
+      "actual_false_admission": true,
+      "name": "current_selector_packet_actual_new_guard_removal",
+      "original_physical_logical_types_and_gzip_validator_active": true,
+      "outcome": "PASS",
+      "removed_property": "admit_mandatory_members body only"
+    },
+    {
+      "actual_false_admission": true,
+      "name": "complete_source_gzip_actual_new_guard_removal",
+      "original_physical_logical_types_and_gzip_validator_active": true,
+      "outcome": "PASS",
+      "removed_property": "admit_mandatory_members body only"
+    }
+  ],
+  "disposition": "GO for corrected mandatory membership and retained literal custody only",
+  "native_or_math_or_gate_reexecution": false,
+  "optimized": false,
+  "original_V2_false_admission_preserved": true,
+  "original_closed_selectors_helpers_or_ROOT_source_modified": false,
+  "schema": "policyos.e02.E.three_gate_mandatory_membership_independent_review.v1",
+  "scope": "Previous full8attempt/127storage/197logical/9gzip byte review retained unchanged; current3FAIL remain separate from custody GO.",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "trusted_closed_selection": {
+    "bytes": 217218,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection-v2.json",
+    "sha256": "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+  },
+  "validator": {
+    "bytes": 5463,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/validate_publication_selection_v3.py.txt",
+    "sha256": "62513b73dfa872ea78338e7010af1c44c247bbee29ad75028d5925405d28d39d"
+  }
+}

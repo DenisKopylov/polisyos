@@ -1,0 +1,707 @@
+"""Bind existing E original-row decisions to a new immutable reviewed source.
+
+This utility reads Git and fixed receipts only. It does not run product code or tests.
+Current numerical/global outcomes are absent until separate terminal receipts arrive.
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import csv
+import hashlib
+import io
+import json
+import re
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path, PurePosixPath
+from typing import Any
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SOURCE = "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+TREE = "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+INPUT_HASH = "416e0106b4ee30f4ba9efc74a7fee4686cd3e5fee07706661bdac468a6110372"
+OLD = "3932cded22a29254a7dfced99723e147d6fea7cb"
+IR = "ecde9d2d8d9d13cba87420930105e378010a1acc"
+CAL = "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322"
+FACADE = "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1"
+IMPORT_SOURCE = "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76"
+TSV = "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/"
+PREFIX = "policy-engine/src/polisyos/"
+BASIS = frozenset(
+    {
+        "recomputed",
+        "independently_reconciled",
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    }
+)
+CAPABILITIES = frozenset(
+    {
+        "surface_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "verification_missing",
+        "implemented_but_not_orchestrated",
+        "surface_out_of_scope",
+    }
+)
+ROLES = (
+    ("summary_producer", "foundry/calibration/uncertainty_adapter.py", CAL, "fit_review"),
+    ("profile_and_reader", "ir/analytics/posterior_summary.py", IR, "composition_review"),
+    ("common_law_admission", "foundry/uncertainty/sampling_admission.py", OLD, "sparse3932"),
+    ("common_stochastic_transform", "foundry/uncertainty/monte_carlo.py", OLD, "sparse3932"),
+    (
+        "native_Node",
+        "scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        CAL,
+        "fit_review",
+    ),
+    (
+        "single_Welfare_consumer",
+        "scientist/nodes/builtins/simulate/propagate_welfare.py",
+        OLD,
+        "sparse3932",
+    ),
+    ("public_IR_composition_helpers", "ir/analytics/uncertainty.py", IR, "composition_review"),
+    ("configured_fit_reader", "foundry/calibration/bayesian_fit_bridge.py", CAL, "fit_review"),
+    ("configured_fit_facade", "foundry/calibration/__init__.py", CAL, "fit_review"),
+    ("public_summary_and_fit_facade", "foundry/uncertainty/__init__.py", FACADE, "facade_review"),
+    ("IR_analytics_facade", "ir/api.py", OLD, "sparse3932"),
+    ("IR_root_facade", "ir/__init__.py", OLD, "sparse3932"),
+    ("IR_ABI_registry", "schemas/abi_models.py", OLD, "sparse3932"),
+)
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def digest(body: bytes) -> str:
+    return hashlib.sha256(body).hexdigest()
+
+
+def reference(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": digest(body)}
+
+
+def same(left: object, right: object) -> bool:
+    """JSON strict equality: True, 1 and 1.0 are distinct inputs."""
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(same(left[k], right[k]) for k in left)
+    if isinstance(left, list):
+        return len(left) == len(right) and all(same(a, b) for a, b in zip(left, right, strict=True))
+    return left == right
+
+
+def admit_sha(value: object) -> None:
+    require(
+        type(value) is str and re.fullmatch(r"[0-9a-f]{40}", value) is not None,
+        "full exact SHA required",
+    )
+
+
+def admit_repo_path(value: object) -> None:
+    require(type(value) is str and value.startswith("policy-engine/"), "repo path prefix")
+    require("\x00" not in value and not any(c.isspace() for c in value), "repo path characters")
+    parts = PurePosixPath(value).parts
+    require(
+        ".." not in parts and "." not in parts and str(PurePosixPath(value)) == value,
+        "canonical repo path",
+    )
+
+
+def admit_inputs(packet: dict[str, Any]) -> None:
+    require(packet["candidate"] == SOURCE and packet["tree"] == TREE, "immutable source identity")
+    require(
+        type(packet["inputs"]) is dict and len(packet["inputs"]) == 17,
+        "complete fixed input denominator",
+    )
+    for ref in packet["inputs"].values():
+        require(type(ref) is dict and set(ref) == {"path", "bytes", "sha256"}, "typed input ref")
+        require(type(ref["path"]) is str and Path(ref["path"]).is_absolute(), "absolute input ref")
+        require("\x00" not in ref["path"], "input path NUL")
+        require(type(ref["bytes"]) is int and ref["bytes"] >= 0, "input size type")
+        require(
+            type(ref["sha256"]) is str and re.fullmatch(r"[0-9a-f]{64}", ref["sha256"]) is not None,
+            "input digest type",
+        )
+    # Whole packet preflight precedes any Git callback, then exact physical bytes.
+    for ref in packet["inputs"].values():
+        require(same(reference(Path(ref["path"])), ref), "input byte drift: " + ref["path"])
+    for _role, path, revision, _receipt in ROLES:
+        admit_sha(revision)
+        admit_repo_path(PREFIX + path)
+
+
+def git(*args: str) -> bytes:
+    allowed = {"show", "rev-parse", "diff", "status"}
+    require(args and args[0] in allowed, "read-only Git opcode")
+    result = subprocess.run(  # noqa: S603 -- fixed absolute Git, admitted read-only opcode
+        ["/usr/bin/git", "-C", str(ROOT), *args],
+        check=False,
+        capture_output=True,
+        shell=False,
+    )
+    require(
+        result.returncode == 0, "read-only Git failed: " + result.stderr.decode(errors="replace")
+    )
+    return result.stdout
+
+
+def blob(revision: str, path: str) -> bytes:
+    admit_sha(revision)
+    admit_repo_path(path)
+    return git("show", revision + ":" + path)
+
+
+def record_blob(revision: str, path: str) -> dict[str, Any]:
+    body = blob(revision, path)
+    return {"revision": revision, "path": path, "bytes": len(body), "sha256": digest(body)}
+
+
+def load_inputs(path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    raw = path.read_bytes()
+    require(digest(raw) == INPUT_HASH, "immutable input manifest hash")
+    packet = json.loads(raw)
+    admit_inputs(packet)
+    values = {
+        key: json.loads(Path(ref["path"]).read_bytes()) for key, ref in packet["inputs"].items()
+    }
+    return packet, values
+
+
+def source_bindings(refs: dict[str, Any]) -> list[dict[str, Any]]:
+    result = []
+    for role, suffix, accepted_source, evidence in ROLES:
+        path = PREFIX + suffix
+        current = record_blob(SOURCE, path)
+        accepted = record_blob(accepted_source, path)
+        equality = current["sha256"] == accepted["sha256"] and current["bytes"] == accepted["bytes"]
+        require(equality, "unqualified changed role: " + role)
+        require((ROOT / path).read_bytes() == blob(SOURCE, path), "physical source drift: " + path)
+        result.append(
+            {
+                "role": role,
+                "current_source": current,
+                "accepted_source": accepted,
+                "body_equal": equality,
+                "accepted_evidence": refs[evidence],
+                "basis": "recomputed",
+                "qualification": (
+                    "This role body equals its named independently accepted source; no "
+                    "blanket prior six-file equality or new numeric execution is "
+                    "asserted."
+                ),
+            }
+        )
+    return result
+
+
+def original_bindings(owner: dict[str, Any]) -> dict[str, Any]:
+    finding_ref = record_blob(SOURCE, TSV + "finding-owners.tsv")
+    bundle_ref = record_blob(SOURCE, TSV + "bundle-owners.tsv")
+    findings = {
+        row["finding_id"]: row
+        for row in csv.DictReader(
+            io.StringIO(blob(SOURCE, finding_ref["path"]).decode()), delimiter="\t"
+        )
+        if row["unit"] == "E"
+    }
+    bundles = {
+        row["bundle_id"]: row
+        for row in csv.DictReader(
+            io.StringIO(blob(SOURCE, bundle_ref["path"]).decode()), delimiter="\t"
+        )
+        if row["unit"] == "E"
+    }
+    require(set(findings) == {row["id"] for row in owner["rows"]}, "full owner finding membership")
+    require(set(bundles) == {row["id"] for row in owner["bundles"]}, "full owner bundle membership")
+    cards = []
+    fragments = []
+    cache: dict[str, bytes] = {}
+    for bundle in owner["bundles"]:
+        cards.append({"bundle_id": bundle["id"], **record_blob(SOURCE, bundle["criterion_card"])})
+    for row in owner["rows"]:
+        require(
+            same(row["canonical_ownership"], findings[row["id"]]), "ownership drift: " + row["id"]
+        )
+        for ref in row["criterion_evidence"]["original_criterion_refs"]:
+            path = ref["path"]
+            admit_repo_path(path)
+            lines = ref["lines"]
+            require(
+                type(lines) is list
+                and len(lines) == 2
+                and all(type(v) is int and v > 0 for v in lines),
+                "criterion line types",
+            )
+            raw = cache.setdefault(path, blob(SOURCE, path))
+            selected = b"".join(raw.splitlines(keepends=True)[lines[0] - 1 : lines[1]])
+            require(digest(selected) == ref["sha256"], "original criterion changed: " + row["id"])
+            fragments.append(
+                {"finding_id": row["id"], "revision": SOURCE, **ref, "bytes": len(selected)}
+            )
+    return {
+        "finding_owners": finding_ref,
+        "bundle_owners": bundle_ref,
+        "cards": cards,
+        "criterion_fragments": fragments,
+    }
+
+
+def admit_rows(packet: dict[str, Any], owner: dict[str, Any]) -> None:
+    rows = packet["rows"]
+    require(type(rows) is list and len(rows) == 54, "full54 row denominator")
+    require(
+        Counter(row["id"] for row in rows) == Counter(row["id"] for row in owner["rows"]),
+        "exact54 row membership",
+    )
+    require(same(packet["bundles"], owner["bundles"]), "all22 original bundle rows preserved")
+    for old, row in zip(owner["rows"], rows, strict=True):
+        for field in [
+            "id",
+            "bundle_ids",
+            "historical_ledger_status",
+            "owner_decision",
+            "proposed_finding_outcome",
+            "canonical_ownership",
+            "bounded_decision_basis",
+            "criterion_evidence",
+            "remaining_input_or_implementation",
+            "next_owner",
+        ]:
+            require(same(row[field], old[field]), "individual original decision changed: " + field)
+    require(
+        Counter(row["historical_ledger_status"] for row in rows)
+        == Counter({"partial": 49, "held": 4, "closed": 1}),
+        "historical49/4/1 preserved",
+    )
+    require(
+        Counter(row["proposed_finding_outcome"] for row in rows)
+        == Counter({"closed": 43, "limited": 9, "held": 2}),
+        "bounded43/9/2 proposals preserved",
+    )
+    require(sum(len(row["bundle_ids"]) for row in rows) == 55, "all55 finding/bundle links")
+    require(
+        same(
+            packet["complete_denominator"],
+            {"bundles": 22, "findings": 54, "finding_bundle_links": 55},
+        ),
+        "typed complete denominator",
+    )
+    require(same(packet["historical_ledger"], owner["historical_ledger"]), "typed ledger summary")
+    require(
+        same(packet["bounded_E_proposals"], owner["proposed_finding_counts"]),
+        "typed scoped proposal summary",
+    )
+    require(
+        same(packet["remaining_owner_inputs"], owner["remaining_owner_inputs"]),
+        "complete minimum-input/next-owner rows",
+    )
+    require(
+        same(packet["semantic_appointment"], owner["semantic_appointment"])
+        and same(packet["tracked_four_semantic_decisions"], owner["tracked_semantic_decisions"]),
+        "actual appointed and ratified semantic decisions",
+    )
+    require(
+        packet["formal_ledger_change"] is False and packet["formal_G_acceptance"] is False,
+        "no formal owner-intake promotion",
+    )
+    require(packet["new_individual_owner_disposition"] is False, "no invented new owner decision")
+    require(
+        packet["current_numeric_wave"]["check_outcome"] is None,
+        "pending numerical outcomes cannot become PASS",
+    )
+    require(
+        packet["current_global_gates"]["check_outcome"] is None,
+        "pending global outcomes cannot become PASS",
+    )
+
+
+def admit_source_claims(packet: dict[str, Any], roles: list[dict[str, Any]]) -> None:
+    require(packet["candidate"] == SOURCE and packet["tree"] == TREE, "current source claim")
+    require(
+        same(packet["source_role_qualification"], roles), "complete role/source/ref/type claims"
+    )
+    require(all(role["basis"] in BASIS for role in roles), "canonical P37 vocabulary")
+    require(
+        packet["public_and_external_consumers"]["capability_state"] in CAPABILITIES,
+        "canonical capability vocabulary",
+    )
+    require(
+        packet["scientific_fit_boundary"]["gate_eligible"] is False,
+        "configured finite fit is not scientific authority",
+    )
+    require(
+        packet["import_owner_dependencies"]["original12"]
+        == {"repaired_supported_route": 11, "owner_export_pending": 1},
+        "exact original12 denominator",
+    )
+    require(
+        same(
+            packet["import_owner_dependencies"]["current_new_E_static_edges"],
+            {"total": 23, "admitted_entrypoint": 21, "private_owner_dependency": 2},
+        ),
+        "typed current edge denominator",
+    )
+
+
+def build(inputs: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
+    refs = inputs["inputs"]
+    owner = values["owner54"]
+    sparse = values["sparse3932"]
+    roles = source_bindings(refs)
+    originals = original_bindings(owner)
+    require(git("rev-parse", "HEAD").decode().strip() == SOURCE, "current physical HEAD")
+    require(git("rev-parse", SOURCE + "^{tree}").decode().strip() == TREE, "current exact tree")
+    require(
+        not git(
+            "diff",
+            "--name-only",
+            IMPORT_SOURCE,
+            SOURCE,
+            "--",
+            "policy-engine/src",
+            "policy-engine/tests",
+            "policy-engine/tools",
+            "policy-engine/architecture",
+            "policy-engine/pyproject.toml",
+            "policy-engine/uv.lock",
+        ),
+        "import/code/policy qualifier drift",
+    )
+    sparse_rows = {row["id"]: row for row in sparse["rows"]}
+    previous_rows = {row["id"]: row for row in values["previous54_wave"]["rows"]}
+    rows = copy.deepcopy(owner["rows"])
+    for row in rows:
+        row["historical_check_links"] = {
+            **refs["previous54_wave"],
+            "fragment": "#/rows/"
+            + str(list(previous_rows).index(row["id"]))
+            + "/current_check_links",
+            "rule": (
+                "Frozen64d literal case observations are retained through this exact "
+                "input ref; they are not current b2 cases."
+            ),
+        }
+        row["current_check_links"] = {
+            "candidate": SOURCE,
+            "tree": TREE,
+            "execution_state": "terminal_receipts_available_not_joined_in_preparation",
+            "check_outcome": None,
+            "exact_case_bindings": [],
+            "rule": (
+                "Actual terminal JUnit/receipts only; historical selector matches are"
+                " navigation, not criterion acceptance."
+            ),
+        }
+        row["current_source_qualification"] = {
+            "candidate": SOURCE,
+            "tree": TREE,
+            "source_roles_ref": "#/source_role_qualification",
+            "individual_decision_input": {
+                **refs["owner54"],
+                "fragment": "#/rows/"
+                + str(owner["rows"].index(next(v for v in owner["rows"] if v["id"] == row["id"]))),
+            },
+            "new_owner_decision_or_ledger_change": False,
+        }
+        if row["id"] in sparse_rows:
+            row["current_criterion_addendum"] = sparse_rows[row["id"]]
+        if row["id"] in {"B188", "B192", "B199", "B200", "B201", "B202"}:
+            row["current_composition_addendum"] = {
+                "source": IR,
+                "accepted_review": refs["composition_review"],
+                "qualified_current_source": SOURCE,
+                "property_and_basis": values["composition_preparation"]["accepted_IR_source"][
+                    "requirements_and_P37_basis"
+                ],
+                "source_scope": (
+                    "Actual public helpers preflight/transform/reissue or clear the "
+                    "Profile2 carrier; finite functionals and old literal replay are "
+                    "retained. Separate native54/peer31 observations are not added to the"
+                    " current wave."
+                ),
+            }
+        if row["id"] in {"B194", "B197", "B198", "B201", "B202"}:
+            row["configured_fit_addendum"] = {
+                "source": CAL,
+                "accepted_review": refs["fit_review"],
+                "qualified_current_source": SOURCE,
+                "mechanism": (
+                    "Declared supported HMC/NUTS v1 corpus -> configured store -> strict "
+                    "MethodBackend-fit loader -> joint summary -> actual "
+                    "PropagateUncertaintyNode output reference -> fresh readback."
+                ),
+                "scientific_source_fit_noise_or_authority": "not_established",
+                "gate_eligible": False,
+                "B194_B197_external_boundaries_preserved": True,
+                "literal_closed_checks_ref": "#/scientific_fit_boundary/accepted_review",
+            }
+        if row["id"] in {"B199", "B200"}:
+            row["current_chain_qualification"] = (
+                "Existing v1.1 aggregation remains. Current named-functional Profile2"
+                " was appointed/ratified and accepted at3932, with public composition"
+                " accepted at ecde and configured fit inlet accepted at77; all exact "
+                "role bodies are bound to b2 here. Information-unit relationship "
+                "input remains missing for B200; no broader IR appointment or future "
+                "v2 wire hold is introduced."
+            )
+    imports = values["import_disposition"]
+    environment = values["environment"]
+    require(
+        same(values["numeric_plan"]["native_test_path_count"], 104)
+        and len(values["numeric_plan"]["source_test_assets"]) == 104,
+        "typed actual complete native plan denominator",
+    )
+    require(values["fit_review"]["source"] == CAL, "actual accepted configured-fit source")
+    require(type(environment) is list and len(environment) == 207, "ROOT207 environment snapshot")
+    packet = {
+        "schema": "policyos.e02.E.final54-reviewed-source-preparation.v1",
+        "candidate": SOURCE,
+        "tree": TREE,
+        "branch": "codex/e02-E-continuation-20261006",
+        "scope": (
+            "Current source qualification of the existing individual original-row"
+            " decisions; no duplicate54 review, new native execution or owner "
+            "acceptance by PASS count."
+        ),
+        "complete_denominator": owner["complete_denominator"],
+        "historical_ledger": owner["historical_ledger"],
+        "bounded_E_proposals": owner["proposed_finding_counts"],
+        "formal_ledger_change": False,
+        "formal_G_acceptance": False,
+        "new_individual_owner_disposition": False,
+        "semantic_appointment": owner["semantic_appointment"],
+        "tracked_four_semantic_decisions": owner["tracked_semantic_decisions"],
+        "finite_ratio_compatibility_qualification": sparse[
+            "recorded_technical_compatibility_qualification"
+        ],
+        "input_records": refs,
+        "original_source_bindings": originals,
+        "source_role_qualification": roles,
+        "bundles": owner["bundles"],
+        "rows": rows,
+        "remaining_owner_inputs": owner["remaining_owner_inputs"],
+        "current_numeric_wave": {
+            "candidate": SOURCE,
+            "tree": TREE,
+            "plan": refs["numeric_plan"],
+            "launch": refs["wave_launch"],
+            "execution_state": "terminal_receipts_available_not_joined_in_preparation",
+            "check_outcome": None,
+            "native_test_path_count": 104,
+            "actual_runtime_case_count": None,
+            "case_index": None,
+            "rule": (
+                "A terminal collector and full JUnit are required; no prediction, no "
+                "historical324/31782 rebinding, and no source-review counts added."
+            ),
+        },
+        "current_global_gates": {
+            "candidate": SOURCE,
+            "tree": TREE,
+            "execution_state": "running_or_receipt_pending",
+            "check_outcome": None,
+            "exact_receipts": [],
+            "rule": (
+                "Separate seven gates, attempts, successors and fail-fast UNRUN "
+                "stages retain their literal outcomes. Required parents do not "
+                "overwrite independently executed constituents."
+            ),
+        },
+        "environment": {
+            "snapshot": refs["environment"],
+            "distribution_metadata_count": 207,
+            "source_freeze": refs["freeze"],
+            "remote_readback": refs["published_readback"],
+            "role_review_environments": (
+                "Literal historical CAL77 observer209 and independent helper runtimes"
+                " remain separate from current ROOT207; numerical plan binds actual "
+                "protected versions/configuredCAS per job."
+            ),
+        },
+        "scientific_fit_boundary": {
+            "accepted_source": CAL,
+            "accepted_review": refs["fit_review"],
+            "generic_backend_available": (
+                "Declared native HMC/NUTS v1 finite corpus fixtures through existing MethodBackend"
+            ),
+            "finite_corpus_scientific_source_fit_noise_mixing_or_coverage": "not_established",
+            "gate_eligible": False,
+            "B197_owner": (
+                "Foundry actual Calibrator/source-fit/noise issuer with Scientist "
+                "configured consumer"
+            ),
+            "minimum_input": (
+                "Actual source-target join, likelihood/noise and requested "
+                "fit/profile/coordinate lineage in configured CAS; full requested "
+                "hyperparameters/source input cannot be reconstructed from absent "
+                "fields."
+            ),
+            "next_result": (
+                "Exact candidate b2 read-only source-fit recipe and fresh "
+                "Node/Welfare consumer on those declared inputs. B201/B202 "
+                "representation of already computed draws does not require a new full"
+                " posterior fit."
+            ),
+        },
+        "import_owner_dependencies": {
+            "observed_source": IMPORT_SOURCE,
+            "qualified_current_source": SOURCE,
+            "qualification": (
+                "Complete current source/tests/tools/policy/locks body delta is empty"
+                " from2dc to b2; no full census/gate rerun here."
+            ),
+            "receipt": refs["import_disposition"],
+            "selection": refs["import_selection"],
+            "original12": imports["original12"],
+            "current_new_E_static_edges": imports["current_new_E_static_edges"],
+            "IR_packets": imports["owner_ready_IR_seams"],
+            "BKT_packet": imports["additional_BKT_private_executor_seam"],
+            "full_architecture_gate_outcome": None,
+        },
+        "public_and_external_consumers": {
+            "capability_state": "surface_missing",
+            "canonical_writer": (
+                "G canonical generator/public inventory/_manifest/OpenAPI owners "
+                "after accepted frozen integration; Core/IR/Foundry facade owners "
+                "retain their three explicit leases."
+            ),
+            "old700_ABI_count": 102,
+            "qualified3932_ABI_count": 103,
+            "old_projection": sparse["public_generation_packet"],
+            "old_projection_not_current_render": True,
+            "minimum_input": (
+                "Current accepted source plus complete runtime/schema dependency and "
+                "tracked absence/directory manifest; nine generated companions, full "
+                "current ABI/public inventory and generator outputs."
+            ),
+            "next_result": (
+                "G regenerates and verifies the actual accepted integration with "
+                "complete manifest, then canonical gates; C/F independently adopt "
+                "Profile2-aware readers and stated alignment/context premises. No E "
+                "consumer flags confer verifier or institutional authority."
+            ),
+            "C_F_acceptance_asserted": False,
+            "A_default_HTTP": (
+                "Existing A owner packet must independently resolve/recompute "
+                "source/profile/metric/unit/split/horizon/pairs/counts/threshold/purpose/six-time-role"
+                " refs and persist/fresh-read one status/reason. Missing ref and "
+                "resolved-floor failure remain distinct; terminal "
+                "causal/treatment/policy refusal remains."
+            ),
+            "D_Search": (
+                "D owns analysis_ref/codec/reopen/ranking default consumer. This "
+                "additional edge does not hold original B100 sampler/analyzer "
+                "criterion."
+            ),
+            "materializer": (
+                "Core/IR model materializer owner must honor supported finite ratio "
+                "law and atom/quantile semantics through actual model/quantity "
+                "binding; no interpolation/normal moment reconstruction or invented "
+                "scientific authority."
+            ),
+        },
+        "local_recipe_rebinding": {
+            "initial_six_recipe_queue": (
+                "Existing six scoped source/history recipes remain initial tasks, not"
+                " a blanket gate or upper bound."
+            ),
+            "implementation_candidate": SOURCE,
+            "implementation_tree": TREE,
+            "new_criterion_supported_input_allowed": True,
+            "required_input_scope": (
+                "Each of the11 remaining-owner rows states minimum "
+                "criterion-supported input and next fresh persisted consumer result; "
+                "no production datasets uploaded."
+            ),
+            "recipe_ref": owner["remaining_owner_inputs"][0]["source_existing_recipe_ref"],
+        },
+        "historical_check_qualifications": {
+            "old_owner54_and64d_join": refs["previous54_wave"],
+            "old64d_backend_terminal": refs["previous_terminal_backend"],
+            "old_backend_selection": refs["previous_terminal_selection"],
+            "rule": (
+                "Terminal137/countsnull/missingJUnit and29generated input mutation "
+                "are historical native execution/input-admission failures, not "
+                "numerical finding verdicts or evidence of a PID kill cause. "
+                "Available retry/native source outcomes remain separate and never "
+                "become current b2 PASS."
+            ),
+        },
+        "cleanup": {
+            "current_cloud_authorization": (
+                "Важное уточненние. Работая в облаке ти можешь если требуеться "
+                "удалять уже не нужние результати тестов или созданние оркежунния. "
+                "Деректива об работе через корзину отоситься лишь к локлаьной работе."
+                " В остальном продолжай работу"
+            ),
+            "local_Trash_requirement_preserved": True,
+            "historical_old_restriction_not_current": True,
+            "this_helper_cleanup_performed": False,
+            "rule": (
+                "Closed cloud receipts preserve exact authorized "
+                "children/archives/no-active-user observations and protected "
+                "source/Git/environment. Recovered bytes from different filesystems "
+                "are not summed as RAM; no blanket resource attribution."
+            ),
+        },
+        "predicate_basis": {
+            "source_original_fragments_owner_membership_current_role_bytes": "recomputed",
+            "scoped_independent_original_decisions": "independently_reconciled",
+            "declared_alignment_source_unit_estimand_fit_context": "consumer_asserted",
+            "scientific_posterior_quality_authority_G_acceptance_new_gates": "not_established",
+        },
+        "ROOT_or_environment_or_native_tests_written": False,
+    }
+    admit_rows(packet, owner)
+    admit_source_claims(packet, roles)
+    return packet
+
+
+def admit_preparation_claims(observed: dict[str, Any], actual_expected: dict[str, Any]) -> None:
+    require(
+        same(observed, actual_expected),
+        "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs",
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--inputs", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--validate", type=Path)
+    args = parser.parse_args()
+    inputs, values = load_inputs(args.inputs)
+    packet = build(inputs, values)
+    if args.validate is not None:
+        admit_preparation_claims(json.loads(args.validate.read_bytes()), packet)
+    args.output.write_text(json.dumps(packet, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "outcome": "PASS",
+                "output": reference(args.output),
+                "complete_denominator": packet["complete_denominator"],
+                "historical_ledger": packet["historical_ledger"],
+                "bounded_E_proposals": packet["bounded_E_proposals"],
+                "numeric_outcome": None,
+                "global_outcome": None,
+            },
+            ensure_ascii=False,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

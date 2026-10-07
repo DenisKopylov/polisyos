@@ -1,0 +1,1 @@
+{"output": {"path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json", "bytes": 8793243, "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"}, "disposition": "GO for completed byte-preserving custody only", "control_count": null}

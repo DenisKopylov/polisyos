@@ -1,0 +1,175 @@
+from __future__ import annotations
+
+import ast
+import collections
+import copy
+import gzip
+import hashlib
+import json
+import runpy
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path('/workspace/e02-E-frc-20261006')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+CANDIDATE = 'c229fe8c0cc31c910de2bd2dc0e84e30be87da2c'
+BASE = '5739c0fa4037ddf91fbca425e3fd3190dc7aa969'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls'
+PUBLISHED = REPO / PREFIX
+OUT = Path(sys.argv[1])
+OUT.mkdir(parents=True, exist_ok=False)
+
+def fail_if(condition: bool, message: str) -> None:
+    if condition:
+        raise ValueError(message)
+
+def sha(body: bytes) -> str:
+    return hashlib.sha256(body).hexdigest()
+
+def git(repo: Path, *args: str) -> bytes:
+    return subprocess.check_output(['git', *args], cwd=repo)
+
+def canonical(value: object) -> str:
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
+
+def frame(repo: Path) -> dict:
+    return {'head': git(repo, 'rev-parse', 'HEAD').decode().strip(), 'tree': git(repo, 'rev-parse', 'HEAD^{tree}').decode().strip(), 'tracked_status': git(repo, 'status', '--porcelain', '--untracked-files=no').decode()}
+
+before = {'leaf': frame(REPO), 'Root': frame(ROOT)}
+fail_if(before['leaf']['head'] != CANDIDATE or before['leaf']['tracked_status'] != '', 'wrong immutable source')
+paths = git(REPO, 'diff', '--name-only', '-z', BASE, CANDIDATE).decode().rstrip('\0').split('\0')
+fail_if(len(paths) != 512 or any(not p.startswith(PREFIX + '/') or p.endswith('.py') for p in paths), 'whole512passivefootprint')
+footprint = []
+for relative in paths:
+    raw = git(REPO, 'show', CANDIDATE + ':' + relative)
+    fail_if((REPO / relative).read_bytes() != raw, 'physical source differs from Git')
+    footprint.append({'path': relative, 'bytes': len(raw), 'sha256': sha(raw)})
+manifest = json.loads((PUBLISHED / 'manifest.json').read_bytes())
+program = (PUBLISHED / 'copy-closed-controls.py.txt').read_text()
+tree = ast.parse(program)
+constants = {}
+for node in tree.body:
+    if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id in ['EXPECTED', 'FIXED_HEADER', 'QUALIFICATION', 'METADATA', 'FIXED_METADATA']:
+        constants[node.targets[0].id] = ast.literal_eval(node.value)
+fail_if(len(constants['EXPECTED']) != 24, 'full24originalchainpin')
+fail_if(canonical(constants['EXPECTED']) != canonical(manifest['selection_inputs']), 'selector sourcevector changed')
+fail_if(canonical(constants['QUALIFICATION']) != canonical(manifest['qualification']), 'typed scope changed')
+lookup = {}
+for row in manifest['canonical_copies']:
+    body = (PUBLISHED / row['destination']).read_bytes()
+    ref = row['stored']
+    fail_if(type(ref['bytes']) is not int or len(body) != ref['bytes'] or sha(body) != ref['sha256'], 'stored body identity')
+    lookup[(ref['sha256'], ref['bytes'])] = body
+fail_if(len(lookup) != 502, 'unique content carrier denominator')
+fail_if(sum(len(body) for body in lookup.values()) != 20491584, 'unique original payload denominator')
+
+def ref(raw: dict) -> dict:
+    candidates = [raw.get(k) for k in ['stored_at', 'path', 'source_path', 'source']]
+    path = next((x for x in candidates if isinstance(x, str) and Path(x).is_absolute()), None)
+    fail_if(path is None or type(raw['bytes']) is not int or raw['bytes'] < 0, 'typed source ref')
+    return {'path': path, 'bytes': raw['bytes'], 'sha256': raw['sha256']}
+
+def body_of(identity: dict) -> bytes:
+    body = lookup[(identity['sha256'], identity['bytes'])]
+    fail_if(sha(body) != identity['sha256'], 'original identity')
+    return body
+
+def passive(family: str, name: str, body: bytes) -> str:
+    if name.endswith('.py'):
+        name += '.txt'
+    if name.endswith('.json'):
+        try:
+            json.loads(body)
+        except (ValueError, UnicodeError):
+            name = name[:-5] + '.txt'
+    return family + '/' + name
+
+expected = []
+decoded_records = []
+for spec in constants['EXPECTED']:
+    source = {k: spec[k] for k in ['path', 'bytes', 'sha256']}
+    source_body = body_of(source)
+    fail_if(Path(spec['path']).read_bytes() != source_body, 'selected original receipt changed')
+    document = json.loads(source_body)
+    kind = spec['member_class']
+    members = [] if kind == 'none' else document[kind]
+    fail_if(len(members) != spec['members'], 'original member denominator')
+    storage = {}
+    if kind == 'logical_aliases':
+        for physical in document['assets']:
+            fail_if(physical['portable_path'] in storage, 'duplicate physical route')
+            storage[physical['portable_path']] = physical
+    for index, selected in enumerate(members):
+        if kind == 'logical_aliases':
+            physical = storage[selected['portable_path']]
+            original = ref(selected['source']); stored = ref(physical)
+            fail_if(canonical(selected['storage']) != canonical(physical['storage']), 'alias/storage identity')
+            mode = selected['storage']['mode']
+            if mode == 'literal':
+                fail_if((original['bytes'], original['sha256']) != (stored['bytes'], stored['sha256']), 'literal law identity')
+            else:
+                fail_if(mode != 'gzip_literal_archive', 'storage mode')
+                decoded = gzip.decompress(body_of(stored))
+                fail_if(len(decoded) != original['bytes'] or sha(decoded) != original['sha256'], 'full gzip decoded custody')
+                decoded_records.append(original)
+            name = selected['portable_path']
+        else:
+            original = stored = ref(selected); mode = 'literal'
+            name = selected.get('portable_path', selected.get('portable_name', selected.get('at', f'{index:03d}/' + Path(selected.get('logical_at', original['path'])).name)))
+        expected.append({'family': spec['family'], 'selection_source_path': spec['path'], 'member_class': kind, 'original': original, 'stored': stored, 'storage_mode': mode, 'logical_destination': passive(spec['family'], name, body_of(stored)), 'selected_record': selected})
+    expected.append({'family': spec['family'], 'selection_source_path': spec['path'], 'member_class': spec['input_kind'], 'original': source, 'stored': source, 'storage_mode': 'literal', 'logical_destination': 'selectors/' + spec['family'] + '.json', 'selected_record': None})
+fields = ['family', 'selection_source_path', 'member_class', 'original', 'stored', 'storage_mode', 'logical_destination', 'selected_record']
+actual = [{k: row[k] for k in fields} for row in manifest['logical_sources']]
+fail_if(collections.Counter(map(canonical, actual)) != collections.Counter(map(canonical, expected)) or len(expected) != 688, 'independent full688membercounter')
+fail_if(set(paths) != {PREFIX + '/' + row['destination'] for row in manifest['canonical_copies']} | {PREFIX + '/' + name for name in constants['METADATA']}, 'complete Git companions')
+for name, identity in constants['FIXED_METADATA'].items():
+    body = (PUBLISHED / name).read_bytes()
+    fail_if(len(body) != identity['bytes'] or sha(body) != identity['sha256'], 'fixed companion bytes')
+
+argv = [sys.executable, str(PUBLISHED / 'copy-closed-controls.py.txt'), '--manifest', str(PUBLISHED / 'manifest.json'), '--layout', 'published', '--destination-root', str(OUT / 'fresh-positive')]
+with (OUT / 'healthy.stdout.txt').open('wb') as stdout, (OUT / 'healthy.stderr.txt').open('wb') as stderr:
+    p = subprocess.run(argv, cwd=REPO, stdout=stdout, stderr=stderr)
+fail_if(p.returncode != 0, 'actual complete published replay refused')
+reopened = OUT / 'fresh-positive' / PREFIX
+actual_files = {str(p.relative_to(reopened)): p for p in reopened.rglob('*') if p.is_file()}
+fail_if(set(actual_files) != {str(Path(p).relative_to(PREFIX)) for p in paths}, 'fresh reopened footprint')
+for relative, p in actual_files.items():
+    fail_if(p.read_bytes() != (PUBLISHED / relative).read_bytes(), 'fresh reopened bytes')
+
+ns = runpy.run_path(str(PUBLISHED / 'copy-closed-controls.py.txt'))
+control_results = []
+def control(name: str, mutant: dict, layout: str = 'published') -> None:
+    try:
+        ns['validate'](PUBLISHED / 'manifest.json', mutant, layout)
+    except (ValueError, KeyError, TypeError, FileNotFoundError) as exc:
+        control_results.append({'name': name, 'outcome': 'PASS', 'actual_refusal': str(exc)})
+    else:
+        raise ValueError('corrupted member/type/scope/layout accepted: ' + name)
+
+for name, field, value in [('boollogical', 'logical_count', True), ('floatcount', 'logical_count', 688.0), ('closurepromotion', 'final_source_wave_or_finding_acceptance', True), ('sourcepromotion', 'source_native_numeric_globalgate_execution', True)]:
+    changed = copy.deepcopy(manifest); changed[field] = value; control(name, changed)
+changed = copy.deepcopy(manifest); changed['qualification']['formal_G_or_finding_closure'] = True; control('qualificationclosure', changed)
+changed = copy.deepcopy(manifest); changed['selection_inputs'] = changed['selection_inputs'][:-1]; control('originalselectoromission', changed)
+control('wronglayout', manifest, 'stage'); control('unknownlayout', manifest, 'unknown')
+changed = copy.deepcopy(manifest)
+removed = next(i for i, row in enumerate(changed['logical_sources']) if row['deduplicated'])
+del changed['logical_sources'][removed]
+observed = [{k: row[k] for k in fields} for row in changed['logical_sources']]
+changed['logical_sources'], changed['canonical_copies'] = ns['carriers'](observed)
+for field, value in {'logical_count': len(observed), 'original_logical_bytes': sum(r['original']['bytes'] for r in observed), 'stored_logical_bytes': sum(r['stored']['bytes'] for r in observed), 'unique_payload_files': len(changed['canonical_copies']), 'unique_payload_bytes': sum(r['stored']['bytes'] for r in changed['canonical_copies']), 'deduplicated_occurrences': len(observed) - len(changed['canonical_copies'])}.items():
+    changed[field] = value
+control('genuine_omission_and_retotal', changed)
+needle = "    if got != want:\n        raise ValueError('exact complete original member Counter')\n"
+fail_if(program.count(needle) != 1, 'one removal target')
+mutated_ns = {'__file__': str(PUBLISHED / 'copy-closed-controls.py.txt'), '__name__': 'independent_removed_counter'}
+exec(compile(program.replace(needle, ''), '<independent soleCounter removal>', 'exec'), mutated_ns)
+removed_result = mutated_ns['validate'](PUBLISHED / 'manifest.json', changed, 'published')
+fail_if(removed_result['logical_count'] != 687, 'effective soleCounter removal not reached')
+control_results.append({'name': 'sole_member_counter_removal', 'outcome': 'PASS', 'defining_property': 'FAIL', 'actual_admitted_logical_count': 687, 'retained': ['explicit layout', 'payload hash', 'all24original selector pins', 'typed complete scopes', 'alias routes', 'recomputed totals']})
+after = {'leaf': frame(REPO), 'Root': frame(ROOT)}
+fail_if(before != after, 'source frame changed during review')
+(OUT / 'full-footprint.json').write_text(json.dumps(footprint, indent=2) + '\n')
+receipt = {'schema': 'policyos.e02.independent_closed_control_Git_custody.v1', 'candidate': CANDIDATE, 'tree': before['leaf']['tree'], 'base': BASE, 'disposition': 'GO_FOR_LITERAL_DOC_REPLAY_AND_CUSTODY_ONLY', 'Git_paths': len(paths), 'Git_bytes': sum(r['bytes'] for r in footprint), 'logical_members': len(expected), 'stored_carriers': len(lookup), 'stored_bytes': sum(len(body) for body in lookup.values()), 'full_decoded_gzip_occurrences': len(decoded_records), 'full_decoded_gzip_logical_bytes': sum(r['bytes'] for r in decoded_records), 'actual_healthy_argv': argv, 'actual_healthy_exit': p.returncode, 'fresh_reopened_files': len(actual_files), 'controls': control_results, 'source_before': before, 'source_after': after, 'source_native_numeric_execution': False, 'source_gate_and_finding_acceptance': False, 'historical_red': '/tmp/e02-E-closed-control-Git-replay-independent-20261007/receipt.json', 'limitations': ['The old complete84153 archived copier actually failed on its Git layout; original output retained.', 'This is byte/member/layout custody only, not new mathematical/native/global gate verification.', 'Source fit/composition changes and final source freeze/wave/all54 are separately pending.']}
+(OUT / 'review.json').write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps({'disposition': receipt['disposition'], 'candidate': CANDIDATE, 'files': len(paths), 'members': len(expected), 'controls': len(control_results), 'out': str(OUT)}))

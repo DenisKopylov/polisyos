@@ -1,0 +1,167 @@
+{
+  "schema": "e02.portable-evidence-copy.v1",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-historical/cal-reader-admitted-facade.stdout.txt",
+      "bytes": 80,
+      "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-historical/cal-reader-admitted-facade.xml",
+      "bytes": 2089,
+      "sha256": "8df10a1e5243815f2592b43d58eab79e431eeb73ee7cd7399569ac9d48d76716"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-historical/cal-reader-root-facade.stdout.txt",
+      "bytes": 1521,
+      "sha256": "a03a3c7ee1ccaf0d92f4b46120b75bac86172d81837d2a53e9b2410ada1d798e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-historical/cal-reader-root-facade.xml",
+      "bytes": 3366,
+      "sha256": "95bf0e0c5bdb1892bcbc073ccc4c63085b14e79f43fa40c5028a5c213bbc042b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-historical/cal-reader-root-facade-cwd-corrected.stdout.txt",
+      "bytes": 80,
+      "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-historical/cal-reader-root-facade-cwd-corrected.xml",
+      "bytes": 2089,
+      "sha256": "846de6ee9ab22a7fe4497eee3d50d087976ec4e4c68634b5d3bb331bf9fc2263"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-7bc/receipt.json",
+      "bytes": 1447,
+      "sha256": "bb22bfe8bd1a777c9641f29430746e0a30a06a5eafa2c0a3d8730b1fadc05598"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-7bc/stdout.txt",
+      "bytes": 580,
+      "sha256": "4e8ea14d952f4e63c98d6c521fc83c8416a393972f0a5fa21dda992582fe09b7"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/author-7bc/pytest.xml",
+      "bytes": 2089,
+      "sha256": "e9e0535458f55b43ffa6758755ddb128884ef1506dde630886a6f9fc811182a4"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge-identity-review.json",
+      "bytes": 199295,
+      "sha256": "b312d2fdab8b701921ef4afa2731b7b46cf90665208074c5a237075e308d01aa"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge-identity-review.stdout",
+      "bytes": 2424,
+      "sha256": "a551e1d5931205b94ef8bc6adc751ae916d0a31b4156f6f250a0f6e65eb4984e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge_identity_review.py",
+      "bytes": 7319,
+      "sha256": "b9416b8d8c2f9cff64b79ba68995ac8f3c8eadb04f29bc1ba6f8231837bf292e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/metadata20-delta.json",
+      "bytes": 2589,
+      "sha256": "1a1d76f628d8a512b30bb9083707016f92376033e580ccab57837ab046ef2557"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication-review20.json",
+      "bytes": 1939,
+      "sha256": "68a48c7faf928eca0badef076701cc0c8499d900c377df90ff4bac443f80dff3"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication-review20.stdout",
+      "bytes": 1939,
+      "sha256": "68a48c7faf928eca0badef076701cc0c8499d900c377df90ff4bac443f80dff3"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication_review20.py",
+      "bytes": 3972,
+      "sha256": "e65585eb863e4c18dbfabbf501bb3e464a74454e1bd9d27a9f4a45761fca3d76"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/routing-removal.stdout",
+      "bytes": 751,
+      "sha256": "d24a1a33224381b8c859b6f62f54dd6fde9ac35c64b2fa6bb50845746bdf50f2"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/routing_removal_control.py",
+      "bytes": 2522,
+      "sha256": "a10859079a10b79224052f0ead905ad6ed1c0574eaed1ddc2a9d74193803ede0"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/review-r4.json",
+      "bytes": 6568,
+      "sha256": "a62efc3934f7729fa8d7ca269791c27fb625b3dec1b4107337e632dee96945d7"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/commands.json",
+      "bytes": 1491,
+      "sha256": "86b4c292df5cd5c775d09bb657af1ed6e92c290a0059b951f894bfb43530f3bd"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration-reader-positive.stdout",
+      "bytes": 5646,
+      "sha256": "df1bef82c8e873659db7984c3d50df50aa856e3229cd601345122cf5a6a1dccf"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration-reader-removal.stdout",
+      "bytes": 880,
+      "sha256": "ab7628fbf5f35acdb091bf1674d1a4515da6af4bdc6036ea3d020ad5dd8b657d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration-reader-positive-initial-harness-error.stdout",
+      "bytes": 375,
+      "sha256": "453b3596cd189a26f4e6ed00d14a2a80148c966c1fb1735306fe926802a16b22"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration-reader-removal-initial-harness-error.stdout",
+      "bytes": 375,
+      "sha256": "453b3596cd189a26f4e6ed00d14a2a80148c966c1fb1735306fe926802a16b22"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/publication-review-2c275.json",
+      "bytes": 2422,
+      "sha256": "8283667890f8535a8793665d4d7d0648821a3e61843af60ba654b013b92fba64"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/publication-review-2c275.stdout",
+      "bytes": 2422,
+      "sha256": "8283667890f8535a8793665d4d7d0648821a3e61843af60ba654b013b92fba64"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/native.stdout",
+      "bytes": 549,
+      "sha256": "16145145c8314fd427316d2915bd6ac4106319e34150da2c9e5571a87480bb20"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/native.xml",
+      "bytes": 2089,
+      "sha256": "fa4ac14bb3e73495c8be59344d6584a5b2266285e94817185280316f897549cb"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "bytes": 8183,
+      "sha256": "f45480f1e2f6af981f0fd13722b7f23045bfaa934dd0414ee248d6d480e02cb5"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/shared-runtime-environment-r3.json",
+      "bytes": 721,
+      "sha256": "730aade5ee45489059850c1b0907a2665281b3c464bb71a298a46bf3cdddd730"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/immutable-source-proof.json",
+      "bytes": 16444,
+      "sha256": "2514bcfdd7dcb9598d8c072a958286050f095e3f07afb90b8c07bc24b38e1c06"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/copy-index.json",
+      "bytes": 14133,
+      "sha256": "28e123bfd8df24161e041a3af1ce26802498178572fa7873cf9a6ceb69ee411c"
+    }
+  ],
+  "total_files": 32,
+  "total_bytes": 298389
+}

@@ -1,0 +1,1273 @@
+"""Read-only immutable Git/AST import reconciliation; no product import/gate run."""
+
+from __future__ import annotations
+
+import ast
+import collections
+import copy
+import datetime as dt
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import tomllib
+from dataclasses import dataclass
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+OUT = Path(__file__).resolve().parent
+BASE = "198076863e143dea9f89f02734b13d50dae3eed5"
+OLD = "58e2d97965c0826c44843a78dcb2f8698d9950a3"
+SOURCE = "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76"
+TREE = "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e"
+HISTORICAL = Path("/workspace/e02-E-pr38-r3-receipts/imports-r4/historical-12.json")
+FORECAST_PACKET = Path(
+    (
+        "/workspace/e02-E-pr38-r3-receipts/postfreeze-imp"
+        "ort-attribution/forecast-api-owner/packet.json"
+    )
+)
+PREFIX = "policy-engine/src/polisyos/"
+CANON_PREFIX = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261007/final-publication-r4-decisions-prereqs/canonspec/assets/"
+)
+COMMANDS: list[dict[str, Any]] = []
+
+
+def require(condition: object, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def digest(body: bytes) -> str:
+    return hashlib.sha256(body).hexdigest()
+
+
+def frozen_json(value: object) -> bytes:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+
+
+def emit(name: str, value: object) -> dict[str, Any]:
+    body = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode()
+    path = OUT / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(body)
+    return {"path": str(path), "bytes": len(body), "sha256": digest(body)}
+
+
+def file_ref(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": digest(body)}
+
+
+def git(*args: str, input_bytes: bytes | None = None) -> bytes:
+    require(all(type(arg) is str and "\x00" not in arg for arg in args), "Git argv types")
+    fixed = args in {
+        ("rev-parse", "HEAD"),
+        ("rev-parse", "HEAD^{tree}"),
+        ("rev-parse", f"{SOURCE}^{{tree}}"),
+        ("branch", "--show-current"),
+        ("status", "-sb"),
+        ("diff", "--name-status", "--find-renames", "-z", BASE, SOURCE),
+    }
+    object_list = (
+        len(args) == 3
+        and args[:2] == ("ls-tree", "-rz")
+        and args[2]
+        in {
+            BASE,
+            OLD,
+            SOURCE,
+        }
+    )
+    object_read = args == ("cat-file", "--batch") and isinstance(input_bytes, bytes)
+    if object_read:
+        require(
+            all(re.fullmatch(rb"[0-9a-f]{40}", row) for row in input_bytes.splitlines()),
+            "Git batch objects",
+        )
+    ancestry = (
+        len(args) == 4
+        and args[:3] == ("merge-base", "--is-ancestor", SOURCE)
+        and bool(re.fullmatch(r"[0-9a-f]{40}", args[3]))
+    )
+    require(fixed or object_list or object_read or ancestry, "exact read-only Git classes")
+    argv = ["/usr/bin/git", "-C", str(ROOT), *args]
+    result = subprocess.run(  # noqa: S603 - exact read-only Git command classes admitted below.
+        argv, input=input_bytes, capture_output=True, check=False, shell=False
+    )
+    COMMANDS.append(
+        {
+            "argv": argv,
+            "exit_code": result.returncode,
+            "stdout_bytes": len(result.stdout),
+            "stdout_sha256": digest(result.stdout),
+            "stderr": result.stderr.decode(errors="replace"),
+            "input_bytes": len(input_bytes) if input_bytes else 0,
+            "input_sha256": digest(input_bytes) if input_bytes else None,
+        }
+    )
+    require(result.returncode == 0, f"Git failed: {argv}: {result.stderr!r}")
+    return result.stdout
+
+
+def metadata() -> dict[str, Any]:
+    site = ROOT / "policy-engine/.venv/lib/python3.14/site-packages"
+    records = [
+        {"path": str(p), "bytes": p.stat().st_size, "sha256": digest(p.read_bytes())}
+        for p in sorted(site.glob("*.dist-info/METADATA"))
+    ]
+    return {"count": len(records), "records": records, "sha256": digest(frozen_json(records))}
+
+
+def snapshot() -> dict[str, Any]:
+    return {
+        "time_utc": dt.datetime.now(dt.UTC).isoformat(),
+        "head": git("rev-parse", "HEAD").decode().strip(),
+        "tree": git("rev-parse", "HEAD^{tree}").decode().strip(),
+        "branch": git("branch", "--show-current").decode().strip(),
+        "status_sb": git("status", "-sb").decode(),
+        "metadata": metadata(),
+    }
+
+
+def tree_map(revision: str) -> dict[str, str]:
+    require(bool(re.fullmatch(r"[0-9a-f]{40}", revision)), "full Git revision required")
+    entries: dict[str, str] = {}
+    for entry in git("ls-tree", "-rz", revision).split(b"\x00"):
+        if not entry:
+            continue
+        header, path = entry.split(b"\t", 1)
+        _mode, kind, blob = header.split(b" ")
+        if kind == b"blob":
+            entries[path.decode()] = blob.decode()
+    return entries
+
+
+def read_blobs(blobs: set[str]) -> dict[str, bytes]:
+    for blob in blobs:
+        require(bool(re.fullmatch(r"[0-9a-f]{40}", blob)), "unsafe tree blob")
+    request = ("\n".join(sorted(blobs)) + "\n").encode()
+    result = git("cat-file", "--batch", input_bytes=request)
+    offset = 0
+    bodies: dict[str, bytes] = {}
+    for requested in sorted(blobs):
+        end = result.index(b"\n", offset)
+        blob, kind, raw_size = result[offset:end].split(b" ")
+        require(blob.decode() == requested and kind == b"blob", "cat-file object mismatch")
+        size = int(raw_size)
+        body = result[end + 1 : end + 1 + size]
+        require(
+            len(body) == size and result[end + 1 + size : end + 2 + size] == b"\n", "blob framing"
+        )
+        bodies[requested] = body
+        offset = end + 2 + size
+    require(offset == len(result), "unconsumed blob output")
+    return bodies
+
+
+def module_info(path: str) -> tuple[str, bool, str | None]:
+    if path.startswith("policy-engine/src/"):
+        parts = path.removeprefix("policy-engine/src/").split("/")
+    else:
+        parts = path.removeprefix("policy-engine/").split("/")
+    package = parts[-1] == "__init__.py"
+    parts = parts[:-1] if package else [*parts[:-1], parts[-1].removesuffix(".py")]
+    module = ".".join(parts)
+    root = parts[1] if len(parts) > 1 and parts[0] == "polisyos" else None
+    return module, package, root
+
+
+def resolve_relative(module: str, package: bool, target: str | None, level: int) -> str | None:
+    if level == 0:
+        return target
+    parts = module.split(".") if package else module.split(".")[:-1]
+    if level - 1 > len(parts):
+        return None
+    base = parts[: len(parts) - (level - 1)]
+    if target:
+        base.extend(target.split("."))
+    return ".".join(base)
+
+
+def literal_text(node: ast.AST) -> str | None:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left, right = literal_text(node.left), literal_text(node.right)
+        return left + right if left is not None and right is not None else None
+    return None
+
+
+def import_rows(path: str, body: bytes) -> dict[str, Any]:
+    tree = ast.parse(body, filename=path)
+    module, package, root = module_info(path)
+    aliases = {"__import__": "__import__"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "importlib":
+                    aliases[alias.asname or alias.name] = "importlib"
+        elif isinstance(node, ast.ImportFrom) and node.module == "importlib" and node.level == 0:
+            for alias in node.names:
+                if alias.name == "import_module":
+                    aliases[alias.asname or alias.name] = "import_module"
+    rows: list[dict[str, Any]] = []
+    unresolved: list[dict[str, Any]] = []
+    for node in ast.walk(tree):
+        targets: list[tuple[str | None, list[str], str, bool]] = []
+        if isinstance(node, ast.Import):
+            targets = [(alias.name, [], "static-import", True) for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            targets = [
+                (
+                    resolve_relative(module, package, node.module, node.level),
+                    [alias.name for alias in node.names],
+                    "static-from",
+                    True,
+                )
+            ]
+        elif isinstance(node, ast.Call):
+            func = node.func
+            recognized = (
+                isinstance(func, ast.Name)
+                and aliases.get(func.id) in {"__import__", "import_module"}
+            ) or (
+                isinstance(func, ast.Attribute)
+                and func.attr == "import_module"
+                and isinstance(func.value, ast.Name)
+                and aliases.get(func.value.id) == "importlib"
+            )
+            if recognized:
+                target = literal_text(node.args[0]) if node.args else None
+                if target is None:
+                    unresolved.append(
+                        {
+                            "source_path": path,
+                            "line": node.lineno,
+                            "kind": "recognized-dynamic-nonliteral",
+                            "expression": ast.unparse(node),
+                            "status": "not_established",
+                        }
+                    )
+                elif target.startswith("."):
+                    package_arg = (
+                        node.args[1]
+                        if len(node.args) > 1
+                        else next((kw.value for kw in node.keywords if kw.arg == "package"), None)
+                    )
+                    anchor = literal_text(package_arg) if package_arg is not None else None
+                    if isinstance(package_arg, ast.Name) and package_arg.id == "__name__":
+                        anchor = module
+                    if anchor is not None:
+                        level = len(target) - len(target.lstrip("."))
+                        target = resolve_relative(anchor, True, target.lstrip(".") or None, level)
+                    else:
+                        unresolved.append(
+                            {
+                                "source_path": path,
+                                "line": node.lineno,
+                                "kind": "recognized-dynamic-relative-unresolved",
+                                "expression": ast.unparse(node),
+                                "status": "not_established",
+                            }
+                        )
+                        target = None
+                if target:
+                    targets = [(target, [], "literal-dynamic", False)]
+        for target, symbols, kind, canonical in targets:
+            if not target or not target.startswith("polisyos."):
+                continue
+            parts = target.split(".")
+            target_root = parts[1] if len(parts) > 1 else None
+            rows.append(
+                {
+                    "source_path": path,
+                    "source_module": module,
+                    "source_root": root,
+                    "target_module": target,
+                    "target_root": target_root,
+                    "line": node.lineno,
+                    "symbols": symbols,
+                    "kind": kind,
+                    "canonical_collect_deep_import_edges_scope": canonical and root is not None,
+                    "cross_root": root is not None and root != target_root,
+                }
+            )
+    return {
+        "rows": sorted(rows, key=lambda row: (row["line"], row["target_module"])),
+        "unresolved": unresolved,
+    }
+
+
+def assignments(body: bytes) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for node in ast.parse(body).body:
+        if isinstance(node, ast.Assign):
+            names = [target.id for target in node.targets if isinstance(target, ast.Name)]
+            value = node.value
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            names = [node.target.id]
+            value = node.value
+        else:
+            continue
+        try:
+            literal = ast.literal_eval(value) if value is not None else None
+        except (ValueError, TypeError):
+            continue
+        result.update(dict.fromkeys(names, literal))
+    return result
+
+
+def edge_tokens(rows: list[dict[str, Any]], static_only: bool = False) -> set[tuple[str, str]]:
+    return {
+        (row["source_path"], row["target_module"])
+        for row in rows
+        if row["cross_root"] and (not static_only or row["kind"] != "literal-dynamic")
+    }
+
+
+def admitted(row: dict[str, Any], allowed: dict[str, set[str]]) -> bool:
+    return row["target_module"] == f"polisyos.{row['target_root']}" or row[
+        "target_module"
+    ] in allowed.get(row["target_root"], set())
+
+
+def source_record(
+    path: str, revision: str, trees: dict[str, dict[str, str]], bodies: dict[str, bytes]
+) -> dict[str, Any]:
+    blob = trees[revision].get(path)
+    if blob is None:
+        return {"path": path, "source": revision, "exists": False}
+    body = bodies[blob]
+    return {
+        "path": path,
+        "source": revision,
+        "exists": True,
+        "blob": blob,
+        "bytes": len(body),
+        "sha256": digest(body),
+    }
+
+
+def main() -> None:
+    before = snapshot()
+    require(
+        git("rev-parse", f"{SOURCE}^{{tree}}").decode().strip() == TREE, "candidate tree identity"
+    )
+    historical = json.loads(HISTORICAL.read_bytes())
+    require(
+        (historical["base_sha"], historical["candidate_sha"]) == (BASE, OLD),
+        "historical source identity",
+    )
+    trees = {revision: tree_map(revision) for revision in (BASE, OLD, SOURCE)}
+    diff_parts = git("diff", "--name-status", "--find-renames", "-z", BASE, SOURCE).split(b"\x00")
+    changes: list[dict[str, Any]] = []
+    offset = 0
+    while offset < len(diff_parts) and diff_parts[offset]:
+        status = diff_parts[offset].decode()
+        if status.startswith(("R", "C")):
+            old_path, path = diff_parts[offset + 1].decode(), diff_parts[offset + 2].decode()
+            offset += 3
+        else:
+            old_path = path = diff_parts[offset + 1].decode()
+            offset += 2
+        changes.append({"status": status, "old_path": old_path, "path": path})
+    python_changes = [
+        row for row in changes if row["path"].endswith(".py") or row["old_path"].endswith(".py")
+    ]
+    product_paths = sorted(p for p in trees[SOURCE] if p.startswith(PREFIX) and p.endswith(".py"))
+    needed = {
+        path
+        for revision in trees
+        for path in trees[revision]
+        if path.startswith(PREFIX) and path.endswith(".py")
+    }
+    needed.update(path for row in python_changes for path in (row["old_path"], row["path"]))
+    needed.update(
+        path
+        for path in trees[SOURCE]
+        if path.startswith("policy-engine/architecture/packages/") and path.endswith(".toml")
+    )
+    needed.update(
+        {
+            "policy-engine/tools/devx/architecture/guardrails.py",
+            ".github/CODEOWNERS",
+            "policy-engine/docs/reference/ownership.md",
+            "policy-engine/architecture/public_surface/contract.toml",
+            (
+                "policy-engine/docs/research/e02-cloud-test-plan/"
+                "execution-organization/bundle-owners.tsv"
+            ),
+            (
+                "policy-engine/docs/research/e02-cloud-test-plan/"
+                "execution-organization/finding-owners.tsv"
+            ),
+            CANON_PREFIX + "typed-owner-qualification-v3.json",
+            CANON_PREFIX + "ir-export-proposal-v2.json",
+            CANON_PREFIX + "IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+            (
+                "policy-engine/docs/research/e02-cloud-test-plan/"
+                "implementation-handoffs/E/pcl-configured-consume"
+                "r-20261006.json"
+            ),
+            (
+                "policy-engine/docs/research/e02-cloud-test-plan/"
+                "implementation-handoffs/E/backtest-native-defaul"
+                "t-replay-r2.json"
+            ),
+        }
+    )
+    bodies = read_blobs(
+        {trees[revision][path] for revision in trees for path in needed if path in trees[revision]}
+    )
+    parse_cache: dict[tuple[str, str], dict[str, Any]] = {}
+
+    def parse(path: str, revision: str) -> dict[str, Any]:
+        blob = trees[revision].get(path)
+        if blob is None:
+            return {"rows": [], "unresolved": []}
+        key = (path, blob)
+        if key not in parse_cache:
+            parse_cache[key] = import_rows(path, bodies[blob])
+        return parse_cache[key]
+
+    policies: list[dict[str, Any]] = []
+    allowed: dict[str, set[str]] = collections.defaultdict(set)
+    for path in sorted(needed):
+        if not path.startswith("policy-engine/architecture/packages/") or not path.endswith(
+            ".toml"
+        ):
+            continue
+        doc = tomllib.loads(bodies[trees[SOURCE][path]].decode())
+        package = doc.get("package")
+        if not isinstance(package, dict):
+            continue
+        surface = doc.get("public_surface", {})
+        entries = surface.get("supported_entrypoints", [])
+        module = package["module"]
+        root = module.split(".")[1] if module.startswith("polisyos.") else None
+        if root:
+            allowed[root].update(entries)
+        policies.append(
+            {
+                "path": path,
+                "module": module,
+                "owner": package.get("owner"),
+                "supported_entrypoints": entries,
+                "source": source_record(path, SOURCE, trees, bodies),
+            }
+        )
+    all_rows: dict[str, list[dict[str, Any]]] = {}
+    all_unresolved: dict[str, list[dict[str, Any]]] = {}
+    for revision in (BASE, OLD, SOURCE):
+        paths = sorted(
+            path for path in trees[revision] if path.startswith(PREFIX) and path.endswith(".py")
+        )
+        all_rows[revision] = [row for path in paths for row in parse(path, revision)["rows"]]
+        all_unresolved[revision] = [
+            row for path in paths for row in parse(path, revision)["unresolved"]
+        ]
+        for row in all_rows[revision]:
+            row["admitted_current_supported_entrypoint"] = admitted(row, allowed)
+    changed_python: list[dict[str, Any]] = []
+    for change in python_changes:
+        path, old_path = change["path"], change["old_path"]
+        role = (
+            "product_source"
+            if path.startswith(PREFIX)
+            else "test"
+            if "/tests/" in path
+            else "companion_utility"
+        )
+        changed_python.append(
+            {
+                **change,
+                "role": role,
+                "base": source_record(old_path, BASE, trees, bodies),
+                "candidate": source_record(path, SOURCE, trees, bodies),
+                "base_imports": parse(old_path, BASE),
+                "candidate_imports": parse(path, SOURCE),
+            }
+        )
+    old_changed = historical["all_changed_python_paths"]
+    independently_old = sorted(
+        edge_tokens(
+            [
+                row
+                for path in old_changed
+                if path.startswith(PREFIX)
+                for row in parse(path, OLD)["rows"]
+            ],
+            True,
+        )
+        - edge_tokens(
+            [
+                row
+                for path in old_changed
+                if path.startswith(PREFIX)
+                for row in parse(path, BASE)["rows"]
+            ],
+            True,
+        )
+    )
+    supplied_old = sorted(
+        (row["source_path"], row["target_module"])
+        for row in historical["introduced_cross_root_module_edges"]
+    )
+    require(
+        independently_old == supplied_old and len(independently_old) == 12,
+        "independent original12 mismatch",
+    )
+    route_targets = {
+        "polisyos.core.artifacts": "polisyos.core",
+        "polisyos.core.canon": "polisyos.core",
+        "polisyos.calibration.forecast_bridge": "polisyos.calibration",
+        "polisyos.ir.analytics.uncertainty": "polisyos.ir.analytics",
+        "polisyos.foundry.uncertainty.sampling_admission": "polisyos.foundry.uncertainty",
+    }
+    old12: list[dict[str, Any]] = []
+    for path, target in independently_old:
+        current_rows = parse(path, SOURCE)["rows"]
+        private_rows = [row for row in current_rows if row["target_module"] == target]
+        route = route_targets.get(target)
+        replacements = (
+            [row for row in current_rows if row["target_module"] == route] if route else []
+        )
+        is_removed = not private_rows
+        require(
+            not is_removed or replacements, "private edge removal lacks actual replacement route"
+        )
+        old12.append(
+            {
+                "source_path": path,
+                "original_target_module": target,
+                "original_base_import_rows": [
+                    row for row in parse(path, BASE)["rows"] if row["target_module"] == target
+                ],
+                "original_slice_import_rows": [
+                    row for row in parse(path, OLD)["rows"] if row["target_module"] == target
+                ],
+                "current_private_import_rows": private_rows,
+                "current_replacement_import_rows": replacements,
+                "current_route": route,
+                "current_disposition": "repaired_supported_route"
+                if is_removed
+                else "owner_export_pending",
+                "current_source": source_record(path, SOURCE, trees, bodies),
+                "historical_source": source_record(path, OLD, trees, bodies),
+                "current_gate_eligibility_claimed": False,
+            }
+        )
+    require(
+        sum(row["current_disposition"] == "repaired_supported_route" for row in old12) == 11,
+        "original12 repaired count",
+    )
+    native_defs: dict[str, Any] = {}
+    for path in [
+        "policy-engine/src/polisyos/core/__init__.py",
+        "policy-engine/src/polisyos/ir/__init__.py",
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "policy-engine/src/polisyos/calibration/__init__.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "policy-engine/src/polisyos/foundry/execute/__init__.py",
+    ]:
+        body = bodies[trees[SOURCE][path]]
+        literals = assignments(body)
+        selected = {
+            key: value
+            for key, value in literals.items()
+            if key in {"__all__", "_SUBPACKAGES", "_LAZY_IMPORTS", "ANALYTICS_FACADE_EXPORTS"}
+        }
+        native_defs[path] = {
+            "source": source_record(path, SOURCE, trees, bodies),
+            "declared_bindings": selected,
+            "direct_import_rows": parse(path, SOURCE)["rows"],
+        }
+    forecast = json.loads(FORECAST_PACKET.read_bytes())
+    typed = json.loads(bodies[trees[SOURCE][CANON_PREFIX + "typed-owner-qualification-v3.json"]])
+    forecast_binding_checks = []
+    for row in forecast["source_bindings"]:
+        now = source_record(row["path"], SOURCE, trees, bodies)
+        forecast_binding_checks.append(
+            {
+                "path": row["path"],
+                "old64d_sha256": row["sha256"],
+                "current": now,
+                "bytes_equal_to64d": row["sha256"] == now["sha256"],
+            }
+        )
+    api = assignments(bodies[trees[SOURCE]["policy-engine/src/polisyos/ir/api.py"]])[
+        "ANALYTICS_FACADE_EXPORTS"
+    ]
+    root_api = assignments(bodies[trees[SOURCE]["policy-engine/src/polisyos/ir/__init__.py"]])[
+        "_LAZY_IMPORTS"
+    ]
+    legacy_exports = {
+        name: {"analytics_binding": api.get(name), "root_binding": root_api.get(name)}
+        for name in [
+            "CanonSpec",
+            "PosteriorSamplesCarrier",
+            "ParametricFitCarrier",
+            "load_uncertainty_envelope",
+            "persist_uncertainty_envelope",
+            "load_forecasting_uncertainty_bundle",
+            "persist_forecasting_uncertainty_bundle",
+        ]
+    }
+    owner_packets = [
+        {
+            "id": "historical12_forecast_bundle_loader",
+            "historical12_member": True,
+            "canonical_writer": forecast["canonical_writer"],
+            "minimal_input": forecast["required_owner_input"],
+            "actual_missing_current_symbols": {
+                name: legacy_exports[name]
+                for name in [
+                    "load_forecasting_uncertainty_bundle",
+                    "persist_forecasting_uncertainty_bundle",
+                ]
+            },
+            "current_source_binding_qualification": forecast_binding_checks,
+            "original_packet": file_ref(FORECAST_PACKET),
+            "unapplied_reviewable_patches": [
+                forecast["minimum_historical_edge_patch"],
+                forecast["recommended_full_producer_consumer_pair_patch"],
+            ],
+            "next_checkable_result": (
+                "IR owner commits exact native writer/loader iden"
+                "tity exports through admitted IR root/analytics/"
+                "API plus required API/inventory/release companio"
+                "ns; E rewires actual bridge/ForecastOwner and af"
+                "fected fresh configured-CAS selectors; canonical"
+                " architecture recomputation then decides its own"
+                " outcome."
+            ),
+            "required_companions": forecast["required_companions"],
+            "capability_state": "surface_missing",
+            "public_lease_granted_here": False,
+        },
+        {
+            "id": "separate_existing_IR_nominal_CanonSpec",
+            "historical12_member": False,
+            "canonical_writer": typed["owner_required"],
+            "minimal_input": (
+                "Canonical IR/Core/API owner chooses narrow exist"
+                "ing IR CanonSpec root export or explicit admissi"
+                "on of existing IR subfacade, preserving nominal "
+                "IR class/codec law. Existing Core canon runtime "
+                "object alone is not nominally interchangeable wi"
+                "th IR CanonSpec."
+            ),
+            "current_CanonSpec_facade_bindings": legacy_exports["CanonSpec"],
+            "current_private_consumers": [
+                row
+                for row in all_rows[SOURCE]
+                if row["source_path"]
+                in [
+                    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+                    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+                ]
+                and row["target_module"] == "polisyos.ir.model_layer.canon"
+            ],
+            "frozen_actual_type_result": {
+                "source": typed["source_sha"],
+                "tree": typed["tree"],
+                "verdict": typed["verdict"],
+                "before": typed["before"],
+                "overlay": typed["overlay"],
+                "delta": typed["delta"],
+                "scope": typed["scope"],
+            },
+            "current_historical_route_dependency_bindings": [
+                source_record(path, SOURCE, trees, bodies)
+                for path in [
+                    "policy-engine/src/polisyos/ir/model_layer/canon.py",
+                    "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+                    "policy-engine/src/polisyos/core/canon/__init__.py",
+                    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+                ]
+            ],
+            "owner_options": typed["owner_options"],
+            "reviewable_unapplied_patch": source_record(
+                CANON_PREFIX + "IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+                SOURCE,
+                trees,
+                bodies,
+            ),
+            "proposal_caution": (
+                "Attached existing IR.artifacts route is NOT an a"
+                "dmitted supported_entrypoint; canonical owner mu"
+                "st select admission or admitted narrow root expo"
+                "rt. No codecs/stores copied, cast/type-ignore or"
+                " baseline widening."
+            ),
+            "next_checkable_result": typed["owner_options"][0]["next_checkable_result"],
+            "capability_state": "surface_missing",
+            "public_lease_granted_here": False,
+        },
+    ]
+    original_source = {p for p in old_changed if p.startswith(PREFIX)}
+    companion_paths: set[str] = set()
+    companion_receipts = [
+        (
+            "policy-engine/docs/research/e02-cloud-test-plan/"
+            "implementation-handoffs/E/pcl-configured-consume"
+            "r-20261006.json"
+        ),
+        (
+            "policy-engine/docs/research/e02-cloud-test-plan/"
+            "implementation-handoffs/E/backtest-native-defaul"
+            "t-replay-r2.json"
+        ),
+    ]
+    for path in companion_receipts:
+        receipt = json.loads(bodies[trees[SOURCE][path]])
+        companion_paths.update(p for p in receipt["changed_paths"] if p.startswith(PREFIX))
+    foreign = {
+        "policy-engine/src/polisyos/common/async_tools.py": "G accepted common callback capacity slice; Core/Common canonical writer",
+        "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py": "G accepted Lex deduplication slice; Lex canonical writer",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": "A runtime HTTP publication/fencing writer",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": "B durable budget ledger writer",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": "B durable budget settlement companion",
+    }
+    source_ownership = []
+    for changed in changed_python:
+        path = changed["path"]
+        if changed["role"] != "product_source":
+            continue
+        role = (
+            "E original source footprint"
+            if path in original_source
+            else "E admitted producer/consumer companion receipt"
+            if path in companion_paths
+            else foreign.get(
+                path,
+                "E current scoped family/API/ABI companion; exact source commit lineage retained",
+            )
+        )
+        source_ownership.append(
+            {
+                "path": path,
+                "attribution": role,
+                "E_scope": path not in foreign,
+                "current_source": changed["candidate"],
+                "historical_E_source": path in original_source,
+                "explicit_E_companion_receipt": path in companion_paths,
+            }
+        )
+    e_paths = {row["path"] for row in source_ownership if row["E_scope"]}
+    new_edges = edge_tokens(all_rows[SOURCE], True) - edge_tokens(all_rows[BASE], True)
+    removed_edges = edge_tokens(all_rows[BASE], True) - edge_tokens(all_rows[SOURCE], True)
+    changed_source_paths = {
+        row["path"] for row in changed_python if row["role"] == "product_source"
+    }
+    current_changed_source_rows = [
+        row for row in all_rows[SOURCE] if row["source_path"] in changed_source_paths
+    ]
+    e_new_edges = []
+    for path, target in sorted(new_edges):
+        if path not in e_paths:
+            continue
+        rows = [
+            row
+            for row in current_changed_source_rows
+            if row["source_path"] == path
+            and row["target_module"] == target
+            and row["kind"] != "literal-dynamic"
+        ]
+        e_new_edges.append(
+            {
+                "source_path": path,
+                "target_module": target,
+                "admitted_current_entrypoint": all(admitted(row, allowed) for row in rows),
+                "current_rows": rows,
+                "source": source_record(path, SOURCE, trees, bodies),
+            }
+        )
+    deep_by_revision = {}
+    for revision in (BASE, OLD, SOURCE):
+        deep_by_revision[revision] = sorted(
+            {
+                (row["source_module"], row["target_module"])
+                for row in all_rows[revision]
+                if row["cross_root"]
+                and row["kind"] != "literal-dynamic"
+                and not admitted(row, allowed)
+            }
+        )
+    collector_source_path = "policy-engine/tools/devx/architecture/guardrails.py"
+    collector_tree = ast.parse(bodies[trees[SOURCE][collector_source_path]])
+    selected_names = {
+        "DeepImportEdge",
+        "_module_name_for_path",
+        "_root_for_module",
+        "_resolve_import_module",
+        "_maybe_add_deep_import",
+        "collect_deep_import_edges",
+    }
+    actual_collector_nodes = [
+        node
+        for node in collector_tree.body
+        if isinstance(node, (ast.ClassDef, ast.FunctionDef)) and node.name in selected_names
+    ]
+    require(len(actual_collector_nodes) == len(selected_names), "actual collector class/functions")
+
+    class PinnedPath:
+        def __init__(self, path: str, body: bytes) -> None:
+            self.path = ROOT / path
+            self.body = body
+
+        def relative_to(self, base: Path) -> Path:
+            return self.path.relative_to(base)
+
+        def read_text(self, encoding: str = "utf-8") -> str:
+            return self.body.decode(encoding)
+
+    pinned_paths = [PinnedPath(path, bodies[trees[SOURCE][path]]) for path in product_paths]
+    collector_namespace = {
+        "__name__": __name__,
+        "dataclass": dataclass,
+        "Path": Path,
+        "PackagePolicy": object,
+        "ast": ast,
+        "SRC_ROOT": ROOT / "policy-engine/src",
+        "REPO_ROOT": ROOT / "policy-engine",
+        "_iter_py_files": lambda: pinned_paths,
+    }
+    exec(  # noqa: S102 - actual immutable collector AST isolated from CLI/import side effects.
+        compile(
+            ast.fix_missing_locations(ast.Module(body=actual_collector_nodes, type_ignores=[])),
+            "<immutable-canonical-static-collector>",
+            "exec",
+        ),
+        collector_namespace,
+    )
+    canonical_policies = [
+        SimpleNamespace(
+            module=row["module"], supported_entrypoints=tuple(row["supported_entrypoints"])
+        )
+        for row in policies
+    ]
+    actual_collected = collector_namespace["collect_deep_import_edges"](canonical_policies)
+    actual_edge_pairs = sorted((row.source_module, row.target_module) for row in actual_collected)
+    require(
+        actual_edge_pairs == deep_by_revision[SOURCE],
+        "full actual canonical function versus independently reconstructed static edges",
+    )
+    canonical_control = {
+        "scope": (
+            "Actual pinned collect_deep_import_edges and help"
+            "er/class AST, all2703 immutable Git-backed sourc"
+            "e paths, real current supported_entrypoints. Iso"
+            "lated function only, no global architecture CLI/"
+            "gate or product imports."
+        ),
+        "actual_source_function_AST_sha256": digest(
+            ast.dump(ast.Module(body=actual_collector_nodes, type_ignores=[])).encode()
+        ),
+        "actual_count": len(actual_collected),
+        "independent_count": len(deep_by_revision[SOURCE]),
+        "full_exact_pair_equality": True,
+    }
+    raw_catalog = emit(
+        "raw/full-source-static-and-literal-dynamic-imports.json",
+        {
+            "rows": all_rows,
+            "recognized_nonliteral_dynamic": all_unresolved,
+            "scope": (
+                "all tracked src/polisyos Python in each immutabl"
+                "e Git tree; literal-only dynamic observer is sup"
+                "plemental to canonical static collector"
+            ),
+        },
+    )
+    changed_catalog = emit("raw/full-changed-python-catalog.json", changed_python)
+    full_footprint = emit("raw/full-main198-to-2dc99fe3-footprint.json", changes)
+    source_context = emit(
+        "changed-source-current-cross-root-imports.json",
+        {
+            "source_ownership": source_ownership,
+            "current_cross_root_rows": [
+                row for row in current_changed_source_rows if row["cross_root"]
+            ],
+            "new_E_static_cross_root_module_edges": e_new_edges,
+            "removed_static_cross_root_module_edges": sorted(removed_edges),
+            "recognized_literal_dynamic_rows": [
+                row for row in current_changed_source_rows if row["kind"] == "literal-dynamic"
+            ],
+            "recognized_unresolved_dynamic_calls": [
+                row for row in all_unresolved[SOURCE] if row["source_path"] in changed_source_paths
+            ],
+        },
+    )
+    minimal_footprint = emit(
+        "complete-changed-python-source-bindings.json",
+        [
+            {
+                key: value
+                for key, value in row.items()
+                if key not in {"base_imports", "candidate_imports"}
+            }
+            for row in changed_python
+        ],
+    )
+    report = {
+        "schema": "policyos.e02.independent_full_import_debt_reconciliation.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "actual_base": BASE,
+        "historical_slice_source": OLD,
+        "historical_exact12_input": file_ref(HISTORICAL),
+        "original_12_edges_independently_recomputed": old12,
+        "original_12_dispositions": {"repaired_supported_route": 11, "owner_export_pending": 1},
+        "current_complete_denominators": {
+            "full_changed_path_rows": len(changes),
+            "changed_python_rows": len(changed_python),
+            "python_role_counts": dict(collections.Counter(row["role"] for row in changed_python)),
+            "all_current_tracked_product_python": len(product_paths),
+            "current_E_source_paths": len(e_paths),
+            "original_E_changed_source_paths": len(original_source),
+            "new_static_cross_root_edges_all_source_vs_main": len(new_edges),
+            "new_static_cross_root_edges_current_E_source": len(e_new_edges),
+            "new_E_static_deep_edges": sum(
+                not row["admitted_current_entrypoint"] for row in e_new_edges
+            ),
+        },
+        "supported_entrypoint_policies": policies,
+        "canonical_collector_dependency": source_record(
+            "policy-engine/tools/devx/architecture/guardrails.py", SOURCE, trees, bodies
+        ),
+        "actual_isolated_canonical_static_collector_control": canonical_control,
+        "canonical_static_projection_counts_under_CURRENT_supported_entrypoints": {
+            revision: len(rows) for revision, rows in deep_by_revision.items()
+        },
+        "canonical_static_projection_scope": (
+            "Mirrors exact source-root/relative-import/root-f"
+            "acade/exact supported_entrypoint rules; global e"
+            "xceptions/baselines/directions/public-surface/ge"
+            "nerator/quality selectors NOT executed, so no ar"
+            "chitecture PASS or P41 inheritance claimed. Hist"
+            "orical projection here uses current policies exp"
+            "licitly, not historical gate replay."
+        ),
+        "facade_declared_AST_bindings": native_defs,
+        "current_legacy_owner_packet_export_status": legacy_exports,
+        "owner_ready_IR_packets": owner_packets,
+        "separate_existing_owner_boundaries": [
+            (
+                "Foundry execute snapshot helpers and generic leg"
+                "acy uncertainty serializers remain their own sco"
+                "ped API owner packet; not an original12 edge."
+            ),
+            (
+                "Core ir_adapter test-only native seam is admitte"
+                "d by E root; no generic public Core export lease"
+                " inferred."
+            ),
+            (
+                "Scoped B201/B202 E semantic/API appointment does"
+                " not grant unrelated IR CanonSpec/forecast bundl"
+                "e generic exports."
+            ),
+        ],
+        "complete_context_refs": {
+            "full_footprint": full_footprint,
+            "changed_python_full_AST": changed_catalog,
+            "complete_changed_python_binding_denominator": minimal_footprint,
+            "all_source_imports": raw_catalog,
+            "changed_source_imports_and_attribution": source_context,
+        },
+        "limits": [
+            (
+                "Static+recognized literal dynamic imports establ"
+                "ish textual import edges only. Variable/wrapper "
+                "import targets, registry dispatch and runtime in"
+                "vocation are not proved by AST; all recognized n"
+                "onliteral calls retained as not_established."
+            ),
+            (
+                "Tests/companions are included in complete diff/c"
+                "ontext catalogs but canonical collect_deep_impor"
+                "t_edges parses product src only; their imports a"
+                "re not silently substituted into its module-edge"
+                " denominator."
+            ),
+            (
+                "55 current E-scope source paths include producer"
+                "/API/ABI/consumer companions already present at "
+                "ace655; individual code/finding intake and curre"
+                "nt CAL corrective-source approval are separate."
+            ),
+            (
+                "Current source tree is immutable Git input; root"
+                " may append authorized commits while this observ"
+                "er reads. No HEAD reset/switch/current writer mu"
+                "tation."
+            ),
+            (
+                "Global architecture check status and exact sourc"
+                "e P41 attribution await canonical final gate; th"
+                "is receipt claims no PASS or blanket inherited r"
+                "ed."
+            ),
+        ],
+    }
+    expected = copy.deepcopy(report)
+
+    def validate_current_claims(candidate: dict[str, Any]) -> None:
+        for field in ["schema", "source", "tree", "actual_base", "historical_slice_source"]:
+            require(
+                type(candidate.get(field)) is str and candidate[field] == expected[field],
+                f"identity field {field}",
+            )
+        require(
+            candidate["original_12_dispositions"] == expected["original_12_dispositions"],
+            "disposition counts",
+        )
+        for value in candidate["original_12_dispositions"].values():
+            require(type(value) is int, "disposition count type")
+        require(
+            frozen_json(candidate["original_12_edges_independently_recomputed"])
+            == frozen_json(expected["original_12_edges_independently_recomputed"]),
+            "actual source original12 membership/routes",
+        )
+        require(
+            frozen_json(candidate["current_complete_denominators"])
+            == frozen_json(expected["current_complete_denominators"]),
+            "full current denominator",
+        )
+        require(
+            frozen_json(candidate["supported_entrypoint_policies"])
+            == frozen_json(expected["supported_entrypoint_policies"]),
+            "canonical policy admission",
+        )
+        require(
+            frozen_json(candidate["owner_ready_IR_packets"])
+            == frozen_json(expected["owner_ready_IR_packets"]),
+            "actual owner/lease/nominal boundaries",
+        )
+        for key, row in candidate["complete_context_refs"].items():
+            require(type(row["bytes"]) is int and row["bytes"] >= 0, "content count type")
+            require(row == expected["complete_context_refs"][key], "content ref identity")
+            require(file_ref(Path(row["path"])) == row, "actual context file hash/bytes")
+
+    controls = []
+    validate_current_claims(copy.deepcopy(report))
+    controls.append({"name": "healthy complete source-derived packet", "outcome": "PASS"})
+    original_paths = collector_namespace["_iter_py_files"]
+    collector_namespace["_iter_py_files"] = lambda: [
+        PinnedPath(
+            "policy-engine/src/polisyos/calibration/control.py",
+            (
+                b"from polisyos.ir.analytics.forecasting_uncertain"
+                b"ty import load_forecasting_uncertainty_bundle\n"
+            ),
+        )
+    ]
+    native_private = collector_namespace["collect_deep_import_edges"](canonical_policies)
+    require(
+        len(native_private) == 1
+        and native_private[0].target_module == "polisyos.ir.analytics.forecasting_uncertainty",
+        "present native loader name still private route",
+    )
+    native_maybe_add = collector_namespace["_maybe_add_deep_import"]
+    collector_namespace["_maybe_add_deep_import"] = lambda **kwargs: None
+    removed_private = collector_namespace["collect_deep_import_edges"](canonical_policies)
+    require(not removed_private, "effective actual collector predicate removal")
+    controls.append(
+        {
+            "name": "actual canonical private-loader route and collector removal",
+            "outcome": "PASS",
+            "healthy_private_edges": 1,
+            "removed_collector_edges": 0,
+            "removal_property_outcome": "FAIL",
+            "global_architecture_gate_claim": False,
+        }
+    )
+    collector_namespace["_maybe_add_deep_import"] = native_maybe_add
+    collector_namespace["_iter_py_files"] = original_paths
+    mutations = {
+        "omit original12 edge preserving retotals": lambda row: row[
+            "original_12_edges_independently_recomputed"
+        ].pop(),
+        "fake repaired unresolved forecast loader": lambda row: row[
+            "original_12_edges_independently_recomputed"
+        ][2].update(current_disposition="repaired_supported_route"),
+        "bool repaired count": lambda row: row["original_12_dispositions"].update(
+            repaired_supported_route=True
+        ),
+        "wrong whole Python denominator": lambda row: row["current_complete_denominators"].update(
+            changed_python_rows=12
+        ),
+        "wrong source digest": lambda row: row["original_12_edges_independently_recomputed"][0][
+            "current_source"
+        ].update(sha256="0" * 64),
+        "new private IR artifacts entrypoint fake admission": lambda row: row[
+            "supported_entrypoint_policies"
+        ][0]["supported_entrypoints"].append("polisyos.ir.artifacts"),
+        "CanonSpec promoted into historical12": lambda row: row["owner_ready_IR_packets"][1].update(
+            historical12_member=True
+        ),
+        "B201 semantic appointment grants generic export lease": lambda row: row[
+            "owner_ready_IR_packets"
+        ][1].update(public_lease_granted_here=True),
+        "caller input bytes boolean": lambda row: row["complete_context_refs"][
+            "changed_source_imports_and_attribution"
+        ].update(bytes=True),
+    }
+    for name, mutate in mutations.items():
+        bad = copy.deepcopy(report)
+        mutate(bad)
+        try:
+            validate_current_claims(bad)
+        except ValueError as error:
+            controls.append({"name": name, "outcome": "PASS", "actual_refusal": str(error)})
+        else:
+            raise ValueError(f"negative admitted: {name}")
+    guard_tree = ast.parse(Path(__file__).read_bytes())
+    target = next(
+        node
+        for node in ast.walk(guard_tree)
+        if isinstance(node, ast.FunctionDef) and node.name == "validate_current_claims"
+    )
+    original_guard = ast.dump(target, include_attributes=False)
+    removal_tree = copy.deepcopy(target)
+    removed = [
+        node
+        for node in removal_tree.body
+        if "actual source original12 membership/routes" in ast.unparse(node)
+    ]
+    require(len(removed) == 1, "one concrete membership predicate removal")
+    removal_tree.body.remove(removed[0])
+    namespace = {
+        "expected": expected,
+        "require": require,
+        "frozen_json": frozen_json,
+        "file_ref": file_ref,
+        "Path": Path,
+        "Any": Any,
+    }
+    exec(  # noqa: S102 - isolated own-source single-predicate removal, no product execution.
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[removal_tree], type_ignores=[])),
+            "<removed-membership-guard>",
+            "exec",
+        ),
+        namespace,
+    )
+    omitted = copy.deepcopy(report)
+    omitted["original_12_edges_independently_recomputed"].pop()
+    namespace["validate_current_claims"](omitted)
+    require(
+        frozen_json(omitted["original_12_edges_independently_recomputed"])
+        != frozen_json(expected["original_12_edges_independently_recomputed"]),
+        "effective removal divergence",
+    )
+    controls.append(
+        {
+            "name": "remove ONLY exact original12 member/source predicate",
+            "outcome": "PASS",
+            "property_outcome": "FAIL",
+            "omission_actually_readmitted": True,
+            "all_other_identity_denominator_owner_context_guards_active": True,
+            "original_guard_AST_sha256": digest(original_guard.encode()),
+        }
+    )
+    fixture = (
+        b"import importlib as il\nfrom importlib import imp"
+        b"ort_module as im\nfrom polisyos.core import canon"
+        b"\nfrom polisyos.ir.model_layer.canon import Canon"
+        b"Spec\nil.import_module('polisyos.ir.analytics')\ni"
+        b"m('polisyos.foundry.'+'uncertainty')\n__import__("
+        b"'polisyos.ir.artifacts')\nim(variable_name)\n"
+    )
+    probe = import_rows("policy-engine/src/polisyos/scientist/probe.py", fixture)
+    require(
+        {row["target_module"] for row in probe["rows"] if row["kind"] == "literal-dynamic"}
+        == {"polisyos.ir.analytics", "polisyos.foundry.uncertainty", "polisyos.ir.artifacts"},
+        "literal alias/dynamic census",
+    )
+    require(
+        len(probe["unresolved"]) == 1
+        and all(row["source_root"] == "scientist" for row in probe["rows"]),
+        "root and unknown target distinction",
+    )
+    require(
+        module_info("policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py")[2]
+        == "scientist",
+        "actual root axis",
+    )
+    require(
+        resolve_relative("polisyos.scientist.methods.backtesting.orchestrator", False, "doe", 2)
+        == "polisyos.scientist.methods.doe",
+        "canonical relative resolution",
+    )
+    controls.append(
+        {
+            "name": "static and aliased literal dynamic plus relative/root fixtures",
+            "outcome": "PASS",
+            "actual_fixture_rows": probe,
+        }
+    )
+    report_ref = emit("current-import-debt-reconciliation.json", report)
+    control_ref = emit(
+        "admission-controls.json",
+        {
+            "source": SOURCE,
+            "tree": TREE,
+            "python_optimization": __debug__ is False,
+            "controls": controls,
+            "count": len(controls),
+        },
+    )
+    after = snapshot()
+    require(
+        before["metadata"] == after["metadata"],
+        "ROOT distributions changed during read-only observer",
+    )
+    require(
+        after["head"] == SOURCE or git("merge-base", "--is-ancestor", SOURCE, after["head"]) == b"",
+        "source rewrite/drift",
+    )
+    context = emit(
+        "execution-context.json",
+        {
+            "before": before,
+            "after": after,
+            "pinned_input_source": SOURCE,
+            "pinned_input_tree": TREE,
+            "source_is_current_HEAD": after["head"] == SOURCE,
+            "ROOT_metadata_unchanged": True,
+            "observer_argv": [__import__("sys").executable, *__import__("sys").argv],
+            "commands": COMMANDS,
+            "product_imports_or_tests_executed": False,
+            "source_or_environment_or_Git_mutations": False,
+        },
+    )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "verdict": "GO_import_reconciliation_only",
+                "source": SOURCE,
+                "tree": TREE,
+                "report": report_ref,
+                "controls": control_ref,
+                "execution_context": context,
+                "counts": report["current_complete_denominators"],
+                "historical12": report["original_12_dispositions"],
+                "architecture_check": "UNRUN_by_this_readonly_observer",
+            },
+            ensure_ascii=False,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

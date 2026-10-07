@@ -1,0 +1,28 @@
+import hashlib,json,subprocess
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');O=Path('/tmp/e02-E-validator-format-current-r4');sha='5739c0fa4037ddf91fbca425e3fd3190dc7aa969';tree='835e7f612368f3c1d7b67a9e2caf918ce7cd0038';records=[]
+for name,argv in [('handoff-final-tracking-readback',['git','rev-parse','HEAD','HEAD^{tree}','refs/remotes/origin/codex/e02-E-frc-20261006','refs/remotes/origin/codex/e02-E-frc-20261006^{tree}']),('handoff-final-remote-readback',['git','ls-remote','--heads','origin','codex/e02-E-frc-20261006'])]:
+ p=subprocess.run(argv,cwd=L,capture_output=True);(O/(name+'.stdout.txt')).write_bytes(p.stdout);(O/(name+'.stderr.txt')).write_bytes(p.stderr);records.append({'argv':argv,'cwd':str(L),'exit_code':p.returncode,'stdout':name+'.stdout.txt','stderr':name+'.stderr.txt'})
+ if p.returncode:raise ValueError('readback failure')
+ if name=='handoff-final-tracking-readback' and p.stdout.decode().splitlines()!=[sha,tree,sha,tree]:raise ValueError('tracking/source identity')
+ if name=='handoff-final-remote-readback' and p.stdout.decode().split()[0]!=sha:raise ValueError('remote identity')
+receipt={'schema':'policyos.e02.utility_handoff_publication_readback.v1','source_commit':'2350edfba4e71909fbc615fe3101793b1b13945a','handoff_commit':sha,'handoff_tree':tree,'normal_append_only_push_exit_code':0,'readback_commands':records,'source_source_tests_numeric_global_gate_execution':False,'root_source_environment_mutations':False,'finding_or_global_acceptance':False,'independent_custody_GO':'source2350 and DOC5739 reviewed separately by lint_r4; current final-DOC-GO is published only as this closed later supplement, not rewritten into old handoff'}
+(O/'handoff-publication-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+peer=Path('/tmp/e02-E-validator-current-DOC-independent-5739-20261007/publication-selection.json');b=peer.read_bytes()
+if len(b)!=7234 or hashlib.sha256(b).hexdigest()!='3ea9560d2248dd3dc59ec27b9a5308f55c73037d43e30b2fa71d8364f6a64e25':raise ValueError('fixed DOC peer selection')
+x=json.loads(b);assets=[];content={}
+def add(source,portable,role):
+ body=source.read_bytes();key=(len(body),hashlib.sha256(body).hexdigest());row={'source_path':str(source),'portable_path':portable,'bytes':len(body),'sha256':key[1],'role':role}
+ if key in content:row['content_alias_of']=content[key]
+ else:content[key]=portable
+ assets.append(row)
+for r in x['assets']:
+ source=Path(r.get('source_path',r.get('path')));body=source.read_bytes()
+ if len(body)!=r['bytes'] or hashlib.sha256(body).hexdigest()!=r['sha256']:raise ValueError('literal DOC peer custody')
+ add(source,'independent-DOC/'+r['portable_path'],'closed post-source DOC custody observation; no source or scientific rerun')
+add(peer,'independent-DOC/publication-selection.json','original fixed selector for complete peer member chain')
+for name in ['handoff-commit.stdout.txt','handoff-commit.stderr.txt','handoff-push.stdout.txt','handoff-push.stderr.txt','handoff-fetch-readback.stdout.txt','handoff-fetch-readback.stderr.txt','handoff-final-tracking-readback.stdout.txt','handoff-final-tracking-readback.stderr.txt','handoff-final-remote-readback.stdout.txt','handoff-final-remote-readback.stderr.txt','handoff-publication-receipt.json']:
+ add(O/name,'publication/'+name,'literal source/handoff publication command/output; separate exact frozen identities')
+add(Path(__file__),'publication/build-postpublication-selection.py.txt','passive literal publication selector/replay recipe')
+s={'schema':'policyos.e02.utility_handoff_postpublication_selection.v1','source_commit':receipt['source_commit'],'handoff_commit':sha,'handoff_tree':tree,'asset_count':len(assets),'logical_bytes':sum(r['bytes'] for r in assets),'content_unique_count':len(content),'content_unique_bytes':sum(size for size,digest in content),'assets':assets,'scope':'Closed postpublication and thin independent DOC custody supplement; original source2350 and handoff5739 bytes unchanged. No current scientific finding or global gate closure inferred.','source_scientific_or_global_gate_execution':False}
+(O/'postpublication-selection.json').write_text(json.dumps(s,indent=2)+'\n');print(json.dumps({k:s[k] for k in ['asset_count','logical_bytes','content_unique_count','content_unique_bytes','handoff_commit']}))

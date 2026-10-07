@@ -1,0 +1,95 @@
+{
+  "argv": [
+    "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source3-wire-identity.py",
+    "e4b97c15196d8e276745f55a4367da83586511d9"
+  ],
+  "candidate": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "outcomes": {
+    "FAIL": 0,
+    "PASS": 2
+  },
+  "parent": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "rows": [
+    {
+      "case": "explicit-bound-context-law-identical-CAS",
+      "check_outcome": "PASS",
+      "current_bytes": 2999,
+      "current_ref": "sha256:ccfdb684de92c0755b377a49ba81e95f3afc0adc898c683eb05d5af7ed763437",
+      "current_sha256": "ccfdb684de92c0755b377a49ba81e95f3afc0adc898c683eb05d5af7ed763437",
+      "current_source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "prior_bytes": 2999,
+      "prior_ref": "sha256:ccfdb684de92c0755b377a49ba81e95f3afc0adc898c683eb05d5af7ed763437",
+      "prior_sha256": "ccfdb684de92c0755b377a49ba81e95f3afc0adc898c683eb05d5af7ed763437",
+      "prior_source": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "schema_version": "1.1",
+      "source_context_identity_preserved": true
+    },
+    {
+      "actual_default_schema_version": "1.1",
+      "case": "typed-policy-and-None-context-equivalent",
+      "check_outcome": "PASS",
+      "empty_context_dump": {
+        "lineage_refs": {},
+        "parameters": {},
+        "purpose": null,
+        "time_roles": {}
+      },
+      "policy_dict_dump": {
+        "absolute_tolerance": 1e-12,
+        "decimal_places": 12,
+        "mode": "decimal_exact",
+        "policy_id": "bounded_float_v1"
+      },
+      "policy_model_dump": {
+        "absolute_tolerance": 1e-12,
+        "decimal_places": 12,
+        "mode": "decimal_exact",
+        "policy_id": "bounded_float_v1"
+      }
+    }
+  ],
+  "schema": "policyos.e02.independent_source3_wire_identity.v1",
+  "scope": "actual native producer\u2192configured CAS\u2192fresh strict named reader and complete canonical bytes/policy/typed optional context; no repeated ratio/kernel/Hessian suite or whole type/gate/finding acceptance",
+  "source_after": {
+    "all_git_blobs_bound": true,
+    "bytes": 55109890,
+    "errors": [],
+    "full_path_gitblob_size_frame_sha256": "17381fcbb2861e04e7a34c1ff3fd6af84805a00f29d051a1fc22341b0103ddd5",
+    "paths": 2917
+  },
+  "source_before": {
+    "all_git_blobs_bound": true,
+    "bytes": 55109890,
+    "errors": [],
+    "full_path_gitblob_size_frame_sha256": "17381fcbb2861e04e7a34c1ff3fd6af84805a00f29d051a1fc22341b0103ddd5",
+    "paths": 2917
+  },
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "unchanged_native_review_dependencies": [
+    {
+      "bytes": 96135,
+      "parent_and_current_blob": "6468bf46e3a3dfa341112022eccdfe826aaa04ac",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "a11a7097dd462ec8c8da6ca457d9d6905f1773bb606797f5389a8effcc44a27d"
+    },
+    {
+      "bytes": 31271,
+      "parent_and_current_blob": "48eb8c09bd2470977fb7f86258d739a80738362c",
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "bytes": 16420,
+      "parent_and_current_blob": "7f8317dd1ed9ced9df07eb6c912dfc199beea603",
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "sha256": "10e9ee45b42a6f0d902699678b995363f881ab1e4093578a460c0c94b8a29289"
+    },
+    {
+      "bytes": 10145,
+      "parent_and_current_blob": "3bde24469403ce232808a4d58ee2f06eb5d6c770",
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py",
+      "sha256": "79e4e72361f1fc6a7addeb3c0cf16b604782985437ddf75a45c20c9ac9b2b2a4"
+    }
+  ]
+}

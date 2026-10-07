@@ -1,0 +1,11 @@
+{
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "qualified_b6": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "full_underlying_diff": "",
+  "tracked_status": "",
+  "untracked_status_before": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "shared_prefix": "Doctorpnpm lockfile-only writer; CI startsafterverifyprefixclosed. NoCPU/thread/workercaps",
+  "fixture_hazard": "Backendpytests potentialfixturewriter; realfailfast preserved, no preskip",
+  "ROOTenv": "Existing207 no sync; METADATA/protectedrefs bracketed"
+}

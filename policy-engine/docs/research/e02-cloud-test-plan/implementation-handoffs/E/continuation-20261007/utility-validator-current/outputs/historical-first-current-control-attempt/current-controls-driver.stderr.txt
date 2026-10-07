@@ -1,0 +1,11 @@
+fatal: path 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/__pycache__/validate.cpython-314.pyc' exists on disk, but not in 'c29a58197a7a51f3605857e573de50a4f7a8da61'
+Traceback (most recent call last):
+  File "/tmp/e02-E-validator-format-current-r4/run-current-controls.py.txt", line 23, in <module>
+    rel=Path(r['path']).relative_to(P.relative_to(L));body=subprocess.check_output(['git','show',base+':'+r['path']],cwd=L,env=env)
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', 'c29a58197a7a51f3605857e573de50a4f7a8da61:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/__pycache__/validate.cpython-314.pyc']' returned non-zero exit status 128.

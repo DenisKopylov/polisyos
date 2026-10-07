@@ -1,0 +1,22 @@
+{
+  "summary": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/native-ci08-summary.json",
+    "bytes": 9244,
+    "sha256": "42fae75c26bf03c527ce419f6674694e8e4aa2734b2868fce7719c788fd47160"
+  },
+  "selection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-selection.json",
+    "bytes": 15057,
+    "sha256": "bbc14f7e57813e91ee303bdccabaea74e7cba6ef3c0747480af68ef05f2621f9"
+  },
+  "assets": 35,
+  "bytes": 576761,
+  "outcome": "PASS",
+  "actual_counts": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

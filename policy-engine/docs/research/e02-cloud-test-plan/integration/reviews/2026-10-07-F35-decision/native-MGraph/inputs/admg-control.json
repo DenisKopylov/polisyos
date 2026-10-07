@@ -1,0 +1,55 @@
+{
+  "discovery_method": "native-probe-admg-control",
+  "edges": [
+    {
+      "combined_confidence": 0.9,
+      "data_confidence": 0.9,
+      "dst": "Y",
+      "evidence_refs": [],
+      "expert_confidence": null,
+      "lag": null,
+      "literature_confidence": null,
+      "llm_confidence": null,
+      "mark_dst": "arrow",
+      "mark_src": "tail",
+      "metadata": {},
+      "p_value": null,
+      "simulation_confidence": null,
+      "sources": [
+        "data"
+      ],
+      "src": "X",
+      "unsupported_by_evidence": false
+    },
+    {
+      "combined_confidence": 0.9,
+      "data_confidence": 0.9,
+      "dst": "Y",
+      "evidence_refs": [],
+      "expert_confidence": null,
+      "lag": null,
+      "literature_confidence": null,
+      "llm_confidence": null,
+      "mark_dst": "arrow",
+      "mark_src": "arrow",
+      "metadata": {},
+      "p_value": null,
+      "simulation_confidence": null,
+      "sources": [
+        "data"
+      ],
+      "src": "X",
+      "unsupported_by_evidence": false
+    }
+  ],
+  "graph_type": "admg",
+  "id_confidence_under_pag": null,
+  "metadata": {},
+  "nodes": [
+    "X",
+    "Y"
+  ],
+  "pag_identification_policy": "conservative",
+  "schema_version": "1.0",
+  "skg_version_id": null
+}

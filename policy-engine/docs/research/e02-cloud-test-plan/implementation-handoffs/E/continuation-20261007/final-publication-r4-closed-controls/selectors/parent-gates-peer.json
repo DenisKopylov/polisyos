@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.publication_selection.v1",
+  "scope": "independent closed parent31782 plus runtime-binding correction custody; native outcomes unchanged",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/review.py.txt",
+      "portable_name": "review.py.txt",
+      "bytes": 16811,
+      "sha256": "a898166f5c167f3aee4d94cf33e6670ba6a962e479990a79e26bdf17fd7dd4e6"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/normal.stdout.json",
+      "portable_name": "normal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/normal.stderr.txt",
+      "portable_name": "normal.stderr.txt",
+      "bytes": 709,
+      "sha256": "f4bfbfd91dfea09eb2273aca6aed7988a796b3e96d887fbb73e6749d96ad5b98"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/optimized.stdout.json",
+      "portable_name": "optimized.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/optimized.stderr.txt",
+      "portable_name": "optimized.stderr.txt",
+      "bytes": 709,
+      "sha256": "f4bfbfd91dfea09eb2273aca6aed7988a796b3e96d887fbb73e6749d96ad5b98"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/review-v2.py.txt",
+      "portable_name": "review-v2.py.txt",
+      "bytes": 16975,
+      "sha256": "9f44966cb70d670c944225750bd5754065da8f2c46138c6c963a2f5da5c40855"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/normal-v2.stdout.json",
+      "portable_name": "normal-v2.stdout.json",
+      "bytes": 4153,
+      "sha256": "fd996aca46853cf3d6ceb111fa0f3876cb13fd612e0a0dec6be3e3804ce82847"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/normal-v2.stderr.txt",
+      "portable_name": "normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/optimized-v2.stdout.json",
+      "portable_name": "optimized-v2.stdout.json",
+      "bytes": 4153,
+      "sha256": "fd996aca46853cf3d6ceb111fa0f3876cb13fd612e0a0dec6be3e3804ce82847"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/optimized-v2.stderr.txt",
+      "portable_name": "optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/style-final-v2.json",
+      "portable_name": "style-final-v2.json",
+      "bytes": 679,
+      "sha256": "b8a78aac880d9f998924ff91dd5af2fa7bbbac6485887dbb926e305a62061a1f"
+    },
+    {
+      "path": "/tmp/e02-E-parent-gates-custody-independent-20261007/observer-correction.json",
+      "portable_name": "observer-correction.json",
+      "bytes": 562,
+      "sha256": "55938665216d5818cf96284d8c496b28943ea0682ea41a05fe58b23b0e246ef4"
+    }
+  ],
+  "files": 12,
+  "stored_bytes": 44751,
+  "native_gate_rerun": false,
+  "finding_closure": false
+}

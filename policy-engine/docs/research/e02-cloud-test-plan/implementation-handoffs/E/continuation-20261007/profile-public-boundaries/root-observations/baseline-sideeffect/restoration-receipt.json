@@ -1,0 +1,15 @@
+{
+  "schema": "policyos.e02.E.own_tool_generated_baseline_sideeffect.v1",
+  "time_utc": "2026-10-07T19:14:58.656083+00:00",
+  "source_HEAD": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "affected_path": "policy-engine/architecture/baselines/basedpyright/baseline.json",
+  "original_Git_blob": "c8fb66459e43d28bb64de12d4497a39f48705101",
+  "original_bytes": 1006190,
+  "original_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "unintended_output_bytes": 733805,
+  "unintended_output_sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4",
+  "unintended_output_preserved": "unexpected-tool-output.json",
+  "scope": "CLI side effect despite requested private baseline; original literal tracked artifact restored only after preserving changed bytes; no source changes, Git reset/rebase/checkout or command rerun",
+  "restored_bytes_readback": true,
+  "tracked_status": ""
+}

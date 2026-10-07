@@ -1,0 +1,41 @@
+{
+  "head": "cbdde3deb82c3b74156be14db20db4a6368fb6c0",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+    "check",
+    "--output-format=json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "exit_code": 1,
+  "diagnostic_count": 37,
+  "codes": {
+    "S603": 11,
+    "S607": 10,
+    "E501": 10,
+    "C401": 1,
+    "T201": 2,
+    "C408": 1,
+    "S314": 1,
+    "I001": 1
+  },
+  "scope": "actual repo-configured harness prefreeze; not numerical/commonwave/productmethod evidence",
+  "current_input_hashes": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "sha256": "bac7106ab2a58cafa920c3db05b4a55c29ea50bba36b915970f1050edb502878"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "sha256": "56240a2b6396610022a8bd9bef6abb964308f1f6aea33b1004af2caa9f9193d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "sha256": "3ca556f1ffad614d5848d00f2ce44931fbd248abca2e3a80f99b9d182d0b79ab"
+    }
+  ],
+  "diagnostics_sha256": "1e026be606eb7526b0eba709b8d1c82a959f651c0d0a0ea69019bb86ab3f8bb9",
+  "diagnostics_bytes": 22018
+}

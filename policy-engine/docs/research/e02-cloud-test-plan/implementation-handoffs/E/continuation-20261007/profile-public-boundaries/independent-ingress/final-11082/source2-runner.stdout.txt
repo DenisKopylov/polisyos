@@ -1,0 +1,146 @@
+[
+  {
+    "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "mode": "source2-normal",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py",
+      "--candidate",
+      "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "--label",
+      "source2-normal"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "started_at_UTC": "2026-10-07T19:42:09.899471+00:00",
+    "wall_seconds": 12.140695579000749,
+    "outputs": [
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.stdout.txt",
+        "bytes": 277,
+        "sha256": "b7deaf22e7813620f7584efbc3be4130a7678b00b155dcdde071a26c229885ab"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.json",
+        "bytes": 539117,
+        "sha256": "54149859f90b95a2c0bdf2d124ac2e4665efb53a544c7a0cd5b8c6ee590264e0"
+      }
+    ],
+    "inherited_environment": "existing configured .venv; only PYTHONDONTWRITEBYTECODE=1 added, no artificial process/thread/CPU quotas"
+  },
+  {
+    "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "mode": "source2-optimized",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "-O",
+      "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py",
+      "--candidate",
+      "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "--label",
+      "source2-optimized"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "started_at_UTC": "2026-10-07T19:42:09.900106+00:00",
+    "wall_seconds": 27.884017739008414,
+    "outputs": [
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.stdout.txt",
+        "bytes": 280,
+        "sha256": "3acdd04950692c6b8a7ce5ce05793e44aa98275a47811eeb6a015be2a1dcc229"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.json",
+        "bytes": 539669,
+        "sha256": "09782147b94c7496c6e1a13cf9abd6f32665874e12f19f134ab13d4c73ded427"
+      }
+    ],
+    "inherited_environment": "existing configured .venv; only PYTHONDONTWRITEBYTECODE=1 added, no artificial process/thread/CPU quotas"
+  },
+  {
+    "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "mode": "source2-normal-removal",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py",
+      "--candidate",
+      "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "--label",
+      "source2-normal-removal",
+      "--remove-property"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "started_at_UTC": "2026-10-07T19:42:09.900708+00:00",
+    "wall_seconds": 27.88403800499509,
+    "outputs": [
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.stdout.txt",
+        "bytes": 282,
+        "sha256": "8c93c5bdab285ed66025874aee8be344ff40d7b42141973ed0a60d0a0cf0ba7f"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.json",
+        "bytes": 215894,
+        "sha256": "691b5dbac8c66401fa7c360f3c2f0489d5f5b033e28db15c961ff1d911bd3c2e"
+      }
+    ],
+    "inherited_environment": "existing configured .venv; only PYTHONDONTWRITEBYTECODE=1 added, no artificial process/thread/CPU quotas"
+  },
+  {
+    "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "mode": "source2-optimized-removal",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "-O",
+      "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py",
+      "--candidate",
+      "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "--label",
+      "source2-optimized-removal",
+      "--remove-property"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "started_at_UTC": "2026-10-07T19:42:09.901432+00:00",
+    "wall_seconds": 27.883788905019173,
+    "outputs": [
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.stdout.txt",
+        "bytes": 286,
+        "sha256": "f62f1a4e02ea979c907d24be55ee9cc02c4681466797e04eda2eb2d5374b970e"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.json",
+        "bytes": 215943,
+        "sha256": "33bed27c41a0945fb24ff9a908c799d57949eb8dec55931c9f258de318c872c5"
+      }
+    ],
+    "inherited_environment": "existing configured .venv; only PYTHONDONTWRITEBYTECODE=1 added, no artificial process/thread/CPU quotas"
+  }
+]

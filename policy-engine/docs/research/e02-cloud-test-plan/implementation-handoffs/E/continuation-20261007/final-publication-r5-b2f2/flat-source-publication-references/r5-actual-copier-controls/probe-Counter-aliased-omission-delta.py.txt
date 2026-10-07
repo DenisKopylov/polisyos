@@ -1,0 +1,30 @@
+import argparse,ast,collections,copy,hashlib,importlib.machinery,importlib.util,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+p=argparse.ArgumentParser();p.add_argument('--stage',required=True);p.add_argument('--output',required=True);a=p.parse_args()
+stage,out=Path(a.stage),Path(a.output)
+if stage.parent!=S or out.parent!=S or out.exists():raise ValueError('fresh explicit scratch controls')
+out.mkdir();program=stage/'copy-final-publication.py.txt'
+l=importlib.machinery.SourceFileLoader('actual_copier_delta',str(program));sp=importlib.util.spec_from_loader(l.name,l);m=importlib.util.module_from_spec(sp);l.exec_module(m)
+base=m.strict_json((stage/'manifest.json').read_bytes());source=program.read_bytes();rows=[]
+old=ast.parse((S/'probe-final-copier.py.txt').read_text());funcs=[n for n in old.body if isinstance(n,ast.FunctionDef) and n.name in ('ref','prepare','run')]
+exec(compile(ast.Module(body=funcs,type_ignores=[]),'<unchanged original actual CLI observers>', 'exec'),globals())
+d=copy.deepcopy(base);occ=collections.Counter((r['stored']['sha256'],r['stored']['bytes']) for r in d['logical_sources'])
+index=next(i for i,r in enumerate(d['logical_sources']) if r['member_class']!='selector' and r['family']=='final-three-gates-complete' and occ[r['stored']['sha256'],r['stored']['bytes']]>1)
+omitted=d['logical_sources'].pop(index)
+fields=('family','selection_source_path','member_class','original','stored','storage_mode','logical_destination','selected_record')
+obs=[{k:r[k] for k in fields} for r in d['logical_sources']]
+d['logical_sources'],d['canonical_copies']=m.carriers(obs)
+d.update(logical_count=len(obs),original_logical_bytes=sum(r['original']['bytes'] for r in obs),stored_logical_bytes=sum(r['stored']['bytes'] for r in obs),unique_payload_files=len(d['canonical_copies']),unique_payload_bytes=sum(r['stored']['bytes'] for r in d['canonical_copies']),deduplicated_occurrences=len(obs)-len(d['canonical_copies']))
+if len(d['canonical_copies'])!=len(base['canonical_copies']):raise ValueError('retain all original content carriers for effective Counter property control')
+summary={k:d[k] for k in ('logical_count','original_logical_bytes','stored_logical_bytes','unique_payload_files','unique_payload_bytes','deduplicated_occurrences')};summary.update(metadata_files=len(m.METADATA),expected_git_paths=d['unique_payload_files']+len(m.METADATA))
+body=(json.dumps(summary,indent=2)+'\n').encode()
+run('retotalled-real-aliased-member-omission',prepare('retotalled-real-aliased-member-omission',d,{'build.stdout.json':body}))
+t=ast.parse(source.decode());v=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name=='validate');guards=[n for n in v.body if isinstance(n,ast.If) and ast.unparse(n.test)=='got != want']
+if len(guards)!=1:raise ValueError('sole actual original Counter predicate')
+v.body.remove(guards[0]);mutant_body=(ast.unparse(t)+'\n').encode();mutant=out/'sole-Counter-guard-removal.py.txt';mutant.write_bytes(mutant_body)
+run('sole-Counter-removal',prepare('sole-Counter-removal',d,{'build.stdout.json':body,'copy-final-publication.py.txt':mutant_body}),prog=mutant,expected=0)
+report={'schema':'policyos.e02.final_r5_effective_aliased_counter_delta.v1','copier':ref(program),'manifest':ref(stage/'manifest.json'),'optimized':bool(sys.flags.optimize),'rows':rows,'omitted_original_logical_member':omitted,'all_original_content_carriers_retained':True,'new_original_logical_denominator':d['logical_count'],'sole_original_Counter_predicate_removed':True,'old_observer_attempt':'Initial control omitted unique content and failed earlier at expected lookup; retained as observer ERROR, not source/custody failure. This fresh two-case delta omits a repeated raw member with all carriers retained.','source_native_numeric_execution':False,'Root_or_leaf_written':False,'all_controls_PASS':all(r['PASS'] for r in rows)}
+(out/'review.json').write_text(json.dumps(report,indent=2)+'\n')
+if not report['all_controls_PASS']:raise ValueError('actual narrow Counter delta')
+print(json.dumps({'outcome':'PASS custody delta only','report':ref(out/'review.json'),'blocked_genuine_omission':True,'sole_Counter_removal_accepts_same_omission':True},indent=2))

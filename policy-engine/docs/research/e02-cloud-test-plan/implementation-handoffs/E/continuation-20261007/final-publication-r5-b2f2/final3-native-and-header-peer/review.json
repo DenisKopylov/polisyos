@@ -1,0 +1,2832 @@
+{
+  "schema": "policyos.e02.independent_final3_closed_custody.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "disposition": "GO for fixed literal final3 native custody/index; author admission supplement remains separately pending",
+  "claim": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "logical_members": 73,
+    "storage_contents": 52,
+    "current_native_outcomes": {
+      "architecture": "FAIL",
+      "runtime-api-contract": "FAIL",
+      "static-invocation": "FAIL"
+    },
+    "architecture_rows": 151,
+    "architecture_paths": 79,
+    "architecture_outputs": 6,
+    "architecture_missing_required": [],
+    "standalone_atlas_selected": false,
+    "OpenAPI_components": 573,
+    "named_confidence_example_dependencies": 1495,
+    "static_changed_records": 119,
+    "static_regressions": 24,
+    "static_new_unresolved": 95,
+    "static_owners": {
+      "E": 91,
+      "B": 28
+    },
+    "static_current_corpus": 5942,
+    "static_base_corpus": 5904,
+    "static_runtime_witness": false,
+    "initial_static_signal_P41cause": "not_established",
+    "source_global_scientific_G_authority": false
+  },
+  "source_guard_before": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "tracked_status": ""
+  },
+  "source_guard_after": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "tracked_status": ""
+  },
+  "all_selected_original_carriers": [
+    {
+      "logical_name": "attempts/architecture/receipt.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6.txt",
+        "bytes": 97015,
+        "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/receipt.json",
+        "bytes": 97015,
+        "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture/started.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/1e3bfbdba369f05366eca6f1f5e9bd6e773ea14eb7a2958b41f3640b83b25284.txt",
+        "bytes": 50017,
+        "sha256": "1e3bfbdba369f05366eca6f1f5e9bd6e773ea14eb7a2958b41f3640b83b25284"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/started.json",
+        "bytes": 50017,
+        "sha256": "1e3bfbdba369f05366eca6f1f5e9bd6e773ea14eb7a2958b41f3640b83b25284"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture/stdout.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/ede2ebfcfbf629720ad3e4d38d72a2596a297b25f2c33e553dd4797a41aadea6.txt",
+        "bytes": 143867,
+        "sha256": "ede2ebfcfbf629720ad3e4d38d72a2596a297b25f2c33e553dd4797a41aadea6"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/stdout.txt",
+        "bytes": 143867,
+        "sha256": "ede2ebfcfbf629720ad3e4d38d72a2596a297b25f2c33e553dd4797a41aadea6"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture/stderr.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture/complete-source-inputs-before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/complete-source-inputs-before.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture/complete-source-inputs-after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/complete-source-inputs-after.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/bd8be9b6f1273224b25bac9f61b868f94ce47a78007077f680cf14db4a8cd8bc.bin",
+        "bytes": 196304,
+        "sha256": "7ff21c762c98e370e9eb2beddf47625744153cc55228c9a6c2b2d19784f890b6"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+        "bytes": 2812414,
+        "sha256": "bd8be9b6f1273224b25bac9f61b868f94ce47a78007077f680cf14db4a8cd8bc"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/00c3617b40c8b4fa5f07185510beae8b8dd708c16b051b711743fa9f01d52473.bin",
+        "bytes": 191029,
+        "sha256": "5d3c32f18b4a073a6d03ccf46444677f4b1c47253e8177c2e2067a9ddcff35bd"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "bytes": 2377697,
+        "sha256": "00c3617b40c8b4fa5f07185510beae8b8dd708c16b051b711743fa9f01d52473"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/receipt.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/dcb5007e6cb0b0213a4d9834d09db12795c33cd5daef612a8f28a0a457fb6466.txt",
+        "bytes": 97306,
+        "sha256": "dcb5007e6cb0b0213a4d9834d09db12795c33cd5daef612a8f28a0a457fb6466"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/receipt.json",
+        "bytes": 97306,
+        "sha256": "dcb5007e6cb0b0213a4d9834d09db12795c33cd5daef612a8f28a0a457fb6466"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/started.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/a2800e640e053c21b337bdf96e823d35efb097a6a555520c5347e29971e176ef.txt",
+        "bytes": 50281,
+        "sha256": "a2800e640e053c21b337bdf96e823d35efb097a6a555520c5347e29971e176ef"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/started.json",
+        "bytes": 50281,
+        "sha256": "a2800e640e053c21b337bdf96e823d35efb097a6a555520c5347e29971e176ef"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/stdout.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/9490dca791e7011ce81ac1fa6a8a21c7bb790ce8ed0d9ca6d257fe2ff8c40a91.txt",
+        "bytes": 14806,
+        "sha256": "9490dca791e7011ce81ac1fa6a8a21c7bb790ce8ed0d9ca6d257fe2ff8c40a91"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/stdout.txt",
+        "bytes": 14806,
+        "sha256": "9490dca791e7011ce81ac1fa6a8a21c7bb790ce8ed0d9ca6d257fe2ff8c40a91"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/stderr.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/a6187b3526c21e5c9154be16918289522e2e615f6849b892916633d1131b5184.txt",
+        "bytes": 6755,
+        "sha256": "a6187b3526c21e5c9154be16918289522e2e615f6849b892916633d1131b5184"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/stderr.txt",
+        "bytes": 6755,
+        "sha256": "a6187b3526c21e5c9154be16918289522e2e615f6849b892916633d1131b5184"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/complete-source-inputs-before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/complete-source-inputs-before.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/complete-source-inputs-after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/complete-source-inputs-after.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/retained-runtime-catalog.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/849bcee4b7119352baacdd77f800597782ba193fc7f0fb8fe38f4bf9d33b47be.txt",
+        "bytes": 1275,
+        "sha256": "849bcee4b7119352baacdd77f800597782ba193fc7f0fb8fe38f4bf9d33b47be"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/retained-runtime-catalog.json",
+        "bytes": 1275,
+        "sha256": "849bcee4b7119352baacdd77f800597782ba193fc7f0fb8fe38f4bf9d33b47be"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract/actual-openapi-0.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337.bin",
+        "bytes": 196308,
+        "sha256": "e97b46c0060a381b1c0e809f29c20d1a307aae87c563dae25fbbf580f2919260"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/tmp/retained-runtime-openapi.raw.json",
+        "bytes": 2812414,
+        "sha256": "56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/static-invocation/receipt.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/d43e16ab9872156a5c83770b07b895f974893443b50cafebe2e7d2d16658687a.txt",
+        "bytes": 97101,
+        "sha256": "d43e16ab9872156a5c83770b07b895f974893443b50cafebe2e7d2d16658687a"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/receipt.json",
+        "bytes": 97101,
+        "sha256": "d43e16ab9872156a5c83770b07b895f974893443b50cafebe2e7d2d16658687a"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation/started.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/595c08ccdbece4815f59ba2e4951a9aa398b3682124d2a41edb78364f44635ce.txt",
+        "bytes": 50096,
+        "sha256": "595c08ccdbece4815f59ba2e4951a9aa398b3682124d2a41edb78364f44635ce"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/started.json",
+        "bytes": 50096,
+        "sha256": "595c08ccdbece4815f59ba2e4951a9aa398b3682124d2a41edb78364f44635ce"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation/stdout.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation/stderr.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation/complete-source-inputs-before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/complete-source-inputs-before.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/static-invocation/complete-source-inputs-after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/complete-source-inputs-after.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/receipt.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/36cce176c5748e9a8c9bbf223ec6beb553e933e43f5949f42d1967b40e9d6498.txt",
+        "bytes": 97195,
+        "sha256": "36cce176c5748e9a8c9bbf223ec6beb553e933e43f5949f42d1967b40e9d6498"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/receipt.json",
+        "bytes": 97195,
+        "sha256": "36cce176c5748e9a8c9bbf223ec6beb553e933e43f5949f42d1967b40e9d6498"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/started.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/a14bc4dcc8e77830791e1cfaf9880a9d13abfb3194f71bb7d22c1bf52808df1b.txt",
+        "bytes": 50163,
+        "sha256": "a14bc4dcc8e77830791e1cfaf9880a9d13abfb3194f71bb7d22c1bf52808df1b"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/started.json",
+        "bytes": 50163,
+        "sha256": "a14bc4dcc8e77830791e1cfaf9880a9d13abfb3194f71bb7d22c1bf52808df1b"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/stdout.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/57d360d6e3c356cea018f4fc6fbe35f51d6aff1c1a47e6b7c3226b2437b50a54.txt",
+        "bytes": 127167,
+        "sha256": "57d360d6e3c356cea018f4fc6fbe35f51d6aff1c1a47e6b7c3226b2437b50a54"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/stdout.txt",
+        "bytes": 127167,
+        "sha256": "57d360d6e3c356cea018f4fc6fbe35f51d6aff1c1a47e6b7c3226b2437b50a54"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/stderr.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/complete-source-inputs-before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/complete-source-inputs-before.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/complete-source-inputs-after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/complete-source-inputs-after.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506.txt",
+        "bytes": 31276,
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "bytes": 31276,
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd.txt",
+        "bytes": 108061,
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "bytes": 108061,
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4.bin",
+        "bytes": 94792,
+        "sha256": "1ccd0a4a22c703aa1b06fc8672c31abbe5843a270c51baf72ec7578e0e7ccf24"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+        "bytes": 951543,
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c.bin",
+        "bytes": 91773,
+        "sha256": "d6f185a5891d4404e59d33ba57fdc70ed78245d03614f91a06486305faf33623"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+        "bytes": 791736,
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/bd8be9b6f1273224b25bac9f61b868f94ce47a78007077f680cf14db4a8cd8bc.bin",
+        "bytes": 196304,
+        "sha256": "7ff21c762c98e370e9eb2beddf47625744153cc55228c9a6c2b2d19784f890b6"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+        "bytes": 2812414,
+        "sha256": "bd8be9b6f1273224b25bac9f61b868f94ce47a78007077f680cf14db4a8cd8bc"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/architecture-retry-corepack/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/00c3617b40c8b4fa5f07185510beae8b8dd708c16b051b711743fa9f01d52473.bin",
+        "bytes": 191029,
+        "sha256": "5d3c32f18b4a073a6d03ccf46444677f4b1c47253e8177c2e2067a9ddcff35bd"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "bytes": 2377697,
+        "sha256": "00c3617b40c8b4fa5f07185510beae8b8dd708c16b051b711743fa9f01d52473"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/receipt.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/70be1e247d3125f7c968eac1a9c99cbd23a411ae19ff89072c3a8261899d7487.txt",
+        "bytes": 97501,
+        "sha256": "70be1e247d3125f7c968eac1a9c99cbd23a411ae19ff89072c3a8261899d7487"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/receipt.json",
+        "bytes": 97501,
+        "sha256": "70be1e247d3125f7c968eac1a9c99cbd23a411ae19ff89072c3a8261899d7487"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/started.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/50096b2c3341e1e92649f6cd04c158c830b4199414498c65df2838448256866b.txt",
+        "bytes": 50458,
+        "sha256": "50096b2c3341e1e92649f6cd04c158c830b4199414498c65df2838448256866b"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/started.json",
+        "bytes": 50458,
+        "sha256": "50096b2c3341e1e92649f6cd04c158c830b4199414498c65df2838448256866b"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/stdout.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/3303a6e58b40b761e204f5b2aca97587411ee20744f3c809f72caa9af973794b.txt",
+        "bytes": 6296,
+        "sha256": "3303a6e58b40b761e204f5b2aca97587411ee20744f3c809f72caa9af973794b"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/stdout.txt",
+        "bytes": 6296,
+        "sha256": "3303a6e58b40b761e204f5b2aca97587411ee20744f3c809f72caa9af973794b"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/stderr.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/2fa6efebe11dda1b5dce26467fe691e1085642d923c8f3251500fdd4c414c4a7.txt",
+        "bytes": 6851,
+        "sha256": "2fa6efebe11dda1b5dce26467fe691e1085642d923c8f3251500fdd4c414c4a7"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/stderr.txt",
+        "bytes": 6851,
+        "sha256": "2fa6efebe11dda1b5dce26467fe691e1085642d923c8f3251500fdd4c414c4a7"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/complete-source-inputs-before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/complete-source-inputs-before.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/complete-source-inputs-after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/complete-source-inputs-after.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/retained-runtime-catalog.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/34c655de39cbd922772e338ec7bf69e34cea2e9c022b60e04394292fcb1a8bb9.txt",
+        "bytes": 2222,
+        "sha256": "34c655de39cbd922772e338ec7bf69e34cea2e9c022b60e04394292fcb1a8bb9"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/retained-runtime-catalog.json",
+        "bytes": 2222,
+        "sha256": "34c655de39cbd922772e338ec7bf69e34cea2e9c022b60e04394292fcb1a8bb9"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/actual-openapi-0.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337.bin",
+        "bytes": 196308,
+        "sha256": "e97b46c0060a381b1c0e809f29c20d1a307aae87c563dae25fbbf580f2919260"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/retained-runtime-openapi.raw.json",
+        "bytes": 2812414,
+        "sha256": "56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/client/canonicalRuntimeApiClient.js",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506.txt",
+        "bytes": 31276,
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/runtime_client_contract_86u8lot_/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "bytes": 31276,
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/client/canonicalRuntimeApiClient.ts",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd.txt",
+        "bytes": 108061,
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/runtime_client_contract_86u8lot_/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "bytes": 108061,
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/runtime-api-contract-retry-corepack/client/types.ts",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4.bin",
+        "bytes": 94792,
+        "sha256": "1ccd0a4a22c703aa1b06fc8672c31abbe5843a270c51baf72ec7578e0e7ccf24"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/runtime_client_contract_86u8lot_/packages/runtime-api-client/types.ts",
+        "bytes": 951543,
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/static-invocation-retry-capacity/receipt.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/dee6b660d11eab98adac801d66a74c42f373b688cffdf166e9c8f1eb4012570a.txt",
+        "bytes": 97213,
+        "sha256": "dee6b660d11eab98adac801d66a74c42f373b688cffdf166e9c8f1eb4012570a"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/receipt.json",
+        "bytes": 97213,
+        "sha256": "dee6b660d11eab98adac801d66a74c42f373b688cffdf166e9c8f1eb4012570a"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation-retry-capacity/started.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/f6a72e4c83b84b354877a97d36447888d09228ffd5d1fe296930f579a62fe2ca.txt",
+        "bytes": 50187,
+        "sha256": "f6a72e4c83b84b354877a97d36447888d09228ffd5d1fe296930f579a62fe2ca"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/started.json",
+        "bytes": 50187,
+        "sha256": "f6a72e4c83b84b354877a97d36447888d09228ffd5d1fe296930f579a62fe2ca"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation-retry-capacity/stdout.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/54fc4fc75e919387ed0d5629e8984f7729757fa9c530e0b44f9a9ceb70ef98d9.txt",
+        "bytes": 10640,
+        "sha256": "54fc4fc75e919387ed0d5629e8984f7729757fa9c530e0b44f9a9ceb70ef98d9"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/stdout.txt",
+        "bytes": 10640,
+        "sha256": "54fc4fc75e919387ed0d5629e8984f7729757fa9c530e0b44f9a9ceb70ef98d9"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation-retry-capacity/stderr.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "attempts/static-invocation-retry-capacity/complete-source-inputs-before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/complete-source-inputs-before.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "attempts/static-invocation-retry-capacity/complete-source-inputs-after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054.bin",
+        "bytes": 1117728,
+        "sha256": "d992f1d9a30e2c62849650e6c06c24a48c4b89d532d530d3166dd6f2de69ad43"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/complete-source-inputs-after.json",
+        "bytes": 5700143,
+        "sha256": "4b1fc77c8429b0996ef99511a188c501aa746b37b7fd11ad141870c4a050b054"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/runtime-corepack-repair-proof/after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/a67265224a8e6a59088784b8c00eb7739db1fbf070fa24c0b94f1c199cd49eaf.bin",
+        "bytes": 49522,
+        "sha256": "849a79db99dc96867fef4fa150809710c7dc17d9db43381b3f9a05e27245f3b4"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-corepack-repair-proof/after.json",
+        "bytes": 215211,
+        "sha256": "a67265224a8e6a59088784b8c00eb7739db1fbf070fa24c0b94f1c199cd49eaf"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/runtime-corepack-repair-proof/before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/dffbcd45416f8170504fa130b611db2e6879bd10f616fa68f8d3f0ddd9fa7ffc.bin",
+        "bytes": 49990,
+        "sha256": "49bbb96d2f4cd0562b777841efe091de105340320426934dfd179e6c1c674606"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-corepack-repair-proof/before.json",
+        "bytes": 216014,
+        "sha256": "dffbcd45416f8170504fa130b611db2e6879bd10f616fa68f8d3f0ddd9fa7ffc"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/architecture-corepack-repair-proof/after.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/997c136bb38927f05d6b3385554f16f4e0ac7a84b3e68b8808040efa47ac67d1.bin",
+        "bytes": 49521,
+        "sha256": "d8ef7d9e06d47b10f03841e4ab51f6bd09db5a969a2db09a71b4d08257154326"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-corepack-repair-proof/after.json",
+        "bytes": 215210,
+        "sha256": "997c136bb38927f05d6b3385554f16f4e0ac7a84b3e68b8808040efa47ac67d1"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/architecture-corepack-repair-proof/before.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/c015bfab0fc8a1017233e3ed4187012655baf2f7acea365d9de3df17eeb9111d.bin",
+        "bytes": 49927,
+        "sha256": "0ed041f19f9295deb679d95d3d970284bc16a334d9a8b0a43a171db6978f68f9"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-corepack-repair-proof/before.json",
+        "bytes": 215965,
+        "sha256": "c015bfab0fc8a1017233e3ed4187012655baf2f7acea365d9de3df17eeb9111d"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/architecture-retirement-admission/candidate-only.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/25df314cbeef72153f8330b400502e3eaed2c3c8ac02ac8761972ec994ccd54a.txt",
+        "bytes": 587,
+        "sha256": "25df314cbeef72153f8330b400502e3eaed2c3c8ac02ac8761972ec994ccd54a"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/candidate-only.json",
+        "bytes": 587,
+        "sha256": "25df314cbeef72153f8330b400502e3eaed2c3c8ac02ac8761972ec994ccd54a"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "support/architecture-retirement-admission/private-environment-all-file-refs.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/2bdcc1bbfae2d24e22989beda7e222b709475268b3963bba314fbe6f0b5fb892.bin",
+        "bytes": 783187,
+        "sha256": "ceb8469b934a508ab2923debd04bbc776b90abbb57c166a40c5e6c8a4b2bb22f"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/private-environment-all-file-refs.json",
+        "bytes": 3221382,
+        "sha256": "2bdcc1bbfae2d24e22989beda7e222b709475268b3963bba314fbe6f0b5fb892"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/architecture-retirement-admission/retirement-closed.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/7918888393eafa2bdbede9200d73917497a9d8fea16812651ee638e9de02c7a6.txt",
+        "bytes": 2881,
+        "sha256": "7918888393eafa2bdbede9200d73917497a9d8fea16812651ee638e9de02c7a6"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/retirement-closed.json",
+        "bytes": 2881,
+        "sha256": "7918888393eafa2bdbede9200d73917497a9d8fea16812651ee638e9de02c7a6"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "support/architecture-retirement-admission/retirement-preflight.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/eb41c33cf419e395423f28a16cef0d3a641f4fde9f7c937d48a3e57675a18a3d.txt",
+        "bytes": 4226,
+        "sha256": "eb41c33cf419e395423f28a16cef0d3a641f4fde9f7c937d48a3e57675a18a3d"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/retirement-preflight.json",
+        "bytes": 4226,
+        "sha256": "eb41c33cf419e395423f28a16cef0d3a641f4fde9f7c937d48a3e57675a18a3d"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "support/architecture-retirement-admission/source-file-duplicates.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/3e251f8cbe823cb2fefc2107582cf9ea82896082f85316b1a51be9fcf41d135c.bin",
+        "bytes": 1219481,
+        "sha256": "5c16500e86419d9dbd5ec564a0721ca362c01279a6bdbce73ac3be6e280580b2"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/source-file-duplicates.json",
+        "bytes": 6781442,
+        "sha256": "3e251f8cbe823cb2fefc2107582cf9ea82896082f85316b1a51be9fcf41d135c"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "support/architecture-retirement-admission/unique-source-88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07.txt",
+        "bytes": 15465,
+        "sha256": "88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/unique-source-88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07.txt",
+        "bytes": 15465,
+        "sha256": "88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "static-current/all-119-native-mechanism-records.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/f4dd3ea0af0dad8e425f9f7acc5aaedadc23f639b5eab207bec4128a462f09af.bin",
+        "bytes": 29371,
+        "sha256": "77ab6cafe97392e69049f011c4911b1b5d087737e17a1a7c4c0654baae31f090"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/all-119-native-mechanism-records.json",
+        "bytes": 527404,
+        "sha256": "f4dd3ea0af0dad8e425f9f7acc5aaedadc23f639b5eab207bec4128a462f09af"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "static-current/full-native-input-corpus.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e75af6ae7d7f1af56261e38e67ffc41d7ac5e50b4ee980fc1b2757054eb7e04f.bin",
+        "bytes": 851982,
+        "sha256": "aea1d4b9e71a8442ca4a40a2eae0711aedc17509be9b6621d7348707be1ffc5c"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/full-native-input-corpus.json",
+        "bytes": 3764199,
+        "sha256": "e75af6ae7d7f1af56261e38e67ffc41d7ac5e50b4ee980fc1b2757054eb7e04f"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "static-current/summary.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/05b927bfa530ee95252d9540f80744e4b9af75bc7db22926fc60225b7c5f8fc1.txt",
+        "bytes": 2472,
+        "sha256": "05b927bfa530ee95252d9540f80744e4b9af75bc7db22926fc60225b7c5f8fc1"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/summary.json",
+        "bytes": 2472,
+        "sha256": "05b927bfa530ee95252d9540f80744e4b9af75bc7db22926fc60225b7c5f8fc1"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "current/e02-E-final3-closed-index-b2f2f65e-20261007.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/066145416c8e50ad66b9b83d7ecc6a72a8be126f1a6d1ef272b5bbbd97ab6146.txt",
+        "bytes": 55181,
+        "sha256": "066145416c8e50ad66b9b83d7ecc6a72a8be126f1a6d1ef272b5bbbd97ab6146"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-closed-index-b2f2f65e-20261007.json",
+        "bytes": 55181,
+        "sha256": "066145416c8e50ad66b9b83d7ecc6a72a8be126f1a6d1ef272b5bbbd97ab6146"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "current/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/f38e680e418519a35e9700e209eb2b729721ddd9021d648aa4ffbff7935404a4.txt",
+        "bytes": 86834,
+        "sha256": "f38e680e418519a35e9700e209eb2b729721ddd9021d648aa4ffbff7935404a4"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json",
+        "bytes": 86834,
+        "sha256": "f38e680e418519a35e9700e209eb2b729721ddd9021d648aa4ffbff7935404a4"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "current/e02-E-final3-static-attribution-b2f2f65e-20261007.py.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/2a7018aed81540f1d224150e8c08b85f7a670e0144703178d0893648688d0504.txt",
+        "bytes": 6892,
+        "sha256": "2a7018aed81540f1d224150e8c08b85f7a670e0144703178d0893648688d0504"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007.py.txt",
+        "bytes": 6892,
+        "sha256": "2a7018aed81540f1d224150e8c08b85f7a670e0144703178d0893648688d0504"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "observers/run_final_gate_when_leased.py.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/7e53a7d49a6f407c6052266fdf43c9dd51ec066f1149f9a861bf844b13a14e86.txt",
+        "bytes": 8750,
+        "sha256": "7e53a7d49a6f407c6052266fdf43c9dd51ec066f1149f9a861bf844b13a14e86"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-preparation-20261007/run_final_gate_when_leased.py.txt",
+        "bytes": 8750,
+        "sha256": "7e53a7d49a6f407c6052266fdf43c9dd51ec066f1149f9a861bf844b13a14e86"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "observers/retained_runtime_api_cli.py.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288.txt",
+        "bytes": 5478,
+        "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+      },
+      "decoded_original": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+        "bytes": 5478,
+        "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "observers/build-publication.py.txt",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/83319f4788674781de9a32428a1e0e2edeaaed0b9acd072cee36582a67a9eff2.txt",
+        "bytes": 5918,
+        "sha256": "83319f4788674781de9a32428a1e0e2edeaaed0b9acd072cee36582a67a9eff2"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-final3-build-publication-b2f2f65e-20261007.py.txt",
+        "bytes": 5918,
+        "sha256": "83319f4788674781de9a32428a1e0e2edeaaed0b9acd072cee36582a67a9eff2"
+      },
+      "encoding": "literal"
+    },
+    {
+      "logical_name": "owners/current-import-debt-reconciliation.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/436b275617c8d3152155ef911de88c92ac1539573253663b4d1a08c2bbd66657.bin",
+        "bytes": 31234,
+        "sha256": "66e548af11d45e4752366cc600a9fa81e6b8ade7d2e58df8cb4a153d03acbe18"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/current-import-debt-reconciliation.json",
+        "bytes": 235253,
+        "sha256": "436b275617c8d3152155ef911de88c92ac1539573253663b4d1a08c2bbd66657"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "owners/complete-writer-qualification-v4.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/b5640d9de1f581fee1f2e44bea75a6462e2ea261fff62aaa89c108d7f1e91376.bin",
+        "bytes": 38370,
+        "sha256": "770c936a33439cccf1d9fe76d6685018abb852fe9db4cca89a56ebc61c5bb6c7"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/writer-qualification-v4.json",
+        "bytes": 430880,
+        "sha256": "b5640d9de1f581fee1f2e44bea75a6462e2ea261fff62aaa89c108d7f1e91376"
+      },
+      "encoding": "gzip"
+    },
+    {
+      "logical_name": "native-witnesses/independent-fit-review-77b4.json",
+      "stored": {
+        "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f.txt",
+        "bytes": 12562,
+        "sha256": "4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f"
+      },
+      "decoded_original": {
+        "path": "/tmp/e02-E-fit-independent-77b4-20261007/independent-review-77b4.json",
+        "bytes": 12562,
+        "sha256": "4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f"
+      },
+      "encoding": "literal"
+    }
+  ],
+  "all_six_actual_native_attempts": [
+    {
+      "group": "deciding",
+      "name": "architecture",
+      "receipt": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/receipt.json",
+        "bytes": 97195,
+        "sha256": "36cce176c5748e9a8c9bbf223ec6beb553e933e43f5949f42d1967b40e9d6498"
+      },
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/retained-workspace",
+        "--generated-freshness-uv-cache-dir",
+        "/workspace/.polisyos-environment/cache/uv"
+      ],
+      "native_outcome": "FAIL",
+      "wrapper_outcome": "FAIL",
+      "exit_code": 1,
+      "full_source_metadata_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "packageMETADATA_count": 207,
+      "protected_extra_control_count": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/stdout.txt",
+        "bytes": 127167,
+        "sha256": "57d360d6e3c356cea018f4fc6fbe35f51d6aff1c1a47e6b7c3226b2437b50a54"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retry-corepack/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "group": "deciding",
+      "name": "runtime-api-contract",
+      "receipt": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/receipt.json",
+        "bytes": 97501,
+        "sha256": "70be1e247d3125f7c968eac1a9c99cbd23a411ae19ff89072c3a8261899d7487"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+        "--checker",
+        "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "--expected-checker-sha256",
+        "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+        "--catalog",
+        "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/retained-runtime-catalog.json",
+        "--"
+      ],
+      "native_outcome": "FAIL",
+      "wrapper_outcome": "FAIL",
+      "exit_code": 1,
+      "full_source_metadata_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "packageMETADATA_count": 207,
+      "protected_extra_control_count": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/stdout.txt",
+        "bytes": 6296,
+        "sha256": "3303a6e58b40b761e204f5b2aca97587411ee20744f3c809f72caa9af973794b"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/stderr.txt",
+        "bytes": 6851,
+        "sha256": "2fa6efebe11dda1b5dce26467fe691e1085642d923c8f3251500fdd4c414c4a7"
+      }
+    },
+    {
+      "group": "deciding",
+      "name": "static-invocation",
+      "receipt": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/receipt.json",
+        "bytes": 97213,
+        "sha256": "dee6b660d11eab98adac801d66a74c42f373b688cffdf166e9c8f1eb4012570a"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-continuation-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/production-invocation.raw.json"
+      ],
+      "native_outcome": "FAIL",
+      "wrapper_outcome": "FAIL",
+      "exit_code": 1,
+      "full_source_metadata_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "packageMETADATA_count": 207,
+      "protected_extra_control_count": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/stdout.txt",
+        "bytes": 10640,
+        "sha256": "54fc4fc75e919387ed0d5629e8984f7729757fa9c530e0b44f9a9ceb70ef98d9"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "group": "historical",
+      "name": "architecture_initial",
+      "receipt": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/receipt.json",
+        "bytes": 97015,
+        "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+      },
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace",
+        "--generated-freshness-uv-cache-dir",
+        "/workspace/.polisyos-environment/cache/uv"
+      ],
+      "native_outcome": "UNRUN",
+      "wrapper_outcome": "ERROR",
+      "exit_code": 2,
+      "full_source_metadata_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "packageMETADATA_count": 207,
+      "protected_extra_control_count": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/stdout.txt",
+        "bytes": 143867,
+        "sha256": "ede2ebfcfbf629720ad3e4d38d72a2596a297b25f2c33e553dd4797a41aadea6"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "group": "historical",
+      "name": "runtime_initial",
+      "receipt": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/receipt.json",
+        "bytes": 97306,
+        "sha256": "dcb5007e6cb0b0213a4d9834d09db12795c33cd5daef612a8f28a0a457fb6466"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+        "--checker",
+        "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "--expected-checker-sha256",
+        "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+        "--catalog",
+        "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/retained-runtime-catalog.json",
+        "--"
+      ],
+      "native_outcome": "UNRUN",
+      "wrapper_outcome": "ERROR",
+      "exit_code": 2,
+      "full_source_metadata_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "packageMETADATA_count": 207,
+      "protected_extra_control_count": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/stdout.txt",
+        "bytes": 14806,
+        "sha256": "9490dca791e7011ce81ac1fa6a8a21c7bb790ce8ed0d9ca6d257fe2ff8c40a91"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/stderr.txt",
+        "bytes": 6755,
+        "sha256": "a6187b3526c21e5c9154be16918289522e2e615f6849b892916633d1131b5184"
+      }
+    },
+    {
+      "group": "historical",
+      "name": "static_initial",
+      "receipt": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/receipt.json",
+        "bytes": 97101,
+        "sha256": "d43e16ab9872156a5c83770b07b895f974893443b50cafebe2e7d2d16658687a"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-continuation-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/production-invocation.raw.json"
+      ],
+      "native_outcome": "ERROR",
+      "wrapper_outcome": "ERROR",
+      "exit_code": -9,
+      "full_source_metadata_frame": {
+        "tracked_paths": 22005,
+        "bytes": 620699802,
+        "framed_sha256": "2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e"
+      },
+      "packageMETADATA_count": 207,
+      "protected_extra_control_count": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "actual151_deep_import_rows": [
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "imported_module": "polisyos.ir.analytics.backtest",
+      "path": "src/polisyos/calibration/forecast_bridge.py"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "imported_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "path": "src/polisyos/calibration/forecast_bridge.py"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "imported_module": "polisyos.ir.artifacts",
+      "path": "src/polisyos/calibration/forecast_bridge.py"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "imported_module": "polisyos.ir.model_layer.canon",
+      "path": "src/polisyos/calibration/forecast_bridge.py"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "imported_module": "polisyos.ir.registry.refs",
+      "path": "src/polisyos/calibration/forecast_bridge.py"
+    },
+    {
+      "source_module": "polisyos.core.canon.canon_json",
+      "imported_module": "polisyos.common.canonical",
+      "path": "src/polisyos/core/canon/canon_json.py"
+    },
+    {
+      "source_module": "polisyos.core.canon.hashing",
+      "imported_module": "polisyos.common.hashing",
+      "path": "src/polisyos/core/canon/hashing.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.bindings_validation",
+      "imported_module": "polisyos.ir.observation.contracts",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
+      "imported_module": "polisyos.ir.model_layer",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/common.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.demography",
+      "imported_module": "polisyos.ir.model_layer.types",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/demography.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/io.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "imported_module": "polisyos.core.artifacts.store",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/io.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "imported_module": "polisyos.core.canon",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/io.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.observation",
+      "imported_module": "polisyos.ir.model_layer.types",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/observation.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "imported_module": "polisyos.core.artifacts.store",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "imported_module": "polisyos.ir.model_layer.types",
+      "path": "src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+    },
+    {
+      "source_module": "polisyos.fabric.connectors.cache._store_core",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/fabric/connectors/cache/_store_core.py"
+    },
+    {
+      "source_module": "polisyos.fabric.data_plane.modes",
+      "imported_module": "polisyos.core.artifacts",
+      "path": "src/polisyos/fabric/data_plane/modes.py"
+    },
+    {
+      "source_module": "polisyos.fabric.data_plane.modes",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/fabric/data_plane/modes.py"
+    },
+    {
+      "source_module": "polisyos.fabric.identity.migrations",
+      "imported_module": "polisyos.common.migrations.base",
+      "path": "src/polisyos/fabric/identity/migrations.py"
+    },
+    {
+      "source_module": "polisyos.fabric.ingestion.ingestion_providers",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/fabric/ingestion/ingestion_providers.py"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/fabric/retrieval/custody.py"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "imported_module": "polisyos.core.artifacts.backends.config",
+      "path": "src/polisyos/fabric/retrieval/executor.py"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/fabric/retrieval/executor.py"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.service",
+      "imported_module": "polisyos.core.artifacts.backends.config",
+      "path": "src/polisyos/fabric/retrieval/service.py"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.service",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/fabric/retrieval/service.py"
+    },
+    {
+      "source_module": "polisyos.foundry.agent_sim.artifact",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/foundry/agent_sim/artifact.py"
+    },
+    {
+      "source_module": "polisyos.foundry.compile.randomization",
+      "imported_module": "polisyos.core.canon",
+      "path": "src/polisyos/foundry/compile/randomization.py"
+    },
+    {
+      "source_module": "polisyos.foundry.compile.randomization",
+      "imported_module": "polisyos.core.contracts.foundry",
+      "path": "src/polisyos/foundry/compile/randomization.py"
+    },
+    {
+      "source_module": "polisyos.foundry.compile.trinity_compiler",
+      "imported_module": "polisyos.ir.kernel.slots",
+      "path": "src/polisyos/foundry/compile/trinity_compiler.py"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.causal.literature_prior",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/foundry/methods/catalog/causal/literature_prior.py"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.mechanism.families",
+      "imported_module": "polisyos.ir.analytics.mechanism_design",
+      "path": "src/polisyos/foundry/methods/catalog/mechanism/families.py"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.layout",
+      "imported_module": "polisyos.ir.kernel.slots",
+      "path": "src/polisyos/foundry/methods/layout.py"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.api",
+      "imported_module": "polisyos.core.artifacts.backends.config",
+      "path": "src/polisyos/foundry/plugins/api.py"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.api",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/foundry/plugins/api.py"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.api",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/foundry/plugins/api.py"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.training_adapter",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/foundry/plugins/training_adapter.py"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.training_adapter",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/foundry/plugins/training_adapter.py"
+    },
+    {
+      "source_module": "polisyos.ir.migrations.base",
+      "imported_module": "polisyos.common.migrations._engine",
+      "path": "src/polisyos/ir/migrations/base.py"
+    },
+    {
+      "source_module": "polisyos.ir.model_layer.canon",
+      "imported_module": "polisyos.common.canonical",
+      "path": "src/polisyos/ir/model_layer/canon.py"
+    },
+    {
+      "source_module": "polisyos.ir.model_layer.canon",
+      "imported_module": "polisyos.common.hashing",
+      "path": "src/polisyos/ir/model_layer/canon.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.artifacts.store",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.contracts.lex",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.governance.passes.base",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.governance.passes.legal_pass",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.governance.passes.safety_pass",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.core.governance.profiles",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.ir.loading.norm_pack",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "imported_module": "polisyos.ir.world.ids",
+      "path": "src/polisyos/lex/legal_evaluation/impact_diff.py"
+    },
+    {
+      "source_module": "polisyos.lex.normpack.diff",
+      "imported_module": "polisyos.ir.loading.norm_pack",
+      "path": "src/polisyos/lex/normpack/diff.py"
+    },
+    {
+      "source_module": "polisyos.pdc._impl.world_model_record",
+      "imported_module": "polisyos.core.artifacts",
+      "path": "src/polisyos/pdc/_impl/world_model_record.py"
+    },
+    {
+      "source_module": "polisyos.runtime",
+      "imported_module": "polisyos.scientist.replay.deterministic",
+      "path": "src/polisyos/runtime/__init__.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.resilience",
+      "imported_module": "polisyos.core.artifacts.ids",
+      "path": "src/polisyos/runtime/http/resilience.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.resilience",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/runtime/http/resilience.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.resilience",
+      "imported_module": "polisyos.core.artifacts.signing",
+      "path": "src/polisyos/runtime/http/resilience.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.acquisition_surface_execution",
+      "imported_module": "polisyos.core.artifacts",
+      "path": "src/polisyos/runtime/http/services/acquisition_surface_execution.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.evaluation_safety",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/http/services/control/evaluation_safety.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.generation_cycle",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/http/services/control/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "imported_module": "polisyos.core.artifacts",
+      "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "imported_module": "polisyos.fabric.ingestion.ingestion_providers",
+      "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "imported_module": "polisyos.fabric.storage.tenant_cas",
+      "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.debug",
+      "imported_module": "polisyos.core.contracts.foundry",
+      "path": "src/polisyos/runtime/http/services/debug.py"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.human_decisions",
+      "imported_module": "polisyos.core.artifacts.ownership",
+      "path": "src/polisyos/runtime/http/services/human_decisions.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "imported_module": "polisyos.core.artifacts.protocol",
+      "path": "src/polisyos/runtime/quality/acquisition_planner.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "imported_module": "polisyos.fabric.connectors.sources.file_tabular",
+      "path": "src/polisyos/runtime/quality/acquisition_planner.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "imported_module": "polisyos.fabric.retrieval.custody",
+      "path": "src/polisyos/runtime/quality/acquisition_planner.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_route_loop",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/quality/acquisition_route_loop.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.candidate_simulation",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/quality/candidate_simulation.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.chronology_proof",
+      "imported_module": "polisyos.core.artifacts._manifest_lifecycle",
+      "path": "src/polisyos/runtime/quality/chronology_proof.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/quality/cycle_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "imported_module": "polisyos.foundry.data_plane.bindings",
+      "path": "src/polisyos/runtime/quality/cycle_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "imported_module": "polisyos.foundry.execute.executor",
+      "path": "src/polisyos/runtime/quality/cycle_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "imported_module": "polisyos.ir.analytics.ncm",
+      "path": "src/polisyos/runtime/quality/cycle_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "imported_module": "polisyos.core.contracts.fabric",
+      "path": "src/polisyos/runtime/quality/data_forge_binding.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "imported_module": "polisyos.core.contracts.foundry",
+      "path": "src/polisyos/runtime/quality/data_state_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "imported_module": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+      "path": "src/polisyos/runtime/quality/data_state_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "imported_module": "polisyos.foundry.data_plane.bindings",
+      "path": "src/polisyos/runtime/quality/data_state_substrate.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.design_generation",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+      "path": "src/polisyos/runtime/quality/design_generation.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.design_generation",
+      "imported_module": "polisyos.scientist.agent.protocols",
+      "path": "src/polisyos/runtime/quality/design_generation.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.design_problem",
+      "imported_module": "polisyos.ir.kernel.base",
+      "path": "src/polisyos/runtime/quality/design_problem.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.epoch_validity_cascade",
+      "imported_module": "polisyos.core.contracts.c4_persisted_profiles",
+      "path": "src/polisyos/runtime/quality/epoch_validity_cascade.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.core.artifacts",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.core.canon",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.core.contracts.foundry",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.core.registry",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.data_forge.domains.catalog.knowledge.country_codes",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.fabric.data_plane",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.foundry.data_plane",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.foundry.execute.executor",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.ir.analytics.ncm",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "imported_module": "polisyos.ir.registry.refs",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "imported_module": "polisyos.core.artifacts._manifest_lifecycle",
+      "path": "src/polisyos/runtime/quality/generation_source.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/quality/generation_source.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+      "path": "src/polisyos/runtime/quality/generation_source.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "imported_module": "polisyos.ir.analytics.ncm",
+      "path": "src/polisyos/runtime/quality/generation_source.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.non_data_acquisition",
+      "imported_module": "polisyos.core.artifacts.store",
+      "path": "src/polisyos/runtime/quality/non_data_acquisition.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.proving_ground.causal_forecast_search",
+      "imported_module": "polisyos.data_forge.kernel.embeddings",
+      "path": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.proving_ground.substrate_grounding_search",
+      "imported_module": "polisyos.data_forge.kernel.embeddings",
+      "path": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.recursive_generation_cycle",
+      "imported_module": "polisyos.core.artifacts",
+      "path": "src/polisyos/runtime/quality/recursive_generation_cycle.py"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/runtime/quality/world_model_record.py"
+    },
+    {
+      "source_module": "polisyos.scholar.api",
+      "imported_module": "polisyos.core.artifacts.ids",
+      "path": "src/polisyos/scholar/api.py"
+    },
+    {
+      "source_module": "polisyos.scholar.api",
+      "imported_module": "polisyos.core.canon",
+      "path": "src/polisyos/scholar/api.py"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.enrich",
+      "imported_module": "polisyos.core.artifacts.ids",
+      "path": "src/polisyos/scholar/orchestrator/enrich.py"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.enrich",
+      "imported_module": "polisyos.core.canon",
+      "path": "src/polisyos/scholar/orchestrator/enrich.py"
+    },
+    {
+      "source_module": "polisyos.scientist.agent.feasibility",
+      "imported_module": "polisyos.foundry.execute._internal.snapshots",
+      "path": "src/polisyos/scientist/agent/feasibility.py"
+    },
+    {
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/cross_graph/compiler.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "imported_module": "polisyos.core.artifacts.ids",
+      "path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.core.artifacts.store",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.core.contracts.fabric",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.foundry.methods.artifacts",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.foundry.methods.backends.dispatch",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.foundry.methods.base",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.foundry.methods.catalog.forecasting",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.foundry.methods.compiler.specialization",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.foundry.methods.selection.registry",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.ir.analytics.backtest",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.ir.analytics.calibration_diagnostics",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.ir.artifacts",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.ir.model_layer.canon",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "imported_module": "polisyos.ir.registry.refs",
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "imported_module": "polisyos.foundry.execute.executor",
+      "path": "src/polisyos/scientist/methods/backtesting/native_replay.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "imported_module": "polisyos.core.contracts.fabric",
+      "path": "src/polisyos/scientist/methods/backtesting/orchestrator.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "imported_module": "polisyos.ir.analytics.uncertainty",
+      "path": "src/polisyos/scientist/methods/backtesting/orchestrator.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "imported_module": "polisyos.ir.model_layer.canon",
+      "path": "src/polisyos/scientist/methods/backtesting/orchestrator.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.discovery.prior_miner",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/methods/discovery/prior_miner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.search.service",
+      "imported_module": "polisyos.common.logger",
+      "path": "src/polisyos/scientist/methods/search/service.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "imported_module": "polisyos.data_forge.read_api.academic",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_transport",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "imported_module": "polisyos.data_forge.read_api.academic",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "imported_module": "polisyos.data_forge.read_api.academic",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.context",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/orchestration/engine/context.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.executor",
+      "imported_module": "polisyos.core.artifacts.write_contract",
+      "path": "src/polisyos/scientist/orchestration/engine/executor.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.executor",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/orchestration/engine/executor.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.protocol",
+      "imported_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "path": "src/polisyos/scientist/orchestration/engine/protocol.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.fallback_runner",
+      "imported_module": "polisyos.core.errors",
+      "path": "src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "imported_module": "polisyos.core.artifacts.ids",
+      "path": "src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "imported_module": "polisyos.core.contracts.skip_blockers",
+      "path": "src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/scientist/orchestration/engine/state_branching.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
+      "imported_module": "polisyos.ir.registry.refs",
+      "path": "src/polisyos/scientist/orchestration/engine/state_branching.py"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.state_merge",
+      "imported_module": "polisyos.core.artifacts.manifest",
+      "path": "src/polisyos/scientist/orchestration/engine/state_merge.py"
+    },
+    {
+      "source_module": "polisyos.scientist.validation.verification.ic.service",
+      "imported_module": "polisyos.foundry.methods.catalog.mechanism.families",
+      "path": "src/polisyos/scientist/validation/verification/ic/service.py"
+    }
+  ],
+  "actual4_generated_families": {
+    "runtime-api-client": 3,
+    "runtime-dashboard-api-types": 1,
+    "runtime-openapi-snapshot": 1,
+    "trust-claim-posture-register": 1
+  },
+  "raw_runtime_OpenAPI": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/retained-runtime-openapi.raw.json",
+    "bytes": 2812414,
+    "sha256": "56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337"
+  },
+  "named_confidence_example_scope": "Only the literal OpenAPI default example for /api/v1/exports/governed-projections/confidence-ledger-risk-spend. No independent served verifier/projection authority claimed.",
+  "full_static_raw_custody": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity/production-invocation.raw.json",
+    "bytes": 171903508,
+    "sha256": "2812e3d586163196ab036fea24b99ace8f2a3433d3279388c04e6b3d3ba2a529"
+  },
+  "static119_input_binding": {
+    "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/all-119-native-mechanism-records.json",
+    "bytes": 527404,
+    "sha256": "f4dd3ea0af0dad8e425f9f7acc5aaedadc23f639b5eab207bec4128a462f09af"
+  },
+  "static5942_5904_full_corpus": {
+    "path": "/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/full-native-input-corpus.json",
+    "bytes": 3764199,
+    "sha256": "e75af6ae7d7f1af56261e38e67ffc41d7ac5e50b4ee980fc1b2757054eb7e04f"
+  },
+  "static_proxy": {
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "limitations": [
+      "Static paths do not prove execution, persisted receipts, or gate substance.",
+      "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+      "Concrete public source callables are candidates; helpers are traversed.",
+      "No HTTP route is assumed runnable merely because it has a decorator."
+    ]
+  },
+  "oldindex_correction": {
+    "path": "/tmp/e02-E-final3-closed-index-b2f2f65e-20261007.json",
+    "bytes": 55181,
+    "sha256": "066145416c8e50ad66b9b83d7ecc6a72a8be126f1a6d1ef272b5bbbd97ab6146",
+    "correction": "First index incorrectly described all three API seam groups as IR packets. Native facts are unchanged; full current boundary now explicitly includes new private Foundry snapshot-helper import."
+  },
+  "current_unapplied_API_seams": {
+    "historical_original12": {
+      "total": 12,
+      "repaired": 11,
+      "remaining": 1,
+      "private_target": "polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle"
+    },
+    "current_new_private_runtime_edges": 2,
+    "separate_pre_existing_CanonSpec_seam": 1,
+    "seam_groups": [
+      {
+        "id": "historical12_forecast_bundle_loader",
+        "historical12_member": true,
+        "canonical_writer": {
+          "logical": "@ir-owners / team-polisyos IR API",
+          "public_surface_inventory_review": "@architecture-owners / team-architecture",
+          "fallback": "@platform-owners",
+          "enforceable_GitHub_reviewer": "@DenisKopylov",
+          "ownership_sources": [
+            ".github/CODEOWNERS",
+            "policy-engine/docs/reference/ownership.md",
+            "policy-engine/architecture/public_surface/contract.toml"
+          ]
+        },
+        "minimal_input": "Admit one existing loader alias for the historical12 edge, or the recommended existing writer+loader pair for the real ForecastOwner producer/readback and bridge. No new data, noise law, wire functional or consumer authority is required for these identity aliases.",
+        "actual_missing_current_symbols": {
+          "load_forecasting_uncertainty_bundle": {
+            "analytics_binding": null,
+            "root_binding": null
+          },
+          "persist_forecasting_uncertainty_bundle": {
+            "analytics_binding": null,
+            "root_binding": null
+          }
+        },
+        "current_source_binding_qualification": [
+          {
+            "path": ".github/CODEOWNERS",
+            "old64d_sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32",
+            "current": {
+              "path": ".github/CODEOWNERS",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "7eea690f3943d174bd74cf727edbf7677e0edbba",
+              "bytes": 4869,
+              "sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32"
+            },
+            "bytes_equal_to64d": true
+          },
+          {
+            "path": "policy-engine/architecture/public_surface/contract.toml",
+            "old64d_sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+            "current": {
+              "path": "policy-engine/architecture/public_surface/contract.toml",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+              "bytes": 19715,
+              "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+            },
+            "bytes_equal_to64d": true
+          },
+          {
+            "path": "policy-engine/docs/reference/ownership.md",
+            "old64d_sha256": "fc4931abf31d46c54d01bb7b1d6ffbca0138f628cfdee1fe4975e65962b49d3f",
+            "current": {
+              "path": "policy-engine/docs/reference/ownership.md",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "23bcf339dc128c78ea9c10c850400e91f3ffed63",
+              "bytes": 11656,
+              "sha256": "fc4931abf31d46c54d01bb7b1d6ffbca0138f628cfdee1fe4975e65962b49d3f"
+            },
+            "bytes_equal_to64d": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/__init__.py",
+            "old64d_sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+            "current": {
+              "path": "policy-engine/src/polisyos/ir/__init__.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+              "bytes": 39467,
+              "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+            },
+            "bytes_equal_to64d": false
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/api.py",
+            "old64d_sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+            "current": {
+              "path": "policy-engine/src/polisyos/ir/api.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+              "bytes": 50093,
+              "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+            },
+            "bytes_equal_to64d": false
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+            "old64d_sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+            "current": {
+              "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+              "bytes": 1152,
+              "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174"
+            },
+            "bytes_equal_to64d": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+            "old64d_sha256": "c7051425f7471d9afe9f037d5dd2a75ae6067533ab1cd4b536c7d1089f4da9a3",
+            "current": {
+              "path": "policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "d1cdcc94cbe262bc53b71680a5a150629694883d",
+              "bytes": 32440,
+              "sha256": "c7051425f7471d9afe9f037d5dd2a75ae6067533ab1cd4b536c7d1089f4da9a3"
+            },
+            "bytes_equal_to64d": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "old64d_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+            "current": {
+              "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+              "bytes": 81721,
+              "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+            },
+            "bytes_equal_to64d": true
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+            "old64d_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+            "current": {
+              "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+              "bytes": 59611,
+              "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+            },
+            "bytes_equal_to64d": true
+          }
+        ],
+        "original_packet": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+          "bytes": 15298,
+          "sha256": "1fdc4277f810fc826a052d46ed35fdf06fc8abc71109b4bfdd7157fa5763b57f"
+        },
+        "unapplied_reviewable_patches": [
+          {
+            "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch",
+            "bytes": 1257,
+            "sha256": "b9941f66776a7f4fd99f7bdd41fd5f6092c5fec0b016368ef2ee1899b65b5a2a",
+            "git_apply_check": {
+              "argv": [
+                "/usr/bin/git",
+                "-C",
+                "/workspace/e02-E-continuation-20261006",
+                "apply",
+                "--check",
+                "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/historical-edge-loader-only.patch"
+              ],
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": ""
+            },
+            "applied": false
+          },
+          {
+            "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch",
+            "bytes": 1928,
+            "sha256": "329965955e276b201c53929b1a09694ac49b3f23369d691a5c58c120ff38a508",
+            "git_apply_check": {
+              "argv": [
+                "/usr/bin/git",
+                "-C",
+                "/workspace/e02-E-continuation-20261006",
+                "apply",
+                "--check",
+                "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/producer-reader-pair.patch"
+              ],
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": ""
+            },
+            "applied": false
+          }
+        ],
+        "next_checkable_result": "IR owner commits exact native writer/loader identity exports through admitted IR root/analytics/API plus required API/inventory/release companions; E rewires actual bridge/ForecastOwner and affected fresh configured-CAS selectors; canonical architecture recomputation then decides its own outcome.",
+        "required_companions": [
+          "Existing IR facade tests: exact native object identities for both helpers, every old export/mapping retained, fresh process before any private submodule import",
+          "Actual ETS ForecastOwner with configured CAS, separate candidate/evidence artifacts, fresh bundle reader and forecast bridge consumer, plus integrity-valid measurement/count forgery and route-removal controls",
+          "IR README/API/release classification with canonical owner review; regenerate public inventory/docs through canonical tool with --skip-deep-import-baseline, never hand-edit generated output or widen deep baseline/exception",
+          "Architecture recomputing selector after owner implementation, with present-name/private-route fake and collector-removal negative",
+          "Ruff/format import-order and import-cycle smoke after the optional producer companion route changes; native function bodies remain unchanged"
+        ],
+        "capability_state": "surface_missing",
+        "public_lease_granted_here": false
+      },
+      {
+        "id": "separate_existing_IR_nominal_CanonSpec",
+        "historical12_member": false,
+        "canonical_writer": {
+          "logical": [
+            "@ir-owners",
+            "@core-owners",
+            "@architecture-owners"
+          ],
+          "enforced_reviewer": "@DenisKopylov",
+          "fallback": "@platform-owners",
+          "generic_lease_transferred_by_B201_B202_semantic_appointment": false
+        },
+        "minimal_input": "Canonical IR/Core/API owner chooses narrow existing IR CanonSpec root export or explicit admission of existing IR subfacade, preserving nominal IR class/codec law. Existing Core canon runtime object alone is not nominally interchangeable with IR CanonSpec.",
+        "current_CanonSpec_facade_bindings": {
+          "analytics_binding": null,
+          "root_binding": null
+        },
+        "current_private_consumers": [
+          {
+            "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "source_module": "polisyos.calibration.forecast_bridge",
+            "source_root": "calibration",
+            "target_module": "polisyos.ir.model_layer.canon",
+            "target_root": "ir",
+            "line": 39,
+            "symbols": [
+              "CanonSpec"
+            ],
+            "kind": "static-from",
+            "canonical_collect_deep_import_edges_scope": true,
+            "cross_root": true,
+            "admitted_current_supported_entrypoint": false
+          },
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+            "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+            "source_root": "scientist",
+            "target_module": "polisyos.ir.model_layer.canon",
+            "target_root": "ir",
+            "line": 72,
+            "symbols": [
+              "CanonSpec"
+            ],
+            "kind": "static-from",
+            "canonical_collect_deep_import_edges_scope": true,
+            "cross_root": true,
+            "admitted_current_supported_entrypoint": false
+          }
+        ],
+        "frozen_actual_type_result": {
+          "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+          "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+          "verdict": "change-required",
+          "before": {
+            "check_outcome": "FAIL",
+            "exit_code": 1,
+            "summary": {
+              "filesAnalyzed": 1,
+              "errorCount": 33,
+              "warningCount": 0,
+              "informationCount": 0,
+              "timeInSec": 2.94
+            },
+            "stdout": {
+              "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-before.stdout.json",
+              "bytes": 25576,
+              "sha256": "bdab5d19bf2bdb1366b13b4dccfa3e5b4ec16b8895b156026d815d16dd28dc15"
+            },
+            "stderr": {
+              "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-before.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "overlay": {
+            "check_outcome": "FAIL",
+            "exit_code": 1,
+            "summary": {
+              "filesAnalyzed": 1,
+              "errorCount": 35,
+              "warningCount": 0,
+              "informationCount": 0,
+              "timeInSec": 2.185
+            },
+            "stdout": {
+              "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay.stdout.json",
+              "bytes": 27952,
+              "sha256": "870496e107bba730f59e736e0c40b2541a5bbe9127df5361bfa6b0b1911f9a88"
+            },
+            "stderr": {
+              "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay.stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "delta": {
+            "matched_original_diagnostics": 33,
+            "added": [
+              {
+                "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+                "severity": "error",
+                "message": "Argument of type \"CanonSpec\" cannot be assigned to parameter \"canon_spec\" of type \"CanonSpec | None\" in function \"put_json_artifact\"\n\u00a0\u00a0Type \"CanonSpec\" is not assignable to type \"CanonSpec | None\"\n\u00a0\u00a0\u00a0\u00a0\"polisyos.core.canon.canon_json.CanonSpec\" is not assignable to \"polisyos.ir.model_layer.canon.CanonSpec\"\n\u00a0\u00a0\u00a0\u00a0\"CanonSpec\" is not assignable to \"None\"",
+                "range": {
+                  "start": {
+                    "line": 676,
+                    "character": 19
+                  },
+                  "end": {
+                    "line": 676,
+                    "character": 60
+                  }
+                },
+                "rule": "reportArgumentType"
+              },
+              {
+                "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+                "severity": "error",
+                "message": "Argument of type \"CanonSpec\" cannot be assigned to parameter \"canon_spec\" of type \"CanonSpec | None\" in function \"put_json_artifact\"\n\u00a0\u00a0Type \"CanonSpec\" is not assignable to type \"CanonSpec | None\"\n\u00a0\u00a0\u00a0\u00a0\"polisyos.core.canon.canon_json.CanonSpec\" is not assignable to \"polisyos.ir.model_layer.canon.CanonSpec\"\n\u00a0\u00a0\u00a0\u00a0\"CanonSpec\" is not assignable to \"None\"",
+                "range": {
+                  "start": {
+                    "line": 786,
+                    "character": 19
+                  },
+                  "end": {
+                    "line": 786,
+                    "character": 60
+                  }
+                },
+                "rule": "reportArgumentType"
+              }
+            ],
+            "removed": [],
+            "comparison": "Complete diagnostic multiset with exact unchanged-source line mapping; all severity/rule/message/range fields retained in full stdout."
+          },
+          "scope": "Explicit actual single-file before/overlay typecheck under product canonical config. This is not a full project typecheck or global gate result. Both original and overlay remain FAIL; no inherited waiver is asserted."
+        },
+        "current_historical_route_dependency_bindings": [
+          {
+            "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+            "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+            "exists": true,
+            "blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+            "bytes": 2555,
+            "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+            "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+            "exists": true,
+            "blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+            "bytes": 1915,
+            "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+            "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+            "exists": true,
+            "blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+            "bytes": 606,
+            "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+          },
+          {
+            "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+            "exists": true,
+            "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+            "bytes": 81721,
+            "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+          }
+        ],
+        "owner_options": [
+          {
+            "choice": "Narrow export of the existing IR CanonSpec through an admitted IR facade (recommended minimal remedy)",
+            "implementation": "Reuse the exact existing IR class; admit a typed sub-facade export or narrow root export with canonical API review. E then changes only its private import. No serializer/store/codec copy or protocol widening.",
+            "minimal_source_proposal": "IR artifacts __init__ import+__all__ and E caller import are attached as an unapplied proposal. The public manifest currently lists IR root/analytics/api; owner must choose admitted sub-facade or root, with inventory/docs/release companions.",
+            "mandatory_companions": [
+              "canonical public API behavioural identity/type tests",
+              "public-surface contract/inventory review/regeneration",
+              "public-surface documentation and python-public-api release fragment"
+            ],
+            "next_checkable_result": "Same nominal IR class at the public entrypoint; scoped caller has no new reportArgumentType diagnostics; actual configuredCAS/fresh FRC readers retain finite payload/ref/manifest and malformed/NaN/kind/schema refusals."
+          },
+          {
+            "choice": "Shared configuration protocol/base or explicit Core/IR union",
+            "implementation": "Canonical owners coordinate every typed inlet: IR put_json_artifact, IR CanonInfo.from_spec, IR ArtifactStore.put_json, CoreToIRAdapter.put_json, and relevant concrete Core protocol signatures. Preserve each codec/tag law and default configuration.",
+            "next_checkable_result": "Actual affected callers and adapter satisfy the chosen typed contract with no cast/type-ignore/baseline change; independent bounded payload and unsupported-tag refusals preserve semantics."
+          }
+        ],
+        "reviewable_unapplied_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/canonspec/assets/IR-owner-existing-spec-export-and-E-caller-proposal.patch",
+          "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+          "exists": true,
+          "blob": "067a6ef3ff1776d57a3a661a854f4bd397b79591",
+          "bytes": 1015,
+          "sha256": "12f527d63ff94602e6edcb5010f4a145c3d89f6e04216a5a3879b4000975481d"
+        },
+        "proposal_caution": "Attached existing IR.artifacts route is NOT an admitted supported_entrypoint; canonical owner must select admission or admitted narrow root export. No codecs/stores copied, cast/type-ignore or baseline widening.",
+        "next_checkable_result": "Same nominal IR class at the public entrypoint; scoped caller has no new reportArgumentType diagnostics; actual configuredCAS/fresh FRC readers retain finite payload/ref/manifest and malformed/NaN/kind/schema refusals.",
+        "capability_state": "surface_missing",
+        "public_lease_granted_here": false
+      },
+      {
+        "id": "BKT_native_replay_existing_snapshot_helpers",
+        "historical12_member": false,
+        "introduced_current_E_static_deep_edge": true,
+        "actual_caller": {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+          "exists": true,
+          "blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+          "bytes": 27666,
+          "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+        },
+        "actual_private_import_rows": [
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+            "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+            "source_root": "scientist",
+            "target_module": "polisyos.foundry.execute.executor",
+            "target_root": "foundry",
+            "line": 35,
+            "symbols": [
+              "get_state_path",
+              "load_state_snapshot",
+              "put_state_snapshot"
+            ],
+            "kind": "static-from",
+            "canonical_collect_deep_import_edges_scope": true,
+            "cross_root": true,
+            "admitted_current_supported_entrypoint": false
+          }
+        ],
+        "closest_admitted_entrypoint": "polisyos.foundry.execute",
+        "actual_complete_current_lazy_map": {
+          "ResolvedExecutionPosture": [
+            "polisyos.foundry.execute.api",
+            "ResolvedExecutionPosture"
+          ],
+          "execute": [
+            "polisyos.foundry.execute.api",
+            "execute"
+          ],
+          "resolve_execution_posture": [
+            "polisyos.foundry.execute.api",
+            "resolve_execution_posture"
+          ]
+        },
+        "required_existing_native_definitions": [
+          {
+            "name": "get_state_path",
+            "line": 183,
+            "signature": "def get_state_path(obj: Any, path: str) -> Any",
+            "native_definition_sha256": "8b846307b313fe6ed4a6ef429fe93bd1f70956af025e1da491890110a50ae590",
+            "executor_reexport_import_row": {
+              "source_path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+              "source_module": "polisyos.foundry.execute.executor",
+              "source_root": "foundry",
+              "target_module": "polisyos.foundry.execute._internal.models",
+              "target_root": "foundry",
+              "line": 16,
+              "symbols": [
+                "ApplyArtifacts",
+                "ExecuteArtifacts",
+                "ExecutionStrictness",
+                "FailureCard",
+                "FailureKind",
+                "FailureSeverity",
+                "artifact_id",
+                "get_state_path",
+                "load_model",
+                "load_payload",
+                "load_tensor",
+                "put_tensor",
+                "set_state_path"
+              ],
+              "kind": "static-from",
+              "canonical_collect_deep_import_edges_scope": true,
+              "cross_root": false,
+              "admitted_current_supported_entrypoint": false
+            },
+            "native_definition_source": {
+              "path": "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "b4a35571e566ea5fa8e7c3cbfea88a35d9a20422",
+              "bytes": 8195,
+              "sha256": "449df348760ee9e633813c194d1c55f03f2b509a8e2a0045fa6ece11f0ba56d8"
+            },
+            "current_supported_facade_binding": null
+          },
+          {
+            "name": "load_state_snapshot",
+            "line": 56,
+            "signature": "def load_state_snapshot(store: FileSystemCAS, *, snapshot_ref: ArtifactRef | ArtifactID | str) -> GlobalState",
+            "native_definition_sha256": "421b7c0f098422a68d7d9addfeab5df3c7b405c9e2c3d7e209bd472df933c21e",
+            "executor_reexport_import_row": {
+              "source_path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+              "source_module": "polisyos.foundry.execute.executor",
+              "source_root": "foundry",
+              "target_module": "polisyos.foundry.execute._internal.snapshots",
+              "target_root": "foundry",
+              "line": 55,
+              "symbols": [
+                "export_seed_state_npz",
+                "import_seed_state_npz",
+                "load_state_snapshot",
+                "put_state_snapshot"
+              ],
+              "kind": "static-from",
+              "canonical_collect_deep_import_edges_scope": true,
+              "cross_root": false,
+              "admitted_current_supported_entrypoint": false
+            },
+            "native_definition_source": {
+              "path": "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "d6a470a7b2bc1e59624050e6cec23fe2b19afe64",
+              "bytes": 15962,
+              "sha256": "63b92ac4e2210911cdab437dcbc6d2bb8bc81c4abe507a50e8222667203c7aa1"
+            },
+            "current_supported_facade_binding": null
+          },
+          {
+            "name": "put_state_snapshot",
+            "line": 140,
+            "signature": "def put_state_snapshot(store: FileSystemCAS, *, state: Any, step: int | None=None, inputs: list[InputRef] | None=None) -> ArtifactRef",
+            "native_definition_sha256": "bfcd2fff7e200f695af43e84077ba7d7122f7c5adb3337c98fb1d8de78be19b1",
+            "executor_reexport_import_row": {
+              "source_path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+              "source_module": "polisyos.foundry.execute.executor",
+              "source_root": "foundry",
+              "target_module": "polisyos.foundry.execute._internal.snapshots",
+              "target_root": "foundry",
+              "line": 55,
+              "symbols": [
+                "export_seed_state_npz",
+                "import_seed_state_npz",
+                "load_state_snapshot",
+                "put_state_snapshot"
+              ],
+              "kind": "static-from",
+              "canonical_collect_deep_import_edges_scope": true,
+              "cross_root": false,
+              "admitted_current_supported_entrypoint": false
+            },
+            "native_definition_source": {
+              "path": "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+              "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+              "exists": true,
+              "blob": "d6a470a7b2bc1e59624050e6cec23fe2b19afe64",
+              "bytes": 15962,
+              "sha256": "63b92ac4e2210911cdab437dcbc6d2bb8bc81c4abe507a50e8222667203c7aa1"
+            },
+            "current_supported_facade_binding": null
+          }
+        ],
+        "native_definition_source": {
+          "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+          "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+          "exists": true,
+          "blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7",
+          "bytes": 2305,
+          "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+        },
+        "canonical_writer": {
+          "logical": "@foundry-owners / Foundry execution API and snapshot owner",
+          "public_surface_review": "@architecture-owners",
+          "enforced_reviewer": "@DenisKopylov",
+          "fallback": "@platform-owners"
+        },
+        "minimum_input": "Canonical Foundry API owner admits same three existing helper objects through the existing supported execute facade with API/public companions. Then E changes the exact native_replay import; no second executor/runtime and no invented E facade lease.",
+        "next_checkable_result": "Fresh-process identity at supported facade, old exports preserved; actual immutable masked replay/config seed/snapshot K3 producer and fresh persisted trajectory reader with wrong kind/config/clock/lineage and route-removal refusals; canonical architecture recomputation after owner commit.",
+        "existing_owner_packet": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/owner-export-packet.json",
+          "bytes": 4522,
+          "sha256": "7531f33b5bf12a524a0f4d2f68b66a4b4b1864af90fcf286191300f2c13368e7"
+        },
+        "existing_unapplied_owner_patches": [
+          {
+            "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/canonical-owner-exports.patch",
+            "bytes": 2029,
+            "sha256": "4fb418b33121c9b7abe38cdff6ae8083fd78f92045ec68a0a38f49cefdf0870f"
+          },
+          {
+            "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/E-consumers-after-owner-exports.patch",
+            "bytes": 2028,
+            "sha256": "91f366fec701106259e9a24c55064d633d403cd282157dc87359f4ff42472698"
+          }
+        ],
+        "public_lease_granted_here": false,
+        "capability_state": "surface_missing",
+        "closest_nonadmitted_route": "foundry.execute.api imports load/put incidentally, lacks get_state_path, and is not a supported_entrypoint. Incidental object presence does not establish public admission."
+      }
+    ],
+    "api_owner_seam_groups": 3,
+    "all_owner_patches_unapplied": true,
+    "generic_IR_Core_Foundry_API_lease_granted": false,
+    "reconciliation": {
+      "path": "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/current-import-debt-reconciliation.json",
+      "bytes": 235253,
+      "sha256": "436b275617c8d3152155ef911de88c92ac1539573253663b4d1a08c2bbd66657"
+    },
+    "next_results": "Canonical IR admits actual forecast bundle writer/loader and nominal CanonSpec through supported APIs with companions; canonical Foundry execution admits exact get_state_path/load_state_snapshot/put_state_snapshot objects; E then rewires actual caller imports and affected persisted/native consumers. No source/generator/baseline edits in this receipt."
+  },
+  "independent_controls": [
+    {
+      "name": "allnative_PASS",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "missing151row",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "Atlas_false_selected",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "bool119",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "Graph_runtime_authority",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "OOM_PID_cause",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "wrong1495",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "hidden_B_owner",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "missing52carrier",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "G_findings_promoted",
+      "outcome": "rejected",
+      "reason": "complete typed closed native gate claim binding",
+      "actual_raw_native_refs_source_markers_payloads_retained": true
+    },
+    {
+      "name": "sole_complete_gate_claim_admission_removed",
+      "proxy_promoted_to_runtime_re_admitted": true,
+      "defining_property": "FAIL"
+    }
+  ],
+  "optimization_mode": false,
+  "native_repeated": false,
+  "P37": [
+    {
+      "predicate": "literal carriers/decompression/fullstaticraw SHA/sourcebody/meta refs",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "raw native statuses/importrows/generator outputs/119 names and5942/5904 inputs",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "factual writer/classification of119 source rows and unapplied owner packet scope",
+      "basis": "consumer_asserted"
+    },
+    {
+      "predicate": "full raw graph mechanism field reparse/caller execution/endpoints/P41cause/scientific/G/finding authority",
+      "basis": "not_established"
+    }
+  ],
+  "limits": [
+    "No native source/gate/test/numeric/environment execution repeated.",
+    "171MB raw hash is streamed; the full graph is not reparsed or copied again. Complete119 symbol/class names are reconciled from actual native stdout; arbitrary graph inference remains partial.",
+    "All current3 native gates FAIL; initial Corepack wrapperERROR and static-9ERROR remain historical separate attempts.",
+    "StandaloneAtlas is outside this canonical command; missing_required=[] describes four selected native generator families only.",
+    "Exact old-base full same-command physical input replay was not performed; P41 remains not_established."
+  ]
+}

@@ -1,0 +1,45 @@
+PT012 `pytest.raises()` block should contain a single simple statement
+  --> tests/unit/ir/test_uncertainty_profile_ingress.py:84:5
+   |
+82 |       calls = []
+83 |       outputs = []
+84 | /     with pytest.raises(ValueError, match="finite real non-bool"):
+85 | |         envelope = _load_raw(tmp_path / "input", raw, inlet)
+86 | |         derived = _compose(envelope, operation, calls)
+87 | |         outputs.append(
+88 | |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
+89 | |         )
+   | |_________^
+90 |       assert calls == []
+91 |       assert outputs == []
+   |
+
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> tests/unit/ir/test_uncertainty_profile_ingress.py:123:5
+    |
+121 |       calls = []
+122 |       outputs = []
+123 | /     with pytest.raises(ValueError):
+124 | |         envelope = _load_raw(tmp_path / "input", raw, inlet)
+125 | |         derived = _compose(envelope, operation, calls)
+126 | |         outputs.append(
+127 | |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
+128 | |         )
+    | |_________^
+129 |       assert calls == []
+130 |       assert outputs == []
+    |
+
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> tests/unit/ir/test_uncertainty_profile_ingress.py:216:5
+    |
+214 |           right = right.model_copy(update={"metadata": {}})
+215 |       pair = (left, right) if order == "profile_first" else (right, left)
+216 | /     with pytest.raises(UncertaintyCompatibilityError, match="Profile2.*mixture"):
+217 | |         result = join_envelopes(pair)
+218 | |         persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), result)
+    | |____________________________________________________________________________________^
+219 |       assert not tmp_path.exists() or not any(tmp_path.iterdir())
+    |
+
+Found 3 errors.

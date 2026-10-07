@@ -1,0 +1,132 @@
+{
+  "scope": "independent metadata V4 source/count/ref correction only; no product/native/fit/math/code review",
+  "outcome": "GO_SCOPED_METADATA",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "module": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py",
+    "bytes": 30841,
+    "sha256": "bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepared-v4r2-normal.json",
+    "bytes": 489441,
+    "sha256": "929c6f325797b41947f096a022bfdab58975fbbe6a87b4903b1b86456cfbfa4a"
+  },
+  "typed_whole_packet_recomputed_equal": true,
+  "V3_original54_and13role_binding_reused": "original-denominator-normal.stdout.json@285a25aeb31e250a680c7137e1dc11e5fb946f7d0642fe2e3295e6f0e8f00bae",
+  "output_delta_only": "54row +topnumeric execution_state terminal_receipts_available_not_joined_in_preparation",
+  "actual_native_path_count": 104,
+  "actual_environment_metadata_count": 207,
+  "source_fit_review_qualified": "external imports77 peer4339639c; no self77 source CODE GO",
+  "controls": [
+    {
+      "case": "original native paths104→1",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "original ROOTmetadata207→1",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "original pending edge1→True",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "original accepted fit77→3932",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "native count type104→104.0",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "environment count type207→207.0",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "actual plan hash→stale",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "actual environment hash→stale",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "actual fit peer hash→stale",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "individual owner promoted",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "current wave made PASS",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "role-specific digest stale",
+      "outcome": "PASS",
+      "observed": "REFUSED",
+      "reason": "whole typed preparation source/count/ref/owner/plan/env claims against immutable inputs"
+    },
+    {
+      "case": "effective sole-guard removal original native paths104→1",
+      "outcome": "PASS",
+      "observed": "ADMITTED",
+      "defining_summary_property": "FAIL",
+      "all_original_rows_source_roles_NULL_outcomes_and_old_guards_retained": true
+    },
+    {
+      "case": "effective sole-guard removal original ROOTmetadata207→1",
+      "outcome": "PASS",
+      "observed": "ADMITTED",
+      "defining_summary_property": "FAIL",
+      "all_original_rows_source_roles_NULL_outcomes_and_old_guards_retained": true
+    },
+    {
+      "case": "effective sole-guard removal original pending edge1→True",
+      "outcome": "PASS",
+      "observed": "ADMITTED",
+      "defining_summary_property": "FAIL",
+      "all_original_rows_source_roles_NULL_outcomes_and_old_guards_retained": true
+    },
+    {
+      "case": "effective sole-guard removal original accepted fit77→3932",
+      "outcome": "PASS",
+      "observed": "ADMITTED",
+      "defining_summary_property": "FAIL",
+      "all_original_rows_source_roles_NULL_outcomes_and_old_guards_retained": true
+    }
+  ],
+  "malformed_Git_object_controls": 5,
+  "malformed_Git_callbacks": 0,
+  "runtime_or_global_or_finding_outcomes_promoted": false,
+  "product_native_backend_or_new_owner54_review_repeated": false,
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  }
+}

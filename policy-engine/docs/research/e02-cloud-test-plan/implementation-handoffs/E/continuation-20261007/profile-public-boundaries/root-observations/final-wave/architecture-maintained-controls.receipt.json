@@ -1,0 +1,63 @@
+{
+  "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "label": "architecture-maintained-controls",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp=/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/architecture-maintained-controls-fixtures",
+    "--junitxml=/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/architecture-maintained-controls.junit.xml",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_corrupt_supported_entrypoint_fails_check",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_enumerates_every_supported_entrypoint_facade",
+    "tests/repo_quality/tools/test_architecture_phase3.py::test_guardrails_detects_new_deep_import_creep"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "started_at_UTC": "2026-10-07T20:01:48.823798+00:00",
+  "wall_seconds": 23.135162383987335,
+  "exit_code": 0,
+  "outcomes": {
+    "PASS": 3,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "classname": "tests.repo_quality.architecture.test_public_surface_supported_entrypoint_inventory",
+      "name": "test_public_surface_inventory_corrupt_supported_entrypoint_fails_check",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.repo_quality.architecture.test_public_surface_supported_entrypoint_inventory",
+      "name": "test_public_surface_inventory_enumerates_every_supported_entrypoint_facade",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.repo_quality.tools.test_architecture_phase3",
+      "name": "test_guardrails_detects_new_deep_import_creep",
+      "outcome": "PASS"
+    }
+  ],
+  "complete_outputs": [
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/architecture-maintained-controls.stdout.txt",
+      "bytes": 80,
+      "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/architecture-maintained-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/architecture-maintained-controls.junit.xml",
+      "bytes": 788,
+      "sha256": "613b7aad6e0553224ee16e3756978b4736236fd99107837381233d3e17033578"
+    }
+  ],
+  "environment": "existing repo-declared .venv; only PYTHONDONTWRITEBYTECODE=1 added; no CPU/thread/worker/process caps",
+  "scope": "affected maintained property/consumer wave only; old 1465-case b2 and seven global gates not relabeled current"
+}

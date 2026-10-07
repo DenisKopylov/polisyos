@@ -1,0 +1,7 @@
+{"closed": "independent-cal-reviewer", "payload_bytes_preserved": 415862803, "archive_bytes": 98670786, "members": 15530, "tmpfs_available": 3728461824, "overlay_available": 1269514240}
+{"closed": "backtest-old58-overlay", "payload_bytes_preserved": 149299000, "archive_bytes": 38667627, "members": 5771, "tmpfs_available": 3881463808, "overlay_available": 1230843904}
+{"closed": "cal-frozen58", "payload_bytes_preserved": 134036209, "archive_bytes": 31718794, "members": 4907, "tmpfs_available": 4018774016, "overlay_available": 1199124480}
+{"closed": "public-surface-packet", "payload_bytes_preserved": 79124935, "archive_bytes": 23141051, "members": 4459, "tmpfs_available": 4100370432, "overlay_available": 1175982080}
+{"closed": "mc", "payload_bytes_preserved": 75746769, "archive_bytes": 22894367, "members": 4316, "tmpfs_available": 4178501632, "overlay_available": 1153085440}
+{"closed": "common-wave-a9f78817c-corrected/temporary", "payload_bytes_preserved": 69379207, "archive_bytes": 9400548, "members": 24658, "tmpfs_available": 4244996096, "overlay_available": 1143681024}
+{"outcome": "byte custody verified; six exact tmpfs copies retired", "receipt": {"path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/receipt.json", "bytes": 83140, "sha256": "dcece4418d5469881914e13d273ce31433d7d7ddbed68edb0ba20e3d4cb9b2cb"}, "payload_bytes": 923448923, "archive_bytes": 224493173, "runtime_or_finding_outcome": "not established by cleanup"}

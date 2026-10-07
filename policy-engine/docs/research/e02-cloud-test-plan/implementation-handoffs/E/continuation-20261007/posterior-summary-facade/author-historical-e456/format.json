@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "src/polisyos/foundry/uncertainty/__init__.py",
+    "tests/unit/calibration/test_evidence_facades.py",
+    "tests/unit/ir/test_posterior_summary.py",
+    "tests/unit/ir/test_uncertainty_posterior_composition.py"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "exit_code": 0,
+  "purpose": "format only Root-owned authored four Python companion paths"
+}

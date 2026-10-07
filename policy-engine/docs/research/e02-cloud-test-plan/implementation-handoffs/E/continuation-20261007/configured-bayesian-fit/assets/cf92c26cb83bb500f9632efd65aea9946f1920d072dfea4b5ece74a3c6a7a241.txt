@@ -1,0 +1,1 @@
+{"covariance_scope":"local inverse observed information under declared assumptions","gate_eligible":false,"observation_std":{"gov_balance":{"_type":"float","repr":"10"}},"profile":"gaussian_observation_nll.v1","row_law_assumption":"independent Gaussian observations with known noise scales","row_law_basis":"consumer_asserted"}

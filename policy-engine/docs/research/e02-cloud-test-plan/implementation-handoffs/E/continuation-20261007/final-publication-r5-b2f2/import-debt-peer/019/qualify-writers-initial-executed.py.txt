@@ -1,0 +1,235 @@
+"""Thin source-qualified writer attribution; no product/Git/environment mutation."""
+
+from __future__ import annotations
+
+import collections
+import copy
+import hashlib
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+HERE = Path(__file__).resolve().parent
+SOURCE = "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76"
+TREE = "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e"
+ROOT_INPUT = Path("/tmp/e02-E-root-prefreeze-lint-2dc99fe3-20261007/inputs.json")  # noqa: S108 - fixed closed receipt; read only.
+ROOT_INPUT_SHA256 = "71f5ec5100e5fd20d81b54adccaf9a1c32d2410d436ce8e45000b2b196eb33cd"
+MODE = "optimized" if sys.flags.optimize else "normal"
+TARGET = HERE / ("final-" + MODE)
+
+
+def require(condition: object, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def token(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def ref(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def dump(path: Path, value: object) -> dict[str, Any]:
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+    return ref(path)
+
+
+def admit_writer_members(rows: list[dict[str, Any]], expected: list[dict[str, Any]]) -> None:
+    require(
+        collections.Counter(token(row) for row in rows)
+        == collections.Counter(token(row) for row in expected),
+        "complete literal implementation-writer member Counter",
+    )
+
+
+def main() -> None:
+    initial = json.loads((TARGET / "current-import-debt-reconciliation.json").read_bytes())
+    changed = json.loads((TARGET / "complete-changed-python-source-bindings.json").read_bytes())
+    source_context = json.loads(
+        (TARGET / "changed-source-current-cross-root-imports.json").read_bytes()
+    )
+    root_body = ROOT_INPUT.read_bytes()
+    require(
+        hashlib.sha256(root_body).hexdigest() == ROOT_INPUT_SHA256,
+        "exact closed source-writer input bytes",
+    )
+    root = json.loads(root_body)
+    require(
+        (root["candidate"], root["tree"]) == (SOURCE, TREE), "closed source writer input identity"
+    )
+    require(
+        (initial["source"], initial["tree"]) == (SOURCE, TREE), "immutable import input identity"
+    )
+    bindings = {row["path"]: row["candidate"] for row in changed}
+    require(len(bindings) == len(changed) == 378, "full changed Python source denominator")
+    require(
+        collections.Counter(row["path"] for row in root["python_rows"])
+        == collections.Counter(bindings),
+        "actual full owner-input and independent Git Python membership",
+    )
+    writer_rows = []
+    for row in root["python_rows"]:
+        actual = bindings[row["path"]]
+        require(actual["exists"] is True, "actual present candidate body")
+        require(
+            (row["object_id"], row["bytes"], row["sha256"])
+            == (actual["blob"], actual["bytes"], actual["sha256"]),
+            "closed writer row versus independent immutable Git blob/hash/bytes",
+        )
+        require(
+            type(row["bytes"]) is int and row["physical_equals_candidate"] is True,
+            "writer record types/current observation",
+        )
+        declaration = row["writer_attribution"]
+        require(
+            type(declaration["writer"]) is str and declaration["writer"] in "ABCDEFG",
+            "canonical unit writer vocabulary",
+        )
+        writer_rows.append(
+            {
+                "path": row["path"],
+                "writer": declaration["writer"],
+                "source": actual,
+                "declared_provenance": declaration,
+                "source_qualification": row["attribution_basis"],
+            }
+        )
+    counts = dict(collections.Counter(row["writer"] for row in writer_rows))
+    require(
+        counts == root["factual_writer_counts"] == {"A": 2, "B": 13, "E": 349, "F": 2, "G": 12},
+        "actual complete writer counts independently recomputed",
+    )
+    expected = copy.deepcopy(writer_rows)
+    expected_source = {row["path"]: row["source"] for row in expected}
+
+    def validate(rows: list[dict[str, Any]], tallies: dict[str, int]) -> None:
+        require(type(rows) is list and type(tallies) is dict, "typed writer packet")
+        require(all(type(value) is int for value in tallies.values()), "strict writer count types")
+        admit_writer_members(rows, expected)
+        for row in rows:
+            require(
+                row["path"] in expected_source and row["source"] == expected_source[row["path"]],
+                "independent immutable Git source body still bound",
+            )
+            require(type(row["writer"]) is str and row["writer"] in "ABCDEFG", "writer vocabulary")
+        require(
+            dict(collections.Counter(row["writer"] for row in rows)) == tallies,
+            "actual writer tally equation",
+        )
+
+    validate(copy.deepcopy(writer_rows), copy.deepcopy(counts))
+    controls = [{"name": "healthy all378 source-bound writer members", "outcome": "PASS"}]
+    mutants = []
+    for name, mutate in [
+        ("removed writer member with retotals", lambda rows: rows.pop()),
+        (
+            "B actual source reassigned to E with same body",
+            lambda rows: next(
+                row for row in rows if row["path"].endswith("common/async_tools.py")
+            ).update(writer="E"),
+        ),
+        (
+            "foreign source binding digest fake",
+            lambda rows: next(row for row in rows if row["path"].endswith("impact_diff.py"))[
+                "source"
+            ].update(sha256="0" * 64),
+        ),
+    ]:
+        bad = copy.deepcopy(writer_rows)
+        mutate(bad)
+        tally = dict(collections.Counter(row["writer"] for row in bad))
+        try:
+            validate(bad, tally)
+        except ValueError as error:
+            controls.append({"name": name, "outcome": "PASS", "actual_refusal": str(error)})
+        else:
+            raise ValueError("invalid literal writer member admitted")
+        mutants.append((bad, tally))
+    original_guard = globals()["admit_writer_members"]
+    globals()["admit_writer_members"] = lambda rows, expected: None
+    validate(*mutants[1])
+    require(mutants[1][0] != writer_rows, "real false writer attribution after removal")
+    controls.append(
+        {
+            "name": "remove ONLY writer member admission; same-source B→E admitted",
+            "outcome": "PASS",
+            "property_outcome": "FAIL",
+            "source body/vocabulary/tally guards_still_active": True,
+        }
+    )
+    globals()["admit_writer_members"] = original_guard
+    by_path = {row["path"]: row for row in writer_rows}
+    for row in source_context["source_ownership"]:
+        actual = by_path[row["path"]]
+        require(row["E_scope"] is (actual["writer"] == "E"), "complete E source footprint equality")
+        row["implementation_writer"] = actual["writer"]
+        row["actual_writer_basis"] = actual["declared_provenance"]
+        if not row["E_scope"]:
+            row["attribution"] = "Actual source implementation writer " + actual["writer"]
+    revised_source = dump(
+        TARGET / "changed-source-current-cross-root-imports-v4.json", source_context
+    )
+    qualifier = {
+        "schema": "policyos.e02.independent_current_import_writer_qualification.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "scope": (
+            "Source-bound closed-input provenance, not new"
+            " canonical product ownership or finding/archi"
+            "tecture acceptance."
+        ),
+        "complete_writer_input": ref(ROOT_INPUT),
+        "independently_Git_bound_python_rows": len(writer_rows),
+        "actual_writer_counts": counts,
+        "writer_role_counts": {
+            writer: dict(
+                collections.Counter(
+                    "source"
+                    if row["path"].startswith("policy-engine/src/polisyos/")
+                    else "test"
+                    if "/tests/" in row["path"]
+                    else "companion_utility"
+                    for row in writer_rows
+                    if row["writer"] == writer
+                )
+            )
+            for writer in counts
+        },
+        "complete_writer_rows": writer_rows,
+        "source_context_corrective_ref": revised_source,
+        "historical_attribution_correction": (
+            "Initial v3 source context described publisher"
+            "s/canonical module boundaries for five foreig"
+            "n paths. Actual implementation writers are B "
+            "for Common callbacks/HTTP store/budget2 and F"
+            " for Lex. All original bytes remain historica"
+            "l; E source55 and import results are unchange"
+            "d."
+        ),
+        "initial_report": ref(TARGET / "current-import-debt-reconciliation.json"),
+        "qualifier_only": True,
+        "controls": controls,
+        "source_env_product_or_Git_writes": False,
+    }
+    final = dump(TARGET / "writer-qualification-v4.json", qualifier)
+    sys.stdout.write(
+        json.dumps(
+            {
+                "verdict": "GO_current378_writer_qualification_only",
+                "source": SOURCE,
+                "tree": TREE,
+                "packet": final,
+                "control_count": len(controls),
+                "actual_writer_counts": counts,
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

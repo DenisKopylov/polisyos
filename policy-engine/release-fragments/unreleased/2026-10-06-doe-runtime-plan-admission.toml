@@ -1,0 +1,11 @@
+id = "2026-10-06-doe-runtime-plan-admission"
+title = "Re-admit mutable sensitivity plans before native materialization"
+type = "fixed"
+component = "scientist-doe"
+owner = "team-polisyos"
+summary = "All DoE materializers use a defensively revalidated plan snapshot, closing over-cap assignment and model-copy escapes before SALib or evaluator calls."
+evidence = ["tests/unit/scientist/methods/doe/test_plan_runtime_admission.py"]
+compatibility = "SensitivityPlan remains mutable and its public fields and persisted receipt format are unchanged. Supported in-cap plans and explicit allow_large_run overrides retain native behavior; mutated invalid or over-cap states now refuse before native work."
+surface_classification = "internal: polisyos.scientist.methods.doe"
+migration = "Keep the requested plan within its per-design max_estimated_runs or explicitly declare allow_large_run; callers cannot rely on earlier construction admission after mutation."
+limitations = "Per-design execution admission is not a global cumulative resource budget, population-law proof, default Search bridge or institutional authority. Finding-owner acceptance remains separate."

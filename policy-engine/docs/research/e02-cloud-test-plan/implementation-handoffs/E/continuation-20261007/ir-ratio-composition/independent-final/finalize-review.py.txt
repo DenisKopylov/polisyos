@@ -1,0 +1,169 @@
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+OUT = Path(__file__).parent
+ROOT = Path('/workspace/e02-E-doe-20261006')
+SHA = 'ecde9d2d8d9d13cba87420930105e378010a1acc'
+TREE = '41d52f7b26d7d10757b479f55dd412d97fa051c4'
+BASE = 'bfbd53a1f45795ad6901bc4bb7685237b0c3d20b'
+PATHS = {
+    'policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml',
+    'policy-engine/src/polisyos/ir/analytics/README.md',
+    'policy-engine/src/polisyos/ir/analytics/posterior_summary.py',
+    'policy-engine/src/polisyos/ir/analytics/uncertainty.py',
+    'policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py',
+}
+
+
+def typed_equal(left, right):
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(typed_equal(left[key], right[key]) for key in left)
+    if isinstance(left, list):
+        return len(left) == len(right) and all(typed_equal(a, b) for a, b in zip(left, right))
+    return left == right
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def admit_bound_inputs(value):
+    if type(value) is not dict or set(value) != {'source', 'tree', 'base', 'paths', 'counts', 'finding_closure', 'type_scope'}:
+        raise ValueError('exact bound input fields required')
+    if (value['source'], value['tree'], value['base']) != (SHA, TREE, BASE):
+        raise ValueError('wrong immutable source identity')
+    if not typed_equal(value['counts'], {'pytest': 54, 'pytest_PASS': 54, 'runtime': 31, 'runtime_PASS': 31}):
+        raise ValueError('counts must match exact closed native receipts')
+    if value['finding_closure'] is not False or value['type_scope'] != 'scoped_original_baseline_relative':
+        raise ValueError('scope/authority promotion')
+    if type(value['paths']) is not list or len(value['paths']) != 5:
+        raise ValueError('complete five-path source footprint required')
+    seen = set()
+    for row in value['paths']:
+        if type(row) is not dict or set(row) != {'path', 'bytes', 'sha256'}:
+            raise ValueError('exact source row required')
+        if type(row['path']) is not str or row['path'] not in PATHS or row['path'] in seen:
+            raise ValueError('source footprint mismatch')
+        seen.add(row['path'])
+        body = git('show', f'{SHA}:{row["path"]}')
+        if type(row['bytes']) is not int or row['bytes'] != len(body) or row['sha256'] != hashlib.sha256(body).hexdigest():
+            raise ValueError('source body hash/size mismatch')
+        if (ROOT / row['path']).read_bytes() != body:
+            raise ValueError('actual source body differs from immutable Git')
+    if seen != PATHS:
+        raise ValueError('full path denominator mismatch')
+
+
+if git('rev-parse', 'HEAD').decode().strip() != SHA or git('rev-parse', 'HEAD^{tree}').decode().strip() != TREE:
+    raise ValueError('author lane moved before review capture')
+selectors = json.loads((OUT / 'selectors.json').read_bytes())
+native = json.loads((OUT / 'native-probes.json').read_bytes())
+custody = json.loads((OUT / 'source-and-type-custody.json').read_bytes())
+if any(doc['source'] != SHA or doc['tree'] != TREE for doc in (selectors, native, custody)):
+    raise ValueError('receipt source identity mismatch')
+if selectors['before'] != selectors['after'] or native['before'] != native['after']:
+    raise ValueError('source guards drifted within native commands')
+if selectors['before']['paths'] != native['before']['paths']:
+    raise ValueError('different exact changed-source denominator')
+cases = []
+for case in ET.parse(OUT / 'pytest.xml').getroot().findall('.//testcase'):
+    outcome = 'FAIL' if case.find('failure') is not None else 'ERROR' if case.find('error') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+    cases.append({'classname': case.get('classname'), 'name': case.get('name'), 'outcome': outcome})
+if not typed_equal(cases, selectors['cases']) or len(cases) != 54 or any(row['outcome'] != 'PASS' for row in cases):
+    raise ValueError('closed JUnit full-case mismatch')
+if selectors['exit_code'] != 0 or not typed_equal(selectors['counts'], {'cases': 54, 'PASS': 54, 'FAIL': 0, 'ERROR': 0, 'SKIP': 0}):
+    raise ValueError('selected native command not PASS')
+lines = [json.loads(line) for line in (OUT / 'native-probes.stdout.txt').read_text().splitlines() if line]
+if not typed_equal(lines[:-1], native['controls']) or not typed_equal(native['counts'], {'cases': 31, 'PASS': 31}):
+    raise ValueError('complete runtime stdout/control denominator mismatch')
+if len(native['controls']) != 31 or any(row['check_status'] != 'PASS' for row in native['controls']):
+    raise ValueError('runtime control mismatch')
+removals = [row for row in native['controls'] if row.get('defining_property_outcome') == 'FAIL']
+if len(removals) != 3:
+    raise ValueError('required three effective source-property removal observations missing')
+if custody['type_result'] != 'PASS' or custody['type_reexecuted'] is not False:
+    raise ValueError('incorrect type custody classification')
+bound = {'source': SHA, 'tree': TREE, 'base': BASE, 'paths': native['before']['paths'],
+         'counts': {'pytest': 54, 'pytest_PASS': 54, 'runtime': 31, 'runtime_PASS': 31},
+         'finding_closure': False, 'type_scope': 'scoped_original_baseline_relative'}
+admit_bound_inputs(bound)
+negatives = []
+for name in ('source', 'tree', 'base', 'count_bool', 'count_promote', 'missing_path', 'fake_hash', 'size_bool', 'closure_promote', 'type_promote', 'extra_field'):
+    mutant = copy.deepcopy(bound)
+    if name in {'source', 'tree', 'base'}:
+        mutant[name] = '0' * 40
+    elif name == 'count_bool':
+        mutant['counts']['pytest_PASS'] = True
+    elif name == 'count_promote':
+        mutant['counts']['runtime_PASS'] = 32
+    elif name == 'missing_path':
+        mutant['paths'].pop()
+    elif name == 'fake_hash':
+        mutant['paths'][0]['sha256'] = '0' * 64
+    elif name == 'size_bool':
+        mutant['paths'][0]['bytes'] = True
+    elif name == 'closure_promote':
+        mutant['finding_closure'] = True
+    elif name == 'type_promote':
+        mutant['type_scope'] = 'global_type_PASS'
+    else:
+        mutant['authority'] = True
+    try:
+        admit_bound_inputs(mutant)
+    except ValueError as exc:
+        negatives.append({'case': name, 'status': 'PASS', 'refusal': str(exc)})
+    else:
+        raise ValueError('corrupt bound receipt admitted: ' + name)
+
+refs = []
+for name in ('selectors.json', 'pytest.xml', 'pytest.stdout.txt', 'pytest.stderr.txt', 'native-probes.json',
+             'native-probes.stdout.txt', 'native-probes.stderr.txt', 'source-and-type-custody.json',
+             'source-and-type-custody.stdout.txt', 'source-and-type-custody.stderr.txt', 'caller-census.json'):
+    body = (OUT / name).read_bytes()
+    refs.append({'path': str(OUT / name), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()})
+result = {'schema': 'e02-independent-IR-composition-source-review:1', 'source': SHA, 'tree': TREE, 'base': BASE,
+          'source_disposition': 'GO', 'finding_closure': False,
+          'requirements': [
+              {'property': 'Declared Profile2 law admitted before all three composition helpers', 'basis': 'recomputed', 'evidence': '15 native marker controls plus six independently forged missing/unknown controls; callbacks zero; sole strict-reader removal gives two callbacks/late-only refusal.'},
+              {'property': 'Identical finite ratio mean/median/binary64-level equal-tail convention', 'basis': 'independently_reconciled', 'evidence': 'Independent Fraction gold: huge finite equal corpus, two-atom 1:2 corpus, dyadic transformed rows, asymmetric 99 zero + 200; actual producer/helpers/fresh CAS.'},
+              {'property': 'Transform artifacts bound to actual new carrier/order/context and fresh reader', 'basis': 'recomputed', 'evidence': 'Carrier/joint hashes regenerated, row IDs and axis preserved, map binding cleared, stale profile refused; profile-reissue removal loses named mean after readback.'},
+              {'property': 'Whole mapped draw support remains finite real non-bool', 'basis': 'recomputed', 'evidence': 'Invalid bool/string/nonfinite mapped draw refuses whole emission; removing type predicate publishes a coerced bool law accepted by fresh reader.'},
+              {'property': 'Lossy projection/pullback does not retain posterior-law declarations', 'basis': 'recomputed', 'evidence': 'All ten markers cleared, moments get own mean/std/normal approximation interval, pullback constraint-only, zero spread finite; forged stale profile rejected.'},
+              {'property': 'Valid legacy schema/functionals/callback behavior preserved', 'basis': 'independently_reconciled', 'evidence': 'Exact bfbd function replay vs ecde complete JSON for v1.0/v1.1 push/pull/particles compression plus first invalid callback ordering; literal Profile1 and historical unprofiled native cases.'},
+              {'property': 'Actual original canonical type settings and baseline custody', 'basis': 'recomputed', 'evidence': 'Author ecde supported JSON config differs only scratch baselineFile; original settings/project root/baseline unchanged; native two selected modules zero diagnostics. Unsupported .json.tmp and earlier tracked-prune observations remain historical.'},
+              {'property': 'Producer input unit/estimand/parent-lineage declarations', 'basis': 'consumer_asserted', 'evidence': 'Arbitrary map removes current binding and labels inherited parent lineage non-authoritative.'},
+              {'property': 'Scientific fit/noise/coverage/source-law authority and formal finding closure', 'basis': 'not_established', 'evidence': 'No coverage/covariance/gating or production data authority inferred from finite fixtures, producer flags or PASS count.'},
+          ],
+          'checks': {'peer_native_pytest': selectors['counts'], 'peer_runtime_controls': native['counts'],
+                     'effective_property_removals': [{'case': row['case'], 'defining_property_outcome': row['defining_property_outcome']} for row in removals],
+                     'scoped_author_type_receipt_independent_custody': 'PASS', 'new_common_wave': 'UNRUN'},
+          'complete_footprint': bound['paths'], 'bound_input_controls': negatives,
+          'complete_static_caller_census': {'input_count': custody['complete_static_census_inputs'], 'source_references': custody['static_source_references'],
+              'limitation': 'Complete static source/tests census does not measure dynamic/external injection. No production call witness outside tested public helper boundary is claimed.'},
+          'current_source_refs': refs,
+          'historical_failures_preserved': [
+              {'source': 'c539dba7d25b1495f80587422145cbd55e5f03e6', 'property': 'unknown/missing declaration callback escape and changed legacy per-row coercion', 'receipt': '/tmp/e02-E-ir-composition-c539-independent-20261007/gap-review.json'},
+              {'source': '218c7bd75f29dea72d86d8c5830137ce0a2d0188', 'property': 'unprofiled v1.0 inputs incorrectly emitted v1.0 where exact base emits v1.1', 'receipt': '/tmp/e02-E-ir-composition-c539-independent-20261007/legacy-schema-gap.json'},
+              {'source': 'ecde9d2d8d9d13cba87420930105e378010a1acc', 'property': 'initial reviewer type-config observer indexed TOML root rather than tool.basedpyright; corrected observer only; no native type run repeated', 'receipt': str(OUT / 'historical-source-and-type-config-observer.stderr.txt')},
+          ],
+          'remaining_owners': ['Root/canonical Calibration facade owner: planned existing producer import companion; no mathematical source change expected.',
+              'Canonical generator/public-surface owner: actual API/schema/inventory companions and final gate queue remain separate.',
+              'Root/G: frozen dependent wave and original finding dispositions/intake separately; code GO does not ratify scientific authority or G closure.'],
+          'repository_source_written': False, 'tests_repeated_in_receipt_recomputation': False,
+          'command': sys.argv, 'optimized': sys.flags.optimize}
+if git('rev-parse', 'HEAD').decode().strip() != SHA or git('rev-parse', 'HEAD^{tree}').decode().strip() != TREE:
+    raise ValueError('author lane moved during receipt review')
+target = OUT / ('review-optimized.json' if sys.flags.optimize else 'review.json')
+target.write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'source_disposition': 'GO', 'source': SHA, 'tree': TREE, 'peer_cases': 54, 'runtime_controls': 31,
+                  'bound_input_corruptions_refused': len(negatives), 'optimized': sys.flags.optimize,
+                  'review_path': str(target)}, indent=2))

@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/prepare_current_owner_wave.py",
+    "--repo",
+    "/workspace/e02-E-continuation-20261006",
+    "--candidate",
+    "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+    "--comparison-base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--output-root",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/actual-cli-wave-never-created",
+    "--plan-output",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/actual-wrapper-cli-prepared-plan.json"
+  ],
+  "exit_code": 0,
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/actual-wrapper-cli.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/actual-wrapper-cli.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

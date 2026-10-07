@@ -1,0 +1,31 @@
+diff --git a/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py b/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py
+index 91c64a39a..b72059264 100644
+--- a/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py
++++ b/policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py
+@@ -7,6 +7,7 @@ from fractions import Fraction
+ 
+ import numpy as np
+ import pytest
++from pydantic import ValidationError
+ 
+ from polisyos.core import artifacts as core_artifacts
+ from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
+@@ -233,7 +234,17 @@ def test_law_losing_compression_clears_complete_profile_declaration(tmp_path, ta
+         assert result.composition_provenance.exactness is ExactnessKind.APPROXIMATION
+     forged = result.model_copy(update={"metadata": source.metadata})
+     with pytest.raises(ValueError, match="exact carrier"):
+-        read_posterior_summary_profile(_fresh(tmp_path / "stale", forged))
++        read_posterior_summary_profile(forged)
++    # The persisted carrier-less projection now refuses at the earlier shared
++    # raw DTO inlet, before fresh downstream named-profile computation.
++    store = core_artifacts.FileSystemCAS(tmp_path / "stale")
++    ref = persist_uncertainty_envelope(store, forged)
++    assert store.verify(ref.artifact_id).ok
++    with pytest.raises(ValidationError) as refusal:
++        load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "stale"), ref)
++    assert (
++        refusal.value.errors()[0]["msg"] == "Value error, posterior summary raw carrier is missing"
++    )
+ 
+ 
+ def test_particles_compression_preserves_exact_axis_and_profile(tmp_path):

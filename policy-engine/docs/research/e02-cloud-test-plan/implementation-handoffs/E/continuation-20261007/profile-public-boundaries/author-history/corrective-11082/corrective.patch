@@ -1,0 +1,47 @@
+--- a/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py
++++ b/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py
+@@ -28,6 +28,8 @@
+ from polisyos.ir.analytics.uncertainty import (
+     DistributionFamily,
+     IntervalSemantics,
++    NumericPolicySpec,
++    NumericToleranceMode,
+     ParametricFitCarrier,
+     PropagationMethod,
+     UncertaintyEnvelope,
+@@ -277,9 +279,10 @@
+         or any(not isinstance(value, str) or not value.strip() for value in ids)
+     ):
+         raise ValueError("posterior draw IDs must be unique aligned non-empty strings")
+-    if context is None:
+-        context = PosteriorSummaryContext()
+-    if set(context.parameters) - set(names):
++    resolved_context: PosteriorSummaryContext = (
++        PosteriorSummaryContext() if context is None else context
++    )
++    if set(resolved_context.parameters) - set(names):
+         raise ValueError("posterior context contains an unmatched parameter binding")
+ 
+     emulator_info = dict(emulator_diagnostics or {})
+@@ -308,7 +311,7 @@
+             interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
+             sample_size=int(draws.shape[0]),
+             gate_eligible=False,
+-            numeric_policy={"mode": "decimal_exact"},
++            numeric_policy=NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT),
+             distribution_payload=PosteriorSamplesCarrier(
+                 samples=tuple(float(value) for value in draws),
+                 weights=probabilities,
+@@ -384,9 +387,9 @@
+             credible_mass=float(credible_mass),
+             carrier_content_hash=posterior_carrier_content_hash(carrier),
+             joint_law_sha256=joint_digest,
+-            binding=context.parameters.get(name),
+-            context=context,
+-            context_content_hash=context.content_hash,
++            binding=resolved_context.parameters.get(name),
++            context=resolved_context,
++            context_content_hash=resolved_context.content_hash,
+         )
+         parameter_envelopes[name] = envelope.model_copy(
+             update={

@@ -1,0 +1,39 @@
+{
+  "scope": "Pure preflight/refusal controls; no process launched/no deletion",
+  "controls": [
+    {
+      "case": "shared-fresh-parent",
+      "fresh_shared_parent_created": true,
+      "both_basetemps_absent": true,
+      "child_callback_count": 0
+    },
+    {
+      "case": "existing-parent",
+      "refused": true,
+      "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+      "sentinel_unchanged": true,
+      "child_callback_count": 0
+    },
+    {
+      "case": "existing-basetemp",
+      "refused": true,
+      "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+      "sentinel_unchanged": true,
+      "child_callback_count": 0
+    },
+    {
+      "case": "dangling-parent",
+      "refused": true,
+      "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+      "sentinel_unchanged": true,
+      "child_callback_count": 0
+    },
+    {
+      "case": "escaped-parent",
+      "refused": true,
+      "reason": "numerical basetemp parent escapes admitted wave output",
+      "sentinel_unchanged": true,
+      "child_callback_count": 0
+    }
+  ]
+}

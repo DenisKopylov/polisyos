@@ -1,0 +1,8 @@
+{
+  "path": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/launch_frozen_plan.py",
+  "bytes": 8401,
+  "sha256": "7d34ef3e3b860ee2ab06e66edb676cf86d8cd08c9871f7e5eea1d455d65f403c",
+  "original_executor": "exact reviewed planner.execute(plan)",
+  "operational_change": "Observe subprocess argv/PID/literal inherited environment; no algorithm/selector/error/status/cap change",
+  "canonical_stdout_stderr": "run_check retains complete merged native stdout+stderr; outer launcher stdout/stderr separate"
+}

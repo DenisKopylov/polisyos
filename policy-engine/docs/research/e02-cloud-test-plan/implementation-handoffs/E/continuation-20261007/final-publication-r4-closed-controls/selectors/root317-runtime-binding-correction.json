@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.publication_selection.v1",
+  "scope": "read-only ROOT317 binding qualification correction; prior parent packet/selection immutable",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/qualify-root-confidence-binding.py.txt",
+      "portable_name": "qualify-root-confidence-binding.py.txt",
+      "bytes": 7242,
+      "sha256": "e5d1457c36cdcb91095a7431be741392ed82c52dc60726078879305e2bd98645"
+    },
+    {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/runtime-binding-qualification-v1.json",
+      "portable_name": "runtime-binding-qualification-v1.json",
+      "bytes": 4737,
+      "sha256": "cbaca9bf3536b237c512fbb8a6dc572fc6bf0117ed9892e221ff60d4c0a5cb3d"
+    },
+    {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/runtime-binding-qualification-controls-normal.json",
+      "portable_name": "runtime-binding-qualification-controls-normal.json",
+      "bytes": 1009,
+      "sha256": "bb25d19e0498314b269edbffb8997da223ae5e55e26bad4f7292c35b307cda53"
+    },
+    {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/runtime-binding-qualification-controls-optimized.json",
+      "portable_name": "runtime-binding-qualification-controls-optimized.json",
+      "bytes": 1009,
+      "sha256": "bb25d19e0498314b269edbffb8997da223ae5e55e26bad4f7292c35b307cda53"
+    },
+    {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/runtime-binding-qualification-actual-removal.json",
+      "portable_name": "runtime-binding-qualification-actual-removal.json",
+      "bytes": 462,
+      "sha256": "330c735f2d3f2ff1da13b23eda87cf78538716791bf1da6f95149f6487c754d4"
+    }
+  ],
+  "files": 5,
+  "stored_bytes": 14459,
+  "gate_rerun": false
+}

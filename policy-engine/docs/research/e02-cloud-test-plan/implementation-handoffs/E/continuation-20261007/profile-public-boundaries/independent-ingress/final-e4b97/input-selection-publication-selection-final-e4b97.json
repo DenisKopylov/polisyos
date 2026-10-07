@@ -1,0 +1,133 @@
+{
+  "assets": [
+    {
+      "bytes": 20092,
+      "portable_path": "independent-ingress/final/review-final-e4b97.json",
+      "role": "independent immutable delta review/native complete producer identity",
+      "sha256": "896d59eec742782b41dd9e41a11e39816ee72c98f401a90ea2bf3dca7533bcaa",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/review-final-e4b97.json"
+    },
+    {
+      "bytes": 10892,
+      "portable_path": "independent-ingress/final/final-review-builder.py.txt",
+      "role": "independent immutable delta review/native complete producer identity",
+      "sha256": "10a0fa02068ebc765b5efa2d2e331199e95387ad30518208bbffa17c2d37ed2a",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/final-review-builder.py"
+    },
+    {
+      "bytes": 5406,
+      "portable_path": "independent-ingress/final/source3-wire-identity.py.txt",
+      "role": "independent immutable delta review/native complete producer identity",
+      "sha256": "c6fcc0e33887de95ae28e4164604b7b2a5b016c012c018ede60a30e1ba783768",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source3-wire-identity.py"
+    },
+    {
+      "bytes": 3713,
+      "portable_path": "independent-ingress/final/source3-wire-identity.json",
+      "role": "independent immutable delta review/native complete producer identity",
+      "sha256": "b65d64cdd3f1960a27fc9e9634539b237a2bfe9c09801fe7fb587684e513bb48",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source3-wire-identity.json"
+    },
+    {
+      "bytes": 210,
+      "portable_path": "independent-ingress/final/source3-wire-identity.stdout.txt",
+      "role": "independent immutable delta review/native complete producer identity",
+      "sha256": "949ac6471b67c46179d7ea1e5924a45d351db5f5eb2fa7a223bda2156df8ffa5",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source3-wire-identity.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "independent-ingress/final/source3-wire-identity.stderr.txt",
+      "role": "independent immutable delta review/native complete producer identity",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source3-wire-identity.stderr.txt"
+    },
+    {
+      "bytes": 8048,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck.receipt.json",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.receipt.json"
+    },
+    {
+      "bytes": 348,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck.stdout.txt",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "b6ef08556cdd5c253d7d9716a45eff2a1880ed11bd11aacc574f5c6c07d2224b",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck.stderr.txt",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.stderr.txt"
+    },
+    {
+      "bytes": 1431,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck-child-before-parse.json",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "95ae6ac929f7064061109db1ff91483e60309a3de93fe8b9b8725943286d57a9",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-child-before-parse.json"
+    },
+    {
+      "bytes": 658,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck-environment.stdout.json",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "e028bc00070660f3c5369890c77185a1e2e95687d760449f53c8799a5bf0cade",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-environment.stdout.json"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck-environment.stderr.txt",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-environment.stderr.txt"
+    },
+    {
+      "bytes": 3586,
+      "portable_path": "independent-ingress/final/current-type/final-v3-frozen-typecheck-preflight.json",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "9b05a2d5f041158912fbaf3794e1491180a448dbad36d9bedf40a6ffe2848f7c",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-preflight.json"
+    },
+    {
+      "bytes": 6705,
+      "portable_path": "independent-ingress/final/current-type/run_final_v3_frozen_typecheck.py.txt",
+      "role": "complete deciding canonical owner native type/environment/actual child/config/source identity",
+      "sha256": "3094aa23f742c5b47d427d09f622b702fc5bd16a02982eca2ba775292d006851",
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/run_final_v3_frozen_typecheck.py"
+    }
+  ],
+  "bytes": 61089,
+  "candidate": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "excluded": "All CAS fixtures/__pycache__/copied complete source; no fresh math/native387 replay. Source2/b305 execution identities retained and transferred only exact unchanged dependencies. Root affected wave/global companions are separate deciding receipts.",
+  "files": 14,
+  "history_selectors": [
+    {
+      "bytes": 12175,
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/publication-selection-b305.json",
+      "selected_bytes": 1564837,
+      "selected_files": 29,
+      "sha256": "85fa22ab0fbb129c1b12e8f90919d8cea3ced9274328a5226b1da68d6454f8fa"
+    },
+    {
+      "bytes": 11415,
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/publication-selection-final-11082.json",
+      "selected_bytes": 1572361,
+      "selected_files": 26,
+      "sha256": "68016bde05ec219a54579a5b5a764981335bc158a796f654212921690c9ea79d"
+    },
+    {
+      "bytes": 1924,
+      "path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/publication-selection-source2-type-qualification.json",
+      "selected_bytes": 11396,
+      "selected_files": 4,
+      "sha256": "444127d353008c043aacaba5c7663f9afa3826d64b4150a502747f9c600a61f0"
+    }
+  ],
+  "no_self_reference": "Exact immutable source commits bound; this selector does not self-reference future evidence Git SHA.",
+  "schema": "policyos.e02.publication_selection.v1",
+  "source_acceptance": "GO_bounded_source_corrected_test_companions_and_current_scoped_typing",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963"
+}

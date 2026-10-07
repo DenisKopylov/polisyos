@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-forecast-source-measurement"
+title = "Resolve forecast source schema and units before execution and fresh replay"
+type = "fixed"
+component = "calibration"
+owner = "team-scientist"
+summary = "Configured ETS requests bind one canonical source DataSchema coordinate, explicit unit and source-native scale before the numerical callback. The same measurement binding reaches persisted intervals, training and evidence lineage and is reconciled at fresh candidate readback. A neutral adapter emits A's existing evidence/rule/time input fields."
+evidence = ["tests/unit/scientist/methods/backtesting/test_forecast_owner.py", "tests/unit/remediation/test_frc_02_owner.py", "tests/unit/calibration/test_evidence_facades.py"]
+compatibility = "Internal request v2 adds explicit target_unit and target_scale=source_native and requires a resolved numeric DataSchema field. Legacy v1 request/evidence decoding and replay remain supported; new numerical execution refuses missing measurement inputs. IR uncertainty v1.1 and empirical evidence wire versions are unchanged."
+change_class = "internal"
+surface_classification = "public_experimental: narrow polisyos.calibration evidence exports; internal: configured ETS request and adapter"
+migration = "New configured profiles persist a v2 forecast request and supply a canonical fabric.data_schema ref in DataSnapshot. Existing artifacts are not rewritten. A owns default/HTTP integration and independently admitted verification."
+api = "ForecastMeasurementBinding, resolve_forecast_measurement_binding, existing load_forecast_candidate_receipt exposed through the Calibration facade; ForecastOwnerResult.to_s10_input_fields is a neutral internal adapter."
+limitations = "Only source-native identity scale is supported. Unit conversion, institutional profile/source authority, default/HTTP orchestration and runtime verifier provenance remain owner-bound. Predictive intervals retain terminal causal/treatment/policy authority denial."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []

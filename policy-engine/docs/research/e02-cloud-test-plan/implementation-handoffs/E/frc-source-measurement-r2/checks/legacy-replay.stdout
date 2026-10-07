@@ -1,0 +1,1 @@
+{"stage": "candidate-legacy-read", "candidate_ref": {"artifact_id": "sha256:98206aef93684ecdcc7f23cb18f4e158f6bf9ed7a2276d2da7db71300d0d2f82", "kind": "ir.forecast_candidate_receipt", "media_type": "application/json"}, "verifier_provenance": "not_established", "authority_scope": "predictive_only", "outcome": "PASS"}

@@ -1,0 +1,250 @@
+"""Independent native public-ingress/join oracle; no production or authority claim."""
+from __future__ import annotations
+import argparse
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import subprocess
+import sys
+import time
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PE = ROOT / 'policy-engine'
+OUT = Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+def source_binding(candidate):
+    entries = git('ls-tree', '-r', '-z', candidate, 'policy-engine/src').split(b'\0')
+    errors=[];count=0;total_bytes=0;framed=hashlib.sha256()
+    for entry in entries:
+        if not entry: continue
+        header, name=entry.split(b'\t',1)
+        mode, kind, expected_oid=header.decode().split()
+        assert kind=='blob'
+        path=name.decode();file=ROOT/path
+        actual=os.readlink(file).encode() if mode=='120000' else file.read_bytes()
+        actual_oid=hashlib.sha1(b'blob '+str(len(actual)).encode()+b'\0'+actual).hexdigest()
+        if actual_oid != expected_oid: errors.append(path)
+        count+=1;total_bytes+=len(actual)
+        framed.update(name+b'\0'+expected_oid.encode()+b'\0'+str(len(actual)).encode()+b'\0')
+    return {'paths':count,'bytes':total_bytes,'full_path_gitblob_size_frame_sha256':framed.hexdigest(),
+            'all_git_blobs_bound':not errors,'errors':errors}
+
+
+def run(candidate, label, removal):
+    sys.path.insert(0, str(PE / 'src'))
+    from polisyos.core import artifacts as cas
+    from polisyos.core import canon
+    from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
+    from polisyos.ir.analytics import (
+        PosteriorParameterBinding, PosteriorSummaryContext, PosteriorSummaryProfile,
+        PosteriorSummaryProfileV2, UncertaintyEnvelope, DistributionFamily,
+        PosteriorSamplesCarrier, UncertaintySource,
+        read_posterior_summary_profile, load_posterior_summary_envelope,
+    )
+    from polisyos.ir.analytics.uncertainty import (
+        push_forward_envelope, pull_back_envelope, compress_envelope,
+        join_envelopes, combine_envelopes, load_uncertainty_envelope,
+        persist_uncertainty_envelope, UncertaintyCompatibilityError,
+    )
+    from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+    import polisyos.ir.analytics.posterior_summary as profiles
+    rows=[]
+    def record(name, expected, actual, **fields):
+        rows.append({'case':name,'expected':expected,'actual':actual,
+                     'check_outcome':'PASS' if expected==actual else 'FAIL',**fields})
+
+    binding=PosteriorParameterBinding(estimand_id='finite:theta',unit='score',scale='linear')
+    context=PosteriorSummaryContext(parameters={'x':binding},purpose='synthetic_diagnostic',
+        time_roles={'source_valid_at':'2026-10-01T00:00:00Z', 'computed_at':'2026-10-02T00:00:00Z'})
+    valid=summarize_bayesian_calibration_posterior(
+        {'x':[0.,1.]},weights=[1.,1.],draw_ids=['source:zero','source:one'],
+        sample_axis='synthetic-row',context=context).parameter_envelopes['x']
+    raw=valid.model_dump(mode='json')
+
+    def raw_store(payload, name):
+        directory=OUT/label/'cas'/name
+        store=cas.FileSystemCAS(directory)
+        value=store.put_json(payload,cas.PutOptions(kind='ir.uncertainty_envelope',
+            media_type='application/json',schema=cas.SchemaInfo(name='ir.uncertainty_envelope',version='1.1')),
+            canon_spec=canon.CanonSpec(forbid_floats=False))
+        ref=UncertaintyEnvelopeRef.model_validate(value.model_dump(include={'artifact_id','kind','media_type'}))
+        if not store.verify(value).ok: raise RuntimeError('raw input CAS integrity check failed')
+        return directory,store,ref
+    def native_route(route, envelope, callbacks):
+        def callback(x):
+            callbacks.append(float(x))
+            return float(x)
+        if route=='push': return push_forward_envelope(callback,envelope,map_name='identity')
+        if route.startswith('compress:'): return compress_envelope(envelope,target=route.split(':')[1])
+        if route=='pull:particles': return pull_back_envelope(callback,envelope,upstream_particles=(0.,1.))
+        if route=='pull:base': return pull_back_envelope(callback,envelope,base_measure=(0.,1.),grid_size=3)
+        if route=='pull:inverse': return pull_back_envelope(callback,envelope,local_inverse=callback,grid_size=3)
+        raise AssertionError(route)
+    routes=('push','compress:particles','compress:moments','compress:interval',
+            'pull:particles','pull:base','pull:inverse')
+    changes={
+        'sample_bool':lambda p:p['distribution_payload']['samples'].__setitem__(1,True),
+        'sample_numeric_string':lambda p:p['distribution_payload']['samples'].__setitem__(1,'1.0'),
+        'weight_bool':lambda p:p['distribution_payload']['weights'].__setitem__(1,True),
+        'weight_numeric_string':lambda p:p['distribution_payload']['weights'].__setitem__(1,'0.5'),
+        'point_bool':lambda p:p.__setitem__('point_estimate',False),
+        'point_numeric_string':lambda p:p.__setitem__('point_estimate','0.0'),
+        'interval_bool':lambda p:p['confidence_interval'].__setitem__(1,True),
+        'interval_numeric_string':lambda p:p['confidence_interval'].__setitem__(1,'1.0'),
+        'confidence_string':lambda p:p.__setitem__('confidence_level','0.95'),
+        'profile_none':lambda p:p['metadata'].__setitem__('posterior_summary_profile',None),
+        'profile_list':lambda p:p['metadata'].__setitem__('posterior_summary_profile',[]),
+        'unsupported_profile_id':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('profile_id','urn:unsupported:2'),
+        'unsupported_profile_version':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('profile_version','2.1'),
+        'mismatched_id_marker':lambda p:p['metadata'].__setitem__('posterior_summary_profile_id','urn:unsupported:2'),
+        'mismatched_version_marker':lambda p:p['metadata'].__setitem__('posterior_summary_profile_version','2.1'),
+        'false_required_marker':lambda p:p['metadata'].__setitem__('posterior_summary_profile_required',False),
+        'removed_profile_kept_markers':lambda p:p['metadata'].pop('posterior_summary_profile'),
+        'context_modified_old_hash':lambda p:p['metadata']['posterior_summary_profile']['context'].__setitem__('purpose','forged'),
+        'carrier_digest_forged':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('carrier_content_hash','sha256:'+'0'*64),
+        'joint_digest_forged':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('joint_law_sha256','0'*64),
+        'profile_version_bool':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('profile_version',True),
+        'profile_context_list':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('context',[]),
+        'context_purpose_bool':lambda p:p['metadata']['posterior_summary_profile']['context'].__setitem__('purpose',True),
+        'digest_list':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('joint_law_sha256',[]),
+        'profile_mean_bool':lambda p:p['metadata']['posterior_summary_profile'].__setitem__('posterior_mean',True),
+        'profile_probability_string':lambda p:p['metadata']['posterior_summary_profile']['probabilities'].__setitem__(0,'0.5'),
+    }
+    if removal:
+        changes={k:changes[k] for k in ('sample_bool','sample_numeric_string')}
+        # Delete the runtime type admission implementation, preserving its public name,
+        # all callsites/metadata/profile/context/digest markers and source bytes.
+        profiles.validate_raw_posterior_summary_envelope=lambda *args, **kwargs:None
+    for change, mutate in changes.items():
+        for entrance in ('direct','legacy-cas'):
+            for route in routes:
+                name=f'{change}/{entrance}/{route.replace(":","-")}'
+                value=copy.deepcopy(raw);mutate(value)
+                callbacks=[];publications=[];error=None;output=None;input_ref=None;input_CAS=None
+                try:
+                    if entrance=='direct': envelope=UncertaintyEnvelope.model_validate(value)
+                    else:
+                        directory,store,ref=raw_store(value,'negative-'+name)
+                        input_ref=str(ref.artifact_id);input_CAS=str(directory)
+                        envelope=load_uncertainty_envelope(cas.FileSystemCAS(directory),ref)
+                    output=native_route(route,envelope,callbacks)
+                    output_store=cas.FileSystemCAS(OUT/label/'outputs'/name)
+                    ref=persist_uncertainty_envelope(output_store,output)
+                    publications.append(str(ref.artifact_id))
+                    fresh=load_posterior_summary_envelope(cas.FileSystemCAS(OUT/label/'outputs'/name),ref)
+                    if route in ('push','compress:particles'): read_posterior_summary_profile(fresh)
+                except (ValueError,TypeError,KeyError,IndexError) as exc:
+                    error={'type':type(exc).__name__,'message':str(exc)}
+                admitted=bool(publications)
+                actual='admitted' if admitted else ('refused_before_callback_publication' if not callbacks else 'callback_before_refusal')
+                expected='admitted' if removal else 'refused_before_callback_publication'
+                record(name,expected,actual,callback_count=len(callbacks),publication_count=len(publications),
+                       error=error,derived_ref=publications,input_artifact_ref=input_ref,input_CAS=input_CAS,
+                       raw_payload_sha256=sha(json.dumps(value,sort_keys=True).encode()))
+    if not removal:
+        for route in routes:
+            callbacks=[]
+            source_dir=OUT/label/'positive-source'
+            ref=persist_uncertainty_envelope(cas.FileSystemCAS(source_dir),valid)
+            source=load_posterior_summary_envelope(cas.FileSystemCAS(source_dir),ref)
+            result=native_route(route,source,callbacks)
+            target=OUT/label/'positive-output'/route.replace(':','-')
+            produced=persist_uncertainty_envelope(cas.FileSystemCAS(target),result)
+            fresh=load_posterior_summary_envelope(cas.FileSystemCAS(target),produced)
+            profile=read_posterior_summary_profile(fresh)
+            if route in ('push','compress:particles'):
+                success=isinstance(profile,PosteriorSummaryProfileV2) and profile.posterior_mean==0.5
+            else: success=profile is None and not fresh.gate_eligible
+            record('positive/'+route,'law_preserved_or_explicit_nongating_loss',
+                   'law_preserved_or_explicit_nongating_loss' if success else 'incorrect',
+                   callback_count=len(callbacks),source_ref=str(ref.artifact_id),output_ref=str(produced.artifact_id),
+                   metadata=fresh.metadata,profile_type=None if profile is None else type(profile).__name__)
+        literal_dir=PE/'tests/fixtures/ir/posterior-summary-profile-v1'
+        literal_index=json.loads((literal_dir/'index.json').read_text())
+        for n,item in enumerate(literal_index['records']):
+            data=(literal_dir/item['path']).read_bytes()
+            if sha(data)!=item['sha256'] or len(data)!=item['bytes']: raise RuntimeError('literal Profile1 input body changed')
+            env=UncertaintyEnvelope.model_validate(canon.from_canonical_bytes(data))
+            profile=read_posterior_summary_profile(env)
+            target=OUT/label/'profile1'/str(n)
+            ref=persist_uncertainty_envelope(cas.FileSystemCAS(target),env)
+            fresh=load_uncertainty_envelope(cas.FileSystemCAS(target),ref)
+            success=type(profile) is PosteriorSummaryProfile and fresh==env and cas.FileSystemCAS(target).get_bytes(ref.artifact_id)==data
+            record('literal_profile1/'+item['path'],'literal_replay_unchanged','literal_replay_unchanged' if success else 'changed',
+                   bytes=len(data),sha256=sha(data),artifact_id=str(ref.artifact_id))
+        generic=UncertaintyEnvelope(point_estimate=0.,confidence_interval=(0.,1.),
+            distribution_family=DistributionFamily.BAYESIAN,source=UncertaintySource.CALIBRATION,
+            distribution_payload=PosteriorSamplesCarrier(samples=(0.,1.)),gate_eligible=False)
+        for scalar in (True,'1.0'):
+            generic_raw=generic.model_dump(mode='json');generic_raw['distribution_payload']['samples'][1]=scalar
+            env=UncertaintyEnvelope.model_validate(generic_raw)
+            callbacks=[];derived=push_forward_envelope(lambda x:callbacks.append(x) or x,env)
+            record('unprofiled_coercion/'+type(scalar).__name__,'legacy_compatible',
+                   'legacy_compatible' if env.distribution_payload.samples==(0.,1.) and len(callbacks)==2 and read_posterior_summary_profile(derived) is None else 'changed')
+        one=summarize_bayesian_calibration_posterior({'x':[2.]},weights=[1.]).parameter_envelopes['x']
+        two=summarize_bayesian_calibration_posterior({'x':[10.,14.]},weights=[1.,1.]).parameter_envelopes['x']
+        if sum(one.distribution_payload.weights)!=0.5 or sum(two.distribution_payload.weights)!=1.0: raise RuntimeError('independent unequal-total join fixture premise changed')
+        for name, envelopes in (
+                ('unequal-total',(one,two)),('reversed-unequal-total',(two,one)),
+                ('profile2-generic',(one,generic)),('generic-profile2',(generic,one))):
+            result=None;error=None
+            try:result=join_envelopes(envelopes)
+            except Exception as exc:error={'type':type(exc).__name__,'message':str(exc)}
+            actual='typed_refusal' if error and error['type']=='UncertaintyCompatibilityError' else 'lowered'
+            record('join/'+name,'typed_refusal',actual,error=error,
+                   raw_weight_totals=[None if env.distribution_payload.weights is None else sum(env.distribution_payload.weights) for env in envelopes])
+        record('join/single-identity','identical_object','identical_object' if join_envelopes((one,)) is one else 'changed')
+        plain_join=join_envelopes((generic,generic))
+        record('join/generic-retained','generic_legacy','generic_legacy' if read_posterior_summary_profile(plain_join) is None else 'changed')
+        combined=combine_envelopes((one,two))
+        target=OUT/label/'combined';ref=persist_uncertainty_envelope(cas.FileSystemCAS(target),combined)
+        fresh=load_uncertainty_envelope(cas.FileSystemCAS(target),ref)
+        record('combine/diagnostic-only','explicit_law_loss_nongating',
+               'explicit_law_loss_nongating' if read_posterior_summary_profile(fresh) is None and not fresh.gate_eligible and fresh.distribution_payload is None else 'incorrect',
+               metadata=fresh.metadata,artifact_id=str(ref.artifact_id),claim_scope='generic interval diagnostic, no posterior-law/mixture authority')
+    modules=[];module_errors=[]
+    for name,module in sorted(sys.modules.items()):
+        if name!='polisyos' and not name.startswith('polisyos.'):continue
+        value=getattr(module,'__file__',None)
+        if value is None:continue
+        file=Path(value).resolve()
+        try:path=file.relative_to(ROOT).as_posix()
+        except ValueError:module_errors.append({'module':name,'path':str(file),'error':'outside_candidate'});continue
+        try:expected=git('show',f'{candidate}:{path}')
+        except subprocess.CalledProcessError:module_errors.append({'module':name,'path':path,'error':'not_candidate_blob'});continue
+        actual=file.read_bytes();modules.append({'module':name,'path':path,'bytes':len(actual),'sha256':sha(actual)})
+        if actual!=expected:module_errors.append({'module':name,'path':path,'error':'candidate_blob_changed'})
+    return {'schema':'policyos.e02.independent_public_profile2_ingress_join.v1',
+        'candidate':candidate,'tree':git('rev-parse',candidate+'^{tree}').decode().strip(),
+        'mode':label,'property_removed':removal,'row_count':len(rows),
+        'outcomes':{state:sum(r['check_outcome']==state for r in rows) for state in ('PASS','FAIL')},
+        'rows':rows,'imported_module_count':len(modules),'module_errors':module_errors,'modules':modules,
+        'findings':'B201/B202 bounded defining checks only; historical ledger/G closure untouched',
+        'scope':'synthetic finite laws/native existing Python/CAS/public routes, no production/institutional source authority'}
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('--candidate',required=True)
+    parser.add_argument('--label',required=True);parser.add_argument('--remove-property',action='store_true')
+    args=parser.parse_args();start=time.monotonic()
+    if len(args.candidate)!=40: raise RuntimeError('candidate identity requires exact full commit SHA')
+    before=source_binding(args.candidate)
+    if not before['all_git_blobs_bound']: raise RuntimeError(before)
+    result=run(args.candidate,args.label,args.remove_property)
+    after=source_binding(args.candidate)
+    if not after['all_git_blobs_bound']: raise RuntimeError(after)
+    result.update(source_before=before,source_after=after,wall_seconds=time.monotonic()-start,
+        environment={'python':sys.version,'executable':sys.executable,'platform':platform.platform(),
+                     'argv':sys.argv,'cwd':os.getcwd(),'optimization':sys.flags.optimize,
+                     'packages':{name:getattr(sys.modules.get(name),'__version__',None) for name in ('numpy','pydantic','scipy','jax')}})
+    target=OUT/(args.label+'.json');target.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+    print(json.dumps({key:result[key] for key in ('candidate','tree','mode','row_count','outcomes','module_errors','wall_seconds')},indent=2))
+    raise SystemExit(0 if result['outcomes']['FAIL']==0 and not result['module_errors'] else 1)

@@ -1,0 +1,89 @@
+{
+  "scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "receipt_head": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "numpy": "2.3.5",
+  "pydantic": "2.12.5",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "raw_cases": [
+    {
+      "case": "bool",
+      "input_ref": {
+        "artifact_id": "sha256:4496834efd0fe6ef46d6eb9a2aea11a4ba11b07fa8852a0ed902628ba138114e",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "callback_values": [
+        0.0,
+        1.0
+      ],
+      "strict_input_refusal": {
+        "type": "ValueError",
+        "message": "posterior summary raw carrier requires finite real non-bool values"
+      },
+      "callback_count": 2,
+      "output_ref": {
+        "artifact_id": "sha256:6930868fafe026080b53253022fe34818089d6bddd91736c6eab1ed1611e6b73",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "output_samples": [
+        1.0,
+        2.0
+      ],
+      "fresh_profile": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+      "fresh_mean": 1.5
+    },
+    {
+      "case": "numeric-string",
+      "input_ref": {
+        "artifact_id": "sha256:c830fae9d9e246b2e9f26ca7cfebd4f29f2f619f71384fecaa5f89bcfbc496be",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "callback_values": [
+        0.0,
+        1.0
+      ],
+      "strict_input_refusal": {
+        "type": "ValueError",
+        "message": "posterior summary raw carrier requires finite real non-bool values"
+      },
+      "callback_count": 2,
+      "output_ref": {
+        "artifact_id": "sha256:6930868fafe026080b53253022fe34818089d6bddd91736c6eab1ed1611e6b73",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "output_samples": [
+        1.0,
+        2.0
+      ],
+      "fresh_profile": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+      "fresh_mean": 1.5
+    }
+  ],
+  "join": {
+    "raw_input_totals": [
+      0.5,
+      1.0
+    ],
+    "output_ref": {
+      "artifact_id": "sha256:1b9c22f50736a70641097050558bd9472b4d1d558e7d85dde53ce9a927544179",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "samples": [
+      2.0,
+      10.0,
+      14.0
+    ],
+    "weights": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "fresh_profile": null,
+    "mixture_expectation_declared": false
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.E.three_gate_peer_corrective_review_selection.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "disposition": "GO for immutable literal custody and corrected mandatory-member admission only",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v4.py.txt",
+      "bytes": 6288,
+      "sha256": "449b36834486fb8599be1d8bf86835728994984c60e7f63b25d469032341f7db"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-normal-v4.json",
+      "bytes": 3110,
+      "sha256": "e5019436033336e7ccfe9976a47ac4c63e7466c8e38190b11bdb1ffec5b85081"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-normal-v4.stdout.json",
+      "bytes": 182,
+      "sha256": "b0f7e466294e23cb415d43eb804c46cbac2009020c029ab2edc772d52a6e3e12"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-normal-v4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-optimized-v4.json",
+      "bytes": 3109,
+      "sha256": "ef902dadf0f338c4947461955c38f738864056426e9ba5d2bb35747d0f322890"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-optimized-v4.stdout.json",
+      "bytes": 185,
+      "sha256": "3fe47e84f7d582a63d800e007a31d0d85295860d9e42a76be03f18206caec356"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-optimized-v4.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/style-membership-pass-v4.json",
+      "bytes": 656,
+      "sha256": "099d2931d3bc8db8789f99d4840826e4f7cf2142323f4549c8d6634e8202e9cf"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/initial-review-publication-selection.json",
+      "bytes": 2837,
+      "sha256": "9e9326c96022cfbf28a00f0399b15f2c97c103067ef2a6e8f298921398a6d716"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v3.py.txt",
+      "bytes": 6280,
+      "sha256": "a2cafec149c86676fd519bb0f8b0e1fbc18daf7d27c17a7495917258eea1d5af"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-normal-v3.stderr.txt",
+      "bytes": 701,
+      "sha256": "3cd929e80681f6cf7028a6b20c0d504828395d60709554360dce22e238a237a2"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/membership-optimized-v3.stderr.txt",
+      "bytes": 701,
+      "sha256": "3cd929e80681f6cf7028a6b20c0d504828395d60709554360dce22e238a237a2"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/validate_publication_selection_v3.py.txt",
+      "bytes": 5463,
+      "sha256": "62513b73dfa872ea78338e7010af1c44c247bbee29ad75028d5925405d28d39d"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-normal.json",
+      "bytes": 4086,
+      "sha256": "0595637dd2cc40d7abf8595f0eff517be52220ed5e32026d098a2fabf0e91463"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/selection-membership-v3-optimized.json",
+      "bytes": 4085,
+      "sha256": "8d42c9288e77fcde46d3b0218dc3c463f64d25c3084478dc94fee0d9388f8ef7"
+    }
+  ],
+  "asset_count": 15,
+  "total_bytes": 37683,
+  "reused_full_literal_review": {
+    "path": "/tmp/e02-E-three-gate-custody-independent-20261007/initial-review-publication-selection.json",
+    "bytes": 2837,
+    "sha256": "9e9326c96022cfbf28a00f0399b15f2c97c103067ef2a6e8f298921398a6d716"
+  },
+  "qualifications": "10actualcontrols eachnormal/O:3requiredretotalomissionsrefused+3header/typecorruptions+3soleadmission-body removals falseadmitted; full original8native/197logical/127storage/9gzip custody reused. Existing3nativeFAIL1/source/metadata/P41limits unchanged. Own priorassumption selectedaliasunique refused beforecontrols; duplicate aliases conserved through exactCounter, selecting deterministic originalportable storage group. No native/math/gate repeat."
+}

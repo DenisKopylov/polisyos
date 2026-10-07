@@ -1,0 +1,25 @@
+from __future__ import annotations
+import hashlib,importlib.util,json,platform,sys
+from pathlib import Path
+from fractions import Fraction
+import numpy,pydantic
+base=Path('/tmp/e02-E-ingress-author-thirteenth-20261007')
+spec=importlib.util.spec_from_file_location('fixture',base/'patch-files/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py'); m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+from polisyos.ir.analytics import load_posterior_summary_envelope,read_posterior_summary_profile
+out={'scientific_source':'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641','receipt_head':'df5258b7ddfade5b952e3b21ef28116ced40fa68','python':sys.version,'numpy':numpy.__version__,'pydantic':pydantic.__version__,'platform':platform.platform(),'raw_cases':[]}
+for label,value in [('bool',True),('numeric-string','1.0')]:
+ raw=m._source().model_dump(mode='json');raw['distribution_payload']['samples'][1]=value
+ path=base/'diagnostic-cas'/label;ref=m._raw_ref(path,raw)
+ row={'case':label,'input_ref':ref.model_dump(mode='json'),'callback_values':[]}
+ try:load_posterior_summary_envelope(m.core_artifacts.FileSystemCAS(path),ref)
+ except ValueError as exc:row['strict_input_refusal']={'type':type(exc).__name__,'message':str(exc)}
+ source=m.load_uncertainty_envelope(m.core_artifacts.FileSystemCAS(path),ref)
+ mapped=m.push_forward_envelope(lambda v: row['callback_values'].append(v) or v+1,source)
+ result_ref=m.persist_uncertainty_envelope(m.core_artifacts.FileSystemCAS(path),mapped)
+ fresh=load_posterior_summary_envelope(m.core_artifacts.FileSystemCAS(path),result_ref)
+ profile=read_posterior_summary_profile(fresh)
+ row.update(callback_count=len(row['callback_values']),output_ref=result_ref.model_dump(mode='json'),output_samples=fresh.distribution_payload.samples,fresh_profile=profile.profile_id,fresh_mean=profile.posterior_mean)
+ out['raw_cases'].append(row)
+left=m._source((2.0,));right=m._source((10.0,14.0));joined=m.join_envelopes((left,right));ref=m.persist_uncertainty_envelope(m.core_artifacts.FileSystemCAS(base/'diagnostic-cas'/'join'),joined);fresh=m.load_uncertainty_envelope(m.core_artifacts.FileSystemCAS(base/'diagnostic-cas'/'join'),ref)
+out['join']={'raw_input_totals':[sum(left.distribution_payload.weights),sum(right.distribution_payload.weights)],'output_ref':ref.model_dump(mode='json'),'samples':fresh.distribution_payload.samples,'weights':fresh.distribution_payload.weights,'fresh_profile':read_posterior_summary_profile(fresh),'mixture_expectation_declared':False}
+print(json.dumps(out,indent=2))

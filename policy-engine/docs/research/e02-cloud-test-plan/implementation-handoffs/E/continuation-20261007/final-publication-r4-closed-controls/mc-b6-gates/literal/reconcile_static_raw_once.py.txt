@@ -1,0 +1,2 @@
+import hashlib,json,pathlib
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=R/'static-invocation-retry4/production-invocation.raw.json';s=json.loads((R/'static-native-deciding-summary.json').read_text());raw=json.loads(p.read_text());print(list(raw)); print({k:len(v) for k,v in raw.items() if isinstance(v,(dict,list))});print('native regression first',str(raw['regressions'][:1])[:400])

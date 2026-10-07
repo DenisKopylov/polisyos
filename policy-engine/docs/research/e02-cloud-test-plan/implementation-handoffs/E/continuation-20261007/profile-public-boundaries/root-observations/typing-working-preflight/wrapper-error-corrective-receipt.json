@@ -1,0 +1,21 @@
+{
+  "parent": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "working_source": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+  "working_sha256": "e8e81a9792edcc1a6df4d9783b02e64fc8f756f41d8eafd63d9bde40cd72dee3",
+  "wrapper_outcome": "ERROR",
+  "reason": "entire stdout JSON parse failed because native CLI emitted baseline freshness prelude before JSON; initial stdout/stderr retained unchanged",
+  "child_exit_code": "not_established (not recorded before parser failure)",
+  "observed_native_summary": {
+    "filesAnalyzed": 3,
+    "errorCount": 0,
+    "warningCount": 0,
+    "informationCount": 0,
+    "timeInSec": 3.703
+  },
+  "CLI_prelude": "baseline file is outdated, run without `--baselinemode=discard` to update it. (went down by 1124)\n\n",
+  "baseline_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+  "baseline_unchanged": true,
+  "stdout_sha256": "db96014a5eb5d657175bfbdb0d8c37ea647d54962f0c85cb5dc1e40a284aaf88",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "next_result": "actual immutable Source3 safe-discard native invocation records childrc before robust parse; no baseline rewrite"
+}

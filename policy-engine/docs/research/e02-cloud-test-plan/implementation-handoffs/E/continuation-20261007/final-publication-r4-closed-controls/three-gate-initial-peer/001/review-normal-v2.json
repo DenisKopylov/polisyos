@@ -1,0 +1,311 @@
+{
+  "P41": "not_established: full exact slice-base198 command/input replay absent",
+  "complete_storage_and_logical_custody": {
+    "decoded_archive_count": 9,
+    "decoded_archives": [
+      {
+        "actual_streamed_bytes": 6934743,
+        "actual_streamed_sha256": "0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5",
+        "archive": {
+          "bytes": 1568180,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5.gz",
+          "sha256": "a0347a6c334468835d83add31a173b31f17b160bbdbbf25012d07d89937dc647"
+        },
+        "decoded_original": {
+          "bytes": 6934743,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-copy-Git-bindings.json",
+          "sha256": "0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5"
+        }
+      },
+      {
+        "actual_streamed_bytes": 2998963,
+        "actual_streamed_sha256": "2c5971cf39ff4c58d0cc522a61291384ec5064ea401335d59951ce38a7c0efa3",
+        "archive": {
+          "bytes": 762546,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/2c5971cf39ff4c58d0cc522a61291384ec5064ea401335d59951ce38a7c0efa3.gz",
+          "sha256": "8dee3fb922e629b69265468bbf6196ae71398dad19ff5c7c4ccd2c70ed450b02"
+        },
+        "decoded_original": {
+          "bytes": 2998963,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-environment-file-index.json",
+          "sha256": "2c5971cf39ff4c58d0cc522a61291384ec5064ea401335d59951ce38a7c0efa3"
+        }
+      },
+      {
+        "actual_streamed_bytes": 1244371,
+        "actual_streamed_sha256": "e718f7c920899cd05d0c705d4f80e94875f977607e073a1359fbccbeac761291",
+        "archive": {
+          "bytes": 314985,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/e718f7c920899cd05d0c705d4f80e94875f977607e073a1359fbccbeac761291.gz",
+          "sha256": "f42547d90b37935ee6a378a1de9cd8b1bf7e92c44f0d0f07c0c34180b93a3de4"
+        },
+        "decoded_original": {
+          "bytes": 1244371,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/static-complete-base-input-mapping.json",
+          "sha256": "e718f7c920899cd05d0c705d4f80e94875f977607e073a1359fbccbeac761291"
+        }
+      },
+      {
+        "actual_streamed_bytes": 1251848,
+        "actual_streamed_sha256": "208209647ee49f19fe692dc591622a466de5d781d2205c83b3eb61f58f651e4f",
+        "archive": {
+          "bytes": 316909,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/208209647ee49f19fe692dc591622a466de5d781d2205c83b3eb61f58f651e4f.gz",
+          "sha256": "f03865bf7a3ecb64376057a65b94cf0f5941b85d081dd7b4c1a667813ad3f20e"
+        },
+        "decoded_original": {
+          "bytes": 1251848,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/static-complete-current-input-mapping.json",
+          "sha256": "208209647ee49f19fe692dc591622a466de5d781d2205c83b3eb61f58f651e4f"
+        }
+      },
+      {
+        "actual_streamed_bytes": 4683405,
+        "actual_streamed_sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a",
+        "archive": {
+          "bytes": 985257,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a.gz",
+          "sha256": "58cabeee6c4db6b28ed522df0c4da48ff82fc0d2f82c54c6f42a0f7391736b7e"
+        },
+        "decoded_original": {
+          "bytes": 4683405,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/complete-source-inputs-after.json",
+          "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+        }
+      },
+      {
+        "actual_streamed_bytes": 951543,
+        "actual_streamed_sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+        "archive": {
+          "bytes": 94792,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4.gz",
+          "sha256": "1ccd0a4a22c703aa1b06fc8672c31abbe5843a270c51baf72ec7578e0e7ccf24"
+        },
+        "decoded_original": {
+          "bytes": 951543,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+          "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+        }
+      },
+      {
+        "actual_streamed_bytes": 791736,
+        "actual_streamed_sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+        "archive": {
+          "bytes": 91773,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c.gz",
+          "sha256": "d6f185a5891d4404e59d33ba57fdc70ed78245d03614f91a06486305faf33623"
+        },
+        "decoded_original": {
+          "bytes": 791736,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+          "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+        }
+      },
+      {
+        "actual_streamed_bytes": 2812414,
+        "actual_streamed_sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0",
+        "archive": {
+          "bytes": 196302,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0.gz",
+          "sha256": "0dffaa982e871b2f7bbf14fbbb270757eeee941f932e7a958a1683c0c8c1ea34"
+        },
+        "decoded_original": {
+          "bytes": 2812414,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+          "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+        }
+      },
+      {
+        "actual_streamed_bytes": 2376644,
+        "actual_streamed_sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+        "archive": {
+          "bytes": 190791,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-encoded-assets/8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea.gz",
+          "sha256": "45bde23f42c038c9f6d78a042672d425d7e9b1fdcec5bb058a964e4fa084412c"
+        },
+        "decoded_original": {
+          "bytes": 2376644,
+          "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea"
+        }
+      }
+    ],
+    "logical_source_members": 197,
+    "new_extractions_or_plaintext_materialization": 0,
+    "original_logical_bytes": 108037125,
+    "publication_bytes": 8448427,
+    "unique_assets": 127
+  },
+  "controls": [
+    {
+      "name": "original_closed197logical127storage_healthy",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actual_original_V2_native_receipt_retotted_omission",
+      "observation": "ADMITTED; CHANGE_REQUIRED custody validation only",
+      "original_source_tree_current_packet_and_raw_markers_unchanged": true
+    },
+    {
+      "actual_refusal": true,
+      "name": "independent_exact_required_member_counter_refuses_same_omission",
+      "outcome": "PASS"
+    },
+    {
+      "name": "independent_member_counter_guard_removal_readmits_same_omission",
+      "outcome": "PASS",
+      "removed_property": "admit_members body only"
+    }
+  ],
+  "current_three_selector_outcomes": {
+    "architecture": "FAIL",
+    "runtime_api_contract": "FAIL",
+    "static_invocation": "FAIL"
+  },
+  "disposition": "CHANGE_REQUIRED for mandatory selected-source admission; original literal custody separate.",
+  "eight_native_attempt_bindings": [
+    {
+      "canonical_selector_outcome": "FAIL",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": 1,
+      "native_receipt": {
+        "bytes": 92082,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/receipt.json",
+        "sha256": "16089c4dc26510f37bb0928671f52a6bfddd684133e380ca0877b5fffbfbc2b9"
+      },
+      "outcome": "FAIL",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "runtime-api-contract"
+    },
+    {
+      "canonical_selector_outcome": "ERROR",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": -9,
+      "native_receipt": {
+        "bytes": 91885,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation/receipt.json",
+        "sha256": "791790f2944108744708fedb2bdbb9611f2d47214e059d4412845b37d1648c8a"
+      },
+      "outcome": "ERROR",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "static-invocation"
+    },
+    {
+      "canonical_selector_outcome": "UNRUN",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": 2,
+      "native_receipt": {
+        "bytes": 91819,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/receipt.json",
+        "sha256": "c6b7c9ef624cf295f36fe9f1489b26f181373cc7c07e16061b28339bbbf783fc"
+      },
+      "outcome": "ERROR",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "architecture"
+    },
+    {
+      "canonical_selector_outcome": "ERROR",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": -9,
+      "native_receipt": {
+        "bytes": 95135,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry1/receipt.json",
+        "sha256": "14f6600919eedf864c7820a660d61208b6e726f9e2419694a1c3e7e12a146c7e"
+      },
+      "outcome": "ERROR",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "static-invocation-retry1"
+    },
+    {
+      "canonical_selector_outcome": "UNRUN",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": 2,
+      "native_receipt": {
+        "bytes": 95066,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/receipt.json",
+        "sha256": "3ca6de3453a549e9476ff584871db2ea6401ae4580ad0c2582faba8e88a541e7"
+      },
+      "outcome": "ERROR",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "architecture-retry1"
+    },
+    {
+      "canonical_selector_outcome": "FAIL",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": 1,
+      "native_receipt": {
+        "bytes": 95116,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/receipt.json",
+        "sha256": "3c358260a5a75977e56ca646f2b42d096cbbee3936567007c8f2da302c5f3e45"
+      },
+      "outcome": "FAIL",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "architecture-retry2"
+    },
+    {
+      "canonical_selector_outcome": "ERROR",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": -9,
+      "native_receipt": {
+        "bytes": 95130,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry3/receipt.json",
+        "sha256": "c448da3c6ee140fd44ba24a268ab23e4c7327ea644a75f8721fd87cbea87149d"
+      },
+      "outcome": "ERROR",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "static-invocation-retry3"
+    },
+    {
+      "canonical_selector_outcome": "FAIL",
+      "distribution_METADATA_records": 207,
+      "native_exit_code": 1,
+      "native_receipt": {
+        "bytes": 95111,
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/receipt.json",
+        "sha256": "d9e7c250799b996d73395f04a0420fcaceb8b78ad007ab2686a581009867cc69"
+      },
+      "outcome": "FAIL",
+      "protected_control_records": 3,
+      "recorded_ROOT207_metadata_equal": true,
+      "recorded_source_frame_equal": true,
+      "stage": "static-invocation-retry4"
+    }
+  ],
+  "literal_custody_disposition": "GO for literal full source/receipt/decoded archive custody only",
+  "native_or_math_gates_reexecuted": false,
+  "optimized": false,
+  "packet": {
+    "bytes": 23106,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/three-selector-packet-v3.json",
+    "sha256": "2d704be9fb2448e6f2453971f7ecfa633873db7540f0f39fa7952a6969037249"
+  },
+  "schema": "policyos.e02.E.current_three_gate_independent_custody.v1",
+  "scope_qualification": "Native clean observations use their declared committed OpenAPI input; fresh upstream render not applied/consumed by these families",
+  "selection": {
+    "bytes": 217218,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection-v2.json",
+    "sha256": "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+  },
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "source_or_ROOT_environment_modified": false,
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "validator": {
+    "bytes": 5410,
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/validate_publication_selection_v2.py.txt",
+    "sha256": "80daaac41fe00be4e16b854e6ef10d763ed0dac64a434ad8516f2eb80f4080c1"
+  }
+}

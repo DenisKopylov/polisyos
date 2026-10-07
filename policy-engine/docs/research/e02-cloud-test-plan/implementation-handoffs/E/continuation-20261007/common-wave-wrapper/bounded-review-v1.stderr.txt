@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/check_wrapper_preparation.py", line 88, in <module>
+    all(plan[key] == baseline[key] for key in
+    ^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/check_wrapper_preparation.py", line 88, in <genexpr>
+    all(plan[key] == baseline[key] for key in
+        ~~~~^^^^^
+KeyError: 'group_static_ast_test_function_count'

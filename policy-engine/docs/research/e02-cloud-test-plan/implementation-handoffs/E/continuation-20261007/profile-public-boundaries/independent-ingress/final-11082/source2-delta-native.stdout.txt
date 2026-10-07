@@ -1,0 +1,8 @@
+{
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "outcomes": {
+    "PASS": 15,
+    "FAIL": 0
+  },
+  "cases": 15
+}

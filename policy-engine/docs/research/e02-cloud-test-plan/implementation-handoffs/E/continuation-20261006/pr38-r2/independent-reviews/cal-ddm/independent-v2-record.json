@@ -1,0 +1,57 @@
+{
+  "schema_version": "2",
+  "model_id": "independent-review-model",
+  "model_version": "revision-7",
+  "stationarity_regime_id": "independent-regime",
+  "calibration_id": "independent-calibration",
+  "system_fp_budget": {
+    "horizon": "30d",
+    "alpha": 0.05,
+    "empirical_fp_upper_95": 0.03699480747600191
+  },
+  "empirical_fp_certificate": true,
+  "primary_metric_budget": {
+    "metric": "latency_ms",
+    "metric_direction": "lower_is_better",
+    "reference_value": 100.0,
+    "maximum_acceptable_value": 120.0
+  },
+  "readiness_state": "R4",
+  "readiness_score": 80,
+  "readiness_event_id": "readiness-independent-review-model-revision-7-2026-04-20T12:00:00+00:00",
+  "readiness_effective_at": "2026-04-20T12:00:00Z",
+  "readiness_expires_at": "2026-04-27T12:00:00Z",
+  "source_binding_digest": "879d73aa864707dedb46ab3175b8465422ca1b249193a8bc1be31697f2bec8c1",
+  "last_shift_event": null,
+  "last_degradation_event": "independent-degradation",
+  "required_action": "continue_monitoring",
+  "active_incident_id": null,
+  "promotion_allowed": true,
+  "calibration_validity": {
+    "calibration_id": "independent-calibration",
+    "detector_id": "independent-detector",
+    "stationarity_regime_id": "independent-regime",
+    "report_digest": "ccc5d4c3edd40832b3e2b98b841e0c22908b39ee21dfa1f366c7ed7ef6fa2b1c",
+    "verifier_id": "polisyos.ddm.calibration.check_calibration_validity",
+    "verifier_version": "1",
+    "effective_at": "2026-04-20T12:00:00Z",
+    "valid_until": "2026-05-20T12:00:00Z",
+    "configured_invalidation_triggers": [
+      "model_version_change"
+    ],
+    "observed_invalidation_triggers": [],
+    "observation_status": "observed",
+    "status": "valid",
+    "reasons": []
+  },
+  "identity_binding": {
+    "calibration_model_id": "independent-review-model",
+    "calibration_model_version": "revision-7",
+    "metric_budget_model_id": "independent-review-model",
+    "metric_budget_model_version": "revision-7",
+    "last_shift_event_model_id": null,
+    "last_shift_event_model_version": null,
+    "last_degradation_event_model_id": "independent-review-model",
+    "last_degradation_event_model_version": "revision-7"
+  }
+}

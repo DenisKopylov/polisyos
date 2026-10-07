@@ -1,0 +1,308 @@
+"""Recompute closed native claims and conserve the full immutable publication Counter."""
+from collections import Counter
+import ast
+import copy
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import re
+import shutil
+import sys
+import tempfile
+
+ROOT = Path('/tmp/e02-E-final3-publication-b2f2f65e-20261007')
+TRUSTED_SELECTION = ROOT / 'publication-selection.json'
+TRUSTED_SHA = '1c6619d44223e3715d02906b2181752f3fbeef0a9c2060a2a53228f54d6f85f5'
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def strict_equal(left, right):
+    if type(left) is not type(right):
+        return False
+    if isinstance(right, dict):
+        return left.keys() == right.keys() and all(strict_equal(left[k], right[k]) for k in right)
+    if isinstance(right, list):
+        return len(left) == len(right) and all(strict_equal(a, b) for a, b in zip(left, right))
+    return left == right
+
+def token(row):
+    keys = ('logical_name', 'original_path', 'portable_path', 'bytes', 'sha256', 'encoding',
+            'decoded_bytes', 'decoded_sha256')
+    return tuple(row[k] for k in keys)
+
+def trusted():
+    data = TRUSTED_SELECTION.read_bytes()
+    if sha(data) != TRUSTED_SHA:
+        raise ValueError('trusted_closed_member_denominator_changed')
+    return json.loads(data)
+
+def semantic_header(selection):
+    return {k: v for k, v in selection.items() if k not in ('assets', 'logical_count', 'unique_count', 'unique_bytes')}
+
+def admit_root_header(selection):
+    if not strict_equal(semantic_header(selection), semantic_header(trusted())):
+        raise ValueError('typed_complete_immutable_semantic_header_drift')
+
+def admit_mandatory_members(selection):
+    expected = Counter(token(row) for row in trusted()['assets'])
+    actual = Counter(token(row) for row in selection['assets'])
+    if actual != expected:
+        raise ValueError('mandatory_full_closed_member_Counter_drift')
+
+def physical(selection, root):
+    for key in ('logical_count', 'unique_count', 'unique_bytes'):
+        if type(selection[key]) is not int or selection[key] < 0:
+            raise ValueError('noninteger_publication_count')
+    if selection['source'] != SOURCE or type(selection['finding_closure']) is not bool or selection['finding_closure']:
+        raise ValueError('source_or_closure_header')
+    unique = {}
+    values = {}
+    for row in selection['assets']:
+        path = Path(row['portable_path'])
+        if path.is_absolute() or '..' in path.parts or path.parts[0] != 'assets':
+            raise ValueError('unsafe_portable_path')
+        for key in ('bytes', 'decoded_bytes'):
+            if type(row[key]) is not int or row[key] < 0:
+                raise ValueError('noninteger_member_size')
+        blob = (root / path).read_bytes()
+        if len(blob) != row['bytes'] or sha(blob) != row['sha256']:
+            raise ValueError('physical_member_corruption')
+        data = gzip.decompress(blob) if row['encoding'] == 'gzip' else blob
+        if len(data) != row['decoded_bytes'] or sha(data) != row['decoded_sha256']:
+            raise ValueError('decoded_member_corruption')
+        if path.suffix == '.txt':
+            data.decode('utf-8')
+            if row['encoding'] != 'literal':
+                raise ValueError('compressed_text_role')
+        elif path.suffix != '.bin':
+            raise ValueError('untyped_passive_role')
+        signature = {k: row[k] for k in ('bytes', 'sha256', 'encoding', 'decoded_bytes', 'decoded_sha256')}
+        if str(path) in unique and unique[str(path)] != signature:
+            raise ValueError('inconsistent_shared_carrier')
+        unique[str(path)] = signature
+        values[row['logical_name']] = data
+    if selection['logical_count'] != len(selection['assets']) or selection['unique_count'] != len(unique):
+        raise ValueError('declared_count_drift')
+    if selection['unique_bytes'] != sum(r['bytes'] for r in unique.values()):
+        raise ValueError('declared_size_drift')
+    actual = {str(p.relative_to(root)) for p in (root / 'assets').iterdir() if p.is_file()}
+    if actual != set(unique):
+        raise ValueError('physical_member_denominator_drift')
+    return values
+
+def derive_trusted_claims(values):
+    index = json.loads(values['current/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json'])
+    receipts = {}
+    for name in ('architecture', 'runtime-api-contract', 'static-invocation',
+                 'architecture-retry-corepack', 'runtime-api-contract-retry-corepack', 'static-invocation-retry-capacity'):
+        receipt = json.loads(values['attempts/' + name + '/receipt.json'])
+        if receipt['source'] != SOURCE or not receipt['source_immutable'] or not receipt['ROOT_environment_metadata_unchanged']:
+            raise ValueError('native_source_environment_frame')
+        if receipt['ROOT_environment_metadata_before']['distribution_metadata_rows'] != 207:
+            raise ValueError('native_distribution_denominator')
+        if receipt['ROOT_environment_metadata_before']['protected_controls'] != 3:
+            raise ValueError('native_protected_control_denominator')
+        if receipt['ROOT_environment_metadata_before'] != receipt['ROOT_environment_metadata_after']:
+            raise ValueError('native_environment_changed')
+        for when in ('before', 'after'):
+            rows = json.loads(values['attempts/' + name + '/complete-source-inputs-' + when + '.json'])
+            framed = hashlib.sha256()
+            for row in rows:
+                framed.update(row['path'].encode() + b'\0' + str(row['bytes']).encode() + b'\0' + row['sha256'].encode() + b'\n')
+            actual = {'tracked_paths': len(rows), 'bytes': sum(r['bytes'] for r in rows), 'framed_sha256': framed.hexdigest()}
+            if actual != receipt['source_' + when]:
+                raise ValueError('full_native_source_frame_mismatch')
+        receipts[name] = receipt
+    current = {'architecture': 'architecture-retry-corepack', 'runtime-api-contract': 'runtime-api-contract-retry-corepack', 'static-invocation': 'static-invocation-retry-capacity'}
+    for key, name in current.items():
+        r = receipts[name]
+        if type(r['exit_code']) is not int or r['exit_code'] != 1 or r['outcome'] != 'FAIL' or r['canonical_selector_outcome'] != 'FAIL':
+            raise ValueError('deciding_native_outcome_not_FAIL1')
+        for field in ('source', 'tree', 'outcome', 'exit_code', 'wall_seconds', 'source_immutable', 'ROOT_environment_metadata_unchanged', 'command', 'cwd', 'stdout', 'stderr', 'source_before', 'source_after'):
+            if not strict_equal(index['deciding'][key][field], r[field]):
+                raise ValueError('deciding_index_native_field_drift:' + field)
+    api = json.loads(values['attempts/runtime-api-contract-retry-corepack/actual-openapi-0.json'])
+    value = api['paths']['/api/v1/exports/governed-projections/confidence-ledger-risk-spend']['get']['responses']['200']['content']['application/json']['examples']['default']['value']
+    if index['runtime_complete_current']['schema_components'] != len(api['components']['schemas']):
+        raise ValueError('actual_runtime_component_count')
+    if index['runtime_complete_current']['bound_dependency_count'] != value['source']['validation']['bound_dependency_count']:
+        raise ValueError('actual_runtime_dependency_count')
+    arch = values['attempts/architecture-retry-corepack/stdout.txt'].decode()
+    pattern = r'- New deep-import creep detected: (.*?) -> (.*?) \((.*?)\)\. Add a stable facade, update the baseline intentionally, or register a temporary exception\.'
+    edge_rows = [{'source_module': m[0], 'imported_module': m[1], 'path': m[2]} for m in re.findall(pattern, arch)]
+    if 'UNRUN' in arch or edge_rows != index['architecture_complete_current']['all_deep_import_rows']:
+        raise ValueError('actual_architecture_outcome_or_full_edges')
+    native = json.loads(values['attempts/static-invocation-retry-capacity/stdout.txt'])
+    records = json.loads(values['static-current/all-119-native-mechanism-records.json'])
+    for kind, key in [('regression', 'regressions'), ('new_unresolved', 'new_unresolved_by_construction')]:
+        symbols = [row['symbol'] for row in records['rows'] if row['check_class'] == kind]
+        if symbols != native[key]:
+            raise ValueError('complete_static_symbol_denominator')
+    summary = index['static_complete_current']
+    if summary['regressions'] != len(native['regressions']) or summary['new_unresolved'] != len(native['new_unresolved_by_construction']):
+        raise ValueError('actual_static_counts')
+    owner_counts = dict(Counter(row['current_writer'] for row in records['rows']))
+    if index['actual_119_owner_counts'] != owner_counts:
+        raise ValueError('actual_complete_owner_counts')
+    seams = index['remaining_API_owner_seams']
+    if seams['current_new_private_runtime_edges'] != 2 or seams['separate_pre_existing_CanonSpec_seam'] != 1:
+        raise ValueError('distinct_new_and_existing_API_boundaries')
+    return index
+
+def admit_claims(candidate, actual):
+    if not strict_equal(candidate, actual):
+        raise ValueError('typed_claim_diff_from_complete_closed_native_inputs')
+
+def validate(selection, root, candidate=None):
+    admit_root_header(selection)
+    admit_mandatory_members(selection)
+    values = physical(selection, root)
+    # Derivation always uses the fixed closed source denominator, including for a removal control.
+    expected = derive_trusted_claims(physical(trusted(), ROOT))
+    if candidate is None:
+        candidate = expected
+    admit_claims(candidate, expected)
+    return {'state': 'GO', 'logical_count': selection['logical_count'], 'unique_count': selection['unique_count'],
+            'native_outcomes': {'architecture': 'FAIL', 'runtime-api-contract': 'FAIL', 'static-invocation': 'FAIL'},
+            'finding_closure': False, 'native_runtime_execution': False}
+
+def retotal(selection):
+    unique = {r['portable_path']: r for r in selection['assets']}
+    selection['logical_count'] = len(selection['assets'])
+    selection['unique_count'] = len(unique)
+    selection['unique_bytes'] = sum(r['bytes'] for r in unique.values())
+
+def remove_actual_guard(function_name):
+    tree = ast.parse(Path(__file__).read_text())
+    hits = 0
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == function_name:
+            for i, statement in enumerate(node.body):
+                if isinstance(statement, ast.If):
+                    node.body[i] = ast.Pass()
+                    hits += 1
+    if hits != 1:
+        raise RuntimeError('actual sole guard not located')
+    ast.fix_missing_locations(tree)
+    namespace = {'__name__': '_final3_actual_guard_removed', '__file__': __file__}
+    exec(compile(tree, str(Path(__file__)) + ':sole_guard_removed', 'exec'), namespace)
+    return namespace[function_name]
+
+
+def run_controls():
+    selection = trusted()
+    original = derive_trusted_claims(physical(selection, ROOT))
+    rows = [{'case': 'whole_healthy', 'outcome': validate(selection, ROOT)}]
+    claim_mutants = []
+    paths = [(['runtime_complete_current', 'schema_components'], 1),
+             (['runtime_complete_current', 'bound_dependency_count'], True),
+             (['static_complete_current', 'regressions'], 20),
+             (['actual_119_owner_counts', 'E'], 92),
+             (['deciding', 'architecture', 'outcome'], 'PASS'),
+             (['historical_attempts', 'runtime_initial', 'outcome'], 'PASS'),
+             (['remaining_API_owner_seams', 'current_new_private_runtime_edges'], 1),
+             (['finding_closure'], 0)]
+    for path, value in paths:
+        mutant = copy.deepcopy(original)
+        cursor = mutant
+        for key in path[:-1]:
+            cursor = cursor[key]
+        cursor[path[-1]] = value
+        try:
+            validate(selection, ROOT, mutant)
+        except ValueError as exc:
+            rows.append({'case': 'claim_' + '.'.join(path), 'state': 'REFUSED', 'reason': str(exc)})
+        else:
+            raise RuntimeError('false claim admitted')
+        claim_mutants.append(mutant)
+    omissions = ['attempts/runtime-api-contract-retry-corepack/receipt.json',
+                 'attempts/static-invocation-retry-capacity/complete-source-inputs-before.json',
+                 'current/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json']
+    omission_mutants = []
+    for omit in omissions:
+        mutant = copy.deepcopy(selection)
+        mutant['assets'] = [r for r in mutant['assets'] if r['logical_name'] != omit]
+        retotal(mutant)
+        with tempfile.TemporaryDirectory(prefix='e02_final3_member_control_') as temp:
+            root = Path(temp)
+            (root / 'assets').mkdir()
+            for path in {r['portable_path'] for r in mutant['assets']}:
+                (root / path).symlink_to(ROOT / path)
+            try:
+                validate(mutant, root)
+            except ValueError as exc:
+                rows.append({'case': 'retotal_omission_' + omit, 'state': 'REFUSED', 'reason': str(exc)})
+            else:
+                raise RuntimeError('mandatory member omission admitted')
+            omission_mutants.append((mutant, omit))
+    global admit_mandatory_members, admit_claims, admit_root_header, physical
+    original_member_guard = admit_mandatory_members
+    admit_mandatory_members = remove_actual_guard("admit_mandatory_members")
+    try:
+        for mutant, omit in omission_mutants:
+            with tempfile.TemporaryDirectory(prefix='e02_final3_guard_removed_') as temp:
+                root = Path(temp)
+                (root / 'assets').mkdir()
+                for path in {r['portable_path'] for r in mutant['assets']}:
+                    (root / path).symlink_to(ROOT / path)
+                result = validate(mutant, root)
+                rows.append({'case': 'actual_member_guard_removed_' + omit, 'state': 'ADMITTED_PROPERTY_FAIL', 'result': result})
+    finally:
+        admit_mandatory_members = original_member_guard
+    original_claim_guard = admit_claims
+    admit_claims = remove_actual_guard("admit_claims")
+    try:
+        for i, mutant in enumerate(claim_mutants):
+            result = validate(selection, ROOT, mutant)
+            rows.append({'case': 'actual_claim_guard_removed_' + str(i), 'state': 'ADMITTED_PROPERTY_FAIL', 'result': result})
+    finally:
+        admit_claims = original_claim_guard
+    header_mutants = []
+    header_changes = [('tree', '0' * 40),
+                      ('native_outcomes', {'architecture': 'PASS', 'runtime-api-contract': 'PASS', 'static-invocation': 'PASS'}),
+                      ('P41', 'recomputed'), ('schema', 'unknown'),
+                      ('scope', 'Full served runtime authority and CI PASS'),
+                      ('large_raw_static_graph', 'Complete raw graph copied and served execution proven'),
+                      ('private_git_configuration', 'All private Git configuration publicly captured')]
+    original_physical = physical
+    carrier_reads = []
+    def observed_physical(*args, **kwargs):
+        carrier_reads.append(True)
+        return original_physical(*args, **kwargs)
+    physical = observed_physical
+    try:
+        for key, value in header_changes:
+            mutant = copy.deepcopy(selection)
+            mutant[key] = value
+            carrier_reads.clear()
+            try:
+                validate(mutant, ROOT)
+            except ValueError as exc:
+                if carrier_reads:
+                    raise RuntimeError('semantic header refusal came after carrier IO')
+                rows.append({'case': 'semantic_header_' + key, 'state': 'REFUSED',
+                             'reason': str(exc), 'carrier_IO_calls': len(carrier_reads)})
+            else:
+                raise RuntimeError('semantic root-header falseclaim admitted')
+            header_mutants.append((key, mutant))
+    finally:
+        physical = original_physical
+    original_header_guard = admit_root_header
+    admit_root_header = remove_actual_guard('admit_root_header')
+    try:
+        for key, mutant in header_mutants:
+            result = validate(mutant, ROOT)
+            rows.append({'case': 'actual_header_guard_removed_' + key,
+                         'state': 'ADMITTED_PROPERTY_FAIL', 'result': result})
+    finally:
+        admit_root_header = original_header_guard
+    return {'schema': 'policyos.e02.final3.publication_actual_admission_controls.v3', 'source': SOURCE,
+            'trusted_selection_sha256': TRUSTED_SHA, 'rows': rows, 'case_count': len(rows),
+            'state': 'GO bounded custody/claim controls; native three FAIL and finding outcomes unchanged',
+            'gate_rerun': False, 'raw_graph_recopied': False}
+
+if __name__ == '__main__':
+    print(json.dumps(run_controls(), indent=2))

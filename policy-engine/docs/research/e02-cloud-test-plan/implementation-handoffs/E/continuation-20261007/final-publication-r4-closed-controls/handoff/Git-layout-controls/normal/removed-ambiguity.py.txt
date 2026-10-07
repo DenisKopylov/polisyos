@@ -1,0 +1,239 @@
+import argparse
+import collections
+import gzip
+import hashlib
+import json
+from pathlib import Path
+
+TRUSTED_COPIER_BYTES = Path(__file__).read_bytes()
+EXPECTED = [{'family': 'terminal-backend', 'path': '/workspace/e02-E-pr38-r3-receipts/criteria-r4/terminal-backend-decoder-publication-selection-v3.json', 'bytes': 13749, 'sha256': '3c07c778c1cfd3f1e53aaa9ab8d9b8b4ac2bae7869d5652238138011791afea4', 'input_kind': 'selector', 'member_class': 'assets', 'members': 34}, {'family': 'terminal-restore-peer', 'path': '/tmp/e02-E-terminal-root-restore-independent-20261007/publication-selection.json', 'bytes': 21644, 'sha256': 'bffac3cdfc22425abf5b474709bb844ab0aff3b04a7dc563b0770a52b80437ce', 'input_kind': 'selector', 'member_class': 'files', 'members': 82}, {'family': 'cleanup-custody-peer', 'path': '/tmp/e02-E-cleanup-custody-independent-20261007/publication-selection.json', 'bytes': 6229, 'sha256': '5535b1be9e37c782b941c24297ef9f7790601d773d0e78de6b462a597b30cf10', 'input_kind': 'selector', 'member_class': 'assets', 'members': 21}, {'family': 'one-native-child', 'path': '/tmp/e02-E-one-closed-native-child-archive-20261007/publication-selection.json', 'bytes': 2872, 'sha256': '01f01504fd682114c4055947afd3a0a654feecbd5add46cda87738a8dac44d46', 'input_kind': 'selector', 'member_class': 'files', 'members': 7}, {'family': 'one-native-child-peer', 'path': '/tmp/e02-E-one-native-archive-custody-independent-20261007/publication-selection.json', 'bytes': 2637, 'sha256': 'cdfcd01d9b78bccc11362a3b3f447de2d89848e7fa39a5f5147d45a36aee04d9', 'input_kind': 'selector', 'member_class': 'assets', 'members': 10}, {'family': 'checkpoint15a5-peer', 'path': '/tmp/e02-E-root-checkpoint15a5-independent/publication-selection.json', 'bytes': 1982, 'sha256': 'be9fef38192fd030f9fb2975fbc729a459c5d4d7e2de7936418a41d9761f38ed', 'input_kind': 'selector', 'member_class': 'files', 'members': 8}, {'family': 'checkpoint15a5-readback', 'path': '/tmp/e02-E-root-checkpoint-publication-20261007/publication-readback.json', 'bytes': 2779, 'sha256': 'd7cf29b113a605396ad036a65f26b184db291ba368dcb343680bcad8f6a3837d', 'input_kind': 'flat-reference', 'member_class': 'files', 'members': 8}, {'family': 'sourcefreeze317-readback', 'path': '/tmp/e02-E-root-sourcefreeze317-publication-20261007/receipt.json', 'bytes': 2286, 'sha256': '071b6677414241aa1e972819529b4c9dc4e9183511e3be0f63c171844806dc59', 'input_kind': 'flat-reference', 'member_class': 'files', 'members': 6}, {'family': 'final-wave-preparation', 'path': '/tmp/e02-E-final-wave-preparation-31782b55-20261007/publication-selection.json', 'bytes': 25942, 'sha256': '2f7ff740b52ef147913f9ffea3223458e63212a7322568fb58b648f60d7f5ddf', 'input_kind': 'selector', 'member_class': 'files', 'members': 64}, {'family': 'final-root-lint', 'path': '/tmp/e02-E-final-root-lint-31782b55-20261007/publication-selection.json', 'bytes': 23688, 'sha256': '6b8500d2a34bfa20b9cae77247626755673aef9e250f3cf6cad4005a580bd546', 'input_kind': 'selector', 'member_class': 'assets', 'members': 54}, {'family': 'root317-umbrella', 'path': '/tmp/e02-E-ROOT31782-umbrella-gates-20261007/publication-selection.json', 'bytes': 48232, 'sha256': '5e3ad90315847c13b6b4b2ead6b447a455a454ebae435eaeecbc3d4c92ea93b8', 'input_kind': 'selector', 'member_class': 'logical_aliases', 'members': 43}, {'family': 'root317-runtime-binding-correction', 'path': '/tmp/e02-E-ROOT31782-umbrella-gates-20261007/runtime-binding-correction-publication-selection.json', 'bytes': 1786, 'sha256': '3786a29b745ab68d19a13ca46dc6f42bd9ec85fd3f7331f7f579fe397823ed45', 'input_kind': 'selector', 'member_class': 'assets', 'members': 5}, {'family': 'mc-b6-gates', 'path': '/tmp/e02-E-MC-b6-gates-20261007/publication-selection-v2.json', 'bytes': 217218, 'sha256': '57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72', 'input_kind': 'selector', 'member_class': 'logical_aliases', 'members': 197}, {'family': 'mc-b6-membership-corrective', 'path': '/tmp/e02-E-MC-b6-gates-20261007/membership-corrective-publication-selection.json', 'bytes': 3802, 'sha256': 'db302da5173f9b86d4f25da58867e55876f08b448cb863514484b2e9157d7c4b', 'input_kind': 'selector', 'member_class': 'assets', 'members': 8}, {'family': 'three-gate-initial-peer', 'path': '/tmp/e02-E-three-gate-custody-independent-20261007/initial-review-publication-selection.json', 'bytes': 2837, 'sha256': '9e9326c96022cfbf28a00f0399b15f2c97c103067ef2a6e8f298921398a6d716', 'input_kind': 'selector', 'member_class': 'assets', 'members': 10}, {'family': 'three-gate-final-peer', 'path': '/tmp/e02-E-three-gate-custody-independent-20261007/final-review-publication-selection.json', 'bytes': 4283, 'sha256': '653fab30ab1af8110c817310e18afb0ac9a65ae170b1caa40ede41f96cc386bb', 'input_kind': 'selector', 'member_class': 'assets', 'members': 15}, {'family': 'utility-postpublication', 'path': '/tmp/e02-E-validator-format-current-r4/postpublication-selection.json', 'bytes': 12715, 'sha256': 'f2d642f312b9ae53b15456811325801cb322930ceecd9752efaf5ce4bdc8d10e', 'input_kind': 'selector', 'member_class': 'assets', 'members': 29}, {'family': 'root-d003-input-qualification', 'path': '/tmp/e02-E-ROOT-d003-input-qualification-20261007/publication-selection.json', 'bytes': 4936, 'sha256': 'd6d4373427df8511b94d11c2a5a0540b69d5cf472c0274f104cdf87db584c4a0', 'input_kind': 'selector', 'member_class': 'assets', 'members': 17}, {'family': 'parent-gates-peer', 'path': '/tmp/e02-E-parent-gates-custody-independent-20261007/publication-selection.json', 'bytes': 3378, 'sha256': '2a522ff029683347017ab307dca14e67bf3a4123a166abcbe293cd8dfe8d7585', 'input_kind': 'selector', 'member_class': 'assets', 'members': 12}, {'family': 'root-a670-readback', 'path': '/tmp/e02-E-root-finished-slice-publication-a670-20261007/publication-readback.json', 'bytes': 3606, 'sha256': '347499da526930eaeac783f03f671950b918ad36ff8eea6b384760a4e9a1ae99', 'input_kind': 'flat-reference', 'member_class': 'files', 'members': 8}, {'family': 'root-a670-PR38-body', 'path': '/tmp/e02-E-root-finished-slice-publication-a670-20261007/pr38-body-readback.json', 'bytes': 24593, 'sha256': 'b58b20a0ae178e1566e4a6146e8008e19fb829c068c075a03739f2d2fa5f902c', 'input_kind': 'flat-reference', 'member_class': 'none', 'members': 0}, {'family': 'root-62f-handoff-peer', 'path': '/tmp/e02-E-facade-handoff62f-independent-20261007/publication-selection.json', 'bytes': 2023, 'sha256': 'b6237dcfef27a6154637508668d7203a174476016e57c45dc92b927ce7add1ac', 'input_kind': 'selector', 'member_class': 'assets', 'members': 7}, {'family': 'historical-317-wave-peer', 'path': '/tmp/e02-E-historical-wave31782-independent-20261007/publication-selection.json', 'bytes': 2871, 'sha256': '1a8761c8a4b18993c64e3e4e4ef2e14b4f2dba2d05982204804df286d1df1515', 'input_kind': 'selector', 'member_class': 'assets', 'members': 10}, {'family': 'root-passive-merges', 'path': '/tmp/e02-E-root-reviewed-passive-merges-a670-20261007/receipt.json', 'bytes': 38976, 'sha256': '6bc8667efec49a65e8d01bc093f14bf0ec14b04413d2ec77fae2d11f2a25c034', 'input_kind': 'flat-reference', 'member_class': 'files', 'members': 9}]
+FIXED_HEADER = {'schema': 'policyos.e02.closed_controls_selector_custody.v1', 'publication_base': '5739c0fa4037ddf91fbca425e3fd3190dc7aa969', 'publication_base_tree': '835e7f612368f3c1d7b67a9e2caf918ce7cd0038', 'proposed_git_prefix': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls', 'own_lane_before': {'head': '5739c0fa4037ddf91fbca425e3fd3190dc7aa969', 'tree': '835e7f612368f3c1d7b67a9e2caf918ce7cd0038', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.010763+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'own_lane_after': {'head': '5739c0fa4037ddf91fbca425e3fd3190dc7aa969', 'tree': '835e7f612368f3c1d7b67a9e2caf918ce7cd0038', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.971455+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'ROOT_before': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:32.982184+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'ROOT_after': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.946025+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'environment': {'python': '3.12.14', 'platform': 'Linux-6.18.44-x86_64-with-glibc2.41', 'backend': 'stdlib byte/JSON/gzip custody only; no numerical backend invocation'}, 'source_native_numeric_globalgate_execution': False, 'ROOT_source_env_locks_outputs_written': False, 'new_active_Python': 0, 'final_source_wave_or_finding_acceptance': False, 'predicate_basis': {'original_selector_identity': {'basis': 'recomputed', 'explanation': 'all24 exact selectors/readback receipts size/hash and original member schemas fixed'}, 'all_logical_occurrences_and_aliases': {'basis': 'recomputed', 'explanation': 'complete rawselected record Counter including flat declared files and compressed decoded originals'}, 'physical_and_decoded_bytes': {'basis': 'recomputed', 'explanation': 'literal stored bytes/hash and eachgzip full decompressed original bytes/hash before destination writes'}, 'metadata_program_and_counts': {'basis': 'recomputed', 'explanation': 'complete mandatory companions, cached executing program bytes, strict recursive typed JSON header/qualification and denominators'}, 'closed_original_independent_observations': {'basis': 'independently_reconciled', 'explanation': 'selected original author/peer receipts retained; no gate rerun by this carrier'}, 'ROOT_temporal_HEAD_tree_status': {'basis': 'recomputed', 'explanation': 'read-only sequential temporal observation, not atomic input freeze'}, 'native_caller_full_input_P41': {'basis': 'not_established', 'explanation': 'no whole-input reconstruction or actual native caller attribution by publication'}, 'final_source_finding_and_institutional_authority': {'basis': 'not_established', 'explanation': 'pending newsource/reviews/finalwave/current54; code accepted separately from finding closure'}}}
+QUALIFICATION = {'schema': 'policyos.e02.closed_controls_qualification.v1', 'scope': 'Literal closed receipts, member/alias custody and declared historical observations only. This carrier runs no source, native, numeric, global gate or cleanup action.', 'historical_source_epochs': ['64d7444a18c55df7b88b71b7699a2f1b25ca24bd', '31782b55f8f35556cfc581449b040c393f00c78f'], 'terminal_backend': {'original_actual_exit_code': 137, 'actual_JUnit_present': False, 'retrospective_native_PASS': False, 'termination_cause': 'not_established; source-bound terminal decoder and status custody distinct from method/case outcome'}, 'root317': {'wave': 'closed historical observation, nine failing cases; later source/wave not accepted by this carrier', 'Ruff': 'FAIL:143 foreign diagnostics on seven paths; E zero', 'format': 'FAIL:seven foreign paths; E zero', 'workspace_verify': 'one PASS,one FAIL,13 UNRUN across15 stages', 'CI_parity': 'zero PASS,one FAIL,23 UNRUN across24 stages'}, 'MC_b6': {'actual_three_gates': 'FAIL observations retained; exact scope and full moderate receipts selected', 'projected_generated_patch': 'comparison oracle only; no application to integration', 'runtime_API_binding_cause': 'not_established; current reason correction retained', 'private_raw_static_and_source_trees': 'ignored references/reopen recipes only'}, 'source_d003': {'scope': 'complete static/input qualification, test-only change; no graph or native gate repeat', 'tracked_source_and_handoff': 'd003 source and62f4 receipt remain ROOT-owned Git references; no duplicated31-path handoff'}, 'utility2350_and5739': {'source_GO': 'bounded independent utility source/CLI GO', 'DOC_GO': 'independent literal byte custody only', 'finding_or_global_PASS': False}, 'ROOT_observations': {'before': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:32.982184+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'after': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.946025+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'whole_input_identity': 'not_established', 'native_caller_P41': 'not_established', 'old_generated_29_path_drift': 'frozen historical64d observation; no retrospective sourcefreeze waiver'}, 'pending': {'new_IR_ratio_runtime_owner_actions': 'canonical E writer/reviews pending; not accepted here', 'actual_calibration_fit_bridge': 'canonical E writer/review pending; not accepted here', 'final_source_freeze_numeric_wave_and_current54': 'pending separate root decision layer'}, 'source_tests_native_numeric_globalgate_executed': False, 'ROOT_source_env_locks_outputs_written': False, 'cleanup_or_remote_body_updated': False, 'formal_G_or_finding_closure': False, 'new_active_Python': 0}
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls'
+FIXED_METADATA = {'build-stage.py.txt': {'bytes': 9713, 'sha256': '38e4b4b21f4c9aa38d24a973541271eb306296cc38fbce227b6056a3af0bc8aa'}, 'README.md': {'bytes': 1318, 'sha256': '6b5c218e98c8e7c0b3e698e3729a1d2a3dc77de7a21d5aa748435cb85a094215'}, 'qualification.json': {'bytes': 3329, 'sha256': '51919f6b15e9502cdccbe38ba4ad7a1fe74f4b1341d6b131db7441dfd55db387'}, 'resume-admission.json': {'bytes': 123184, 'sha256': '206d10896d307cee43659ec4c81b2462062139ef28add3074e8f46cd5eb2c4b4'}, 'resume-admission.stderr.txt': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'resume-first-unavailable.stdout.txt': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'resume-first-unavailable.stderr.txt': {'bytes': 89, 'sha256': '5cce6898caa1f93dce366ac03531afa74f1596d35b5092119406821dbe29ecf4'}}
+METADATA = ['manifest.json', 'copy-closed-controls.py.txt', 'build-stage.py.txt', 'README.md', 'qualification.json', 'build.stdout.json', 'resume-admission.json', 'resume-admission.stderr.txt', 'resume-first-unavailable.stdout.txt', 'resume-first-unavailable.stderr.txt']
+DYNAMIC_KEYS = ['selection_inputs', 'logical_count', 'original_logical_bytes', 'stored_logical_bytes', 'unique_payload_files', 'unique_payload_bytes', 'deduplicated_occurrences', 'logical_sources', 'canonical_copies', 'qualification']
+
+def sha(body):
+    return hashlib.sha256(body).hexdigest()
+
+def canonical(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
+
+def strict_json(body):
+    def pairs(items):
+        out = {}
+        for key, value in items:
+            if key in out:
+                raise ValueError('duplicate JSON key ' + key)
+            out[key] = value
+        return out
+    def nonfinite(value):
+        raise ValueError('nonfinite JSON ' + value)
+    return json.loads(body, object_pairs_hook=pairs, parse_constant=nonfinite)
+
+def identity(raw):
+    if not isinstance(raw, dict):
+        raise ValueError('identity record type')
+    candidates = [raw.get(key) for key in ('stored_at', 'path', 'source_path', 'source')]
+    path = next((value for value in candidates if isinstance(value, str) and Path(value).is_absolute()), None)
+    size = raw.get('bytes')
+    digest = raw.get('sha256')
+    if not isinstance(path, str) or not Path(path).is_absolute() or type(size) is not int or size < 0 or not isinstance(digest, str) or len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest):
+        raise ValueError('complete typed source identity')
+    return {'path': path, 'bytes': size, 'sha256': digest}
+
+def admit_body(ref, lookup):
+    body = Path(ref['path']).read_bytes() if lookup is None else lookup[(ref['sha256'], ref['bytes'])]
+    if len(body) != ref['bytes'] or sha(body) != ref['sha256']:
+        raise ValueError('original or stored bytes/hash ' + ref['path'])
+    return body
+
+def passive(family, name, body):
+    if not isinstance(name, str) or not name or Path(name).is_absolute() or any(part in ('', '.', '..') for part in name.split('/')) or '\\' in name or any(ord(c) < 32 for c in name):
+        raise ValueError('canonical relative passive route')
+    if name.endswith('.py'):
+        name += '.txt'
+    if name.endswith('.json'):
+        try:
+            strict_json(body)
+        except (ValueError, UnicodeError):
+            name = name[:-5] + '.txt'
+    return family + '/' + name
+
+def expand(spec, doc, lookup=None):
+    family, selector_path = spec['family'], spec['path']
+    kind = spec['member_class']
+    rows = [] if kind == 'none' else doc[kind]
+    if not isinstance(rows, list) or len(rows) != spec['members']:
+        raise ValueError('closed original complete member denominator')
+    out = []
+    physical = {}
+    if kind == 'logical_aliases':
+        for raw in doc['assets']:
+            ref = identity(raw)
+            body = admit_body(ref, lookup)
+            route = raw['portable_path']
+            if route in physical:
+                raise ValueError('duplicate physical storage route')
+            physical[route] = (ref, body, raw['storage'])
+        used = set()
+    for index, raw in enumerate(rows):
+        if kind == 'logical_aliases':
+            original = identity(raw['source'])
+            stored, body, storage = physical[raw['portable_path']]
+            used.add(raw['portable_path'])
+            if canonical(storage) != canonical(raw['storage']):
+                raise ValueError('logical/physical exact storage identity')
+            mode = storage['mode']
+            if mode == 'literal':
+                if (identity(storage['original'])['bytes'], identity(storage['original'])['sha256']) != (original['bytes'], original['sha256']) or (stored['bytes'], stored['sha256']) != (original['bytes'], original['sha256']):
+                    raise ValueError('literal source/storage identity')
+            elif mode == 'gzip_literal_archive':
+                if (identity(storage['decoded_original'])['bytes'], identity(storage['decoded_original'])['sha256']) != (original['bytes'], original['sha256']) or canonical(identity(storage['archive'])) != canonical(stored):
+                    raise ValueError('compressed source/storage identity')
+                decoded = gzip.decompress(body)
+                if len(decoded) != original['bytes'] or sha(decoded) != original['sha256']:
+                    raise ValueError('complete decompressed original bytes/hash')
+            else:
+                raise ValueError('unsupported closed storage mode')
+            if lookup is None:
+                admit_body(original, None)
+            name = raw['portable_path']
+        else:
+            original = stored = identity(raw)
+            body = admit_body(stored, lookup)
+            mode = 'literal'
+            name = raw.get('portable_path', raw.get('portable_name', raw.get('at', f'{index:03d}/' + Path(raw.get('logical_at', original['path'])).name)))
+        out.append({'family': family, 'selection_source_path': selector_path, 'member_class': kind, 'original': original, 'stored': stored, 'storage_mode': mode, 'logical_destination': passive(family, name, body), 'selected_record': raw})
+    if kind == 'logical_aliases' and used != set(physical):
+        raise ValueError('complete physical storage coverage')
+    return out
+
+def selector_row(spec):
+    ref = {key: spec[key] for key in ('path', 'bytes', 'sha256')}
+    return {'family': spec['family'], 'selection_source_path': spec['path'], 'member_class': spec['input_kind'], 'original': ref, 'stored': ref, 'storage_mode': 'literal', 'logical_destination': 'selectors/' + spec['family'] + '.json', 'selected_record': None}
+
+def carriers(rows):
+    first = {}
+    out = []
+    logical = []
+    for row in rows:
+        key = (row['stored']['sha256'], row['stored']['bytes'])
+        destination = first.setdefault(key, row['logical_destination'])
+        logical.append(row | {'canonical_destination': destination, 'deduplicated': key in {(x['stored']['sha256'], x['stored']['bytes']) for x in out}})
+        if not any(x['destination'] == destination for x in out):
+            out.append({'stored': row['stored'], 'destination': destination})
+    return logical, out
+
+def carrier_root(p, manifest, layout):
+    if layout not in ('stage', 'published'):
+        raise ValueError('explicit admitted carrier layout required')
+    primary = p.parent / 'payload' if layout == 'stage' else p.parent
+    other = p.parent if layout == 'stage' else p.parent / 'payload'
+    relatives = []
+    for row in manifest['canonical_copies']:
+        rel = row['destination']
+        if not isinstance(rel, str) or Path(rel).is_absolute() or any(part in ('', '.', '..') for part in rel.split('/')) or '\\' in rel or rel.endswith('.py'):
+            raise ValueError('pure full carrier route preflight')
+        relatives.append(rel)
+    if False and any((other / rel).exists() for rel in relatives):
+        raise ValueError('ambiguous stage/published carrier layout')
+    if any(not (primary / rel).is_file() for rel in relatives):
+        raise ValueError('incomplete or wrong explicit carrier layout')
+    return primary
+
+
+def recompute_expected(p, manifest, payload_root):
+    lookup = {}
+    for row in manifest['canonical_copies']:
+        ref = identity(row['stored'])
+        rel = row['destination']
+        if not isinstance(rel, str) or Path(rel).is_absolute() or any(part in ('', '.', '..') for part in rel.split('/')) or '\\' in rel or rel.endswith('.py'):
+            raise ValueError('unsafe staged carrier path')
+        body = (payload_root / rel).read_bytes()
+        if passive('x', rel, body) != 'x/' + rel:
+            raise ValueError('passive carrier format')
+        if len(body) != ref['bytes'] or sha(body) != ref['sha256']:
+            raise ValueError('complete staged carrier bytes/hash')
+        lookup[(ref['sha256'], ref['bytes'])] = body
+    expected = []
+    for spec in EXPECTED:
+        selector = admit_body(spec, lookup)
+        expected.extend(expand(spec, strict_json(selector), lookup))
+        expected.append(selector_row(spec))
+    return expected
+
+def validate(p, manifest, layout):
+    if set(manifest) != set(FIXED_HEADER) | set(DYNAMIC_KEYS):
+        raise ValueError('complete publication metadata keys')
+    if canonical({key: manifest[key] for key in FIXED_HEADER}) != canonical(FIXED_HEADER):
+        raise ValueError('typed complete source/header/scope observations')
+    if canonical(manifest['qualification']) != canonical(QUALIFICATION):
+        raise ValueError('typed lifecycle/check/finding/authority claims')
+    if canonical(manifest['selection_inputs']) != canonical(EXPECTED):
+        raise ValueError('fixed full original selector vector')
+    payload_root = carrier_root(p, manifest, layout)
+    expected = recompute_expected(p, manifest, payload_root)
+    fields = ('family', 'selection_source_path', 'member_class', 'original', 'stored', 'storage_mode', 'logical_destination', 'selected_record')
+    got = collections.Counter(canonical({key: row[key] for key in fields}) for row in manifest['logical_sources'])
+    want = collections.Counter(canonical(row) for row in expected)
+    if got != want:
+        raise ValueError('exact complete original member Counter')
+    observed = [{key: row[key] for key in fields} for row in manifest['logical_sources']]
+    logical, copies = carriers(observed)
+    if canonical(manifest['logical_sources']) != canonical(logical) or canonical(manifest['canonical_copies']) != canonical(copies):
+        raise ValueError('exact all logical/carrier route and occurrence identity')
+    counts = {'logical_count': len(observed), 'original_logical_bytes': sum(row['original']['bytes'] for row in observed), 'stored_logical_bytes': sum(row['stored']['bytes'] for row in observed), 'unique_payload_files': len(copies), 'unique_payload_bytes': sum(row['stored']['bytes'] for row in copies), 'deduplicated_occurrences': len(observed) - len(copies)}
+    if canonical({key: manifest[key] for key in counts}) != canonical(counts):
+        raise ValueError('recomputed typed complete denominators')
+    return counts
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--manifest', required=True)
+    parser.add_argument('--destination-root', required=True)
+    parser.add_argument('--layout', choices=('stage', 'published'), required=True)
+    args = parser.parse_args()
+    p = Path(args.manifest)
+    raw = p.read_bytes()
+    manifest = strict_json(raw)
+    counts = validate(p, manifest, args.layout)
+    payload_root = carrier_root(p, manifest, args.layout)
+    metadata = {name: (p.parent / name).read_bytes() for name in METADATA}
+    if metadata['manifest.json'] != raw:
+        raise ValueError('manifest changed during observation')
+    if metadata['copy-closed-controls.py.txt'] != TRUSTED_COPIER_BYTES:
+        raise ValueError('trusted executing program companion identity')
+    for name, ref in FIXED_METADATA.items():
+        if len(metadata[name]) != ref['bytes'] or sha(metadata[name]) != ref['sha256']:
+            raise ValueError('complete mandatory companion bytes/hash before writes')
+    for name, body in metadata.items():
+        if name.endswith('.json'):
+            strict_json(body)
+    if canonical(strict_json(metadata['qualification.json'])) != canonical(QUALIFICATION):
+        raise ValueError('current typed qualification companion')
+    summary = counts | {'metadata_files': len(METADATA), 'expected_git_paths': counts['unique_payload_files'] + len(METADATA)}
+    if canonical(strict_json(metadata['build.stdout.json'])) != canonical(summary):
+        raise ValueError('complete actual build summary')
+    payload = {}
+    for row in manifest['canonical_copies']:
+        body = (payload_root / row['destination']).read_bytes()
+        if len(body) != row['stored']['bytes'] or sha(body) != row['stored']['sha256']:
+            raise ValueError('cached complete carrier identity before writes')
+        payload[row['destination']] = body
+    target = Path(args.destination_root) / PREFIX
+    if target.exists():
+        raise ValueError('existing destination')
+    for name, body in payload.items():
+        destination = target / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(body)
+    for name, body in metadata.items():
+        destination = target / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(body)
+    print(json.dumps(summary | {'outcome': 'PASS literal DOC custody only', 'destination': str(target), 'source_native_numeric_gate_execution': False, 'explicit_carrier_layout': args.layout}, indent=2))
+
+if __name__ == '__main__':
+    main()

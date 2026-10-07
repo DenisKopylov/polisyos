@@ -1,0 +1,83 @@
+"""Executed one-time complete-denominator lint; no fixes or policy changes."""
+
+import hashlib
+import json
+import subprocess
+import time
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+DEST = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries'
+OUT = DEST / 'publication-lint'
+SOURCE = '8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c'
+TREE = '192e584c646ee6df303b8793e7b92aa741dcaebb'
+OUT.mkdir(parents=True, exist_ok=True)
+
+
+def fp(path):
+    b = Path(path).read_bytes()
+    return {'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest()}
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT).decode().strip()
+
+
+prior = json.loads((DEST / 'owner-packets/api/current-complete-input-index-v3.json').read_text())
+writers = {x['path']: x['writer'] for x in prior['all_changed_python_paths_and_writers']}
+recomputed_source_paths = set(git('diff', '--name-only', prior['base'], SOURCE, '--', '*.py').splitlines())
+recomputed_source_paths = {p for p in recomputed_source_paths if (ROOT / p).is_file()}
+if set(writers) != recomputed_source_paths or len(writers) != 379:
+    raise ValueError('complete Source4 input denominator disagrees with admitted source3 path index')
+utilities = sorted(DEST.rglob('*.py'))
+if [p.name for p in utilities] != ['bind_final_source4.py', 'build_delta_packet.py']:
+    raise ValueError('exact two maintained receipt utilities required')
+for p in utilities:
+    writers[p.relative_to(ROOT).as_posix()] = 'E'
+paths = sorted(writers)
+index = [{'path': p, 'writer': writers[p], **fp(ROOT / p)} for p in paths]
+input_record = {'schema': 'policyos.e02.complete_current_python_lint_inputs.v1', 'source': SOURCE, 'tree': TREE, 'base': prior['base'], 'denominator': len(index), 'writer_counts': dict(Counter(writers.values())), 'rows': index, 'scope': '379 complete original diff Python inputs plus2 actual maintained publication utilities; historical .py.txt execution documents excluded from active code denominator', 'P41': 'not_established'}
+(OUT / 'inputs.json').write_text(json.dumps(input_record, indent=2) + '\n')
+ruff = ROOT / 'policy-engine/.venv/bin/ruff'
+runs = []
+for label, args in [('Ruff', ['check', '--output-format=json']), ('format', ['format', '--check'])]:
+    argv = [str(ruff), *args, *paths]
+    started = time.monotonic()
+    child = subprocess.run(argv, cwd=ROOT, capture_output=True, check=False)
+    stdout = OUT / f'{label}.stdout.txt'
+    stderr = OUT / f'{label}.stderr.txt'
+    stdout.write_bytes(child.stdout)
+    stderr.write_bytes(child.stderr)
+    run = {'label': label, 'argv': argv, 'cwd': str(ROOT), 'exit_code': child.returncode, 'outcome': 'PASS' if child.returncode == 0 else 'FAIL', 'wall_seconds': time.monotonic() - started, 'stdout': {'path': stdout.relative_to(DEST).as_posix(), **fp(stdout)}, 'stderr': {'path': stderr.relative_to(DEST).as_posix(), **fp(stderr)}}
+    if label == 'Ruff':
+        diagnostics = json.loads(child.stdout)
+        attribution = Counter()
+        affected = set()
+        for diagnostic in diagnostics:
+            path = Path(diagnostic['filename']).relative_to(ROOT).as_posix()
+            if path not in writers:
+                raise ValueError('diagnostic escaped complete input denominator')
+            attribution[writers[path]] += 1
+            affected.add(path)
+        run['diagnostics'] = len(diagnostics)
+        run['affected_paths'] = sorted(affected)
+        run['actual_writer_diagnostics'] = dict(attribution)
+        run['E_diagnostics'] = attribution['E']
+    else:
+        changed = []
+        for line in child.stdout.decode().splitlines() + child.stderr.decode().splitlines():
+            if line.startswith('Would reformat: '):
+                path = line.removeprefix('Would reformat: ')
+                if path not in writers:
+                    raise ValueError('format path escaped input denominator')
+                changed.append({'path': path, 'writer': writers[path]})
+        run['would_reformat_paths'] = changed
+        run['E_would_reformat'] = sum(x['writer'] == 'E' for x in changed)
+    runs.append(run)
+if any(fp(ROOT / row['path']) != {k: row[k] for k in ['bytes', 'sha256']} for row in index):
+    raise ValueError('lint input changed during check')
+receipt = {'schema': 'policyos.e02.current_complete_python_lint_receipt.v1', 'source': SOURCE, 'tree': TREE, 'input_index': {'path': 'publication-lint/inputs.json', **fp(OUT / 'inputs.json')}, 'denominator': len(paths), 'writer_counts': dict(Counter(writers.values())), 'effective_configuration': {'path': 'policy-engine/ruff.toml', **fp(ROOT / 'policy-engine/ruff.toml')}, 'project_metadata': {'path': 'policy-engine/pyproject.toml', **fp(ROOT / 'policy-engine/pyproject.toml')}, 'utility_role': 'Two active maintained evidence .py files included. Original product source remains Source4; receipt code is not labeled passive documentation.', 'runs': runs, 'all_inputs_unchanged': True, 'fixes_applied': False, 'P41': 'not_established', 'scope_limit': 'Actual path writer attribution is not introducing-cause proof. No baseline/full-command slice-base replay or inherited waiver. Historical gates remain separately qualified.'}
+(OUT / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+(DEST / 'root-observations/run-publication-lint-v2.py.txt').write_bytes(Path(__file__).read_bytes())
+print(json.dumps({'denominator': len(paths), 'writer_counts': receipt['writer_counts'], 'runs': [{k: x[k] for k in x if k not in ['argv', 'affected_paths', 'would_reformat_paths']} for x in runs]}))

@@ -1,0 +1,58 @@
+{
+  "scope": "pure metadata summary admission; no Git/network/runtime/backend callback",
+  "controls": [
+    {
+      "control": "healthy complete typed summary",
+      "outcome": "PASS"
+    },
+    {
+      "control": "retotalled DOC footprint",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "false published byte count",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "integer bool count escape",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "wrong source candidate",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "wrong PR head",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "broadened publication footprint",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "false runtime verification",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "false main publication",
+      "outcome": "PASS",
+      "expected_refusal": "typed publication-summary mismatch"
+    },
+    {
+      "control": "actual sole typed-summary predicate removal",
+      "outcome": "PASS",
+      "mutated_false_summaries_admitted": 8,
+      "defining_summary_property": "FAIL",
+      "raw input/derivation/source/PASS markers retained": true
+    }
+  ],
+  "claim_count": 33,
+  "author_is_not_independent_reviewer": true
+}

@@ -1,0 +1,66 @@
+{
+  "source_sha": "b5dfc94866b3fc8b1d781ef95beac0d806f6b6c4",
+  "source_tree": "9b2e27afa9b2b313b045868a645432a53943a151",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "a_packet_overlay",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+    "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/test_a_status_reason.py",
+    "--basetemp",
+    "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/pytest-temp",
+    "--junitxml",
+    "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/pytest.xml"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_s": 51.414060831069946,
+  "overlay_active": true,
+  "A_source_modified": false,
+  "canonical_A_source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+  "overlay_A_source_sha256": "5ba218ff24b37b461d0db11dc76a4e0e68fe3a500488e3249da21f51f337fcb1",
+  "packet_sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+  "patch_sha256": "8653a775b1432c961a61c53f752196856c724b1f3509f891434c610c43b653bb",
+  "repository_A_source_unchanged": true,
+  "scope": "Apply-ready A contract packet through isolated import overlay on actual composed upstream; this does not implement owner default/HTTP verifier or confer authority.",
+  "environment": {
+    "caps_added": false,
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 100,
+      "sha256": "1bd7a9e8a91e4694a2dec5a411b4d5ac3452d56d5379cbdb297d6c4e2e9845e0"
+    },
+    "patch.stdout.txt": {
+      "bytes": 77,
+      "sha256": "c4594f3f3536d6a3640135375ccca41dbaf02a246f7283224b6e8a4ad4fb75b0"
+    },
+    "pytest.xml": {
+      "bytes": 6299,
+      "sha256": "b16ae96cb30ec5d16859fb91a4a0ec303dc399476969f6759699ef93291604a8"
+    },
+    "patch.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "a_packet_overlay.py": {
+      "bytes": 704,
+      "sha256": "e1bfd232a98e2846a4855d74e98ee3132c8b6d616b42797d14a2b62c2834113e"
+    },
+    "test_a_status_reason.py": {
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    }
+  }
+}

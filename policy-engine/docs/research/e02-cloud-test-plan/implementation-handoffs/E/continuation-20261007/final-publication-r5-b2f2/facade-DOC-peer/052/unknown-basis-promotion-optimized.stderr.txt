@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/unknown-basis-promotion-optimized/validate-handoff.py.txt", line 35, in <module>
+    if __name__=='__main__':print(json.dumps(validate(Path(sys.argv[1])),indent=2))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/unknown-basis-promotion-optimized/validate-handoff.py.txt", line 19, in validate
+    if canonical(h)!=canonical(KNOWN):raise ValueError('typed complete handoff/source/scope/count/basis claims')
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: typed complete handoff/source/scope/count/basis claims

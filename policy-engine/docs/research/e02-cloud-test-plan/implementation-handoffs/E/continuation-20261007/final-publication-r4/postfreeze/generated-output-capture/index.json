@@ -1,0 +1,147 @@
+{
+  "started_at": "2026-10-07T09:17:40.109235+00:00",
+  "source_root": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs",
+  "observations": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/root.lock",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "captured_at": "2026-10-07T09:20:32.454096+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "captured_at": "2026-10-07T09:24:06.465266+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob",
+      "sha256": "6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0",
+      "bytes": 37,
+      "captured_at": "2026-10-07T09:24:06.550375+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json",
+      "sha256": "06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "bytes": 358,
+      "captured_at": "2026-10-07T09:24:06.590852+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.view.d973cbf8818906409964639cee6fa2412442c0a22de882b8d86c4aaea52b1879.manifest.json",
+      "sha256": "06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "bytes": 358,
+      "captured_at": "2026-10-07T09:24:06.600510+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/06c52ecf0fd05725aa7252fe665485e7c2fcd97614da7987eda3c27ac9a339a6",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock",
+      "relative_output": "runtime-openapi-snapshot/schemas/runtime_openapi_6di045ao/cas/runtime/public-verification/cas/artifacts/ownership/transactions/root.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "captured_at": "2026-10-07T09:24:06.600801+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+      "relative_output": "runtime-api-client/packages/runtime-api-client/types.ts",
+      "sha256": "f08031726e9694c3d1f1eec3fad4db7b55c42aa8489a543ff6ee5631d9f994af",
+      "bytes": 951140,
+      "captured_at": "2026-10-07T09:47:47.974773+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/f08031726e9694c3d1f1eec3fad4db7b55c42aa8489a543ff6ee5631d9f994af",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+      "relative_output": "runtime-api-client/packages/runtime-api-client/types.ts",
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "bytes": 951543,
+      "captured_at": "2026-10-07T09:47:50.993837+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "relative_output": "runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "bytes": 31276,
+      "captured_at": "2026-10-07T09:47:54.007588+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "relative_output": "runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "bytes": 108061,
+      "captured_at": "2026-10-07T09:47:54.008581+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "relative_output": "runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "f08031726e9694c3d1f1eec3fad4db7b55c42aa8489a543ff6ee5631d9f994af",
+      "bytes": 951140,
+      "captured_at": "2026-10-07T09:49:03.243018+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/f08031726e9694c3d1f1eec3fad4db7b55c42aa8489a543ff6ee5631d9f994af",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "relative_output": "runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "bytes": 951543,
+      "captured_at": "2026-10-07T09:49:06.262548+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "relative_output": "runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+      "bytes": 791736,
+      "captured_at": "2026-10-07T09:49:12.305072+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c",
+      "observation_only": true
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/architecture/polisyos_generated_freshness_ylq4sg3m/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "relative_output": "trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+      "bytes": 2376644,
+      "captured_at": "2026-10-07T09:53:56.285542+00:00",
+      "stat_stable_during_read": true,
+      "capture_path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/generated-output-capture/blobs/8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea",
+      "observation_only": true
+    }
+  ],
+  "limits": "Periodic byte capture of existing gate outputs, not generator execution or proof of complete/final output census; stdout/stderr remain canonical outer gate outputs. No temporary environment/source copied and no cleanup performed by observer."
+}

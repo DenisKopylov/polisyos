@@ -1,0 +1,155 @@
+{
+  "schema": "policyos.e02.Root_Core_import_class_companion.v1",
+  "base": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "source_state": "UNCOMMITTED author check, noindependentGO",
+  "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+  "checks": [
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.05857539176940918
+    },
+    {
+      "name": "affected-facade",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest-cache",
+        "--basetemp",
+        "/tmp/e02-E-root-summary-facade-core-companion-20261007/fixtures",
+        "--junitxml",
+        "/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml",
+        "tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 10.290994644165039
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.05533313751220703
+    },
+    {
+      "name": "format-check",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/calibration/test_evidence_facades.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 0.04469895362854004
+    }
+  ],
+  "native_cases": 6,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "before_imports": [
+    {
+      "line": 12,
+      "module": "polisyos",
+      "names": [
+        "calibration"
+      ]
+    },
+    {
+      "line": 13,
+      "module": "polisyos.core",
+      "names": [
+        "canon"
+      ]
+    },
+    {
+      "line": 14,
+      "module": "polisyos.core.artifacts",
+      "names": [
+        "FileSystemCAS",
+        "PutOptions",
+        "SchemaInfo"
+      ]
+    },
+    {
+      "line": 15,
+      "module": "polisyos.foundry",
+      "names": [
+        "uncertainty"
+      ]
+    },
+    {
+      "line": 16,
+      "module": "polisyos.ir.analytics",
+      "names": [
+        "load_posterior_summary_envelope",
+        "read_posterior_summary_profile"
+      ]
+    }
+  ],
+  "after_imports": [
+    {
+      "line": 13,
+      "module": "polisyos",
+      "names": [
+        "calibration"
+      ]
+    },
+    {
+      "line": 14,
+      "module": "polisyos.core",
+      "names": [
+        "artifacts"
+      ]
+    },
+    {
+      "line": 15,
+      "module": "polisyos.core",
+      "names": [
+        "canon"
+      ]
+    },
+    {
+      "line": 16,
+      "module": "polisyos.foundry",
+      "names": [
+        "uncertainty"
+      ]
+    },
+    {
+      "line": 17,
+      "module": "polisyos.ir.analytics",
+      "names": [
+        "load_posterior_summary_envelope",
+        "read_posterior_summary_profile"
+      ]
+    }
+  ],
+  "physical_source_sha256": "728909258a25e96510b3b9b93957fc14ae217869d1ec61f527997909d26c021a",
+  "source_unchanged_after_format": true,
+  "complete_class": "All FileSystemCAS/PutOptions/SchemaInfo calls in editedtest use already-admitted Core-root artifacts module. New same-object oracle obtains alreadyloadedowner via sys.modules, no deep dynamic import.",
+  "finding_or_global_acceptance": false
+}

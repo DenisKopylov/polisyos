@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "-c",
+    "import importlib.util,json,sys; print(json.dumps({\"ruff_origin\":importlib.util.find_spec(\"ruff\").origin,\"python_executable\":sys.executable,\"python_version\":sys.version}))"
+  ],
+  "exit_code": 0,
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "stdout": {
+    "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/tool-origins.stdout.json",
+    "bytes": 274,
+    "sha256": "ca3148e060b06ec91858ee528e036e870db3cdeaadbfb39242895f10616d451a"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/tool-origins.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "actual_module_interpreter_and_native_launcher": [
+    {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/ruff/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publish_binary_copy": false
+    },
+    {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/ruff/__main__.py",
+      "bytes": 2908,
+      "sha256": "c351217f3cf2f2d30ceebedd16b2a68b70e499367257fc49e342bfb31a0ee97d",
+      "publish_binary_copy": false
+    },
+    {
+      "path": "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14",
+      "bytes": 32418544,
+      "sha256": "5a91882290532b2719eaca77c0f3a7448bd73b9214e56df57bc59004560a80c6",
+      "publish_binary_copy": false
+    },
+    {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+      "bytes": 35823040,
+      "sha256": "277d595a0a19a27a4f739cba2508bbcd7d958c6fcd0d18cda3c581e0091104f2",
+      "publish_binary_copy": false
+    }
+  ],
+  "environment_created_or_mutated": false
+}

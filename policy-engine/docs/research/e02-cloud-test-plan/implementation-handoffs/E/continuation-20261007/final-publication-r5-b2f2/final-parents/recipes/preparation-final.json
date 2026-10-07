@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.final_parent_observer_preparation.v1",
+  "check_status": "UNRUN",
+  "baseline": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/run_root_umbrella_v3.py.txt",
+    "bytes": 8496,
+    "sha256": "f9d11c07d9a50b5b91e3fe5ea92ff8ff1476b58b3aceb7fc252e163859e740f4"
+  },
+  "prepared_adapter": {
+    "source_path": "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+    "portable_path": "run_final_parent_umbrella.py.txt",
+    "bytes": 8791,
+    "sha256": "0d67bdd63687f5622c5f993b1bcc11b3c40d9c416d9ef0b75d6d2e39a8364e0c"
+  },
+  "actual_final_source_tree_output": "pending Root-supplied freeze; no placeholder command executed",
+  "required_flags": [
+    "--selector workspace-verify|ci-parity",
+    "--candidate actual lowercase40SHA",
+    "--tree actual lowercase40SHA",
+    "--output-root actual fresh absolute receipt path",
+    "--execute only after explicit Root freeze"
+  ],
+  "canonical_selector_scope": {
+    "workspace-verify": "backend-only original admitted parent plan, retains doctor/canonical required steps",
+    "ci-parity": "full canonical parent including nested scopes, no skip/doctor/browser bypass flags supplied"
+  },
+  "execution": {
+    "launched": false,
+    "ROOT_source_env_or_locks_written": false,
+    "environment_created_or_installed": false,
+    "ROOT207": "existing source interpreter/package metadata read-only; actual guard captured only when authorized run",
+    "Node": "existing22.23.3",
+    "browser": "existingChromium1217",
+    "thread_process_worker_caps": "no new artificial caps; inherited numerical caps removed as reviewed baseline"
+  },
+  "scheduling": {
+    "source_readers": "may run parallel with distinct outputs/TMP/cache",
+    "actual_shared_mutable_fixture": "historical backend pytest source-supplied repo-quality fixture can mutate the29generatedRoot inputs; canonical G fixture ownership/Root stage scheduling required before simultaneous writer stages",
+    "unknown_native_caller_or_P41": "not_established; before/after full source input frames retained, no cause inferred from globalresource counters"
+  },
+  "changes": [
+    "required pure fullSHA/tree/output preflight before Git/write",
+    "explicit --execute authorization flag",
+    "actual HEADtree guard in addition to HEAD/trackeddelta",
+    "only two admitted parent selectors",
+    "fresh independent output namespace",
+    "no privateGitconfig capture",
+    "actual drift/UNRUN/FAIL/error stage observations remain distinct from finding authority",
+    "pure output route admission refuses symlink traversal before writes"
+  ],
+  "wrapper": {
+    "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+    "portable_path": "canonical-uncapped_umbrella.py.txt",
+    "bytes": 7221,
+    "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+  },
+  "pure_preparation_controls": {
+    "path": "/tmp/e02-E-final-parent-gate-adapters-r4/preparation-controls.stdout.json",
+    "healthy_UNRUN_plan_cases": 2,
+    "invalid_refusals": 7,
+    "Git_callbacks": 0,
+    "output_mkdir_callbacks": 0,
+    "native_gates_executed": false,
+    "syntax_compile": "PASS"
+  },
+  "historical_observer_error": {
+    "scope": "first preparation probe had mistyped observed40SHA; adapter correctly refused without callbacks; corrected probe PASS. No gate or source failure",
+    "source": "/tmp/e02-E-final-parent-gate-adapters-r4/probe_preparation-initial-invalid-observed-SHA.py.txt",
+    "stderr": "/tmp/e02-E-final-parent-gate-adapters-r4/preparation-controls-initial-helper-error.stderr.txt"
+  },
+  "predicate_basis": {
+    "pure_preparation_admission": {
+      "basis": "recomputed",
+      "explanation": "actual runpy entry controls with Git/mkdir interception, valid plans UNRUN, seven invalid inputs refused"
+    },
+    "canonical_wrapper_identity": {
+      "basis": "recomputed",
+      "explanation": "exact current canonical wrapper bytes pinned; command scope retains verify backend-only/full CI and required nested stages"
+    },
+    "final_source_tree_output_admission": {
+      "basis": "not_established",
+      "explanation": "await exact final candidate/tree/output from Root; no execute flag used"
+    },
+    "actual_backend_gate_outcome": {
+      "basis": "not_established",
+      "explanation": "both parent gates remain UNRUN"
+    },
+    "P41_native_caller_or_finding_authority": {
+      "basis": "not_established",
+      "explanation": "prepared observation does not provide caller cause or finding/global authority"
+    }
+  }
+}

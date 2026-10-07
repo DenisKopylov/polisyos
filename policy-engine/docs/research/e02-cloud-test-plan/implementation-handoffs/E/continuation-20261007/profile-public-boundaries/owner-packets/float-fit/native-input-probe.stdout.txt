@@ -1,0 +1,1 @@
+{"case_denominator": 9, "cases": ["ordinary_float_features", "ordinary_float_target", "retained_integer_native", "mismatched_kind", "mismatched_media_type", "missing_selected_view", "malformed_float_hex_value", "missing_float_hex_value", "unsupported_canonical_tag"], "source_mutated": false, "backend_rerun": false}

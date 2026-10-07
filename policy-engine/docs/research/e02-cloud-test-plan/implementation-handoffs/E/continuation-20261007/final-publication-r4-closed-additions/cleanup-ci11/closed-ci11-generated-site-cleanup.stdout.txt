@@ -1,0 +1,32 @@
+{
+  "result": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-result.json",
+    "bytes": 2053,
+    "sha256": "20986075a881a248b477cc81a1bb3c7f90391128cd4719c4acf513588ed4c72f"
+  },
+  "exact_removed": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site",
+  "classified": {
+    "native_repeatable_mkdocs_rendered_html_or_generated_search_index": {
+      "files": 1437,
+      "bytes": 372553999
+    },
+    "exact_duplicate_of_preserved_tracked_source_blob": {
+      "files": 5288,
+      "bytes": 244645092
+    },
+    "unbound_nonrendered_asset_preserved_byte_exact_before_cleanup": {
+      "files": 54,
+      "bytes": 2956735
+    }
+  },
+  "preserved_unbound_asset_count": 54,
+  "preserved_unbound_asset_bytes": 2956735,
+  "filesystem_after": {
+    "observed_unix": 1791371581.7615337,
+    "total_bytes": 33770192896,
+    "free_bytes": 6158262272,
+    "available_bytes": 4423499776
+  },
+  "observed_free_delta_bytes": 643293184,
+  "native_outcome_unchanged": "FAIL"
+}

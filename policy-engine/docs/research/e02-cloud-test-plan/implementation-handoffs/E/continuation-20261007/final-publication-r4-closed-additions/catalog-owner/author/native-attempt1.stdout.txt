@@ -1,0 +1,5 @@
+{
+  "outcome": "PASS",
+  "controls": 8,
+  "receipt": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/receipt.json"
+}

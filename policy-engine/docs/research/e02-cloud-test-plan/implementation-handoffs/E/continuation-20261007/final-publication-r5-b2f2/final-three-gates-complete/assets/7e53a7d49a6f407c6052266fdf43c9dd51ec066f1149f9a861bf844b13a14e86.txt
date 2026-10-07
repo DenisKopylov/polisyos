@@ -1,0 +1,96 @@
+"""Run one unchanged canonical full static selector only after an exact source lease."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import time
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+PE=ROOT/'policy-engine'
+ENV=PE/'.venv'
+SOURCE=sys.argv[1]
+SELECTOR=sys.argv[2]
+OUT=Path(sys.argv[3])
+if SELECTOR not in ('architecture','runtime-api-contract','static-invocation'):raise RuntimeError('unknown_full_selector')
+if not re.fullmatch('[0-9a-f]{40}',SOURCE)or not OUT.is_absolute():raise RuntimeError('exact_source_and_absolute_output_required')
+BASE='198076863e143dea9f89f02734b13d50dae3eed5'
+
+def git(*args):return subprocess.run(['git','--no-optional-locks',*args],cwd=ROOT,check=True,capture_output=True).stdout
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def write(path,value):
+    with path.open('x')as f:json.dump(value,f,indent=2);f.write('\n')
+def source_snapshot():
+    rows=[];framed=hashlib.sha256()
+    for raw in git('ls-files','-z').split(b'\0'):
+        if not raw:continue
+        path=raw.decode();p=ROOT/path;link=p.is_symlink();b=os.readlink(p).encode()if link else p.read_bytes()
+        r={'path':path,'bytes':len(b),'sha256':sha(b),'symlink':link};rows.append(r)
+        framed.update(path.encode()+b'\0'+str(len(b)).encode()+b'\0'+r['sha256'].encode()+b'\n')
+    return {'tracked_paths':len(rows),'bytes':sum(r['bytes']for r in rows),'framed_sha256':framed.hexdigest()},rows
+
+def metadata():
+    rows=[]
+    for path in sorted(ENV.rglob('*.dist-info/METADATA')):
+        b=path.read_bytes();rows.append({'path':str(path.relative_to(ENV)),'bytes':len(b),'sha256':sha(b)})
+    packages=len(rows)
+    for name in ['pyvenv.cfg','bin/python','bin/polisyos-tools']:
+        p=ENV/name
+        if p.is_symlink():rows.append({'path':name,'symlink':os.readlink(p)})
+        elif p.exists():
+            b=p.read_bytes();rows.append({'path':name,'bytes':len(b),'sha256':sha(b)})
+    return {'distribution_metadata_rows':packages,'protected_controls':len(rows)-packages,'combined_rows':rows,'combined_framed_sha256':sha(json.dumps(rows,sort_keys=True).encode())}
+def memory():
+    return {name:(Path('/sys/fs/cgroup')/name).read_text()for name in ['memory.events','memory.stat','memory.current','memory.max']}
+
+if git('rev-parse','HEAD').decode().strip()!=SOURCE:raise RuntimeError('HEAD_not_exact_leased_source')
+status=git('status','--porcelain=v1').decode()
+if any(not line.startswith('?? ')for line in status.splitlines()):raise RuntimeError('tracked_source_not_clean')
+TREE=git('rev-parse',SOURCE+'^{tree}').decode().strip()
+OUT.mkdir();tmp=OUT/'tmp';tmp.mkdir();cache=OUT/'cache';cache.mkdir()
+checker=PE/({'static-invocation':'tools/quality/validation/check_production_invocation.py','runtime-api-contract':'tools/ops_runners/runtime/check_runtime_api_contract.py','architecture':'tools/devx/architecture/guardrails.py'}[SELECTOR])
+physical=checker.read_bytes();pinned=git('show',SOURCE+':policy-engine/'+str(checker.relative_to(PE)))
+if physical!=pinned:raise RuntimeError('native_checker_not_pinned')
+cwd=PE
+if SELECTOR=='static-invocation':
+    command=[str(ENV/'bin/python'),'tools/quality/validation/check_production_invocation.py','--repo-root',str(PE),'--base',BASE,'--receipt',str(OUT/'production-invocation.raw.json')]
+elif SELECTOR=='runtime-api-contract':
+    wrapper=Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py')
+    if sha(wrapper.read_bytes())!='514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288':raise RuntimeError('retention_observer_bytes_changed')
+    command=[str(ENV/'bin/python'),str(wrapper),'--checker',str(checker),'--expected-checker-sha256',sha(physical),'--catalog',str(OUT/'retained-runtime-catalog.json'),'--'];cwd=tmp
+else:
+    uv=Path('/workspace/.polisyos-environment/uv/bin/uv');uv_cache=Path('/workspace/.polisyos-environment/cache/uv')
+    if not uv.is_file()or not uv_cache.is_dir():raise RuntimeError('actual_existing_uv_or_cache_unavailable')
+    command=[str(uv),'run','--no-sync','polisyos-tools','architecture','guardrails','check','--generated-freshness-workspace-root',str(OUT/'retained-workspace'),'--generated-freshness-uv-cache-dir',str(uv_cache)]
+
+env=os.environ.copy();env.update({'UV_PROJECT_ENVIRONMENT':str(ENV),'UV_NO_SYNC':'1','UV_CACHE_DIR':str(cache/'uv'),'PYTHONPATH':str(PE)+':'+str(PE/'src'),'PYTHONDONTWRITEBYTECODE':'1','TMPDIR':str(tmp),'RUFF_CACHE_DIR':str(cache/'ruff'),'NODE_COMPILE_CACHE':str(cache/'node-compile'),'XDG_CACHE_HOME':str(cache/'xdg'),'POLISYOS_DATA_DIR':str(tmp/'data')})
+caps=['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','PYTEST_ADDOPTS']
+for name in caps:env.pop(name,None)
+env['PATH']='/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin'+os.pathsep+'/workspace/.polisyos-environment/uv/bin'+os.pathsep+env['PATH']
+env['PLAYWRIGHT_BROWSERS_PATH']='/home/agent/.cache/ms-playwright'
+config=git('config','--null','--list','--show-origin')
+with (OUT/'git-config-private.nul').open('xb')as f:f.write(config)
+before,rows=source_snapshot();write(OUT/'complete-source-inputs-before.json',rows)
+env_before=metadata();mem_before=memory()
+tools={}
+for label,argv in [('python',[str(ENV/'bin/python'),'--version']),('node',['node','--version']),('corepack',['corepack','--version']),('uv',['/workspace/.polisyos-environment/uv/bin/uv','--version'])]:
+    completed=subprocess.run(argv,cwd=tmp,env=env,capture_output=True,text=True)
+    tools[label]={'command':argv,'exit_code':completed.returncode,'stdout':completed.stdout,'stderr':completed.stderr}
+
+pre={'schema':'policyos.e02.actual_current_final_full_gate_started.v1','source':SOURCE,'tree':TREE,'base':BASE,'command':command,'selector':SELECTOR,'cwd':str(cwd),'parent_pid':os.getpid(),'started_unix':time.time(),'source_before':before,'status_before':status,'ROOT_environment_metadata_before':env_before,'cgroup_before':mem_before,'tool_versions':tools,'checker':{'path':str(checker),'bytes':len(physical),'sha256':sha(physical)},'selected_environment':{key:env.get(key)for key in ['PATH','PLAYWRIGHT_BROWSERS_PATH','UV_PROJECT_ENVIRONMENT','UV_NO_SYNC','UV_CACHE_DIR','PYTHONPATH','PYTHONDONTWRITEBYTECODE','TMPDIR','RUFF_CACHE_DIR','NODE_COMPILE_CACHE','XDG_CACHE_HOME','POLISYOS_DATA_DIR']},'resource_caps':{key:env.get(key)for key in caps},'private_git_config_sha256':sha(config),'private_git_config_bytes':len(config),'observer_source_sha256':sha(Path(__file__).read_bytes()),'scope':'Unmodified full canonical selector; static exact198base complete src/tools/tests scope, architecture all configured packages/families, runtime all manifest/ABI/OpenAPI/nativeclient inputs; external native outputs retained; no skips/caps/narrowing/source or baseline edits.'}
+write(OUT/'started.json',pre)
+start=time.time()
+with (OUT/'stdout.txt').open('xb')as stdout,(OUT/'stderr.txt').open('xb')as stderr:
+    result=subprocess.run(command,cwd=cwd,env=env,stdout=stdout,stderr=stderr)
+after,rows_after=source_snapshot();write(OUT/'complete-source-inputs-after.json',rows_after)
+env_after=metadata();mem_after=memory()
+code=result.returncode;outcome='PASS'if code==0 else'FAIL'if code==1 else'ERROR'
+refs={}
+for name in ['stdout','stderr']:
+    f=OUT/(name+'.txt');b=f.read_bytes();refs[name]={'path':str(f),'bytes':len(b),'sha256':sha(b)}
+receipt={**pre,'schema':'policyos.e02.actual_current_final_full_gate_receipt.v1','exit_code':code,'outcome':outcome,'canonical_selector_outcome':('UNRUN'if outcome=='ERROR'and b'UNRUN'in(OUT/'stdout.txt').read_bytes()else outcome),'wall_seconds':time.time()-start,'source_after':after,'head_after':git('rev-parse','HEAD').decode().strip(),'status_after':git('status','--porcelain=v1').decode(),'source_immutable':before==after and git('rev-parse','HEAD').decode().strip()==SOURCE,'ROOT_environment_metadata_after':env_after,'ROOT_environment_metadata_unchanged':env_before==env_after,'ROOT_environment_full_binary_byte_guard':'not_established; actual package METADATA and protected controls count recorded separately; no ROOT mutation commands' ,'cgroup_after':mem_after,'cgroup_pid_cause':'not_established: global counters do not attribute a PID failure',**refs,'P41':'not_established absent exact slice-base fullcheck input replay','finding_closure':False,'old_b6_native_graph_rebranded':False}
+write(OUT/'receipt.json',receipt)
+print(json.dumps({'source':SOURCE,'selector':SELECTOR,'outcome':outcome,'exit_code':code,'source_immutable':receipt['source_immutable'],'environment_metadata_unchanged':env_before==env_after,'wall_seconds':receipt['wall_seconds'],'output':str(OUT)}))

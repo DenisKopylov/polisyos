@@ -1,0 +1,101 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_real_dispatch_reopens_all_three_summary_call_sites ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-169/test_real_dispatch_reopens_all0')
+
+    def test_real_dispatch_reopens_all_three_summary_call_sites(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "cas")
+        data = _panel()
+        before = data.model_dump(mode="json")
+        params = {**_params(), "artifact_store": store}
+        result = MethodDispatcher(enable_runtime_selection=False).dispatch(
+            method_class=NonstationaryGARCHEstimator,
+            signature=NonstationaryGARCHEstimator.signature,
+            state=data,
+            params=params,
+            seed=37,
+        )
+        refs = result.artifacts["artifact_refs"]
+>       assert any(role.startswith("calibration.segment.") for role in refs)
+E       assert False
+E        +  where False = any(<generator object test_real_dispatch_reopens_all_three_summary_call_sites.<locals>.<genexpr> at 0x7f2e462b5d20>)
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:121: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:19:08 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:19:08 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=363.39 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+____________ test_native_graph_returns_refs_from_its_configured_cas ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-169/test_native_graph_returns_refs0')
+
+    def test_native_graph_returns_refs_from_its_configured_cas(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "configured-cas")
+        MethodRegistry.get_instance().register(NonstationaryGARCHEstimator)
+        ir_ref = ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+        )
+        lowered = store.put_json(
+            LoweredIR(ir_ref=ir_ref, mechanisms=[], constraints=[]),
+            ArtifactWriteOptions(kind="foundry.lowered_ir", media_type="application/json"),
+        )
+        client_params = {**_params(), "artifact_store": "untrusted-client-store"}
+        node = ProgramNode(
+            node_id="calibration",
+            node_kind="method",
+            method_fqn=NonstationaryGARCHEstimator.signature.fqn,
+            method_params=client_params,
+        )
+        graph = ProgramGraph(
+            ir_ref=ir_ref,
+            lowered_ir_ref=LoweredIRRef(artifact_id=lowered.artifact_id),
+            nodes=[node],
+            entrypoints=[node.node_id],
+        )
+        graph_ref = store.put_json(
+            graph,
+            ArtifactWriteOptions(kind="foundry.program_graph", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        plan = ExecPlan(
+            program_ref=ProgramGraphRef(artifact_id=graph_ref.artifact_id), order=[node.node_id]
+        )
+        plan_ref = store.put_json(
+            plan, ArtifactWriteOptions(kind="foundry.exec_plan", media_type="application/json")
+        )
+        state = _PanelGraphState(_panel())
+        before = copy.deepcopy(dict(state))
+        artifacts = execute_program_graph(
+            store,
+            program_ref=graph_ref,
+            exec_plan_ref=plan_ref,
+            base_state=state,
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            seed=43,
+        )
+        assert artifacts.is_degraded is False
+>       assert any(role == "calibration:calibration.overall" for role, _ in artifacts.derived_artifacts)
+E       assert False
+E        +  where False = any(<generator object test_native_graph_returns_refs_from_its_configured_cas.<locals>.<genexpr> at 0x7f2e4640b3e0>)
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:195: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:19:09 [info     ] method_registered              backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 lazy=False namespace=econometrics.panel override=False tags=['econometrics', 'estimation', 'garch', 'panel', 'policy-risk', 'structural-break', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-06 13:19:09 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:19:09 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=370.67 fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=============================== warnings summary ===============================
+../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_real_dispatch_reopens_all_three_summary_call_sites
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_native_graph_returns_refs_from_its_configured_cas
+2 failed, 1 deselected, 1 warning in 2.35s

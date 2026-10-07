@@ -1,0 +1,15 @@
+"""Inject only the reviewed A packet into a scratch source overlay."""
+import importlib.abc
+import importlib.util
+from pathlib import Path
+import sys
+TARGET="polisyos.runtime.quality.generation_cycle"
+SOURCE=Path(__file__).parent/"A-overlay/policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+class Finder(importlib.abc.MetaPathFinder):
+    def find_spec(self,fullname,path=None,target=None):
+        if fullname==TARGET:
+            return importlib.util.spec_from_file_location(fullname,SOURCE)
+        return None
+if TARGET in sys.modules:
+    raise AssertionError("overlay loaded after shared writer")
+sys.meta_path.insert(0,Finder())

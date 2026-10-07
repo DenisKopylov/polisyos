@@ -1,0 +1,189 @@
+{
+  "schema": "policyos.e02.immutable_owner_packet_independent_review.v1",
+  "reviewer": "/root/api_companions",
+  "author": "/root/fit_packet",
+  "review_role": "Independent source and deciding-receipt review; reviewer did not author fit packet or patch",
+  "immutable_inputs": [
+    {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/owner-handoff-v3.json",
+      "bytes": 14343,
+      "sha256": "19f54b441e79bc5d20bed32a118a31936baa3e5f842bbc6b9d3f2c4d9ea2f268"
+    },
+    {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/publication-selection.json",
+      "bytes": 9772,
+      "sha256": "4e9168816be35036d90b7c8562e89fe610aed55afc99195f3489c5edb09e888b"
+    }
+  ],
+  "review_target": "Native finite-float Scientist materializer owner packet v3; unapplied protected writer patch and proposed companion tests",
+  "decision": "GO for canonical owner intake of the bounded reviewable packet; not implementation acceptance or finding closure",
+  "blocking_findings": [],
+  "checks": {
+    "asset_denominator": 25,
+    "asset_total_bytes": 111114,
+    "all_declared_asset_sizes_hashes_and_portable_paths_recomputed": true,
+    "corrupt_asset_hash_negative": "REJECTED",
+    "source_identity_denominator": 25,
+    "exact_five_source_refs_by_five_commits_reconciled": [
+      {
+        "commit": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "state": "matching exact Git body"
+      },
+      {
+        "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+        "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "state": "absent"
+      },
+      {
+        "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "state": "absent"
+      }
+    ],
+    "native_cases": [
+      "ordinary_float_features",
+      "ordinary_float_target",
+      "retained_integer_native",
+      "mismatched_kind",
+      "mismatched_media_type",
+      "missing_selected_view",
+      "malformed_float_hex_value",
+      "missing_float_hex_value",
+      "unsupported_canonical_tag"
+    ],
+    "malformed_raw_hex_content_IDs_recomputed": 3,
+    "full_four_command_stdout_stderr_hashes_recomputed": true,
+    "source_current_behavior_diverges_from_core_decoder_or_complete_ref_guard": true,
+    "structured_runner_refusal_catches_ValueError_and_OSError_before_backend": true,
+    "retained_integer_native_control_present": true,
+    "sampler_backend_or_numerical_reexecution_by_reviewer": false,
+    "apply_check_by_reviewer": "UNRUN; supplied exact owner receipt reviewed, patch not applied",
+    "new_finite_float_HMC_NUTS_to_fresh_Node_native_witness": "UNRUN after canonical protected writer publication"
+  },
+  "scope_reasoning": [
+    "Existing ordinary finite-float tags remain dictionaries in plain JSON native loading; Core canonical decode resolves the supplied finite fixture without a new codec or sampler library.",
+    "The supplement retains complete ArtifactRef before decode, so kind/media-type/missing selected view continue to use the existing Core integrity path. Converting malformed tag KeyError/TypeError to ValueError reaches existing structured JobResult refusal before backend invocation.",
+    "Nine native observations are successful reproduction of current defects, not repaired-source PASS. Apply-check only proves patch applicability. New float HMC/NUTS and publication-removal tests remain owner-run UNRUN.",
+    "Configured integer fit corpus evidence is retained as a bounded earlier witness; neither tagged numeric decoding nor callback counts confer factual source-fit, law, production or institutional authority.",
+    "Selected valid source-profile lineage remains explicitly unsupported for fit Binding; decoder-only work does not claim valid view adoption or fabricate manifest lineage."
+  ],
+  "next_owner": "Canonical Scientist compute/input-materializer writer via G, then independent immutable implementation reviewer and E actual configured float HMC/NUTS→same CAS→fresh Node controls",
+  "gate_eligible": false,
+  "scientific_fit_validity": "not_established",
+  "finding_closure": "No historical ledger or G formal intake change",
+  "predicate_basis": "independently_reconciled",
+  "P41": "not_established",
+  "source_or_generated_mutation": false,
+  "source_read_lease": "CLOSED"
+}

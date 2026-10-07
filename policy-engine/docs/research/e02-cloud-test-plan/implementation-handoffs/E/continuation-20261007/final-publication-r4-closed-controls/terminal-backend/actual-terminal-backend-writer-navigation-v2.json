@@ -1,0 +1,40 @@
+{
+  "P41_base_red_or_writer_cause_attribution": "not_established",
+  "ROOT_source_environment_or_outputs_modified": false,
+  "actual_failing_error_case_count": null,
+  "cases": [],
+  "check_outcome": "UNRUN",
+  "check_scope": "XML-based failing-case/source/writer navigation could not execute.",
+  "empty_case_arrays_scope": "Unmeasured because XML absent, not zero failures/cases.",
+  "failure_test_IDs_and_writers_measured": false,
+  "group_count": null,
+  "groups": [],
+  "input_case_index": {
+    "bytes": 180,
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-case-index-v3.json",
+    "sha256": "20ee84f7a2d56adee761a8c0218ab6f5adc6ba7b505a98657084e1beccf9e1f1"
+  },
+  "input_decoded_receipt": {
+    "bytes": 8010,
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.json",
+    "sha256": "201d44b003da6b4e63c5cea4384c752f44f8996b0da4ebe0a73fd1c8ead3227a"
+  },
+  "native_JUnit": null,
+  "native_case_counts": null,
+  "native_process_exit_code": 137,
+  "native_termination_cause": "not_established",
+  "native_tests_repeated": false,
+  "original_full_native_scope_weakened": false,
+  "readiness": {
+    "bytes": 12884,
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/postterminal-backend-writer-triage-readiness.json",
+    "sha256": "bef0fbce6090796f5f25edb4dade8be2a6f202e8a80b6e010db1f9bba96c444e"
+  },
+  "schema": "policyos.e02.E.independent_terminal_fullbackend_failure_writer_navigation.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_input_admission_outcome": "FAIL",
+  "source_input_immutable": false,
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "whole_native_scope_completion_established": false,
+  "wrapper_check_outcome": "FAIL"
+}

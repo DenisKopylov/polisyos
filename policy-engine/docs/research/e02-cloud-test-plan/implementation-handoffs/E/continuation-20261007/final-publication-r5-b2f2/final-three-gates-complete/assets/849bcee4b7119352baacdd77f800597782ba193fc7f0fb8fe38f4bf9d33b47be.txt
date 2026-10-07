@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.retained_runtime_api_cli.v1",
+  "checker": "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+  "checker_source_sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+  "original_cli_arguments": [],
+  "actual_checker_exit_code": 2,
+  "cwd": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/tmp",
+  "stage_TMPDIR": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/tmp",
+  "canonical_json_capture_count": 1,
+  "openapi_captures_raw_only": [
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/tmp/retained-runtime-openapi.raw.json",
+      "bytes": 2812414,
+      "sha256": "56de04d6179c372f299679c7825830c6a5d15a05d6d11ba095ba07b11d6fb337"
+    }
+  ],
+  "temporary_directories_retained": [
+    "/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract/tmp/runtime_client_contract_v44d4uhw"
+  ],
+  "complete_generated_client_outputs_raw_only": [],
+  "temporary_directory_operational_variant": "Original tempfile.TemporaryDirectory(delete=False); comparisons and returned canonical bytes unchanged",
+  "scope": "Actual canonical CLI main; no second emitter and no source/product contract edits",
+  "finding_closure": false
+}

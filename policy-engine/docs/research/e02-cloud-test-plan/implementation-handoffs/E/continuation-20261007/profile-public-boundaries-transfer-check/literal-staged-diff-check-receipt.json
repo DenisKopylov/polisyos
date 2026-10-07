@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.literal_evidence_diff_check.v1",
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "argv": [
+    "git",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006",
+  "outcome": "FAIL",
+  "exit_code": 2,
+  "stdout": {
+    "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/literal-staged-diff-check.stdout.txt",
+    "bytes": 427231,
+    "sha256": "abaa423f48199979b00e5f5a8a58131327492415cb04371af4085868f84e4e9f"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/literal-staged-diff-check.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "flagged_headers": 1739,
+  "flagged_paths": [
+    "author-history/corrective-11082/corrective.patch",
+    "author-history/corrective-b305/corrective.patch",
+    "author-history/outputs/candidate-tests.junit.xml",
+    "author-history/outputs/candidate-tests.stdout.txt",
+    "author-history/profile2-raw-ingress-and-join.patch",
+    "author-history/test-companion-e4b/corrective.patch",
+    "independent-ingress/source4-test-companion/independent-ingress/source4/affected-defining.junit.xml",
+    "independent-ingress/source4-test-companion/independent-ingress/source4/affected-defining.stdout.txt",
+    "independent-ingress/source4-test-companion/independent-ingress/source4/source4-test-only.diff",
+    "owner-packets/api/Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+    "owner-packets/api/IR-owner-CanonSpec-alias-and-E-caller.patch",
+    "owner-packets/api/IR-owner-CanonSpec-alias-and-all-E-callers-v2.patch",
+    "owner-packets/api/IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+    "owner-packets/float-fit/float-materializer-owner.patch",
+    "owner-packets/float-fit/float-materializer-typed-ref-supplement.patch",
+    "owner-packets/forecast-A/current-A-four-function-delta.patch.txt",
+    "root-observations/architecture-current/stdout.txt",
+    "root-observations/final-wave/affected-defining.junit.xml",
+    "root-observations/final-wave/affected-defining.stdout.txt",
+    "root-observations/source-commit.stderr.txt",
+    "root-observations/source-corrective-commit.stderr.txt",
+    "root-observations/source-test-companion-commit.stderr.txt",
+    "root-observations/source-typing-commit.stderr.txt",
+    "root-observations/source4-push.stdout.txt"
+  ],
+  "classification": "Every flagged path is an immutable literal output/patch/historical source snapshot already pinned by payload-index. Current maintained .py and Root editable summaries are not flagged. Full staged check stays FAIL; original bytes are preserved as explicitly requested. No checker/baseline/config/attribute exception was added.",
+  "independent_payload_review": {
+    "path": "independent-publication-custody-review.json",
+    "sha256": "6d41ed47bb281316c988d37642b87151c63a0a9073f91627ff5639be83553675"
+  },
+  "payload_index_sha256": "6d50cdf878e811bea7d3288a58ff497794b6b78e42fb68d9d27483d1adbced27",
+  "post_review_cosmetic_debt": true,
+  "product_source_modified": false,
+  "historical_stdout_or_patch_modified": false,
+  "P41": "not_established"
+}

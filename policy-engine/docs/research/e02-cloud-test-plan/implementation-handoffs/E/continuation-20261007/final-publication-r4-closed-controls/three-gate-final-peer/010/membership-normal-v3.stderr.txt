@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v3.py.txt", line 157, in <module>
+    main()
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v3.py.txt", line 92, in main
+    mutant = omitted(value, needle)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v3.py.txt", line 54, in omitted
+    require(len(selected) == 1, "omitted class not uniquely selected")
+  File "/tmp/e02-E-three-gate-custody-independent-20261007/review-membership-v3.py.txt", line 18, in require
+    raise ValueError(reason)
+ValueError: omitted class not uniquely selected

@@ -1,0 +1,8 @@
+import ast,json,pathlib,subprocess
+from tools.quality.validation.architecture_report_only_contracts import _collect_hidden_import_edges
+repo=pathlib.Path('/workspace/e02-E-cal-20261006');paths=['policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py','policy-engine/src/polisyos/foundry/calibration/__init__.py','policy-engine/src/polisyos/foundry/uncertainty/__init__.py','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py']
+edges=_collect_hidden_import_edges(pathlib.Path.cwd()); keys={row['key']:row for row in edges.values() if 'policy-engine/'+row['source_file'] in paths}
+old=json.loads(pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/import-edges-final.json').read_text())['changed_product_edges']; imports={}
+for path in paths:
+ imports[path]=[{'line':node.lineno,'module':node.module,'names':[a.name for a in node.names]} for node in ast.walk(ast.parse((repo/path).read_text())) if isinstance(node,ast.ImportFrom)]
+print(json.dumps({'native_collector':'tools.quality.validation.architecture_report_only_contracts._collect_hidden_import_edges','cwd':str(pathlib.Path.cwd()),'full_current_product_collector_count':len(edges),'full_python_footprint':paths,'changed_product_edges':keys,'new_private_product_edges_against_6638':sorted(set(keys)-set(old)),'removed_private_product_edges_against_6638':sorted(set(old)-set(keys)),'all_source_test_companion_from_imports':imports,'scope':'recomputed current native source collector plus all5 AST inputs, not global architecture PASS or P41 inherited attribution'},indent=2))

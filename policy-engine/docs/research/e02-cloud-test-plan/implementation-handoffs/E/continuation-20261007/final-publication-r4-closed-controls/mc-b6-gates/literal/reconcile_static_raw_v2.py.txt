@@ -1,0 +1,16 @@
+import hashlib,json,pathlib
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=R/'static-invocation-retry4/production-invocation.raw.json';s=json.loads((R/'static-native-deciding-summary.json').read_text());raw=json.loads(p.read_text())
+def sha(p):
+ h=hashlib.sha256()
+ with p.open('rb') as f:
+  while b:=f.read(1048576):h.update(b)
+ return h.hexdigest()
+def require(v,m):
+ if not v:raise ValueError(m)
+counts={k:len(raw[k]) for k in ['mechanisms','regressions','new_unresolved_by_construction','unresolved_by_construction','indirect_boundaries','unresolved_receiver_calls']};require(counts==s['counts'],'raw counts');require(raw['denominator']==s['denominator'],'full input mapping');require(raw['base']==s['base'] and raw['root_count']==s['root_count'],'native source/base/root');require(raw['coverage']==s['coverage'] and raw['runtime_invocation_established'] is False and raw['predicate_provenance']==s['predicate_provenance'],'proxy scope')
+for key,summarykey in [('regressions','regressions'),('new_unresolved_by_construction','new_unresolved')]:
+ expected=[{'symbol':name,**raw['mechanisms'][name]} for name in raw[key]];require(expected==s[summarykey],'every exact exceptional record/source callers/indirect origin '+key)
+require(sha(p)==s['raw_ref']['sha256'] and p.stat().st_size==s['raw_ref']['bytes'],'raw literal custody')
+v={'schema':'policyos.e02.E.static_raw_once_reconciliation.v1','source':s['source'],'tree':s['tree'],'base':raw['base'],'raw_ref':s['raw_ref'],'actual_counts':counts,'complete_input_denominator':raw['denominator'],'root_count':raw['root_count'],'complete20_and95_rows_byte_value_equal':True,'runtime_invocation_established':False,'coverage':raw['coverage'],'predicate_provenance':raw['predicate_provenance'],'complete_receipt_read_only_parse':True,'canonical_graph_or_gate_rerun':False,'raw_retained_ignored_notGit':True}
+with (R/'static-raw-once-reconciliation.json').open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps(v,indent=2))

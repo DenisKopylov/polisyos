@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review.py", line 172, in <module>
+    print(json.dumps(main(), indent=2, sort_keys=True))
+                     ^^^^^^
+  File "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review.py", line 74, in main
+    require(handoff['active_Python_paths'] == 0, 'no_active_Python')
+  File "/tmp/e02-E-r5-DOC-independent-fe9a-20261007/review.py", line 21, in require
+    raise ValueError(label)
+ValueError: no_active_Python

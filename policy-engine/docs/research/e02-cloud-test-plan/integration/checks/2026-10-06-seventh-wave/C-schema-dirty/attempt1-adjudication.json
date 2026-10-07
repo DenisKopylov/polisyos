@@ -1,0 +1,7 @@
+{
+  "classification": "SETUP_ERROR_PRODUCT_UNRUN",
+  "cause": "First inline probe selected six exact modules but omitted tools/lib initializer dependency tools.lib.imports; failed during import before any fixture/analyzer call",
+  "remedy": "Corrected retained run_probe.py selects all actual tools/lib Python files, with exact candidate Git bytes, no stubs",
+  "product_sources_changed": false,
+  "property_result_attempt2": "FAIL_REPRODUCED dirty-change denominator; clean/rename controls pass"
+}

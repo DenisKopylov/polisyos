@@ -1,0 +1,80 @@
+from __future__ import annotations
+import ast, difflib, hashlib, json, subprocess
+from pathlib import Path
+OUT=Path(__file__).resolve().parent
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+SHA='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def digest(b):return {'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+def write(p,x):save(p,(json.dumps(x,indent=2,ensure_ascii=False)+'\n').encode())
+paths=['policy-engine/pytest.ini','policy-engine/tests/conftest.py','policy-engine/tests/repo_quality/conftest.py','policy-engine/tools/lib/fs.py']
+for fam in (6,7,8):
+ paths += [f'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g{fam}_readiness.py',f'policy-engine/tools/quality/validation/check_policy_design_case_layer3_g{fam}_readiness.py']
+paths+= ['policy-engine/src/polisyos/runtime/quality/proving_ground/'+n+'.py' for n in ('bounded_request_agent','region_widening','health_metric_governance')]
+index=[]
+for p in paths:
+ b=git('show',SHA+':'+p); physical=(ROOT/p).read_bytes()
+ if b!=physical: raise ValueError('source identity escape '+p)
+ save(OUT/'sources'/ (p+'.txt'),b)
+ index.append({'path':p,'git_ref':SHA+':'+p,'git_blob':git('rev-parse',SHA+':'+p).decode().strip(),**digest(b),'physical_matches_git':True})
+write(OUT/'source-index.json',index)
+proc={}
+for p in ('cmdline','status','environ'):
+ try:
+  b=(Path('/proc/536940')/p).read_bytes()
+  if p=='environ':proc['PYTEST_CURRENT_TEST']=[x.decode(errors='replace') for x in b.split(b'\0') if x.startswith(b'PYTEST_CURRENT_TEST=')]; continue
+  save(OUT/('proc-536940-'+p+'.txt'),b)
+  proc[p]={'path':str(OUT/('proc-536940-'+p+'.txt')),**digest(b)}
+ except Exception as e:proc[p]={'observation_error':str(e)}
+try:proc['cwd']=str(Path('/proc/536940/cwd').resolve(strict=True))
+except Exception as e:proc['cwd_error']=str(e)
+write(OUT/'proc-observation.json',proc)
+status=git('status','--porcelain=v1','-z');save(OUT/'git-status-observed.txt',status)
+modified=[x[3:] for x in status.decode().split('\0') if x.startswith(' M ') and '/layer3_g' in x]
+if len(modified)!=29:raise ValueError('different observed denominator '+str(len(modified)))
+callmap=[]
+for fam in (6,7,8):
+ p=f'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g{fam}_readiness.py'
+ text=git('show',SHA+':'+p).decode();tree=ast.parse(text)
+ for func in tree.body:
+  if not isinstance(func,ast.FunctionDef):continue
+  for n in ast.walk(func):
+   if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr==f'validate_layer3_g{fam}_readiness' and any(k.arg=='write' and isinstance(k.value,ast.Constant) and k.value.value is True for k in n.keywords):
+    callmap.append({'family':fam,'path':p,'function':func.name,'line':n.lineno,'supplied_root':ast.unparse(n.args[0]),'write':True,'nodeid':p.removeprefix('policy-engine/')+'::'+func.name,'source_call':ast.get_source_segment(text,n),'writer_intercepts_in_test':[ast.get_source_segment(text,c) for c in ast.walk(func) if isinstance(c,ast.Call) and isinstance(c.func,ast.Attribute) and c.func.attr=='setattr' and len(c.args)>1 and isinstance(c.args[1],ast.Constant) and c.args[1].value in ('_write_json','_write_artifacts')]})
+write(OUT/'write-true-callmap.json',callmap)
+# Use a module-scoped Git archive fixture only for three readiness modules. No product writer change.
+conftest='policy-engine/tests/repo_quality/conftest.py'
+old=git('show',SHA+':'+conftest).decode()
+new=old.replace('import os\n','import hashlib\nimport os\nimport subprocess\nimport tarfile\n').replace('from pathlib import Path\n','from pathlib import Path\n\nimport pytest\n')
+new+='''\n\ndef _layer3_artifact_fingerprints(root: Path) -> dict[str, str]:\n    directory = root / "architecture" / "policy_design_case"\n    return {\n        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()\n        for path in sorted(directory.iterdir())\n        if path.is_file() and path.name.startswith(("layer3_g6_", "layer3_g7_", "layer3_g8_"))\n    }\n\n\n@pytest.fixture(scope="module")\ndef layer3_readiness_repo(tmp_path_factory: pytest.TempPathFactory):\n    """Give readiness write tests an exact tracked source snapshot, outside the checkout."""\n    checkout = REPO_ROOT.resolve()\n    repository = Path(subprocess.check_output(\n        ["git", "-C", str(checkout), "rev-parse", "--show-toplevel"], text=True\n    ).strip())\n    commit = subprocess.check_output(\n        ["git", "-C", str(repository), "rev-parse", "HEAD"], text=True\n    ).strip()\n    product = checkout.relative_to(repository).as_posix()\n    fixture_root = tmp_path_factory.mktemp("layer3-readiness-repo")\n    archive = fixture_root.parent / (fixture_root.name + ".tar")\n    before = _layer3_artifact_fingerprints(checkout)\n    with archive.open("wb") as stream:\n        subprocess.run(\n            ["git", "-C", str(repository), "archive", "--format=tar", f"{commit}:{product}"],\n            stdout=stream, check=True,\n        )\n    with tarfile.open(archive) as stream:\n        stream.extractall(fixture_root, filter="data")\n    if fixture_root.resolve().is_relative_to(checkout):\n        raise RuntimeError("readiness fixture must be outside the source checkout")\n    try:\n        yield fixture_root\n    finally:\n        after = _layer3_artifact_fingerprints(checkout)\n        if after != before:\n            raise AssertionError("readiness tests changed source-checkout Layer3 artifacts")\n'''
+changes={conftest:(old,new)}
+for fam in (6,7,8):
+ p=f'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g{fam}_readiness.py';old=git('show',SHA+':'+p).decode();new=old.replace('from typing import Any\n','from typing import Any\n\nimport pytest\n')
+ anchor='REPO_ROOT = Path(__file__).resolve().parents[3]\n'
+ fixture='''\n\n@pytest.fixture(autouse=True)\ndef _isolated_readiness_root(layer3_readiness_repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:\n    monkeypatch.setitem(globals(), "REPO_ROOT", layer3_readiness_repo)\n'''
+ new=new.replace(anchor,anchor+fixture,1);changes[p]=(old,new)
+patch=''.join(''.join(difflib.unified_diff(old.splitlines(keepends=True),new.splitlines(keepends=True),fromfile='a/'+p,tofile='b/'+p)) for p,(old,new) in changes.items())
+save(OUT/'canonical-owner-test-isolation.patch',patch.encode())
+for p,(old,new) in changes.items():save(OUT/'proposed-sources'/(p+'.txt'),new.encode())
+# Pure parser custody binds every observed path to the exact frozen declared path assignments.
+def constant_paths(source):
+ ns={'Path':Path}
+ for n in ast.parse(source).body:
+  if not isinstance(n,(ast.Assign,ast.AnnAssign)):continue
+  names=[t.id for t in n.targets if isinstance(t,ast.Name)] if isinstance(n,ast.Assign) else [n.target.id] if isinstance(n.target,ast.Name) else []
+  if not names:continue
+  if all(x.endswith('_PATH') or x.endswith('_DIR') or x=='EXPECTED_ARTIFACT_PATHS' for x in names):
+   try:exec(compile(ast.Module(body=[n],type_ignores=[]),'<path-constants>','exec'),ns)
+   except NameError:continue
+ return ns
+mapping=[]
+for p in modified:
+ fam=int(p.split('/layer3_g')[1][0]);v=f'policy-engine/tools/quality/validation/check_policy_design_case_layer3_g{fam}_readiness.py';ns=constant_paths(git('show',SHA+':'+v).decode())
+ rel=p.removeprefix('policy-engine/')
+ if Path(rel) not in ns['EXPECTED_ARTIFACT_PATHS']:raise ValueError('not an exact admitted writer path '+p)
+ original=git('show',SHA+':'+p);actual=(ROOT/p).read_bytes()
+ mapping.append({'path':p,'family':fam,'validator':v,'writer_membership':True,'original':digest(original),'physical_observation':digest(actual),'different_from_frozen':actual!=original})
+write(OUT/'all-29-writer-membership.json',mapping)
+write(OUT/'packet-preparation.json',{'source_commit':SHA,'source_tree':git('rev-parse',SHA+'^{tree}').decode().strip(),'author_mode':'read-only external stdlib; no runtime validator/generator/bundle execution','test_calls':len(callmap),'modified_paths':len(modified),'family_counts':{str(f):sum(x['family']==f for x in mapping) for f in (6,7,8)},'patch_paths':list(changes),'patch':digest(patch.encode()),'runtime_caller_attribution':'not_established','native_selector':'-m not integration; repo_quality tests match by frozen taxonomy; no exact per-test runtime event observed','native_backend_terminal_outcome':'UNRUN/pending; no terminal count','proposal_limitations':['UNAPPLIED canonical G/tool-test-owner patch; no shared writers altered','Complete Git-snapshot fixture intentionally copies full tracked product once per readiness module, excluding ignored env/cache; future owner may narrow only with complete input-denominator proof','Full real runtime/fixture selectors UNRUN; bounded writer controls are insufficient to claim native runtime fixture PASS','Current active backend can itself change checkout; fingerprint guard would detect real concurrent source mutation rather than waive it']})

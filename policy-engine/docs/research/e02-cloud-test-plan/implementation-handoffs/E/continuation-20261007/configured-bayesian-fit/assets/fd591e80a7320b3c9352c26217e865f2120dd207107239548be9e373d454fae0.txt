@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-fit-independent-77b4-20261007/check_public_bindings.py.txt", line 9, in <module>
+    rows.append({'name':name,'facade':'polisyos.foundry.uncertainty','identity':getattr(uncertainty,name) is getattr(provider,name),'FQN':getattr(uncertainty,name).__module__+'.'+getattr(uncertainty,name).__qualname__})
+                                                                                ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-cal-20261006/policy-engine/src/polisyos/foundry/uncertainty/__init__.py", line 80, in __getattr__
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+AttributeError: module 'polisyos.foundry.uncertainty' has no attribute 'BayesianFitEnvelopes'

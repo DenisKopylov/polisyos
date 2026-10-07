@@ -1,0 +1,1349 @@
+{
+  "schema": "policyos.e02.E.posterior_static_native_witness_join.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "qualified_native_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "regression_count": 9,
+  "IR_helper_count": 8,
+  "Foundry_producer_count": 1,
+  "complete_static_summary": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-native-deciding-summary.json",
+    "bytes": 386695,
+    "sha256": "a92fcd37cfc2dc37b6e98a691a85609cd8fc9c1b064e52396e86cff19bbe5287"
+  },
+  "literal_oracle": {
+    "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent/independent-final-review-ca17.json",
+    "bytes": 51924,
+    "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+  },
+  "literal_DTO_qualification": {
+    "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+    "bytes": 3875,
+    "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+  },
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "3830f8f65cc4ea4428b1ca7b145f2867b5bc7d92",
+      "bytes": 30919,
+      "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+      "unchanged_reviewed_native_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "unchanged_reviewed_native_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "aebd421615d935b1c6711b75ae1ae9b6ed991709",
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+      "unchanged_reviewed_native_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "7de7727e16cc6dcc25340ef583ff05764bc3882b",
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a",
+      "unchanged_reviewed_native_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "d638aa6ed9a591a9c685cbd318a45c36e202bf9a",
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f",
+      "unchanged_reviewed_native_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "unchanged_reviewed_native_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "qualified_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "Git_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "unchanged_reviewed_native_source": true
+    }
+  ],
+  "rows": [
+    {
+      "symbol": "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior",
+      "exact_native_static_record": {
+        "symbol": "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior",
+        "status": "uninvoked",
+        "path": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [],
+        "test_callers": [
+          "tests.unit.foundry.calibration.test_calibration_uncertainty_adapter.test_posterior_summary_decomposition_is_only_nongating_spread_diagnostic",
+          "tests.unit.foundry.calibration.test_calibration_uncertainty_adapter.test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics",
+          "tests.unit.ir.test_posterior_ratio_law.test_all_backends_consume_ratio_weights_through_shared_transform",
+          "tests.unit.ir.test_posterior_ratio_law.test_hundred_atom_mean_and_finite_bucket_law_share_exact_ratios",
+          "tests.unit.ir.test_posterior_ratio_law.test_joint_arrays_without_supplied_alignment_refuse_and_reader_refuses_forgery",
+          "tests.unit.ir.test_posterior_ratio_law.test_removing_common_alignment_admission_keeps_markers_but_breaks_control",
+          "tests.unit.ir.test_posterior_summary.test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals",
+          "tests.unit.ir.test_posterior_summary.test_identical_summaries_do_not_merge_different_persisted_atom_laws",
+          "tests.unit.ir.test_posterior_summary.test_integrity_valid_forged_profile_refuses_fresh_named_computation",
+          "tests.unit.ir.test_posterior_summary.test_invalid_corpus_is_refused_by_real_producer",
+          "tests.unit.ir.test_posterior_summary.test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow",
+          "tests.unit.ir.test_posterior_summary.test_named_functional_markers_cannot_fall_back_when_profile_removed",
+          "tests.unit.ir.test_posterior_summary.test_new_profile_signed_zero_uses_existing_canonical_cas_representation",
+          "tests.unit.ir.test_posterior_summary.test_profile_raw_cas_types_refuse_before_legacy_coercion",
+          "tests.unit.ir.test_posterior_summary.test_single_profile_consistently_forged_joint_digest_is_recomputed",
+          "tests.unit.ir.test_posterior_summary.test_tiny_sorted_atom_is_kept_when_finite_uniform_boundary_exists",
+          "tests.unit.ir.test_posterior_summary.test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit",
+          "tests.unit.ir.test_posterior_summary.test_whole_row_reordering_preserves_functionals_changes_exact_identity",
+          "tests.unit.scientist.nodes.builtins.simulate.test_welfare_empirical_law.test_native_welfare_posterior_profile_uses_named_mean_after_fresh_read",
+          "tests.unit.scientist.nodes.builtins.simulate.test_welfare_empirical_law.test_welfare_profile_corruption_refuses_before_nominal_callback",
+          "tests.unit.scientist.nodes.test_propagate_uncertainty_node._posterior_node_fixture"
+        ],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_native_fresh_E_named_mean_consumer",
+          "outcome": "PASS",
+          "detail": {
+            "actual_nominal_params": [
+              {
+                "x": 1.0
+              }
+            ],
+            "actual_callback_count": 257,
+            "persisted_fresh_output_ref": {
+              "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "centered_output_support": [
+              -1.0,
+              99.0
+            ],
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "outcome": "PASS",
+          "detail": {
+            "mean": 10000000000000.0,
+            "median": 0.0,
+            "interval": [
+              0.0,
+              0.0
+            ],
+            "exact_ratio": "1/100",
+            "all100_boundary_neighbor_comparisons": 298,
+            "stored_weight_sum": 50.0,
+            "fresh_ref": {
+              "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "source_line": 80,
+          "source_scope": "polisyos.foundry.uncertainty.sampling_admission.admit_sampling_support",
+          "actual_call_binding": "admit_posterior_summary_profiles",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "expression": "admit_posterior_summary_profiles(envelopes)",
+          "source_sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "source_line": 134,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode.execute",
+          "actual_call_binding": "admit_posterior_summary_profiles",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "expression": "admit_posterior_summary_profiles(input_envelopes)",
+          "source_sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1162,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._collect_input_envelopes",
+          "actual_call_binding": "admit_posterior_summary_profiles",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "expression": "admit_posterior_summary_profiles(envelopes)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "outcome": "PASS",
+          "detail": {
+            "fresh_integrity_valid_refs": {
+              "a": {
+                "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "strict_fresh_reader_rejections": [
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+            ],
+            "current_callback_count": 0,
+            "removed_actual_callback_count": 257,
+            "required_callback0_control_after_removal": "FAIL",
+            "effective_removal_discriminator": "PASS",
+            "all_markers_and_digest_fields_retained": true
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+            "bytes": 10329,
+            "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_sobol",
+          "outcome": "PASS",
+          "detail": {
+            "callback_count": 257,
+            "actual_rows": [
+              {
+                "row": [
+                  0.0,
+                  0.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  1.0,
+                  2.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  4.0,
+                  5.0
+                ],
+                "count": 128
+              }
+            ],
+            "fresh_refs": {
+              "a": {
+                "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "independent_y_mean": "21/4",
+            "independent_y_variance": "243/16",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "source_line": 202,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode.execute",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(ctx.store, ref)",
+          "source_sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "source_line": 326,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty._collect_input_envelopes",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(\n                    ctx.store,\n                    snapshot.uncertainty_envelope_ref,\n                )",
+          "source_sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "source_line": 347,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty._collect_input_envelopes",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(ctx.store, ref)",
+          "source_sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 239,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._reconcile_welfare_empirical_rows",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(store, ref)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1060,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._collect_input_envelopes",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(ctx.store, snapshot.uncertainty_envelope_ref)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1087,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._collect_input_envelopes",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(ctx.store, ref)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1142,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._collect_input_envelopes",
+          "actual_call_binding": "load_uncertainty_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "expression": "load_uncertainty_envelope(ctx.store, ref)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_native_fresh_E_named_mean_consumer",
+          "outcome": "PASS",
+          "detail": {
+            "actual_nominal_params": [
+              {
+                "x": 1.0
+              }
+            ],
+            "actual_callback_count": 257,
+            "persisted_fresh_output_ref": {
+              "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "centered_output_support": [
+              -1.0,
+              99.0
+            ],
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "outcome": "PASS",
+          "detail": {
+            "fresh_integrity_valid_refs": {
+              "a": {
+                "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "strict_fresh_reader_rejections": [
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+            ],
+            "current_callback_count": 0,
+            "removed_actual_callback_count": 257,
+            "required_callback0_control_after_removal": "FAIL",
+            "effective_removal_discriminator": "PASS",
+            "all_markers_and_digest_fields_retained": true
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+            "bytes": 10329,
+            "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.posterior_carrier_content_hash",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.posterior_carrier_content_hash",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [
+          "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile"
+        ],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "source_line": 505,
+          "source_scope": "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile",
+          "actual_call_binding": "posterior_carrier_content_hash",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_carrier_content_hash",
+          "expression": "posterior_carrier_content_hash(carrier)",
+          "source_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "source_line": 378,
+          "source_scope": "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior",
+          "actual_call_binding": "posterior_carrier_content_hash",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_carrier_content_hash",
+          "expression": "posterior_carrier_content_hash(envelope.distribution_payload)",
+          "source_sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "outcome": "PASS",
+          "detail": {
+            "mean": 10000000000000.0,
+            "median": 0.0,
+            "interval": [
+              0.0,
+              0.0
+            ],
+            "exact_ratio": "1/100",
+            "all100_boundary_neighbor_comparisons": 298,
+            "stored_weight_sum": 50.0,
+            "fresh_ref": {
+              "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "outcome": "PASS",
+          "detail": {
+            "fresh_integrity_valid_refs": {
+              "a": {
+                "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "strict_fresh_reader_rejections": [
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+            ],
+            "current_callback_count": 0,
+            "removed_actual_callback_count": 257,
+            "required_callback0_control_after_removal": "FAIL",
+            "effective_removal_discriminator": "PASS",
+            "all_markers_and_digest_fields_retained": true
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+            "bytes": 10329,
+            "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.posterior_joint_carrier_digest",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.posterior_joint_carrier_digest",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [
+          "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile"
+        ],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "source_line": 530,
+          "source_scope": "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile",
+          "actual_call_binding": "posterior_joint_carrier_digest",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_joint_carrier_digest",
+          "expression": "posterior_joint_carrier_digest(\n            list(profile.parameter_order),\n            {profile.parameter_name: envelope},\n            list(profile.draw_ids),\n        )",
+          "source_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "source_line": 577,
+          "source_scope": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "actual_call_binding": "posterior_joint_carrier_digest",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_joint_carrier_digest",
+          "expression": "posterior_joint_carrier_digest(\n            list(profile.parameter_order), envelopes, list(profile.draw_ids)\n        )",
+          "source_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "source_line": 44,
+          "source_scope": "polisyos.foundry.uncertainty.sampling_admission.joint_carrier_digest",
+          "actual_call_binding": "posterior_joint_carrier_digest",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_joint_carrier_digest",
+          "expression": "posterior_joint_carrier_digest(names, envelopes, draw_ids)",
+          "source_sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_all_backend_paired_law_sobol",
+          "outcome": "PASS",
+          "detail": {
+            "callback_count": 257,
+            "actual_rows": [
+              {
+                "row": [
+                  0.0,
+                  0.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  1.0,
+                  2.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  4.0,
+                  5.0
+                ],
+                "count": 128
+              }
+            ],
+            "fresh_refs": {
+              "a": {
+                "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "independent_y_mean": "21/4",
+            "independent_y_variance": "243/16",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_halton",
+          "outcome": "PASS",
+          "detail": {
+            "callback_count": 257,
+            "actual_rows": [
+              {
+                "row": [
+                  0.0,
+                  0.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  1.0,
+                  2.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  4.0,
+                  5.0
+                ],
+                "count": 128
+              }
+            ],
+            "fresh_refs": {
+              "a": {
+                "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "independent_y_mean": "21/4",
+            "independent_y_variance": "243/16",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_random",
+          "outcome": "PASS",
+          "detail": {
+            "callback_count": 257,
+            "actual_rows": [
+              {
+                "row": [
+                  0.0,
+                  0.0
+                ],
+                "count": 66
+              },
+              {
+                "row": [
+                  1.0,
+                  2.0
+                ],
+                "count": 64
+              },
+              {
+                "row": [
+                  4.0,
+                  5.0
+                ],
+                "count": 126
+              }
+            ],
+            "fresh_refs": {
+              "a": {
+                "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "independent_y_mean": "21/4",
+            "independent_y_variance": "243/16",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "outcome": "PASS",
+          "detail": {
+            "fresh_integrity_valid_refs": {
+              "a": {
+                "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "strict_fresh_reader_rejections": [
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+            ],
+            "current_callback_count": 0,
+            "removed_actual_callback_count": 257,
+            "required_callback0_control_after_removal": "FAIL",
+            "effective_removal_discriminator": "PASS",
+            "all_markers_and_digest_fields_retained": true
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+            "bytes": 10329,
+            "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "source_line": 137,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty.PropagateUncertaintyNode.execute",
+          "actual_call_binding": "posterior_nominal_mean",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean",
+          "expression": "posterior_nominal_mean(env, parameter_name=name)",
+          "source_sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1847,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._build_simulation_fn",
+          "actual_call_binding": "posterior_nominal_mean",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean",
+          "expression": "posterior_nominal_mean(\n                    available_envelopes.envelopes[param_name], parameter_name=param_name\n                )",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1858,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._build_simulation_fn",
+          "actual_call_binding": "posterior_nominal_mean",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean",
+          "expression": "posterior_nominal_mean(env, parameter_name=param_name)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_native_fresh_E_named_mean_consumer",
+          "outcome": "PASS",
+          "detail": {
+            "actual_nominal_params": [
+              {
+                "x": 1.0
+              }
+            ],
+            "actual_callback_count": 257,
+            "persisted_fresh_output_ref": {
+              "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "centered_output_support": [
+              -1.0,
+              99.0
+            ],
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "outcome": "PASS",
+          "detail": {
+            "mean": 10000000000000.0,
+            "median": 0.0,
+            "interval": [
+              0.0,
+              0.0
+            ],
+            "exact_ratio": "1/100",
+            "all100_boundary_neighbor_comparisons": 298,
+            "stored_weight_sum": 50.0,
+            "fresh_ref": {
+              "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.posterior_population_std_v2",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.posterior_population_std_v2",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "source_line": 324,
+          "source_scope": "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior",
+          "actual_call_binding": "posterior_population_std_v2",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.posterior_population_std_v2",
+          "expression": "posterior_population_std_v2(\n            tuple(float(value) for value in draws), probabilities\n        )",
+          "source_sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_public_facade_ABI_inventory_and_large_finite_spread",
+          "outcome": "PASS",
+          "detail": {
+            "actual_IR_model_inventory_count": 101,
+            "base_actual_count": 100,
+            "delta": 1,
+            "registered_new_key": "posterior_summary_profile_v2",
+            "old_root_type_identity": true,
+            "new_root_type_identity": true,
+            "std_for_0_1e200": 5e+199,
+            "std_for_0_2": 1.0,
+            "generated_schema_publication": "Owner packet still pending; no generated-file edits or global-gate PASS claimed."
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "outcome": "PASS",
+          "detail": {
+            "mean": 10000000000000.0,
+            "median": 0.0,
+            "interval": [
+              0.0,
+              0.0
+            ],
+            "exact_ratio": "1/100",
+            "all100_boundary_neighbor_comparisons": 298,
+            "stored_weight_sum": 50.0,
+            "fresh_ref": {
+              "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [
+          "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean"
+        ],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "source_line": 549,
+          "source_scope": "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles",
+          "actual_call_binding": "read_posterior_summary_profile",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile",
+          "expression": "read_posterior_summary_profile(env)",
+          "source_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "source_line": 603,
+          "source_scope": "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean",
+          "actual_call_binding": "read_posterior_summary_profile",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile",
+          "expression": "read_posterior_summary_profile(envelope)",
+          "source_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_native_fresh_E_named_mean_consumer",
+          "outcome": "PASS",
+          "detail": {
+            "actual_nominal_params": [
+              {
+                "x": 1.0
+              }
+            ],
+            "actual_callback_count": 257,
+            "persisted_fresh_output_ref": {
+              "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "centered_output_support": [
+              -1.0,
+              99.0
+            ],
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "outcome": "PASS",
+          "detail": {
+            "mean": 10000000000000.0,
+            "median": 0.0,
+            "interval": [
+              0.0,
+              0.0
+            ],
+            "exact_ratio": "1/100",
+            "all100_boundary_neighbor_comparisons": 298,
+            "stored_weight_sum": 50.0,
+            "fresh_ref": {
+              "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+            "gate_eligible": false
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "outcome": "PASS",
+          "detail": {
+            "fresh_integrity_valid_refs": {
+              "a": {
+                "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              },
+              "b": {
+                "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+                "kind": "ir.uncertainty_envelope",
+                "media_type": "application/json"
+              }
+            },
+            "strict_fresh_reader_rejections": [
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+              "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+            ],
+            "current_callback_count": 0,
+            "removed_actual_callback_count": 257,
+            "required_callback0_control_after_removal": "FAIL",
+            "effective_removal_discriminator": "PASS",
+            "all_markers_and_digest_fields_retained": true
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+            "bytes": 10329,
+            "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    },
+    {
+      "symbol": "polisyos.ir.analytics.posterior_summary.validate_raw_posterior_summary_envelope",
+      "exact_native_static_record": {
+        "symbol": "polisyos.ir.analytics.posterior_summary.validate_raw_posterior_summary_envelope",
+        "status": "uninvoked",
+        "path": "src/polisyos/ir/analytics/posterior_summary.py",
+        "terminus": null,
+        "changed": true,
+        "lost_path": false,
+        "source_callers": [
+          "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope"
+        ],
+        "test_callers": [],
+        "deferral": null,
+        "indirect_boundary_origin": null,
+        "indirect_boundary_evidence": []
+      },
+      "actual_qualified_source_calls": [
+        {
+          "source_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+          "source_line": 679,
+          "source_scope": "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope",
+          "actual_call_binding": "validate_raw_posterior_summary_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.validate_raw_posterior_summary_envelope",
+          "expression": "validate_raw_posterior_summary_envelope(raw)",
+          "source_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        },
+        {
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "source_line": 1150,
+          "source_scope": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare._collect_input_envelopes",
+          "actual_call_binding": "validate_raw_posterior_summary_envelope",
+          "import_resolution": "polisyos.ir.analytics.posterior_summary.validate_raw_posterior_summary_envelope",
+          "expression": "validate_raw_posterior_summary_envelope(value, parameter_name=name)",
+          "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+          "evidence_kind": "exact syntactic qualified-binding caller only; not runtime reachability"
+        }
+      ],
+      "qualified_prior_native_controls": [
+        {
+          "id": "actual_E_raw_before_builder_inline_bool",
+          "outcome": "PASS",
+          "detail": {
+            "mutation": "inline_bool",
+            "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+            "builder_count": 0,
+            "callback_count": 0
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_inline_string",
+          "outcome": "PASS",
+          "detail": {
+            "mutation": "inline_string",
+            "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+            "builder_count": 0,
+            "callback_count": 0
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_raw_bool",
+          "outcome": "PASS",
+          "detail": {
+            "mutation": "raw_bool",
+            "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+            "builder_count": 0,
+            "callback_count": 0
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_raw_string",
+          "outcome": "PASS",
+          "detail": {
+            "mutation": "raw_string",
+            "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+            "builder_count": 0,
+            "callback_count": 0
+          },
+          "observation_receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+            "bytes": 29453,
+            "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+          }
+        }
+      ],
+      "control_origin": "Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join",
+      "DTO_delta_receipt": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent-typed/independent-DTO-delta-3932.json",
+        "bytes": 3875,
+        "sha256": "cac40506463be01cfde7bea99b9db1286630f557e692ba02b2ccc96033749de0"
+      },
+      "real_consumer_scope": "Actual configuredCAS producer\u2192persist\u2192fresh strictIR reader\u2192PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback",
+      "Welfare_boundary": "Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join",
+      "remaining_default_boundary": "HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it",
+      "proxy_divergence": "Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS",
+      "canonical_writer": "E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners",
+      "check_outcome": "staticFAIL retained",
+      "finding_disposition_changed": false,
+      "gate_eligible": false
+    }
+  ],
+  "measured": "Read-only exact current syntactic calls, immutablesourcebytequalification and literal native receipts; no newruntime/mathcheck",
+  "unmeasured": [
+    "Fresh default/HTTP Welfare/served consumer",
+    "production evaluator/source law",
+    "Static root reachability throughallfacades/DI/reflection"
+  ],
+  "P41": "not_established",
+  "static_runtime_invocation_established": false,
+  "source_or_generated_edit": false
+}

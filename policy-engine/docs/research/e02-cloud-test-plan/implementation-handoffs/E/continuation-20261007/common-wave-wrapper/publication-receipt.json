@@ -1,0 +1,343 @@
+{
+  "schema": "policyos.e02.current-wave-wrapper-publication.v1",
+  "source_review_candidate": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+  "current_source_frozen": false,
+  "wrapper_sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641",
+  "runtime_retention_hook_sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288",
+  "independent_review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/independent-wrapper-review.json",
+    "source_sha256": "c0795ffc368e4ede4c052574aa782c336bcee2457464dbe62da5360e9af2a8be",
+    "reviewer": "lint_r4; neither wrapper nor hook author"
+  },
+  "asset_count": 64,
+  "asset_bytes": 870656,
+  "records": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/actual-wrapper-cli-prepared-plan.json",
+      "bytes": 205093,
+      "sha256": "0a38e75265e6f53382c614205e0560b962c6dde086e1e628da2e73734e76c8f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/actual-wrapper-cli.execution.json",
+      "bytes": 1321,
+      "sha256": "da5f165136ce19978388716cbb252c8a25c715bfb27be74aaf5b5cefd2583a64"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/actual-wrapper-cli.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/actual-wrapper-cli.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/bounded-wrapper-preparation-review.json",
+      "bytes": 14177,
+      "sha256": "5eccc7ba63ec3bf67c3677088c886f26e4dabfd9886e229360fa9d91f453a340"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/current-owner-prepared-plan.json",
+      "bytes": 204136,
+      "sha256": "0ca82420cb0e0f6fe192bc1312832904bb6b157162c59bd1f419ff2191fb3cee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/mirrored-source-catalog-identities.json",
+      "bytes": 20240,
+      "sha256": "fcab8d45d4648ede05225a54952348dd015439c6419be5c5df21872e9453f481"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/original-no-owner-plan.json",
+      "bytes": 198769,
+      "sha256": "fc101fcda2e49eb3abd8c2aca6424ba5a46c61ffe9b156a36f59833084c3711f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_retention_keep_catalog_fields/catalog.json",
+      "bytes": 1466,
+      "sha256": "7c39105221b787bba495a86b875bff98bdd25bcaa4790798e0337b8b371a727c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_retention_keep_catalog_fields/execution.json",
+      "bytes": 3885,
+      "sha256": "c46df65d01ae31eb409e822c5f9a32e971856e90ce4ca717a563b28f89d869a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_retention_keep_catalog_fields/stderr.txt",
+      "bytes": 1714,
+      "sha256": "d37a4d9f8b72057f9a97126c6baf56c16f49584495ae2adab8d309e5a65ef757"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_retention_keep_catalog_fields/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_retention_keep_catalog_fields/synthetic_checker.py.txt",
+      "bytes": 699,
+      "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/catalog.json",
+      "bytes": 1506,
+      "sha256": "8db72acc6104ec5573d5cb08e453979397fff434685887cae4d701da33c5a6cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/execution.json",
+      "bytes": 3869,
+      "sha256": "82b90735eadfedacf8e37520fadc9dc3be32936f79fb4b45119df74623dac09b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stderr.txt",
+      "bytes": 792,
+      "sha256": "69b11465191b3ce1be78e8cadadc2d362e7e55066a9e635503a87d34b69d4450"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/synthetic_checker.py.txt",
+      "bytes": 699,
+      "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/removed_capture_return_equivalence.py.txt",
+      "bytes": 5485,
+      "sha256": "6f9bc9625817ad2f7b5ba0e3875a784df8a03f3d1257df89d1fe432eba2a00de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/removed_delete_false_property.py.txt",
+      "bytes": 5443,
+      "sha256": "9fb5ed90a74896d8cb6183d16ba65563344f5919b2c869c849453318ba8d65aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/removed_source_byte_comparison.py.txt",
+      "bytes": 11146,
+      "sha256": "eaa6ede6e582fccf0970a91f87c85b36e312df9c51e609c885f95617babd2018"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-0/catalog.json",
+      "bytes": 2447,
+      "sha256": "1581071eace625b65ff7b00794869d4c11f439f986070818b97034dae51f02de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-0/execution.json",
+      "bytes": 4574,
+      "sha256": "a8cafd5894a0b18a44fce26466e8db41ad0e2f59f7279d684be4c100f11d6d84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-0/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-0/stdout.txt",
+      "bytes": 25,
+      "sha256": "3dcbef75a5c34b66f1f9dd0f8905468a57d27c52a1d708d6937fdd358027a0a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-0/synthetic_checker.py.txt",
+      "bytes": 699,
+      "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-7/catalog.json",
+      "bytes": 2447,
+      "sha256": "1fe665b366a23bb24afd01b4e0dc90bdc9d4d4506ec8377502c25067c2347d79"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-7/execution.json",
+      "bytes": 4574,
+      "sha256": "0275c3563808aa93012edf09b59fcb916c796a16b494d0d35e8f45cbe8fc5692"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-7/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-7/stdout.txt",
+      "bytes": 25,
+      "sha256": "3447bd941ce2456b50df271853dbeaa5857e933be1d0b06b2f7f38e0c4c43ef7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/retention-exit-7/synthetic_checker.py.txt",
+      "bytes": 699,
+      "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/safe_cleanup_sentinel_driver.py.txt",
+      "bytes": 358,
+      "sha256": "db2ee29428c4ba1d2ca6e111eb38eaf230afe1b58cd3929e3d7c9c937000152e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/safe_cleanup_sentinel_healthy/catalog.json",
+      "bytes": 2551,
+      "sha256": "e399f7566c395a69bb796b5be5d3dbb52f89a898719c1650fca51a5fb40c200e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/safe_cleanup_sentinel_healthy/execution.json",
+      "bytes": 4905,
+      "sha256": "1b78033d54be0ccb3f91fb23c6419b1e10ebe216614abba450045f08a6cedd34"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/safe_cleanup_sentinel_healthy/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/safe_cleanup_sentinel_healthy/stdout.txt",
+      "bytes": 25,
+      "sha256": "3dcbef75a5c34b66f1f9dd0f8905468a57d27c52a1d708d6937fdd358027a0a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/safe_cleanup_sentinel_healthy/synthetic_checker.py.txt",
+      "bytes": 699,
+      "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/temporary_escape_refused_before_allocation/catalog.json",
+      "bytes": 1490,
+      "sha256": "f4ef465cc46a8cdd42e17e845e38b2f097195148ce5408c023eafdd6b19a999a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/temporary_escape_refused_before_allocation/execution.json",
+      "bytes": 3765,
+      "sha256": "079831498e0c077a2ed5985daadfcd6b1ae6b0161214715285e7b3757e67957b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/temporary_escape_refused_before_allocation/stderr.txt",
+      "bytes": 1077,
+      "sha256": "515721c5e0f479665a62d0b545fd8578c1b9d997fe147032d422241edf20289a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/temporary_escape_refused_before_allocation/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/temporary_escape_refused_before_allocation/synthetic_checker.py.txt",
+      "bytes": 716,
+      "sha256": "37d21e1aebdddbcebbc43ef1e9c4b7830012f46a7f69278f0ac13ce1b1920017"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/wrong-source-hash/execution.json",
+      "bytes": 2059,
+      "sha256": "db905aa4cbb1165e5ae5b9cfcc7fbd9539710f83afd8ff9c3879209ab3e2db62"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/wrong-source-hash/stderr.txt",
+      "bytes": 545,
+      "sha256": "b0bb9aa6a8bc4a7d24a217e8edd070651edd8e702affdae1d71b6a91d2872ee0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/wrong-source-hash/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-controls-v8/wrong-source-hash/synthetic_checker.py.txt",
+      "bytes": 699,
+      "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-review-v1.stderr.txt",
+      "bytes": 477,
+      "sha256": "22baf98d195f1546b1750027958af7a3243920aadac44529fbcb9d15a2092924"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-review-v3.stderr.txt",
+      "bytes": 818,
+      "sha256": "e85583940d6abeb5aaa3df6d3a62a3011555bf704574648b796d2c79fca9dbec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-review-v6.stderr.txt",
+      "bytes": 1512,
+      "sha256": "ca08e67707bca1419d32bfff49f8910ebe6add04d477c9325e1f74890ddd6cee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-review-v8.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/bounded-review-v8.stdout.txt",
+      "bytes": 308,
+      "sha256": "88f24d13460bc683d876d453cdcb674ef1d6ee9260456ae33944d0998f6bd261"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/check_wrapper_preparation.py.txt",
+      "bytes": 22939,
+      "sha256": "5f9b25c8979cc8fc28c31e1ac24e19c98fd45b9cf31b4de195d378783ba029b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/historical-observer-v1.py.txt",
+      "bytes": 15386,
+      "sha256": "342af6e29c1200288db0d6ddc5ba7e6ac336a46447f731a3e0ee13ed8fe7f7c0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/historical-observer-v3.py.txt",
+      "bytes": 17913,
+      "sha256": "d4f4ef085bb7bea2b9ecae5749233ae2a559d0feaa2ed523b9de5ee3a56d43a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/historical-observer-v6.py.txt",
+      "bytes": 21910,
+      "sha256": "1ad54ca0f59270d182b87d2bad99b0e47a78bd9f44d3d861416e987032b081bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/historical-v5-prepare_current_owner_wave.py.txt",
+      "bytes": 10598,
+      "sha256": "a87ffefb30dc794d250e48e9161d1b354c656867a7dc0e6c90eb3e0ec56620b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/independent-review.json",
+      "bytes": 6545,
+      "sha256": "c0795ffc368e4ede4c052574aa782c336bcee2457464dbe62da5360e9af2a8be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/portable-copy-index.json",
+      "bytes": 40772,
+      "sha256": "6543b2e61f7ee48beaa3500773312489c90e5d77faa5128bbcf7f6c1e46686bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/prepare_current_owner_wave.py.txt",
+      "bytes": 11136,
+      "sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/retained_runtime_api_cli.py.txt",
+      "bytes": 5478,
+      "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/wrapper-v7-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/wrapper-v7-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/wrapper-v7-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/wrapper-v7-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "execution_status": "UNRUN: preparation and bounded controls only; execute after composed source freeze",
+  "limitations": [
+    "Registered CLI wrapper preflight is not separately remeasured by direct canonical checker main invocation.",
+    "Genuine final IR test inclusion must be regenerated after source merge.",
+    "No findings closed by wrapper receipt."
+  ],
+  "restore_recipe": "Copy the two .py.txt runner files to a fresh external directory with .py names, verify hashes, then use --repo ABS --candidate exact40SHA --comparison-base 198076863e143dea9f89f02734b13d50dae3eed5 --output-root freshABS --plan-output separatefreshABS. --execute starts the existing reviewed planner/executor; do not repeat a frozen observation."
+}

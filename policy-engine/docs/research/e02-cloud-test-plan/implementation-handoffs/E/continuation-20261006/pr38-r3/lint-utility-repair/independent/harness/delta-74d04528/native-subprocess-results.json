@@ -1,0 +1,147 @@
+[
+  {
+    "name": "results-importer",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/results-importer",
+      "--name",
+      "results-importer",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-c",
+      "print(\"tiny corrective importer positive\")"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stdout.txt",
+      "bytes": 254,
+      "sha256": "6a6693ba4fcb88e0aa71b416a35678e2b5104ba5c37ea33aa9f0c50f51931f6a"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/results-importer.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "numeric-skip",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip",
+      "--name",
+      "numeric-skip",
+      "--junit",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip/pytest.xml",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-actual-driver.py",
+      "--basetemp",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stdout.txt",
+      "bytes": 500,
+      "sha256": "bb34905b38cbda88b12f35e4c1261978c77f0a39e08f3f16ad105eeb3ae66693"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "numeric-skip-exit7",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7",
+      "--name",
+      "numeric-skip-exit7",
+      "--junit",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-skip-exit7/pytest.xml",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7-actual-driver.py",
+      "--basetemp",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-skip-exit7"
+    ],
+    "exit_code": 7,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stdout.txt",
+      "bytes": 513,
+      "sha256": "052f721fb70337f0054f7a345e610f360c8c2758e4895375299d49328db1911d"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-skip-exit7.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "numeric-status-property-removed",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check-status-property-removed.py.txt",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "74d0452848a7461d82ea7f150f126631d9fc8399",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed",
+      "--name",
+      "numeric-status-property-removed",
+      "--junit",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/checks/numeric-status-property-removed/pytest.xml",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed-actual-driver.py",
+      "--basetemp",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/native-corrective-wave/temporary/numeric-status-property-removed"
+    ],
+    "exit_code": 7,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stdout.txt",
+      "bytes": 538,
+      "sha256": "e13e4ea50e607c42156ef9cffd62a89af20ef5d32df0ff7ea67815f72cf6c761"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/numeric-status-property-removed.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

@@ -1,0 +1,1 @@
+{"output": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json", "ABI_count": 103, "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd"}

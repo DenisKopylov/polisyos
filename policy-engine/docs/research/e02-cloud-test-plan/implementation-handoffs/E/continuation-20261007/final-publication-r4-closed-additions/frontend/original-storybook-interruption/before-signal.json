@@ -1,0 +1,29 @@
+{
+  "schema": "policyos.e02.stalled_frontend_interruption.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "pid": 498495,
+  "pid_start_ticks": "15727972",
+  "cmdline": [
+    "node",
+    "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/node_modules/.bin/../../../../node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "vitest.storybook.config.ts"
+  ],
+  "observed_unix": 1791369405.5672505,
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.stdout.txt",
+    "bytes": 3873,
+    "sha256": "c60251d1c698135b290e92b1eda70cc8f66c36865285c50d231874d371997bdb",
+    "mtime_unix": 1791365696.8632252
+  },
+  "controller_state": "Registered orchestrator and responsive HTTP; completed cases unavailable; detailed current JS await unmeasured",
+  "reason": "No stdout progress since 09:34:56 UTC or completed cases after more than one hour; stop own unresponsive non-numerical selector to preserve its interruption and diagnose native output isolation",
+  "native_navigation_boundary": "Installed provider uses goto timeout=0; this is a possible unbounded phase, not proven cause of this current wait",
+  "action": "SIGINT to owned Vitest controller only; wrapper/npm remain to collect final native output/source/environment",
+  "check_outcome_before_signal": null,
+  "case_outcomes_before_signal": null,
+  "numerical_wave_repeated": false,
+  "finding_closure": false
+}

@@ -1,0 +1,165 @@
+"""Read-only exact-source inlet probes; no sampler/fit authority is measured."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib.metadata
+import json
+import platform
+import sys
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+
+from polisyos.core import artifacts, canon
+from polisyos.scientist.compute import runner
+
+
+def observe(call: Callable[[], Any]) -> dict[str, Any]:
+    try:
+        value = call()
+        return {"status": "RETURNED", "value": value}
+    except Exception as error:
+        return {"status": "RAISED", "exception": type(error).__name__, "message": str(error)}
+
+
+def main() -> None:
+    output = Path(sys.argv[1])
+    output.mkdir(parents=True, exist_ok=False)
+    store = artifacts.FileSystemCAS(output / "cas")
+    options = artifacts.PutOptions(kind="test.bayesian_source", media_type="application/json")
+    source = {
+        "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+        "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+    }
+    refs = {
+        name: store.put_json(data, options, canon_spec=canon.CanonSpec(forbid_floats=False))
+        for name, data in source.items()
+    }
+    rows = []
+    for name, ref in refs.items():
+        payload = store.get_bytes(ref)
+        actual = runner._load_input_refs(output / "cas", {name: ref})[name]
+        numeric = observe(lambda actual=actual: np.asarray(actual, dtype=np.float64).tolist())
+        decoded = observe(
+            lambda payload=payload: np.asarray(
+                canon.from_canonical_bytes(payload), dtype=np.float64
+            ).tolist()
+        )
+        if numeric["status"] != "RAISED" or numeric["exception"] != "TypeError":
+            raise RuntimeError("Exact old float-tag behavior changed; stop and review source delta")
+        if decoded != {"status": "RETURNED", "value": source[name]}:
+            raise RuntimeError("Core decoder disagrees with independently supplied numeric fixture")
+        rows.append(
+            {
+                "case": "ordinary_float_" + name,
+                "ref": ref.model_dump(mode="json"),
+                "payload_bytes": len(payload),
+                "payload_sha256": hashlib.sha256(payload).hexdigest(),
+                "actual_native_loader_numeric": numeric,
+                "existing_core_decoder_numeric": decoded,
+            }
+        )
+    integer = store.put_json([[1], [2]], options)
+    retained = runner._load_input_refs(output / "cas", {"features": integer})
+    if retained != {"features": [[1], [2]]}:
+        raise RuntimeError("Retained generic integer input changed")
+    rows.append(
+        {
+            "case": "retained_integer_native",
+            "ref": integer.model_dump(mode="json"),
+            "actual_native_loader": retained,
+        }
+    )
+    for case, update in {
+        "mismatched_kind": {"kind": "forged.input_kind"},
+        "mismatched_media_type": {"media_type": "application/octet-stream"},
+        "missing_selected_view": {"manifest_profile_sha256": "sha256:" + "0" * 64},
+    }.items():
+        ref = integer.model_copy(update=update)
+        actual = observe(lambda ref=ref: runner._load_input_refs(output / "cas", {"features": ref}))
+        strict = observe(lambda ref=ref: store.get_bytes(ref).hex())
+        if actual != {"status": "RETURNED", "value": {"features": [[1], [2]]}}:
+            raise RuntimeError(
+                "Expected native artifact_id-lowering diagnostic no longer reproduces"
+            )
+        if strict["status"] != "RAISED":
+            raise RuntimeError(
+                "Existing Core complete-reference reader did not reject bad identity"
+            )
+        rows.append(
+            {
+                "case": case,
+                "ref": ref.model_dump(mode="json"),
+                "actual_native_loader": actual,
+                "existing_core_complete_ref_read": strict,
+            }
+        )
+    for case, tagged in {
+        "malformed_float_hex_value": {"_type": "float_hex", "value": "broken"},
+        "missing_float_hex_value": {"_type": "float_hex"},
+        "unsupported_canonical_tag": {"_type": "unknown_numeric_tag", "value": "1"},
+    }.items():
+        payload = json.dumps([tagged], separators=(",", ":")).encode()
+        ref = store.put_bytes(payload, options)
+        actual = observe(lambda ref=ref: runner._load_input_refs(output / "cas", {"target": ref}))
+        strict = observe(lambda ref=ref: canon.from_canonical_bytes(store.get_bytes(ref)))
+        if actual["status"] != "RETURNED" or strict["status"] != "RAISED":
+            raise RuntimeError("Malformed canonical-tag inlet diagnostic no longer reproduces")
+        rows.append(
+            {
+                "case": case,
+                "ref": ref.model_dump(mode="json"),
+                "payload_hex": payload.hex(),
+                "payload_sha256": hashlib.sha256(payload).hexdigest(),
+                "actual_native_loader": actual,
+                "existing_core_decoder": strict,
+            }
+        )
+    distributions = sorted(
+        (dist.metadata.get("Name", ""), dist.version) for dist in importlib.metadata.distributions()
+    )
+    result = {
+        "schema": "policyos.e02.native_float_inlet_diagnostic.v1",
+        "scope": (
+            "Only current native loader and existing Core decoder/ref admission; "
+            "no backend/fit rerun"
+        ),
+        "environment": {
+            "python": sys.version,
+            "executable": sys.executable,
+            "platform": platform.platform(),
+            "distributions": distributions,
+            "origins": {
+                "runner": runner.__file__,
+                "canon": canon.__file__,
+                "artifacts": artifacts.__file__,
+                "numpy": np.__file__,
+            },
+        },
+        "rows": rows,
+        "complete_case_denominator": len(rows),
+        "sampler_calls": 0,
+        "evaluator_calls": 0,
+        "fit_or_envelope_publication_calls": 0,
+        "source_mutated": False,
+        "authority_or_finding_closure": "not_established",
+    }
+    (output / "diagnostic.json").write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "case_denominator": len(rows),
+                "cases": [row["case"] for row in rows],
+                "source_mutated": False,
+                "backend_rerun": False,
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

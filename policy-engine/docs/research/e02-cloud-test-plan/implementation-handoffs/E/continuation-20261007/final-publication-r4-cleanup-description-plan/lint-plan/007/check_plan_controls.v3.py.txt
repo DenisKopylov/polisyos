@@ -1,0 +1,54 @@
+from __future__ import annotations
+import copy, hashlib, importlib.util, json, pathlib, runpy, sys
+D=pathlib.Path('/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007')
+P=D/'prepare_current_lint_inputs.v3.py'
+s=importlib.util.spec_from_file_location('read_only_prospective_lint_planner',P);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+Q=json.loads(m.QUAL.read_bytes());plan=json.loads((D/'plan-v3.json').read_bytes());controls=[]
+def require(v,msg):
+ if not v:raise ValueError(msg)
+def add(name,actual,expected):
+ require(actual==expected,name+' mismatch');controls.append({'name':name,'actual':actual,'expected':expected,'outcome':'PASS'})
+add('whole valid metadata preflight',m.preflight(copy.deepcopy(m.REFS),copy.deepcopy(Q))[0],m.REFS)
+for label,change in [('lastref_option',lambda r,q:r.__setitem__('MC','--output=/tmp/no-write')),('ref_boolean',lambda r,q:r.__setitem__('MC',True)),('ref_incomplete',lambda r,q:r.pop('DOE')),('candidate_wrong_exact',lambda r,q:q.__setitem__('candidate','0'*40)),('lastpath_option',lambda r,q:q['full_footprint'][-1].__setitem__('path','--output=/tmp/no-write')),('lastpath_none',lambda r,q:q['full_footprint'][-1].__setitem__('path',None)),('lastpath_dot',lambda r,q:q['full_footprint'][-1].__setitem__('path','.')),('lastpath_boolean',lambda r,q:q['full_footprint'][-1].__setitem__('path',True)),('count_boolean',lambda r,q:q['complete_footprint'].__setitem__('product_python',True)),('lastsize_boolean',lambda r,q:q['full_footprint'][-1].__setitem__('bytes',False)),('duplicate_lastpath',lambda r,q:q['full_footprint'][-1].__setitem__('path',q['full_footprint'][0]['path'])),('unreviewed_marker',lambda r,q:q.__setitem__('implementation_review_outcome','PASS')),('execution_authority_marker',lambda r,q:q.__setitem__('global_gate_execution_allowed',True)),('bad_late_hash',lambda r,q:q['full_footprint'][-1].__setitem__('sha256','x'*64))]:
+ refs=copy.deepcopy(m.REFS);q=copy.deepcopy(Q);change(refs,q);calls=[];old=m.subprocess.run
+ def spy(*a,**k):calls.append({'args':str(a)});raise RuntimeError('child_callback_forbidden')
+ m.subprocess.run=spy
+ try:
+  try:m.prepare(refs,q)
+  except ValueError as e:result={'refused':True,'callbacks':len(calls),'reason':str(e)}
+  else:raise ValueError('corrupt metadata accepted '+label)
+ finally:m.subprocess.run=old
+ require(result['callbacks']==0,label+' callback escape');controls.append({'name':label,'outcome':'PASS','actual':result,'basis':'Whole-record preflight runs before first Git child callback; all other admission/GO markers preserved.'})
+refs=copy.deepcopy(m.REFS);refs['MC']='--output=/tmp/no-write';q=copy.deepcopy(Q);calls=[];oldrun=m.subprocess.run;oldpre=m.preflight
+m.preflight=lambda r,q:(r,q)
+def spy(*a,**k):calls.append({'args':str(a)});raise RuntimeError('child_callback_forbidden')
+m.subprocess.run=spy
+try:
+ try:m.prepare(refs,q)
+ except RuntimeError:pass
+ finally:m.subprocess.run=oldrun;m.preflight=oldpre
+ add('effective_whole_record_admission_removal_callback',len(calls),1)
+ controls[-1]['required_property_result']='FAIL: callback_count must be zero, removal admits malformedref to first child. No unsafe command executed.'
+except BaseException:
+ m.subprocess.run=oldrun;m.preflight=oldpre;raise
+helper=runpy.run_path(str(m.RECORDER),run_name='pinned_denominator_controls')
+entry={'mode':'100644','kind':'blob','object_id':'1'*40}
+selected,deleted,other=helper['select_python']([{'status':'A','path':'policy-engine/new.py'},{'status':'D','path':'policy-engine/deleted.py'},{'status':'A','path':'policy-engine/passive.py.txt'}],{'policy-engine/new.py':entry,'policy-engine/passive.py.txt':entry})
+add('new_only_selected',[r['path'] for r in selected],['policy-engine/new.py']);add('deleted_excluded_preserved',[r['path'] for r in deleted],['policy-engine/deleted.py']);add('passivearchive_excluded',[r['path'] for r in other],['policy-engine/passive.py.txt'])
+try:helper['select_python']([{'status':'A','path':'policy-engine/absent.py'}],{})
+except ValueError:add('absent_current_regularblob_refusal',True,True)
+else:raise ValueError('absent blob admitted')
+paths=[r['path'][len('policy-engine/'):] for r in plan['python_rows']]
+add('full_exact_python_denominator',len(paths),366);add('unique_full_python_denominator',len(set(paths)),366)
+for c in plan['commands']:
+ start=c['argv'].index('json')+1 if c['name']=='Ruff' else c['argv'].index('--check')+1
+ add(c['name']+'_all_paths_exact',c['argv'][start:],paths)
+ add(c['name']+'_canonical_native_cwd',c['cwd'],'/workspace/e02-E-continuation-20261006/policy-engine')
+ add(c['name']+'_no_root_config_override','--config' in c['argv'],False)
+ add(c['name']+'_not_executed',c['status'],'UNRUN')
+add('full_frozen_native_configuration_paths',[r['path'] for r in plan['effective_configuration_inputs']],['policy-engine/architecture/tooling/ruff/generated.toml','policy-engine/ruff.toml'])
+add('actual_source_pending_binding',plan['actual_merged_candidate'],None)
+add('no_automatic_global_execution',plan['execution_allowed'],False)
+add('all_current_sourcechanges_admitted',sum(len(t['active_python_paths']) for t in plan['incoming_full_delta'] if t['owner']=='MC'),12)
+result={'schema':'policyos.e02.E.prospective_lint_planner_controls.v1','outcome':'PASS author bounded controls; independent reviewer remains root','control_count':len(controls),'controls':controls,'plan_input':{'path':str(D/'plan-v3.json'),'bytes':(D/'plan-v3.json').stat().st_size,'sha256':hashlib.sha256((D/'plan-v3.json').read_bytes()).hexdigest()},'observer':{'path':str(pathlib.Path(__file__)),'sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()},'mode':'optimized' if sys.flags.optimize else 'normal','source_product_or_ROOT_environment_writes':False,'native_gate_commands_executed':False,'historical_observer_error':'v1 planner correctly refused existing extended Ruff config because its observer lacked recursive extend discovery. v2 preserves old source/stdout/stderr and binds existing unchanged extended config. It is not a source/global gate failure.'}
+print(json.dumps(result,indent=2))

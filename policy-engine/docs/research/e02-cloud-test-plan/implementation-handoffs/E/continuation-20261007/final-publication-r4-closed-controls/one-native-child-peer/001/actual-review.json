@@ -1,0 +1,240 @@
+{
+  "ROOT_after": {
+    "current_HEAD": "c3a0057059b258c30224aac06709523cab2dc9cc",
+    "current_status_bytes": 178,
+    "current_status_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/"
+    ],
+    "current_status_sha256": "21b56f9691ca6140d87849a17032fdb95477eb911eda44fe282050c3c342de5d",
+    "current_tracked_changed_paths": [],
+    "current_tree": "e5d743266cf965680019f39509061207df234080",
+    "current_untracked_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/"
+    ],
+    "frozen_source_is_ancestor_of_current_ROOT": true,
+    "only_historical_generated_JSON_class_currently_dirty": true,
+    "operation_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "operation_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "scope": "Current commit/tree and dirty-path observation permits authorized append-only parent integration after terminal; no full physical input equality or P41 attribution.",
+    "whole_source_input_immutable": false
+  },
+  "ROOT_before": {
+    "current_HEAD": "c3a0057059b258c30224aac06709523cab2dc9cc",
+    "current_status_bytes": 178,
+    "current_status_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/"
+    ],
+    "current_status_sha256": "21b56f9691ca6140d87849a17032fdb95477eb911eda44fe282050c3c342de5d",
+    "current_tracked_changed_paths": [],
+    "current_tree": "e5d743266cf965680019f39509061207df234080",
+    "current_untracked_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/"
+    ],
+    "frozen_source_is_ancestor_of_current_ROOT": true,
+    "only_historical_generated_JSON_class_currently_dirty": true,
+    "operation_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "operation_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "scope": "Current commit/tree and dirty-path observation permits authorized append-only parent integration after terminal; no full physical input equality or P41 attribution.",
+    "whole_source_input_immutable": false
+  },
+  "actual_members": 20602,
+  "actual_regular_files": 18575,
+  "actual_streamed_payload_bytes": 527866253,
+  "archive": {
+    "bytes": 116892698,
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "sha256": "59fe87ef275be44536403f38eb739b2f91dba64cd88f79eb6dc35481d9f71441"
+  },
+  "complete_member_readback_ref": {
+    "bytes": 6139101,
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/archive-complete-member-readback.json",
+    "sha256": "fbd510b6574a183b80ff45a5a2ba603edf0a3cf741417e046ac7175cfc9f435a"
+  },
+  "complete_source_inventory_refs": [
+    {
+      "bytes": 8081306,
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before.json",
+      "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+    },
+    {
+      "bytes": 8081306,
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before-retirement.json",
+      "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+    }
+  ],
+  "controls": [
+    {
+      "name": "healthy_actual_closed_inventory_and_claims",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "bool_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "float_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "wrong_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "fake_retirement",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "foreign_write",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "file_digest",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "file_mode",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "external_link_target",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "actual_one_member_omission",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actual_exact_member_guard_removal_readmits_same_omission",
+      "outcome": "PASS",
+      "removed_property": "admit_membership body only"
+    }
+  ],
+  "disposition": "GO for one completed full archive custody only",
+  "literal_links": [
+    {
+      "gid": 1000,
+      "kind": "symlink",
+      "mode": 511,
+      "name": "test_generated_family_probe_an0/source/apps/runtime-dashboard/node_modules",
+      "target": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "uid": 1000
+    },
+    {
+      "gid": 1000,
+      "kind": "symlink",
+      "mode": 511,
+      "name": "test_generated_family_probe_an0/source/node_modules",
+      "target": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules",
+      "uid": 1000
+    },
+    {
+      "gid": 1000,
+      "kind": "symlink",
+      "mode": 511,
+      "name": "test_generated_family_probe_an0/source/packages/runtime-api-client/node_modules",
+      "target": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "uid": 1000
+    }
+  ],
+  "new_cleanup_or_native_operations": 0,
+  "observer": {
+    "bytes": 12098,
+    "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/review.py.txt",
+    "sha256": "7ab3f1af918fd76264215bc884e8ed223bd592e88165072d9df8b3bc04cdb8e9"
+  },
+  "optimized": false,
+  "plaintext_materialized_bytes": 0,
+  "protected_environment": {
+    "METADATA_records": 207,
+    "all207_digest_and_sizes_match_postinstall_baseline": true,
+    "protected_numerical_records": [
+      {
+        "bytes": 13409,
+        "name": "jax",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info/METADATA",
+        "sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c",
+        "version": "0.8.2"
+      },
+      {
+        "bytes": 1339,
+        "name": "jaxlib",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info/METADATA",
+        "sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960",
+        "version": "0.8.2"
+      },
+      {
+        "bytes": 62117,
+        "name": "numpy",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info/METADATA",
+        "sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3",
+        "version": "2.3.5"
+      },
+      {
+        "bytes": 11832,
+        "name": "SALib",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/salib-1.5.2.dist-info/METADATA",
+        "sha256": "fe5e530e9552269f51db14bcd0f0bd3b7123002d171ef06ec1ecfde3dac11dfc",
+        "version": "1.5.2"
+      },
+      {
+        "bytes": 62003,
+        "name": "scipy",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info/METADATA",
+        "sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b",
+        "version": "1.16.3"
+      }
+    ],
+    "reference": {
+      "bytes": 70628,
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+    },
+    "scope": "Distribution METADATA bytes only; no claim of every environment file byte."
+  },
+  "qualifications": [
+    "Readable proc observation is point-in-time, infra199/250 unreadable scoped; no hostwide quiescence lock established.",
+    "All original fixture bytes including any useful/unique code/doc/data remain in full archive; real ROOT code/Git/env registrations and every other fixture/raw/receipt/observation untouched by operation.",
+    "Root may append authorized Git checkpoints during closed fixture archival; root identity delta is independently observed, never rewritten by operation or assumed immutable.",
+    "No native/mathematical/global test rerun or propertyPASS inferred from capacity change; original nativeFAIL137/nullJUnit retained.",
+    "Hardlinks within tar preserved through first verified body and exact link identity; original physical allocation recovery cannot be inferred from logical bytes alone."
+  ],
+  "receipt": {
+    "bytes": 10789,
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/receipt.json",
+    "sha256": "1ec5b9463914cdc30a6a29078961f8824315d174029f9fe69ca401850bcb984d"
+  },
+  "reopen_recipe": {
+    "archive_source": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "argv": [
+      "tar",
+      "-xzf",
+      "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+      "-C",
+      "/tmp/e02-E-reopened-generated-family-probe-20261007"
+    ],
+    "plain_original_path": "retired; no automatic restore/symlink. Historical native input/receipt references remain literal archived observations.",
+    "precondition": "Create this exact fresh destination explicitly; do not extract over ROOT/Git/env. Old absolute symlink targets are retained literally; fresh-parent relocation does not automatically rebind external links or claim caller compatibility.",
+    "verification": "Recompute full per-file mode/bytes/SHA and target strings against inventory-before.json before using reconstructed fixtures; all complete readback outputs retained."
+  },
+  "reviewed_shared_helper": {
+    "bytes": 31259,
+    "path": "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v3.py.txt",
+    "sha256": "3c579582b2f4089b3c9fc0c82132588edce02a446eb1dbd10feae0da0f447787"
+  },
+  "schema": "policyos.e02.E.one_closed_native_archive_independent_review.v1",
+  "scope": "Custody only; no source/finding/P41 acceptance.",
+  "symlink_targets_followed": 0
+}

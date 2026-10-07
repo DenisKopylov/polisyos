@@ -1,0 +1,66 @@
+"""Bounded claim/custody admission for the closed d003 read-only collectors."""
+import ast
+import collections
+import copy
+import gzip
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path(__file__).parent
+SOURCE='d0038a6e52867e820fd96f4706746ec501a80273'
+PARENT='31782b55f8f35556cfc581449b040c393f00c78f'
+PATH='policy-engine/tests/unit/calibration/test_evidence_facades.py'
+TRUSTED='b101f50a8c76d562ccc1ff80c5ca7c75a15d92183f35bc9983e7dff72c7dd172'
+
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+def git(*args):return subprocess.run(['git',*args],cwd=ROOT,check=True,capture_output=True).stdout
+
+def admit(value):
+    raw=(OUT/'current-source-input-qualification.json').read_bytes()
+    if digest(raw)!=TRUSTED:raise ValueError('closed_report_changed')
+    expected=json.loads(raw)
+    if value!=expected:raise ValueError('claims_changed_from_closed_observer')
+    if value['source']!=SOURCE or value['parent_source']!=PARENT or value['source_immutable'] is not True:raise ValueError('source_identity')
+    if git('diff','--name-status','--find-renames',PARENT,SOURCE).decode()!=value['full_rename_aware_footprint']:raise ValueError('full_footprint')
+    for which,ref in [(PARENT,value['changed_input']['old']),(SOURCE,value['changed_input']['new'])]:
+        b=git('show',which+':'+PATH)
+        if digest(b)!=ref['sha256'] or len(b)!=ref['bytes']:raise ValueError('source_blob')
+    rows=[]
+    for name in ['complete-current-static-input-index.json','complete-current-architecture-input-edge-index.json']:
+        a=(OUT/name).read_bytes();z=(OUT/(name+'.gz')).read_bytes()
+        if gzip.decompress(z)!=a:raise ValueError('gzip_custody')
+        rows.append(json.loads(a))
+    static,architecture=rows
+    if type(value['static_denominator']['current_files'])is not int or value['static_denominator']['current_files']!=len(static['rows']):raise ValueError('typed_static_denominator')
+    if value['static_denominator']['current_sha256']!=static['mapping_sha256']:raise ValueError('static_mapping')
+    if any(type(value['architecture_collector'][key])is not int for key in ['files','complete_edges','raw_violations','reported_edges']):raise ValueError('typed_arch_denominator')
+    if value['architecture_collector']['complete_edges']!=len(architecture['edges']) or value['architecture_collector']['reported_edges']!=len(architecture['reported_tuples']):raise ValueError('complete_vs_reported_census')
+    if value['static_denominator']['native_graph_or_gate_rerun']is not False or value['finding_closure']is not False or value['P41']!='not_established':raise ValueError('scope')
+    return True
+
+if __name__=='__main__':
+    data=json.loads((OUT/'current-source-input-qualification.json').read_text());admit(data)
+    controls=[{'case':'healthy_actual_complete_denominators','outcome':'PASS'}]
+    mutants=[
+      ('current_files_bool',lambda x:x['static_denominator'].__setitem__('current_files',True)),
+      ('old_full_graph_rebranded_current',lambda x:x['static_denominator'].__setitem__('native_graph_or_gate_rerun',True)),
+      ('old_mapping_substitution',lambda x:x['static_denominator'].__setitem__('current_sha256',x['static_denominator']['prior_b6_current_sha256'])),
+      ('reported151_as_all_collector',lambda x:x['architecture_collector'].__setitem__('complete_edges',151)),
+      ('invented_inheritance',lambda x:x.__setitem__('P41','inherited')),
+    ]
+    for name,mutate in mutants:
+      changed=copy.deepcopy(data);mutate(changed)
+      try:admit(changed)
+      except ValueError as exc:controls.append({'case':name,'outcome':'PASS','refusal':str(exc)})
+      else:raise RuntimeError('false_claim_accepted:'+name)
+    tree=ast.parse(Path(__file__).read_text());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='admit');node.body=[ast.Return(value=ast.Constant(value=True))];ast.fix_missing_locations(tree)
+    ns={'__file__':__file__,'__name__':'removal_review'};exec(compile(tree,__file__,'exec'),ns)
+    changed=copy.deepcopy(data);changed['architecture_collector']['complete_edges']=151
+    if ns['admit'](changed)is not True:raise RuntimeError('guard_removal_not_effective')
+    controls.append({'case':'actual_admit_body_removal_false151_complete_readmitted','outcome':'PASS','all_source_native_markers_unchanged':True})
+    target=OUT/('validation-optimized.json'if not __debug__ else'validation-normal.json')
+    with target.open('x')as f:json.dump({'controls':controls,'gate_repeated':False},f,indent=2);f.write('\n')
+    print(json.dumps({'controls':len(controls),'outcome':'PASS','gate_repeated':False}))

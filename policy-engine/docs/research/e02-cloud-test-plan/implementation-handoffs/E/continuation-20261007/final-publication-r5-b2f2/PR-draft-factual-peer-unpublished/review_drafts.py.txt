@@ -1,0 +1,138 @@
+import copy
+import hashlib
+import json
+from collections import Counter
+from pathlib import Path
+
+SOURCE = "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+TREE = "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+inputs = []
+
+
+def req(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def read(path, parsed=True):
+    path = Path(path)
+    body = path.read_bytes()
+    inputs.append({"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()})
+    return json.loads(body) if parsed else body.decode()
+
+
+def admit_source_counts(record, actual):
+    req(record["source"] == SOURCE and record["tree"] == TREE, "wrong current source/tree")
+    req(record["counts"] == actual, "claimed cases differ from literal case index")
+
+
+draft38 = read("/tmp/e02-E-root-final-publication-coordination-20261007/pr38-draft-body.md", False)
+draft44 = read("/tmp/e02-E-root-final-publication-coordination-20261007/pr44-draft-body.md", False)
+cases = read("/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json")
+wave = read("/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007/publication-receipt.json")
+closeout = read("/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-source-wave-b2-v2-normal.json")
+freeze = read("/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json")
+lint = read("/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-packet.json")["summary"]
+static = read("/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007/summary.json")
+imports = read("/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/current-disposition.json")
+retotal = Counter(row["outcome"] for row in cases["cases"])
+numeric = {"cases": len(cases["cases"]), "passed": retotal["passed"], "failed": retotal["failed"], "errors": retotal["error"], "skipped": retotal["skipped"]}
+req(cases["source_sha"] == SOURCE and cases["source_tree"] == TREE, "case source mismatch")
+req(numeric == cases["numeric_counts"] == closeout["current_numeric_wave"]["counts"], "case retotal mismatch")
+admitted = {"source": SOURCE, "tree": TREE, "counts": numeric}
+admit_source_counts(admitted, numeric)
+controls = []
+for name, mutate in [
+    ("false_pass_retally", lambda r: r["counts"].update(passed=r["counts"]["passed"] + 8, failed=0)),
+    ("future_source_rebranding", lambda r: r.update(source="0" * 40)),
+    ("foreign_source_tree", lambda r: r.update(tree="1" * 40)),
+]:
+    mutant = copy.deepcopy(admitted)
+    mutate(mutant)
+    try:
+        admit_source_counts(mutant, numeric)
+    except ValueError as error:
+        controls.append({"case": name, "outcome": "refused", "reason": str(error)})
+    else:
+        raise ValueError("false factual receipt admitted: " + name)
+
+parents = {}
+for name, path in [
+    ("workspace_verify", "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/internal-stages.json"),
+    ("ci_parity", "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/internal-stages.json"),
+]:
+    record = read(path)
+    actual = Counter(step["outcome"] for scope in record["scopes"] for step in scope["steps"])
+    parents[name] = {"exit_code": record["exit_code"], "actual_stage_counts": dict(actual), "meaning": "Canonical wrapper outcomes only; UNRUN does not establish universal unavailability or PASS of constituent selectors."}
+
+globals3 = []
+for name, suffix in [
+    ("architecture", "architecture-retry-corepack"),
+    ("runtime-api-contract", "runtime-api-contract-retry-corepack"),
+    ("static-invocation", "static-invocation-retry-capacity"),
+]:
+    record = read("/tmp/e02-E-final3-b2f2f65e-20261007-" + suffix + "/receipt.json")
+    req(record["source"] == SOURCE and record["tree"] == TREE and record["source_immutable"], "global source mismatch")
+    globals3.append({"name": name, "outcome": record["outcome"], "exit_code": record["exit_code"]})
+
+render = read("/tmp/e02-E-final3-b2f2f65e-20261007-runtime-api-contract-retry-corepack/tmp/retained-runtime-openapi.raw.json")
+dependency_counts = []
+
+
+def walk(value):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key == "bound_dependency_count" and type(item) is int:
+                dependency_counts.append(item)
+            walk(item)
+    elif isinstance(value, list):
+        for item in value:
+            walk(item)
+
+
+walk(render)
+historical = dict(Counter(row["historical_ledger_status"] for row in closeout["rows"]))
+proposals = dict(Counter(row["proposed_finding_outcome"] for row in closeout["rows"]))
+req(historical == {"partial": 49, "held": 4, "closed": 1}, "historical ledger mismatch")
+req(proposals == {"limited": 9, "closed": 43, "held": 2} and closeout["formal_G_acceptance"] is False, "proposal/acceptance mismatch")
+req(len(closeout["rows"]) == 54, "finding denominator mismatch")
+req(parents["workspace_verify"]["actual_stage_counts"] == {"PASS": 1, "FAIL": 1, "UNRUN": 13}, "workspace mismatch")
+req(parents["ci_parity"]["actual_stage_counts"] == {"FAIL": 1, "UNRUN": 23}, "CI mismatch")
+req(lint["complete_python_input_count"] == 378 and lint["factual_writer_counts"]["E"] == 349, "lint input denominator mismatch")
+req(lint["diagnostic_count"] == 292 and lint["diagnostic_path_count"] == lint["format_path_count"] == 14, "lint outcome mismatch")
+req(lint["E_diagnostic_count"] == lint["E_format_path_count"] == 0, "E subset mismatch")
+req(all(r["outcome"] == "FAIL" for r in globals3) and lint["ruff_exit_code"] == lint["format_exit_code"] == 1, "global outcome mismatch")
+req(len(render["components"]["schemas"]) == 573 and 1495 in dependency_counts, "current runtime projection mismatch")
+req(static["regressions"] == 24 and static["new_unresolved"] == 95, "static outcome mismatch")
+req(static["full_native_denominator"]["current_files"] == 5942 and static["full_native_denominator"]["base_files"] == 5904, "static denominator mismatch")
+req(imports["original12"] == {"repaired_supported_route": 11, "owner_export_pending": 1}, "original import denominator mismatch")
+req(imports["current_new_E_static_edges"]["private_owner_dependency"] == 2, "new import denominator mismatch")
+req("remain unavailable until" not in draft38, "old universal UNRUN unavailability claim remains")
+req("canonical wrappers leave 13/23 successors UNRUN" in draft38, "qualified canonical UNRUN text missing")
+req("1,494-dependency rendering" in draft44 and "1,495 confidence dependencies" in draft44, "historical/current projection distinction missing")
+req(SOURCE in draft38 and SOURCE in draft44 and TREE in draft38, "draft source binding missing")
+
+output = {
+    "schema": "policyos.e02.pr_draft_factual_review.v1",
+    "reviewer": "doe_r4",
+    "verdict": {"PR38_current_draft": "GO", "PR44_current_draft": "GO"},
+    "scope": "Read-only current draft facts and receipt custody; no own math/source acceptance review, native test/gate repetition, environment import or mutation, fetch, remote publication or ROOT write.",
+    "source": SOURCE,
+    "tree": TREE,
+    "current_case_retally": numeric,
+    "native_counts": closeout["current_numeric_wave"]["native_counts_excluding_A_packet"],
+    "A_packet_counts": closeout["current_numeric_wave"]["A_packet_counts"],
+    "parent_wrapper_outcomes": parents,
+    "global_outcomes": globals3 + [{"name": "ruff", "outcome": "FAIL"}, {"name": "ruff-format", "outcome": "FAIL"}, {"name": "workspace-verify", "outcome": "FAIL"}, {"name": "ci-parity", "outcome": "FAIL"}],
+    "lint": lint,
+    "projection": {"current_runtime_schemas": 573, "current_confidence_dependencies": 1495, "committed_dependency_count": 1489, "PR44_source_qualified_historical_projection": 1494, "historical_projection_is_not_current_gate_PASS": True},
+    "static": {"regressions": 24, "new_unresolved": 95, "current_inputs": 5942, "base_inputs": 5904, "changed_records": 119, "runtime_invocation_established": False},
+    "imports": {"original12": imports["original12"], "current_new_private_E_edges": 2, "three_owner_packets": "Remaining original ForecastBridge loader plus NEW NativeReplay state API; PRE-existing nominal CanonSpec is a separate denominator. No public lease or owner acceptance inferred."},
+    "ledger": {"historical": historical, "bounded_E_proposals": proposals, "formal_G_acceptance": False, "finding_outcome_from_PASS_counts": False},
+    "concrete_correction": {"historical_first_read": "PR38 said fail-fast successors remain unavailable until prerequisites repaired.", "issue": "Canonical UNRUN is not universal constituent unavailability.", "current_resolution": "Parent's current draft now explicitly distinguishes canonical fail-fast UNRUN from source/environment-qualified constituent outcomes.", "new_source_or_check_needed": False},
+    "factual_receipt_negative_controls": controls,
+    "observer_history": "One ad-hoc inspection initially attempted set() on schema-valued dependency descriptors and raised TypeError unhashable dict. No product/check failure claim was made; current observer admits only exact integer payload counts.",
+    "publication_boundary": "Drafts were unpublished during this review. Final DOC descendant identity/review must be appended after actual publication; no future SHA invented. GO does not approve global gates, owner findings, source semantics or G integration.",
+    "inputs": inputs,
+}
+print(json.dumps(output, indent=2, ensure_ascii=False))

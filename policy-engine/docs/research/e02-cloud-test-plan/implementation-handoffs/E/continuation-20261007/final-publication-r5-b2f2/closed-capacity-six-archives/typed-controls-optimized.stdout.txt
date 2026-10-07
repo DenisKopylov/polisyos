@@ -1,0 +1,8 @@
+{
+  "output": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-optimized.json",
+  "sha256": "a28265566780318c54d7b39113a5b2b8bc2019e739dc6bbb2a0e81743e21971e",
+  "healthy_catalogs": 6,
+  "corrupt_refusals": 42,
+  "effective_member_removals": 6,
+  "no_runtime_or_finding_claim": true
+}

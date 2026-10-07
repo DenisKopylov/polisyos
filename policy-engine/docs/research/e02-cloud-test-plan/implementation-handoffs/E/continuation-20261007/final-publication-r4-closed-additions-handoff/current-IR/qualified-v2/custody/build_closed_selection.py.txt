@@ -1,0 +1,32 @@
+"""Append a corrected portable selector without modifying G855 inputs or numeric oracles."""
+import hashlib,json,sys
+from pathlib import Path
+B=Path('/tmp/e02-E-ir-G855-conditions-independent-64d');O=Path('/tmp/e02-E-ir-G855-custody-lint-64d-20261007')
+def require(v,reason):
+ if not v:raise ValueError(reason)
+def ref(p):
+ raw=p.read_bytes();return {'path':str(p),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+old=json.loads((B/'publication-selection.json').read_text());assets=[]
+for row in old['assets']:
+ p=Path(row['source_path']);r=ref(p);require(r['bytes']==row['bytes'] and r['sha256']==row['sha256'],'frozen old row');dest=row['destination'];
+ if not r['bytes'] and dest.endswith('.json'):dest=dest[:-5]+'.txt'
+ assets.append({**r,'logical_at':'original/'+dest,'stored_at':'original/'+dest,'role':'literal original native/Error/G response artifact','original_destination':row['destination']})
+for name in ['publication-selection.json','exact-finite-oracle.json','exact_finite_oracle.py','exact-oracle.stdout.json','exact-oracle.stderr.txt','literal-legacy-profile700-fixture-index.json']:
+ p=B/name;dest=name+'.txt' if name.endswith('.py') else name;prefix='history/' if name=='publication-selection.json' else 'gold/' if name.startswith('exact') else 'CAS-ref-index/'
+ assets.append({**ref(p),'logical_at':prefix+dest,'stored_at':prefix+dest,'role':'preserved original selector' if name=='publication-selection.json' else 'frozen gold/CAS refs; no repeat/authority'})
+for name in ['review_literal_custody.py','review_literal_custody.attempt1.py.txt','review_literal_custody.v2-used.py.txt','review_literal_custody.v3-ERROR.py.txt','normal-v4-review.json','optimized-v4-review.json','normal-v4.stdout.json','normal-v4.stderr.txt','optimized-v4.stdout.json','optimized-v4.stderr.txt','normal.stdout.json','normal.stderr.txt','optimized.stdout.json','optimized.stderr.txt','normal-v2-review.json','optimized-v2-review.json','normal-v2.stdout.json','normal-v2.stderr.txt','optimized-v2.stdout.json','optimized-v2.stderr.txt','normal-v3.stdout.json','normal-v3.stderr.txt','optimized-v3.stdout.json','optimized-v3.stderr.txt','build_closed_selection.py']:
+ p=O/name;r=ref(p);dest=name+'.txt' if name.endswith('.py') else name
+ if not r['bytes'] and dest.endswith('.json'):dest=dest[:-5]+'.txt'
+ assets.append({**r,'logical_at':'custody/'+dest,'stored_at':'custody/'+dest,'role':'independent literal custody observer/currentGO/historicalERROR'})
+unique={}
+for row in assets:row['stored_at']=unique.setdefault((row['bytes'],row['sha256']),row['stored_at'])
+report=json.loads((O/'normal-v4-review.json').read_text())
+selection={'schema':'policyos.e02.G855_conditions_corrected_publication_selection.v2','source':old['source'],'tree':old['tree'],'IR_source':report['IR_source'],'G_review':report['G_review'],'status':'GO literalcustody/currenttechnicalconditionsopen','original_selector':ref(B/'publication-selection.json'),'original_actual_denominator':report['actual_original_denominator'],'assets':assets,'logical_assets':len(assets),'unique_assets':len(unique),'unique_bytes':sum(k[0] for k in unique),'corrections':['Original10logical/8unique/51496uniqueB, not10unique/61292uniqueB; originallogical61292B remain literal.','Only portable destination of empty rawERROR stdout .json becomes.txt; originalabsolute source path/bytes/hash unchanged.','Exact finite gold+script/stdout/stderr are explicit companions, not a candidate/nativePASS or ratification.','All storage aliases retain logical_at; restore archived.py.txt code only for explicit read-only stdlib replay.'],'current_counterexample_disposition':'B201/B202 technicalimplementationconditionsopen/change-required on700/64d; root-approved MC/profile addon remains separate author/review; findingclosure and sourcecodeacceptance are not this custody decision.','native_command_capture_boundary':report['native_exit_code'],'gold_math_reviewed_or_repeated_by_this_reviewer':False,'no_new_source_lane_tests_or_native_imports':True,'no_ROOT_environment_package_source_writes':True,'no_raw_CAS_directory_or_DB_copy':True,'CAS_payloads_read_only_ref_index':ref(B/'literal-legacy-profile700-fixture-index.json'),'histories':['OriginalmissingFRCNumPyERROR is preserved; actual DOEleaf correctedenvironment remains separate.','Literalcustody attempt1 failed due reviewerwrongGitpath(all-six instead oftenth-wave); exactsource/stdout/stderr are observerERROR only.','V3 custody effective-removal observer initially counted its own literal predicate string; exactERROR/source retained; V4 builds needle fromfragments and executes2realbindingremovals.','V2 sixcontrolGO remains historical; V4eightcontrolGO addsactualhash/sizeproperty-removal and doesnotrepeatnumerics.'],'finding_closure':False,'native_wave_repeated':False}
+p=O/'publication-selection.json';require(not p.exists(),'append-only finalselector');p.write_text(json.dumps(selection,indent=2)+'\n')
+portable=O/'portable-publication';portable.mkdir(exist_ok=False)
+for row in assets:
+ raw=Path(row['path']).read_bytes();require(len(raw)==row['bytes'] and hashlib.sha256(raw).hexdigest()==row['sha256'],'closed selectedbytes');dest=portable/row['stored_at'];dest.parent.mkdir(parents=True,exist_ok=True)
+ if dest.exists():require(dest.read_bytes()==raw,'aliasbytes')
+ else:dest.write_bytes(raw)
+(portable/'portable-copy-index.json').write_bytes(p.read_bytes())
+print(json.dumps({**ref(p),'logical_assets':len(assets),'unique_assets':len(unique),'unique_bytes':sum(k[0] for k in unique),'original_actual_denominator':report['actual_original_denominator'],'portable':str(portable)},indent=2))

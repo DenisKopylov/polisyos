@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/backend-decoder-controls-normal-v4.json",
+  "bytes": 3922,
+  "sha256": "9660cc0c20830fa326813e5a0d4584f5f5002e6bbd7a4897026ac3c2517b4e73"
+}

@@ -1,0 +1,281 @@
+{
+  "schema": "e02.E.independent-G11-assembly-delta.v1",
+  "reviewer": "/root/cal_uq_r3; read-only joins, no own CAL mechanism approval",
+  "disposition": "GO_bounded_source_readiness_for_corrected_freeze",
+  "base": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+  "doc_companion": "c311546deb347c185b30a2652c2ee9a5e1535e95",
+  "G_checkpoint": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "source_before": {
+    "head": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "tracked_dirty": "",
+    "tracked_paths": 15835,
+    "tracked_bytes": 490142122,
+    "frame_format": "sorted UTF8path NUL decimalBytes NUL rawSHA256digest",
+    "framed_sha256": "ab96a5e90bd13a22af17d6b2d4b55f5ecb766219cf8cb0132e8dc945cb41f606",
+    "private_Git_config": {
+      "bytes": 2216,
+      "sha256": "a5e378e23dee171d707f9e15145ea4b54c3d37e8df15339e9275635b70b0dd6e",
+      "copied": false
+    }
+  },
+  "source_after": {
+    "head": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "tracked_dirty": "",
+    "tracked_paths": 15835,
+    "tracked_bytes": 490142122,
+    "frame_format": "sorted UTF8path NUL decimalBytes NUL rawSHA256digest",
+    "framed_sha256": "ab96a5e90bd13a22af17d6b2d4b55f5ecb766219cf8cb0132e8dc945cb41f606",
+    "private_Git_config": {
+      "bytes": 2216,
+      "sha256": "a5e378e23dee171d707f9e15145ea4b54c3d37e8df15339e9275635b70b0dd6e",
+      "copied": false
+    }
+  },
+  "immutable": true,
+  "footprint": {
+    "full_paths": 84,
+    "doc16": 16,
+    "G68": 68,
+    "production_source_changed": 0,
+    "harness_changed": 0,
+    "E_owned_native_tests_changed": 0,
+    "A_installed_native_tests_added": 1,
+    "new_G_evidence_docs": 67,
+    "all_G68_exact_fetched_G_blobs": true
+  },
+  "unchanged_source_reuse": {
+    "exact_production_architecture_schema_harness_paths": 3814,
+    "all_complete_Git_blobs_equal94d": true,
+    "assembly_primary": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/independent-assembly-review-94d3.json",
+      "bytes": 13248,
+      "sha256": "bc87f3d175bee92a534cd700c6f0b4b9578ad9a474e67b8e37073f6b1d494aa0",
+      "git_blob": "adfca9517ac919141b01a93622c52c7a32b8227f"
+    },
+    "copy_records_verified": 14,
+    "CAL_independent_mechanism_basis": "Unchanged DoE independent CAL receipt; no self-review or numerical result repeated",
+    "prior_global_reds": "Actual5e1086PASS/3FAIL/351ERROR and P41not_established remain distinct"
+  },
+  "amendment": {
+    "full_prompt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/E-resume-after-pr38.md",
+      "bytes": 25051,
+      "sha256": "6164b86fd10c1211a68e7a59c4a2c82bc43b9f6761c9a739958d3be1886a9b53",
+      "git_blob": "14d0141849b506ba6213a185a6d26487976e30f3"
+    },
+    "source_math_unchanged": true,
+    "six_deterministic_diagnostics": {
+      "test": "missing_joint_law",
+      "evaluator_calls": 6,
+      "deterministic_parameter_calls": [
+        {
+          "B": 0.25,
+          "A": 0.25
+        },
+        {
+          "B": 0.25,
+          "A": 0.25
+        },
+        {
+          "B": 0.39433756729740643,
+          "A": 0.25
+        },
+        {
+          "B": 0.10566243270259354,
+          "A": 0.25
+        },
+        {
+          "B": 0.25,
+          "A": 0.39433756729740643
+        },
+        {
+          "B": 0.25,
+          "A": 0.10566243270259354
+        }
+      ],
+      "nominal_calls": 1,
+      "gradient_base_calls": 1,
+      "finite_difference_calls": 4,
+      "stochastic_attempts": 0,
+      "unattempted": 128,
+      "gate_eligible": false
+    },
+    "prior_welfare_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json",
+      "bytes": 17274,
+      "sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9",
+      "git_blob": "2ffb97f33ffd0f1960ee301415b9e403c8513b34"
+    },
+    "basis": "Latest tracked instruction admits deterministic nominal/gradient limited candidate with zero stochastic attempts, withheld intervals/authority. Individual malformed/unsupported law and APIs with strict pre-callback admission retain their stronger existing criterion; no globalcallback0 invention.",
+    "new_numeric_execution_claimed": false,
+    "semantic_or_authority_promotion": false
+  },
+  "installed_REQ01": {
+    "test": {
+      "path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+      "bytes": 11972,
+      "sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+      "git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89"
+    },
+    "owner": "A; G checkpoint11 acceptance",
+    "AST_test_function_count": 1,
+    "selected_in_E_numeric_wave": false,
+    "exclusion_reason": "A-owned REQ-01 installed-wheel/compiler test is outside declared E seven-family numeric wave. It creates/builds/installs a wheel and fresh environment; G has bounded exact A-candidate selector evidence, not composed E/G-wheel acceptance. Keep selected in complete changed-Python Ruff/format input and staged full-umbrella selector if reached; no duplicate standalone wheel build in this assembly review.",
+    "selected_in_changed_Python_lint": true,
+    "G_exact_A_selector_evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-sixth-wave/A-compiler/replay-4/run-result.json",
+      "bytes": 4814,
+      "sha256": "5e2f3ad95ef11e3d9c0655160ab7585c7ff81427070129098de3b3bed076884d",
+      "git_blob": "ca9c3d95657eb89395672388b06dd8bd72b5f3a2"
+    },
+    "G_actual_JUnit": {
+      "tests": 1,
+      "PASS": 1,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "candidate": "577521c6651bba048d6bdfdc13f36a383c8146c6"
+    },
+    "wheel_source_evidence": {
+      "candidate": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+      "wheel_sha256": "c1d20a264ced1691f0cdfdf89c5727bc152269a989be40ba352357d9abab8f27",
+      "python_entry_denominator": 3143,
+      "matched_candidate_git_blobs": 3143,
+      "unmatched_python_paths": [],
+      "predicate_basis": "independently_reconciled",
+      "scope": "all .py ZIP entries, matched to policy-engine/src or policy-engine/tools candidate Git blobs; does not establish production resolver admission"
+    },
+    "bounded_scope": "RecordingResolver fixture; production resolver/source admission and composed E/G wheel acceptance UNRUN",
+    "new_wheel_build_or_test_run": false
+  },
+  "prepared_not_executed": {
+    "native_files": 122,
+    "A_owner_packet_files": 2,
+    "total_numeric_file_inputs": 124,
+    "lint_Python_paths": 317,
+    "new_lint_paths_vs94d": [
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+      "tests/unit/remediation/test_req_01_installed.py"
+    ],
+    "all_native_and_A_inputs": "prepared-plan-a9f78817.json",
+    "group_path_counts": {
+      "PCL_continuous_persistence": 10,
+      "DDM_runtime_and_facade": 16,
+      "BKT_FRC_S10_and_adjacent_report_consumers": 25,
+      "CAL_and_welfare_consumer": 29,
+      "MC_joint_law_support_and_Scientist_consumer": 26,
+      "DOE_SALib_and_consumer_factory": 15,
+      "G_checkpoint10_ControlPlaneStore_companion": 1
+    },
+    "changed_foreign_tests_outside_E_wave": [
+      "policy-engine/tests/unit/common/test_async_tools.py",
+      "policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+      "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py"
+    ],
+    "runtime_JUnit_cases": "UNRUN",
+    "numerical_and_global_gates": "UNRUN",
+    "planning_output_directory_materialized": false
+  },
+  "negative_controls": [
+    {
+      "control": "G_installed_candidate_commit",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "G_installed_test_source_sha256",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "G_installed_corrupt_JUnit_bytes",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "prepared_plan_candidate_sha",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "prepared_plan_native_test_path_count",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "prepared_plan_execution_state",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "installed_native_test_omitted_from_lint",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "amended_law_evaluator_calls",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "amended_law_stochastic_attempts",
+      "outcome": "REJECTED"
+    },
+    {
+      "control": "amended_law_gate_eligible",
+      "outcome": "REJECTED"
+    }
+  ],
+  "limitations_and_next_owner": {
+    "root": "Append exact moderate review; freeze distinct clean source and run corrected common wave once with freshly recomputed input denominator",
+    "independent_audit": "Recompute actual corrected-wave outputs; no source edits or test launches during run",
+    "G_A": "A installed selector belongs to exactA577candidate; composed wheel/full REQ01/source resolver remain separate checks. G integration acceptance/finding closure/production local source law remain separate.",
+    "other_owners": "A default ForecastOwner/verifier/fresh served consumer; D Search codec/ranking; Core/IR/execute admissions and B201/B202 appointment/ratification unresolved"
+  },
+  "ledger": {
+    "held": [
+      "B194",
+      "B197",
+      "B201",
+      "B202"
+    ],
+    "B198": "closed regression preserved",
+    "partial_open": "preserved; no automatic proposal acceptance"
+  },
+  "finding_closure": false,
+  "command": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/g-checkpoint11-assembly-a9f78817/review_delta.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout": "review.stdout.txt",
+    "stderr": "review.stderr.txt"
+  },
+  "environment": {
+    "python": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "UV_NO_SYNC": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CPU_worker_caps": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "POLISYOS_PYTEST_WORKERS": null
+    }
+  },
+  "cleanup": {
+    "performed": "none; native Trash unavailable",
+    "permanent_delete": false,
+    "unique_deciding_outputs_preserved": true,
+    "repeatable_future_planning_path": "/workspace/e02-E-pr38-r2-receipts/g-checkpoint11-assembly-a9f78817/prepared-wave-a9f78817",
+    "planning_path_exists": false
+  }
+}

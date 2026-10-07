@@ -1,0 +1,160 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/copy-index.json",
+    "bytes": 5654,
+    "sha256": "3066a842654d4f20a9666af3e2ec7d16602a3206f7563bd4d5b2e107a49750f6"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/README.md",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/README.md",
+      "bytes": 804,
+      "sha256": "a8fac754beefa1c2a1aef6e7fe8deed4c6d288620571a6f22bcbd5e0a5901650"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapt_publication_freeze.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapt_publication_freeze.py",
+      "bytes": 7493,
+      "sha256": "b7decef4df3596751c69928f3ad55cedca91eb201aedc4e077046194a7c19f6b"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapter-controls.json",
+      "bytes": 3669,
+      "sha256": "786ace59f833ccec27270c01b6e2b6885bcb190bab614def2b74cb4d3a6062a3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter-receipt.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapter-receipt.json",
+      "bytes": 6798,
+      "sha256": "3cb149579d0a9d7dc2ab638ce84ad29f85c194d0f09a9951e777ac869a6bd0b6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapter.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapter.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/adapter_controls.py",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapter_controls.py",
+      "bytes": 6226,
+      "sha256": "cd21245abcbe6b5c9a8e64d1067dfd5b5a19ec6bc49e6d3e1440b2a095b6b2ff"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/admit_origin_binding_predicate_removed.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/admit_origin_binding_predicate_removed.py.txt",
+      "bytes": 7382,
+      "sha256": "2f662aad427780b437002995098860fbf214847793f81c253378ee2e6b32382e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/admit_source_pin_predicate_removed.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/admit_source_pin_predicate_removed.py.txt",
+      "bytes": 7375,
+      "sha256": "dc298068626891c6db304b53d6d0daed1696366bcaa38d61494915a3153c7ae1"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/configured-format.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/configured-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/configured-format.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/configured-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/configured-ruff.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/configured-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/configured-ruff.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/configured-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/controls.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/controls.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/controls.stdout.txt",
+      "bytes": 3669,
+      "sha256": "786ace59f833ccec27270c01b6e2b6885bcb190bab614def2b74cb4d3a6062a3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/external-complete-review-1.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/external-complete-review-1.json",
+      "bytes": 11625,
+      "sha256": "16d5e11038daa41d5aa47a0a72c8c19e5460fc05bd9515d04704cf2ade4b9ebc"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/external-complete-review-2.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/external-complete-review-2.json",
+      "bytes": 7688,
+      "sha256": "e4a2cd9cc5b4ce63d45f7ce346c960734321b38ba4cc27383f9b151f5830ff44"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/failed-collector.stderr.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/failed-collector.stderr.txt",
+      "bytes": 2176,
+      "sha256": "51cfd0e75356b4e8fdcb6f737bb221a0b79f29447f27e9fe089dfeae9aa734f2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/failed-collector.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/failed-collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/original-source-freeze.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/original-source-freeze.json",
+      "bytes": 6358,
+      "sha256": "f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/syntax.stdout.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/syntax.stdout.txt",
+      "bytes": 98,
+      "sha256": "c6c0da09808ab2233ed8c7b0316dde6da7e003ae36520577aea664a41dca1976"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/typed-publication-freeze.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/typed-publication-freeze.json",
+      "bytes": 7951,
+      "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/_external/publication-freeze-a9f78817c-v3.json",
+      "bytes": 7951,
+      "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/copy-index.json",
+      "bytes": 5654,
+      "sha256": "3066a842654d4f20a9666af3e2ec7d16602a3206f7563bd4d5b2e107a49750f6"
+    }
+  ],
+  "file_count": 24,
+  "total_bytes": 92962,
+  "publication": "Exact moderate original bytes; source/evidence publication commits kept distinct; raw/private/production inputs not copied",
+  "finding_closure": false
+}

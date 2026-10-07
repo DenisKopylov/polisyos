@@ -1,0 +1,135 @@
+"""Read-only immutable DOC carrier readback, no source or test commands."""
+
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+REPO = Path("/workspace/e02-E-frc-20261006")
+SHA = "3eafb85617738c9b398fe67c70d58b3d0d05a5a9"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/"
+OUT = Path(__file__).parent / "cal-retry-independent"
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(REPO), *args])
+
+
+def blob(path):
+    return git("show", f"{SHA}:{path}")
+
+
+def digest(raw):
+    return {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+handoff = json.loads(blob(PREFIX + "implementation-handoff.json"))
+index_raw = blob(PREFIX + "copy-index.json")
+index = json.loads(index_raw)
+base = index["publication_parent_sha"]
+paths = [
+    p.decode() for p in git("diff", "--name-only", "-z", base, SHA).split(b"\0") if p
+]
+issues = []
+copies = []
+for row in index["copies"]:
+    raw = blob(PREFIX + row["portable_path"])
+    original = Path(row["source_path"]).read_bytes()
+    actual = digest(raw)
+    if raw != original or any(actual[k] != row[k] for k in actual):
+        issues.append({"copy_diff": row["portable_path"]})
+    copies.append(
+        {
+            "repository_path": PREFIX + row["portable_path"],
+            "original_path": row["source_path"],
+            **actual,
+            "literal_equal": raw == original,
+        }
+    )
+if (len(copies), sum(r["bytes"] for r in copies)) != (
+    index["copied_files"],
+    index["copied_bytes"],
+):
+    issues.append("Copy index count/bytes differs")
+if (
+    len(paths) != 50
+    or len(paths) != handoff["path_count"]
+    or sorted(paths) != sorted(handoff["changed_paths"])
+):
+    issues.append("Complete DOC footprint differs")
+if (
+    any(not p.startswith(PREFIX) for p in paths)
+    or any(p.endswith(".py") for p in paths)
+    or handoff["active_python_path_count"] != 0
+    or handoff["source_test_delta_paths"]
+):
+    issues.append("DOC-only scoped carrier contains source/test/active-Python changes")
+if (
+    handoff["candidate_sha"] != "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+    or handoff["candidate_tree_sha"] != "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+):
+    issues.append("Verification source identity differs")
+if (
+    handoff["finding_closure"] is not False
+    or handoff["original_attempt"]["exit_code"] != -9
+    or handoff["original_attempt"]["counts"] is not None
+):
+    issues.append("Historical outcome/closure separation differs")
+if handoff["retry"]["counts"] != {
+    "cases": 324,
+    "passed": 324,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+}:
+    issues.append("Retry outcome summary differs")
+control = json.loads(
+    blob(PREFIX + "publication-control/recompute-copy-custody.stdout.json")
+)
+result = {
+    "schema": "policyos.e02.independent_CAL_retry_DOC_carrier_review.v1",
+    "candidate_sha": SHA,
+    "candidate_tree_sha": git("rev-parse", SHA + "^{tree}").decode().strip(),
+    "publication_base_sha": base,
+    "verification_source_sha": handoff["candidate_sha"],
+    "verification_tree_sha": handoff["candidate_tree_sha"],
+    "disposition": "GO for immutable DOC carrier custody" if not issues else "NO-GO",
+    "changed_path_denominator": len(paths),
+    "active_python_path_denominator": sum(p.endswith(".py") for p in paths),
+    "literal_copy_count": len(copies),
+    "literal_copy_bytes": sum(r["bytes"] for r in copies),
+    "changed_paths": paths,
+    "copies": copies,
+    "handoff": {
+        "repository_path": PREFIX + "implementation-handoff.json",
+        **digest(blob(PREFIX + "implementation-handoff.json")),
+    },
+    "copy_index": {"repository_path": PREFIX + "copy-index.json", **digest(index_raw)},
+    "publication_control_observation": control,
+    "issues": issues,
+    "limits": [
+        "Readback is exact Git blobs vs original recorded bytes; it does not certify remote delivery, later root merge or finding closure.",
+        "Existing separate independent324/source input receipt reused, no numerical/test/gate repeat.",
+        "Cleanup execution authorization/attribution and scientific production/source-law inputs remain outside this DOC custody review.",
+    ],
+}
+(OUT / "committed-publication-review.json").write_text(
+    json.dumps(result, indent=2) + "\n"
+)
+print(
+    json.dumps(
+        {
+            k: result[k]
+            for k in [
+                "candidate_sha",
+                "candidate_tree_sha",
+                "disposition",
+                "changed_path_denominator",
+                "active_python_path_denominator",
+                "literal_copy_count",
+                "literal_copy_bytes",
+                "issues",
+            ]
+        }
+    )
+)

@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.moderate-publication-selection.v1",
+  "operation": "one closed native fixture child",
+  "source": "c3a0057059b258c30224aac06709523cab2dc9cc",
+  "tree": "e5d743266cf965680019f39509061207df234080",
+  "file_count": 7,
+  "total_bytes": 28371,
+  "files": [
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/receipt.json",
+      "bytes": 10789,
+      "sha256": "1ec5b9463914cdc30a6a29078961f8824315d174029f9fe69ca401850bcb984d"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/publication-qualification.json",
+      "bytes": 4397,
+      "sha256": "4082ce5b0d46399d91917869c166a491351fbd9e31af2bf4cdac09af788021cf"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/archive-one-closed-native-child.py.txt",
+      "bytes": 10915,
+      "sha256": "560abd32345d9f0ecd4eab9fc4d00cd5dced45043046d867986492703eceb1ba"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/process-before.json",
+      "bytes": 475,
+      "sha256": "4ee7e1d19366e19369ee1b5b2d41a806ef541752ca8dc5455eaa81924536d44e"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/process-before-retirement.json",
+      "bytes": 476,
+      "sha256": "7efe9e2f300498bc33578ea1d0a6be9a5ad4ffc4e99db5d3087a1b4348eaca2e"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive.stdout.txt",
+      "bytes": 1319,
+      "sha256": "532d0cf950fd075315324c0f5095d956268b1c03f95249f179fe1a536f289a17"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "full_ignored_inventory_and_member_proof_references": [
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before.json",
+      "bytes": 8081306,
+      "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before-retirement.json",
+      "bytes": 8081306,
+      "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/archive-complete-member-readback.json",
+      "bytes": 6139101,
+      "sha256": "fbd510b6574a183b80ff45a5a2ba603edf0a3cf741417e046ac7175cfc9f435a"
+    }
+  ],
+  "full_ignored_archive_reference": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "bytes": 116892698,
+    "sha256": "59fe87ef275be44536403f38eb739b2f91dba64cd88f79eb6dc35481d9f71441"
+  },
+  "plain_payload_large_proofs_archive_copied_to_Git": false,
+  "source_numeric_backend_checks": false,
+  "independent_review": "pending separate peer"
+}

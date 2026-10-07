@@ -1,0 +1,9 @@
+{
+  "schema": "policyos.e02.assembly_attempt.v1",
+  "outcome": "ERROR",
+  "scope": "One-time copy index assembly, not runtime check or finding outcome",
+  "reason": "New independent Source4 selector reused an already indexed portable asset with a different original selector identity; copier refused index collision before changing existing bytes.",
+  "correction": "Original selector retained; additive selector published under independent-owner-reviews/source4-addendum with complete byte verification.",
+  "source_or_historical_output_mutated": false,
+  "publication_not_claimed_until_final_index_validation": true
+}

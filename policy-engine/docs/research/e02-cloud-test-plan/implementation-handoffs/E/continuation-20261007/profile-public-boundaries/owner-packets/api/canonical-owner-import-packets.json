@@ -1,0 +1,177 @@
+{
+  "schema": "policyos.e02.canonical_owner_import_packet.v1",
+  "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "product_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "product_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "G": "2abc17f46a033a7879663486ff9946a95786601f",
+  "packets": [
+    {
+      "id": "forecast-producer-reader",
+      "source_edge": "polisyos.ir.analytics.forecasting_uncertainty",
+      "symbols": [
+        "load_forecasting_uncertainty_bundle",
+        "persist_forecasting_uncertainty_bundle"
+      ],
+      "canonical_owner": "IR analytics/public facade owner, routed G",
+      "proposed_supported_boundary": "existing polisyos.ir.analytics curated export map in ir/api.py",
+      "caller_writer": "E forecast_bridge/forecast_owner",
+      "owner_lease": "not_established",
+      "patch": {
+        "path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+        "bytes": 1930,
+        "sha256": "7052a5120cf519b4ec0a41de55af11ca068edda91fc05f2e57f93f1832ec6162",
+        "changed_paths": [
+          "policy-engine/src/polisyos/ir/api.py",
+          "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+        ],
+        "applied": false
+      },
+      "positive_next_result": "exact object identity producer+loader exports; actual ForecastOwner ETS bundle CAS→publicaliasread→freshE evidence resolver, same law/unit/six roles",
+      "negative_next_result": "corrupted hash/kind/schema/version/time refs rejected by actual loader, aliasremoval breaks native caller read",
+      "companions": [
+        "canonical generated inventory/reference",
+        "IR analytics README entry",
+        "compatible release fragment",
+        "behavioral API import/CAS test"
+      ],
+      "finding_scope": "Original affected mechanisms only; import-gate result does not close finding",
+      "generated_mutation": false
+    },
+    {
+      "id": "native-replay-statehelpers",
+      "source_edge": "polisyos.foundry.execute.executor",
+      "symbols": [
+        "get_state_path",
+        "load_state_snapshot",
+        "put_state_snapshot"
+      ],
+      "canonical_owner": "Foundry execute/public API owner, routed G",
+      "proposed_supported_boundary": "existing polisyos.foundry.execute curatedlazyfacade; facade remains callable",
+      "caller_writer": "E native_replay",
+      "owner_lease": "not_established",
+      "patch": {
+        "path": "/tmp/e02-E-api-companions-thirteenth-20261007/Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+        "bytes": 1390,
+        "sha256": "25cbb5c1b13e0f12868559dbf23691a571d5b6c44537b919288c07be725ac96a",
+        "changed_paths": [
+          "policy-engine/src/polisyos/foundry/execute/__init__.py",
+          "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py"
+        ],
+        "applied": false
+      },
+      "positive_next_result": "exact objectidentity aliases + native StateSnapshot put→freshstoreload→get_state_path plus real K replay witness; facade import keeps optional backend lazy",
+      "negative_next_result": "bad statepath/ref/kind/hash rejects; removing alias breaks actual replay state/readback ratherthan markercheck",
+      "companions": [
+        "Foundry execute README",
+        "canonical generated publicinventory/reference",
+        "compatible release fragment",
+        "behavioral facade/CAS/replay tests"
+      ],
+      "finding_scope": "Original affected mechanisms only; import-gate result does not close finding",
+      "generated_mutation": false
+    },
+    {
+      "id": "preexisting-IR-CanonSpec",
+      "source_edge": "polisyos.ir.model_layer.canon",
+      "symbols": [
+        "CanonSpec"
+      ],
+      "canonical_owner": "IR artifacts/canon public API owner with Core canon owner, routed G",
+      "proposed_supported_boundary": "existing polisyos.ir.artifacts identityreexport of exact IR CanonSpec",
+      "caller_writer": "E forecast_bridge",
+      "owner_lease": "not_established",
+      "patch": {
+        "path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-CanonSpec-alias-and-E-caller.patch",
+        "bytes": 1015,
+        "sha256": "12f527d63ff94602e6edcb5010f4a145c3d89f6e04216a5a3879b4000975481d",
+        "changed_paths": [
+          "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+          "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+        ],
+        "applied": false
+      },
+      "positive_next_result": "IRpublic CanonSpec is exactsame class required by IRput_json_artifact; finite floats CASwrite/freshread retains actualconfiguredIRprofile; scopedtype no new CoreSpec→IRSpec error",
+      "negative_next_result": "malformed strictIRtag staysrefused; Core sibling spec cannot be silently substituted; aliasremoval failsactualpublicconsumer import",
+      "companions": [
+        "IR artifacts README",
+        "canonical owner-selected publicsubfacade or root contract review",
+        "compatible release fragment",
+        "behavioral codec/type/adversarial tests"
+      ],
+      "separate_from_original12": true,
+      "reason_existing_Core_canon_not_substituted": "CoreCanonSpec and IRCanonSpec are distinct sibling dataclass contracts; sourcebound earlier overlay added2 actualtypederrors33→35 despite runtime commoncodec. No copycodec or ad hoc cast.",
+      "finding_scope": "Original affected mechanisms only; import-gate result does not close finding",
+      "generated_mutation": false
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "c755be5ff6271d019ba9960ecbb71b42f9876e6d",
+      "bytes": 1561,
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+      "bytes": 1915,
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7",
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    }
+  ],
+  "all_owner_lease_states": "not_established",
+  "Ecaller_patches_applicable_only_after_canonicalowner_export_admission": true,
+  "P41": "not_established",
+  "predicate_basis": "recomputed"
+}

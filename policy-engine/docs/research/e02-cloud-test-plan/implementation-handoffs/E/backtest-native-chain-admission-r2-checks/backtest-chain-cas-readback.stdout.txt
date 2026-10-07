@@ -1,0 +1,21 @@
+command=["/workspace/polisyos/policy-engine/.venv/bin/python", "/workspace/e02-E-pr38-r2-receipts/backtest-chain-cas-readback.py"]
+PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src
+{
+  "candidate_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+  "original_native_execution_sha": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+  "new_reader_scope": [
+    {
+      "report_artifact_id": "sha256:26d12492f6a5f9c807a837eee86206ea6f67d3a96fa240f3743d1607d124d300",
+      "K": 1,
+      "genuine_readback": "PASS",
+      "five_hash_valid_chain_model_fakes": "REFUSED for every scenario"
+    },
+    {
+      "report_artifact_id": "sha256:11da9926d1cfd9d7cf70a2fd4c414f0f5e0261d501b8bcdb8301b59b02bf1fe0",
+      "K": 7,
+      "genuine_readback": "PASS",
+      "five_hash_valid_chain_model_fakes": "REFUSED for every scenario"
+    }
+  ]
+}
+measured={"exit_code": 0, "wall_seconds": 10.980761725993943, "user_seconds": 10.48684, "system_seconds": 0.9841179999999999, "max_rss_kib": 514176}

@@ -1,0 +1,39 @@
+{
+  "controls": [
+    {
+      "case": "healthy_closed_native_qualification",
+      "outcome": "PASS"
+    },
+    {
+      "case": "native_count_bool",
+      "outcome": "PASS",
+      "refusal": "qualification_does_not_match_closed_native_inputs"
+    },
+    {
+      "case": "raw_equality_claim",
+      "outcome": "PASS",
+      "refusal": "qualification_does_not_match_closed_native_inputs"
+    },
+    {
+      "case": "invented_doc_cause",
+      "outcome": "PASS",
+      "refusal": "qualification_does_not_match_closed_native_inputs"
+    },
+    {
+      "case": "digest_old_value",
+      "outcome": "PASS",
+      "refusal": "qualification_does_not_match_closed_native_inputs"
+    },
+    {
+      "case": "invented_full_raw_capture",
+      "outcome": "PASS",
+      "refusal": "qualification_does_not_match_closed_native_inputs"
+    },
+    {
+      "case": "native_outcome_rebrand",
+      "outcome": "PASS",
+      "refusal": "qualification_does_not_match_closed_native_inputs"
+    }
+  ],
+  "native_gate_rerun": false
+}

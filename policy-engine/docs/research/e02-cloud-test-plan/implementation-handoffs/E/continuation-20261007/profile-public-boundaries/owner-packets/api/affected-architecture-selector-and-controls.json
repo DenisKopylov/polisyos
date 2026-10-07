@@ -1,0 +1,133 @@
+{
+  "schema": "policyos.e02.available_affected_architecture_recomputation.v1",
+  "source_at_preparation": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "product_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "execution": "UNRUN until independent sourcefreeze",
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "canonical_readonly_argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/tmp/e02-E-thirteenth-frozen-architecture-recompute-20261007",
+    "--generated-freshness-uv-cache-dir",
+    "/home/agent/.cache/uv"
+  ],
+  "source_guarantees": [
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "function": "run_check",
+      "property": "recomputes publicinventory/reference/deepbaseline/README/workflow and comparesexistingtrackedoutputs; no sync/write_if_changed call"
+    },
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "function": "_measure_required_generated_artifacts_in_workspace",
+      "property": "required generator outputs are written only to retainednewprivate source/environment/outputroot"
+    },
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "function": "_parse_args",
+      "property": "retainedworkspace and existingofflineUVcache are requiredtogether; retainoldpath rejected and never removed"
+    }
+  ],
+  "prerequisites": {
+    "actual_cache_path": "/home/agent/.cache/uv",
+    "cache_exists_at_packet_preparation": true,
+    "new_workspace_absent_at_preparation": true,
+    "installed_declared_extras": "existingRootdeclaredenv; actualprivateofflinegeneratorenv packages/originscheckedbycanonicalguard",
+    "serialization": "no sharedmutablegenerator/db/port; currentRootsource immutable; retainworkspace only ownconsumer",
+    "node_prerequisite": "corepack pnpm frozen dependency links/currentcache required for relevantdefaultgeneratedOpenAPIclient probe; unavailable origin/setup outcomeUNRUN, neverproductPASS"
+  },
+  "not_selected": [
+    "--all-generated-checks mayrun optionaldeclaredmutablecommands directly incanonicalworktree; belongsGwriter",
+    "--skip-generated-checks omitsrequiredfreshness andcannotqualifyfullgate",
+    "sync writes trackedoutputs; belongscanonical G generator/inventorywriter",
+    "baseline/exceptions updates donotrepairsourceboundary"
+  ],
+  "negative_and_positive_argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp=/tmp/e02-E-thirteenth-architecture-maintained-controls-20261007",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_corrupt_supported_entrypoint_fails_check",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_enumerates_every_supported_entrypoint_facade",
+    "tests/repo_quality/tools/test_architecture_phase3.py::test_guardrails_detects_new_deep_import_creep"
+  ],
+  "control_semantics": [
+    "The healthyinventorytest actuallyrecomputes allsupportedfacades frommanifest/source",
+    "Corruptentrypointtest invokesreal run_check with oldinventory plusremovedliteralexport andexpects1/drift; tinyisolatedfixture omitsgeneratedchecks byitsdeclaredunit scope, nottheglobalgate",
+    "Deepimportnegative invokesactual_check_deep_import_creep on emptyisolatedbaseline plus crossrootprivateedge; itdoesnotprove runtimecalls/namespacecontentlaws"
+  ],
+  "input_refs": [
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/README.md",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "91782dd74953d3f8650196c7eb1b9c08b78767a2",
+      "bytes": 6116,
+      "sha256": "885d8c870dacf889ce0b2d3fdfae92b1da9700aa8902aac99d850b83e718bd64"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    },
+    {
+      "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "4ba9adfe8327ee020efd91ad1621d447ef271a95",
+      "bytes": 947189,
+      "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+    },
+    {
+      "path": "policy-engine/architecture/exceptions/guardrails.toml",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "d9b1108ade75bb80a3df52f4afb6a4bb79b9acc3",
+      "bytes": 1500,
+      "sha256": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "c40a4e5418f6b2002bfe06fcc664a49db64857cc",
+      "bytes": 9909,
+      "sha256": "4f6764e9f77672f1b2e756835b3b36ba11f80df75ba72126bc8325c3c935d73f"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "blob": "ac166d9ec217775bdd29c67df415a7746ac61feb",
+      "bytes": 57483,
+      "sha256": "6cbdbe384c2ea300ffdfed7bdd460fa2a696e5ea22179cf6135db64d9d4a61d2"
+    }
+  ],
+  "required_postflight": [
+    "Alltrackedbytes/status unchanged; onlynewignoredretainedscratch writes",
+    "Fullstdoutstderr/argv/env/moduleorigins/runtimepackages/inputs outcomes retained",
+    "UNRUN independentlyretained for unavailable generatedconstituents; do notcollapse partial findings intofullPASS",
+    "Sourceboundnewresult notretallyhistoricalb2 globalgate corpus"
+  ],
+  "P41": "not_established",
+  "predicate_basis": "recomputed"
+}

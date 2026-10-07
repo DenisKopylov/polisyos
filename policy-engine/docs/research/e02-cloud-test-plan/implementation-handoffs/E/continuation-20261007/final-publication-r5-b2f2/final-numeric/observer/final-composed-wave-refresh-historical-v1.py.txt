@@ -1,0 +1,160 @@
+"""Refresh the already reviewed numerical plan; delegate execution unchanged."""
+from __future__ import annotations
+
+import argparse
+import ast
+import asyncio
+import collections
+import hashlib
+import importlib.util
+import json
+import re
+import subprocess
+from pathlib import Path
+
+RECIPE = Path('/tmp/e02-E-final-wave-preparation-31782b55-20261007/build_final_wave_plan.py')
+RECIPE_HASH = '1faaff7e45a602a85d3496d4e322dcfc1e96d8b8f6aeae47311d9faf147986e3'
+MC = 'MC_joint_law_support_and_Scientist_consumer'
+ADDITIONS = [
+    'policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py',
+    'policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py',
+]
+OLD = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+
+
+def req(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def full_ref(value):
+    req(isinstance(value, str) and re.fullmatch('[0-9a-f]{40}', value) is not None, 'full immutable ref required before Git/import callbacks')
+    return value
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--repo', type=Path, required=True)
+    parser.add_argument('--candidate', type=full_ref, required=True)
+    parser.add_argument('--plan-output-root', type=Path, required=True)
+    parser.add_argument('--wave-output-root', type=Path, required=True)
+    parser.add_argument('--environment', type=Path, required=True)
+    parser.add_argument('--execute', action='store_true')
+    args = parser.parse_args()
+    repo = args.repo.resolve()
+    out = args.plan_output_root.resolve()
+    wave = args.wave_output_root.resolve()
+    req(not out.exists() and not out.is_symlink() and not wave.exists() and not wave.is_symlink(), 'never-existing preparation and wave namespaces required')
+    req(args.environment.resolve() in [Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv').resolve(), Path('/workspace/e02-E-doe-20261006/policy-engine/.venv').resolve()], 'existing admitted readonly numeric environment required; no new environment')
+
+    def git(*argv):
+        return subprocess.check_output(['git', '-C', str(repo), *argv])
+
+    req(git('rev-parse', 'HEAD').decode().strip() == args.candidate, 'actual merged HEAD differs from frozen request')
+    req(not git('status', '--porcelain', '--untracked-files=no').strip(), 'clean tracked frozen input required')
+    data = RECIPE.read_bytes()
+    req(hashlib.sha256(data).hexdigest() == RECIPE_HASH, 'reviewed preparation recipe bytes differ before import')
+    for path in ADDITIONS:
+        body = git('show', args.candidate + ':' + path)
+        req((repo / path).read_bytes() == body, 'real current native addition source differs')
+    out.mkdir(parents=True, exist_ok=False)
+    spec = importlib.util.spec_from_file_location('exact_previous_reviewed_prepare_recipe', RECIPE)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    mod.REPO = repo
+    mod.CAND = args.candidate
+    mod.OUT = out
+    mod.WAVE = wave
+    mod.ENV = args.environment.resolve()
+    original_git = mod.git
+    original_asset = mod.asset
+    added_source_old_absence = set()
+
+    def old_absent(path):
+        result = subprocess.run(['git', '-C', str(repo), 'cat-file', '-e', OLD + ':' + path], capture_output=True, check=False)
+        if result.returncode:
+            req(path in git('ls-tree', '-r', '--name-only', args.candidate, '--', 'policy-engine/src/polisyos').decode().splitlines(), 'not an actual added current product source')
+            req(path not in git('ls-tree', '-r', '--name-only', OLD, '--', 'policy-engine/src/polisyos').decode().splitlines(), 'unexpected old source read failure')
+            added_source_old_absence.add(path)
+            return True
+        return False
+
+    def source_git(*argv):
+        if len(argv) == 2 and argv[0] == 'show' and argv[1].startswith(OLD + ':'):
+            path = argv[1].split(':', 1)[1]
+            if old_absent(path):
+                return b''  # Empty AST comparison only, explicitly absent input below; never an invented old artifact.
+        return original_git(*argv)
+
+    def source_asset(path, ref=None, physical=True):
+        ref = args.candidate if ref is None else ref
+        if ref == OLD and old_absent(path):
+            return dict(path=path, source_sha=OLD, present=False, git_blob=None, bytes=None, sha256=None, role='new current source; no old file or old PASS exists')
+        return original_asset(path, ref, physical)
+
+    mod.git = source_git
+    mod.asset = source_asset
+    mod.prepare()  # The identical existing importer/harness/selector preparation; does not execute.
+    plan_path = out / 'final-numeric-selector-plan.json'
+    plan = json.loads(plan_path.read_text())
+    before = {name: list(paths) for name, paths in plan['groups'].items()}
+    assets = []
+    for path in ADDITIONS:
+        row = source_asset(path)
+        row['family'] = MC
+        row['reason'] = 'actual producer/public-composition/configured-fit→CAS→MC native defining companion; current source and outcomes separate'
+        assets.append(row)
+        for name in plan['groups']:
+            plan['groups'][name] = [p for p in plan['groups'][name] if p != path]
+        plan['groups'][MC].append(path)
+        plan['source_test_assets'][path] = {key: row[key] for key in ['bytes', 'sha256']}
+        plan['additions'][path] = dict(group=MC, reason=row['reason'])
+        plan['changed_foreign_tests_outside_E_wave'] = [p for p in plan['changed_foreign_tests_outside_E_wave'] if p != path]
+    req(len([job for job in plan['jobs'] if job['kind'] == 'numerical']) == 7, 'seven original native families required')
+    owner_destinations = [row['destination'] for row in plan['owner_packet_extra_inputs']]
+    for job in plan['jobs']:
+        if job['kind'] != 'numerical':
+            continue
+        at = job['argv'].index('--basetemp') + 2
+        extras = owner_destinations if job['group'] == 'BKT_FRC_S10_and_adjacent_report_consumers' else []
+        job['argv'] = job['argv'][:at] + [p.removeprefix('policy-engine/') for p in plan['groups'][job['group']]] + extras
+    plan['group_path_counts'] = {name: len(paths) for name, paths in plan['groups'].items()}
+    plan['native_test_path_count'] = sum(plan['group_path_counts'].values())
+    plan['test_input_path_count_including_owner_packets'] = plan['native_test_path_count'] + len(plan['owner_packet_extra_inputs'])
+    plan['ast_test_function_counts_only'] = {name: sum(sum(isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith('test_') for n in ast.walk(ast.parse(git('show', args.candidate + ':' + p)))) for p in paths) for name, paths in plan['groups'].items()}
+    counts = collections.Counter(p for paths in plan['groups'].values() for p in paths)
+    req(all(counts[path] == 1 and path in plan['groups'][MC] for path in ADDITIONS), 'new true native paths must occur exactly once in MC family')
+    for name, paths in before.items():
+        req(set(paths) - set(ADDITIONS) <= set(plan['groups'][name]), 'prior defining path silently dropped')
+    plan['full_e_native_manifest']['additional_current_native_paths'] = ADDITIONS
+    full_native = {p for paths in plan['full_e_native_manifest']['before_scoped_CAL_filter'].values() for p in paths}
+    full_native.update(ADDITIONS + [mod.RATIO])
+    plan['full_e_native_manifest']['full_path_count'] = len(full_native)
+    plan['current_composition_fit_additions'] = assets
+    plan['prior_recipe_identity'] = dict(path=str(RECIPE), bytes=len(data), sha256=RECIPE_HASH, reused_execute='existing canonical plan_wave.execute; no duplicate runner/store/planner/library')
+    plan['added_source_old_absence'] = sorted(added_source_old_absence)
+    plan['missing_old_file_semantics'] = 'The previous source has no file at these literal paths. Empty bytes are used only for AST-set comparison; each old asset is explicitly present=false with no hash/blob/size or old PASS.'
+    plan['runtime_test_case_count'] = 'UNRUN until actual final JUnit; earlier author44/fit74 and historical31782 counts are not a current wave prediction.'
+    plan['execution_state'] = 'PREPARED_ONLY; current source admitted; no numerical/gate launch unless explicit --execute supplied after parent immutable freeze'
+    plan_path.write_text(json.dumps(plan, indent=2) + '\n')
+    criterion_path = out / 'criterion-selector-map.json'
+    criterion = json.loads(criterion_path.read_text())
+    for row in criterion['rows']:
+        row['current_selector_paths'] = plan['groups'][row['native_family']]
+    criterion_path.write_text(json.dumps(criterion, indent=2) + '\n')
+    (out / 'composition-fit-selector-delta.json').write_text(json.dumps(dict(source=args.candidate, tree=plan['candidate_tree_sha'], additions=assets, original_families_preserved=True, native_paths=plan['native_test_path_count'], total_input_paths=plan['test_input_path_count_including_owner_packets'], unchanged_CAL_paths_retained=plan['full_e_native_manifest']['retained_unchanged_CAL_native_paths'], case_denominator='UNRUN; actual JUnit only', global_queue_retained=len(plan['global_gate_queue']), execute_requested=args.execute), indent=2) + '\n')
+    req(git('rev-parse', 'HEAD').decode().strip() == args.candidate and not git('status', '--porcelain', '--untracked-files=no').strip(), 'source changed during preparation')
+    print(json.dumps(dict(state=plan['execution_state'], source=args.candidate, tree=plan['candidate_tree_sha'], native_paths=plan['native_test_path_count'], additions=ADDITIONS, wave_root=str(wave), execute_requested=args.execute)))
+    if args.execute:
+        harness = out / 'exact-reviewed-harness/prepare_current_owner_wave.py'
+        bound = next(r for r in json.loads((out / 'harness-source-inputs.json').read_text())['assets'] if r['path'].endswith('/prepare_current_owner_wave.py.txt'))
+        req(harness.read_bytes() == git('show', args.candidate + ':' + bound['path']), 'exact reviewed execution wrapper differs')
+        wrapper_spec = importlib.util.spec_from_file_location('exact_existing_execution_wrapper', harness)
+        wrapper = importlib.util.module_from_spec(wrapper_spec)
+        wrapper_spec.loader.exec_module(wrapper)
+        planner = wrapper.load_planner(argparse.Namespace(repo=repo, candidate=args.candidate, comparison_base=mod.BASE, output_root=wave))
+        raise SystemExit(asyncio.run(planner.execute(plan)))
+
+
+if __name__ == '__main__':
+    main()

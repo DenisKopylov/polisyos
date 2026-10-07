@@ -1,0 +1,396 @@
+{
+  "schema": "policyos.e02.frozen_local_recipe_proposal.v1",
+  "unit": "E",
+  "scope": "Exact parent-declared frozen combined candidate; test outcomes retain original reviewed SHAs until actual final-wave receipt exists. Production invocation remains UNRUN absent real typed inputs.",
+  "authorization_boundary": "No production data transfer, invented served route, Calibrator authority, law carrier, owner threshold, source path or signoff. No local production invocation occurs before actual admitted typed inputs exist.",
+  "common_G_protocol": [
+    "Fetch the named E topic; verify exact implementation SHA/tree and tracked recipe/source blobs. G creates or resumes only its admitted checkout under workspace doctor rules.",
+    "Use repository-declared extras on supported native Python/runtime; environment/backend unavailable is UNRUN/SKIP, never PASS.",
+    "Run the exact bounded mechanism command on that source; it is synthetic/native numerical evidence only.",
+    "Where factual source/history authority is required, owner supplies actual local read-only handles and immutable content identities before scheduling the existing typed API chain.",
+    "Return bounded command/input identities, backend/environment, exact candidate/tree SHA, full deciding output, independent oracle and present-but-fake/property-removal negative. Keep production bytes local.",
+    "Code acceptance and finding closure remain distinct; preserve committed ledger status absent an accountable closure decision."
+  ],
+  "recipes": [
+    {
+      "finding_ids": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "family": "backtest",
+      "why_local": "A factual historical/native simulation replay must consume the exact immutable historical view; cloud controlled dispatch does not establish the missing native workflow/state bridge.",
+      "next_owner": "Scientist configured-workflow/input-materializer and RunSimulation ExecConfig owners; G executes local read-only once admitted.",
+      "minimal_inputs": [
+        "Owner-selected immutable DataSnapshot/history artifact and matching canonical Trinity.model_spec.data_snapshot_ref for the actual pre-cutoff masked view.",
+        "Existing inputs.trinity_bundle_ref bind admitted by default Scientist workflow; it is presently missing, not invented by this recipe.",
+        "Actual Foundry StateSnapshot/GlobalState materializer from masked metric-history rows, registry, target metric, units, time coordinates and declared train/holdout/horizon.",
+        "HistoricalValidationPlan objects including prediction_mode, target/estimand and requested K replay identity; owner binding from requested seed to RunSimulationNode.exec_config.seed.",
+        "One configured CAS resolving every historical/model/policy/config/input ref; producer and consumer use the same store."
+      ],
+      "actual_api_sequence": [
+        "BacktestOrchestrator(configured existing store/backend).run(plans, report_id=owner report_id, inputs=owner InputRefs, metadata=owner metadata, trust_screening=declared supported mode).",
+        "The existing orchestrator calls its native Scientist run_experiment path; retain exact bind/output refs and effective ExecConfig seeds for all K calls.",
+        "Fresh-process CAS resolve/reopen of report and masked views; independently compare selected history row IDs/content, target/horizon, source/split boundary and requested/completed/failed counts."
+      ],
+      "deciding_controls": [
+        "Future/leaky history row with identical labels must refuse or change selected input identity.",
+        "Missing native bind is UNRUN/ERROR, never prediction success.",
+        "Scalar effect interval cannot become trajectory; distinct requested seeds must demonstrably reach actual native calls."
+      ],
+      "bounded_mechanism_commands": [
+        "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+        "(cd policy-engine && uv sync --locked --extra analytics --extra test --extra lint)",
+        "(cd policy-engine && uv run --no-sync python -m pytest -q tests/unit/scientist/methods/backtesting tests/unit/scientist/governance/test_backtest_matrix.py tests/unit/remediation/test_bkt_02.py tests/unit/remediation/test_bkt_03.py tests/unit/ir/mirror_contracts/test_backtest.py)",
+        "(cd policy-engine && uv run --no-sync python -m pytest -q -s tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_native_scientist_missing_trinity_is_not_counted_as_prediction_success)"
+      ],
+      "implementation_commits": [
+        "d94b1116cb852eb66722d47610dcd65d75faf503",
+        "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+      ],
+      "implementation_sha_for_this_recipe": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "implementation_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "topic": "codex/e02-E-continuation-20261006",
+      "topic_fetch_command": "git fetch origin codex/e02-E-continuation-20261006",
+      "tracked_receipt_ref": "58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/backtest.json",
+      "unavailable_input_or_backend_outcome": "UNRUN/SKIP for this check; limited/held finding boundary retained. No synthetic production substitute.",
+      "prior_author_source_recipe": {
+        "implementation_commits": [
+          "d94b1116cb852eb66722d47610dcd65d75faf503",
+          "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+        ],
+        "implementation_sha_for_this_recipe": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+        "implementation_tree": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+        "topic": "codex/e02-E-backtest-20261006",
+        "tracked_receipt_ref": "8feeb00c0004be8dfd6c9118b2afaf7c364a80de:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json"
+      }
+    },
+    {
+      "finding_ids": [
+        "B194"
+      ],
+      "family": "mc",
+      "why_local": "Actual served simulation domain/support requires the real owner-admitted evaluator/model/source law; production law is not available in cloud.",
+      "next_owner": "Scientist served simulation/execution/domain-failure owner; G local verifier.",
+      "minimal_inputs": [
+        "Exact ProgramGraph/ExecPlan, base state, mechanism/slot/merge registries, parameter loader and immutable model/run/config refs used by an existing admitted evaluator.",
+        "Typed envelopes/carrier defining source law, exact named coordinate order, declared dependence or content-bound joint rows/weights/draw identities and digest.",
+        "Owner-defined evaluation domain and output IDs, support/refusal reasons, time roles and requested draw budget.",
+        "Configured existing CAS and admitted consumer path; route is currently bridge_missing and this recipe does not supply a new served route.",
+        "Owner-approved same-input retry classifier only if transient retry is part of the required profile; do not resample a model-domain failure."
+      ],
+      "actual_api_sequence": [
+        "After the existing served evaluator intake is genuinely wired, invoke that route with owner-admitted model/law/config refs and retain its exact callable binding.",
+        "Existing PropagationDispatcher(config).propagate(simulation_fn, nominal_params, input_envelopes, output_metric_ids, is_jax_differentiable=effective backend setting).",
+        "Persist/reopen through the existing node and envelope/report store; independently enumerate every attempted terminal outcome and verify requested = success + refusal/failure.",
+        "Consumer must label or refuse conditional success-only results before unconditional authority; retain exact input/run/domain refs for each outcome.",
+        "The repaired configured welfare sibling is a separate bounded native technical witness: requested/attempted/success/failure/unattempted, exact input hashes/output partitions and sample/outcome arrays reconcile through fresh strict CAS loader. It does not supply the missing served simulator provenance or source-law authority."
+      ],
+      "deciding_controls": [
+        "Native exact Uniform[-1,1] law with evaluator undefined for X<0 has success-only mean about .5; it cannot be called unconditional mean0.",
+        "Present but forged complete-count markers without actual draw outcomes fail consumer readback.",
+        "Failing same input cannot be replaced by a different draw under a retry label."
+      ],
+      "bounded_mechanism_commands": [
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/uncertainty/test_monte_carlo_b194.py tests/unit/foundry/uncertainty/test_sampling_admission.py)",
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py)"
+      ],
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_sha_for_this_recipe": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "implementation_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "topic": "codex/e02-E-continuation-20261006",
+      "topic_fetch_command": "git fetch origin codex/e02-E-continuation-20261006",
+      "tracked_receipt_ref": "58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/mc.json",
+      "unavailable_input_or_backend_outcome": "UNRUN/SKIP for this check; limited/held finding boundary retained. No synthetic production substitute.",
+      "prior_author_source_recipe": {
+        "implementation_commits": [
+          "0701251c57d707f0abe0550448e036d9d3c47c7d",
+          "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+        ],
+        "implementation_sha_for_this_recipe": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+        "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+        "topic": "codex/e02-E-mc-20261006",
+        "tracked_receipt_ref": "7689c880acf3b587e7e0a0ecdb92776871fac462:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json"
+      }
+    },
+    {
+      "finding_ids": [
+        "B197"
+      ],
+      "family": "cal",
+      "why_local": "Cloud real Calibrator fixture proves narrow numerical projection/CAS consumption. A real fitted source/likelihood or served producer requires owner-admitted local inputs, not synthetic empirical authority.",
+      "next_owner": "Foundry configured Calibrator/model/source owner and Scientist served workflow owner; E adapter; G read-only local check.",
+      "minimal_inputs": [
+        "Actual CalibratorInputs: CalibrationConfig, ProgramGraph, ExecPlan, base_state, mechanism/slot/merge registries, selector-field registry, deterministic parameter_loader.",
+        "Actual declared raw_targets or measurement bundle plus controls/time/masks/units/split identities and immutable source/config refs.",
+        "For narrow inferential covariance, admitted Gaussian known observation-noise scales through gaussian_observation_std and matching source/noise assumptions; generic squared/Huber objective supplies curvature only.",
+        "Trainable fields and explicit tie groups/coordinate projection order; model/objective/weights/seed/dtype/numerical-policy identity.",
+        "Configured same CAS containing calibration_config and separate calibration_objective_profile edges; canonical Foundry report, not FunnelCalibrationReport.",
+        "Existing welfare ExecutionContext/ExperimentState with real report artifact ref and exact metric response mapping; no invented authority or served evaluator.",
+        "If claiming downstream sample-array enforcement, provide the actual intended legacy IR consumer/adapter callsite and an integrity-valid forged success array/outcome mismatch as its exact falsifier."
+      ],
+      "actual_api_sequence": [
+        "At the referenced implementation, Calibrator(owner CalibratorInputs).run(); independently inspect stationarity/raw Hessian before admitting inverse observed information.",
+        "Existing put_calibration_config/put_calibration_report with required exact config/objective-profile lineage; persist CalibrationReport v2 and reopen a fresh configured store.",
+        "PropagateWelfareNode.execute(actual configured ExecutionContext, actual ExperimentState) resolves manifest kind/schema/payload and preserves typed field/tie projection through persisted result/readback.",
+        "Actual producer/fresh strict adapter uses complete welfare outcome lineage; public legacy IR load_welfare_sample_bundle alone is not strict outcome admission. Runtime/IR adapter owner must supply intended real downstream enforcement seam and falsifier; no wire semantics change is authorized."
+      ],
+      "deciding_controls": [
+        "Known-sigma Gaussian analytic H=diag(1/4,1/9), covariance=diag(4,9), SE=(2,3).",
+        "Tied law Sigma=.0025*ones preserves contrast variance0.",
+        "Same report bytes under Funnel kind, wrong schema/profile/config or incomplete projection must fail intake.",
+        "Saddle/flat/singular/nonstationary/generic loss cannot gain inferential covariance through eigen clipping or post-cast."
+      ],
+      "bounded_mechanism_commands": [
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/calibration/test_hessian.py tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py)",
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py)"
+      ],
+      "implementation_commits": [
+        "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+      ],
+      "implementation_sha_for_this_recipe": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "implementation_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "topic": "codex/e02-E-continuation-20261006",
+      "topic_fetch_command": "git fetch origin codex/e02-E-continuation-20261006",
+      "tracked_receipt_ref": "58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/cal.json",
+      "unavailable_input_or_backend_outcome": "UNRUN/SKIP for this check; limited/held finding boundary retained. No synthetic production substitute.",
+      "prior_author_source_recipe": {
+        "implementation_commits": [
+          "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55"
+        ],
+        "implementation_sha_for_this_recipe": "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55",
+        "implementation_tree": "59f1256589c4b860a22002bb62053630f10c2bcd",
+        "topic": "codex/e02-E-cal-20261006",
+        "tracked_receipt_ref": "34788febbbee4a9c45e14fd4245e719038680881:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json"
+      }
+    },
+    {
+      "finding_ids": [
+        "B188",
+        "B192",
+        "B200"
+      ],
+      "family": "mc",
+      "why_local": "No production data is required for preservation/deduplication mechanics. Authority-bearing product law, joint calibration/source law or independent information units require the specific source owner record; do not demand a universal production corpus.",
+      "next_owner": "Foundry calibration carrier producer; E joint-law/evidence-information owner; actual source-law owner.",
+      "minimal_inputs": [
+        "Content-bound supported joint carrier with exact parameter order, shared ordered draw IDs, row-wise weights and immutable carrier digest; or independently verified product-law evidence.",
+        "Producer report/config/source lineage bound to that exact law; shared free-form law ID alone is insufficient.",
+        "For evidence combination, actual information-unit relationships and estimand/units: repeated artifact versus independent replicate, shared data/covariance, prior/likelihood/posterior lineage.",
+        "Only the required selected source-law bytes need local access; unknown dependency stays unknown/non-gating."
+      ],
+      "actual_api_sequence": [
+        "Resolve exact existing typed carrier/envelope refs in the configured CAS and use the same complete effective input binding in dispatcher/random/Sobol/Halton.",
+        "Persist/reopen through existing uncertainty helpers; compare two laws with identical marginals but different ordered pairings and test duplicate origin against separately admitted independent information units."
+      ],
+      "deciding_controls": [
+        "Paired (g,g), Var(g)=.0025 produces Var(a-b)=0; independent marginals produce .005.",
+        "Changing row pairing/digest/order while retaining markers fails law admission.",
+        "Exact repeated artifact cannot narrow interval; genuinely independent source owner evidence may support narrowing only within its declared law."
+      ],
+      "bounded_mechanism_commands": [
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/uncertainty/test_sampling_admission.py tests/unit/foundry/uncertainty/test_aggregation_strategies.py tests/unit/remediation/test_uqp_02.py tests/unit/remediation/test_uqp_03.py)"
+      ],
+      "implementation_commits": [
+        "0701251c57d707f0abe0550448e036d9d3c47c7d",
+        "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+      ],
+      "implementation_sha_for_this_recipe": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "implementation_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "topic": "codex/e02-E-continuation-20261006",
+      "topic_fetch_command": "git fetch origin codex/e02-E-continuation-20261006",
+      "tracked_receipt_ref": "58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/mc.json",
+      "unavailable_input_or_backend_outcome": "UNRUN/SKIP for this check; limited/held finding boundary retained. No synthetic production substitute.",
+      "prior_author_source_recipe": {
+        "implementation_commits": [
+          "0701251c57d707f0abe0550448e036d9d3c47c7d",
+          "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+        ],
+        "implementation_sha_for_this_recipe": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+        "implementation_tree": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+        "topic": "codex/e02-E-mc-20261006",
+        "tracked_receipt_ref": "7689c880acf3b587e7e0a0ecdb92776871fac462:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json"
+      }
+    },
+    {
+      "finding_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "family": "frc",
+      "why_local": "Predictive math can be tested in cloud. If a claimed empirical history/source criterion is factual, local read-only exact holdout is needed; A default serving/verifier wiring is an implementation boundary, not a missing cloud dataset.",
+      "next_owner": "A generation-cycle/default gateway/S10 verifier owner; E ForecastOwner producer; actual history/profile/rule issuer.",
+      "minimal_inputs": [
+        "One configured CAS with admitted DataSnapshotRef/metric history and immutable exact ForecastOwnerRequest.",
+        "Request: explicit train/holdout/horizon, target metric, supported ETS method/params, report/model/policy/rule refs, seed, manifest inputs and all ForecastTemporalRoles.",
+        "Owner-issued ForecastCalibrationProfile pointing to persisted request and admitted calibration threshold/rule; do not invent IDs, times, nominal level, threshold or issuer.",
+        "A checkpoint connecting the existing trusted profile/default predictive bridge and verifier, with exact served run/build provenance."
+      ],
+      "actual_api_sequence": [
+        "ForecastOwner(configured FileSystemCAS, empirical_profile_ref=actual profile ref).run(actual ForecastOwnerRequest).",
+        "Fresh configured store uses load_forecast_candidate_receipt and load_empirical_calibration_evidence on distinct exact refs; independently replay heldout pairs/counts/threshold/time/purpose.",
+        "Only after A checkpoint invoke ordinary existing default POST -> persistence -> GET/new-process readback using the same admitted profile; preserve terminal causal/treatment/policy refusal."
+      ],
+      "deciding_controls": [
+        "Valid-hash/same-schema forged counts, wrong/leaky split, unadmitted profile and incompatible purpose must fail A independent verification.",
+        "Hash/role/schema/credible=True alone is never verifier provenance.",
+        "Predictive sibling reaches normal producer/readback before causal refusal without removing the refusal."
+      ],
+      "bounded_mechanism_commands": [
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/methods/backtesting/test_forecast_owner.py)"
+      ],
+      "implementation_commits": [
+        "5bd27323ecb0935a38908d2b09fa652762c5e4ea"
+      ],
+      "implementation_sha_for_this_recipe": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "implementation_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "topic": "codex/e02-E-continuation-20261006",
+      "topic_fetch_command": "git fetch origin codex/e02-E-continuation-20261006",
+      "tracked_receipt_ref": "58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/frc.json",
+      "unavailable_input_or_backend_outcome": "UNRUN/SKIP for this check; limited/held finding boundary retained. No synthetic production substitute.",
+      "prior_author_source_recipe": {
+        "implementation_commits": [
+          "5bd27323ecb0935a38908d2b09fa652762c5e4ea"
+        ],
+        "implementation_sha_for_this_recipe": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+        "implementation_tree": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+        "topic": "codex/e02-E-frc-20261006",
+        "tracked_receipt_ref": "213dfb7c4d9768e90e0b443d093c4b1685e8536a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-configured-producer.json"
+      }
+    },
+    {
+      "finding_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "family": "ddm",
+      "why_local": "Generic public DDM registry/report/time/invalidation mechanical chain is cloud-native. Actual deployment validity/stationarity or R2 institutional signoff needs owner-issued source/purpose records only if that factual authority is claimed.",
+      "next_owner": "DDM applicability/live-feed/source-purpose and institutional R2 signoff owners; G local verifier.",
+      "minimal_inputs": [
+        "owner-issued report with exact bytes/digest/model/detector/regime/rule/expiration",
+        "original readiness event and declared time/source profile",
+        "exact metric policy and performance event current estimate/CI/canonical budget",
+        "ordered shift events with corresponding calibration identities",
+        "complete owner-issued invalidation observation context and policy/signoff evidence"
+      ],
+      "actual_api_sequence": [
+        "Replay existing calibration audit -> public monitor -> persisted ModelRegistryEntry -> fresh JSON reopen and complete canonical source rebind -> require_can_consume.",
+        "Retain report/model/rule/source/window/expiration/invalidation refs through the actual consumer; compare observed-empty with feed-unavailable and delayed-event time roles.",
+        "Institutional signoff is a separate owner-issued policy/identity record; baseline validity or pass flag alone is not signoff."
+      ],
+      "deciding_controls": [
+        "Remove one bound source/report/time/current-estimate/budget quantity while retaining pass/valid markers; public consumer fails.",
+        "Persisted independent can_consume=False cannot be restored by fresh mutable True.",
+        "R1/R0/failed baseline is never overridden by R2 signoff."
+      ],
+      "bounded_mechanism_commands": [
+        "(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/ddm tests/unit/remediation/test_ddm_02.py)"
+      ],
+      "implementation_commits": [
+        "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+        "052135e93a5c61dab854e17656feef3903042999"
+      ],
+      "implementation_sha_for_this_recipe": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "implementation_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+      "topic": "codex/e02-E-continuation-20261006",
+      "topic_fetch_command": "git fetch origin codex/e02-E-continuation-20261006",
+      "tracked_receipt_ref": "58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/ddm.json",
+      "unavailable_input_or_backend_outcome": "UNRUN/SKIP for this check; limited/held finding boundary retained. No synthetic production substitute.",
+      "prior_author_source_recipe": {
+        "implementation_commits": [
+          "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+          "052135e93a5c61dab854e17656feef3903042999"
+        ],
+        "implementation_sha_for_this_recipe": "052135e93a5c61dab854e17656feef3903042999",
+        "implementation_tree": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+        "topic": "codex/e02-E-ddm-20261006",
+        "tracked_receipt_ref": "299d165a6040629711019598f2981f7cc3e9c5f6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-source-binding.json"
+      }
+    }
+  ],
+  "IR_semantic_hold": {
+    "finding_ids": [
+      "B201",
+      "B202"
+    ],
+    "next_owner": "Explicitly appointed canonical IR analytics uncertainty semantic owner; G/E/A/C/F do not inherit this authority.",
+    "required_four_ratifications": [
+      "Identification set and sampling/model uncertainty remain separate but estimand/unit-linked.",
+      "Point and interval functionals are independent; preserve mean1 versus q05/q95[0,0] on 99zeros+one100.",
+      "New v2 distinct $id urn:policyos:ir:uncertainty-envelope:2 while v1.1 original read/replay remains unchanged.",
+      "Choose CAS-only v2 joint-law output (recommended) or inline carrier plus persisted-ref alternative; retain inline PosteriorSamplesCarrier as v1.1 compatibility/input."
+    ],
+    "state": "held; additional CPU or production data does not ratify semantic wire decisions"
+  },
+  "PCL_compatibility_hold": {
+    "finding_id": "LA-053",
+    "next_owner": "Canonical calibration and Scientist supported API owners",
+    "minimal_owner_input": "Actual supported alias compatibility/deprecation window and supported consumer contract. Preserve identity; do not retire/delete aliases without owner decision."
+  },
+  "generic_criteria_without_intrinsic_production_requirement": [
+    "B97",
+    "B98",
+    "B99",
+    "B101",
+    "B104",
+    "B168",
+    "B171",
+    "B174",
+    "B175",
+    "LA-056"
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/closure-independent/ddm01"
+  ],
+  "cleanup_policy": "Preserve deciding attempts and useful scripts/docs; repeated fixture artifacts may go only to Trash after parent records deciding outputs. No permanent deletion or Trash emptying.",
+  "combined_candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "combined_candidate_tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "final_wave": "COMPLETED numerical110paths:1125cases=1123PASS2A-ownedFRC01FAIL0SKIP0ERROR; global gates FAIL/partial, no closure conversion",
+  "actual_wave_refs": {
+    "pytest-bkt-frc-s10-and-adjacent-report-consumers": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-bkt-frc-s10-and-adjacent-report-consumers.json",
+    "pytest-cal-and-welfare-consumer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-cal-and-welfare-consumer.json",
+    "pytest-ddm-runtime-and-facade": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-ddm-runtime-and-facade.json",
+    "pytest-doe-salib-and-consumer-factory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-doe-salib-and-consumer-factory.json",
+    "pytest-mc-joint-law-support-and-scientist-consumer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-mc-joint-law-support-and-scientist-consumer.json",
+    "pytest-pcl-continuous-persistence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/pytest-pcl-continuous-persistence.json",
+    "ruff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ruff.json",
+    "ruff-format": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ruff-format.json",
+    "architecture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/architecture.json",
+    "runtime-api-contract": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/runtime-api-contract.json",
+    "production-invocation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/production-invocation.json",
+    "workspace-verify": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/workspace-verify.json",
+    "workspace-verify-after-browser": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/workspace-verify-after-browser.json",
+    "ci-parity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ci-parity.json",
+    "ci-parity-after-browser": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/ci-parity-after-browser.json"
+  },
+  "global_acceptance": "G acceptance pending global guard/schema/source-invocation registration owner decisions and A/default serving. Independent bounded family code GO preserved.",
+  "latest_bkt_documentation_correction": {
+    "immutable_ref": "801045b58cf141e923f129f2eb7649da8edeb4ed:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json",
+    "sha256": "ef4f112e223935fc64b7c38c848d5deff27054c6518207a9df44bcd9570eba21",
+    "docs_only": true,
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json"
+    ],
+    "source_test_diff_empty": true,
+    "numerical_candidate_unchanged": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "updated_criteria": [
+      "B169",
+      "B170",
+      "B171",
+      "B174"
+    ],
+    "new_numerical_wave_required": false,
+    "previous_docs_only_correction": "9f5a485791b69b0c0a0eb7b3845702bf0c8f8472",
+    "latest_correction": "Final receipt fixes B171 selector and exact original-bundle line locators; all requested selectors verified against frozen XML."
+  },
+  "common_wave_summary_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
+    "sha256": "361fbbe62b9fb0f0132bda6e47960af044f81fe34a3407e7ae9c4b6ccc97081a",
+    "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "candidate_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "binding": "Exact current-session summary bytes observed; evidence documentation commit is owned by root and does not retag numerical source."
+  }
+}
